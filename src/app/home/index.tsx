@@ -1,5 +1,6 @@
 import {
   FlatList,
+  KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
@@ -10,26 +11,40 @@ import {
   useRouter,
   useSegments,
 } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
 import NotePreview from "components/home/note-preview";
 import AboutProduct from "components/home/about-product";
-import AIModal from "components/home/AIModal";
+import AIModal from "components/home/CreateModal";
 import { Modalize } from "react-native-modalize";
-import CreateModal from "components/home/CreateModal";
+import CreateModal from "components/home/AIModal";
 import SearchBar from "components/common/search-bar";
 import { Audio } from "expo-av";
 import BottomBar from "components/home/bottom-bar";
-import { cancelRecording, onRecord, setupAudioRec, stopRecording } from "func/home/record";
+import {
+  cancelRecording,
+  onRecord,
+  setupAudioRec,
+  stopRecording,
+} from "func/home/record";
+import { useGuestToken } from "queries/auth";
+import useGuestCreate from "hooks/auth/useGuestCreate";
+import { useRecordings, useUploadRecord } from "queries/home";
+import getBlob from "utils/get-blob";
 
 export default function TabOneScreen() {
   // const pathname = usePathname();
   // const params = useGlobalSearchParams();
   // const router = useRouter();
   // const segments = useSegments();
-  // const token = useSelector((state: RootState) => state.userDetails.token);
+  const token = useSelector((state: RootState) => state.userDetails.token);
+  const guestToken = useSelector(
+    (state: RootState) => state.userDetails.guestToken
+  );
+  const createGuestUser = useGuestToken();
+  const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -40,11 +55,21 @@ export default function TabOneScreen() {
   const CreateModalRef = useRef<Modalize>();
   const [editNote, setEditNote] = useState({
     title: "",
-    txt: "",
+    transcript: "",
     tags: [],
     tag: "",
   });
 
+  useGuestCreate(token, guestToken, createGuestUser, dispatch);
+
+  const recordingQuery: any = useRecordings()
+  const uploadRecord = useUploadRecord()
+  const recordingList = useMemo(
+    () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?p.data?.data :p.data) || [],
+    [recordingQuery]
+  );
+  
+  const isListEmpty = recordingList?.length == 0 || true;
   // setupAudioRec(rec)
 
   const onAsk = () => {
@@ -54,18 +79,39 @@ export default function TabOneScreen() {
     CreateModalRef.current?.open();
   };
   const onStartRecord = () => {
-    onRecord(setRec,setRecEnabled);
+    onRecord(setRec, setRecEnabled);
   };
-  const onStopRecord = () => {
+  const onStopRecord = async(d:number) => {
+    const formData=new FormData();
+    const file = rec?.getURI();
+    console.warn(file)
+    const response = await fetch(file?file:'');
+    if (response.ok) {
+      // Convert the response data to a Blob object
+      const audioBlob = await response.blob();
+      formData.append("audio", audioBlob);
+      formData.append("duration", d.toString());
+      uploadRecord.mutate(
+        formData,
+        {
+          onSuccess: (r) => {
+            
+          },
+          onError: (r) => {
+            console.log(r);
+          },
+        }
+      );
+    }
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
   };
-  const onCancel = () =>{
-    cancelRecording(rec)
+  const onCancel = () => {
+    cancelRecording(rec);
     setRec(null);
     setRecEnabled(false);
-  }
+  };
 
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -80,31 +126,42 @@ export default function TabOneScreen() {
     ),
     [visible, editNote]
   );
-
+  
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.wrapper}>
-        <Header isLogged={true} />
-        <SearchBar
-          searchParam={searchParam}
-          setSearchText={setSearchText}
-          setSearchEnabled={setSearchEnabled}
-          setSearchParam={setSearchParam}
-          searchEnabled={searchEnabled}
-          type={"messages"}
+      <KeyboardAvoidingView behavior="padding">
+        <View style={styles.wrapper}>
+          <Header isLogged={!!token} />
+          {!isListEmpty && (
+            <SearchBar
+              searchParam={searchParam}
+              setSearchText={setSearchText}
+              setSearchEnabled={setSearchEnabled}
+              setSearchParam={setSearchParam}
+              searchEnabled={searchEnabled}
+              type={"messages"}
+            />
+          )}
+          <FlatList
+            data={recordingList}
+            contentContainerStyle={{ paddingBottom: 300 }}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
+            renderItem={renderItem}
+            ListFooterComponent={!token ? <AboutProduct /> : null}
+          />
+        </View>
+        <CreateModal ref={CreateModalRef} />
+        <AIModal ref={AIModalRef} />
+      </KeyboardAvoidingView>
+        <BottomBar
+          onAsk={onAsk}
+          onCreate={onCreate}
+          onRecord={onStartRecord}
+          onStopRecord={onStopRecord}
+          recEnabled={recEnabled}
+          onCancel={onCancel}
         />
-        <FlatList
-          data={[1]}
-          contentContainerStyle={{ paddingBottom: 180 }}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(itm, i) => `${i?.toString()}`}
-          renderItem={renderItem}
-          ListFooterComponent={<AboutProduct />}
-        />
-      </View>
-      <BottomBar onAsk={onAsk} onCreate={onCreate} onRecord={onStartRecord} onStopRecord={onStopRecord} recEnabled={recEnabled} onCancel={onCancel}/>
-      <CreateModal ref={CreateModalRef} />
-      <AIModal ref={AIModalRef} />
     </SafeAreaView>
   );
 }

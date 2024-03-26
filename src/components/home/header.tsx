@@ -8,10 +8,20 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
+import { useLogout } from "queries/auth";
+import { setAuthToken } from "services/api/axios-api";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "redux/store/store";
+import { setToken } from "redux/reducers/userDetails";
 
 export default ({isLogged=true}) => {
   const router:any=useNavigation()
+  const dispatch=useDispatch()
   const [showMenu,setShowMenu]=useState(false)
+  const guestToken = useSelector(
+    (state: RootState) => state.userDetails.guestToken
+  );
+  const logout=useLogout()
   const onLogout = () =>{
     setShowMenu(false)
     Alert.alert('',"Are you sure you want to log out?",
@@ -20,7 +30,12 @@ export default ({isLogged=true}) => {
       style:"cancel"
     },{
       text:"Yes",
-      onPress:()=>route.navigate("/auth/login/loginPassword")
+      onPress:()=>{
+        logout.mutate('')
+        dispatch(setToken(''))
+        setAuthToken(guestToken,true)
+        route.replace("/home/")
+      }
     }])
   }
   return (
@@ -52,7 +67,7 @@ export default ({isLogged=true}) => {
         </Menu>
          : <Touchable
             onPress={() => {
-              route.replace("/auth/login/loginPassword");
+              route.navigate("/auth/login/loginPassword");
             }}
             style={{ alignSelf: "flex-end" }}
           ><Text style={{ color: Colors.grey,fontFamily:'Primary',fontSize:14 }}>Login</Text>

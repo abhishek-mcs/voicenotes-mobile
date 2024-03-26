@@ -40,14 +40,3 @@ export function toQueryString(params:any) {
       .join("&")
   )
 }
-
-export function signInWithPassword() {
-  return useMutation("sign_in_mutation", ({ email, password, fcmToken, uuid }:any) =>
-    axiosApi.post("/login", {
-      email: email,
-      password: password,
-      device_token: fcmToken || "test_token",
-      device_uuid: uuid || "test_device",
-    }),
-  )
-}

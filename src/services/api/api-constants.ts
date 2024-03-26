@@ -27,46 +27,46 @@ interface ENVURLs {
 
 const ENVURLSet: ENVURLs = {
   local: {
-    MAIN_URL: "https://bmc.test/",
+    MAIN_URL: "https://bmc.test",
     API_URL: "https://app.bmc.test",
     SHORT_URL: "bmc.test",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com/",
+    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
   rose: {
-    MAIN_URL: "https://dev-v2.buymeacoffee.com/",
+    MAIN_URL: "https://dev-v2.buymeacoffee.com",
     API_URL: "https://xd2.buymeacoffee.com",
     SHORT_URL: "dev-v2.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com/",
+    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
   rose2: {
-    MAIN_URL: "https://stage.buymeacoffee.com/",
+    MAIN_URL: "https://stage.buymeacoffee.com",
     API_URL: "https://stage1.buymeacoffee.com",
     SHORT_URL: "stage.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com/",
+    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
   xd3: {
-    MAIN_URL: "https://dev-v3.buymeacoffee.com/",
+    MAIN_URL: "https://dev-v3.buymeacoffee.com",
     API_URL: "https://xd3.buymeacoffee.com",
     SHORT_URL: "dev-v3.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com/",
+    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
   stagev2: {
-    MAIN_URL: "https://stage-v2.buymeacoffee.com/",
+    MAIN_URL: "https://stage-v2.buymeacoffee.com",
     API_URL: "https://rd4.buymeacoffee.com",
     SHORT_URL: "stage-v2.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com/",
+    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
   stage: {
-    MAIN_URL: "https://rd1.buymeacoffee.com/",
+    MAIN_URL: "https://rd1.buymeacoffee.com",
     API_URL: "https://rd3.buymeacoffee.com",
     SHORT_URL: "buymeacoffee.com",
-    CDN_URL: "https://cdn.buymeacoffee.com/",
+    CDN_URL: "https://cdn.buymeacoffee.com",
   },
   production: {
-    MAIN_URL: "https://www.voicenotes.com/",
-    API_URL: "https://api.voicenotes.com/",
+    MAIN_URL: "https://www.voicenotes.com",
+    API_URL: "https://api.voicenotes.com",
     SHORT_URL: "voicenotes.com",
-    CDN_URL: "https://cdn.voicenotes.com/",
+    CDN_URL: "https://cdn.voicenotes.com",
   },
 }
 

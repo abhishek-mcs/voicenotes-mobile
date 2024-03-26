@@ -1,23 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useMutation } from "react-query";
+import React, { useRef, useState } from "react";
 import { TextField } from "components/common/text-field";
 import {
   Pressable,
   View,
   TextInput,
-  InteractionManager,
   Text,
-  Image,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
-import axiosApi, { setAuthToken } from "services/api/axios-api";
-import uuid from "react-native-uuid";
+import { setAuthToken } from "services/api/axios-api";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { setEmail, setToken } from "redux/reducers/userDetails";
-import { signInWithPassword } from "utils/api-queries/auth/signin-mutations";
+import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails";
 import Colors from "assets/Colors";
+import { SvgXml } from "react-native-svg";
+import { useLogin } from "queries/auth";
 
 const logo = require("assets/images/logo.png");
 
@@ -33,7 +31,7 @@ export default () => {
 
   const [passwordText, setPasswordText] = useState("");
 
-  const signInMutation: any = signInWithPassword();
+  const signInMutation: any = useLogin();
 
   const inputRef = useRef<TextInput>(null);
 
@@ -47,41 +45,25 @@ export default () => {
   // }, [refPassword])
 
   const continueClicked = () => {
-    const uu_id = uuid.v4().toLocaleString();
     dispatch(setEmail(emailText));
     signInMutation.mutate(
       {
-        email: emailText || null,
-        password: passwordText,
-        fcmToken: "",
-        uuid: uu_id,
+        email: emailText,
+        password: passwordText
       },
       {
         onSuccess: async (response: any, _variables: any, _context: any) => {
-          const token = response.data.token;
+          const token = response.data?.authorisation?.token;
+          const userData = response.data?.user
           if (token) {
             dispatch(setToken(token));
-            setAuthToken(token);
-            // userStore.setProjectID(response.data.data.project.project_id)
-
-            // await saveToken("257177|1pUSWADswSojIYu3tJ4S4NodykZicy7BByIDyPKr")
-            // setAuthToken("257177|1pUSWADswSojIYu3tJ4S4NodykZicy7BByIDyPKr")
-            // userStore.setProjectID(3338105)
-            if (response.data.data.user_role == 0) {
-              // router.push({pathname:"/auth/signup",params:{slug : response.data.data?.project?.project_slug ?? null}})
-            } else {
-              router.replace("/home/");
-            }
+            dispatch(setUserDetail(userData))
+            setAuthToken(token,false);
+            router.replace("/home/");
           }
-          // if (response.data.otp_login) {
-          //   router.push("signup_otp")
-          // }
         },
         onError: (error: any) => {
-          for (const er in error.response.data.errors) {
-            setErrorText(error.response.data.errors[er][0]);
-            return;
-          }
+          console.log(error)
         },
       }
     );
@@ -97,7 +79,10 @@ export default () => {
         backgroundColor: "white",
       }}
     >
-      {/* <Image src={} /> */}
+        {/* <Touchable>
+          <SvgXml xml={}/>
+          <Text>Back</Text>
+        </Touchable> */}
       <Text
         style={{
           alignSelf: "center",
@@ -125,6 +110,12 @@ export default () => {
         autoCapitalize="none"
         autoCorrect={false}
       />
+      {signInMutation.isError &&
+        signInMutation.error.response.data.errors?.email && (
+          <Text style={{ marginTop: 4, color: "red" }}>
+            {signInMutation.error.response.data.errors.email[0]}
+          </Text>
+        )}
       <TextField
         forwardedRef={refPassword}
         onChangeText={(text) => setPasswordText(text)}
@@ -145,12 +136,6 @@ export default () => {
             {signInMutation.error.response.data.errors.password[0]}
           </Text>
         )}
-      {signInMutation.isError &&
-        signInMutation.error.response.data.errors?.email && (
-          <Text style={{ marginTop: 4, color: "red" }}>
-            {signInMutation.error.response.data.errors.email[0]}
-          </Text>
-        )}
       {/* <View style={st("flex-1")} /> */}
       <Pressable
         testID="signInPasswordBtn"
@@ -166,7 +151,9 @@ export default () => {
         }}
         onPress={continueClicked}
       >
-        <Text
+        {signInMutation.isLoading?
+        <ActivityIndicator size={"small"} color={"#fff"}/>
+        :<Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
@@ -175,7 +162,7 @@ export default () => {
           }}
         >
           Continue
-        </Text>
+        </Text>}
       </Pressable>
 
       <View style={{ flexDirection: "row", justifyContent: "center",marginBottom:32 }}>

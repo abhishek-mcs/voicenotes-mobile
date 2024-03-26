@@ -7,7 +7,7 @@ import { SvgXml } from "react-native-svg";
 
 interface Props {
   onRecord: () => void;
-  onStopRecord: () => void;
+  onStopRecord: (d:number) => void;
   onAsk: () => void;
   onCreate: () => void;
   recEnabled: boolean;
@@ -57,7 +57,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             color={Colors.green}
             bgColor={Colors.greenWithOpacity(0.2)}
             underlayColor={Colors.greenWithOpacity(0.3)}
-            onPress={onStopRecord}
+            onPress={()=>onStopRecord(duration)}
           />
         </>
       )}
