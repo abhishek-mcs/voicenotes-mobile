@@ -36,7 +36,7 @@ export default forwardRef((props, ref) => {
       <View style={styles.modal}>
         <View style={[styles.row,styles.btw]}>
             <Text style={styles.title}>What do you want to create?</Text>
-            <Touchable onPress={()=>setVisible(false)} style={{marginTop:12}}>
+            <Touchable onPress={()=>setVisible(false)} style={{marginTop:12,marginRight:8}}>
                 <SvgXml xml={AIModalSVG.close}/>
             </Touchable>
         </View>

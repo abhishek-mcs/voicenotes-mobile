@@ -18,13 +18,12 @@ import ChatBuble from "components/common/chat-buble";
 
 export default forwardRef(({
   note,
-  list,index,isPlay,setIsPlay,play,setPlay
+  list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading
 }:any,ref) => {
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
 
@@ -107,37 +106,36 @@ export default forwardRef(({
     queryClient.invalidateQueries('all-recording')
     queryClient.invalidateQueries('all-tags')
   }
-  const onPlaybackStatusUpdate = (status:any) => {
+  const onPlaybackStatusUpdate = async(status:any) => {
     if (status?.isLoaded && !status?.isPlaying && status?.didJustFinish) {
       // Audio playback has finished
       setIsPlay(-1)
-      play?.stopAsync();
+      await play?.unloadAsync();
       setPlay(null);
     }else if(status?.isPlaying){
-      setLoading(false);
+      setAudioLoading(-1);
     }
   };
   const onPlay=async()=>{
     try {
-      if(isPlay==index){
+      // if(isPlay==index){
         setIsPlay(-1)
-        await play?.stopAsync()
+        await play?.unloadAsync()
         setPlay(null)
-      }else{
-        setLoading(true);
+      // }else{
+        setAudioLoading(index);
         signedURL.mutate(note?.id,{
           onSuccess:async(r)=>{
             setIsPlay(index);
             const { sound } = await Audio.Sound.createAsync(
               { uri: r.data?.url || "" },
-              {},
-              onPlaybackStatusUpdate
+              {shouldPlay:true,isLooping:false},
+              onPlaybackStatusUpdate,
             );
             setPlay(sound);
-            await sound.playAsync();
           }
         })
-      }
+      // }
     } catch (error) {
       console.error('Error playing audio:', error);
     }
@@ -149,7 +147,7 @@ export default forwardRef(({
     <View style={styles.container}>
       <View style={[styles.btw, styles.row]}>
         <View style={styles.row}>
-          {loading?
+          {audioLoading==index?
           <Loader/>
           :<Touchable onPress={onPlay}>
             <SvgXml xml={isPlay==index?home.pause:home.play} />

@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     zIndex: 10,
     elevation: 5,
-    padding: 12,
+    padding: 10,
     justifyContent: "space-between",
   },
   tabItem: {

@@ -2,7 +2,7 @@ import Colors from 'assets/Colors';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, View, StyleSheet } from 'react-native';
 
-export default ({ width=22,height=21, strokeWidth = 2, color = '#0D0D0D' }) => {
+export default ({ width=22,height=22, strokeWidth = 2, color = '#0D0D0D' }) => {
     const spinValue = useRef(new Animated.Value(0)).current;
   
     useEffect(() => {

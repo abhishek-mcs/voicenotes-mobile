@@ -54,6 +54,7 @@ export default function TabOneScreen() {
   const CreateModalRef = useRef<Modalize>();
   const [isPlay,setIsPlay] = useState(-1)
   const [play,setPlay] = useState<Audio.Sound|null>()
+  const [audioLoading, setAudioLoading] = useState(-1);
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -127,9 +128,11 @@ export default function TabOneScreen() {
         setIsPlay={setIsPlay}
         play={play}
         setPlay={setPlay}
+        audioLoading={audioLoading}
+        setAudioLoading={setAudioLoading}
       />
     ),
-    [isPlay,play,recordingList]
+    [isPlay,play,recordingList,audioLoading]
   );
   
   return (
@@ -168,7 +171,7 @@ export default function TabOneScreen() {
               <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
-            ):<AboutProduct disable={true} />}
+            ):!!token?<AboutProduct disable={true} />:null}
           />
         </View>
         <CreateModal ref={CreateModalRef} />
