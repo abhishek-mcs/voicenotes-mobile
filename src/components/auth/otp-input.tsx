@@ -1,8 +1,11 @@
+import Colors from 'assets/Colors';
+import { getStringAsync } from 'expo-clipboard';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, InteractionManager, Platform, Text } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-export const OTPInput = ({ numberOfInputs = 6, onChange=(v)=>{},otpValue='',errorText='' }) => {
+export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='' }) => {
   const inputRefs = Array.from({ length: numberOfInputs }, () => useRef<TextInput>(null));
   const [currentIndex,setCurrentIndex] = useState(0)
   const isPasting=useRef(false);
@@ -13,26 +16,26 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v)=>{},otpValue='',erro
     }, 350);
   },[]))
 
-  const focusNextInput = (index) => {
+  const focusNextInput = (index:number) => {
     if (index < numberOfInputs - 1) {
-      inputRefs[index + 1].current.focus();
+      inputRefs[index + 1]?.current?.focus();
     }
   };
 
-  const focusPrevInput = (index) => {
+  const focusPrevInput = (index:number) => {
     if (index > 0) {
-      inputRefs[index - 1].current.focus();
+      inputRefs[index - 1].current?.focus();
     }
   };
 
-  const setOTPValue=(index,value,isClear=false)=>{
+  const setOTPValue=(index:number,value:string,isClear=false)=>{
     const temp=otpValue.split('');
     temp[index]=isClear?'-':(temp[index]==''||temp[index]=='-')?value:temp[index];
     let newVal=temp.join('');
     onChange(newVal)
   }
 
-  const handleInputChange = (index, value) => {
+  const handleInputChange = (index:number, value:string) => {
     isPasting.current=true
     const isClear=value?.toLowerCase()?.indexOf('backspace')!=-1||false
     if ((value === '' || isClear) && index > 0) {
@@ -43,19 +46,19 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v)=>{},otpValue='',erro
       setOTPValue(index,value,isClear)
   };
   
-  const handleInputPaste =async (v) => {
+  const handleInputPaste =async (v:any) => {
     try{
       if(!isPasting.current&&v!=''){
         isPasting.current=true
-        const value = await Clipboard.getString()??'';
+        const value = await getStringAsync()??'';
         const numericValue = value.replace(/[^0-9]/g, '');
-        numericValue==''&&inputRefs[0].current.setNativeProps({text:''});
+        numericValue==''&&inputRefs[0].current?.setNativeProps({text:''});
         let currentIndexToUpdate = 0;
         for (let i = 0; i < numericValue.length && currentIndexToUpdate < numberOfInputs; i++) {
             setOTPValue(i,numericValue[i])
-            inputRefs[i].current.setNativeProps({text:numericValue[i]});
+            inputRefs[i].current?.setNativeProps({text:numericValue[i]});
             currentIndexToUpdate++;
-            inputRefs[i].current.focus();
+            inputRefs[i].current?.focus();
             if(i==numberOfInputs-1){(isPasting.current=false)}
         }
       }
@@ -114,7 +117,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v)=>{},otpValue='',erro
         ))}
       </View>
     </View>
-    <Text style={st("mt-2 ml-2 text-red-600 font-sf-normal text-sm")}>{errorText}</Text>
+    <Text style={{marginTop:4,marginLeft:4,color:"red",fontFamily:'Primary',fontSize:14}}>{errorText}</Text>
     </View>
   );
 };

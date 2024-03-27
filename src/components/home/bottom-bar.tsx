@@ -19,16 +19,23 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
     useEffect(() => {
         if (recEnabled) {
           const timerId = setInterval(() => {
-            setDuration(prevDuration => prevDuration + 1000); // Update duration every second
+            setDuration(prevDuration => {
+              const newDuration = prevDuration + 1000;
+              if (newDuration >= 60000) {
+                onStopRecord(newDuration);
+                return 0;
+              }
+              return newDuration;
+            }); // Update duration every second
           }, 1000);
-    
+
           return () => {
             clearInterval(timerId);
-            setDuration(0)
-          } // Cleanup the interval on component unmount
+            setDuration(0);
+          }; // Cleanup the interval on component unmount
         }
       }, [recEnabled]);
-    const formattedDuration = new Date(duration).toISOString().substring(11, 19);
+    const formattedDuration = new Date(duration).toISOString().substring(14, 19);
   return (
     <View style={styles.tab}>
       {!recEnabled ? (
@@ -41,15 +48,15 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             bgColor={"#000"}
             color="#fff"
           />
-          <Button onPress={onCreate} title="Ask" icon={home.ask} />
-          <Button onPress={onAsk} title="Create" icon={home.create} />
+          <Button onPress={onAsk} title="Ask" icon={home.ask} />
+          <Button onPress={onCreate} title="Create" icon={home.create} />
         </>
       ) : (
         <>
           <Button title="Cancel" onPress={onCancel}/>
           <View style={styles.row}>
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
-            <Text style={styles.tabItemText}>{formattedDuration}</Text>
+            <Text style={styles.tabItemText}>{`${formattedDuration}/01:00`}</Text>
           </View>
           <Button
             title="Done"

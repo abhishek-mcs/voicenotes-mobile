@@ -6,31 +6,74 @@ import { StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View
 import { SvgXml } from "react-native-svg";
 import { formatDate } from "utils/format-date";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { Audio } from "expo-av";
-import { useSaveEditedNote, useToggleStar } from "queries/home";
+import { useAddTitle, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
+import loader from "assets/lottie/loader.json"
+import LottieView from "lottie-react-native";
+import { setStringAsync } from "expo-clipboard";
+import Loader from "components/common/loader";
+import ChatBuble from "components/common/chat-buble";
 
-export default ({
+export default forwardRef(({
   note,
-  visible = false,
-  setVisible = (v: boolean) => {},
-}:any) => {
-  const [play,setPlay] = useState<Audio.Sound|null>(null)
-  const [isPlay,setIsPlay] = useState(false)
+  list,index,isPlay,setIsPlay,play,setPlay
+}:any,ref) => {
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
+  const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
 
   const queryClient = useQueryClient();
   const saveEditedNote=useSaveEditedNote(note?.id)
   const toggleStarred=useToggleStar(note?.id)
+  const deleteRecord=useDeleteRecording(note?.id)
+  const addTitleRecord = useAddTitle()
+  const signedURL = useSignedUrl()
+
+  useImperativeHandle(ref,()=>({
+    onTriggerTranscript:()=>{
+        // setTriggerTypingTranscript(1)
+        // console.log('triggered',index)
+    },
+    onTriggerTitle:()=>{
+        // setTriggerTypingTitle(1)
+        // console.log('triggered title',index)
+    }
+  }),[index])
+
+  useEffect(()=>{
+    if(triggerTypingTitle==1){
+      setTriggerTypingTitle(2)
+    }
+  },[triggerTypingTitle])
+
+  useEffect(()=>{
+    if(triggerTypingTranscript==1)
+      setTriggerTypingTranscript(2)
+  },[triggerTypingTranscript])
+
   const hideMenu = () => setVisible(false);
 
   const showMenu = () => setVisible(true);
 
   const onSaveEdit=()=>{
-    saveEditedNote.mutate({title:editNote?.title,transcript:editNote?.transcript,tags:editNote?.tags})
+    const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
+    saveEditedNote.mutate(
+      {title:editNote?.title,transcript:editNote?.transcript,tags:tags||[]},{
+        onSuccess:(e:any)=>{
+          queryClient.invalidateQueries('all-recording')
+          queryClient.invalidateQueries('all-tags')
+        },
+        onError:(e:any)=>{
+          console.log(e?.response?.data?.message)
+          setEditNote(note)
+        }
+      })
     setIsEdit(false);
   }
   const onCancelEdit=()=> {
@@ -39,60 +82,95 @@ export default ({
   }
   const onEdit=()=>  setIsEdit(true)
   const onStarred=()=>{
-    toggleStarred.mutate()
+    toggleStarred.mutateAsync()
     queryClient.invalidateQueries('all-recording')
+    queryClient.invalidateQueries('all-tags')
   }
   const onCreateSummary=()=>{}
-  const onGenerate=()=>{}
-  const onCopy=()=>{hideMenu()}
-  const onDelete=()=>{hideMenu()}
+  const onGenerate=useCallback(()=>{
+    hideMenu();
+    list[index].title=null
+    addTitleRecord.mutate(note?.id,{
+      onSuccess:async()=>{
+        await queryClient.invalidateQueries('all-recording');
+        setTriggerTypingTitle(1)
+      }
+    })
+  },[])
+  const onCopy=async()=>{
+    hideMenu();
+    await setStringAsync(note?.transcript||'');
+  }
+  const onDelete=()=>{
+    hideMenu();
+    deleteRecord.mutate('')
+    queryClient.invalidateQueries('all-recording')
+    queryClient.invalidateQueries('all-tags')
+  }
   const onPlaybackStatusUpdate = (status:any) => {
     if (status?.isLoaded && !status?.isPlaying && status?.didJustFinish) {
       // Audio playback has finished
-      setIsPlay(false)
+      setIsPlay(-1)
       play?.stopAsync();
       setPlay(null);
+    }else if(status?.isPlaying){
+      setLoading(false);
     }
   };
   const onPlay=async()=>{
     try {
-      if(isPlay){
-        setIsPlay(false)
+      if(isPlay==index){
+        setIsPlay(-1)
         await play?.stopAsync()
         setPlay(null)
       }else{
-        setIsPlay(true)
-        const { sound } = await Audio.Sound.createAsync({ uri:note?.audio_url||"" },{},onPlaybackStatusUpdate);
-        setPlay(sound)
-        await sound.playAsync();
+        setLoading(true);
+        signedURL.mutate(note?.id,{
+          onSuccess:async(r)=>{
+            setIsPlay(index);
+            const { sound } = await Audio.Sound.createAsync(
+              { uri: r.data?.url || "" },
+              {},
+              onPlaybackStatusUpdate
+            );
+            setPlay(sound);
+            await sound.playAsync();
+          }
+        })
       }
     } catch (error) {
       console.error('Error playing audio:', error);
     }
   }
-
+  
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View style={styles.container}>
       <View style={[styles.btw, styles.row]}>
         <View style={styles.row}>
-          <Touchable onPress={onPlay}>
-            <SvgXml xml={isPlay?home.pause:home.play} />
-          </Touchable>
+          {loading?
+          <Loader/>
+          :<Touchable onPress={onPlay}>
+            <SvgXml xml={isPlay==index?home.pause:home.play} />
+          </Touchable>}
           <Text style={styles.date}>{formatDate()}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row", marginTop: 8 }}>
         <View style={styles.timeLine} />
         <View style={{ marginLeft: 25 }}>
-          <Text style={styles.title}>
-            {note?.title}
-          </Text>
-          <Text style={styles.text}>{note?.transcript}</Text>
+          {!!note?.title?
+          <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
+          :<View style={styles.row}>
+            <SvgXml xml={home.bliss} />
+            <Text style={{color:'#58a942',fontFamily:'Primary',fontSize:16,lineHeight:26,marginLeft:6}}>Creating transcript from your voice</Text>
+            <LottieView source={loader} autoPlay loop style={{width:40,height:35,position:'absolute',right:-36,bottom:-8}}/>
+          </View>}
+          {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={styles.row}>
-          {note?.tags?.map((tag:any)=><Text style={styles.tag}>{'#'+tag?.name}</Text>)}
+          {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
           </View>}
         </View>
       </View>
@@ -104,9 +182,9 @@ export default ({
       <Touchable style={{marginLeft:16}} onPress={onEdit}>
         <SvgXml xml={home.edit}/>
       </Touchable>
-      <Touchable style={{marginLeft:16}} onPress={onCreateSummary} >
+      {/* <Touchable style={{marginLeft:16}} onPress={onCreateSummary} >
         <SvgXml xml={home.create1}/>
-      </Touchable>
+      </Touchable> */}
       <Menu
           visible={visible}
           anchor={
@@ -139,25 +217,31 @@ export default ({
       </View>
     </View>
   );
-};
+});
 
 const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>(
   <View style={styles.editContainer}>
     <TextInput 
       style={styles.titleInput}
+      autoComplete="off"
+      autoCorrect={false}
+      selectTextOnFocus={false}
       value={editNote.title}
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
     <View style={styles.divider1} />
     <TextInput 
       style={styles.textInput}
       multiline
+      autoComplete="off"
+      autoCorrect={false}
+      selectTextOnFocus={false}
       value={editNote.transcript} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>
       <View style={[styles.row,{flexWrap:'wrap',width:'60%',alignSelf:'center'}]}>
       {editNote?.tags?.map((tag:any,indx:number)=>
-      <Touchable onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={{backgroundColor:Colors.primaryWithOpacity(0.1),paddingHorizontal:8,paddingVertical:2,marginRight:8,marginBottom:8,borderRadius:8}}>
+      <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={{backgroundColor:Colors.primaryWithOpacity(0.1),paddingHorizontal:8,paddingVertical:2,marginRight:8,marginBottom:8,borderRadius:8}}>
         <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
       </Touchable>
       )}
@@ -166,6 +250,10 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
         placeholder="#Add tags"
         placeholderTextColor={Colors.greyWithOpacity(0.82)}
         value={tag}
+        autoComplete="off"
+        autoCorrect={false}
+        autoCapitalize="none"
+        selectTextOnFocus={false}
         onChangeText={txt=>setTag(txt)}
         onSubmitEditing={()=>{
           setEditNote({...editNote,tags:[...editNote.tags,{name:tag}]})

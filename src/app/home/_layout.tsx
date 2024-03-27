@@ -5,11 +5,8 @@ import { useEffect, useState } from 'react';
 
 export default function Layout() {
   const [filter, setFilter] = useState<string|null>(null);
-  const [hashtags, setHashtags] = useState<string[]>([]);
 
   useEffect(() => {
-    const sampleHashtags = ['travel', 'food', 'nature', 'photography'];
-    setHashtags(sampleHashtags);
   }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

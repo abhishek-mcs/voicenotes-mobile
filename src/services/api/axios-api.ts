@@ -12,6 +12,8 @@ const axiosApi = axios.create({
 
 export function setAuthToken(token: string | void,isGuest:boolean) {
   if (!isGuest) {
+    axiosApi.defaults.baseURL=`${API_URL}/api`
+    axiosApi.defaults.params={}
     axiosApi.defaults.headers.common["Authorization"] = `Bearer ${token}`
   } else {
     delete axiosApi.defaults.headers.common["Authorization"]

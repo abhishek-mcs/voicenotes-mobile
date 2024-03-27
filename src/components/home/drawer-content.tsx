@@ -1,6 +1,7 @@
 import Colors from "assets/Colors";
 import { drawerSvg } from "assets/svg/drawerSvg";
 import Touchable from "components/common/Touchable";
+import { useGetTags } from "queries/home";
 import { useEffect, useState } from "react";
 import { Button, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,12 +10,12 @@ import { SvgXml } from "react-native-svg";
 export default ({ setFilter = (v: string) => {} }) => {
   const [hashtags, setHashtags] = useState<string[]>([]);
 
+  const getTags=useGetTags()
+
   useEffect(() => {
-    // Fetch hashtags dynamically from your post data
-    // For demo, I'm initializing it with sample data
-    const sampleHashtags = ["travel", "food", "nature", "photography"];
-    setHashtags(sampleHashtags);
-  }, []);
+    const tags=getTags.data?.data?.flatMap((t:any)=>t?.name)||[];
+    setHashtags(tags);
+  }, [getTags.data]);
 
   const handleTagPress = (tag: string) => {
     setFilter(tag);
@@ -24,7 +25,7 @@ export default ({ setFilter = (v: string) => {} }) => {
     <SafeAreaView style={styles.container}>
       <FlatList
         contentContainerStyle={{ alignItems: "flex-start" }}
-        data={hashtags}
+        data={['All',...hashtags]}
         renderItem={({ item, index }) => (
           <Touchable onPress={() => handleTagPress(item)} style={[styles.btn,{
             backgroundColor: index==0?Colors.primaryWithOpacity(0.1):'transparent'}]}>

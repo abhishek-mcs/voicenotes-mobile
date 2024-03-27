@@ -1,17 +1,12 @@
 import {
+  ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
 import { View } from "../../components/common/Themed";
-import {
-  useGlobalSearchParams,
-  usePathname,
-  useRouter,
-  useSegments,
-} from "expo-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
@@ -26,26 +21,30 @@ import BottomBar from "components/home/bottom-bar";
 import {
   cancelRecording,
   onRecord,
-  setupAudioRec,
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useRecordings, useUploadRecord } from "queries/home";
-import getBlob from "utils/get-blob";
+import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
+import { useQueryClient } from "react-query";
+import { Dimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const {height}=Dimensions.get('screen')
 
 export default function TabOneScreen() {
   // const pathname = usePathname();
   // const params = useGlobalSearchParams();
   // const router = useRouter();
   // const segments = useSegments();
+  const insets=useSafeAreaInsets()
+  const notePreviewRef = useRef<any>();
   const token = useSelector((state: RootState) => state.userDetails.token);
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [visible, setVisible] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [searchText, setSearchText] = useState("");
   const [rec, setRec] = useState<Audio.Recording | null>(null);
@@ -53,19 +52,19 @@ export default function TabOneScreen() {
   const [searchEnabled, setSearchEnabled] = useState(true);
   const AIModalRef = useRef<Modalize>();
   const CreateModalRef = useRef<Modalize>();
-  const [editNote, setEditNote] = useState({
-    title: "",
-    transcript: "",
-    tags: [],
-    tag: "",
-  });
+  const [isPlay,setIsPlay] = useState(-1)
+  const [play,setPlay] = useState<Audio.Sound|null>()
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
-  const recordingQuery: any = useRecordings()
+  const recordingQuery = useRecordings()
   const uploadRecord = useUploadRecord()
+  const addTranscriptRecord = useAddTranscript()
+  const addTitleRecord = useAddTitle()
+  const queryClient = useQueryClient();
+  
   const recordingList = useMemo(
-    () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?p.data?.data :p.data) || [],
+    () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
     [recordingQuery]
   );
   
@@ -82,30 +81,34 @@ export default function TabOneScreen() {
     onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
-    const formData=new FormData();
-    const file = rec?.getURI();
-    console.warn(file)
-    const response = await fetch(file?file:'');
-    if (response.ok) {
-      // Convert the response data to a Blob object
-      const audioBlob = await response.blob();
-      formData.append("audio", audioBlob);
-      formData.append("duration", d.toString());
-      uploadRecord.mutate(
-        formData,
-        {
-          onSuccess: (r) => {
-            
-          },
-          onError: (r) => {
-            console.log(r);
-          },
-        }
-      );
-    }
+    const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
+      uploadRecord.mutate(
+        {audio:file,duration:d},
+        {
+          onSuccess: (r) => {
+            queryClient.invalidateQueries('all-recording');
+            addTranscriptRecord.mutate(r?.data?.recording?.id,
+              {
+                onSuccess:async()=>{
+                  queryClient.invalidateQueries('all-recording');
+                  notePreviewRef.current?.onTriggerTranscript()
+                  addTitleRecord.mutate(r?.data?.recording?.id,{
+                    onSuccess:()=>{
+                      queryClient.invalidateQueries('all-recording');
+                      notePreviewRef.current?.onTriggerTitle()
+                    }
+                  })
+                }
+              });
+          },
+          onError: (r:any) => {
+            console.log(r?.response?.data?.message);
+          },
+        }
+      );
   };
   const onCancel = () => {
     cancelRecording(rec);
@@ -116,15 +119,17 @@ export default function TabOneScreen() {
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
-        visible={visible}
-        setVisible={setVisible}
+        ref={notePreviewRef}
         note={item}
         index={index}
-        editNote={editNote}
-        setEditNote={setEditNote}
+        list={recordingList}
+        isPlay={isPlay}
+        setIsPlay={setIsPlay}
+        play={play}
+        setPlay={setPlay}
       />
     ),
-    [visible, editNote]
+    [isPlay,play,recordingList]
   );
   
   return (
@@ -132,7 +137,7 @@ export default function TabOneScreen() {
       <KeyboardAvoidingView behavior="padding">
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
-          {!isListEmpty && (
+          {/* {!isListEmpty && (
             <SearchBar
               searchParam={searchParam}
               setSearchText={setSearchText}
@@ -141,27 +146,42 @@ export default function TabOneScreen() {
               searchEnabled={searchEnabled}
               type={"messages"}
             />
-          )}
+          )} */}
           <FlatList
-            data={recordingList}
+            data={
+              recordingList?.length == 1
+                ? recordingList[0] != undefined
+                  ? recordingList
+                  : []
+                : recordingList
+            }
             contentContainerStyle={{ paddingBottom: 300 }}
             showsVerticalScrollIndicator={false}
             keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
             renderItem={renderItem}
-            ListFooterComponent={!token ? <AboutProduct /> : null}
+            ListFooterComponent={
+              !token? (
+                <AboutProduct disable={false} />
+              ) : null
+            }
+            ListEmptyComponent={() => recordingQuery.isLoading?(
+              <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size={"small"} color={"#000"}/>
+              </View>
+            ):<AboutProduct disable={true} />}
           />
         </View>
         <CreateModal ref={CreateModalRef} />
         <AIModal ref={AIModalRef} />
       </KeyboardAvoidingView>
-        <BottomBar
-          onAsk={onAsk}
-          onCreate={onCreate}
-          onRecord={onStartRecord}
-          onStopRecord={onStopRecord}
-          recEnabled={recEnabled}
-          onCancel={onCancel}
-        />
+      <BottomBar
+        onAsk={onAsk}
+        onCreate={onCreate}
+        onRecord={onStartRecord}
+        onStopRecord={onStopRecord}
+        recEnabled={recEnabled}
+        onCancel={onCancel}
+      />
     </SafeAreaView>
   );
 }

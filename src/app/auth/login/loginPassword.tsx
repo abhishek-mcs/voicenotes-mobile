@@ -16,6 +16,7 @@ import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails";
 import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { useLogin } from "queries/auth";
+import { useQueryClient } from "react-query";
 
 const logo = require("assets/images/logo.png");
 
@@ -32,6 +33,7 @@ export default () => {
   const [passwordText, setPasswordText] = useState("");
 
   const signInMutation: any = useLogin();
+  const queryClient = useQueryClient();
 
   const inputRef = useRef<TextInput>(null);
 
@@ -56,9 +58,11 @@ export default () => {
           const token = response.data?.authorisation?.token;
           const userData = response.data?.user
           if (token) {
+            setAuthToken(token,false);
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
-            setAuthToken(token,false);
+            queryClient.invalidateQueries('all-recording')
+            queryClient.invalidateQueries('user-data')
             router.replace("/home/");
           }
         },

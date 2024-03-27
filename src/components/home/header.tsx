@@ -4,7 +4,7 @@ import { commonSvg } from "assets/svg/commonSvg";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, View } from "react-native";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
@@ -13,6 +13,7 @@ import { setAuthToken } from "services/api/axios-api";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setToken } from "redux/reducers/userDetails";
+import { useQueryClient } from "react-query";
 
 export default ({isLogged=true}) => {
   const router:any=useNavigation()
@@ -21,7 +22,13 @@ export default ({isLogged=true}) => {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
+
   const logout=useLogout()
+  const queryClient=useQueryClient()
+  const data:any=queryClient.getQueryData('user-data')||null;
+  const photo_url=data?.photo_url||null;
+  const tags:any=queryClient.getQueryData('all-tags')||[];
+
   const onLogout = () =>{
     setShowMenu(false)
     Alert.alert('',"Are you sure you want to log out?",
@@ -30,11 +37,16 @@ export default ({isLogged=true}) => {
       style:"cancel"
     },{
       text:"Yes",
-      onPress:()=>{
-        logout.mutate('')
-        dispatch(setToken(''))
-        setAuthToken(guestToken,true)
-        route.replace("/home/")
+      onPress:async()=>{
+        await logout.mutateAsync('',{
+          onSuccess:()=>{
+            setAuthToken(guestToken,true)
+            queryClient.invalidateQueries('all-recording')
+            queryClient.invalidateQueries('user-data')
+            dispatch(setToken(''))
+          }
+        })
+            route.replace("/home/")
       }
     }])
   }
@@ -43,9 +55,11 @@ export default ({isLogged=true}) => {
       <View
         style={styles.container}
       >
-        <Touchable style={{ flex: 1 }} onPress={()=>router?.openDrawer()}>
+       {tags?.length==0?
+       <Touchable style={{ flex: 1 }} onPress={()=>router?.openDrawer()}>
           <SvgXml xml={home.hash} />
         </Touchable>
+        :<View style={{flex:1}}/>}
         <SvgXml xml={home.logo} style={{ flex: 1 }} />
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
 
@@ -53,7 +67,9 @@ export default ({isLogged=true}) => {
           visible={showMenu}
           anchor={
             <Touchable style={styles.menuPress} onPress={()=>setShowMenu(true)}>
-              <SvgXml xml={commonSvg.profileIcon}/>
+              {photo_url?
+              <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
+              :<SvgXml xml={commonSvg.profileIcon}/>}
             </Touchable>
           }
           onRequestClose={()=>setShowMenu(false)}

@@ -6,13 +6,12 @@ import {
   TextInput,
   Text,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
-import { setAuthToken } from "services/api/axios-api";
-import uuid from "react-native-uuid";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails";
+import { setEmail } from "redux/reducers/userDetails";
 import Colors from "assets/Colors";
 import { useSignup } from "queries/auth";
 
@@ -146,7 +145,9 @@ export default () => {
           alignItems: "center",
         }}
         onPress={continueClicked}
-      >
+      >{signInMutation.isLoading?
+        <ActivityIndicator size={"small"} color={"#fff"}/>
+        :
         <Text
           style={{
             fontFamily: "Primary-Bold",
@@ -156,12 +157,11 @@ export default () => {
           }}
         >
           Continue
-        </Text>
+        </Text>}
       </Pressable>
-      <View style={{ flexDirection: "row", justifyContent: "center",marginBottom:32 }}>
+      <View style={{ flexDirection: "row", alignItems:'center', justifyContent: "center",marginBottom:32,marginTop:24 }}>
         <Text
           style={{
-            marginTop: 16,
             fontFamily: "Primary",
             fontSize: 14,
             textAlign: "center",
@@ -177,7 +177,6 @@ export default () => {
         >
           <Text
             style={{
-              marginTop: 24,
               fontFamily: "Primary-Semibold",
               fontSize: 14,
               textAlign: "center",

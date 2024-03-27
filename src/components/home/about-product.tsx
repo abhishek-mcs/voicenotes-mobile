@@ -6,14 +6,14 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser"
 
-export default () => {
+export default ({disable=false}) => {
   return (
     <View style={styles.container}>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
       <Text style={styles.title}>A place to dump your thoughts.</Text>
-      <Touchable style={{marginTop:4}} onPress={()=>{router.push("/auth/login/loginPassword")}}>
+      {!disable&&<Touchable style={{marginTop:4}} onPress={()=>{router.push("/auth/login/loginPassword")}}>
         <SvgXml xml={home.close} />
-      </Touchable>
+      </Touchable>}
       </View>
       <View style={{ marginTop: 20 }}>
         <Description
