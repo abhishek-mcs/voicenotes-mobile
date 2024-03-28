@@ -14,25 +14,10 @@ import Touchable from "components/common/Touchable";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
 import { Skeleton } from "@rneui/themed";
 import { Animated } from "react-native";
-// const w=Dimensions.get("screen").width-16
+
 export default forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
   const [isConvo, setConvo] = useState(false);
-  // const slide = [
-  //   new Animated.Value(0),
-  //   new Animated.Value(w)
-  // ];
-
-  // const handleSlide = (index=0) => {
-  //   Animated.timing(slide[0], {
-  //     toValue: index==0?400:-400,
-  //     duration: 200,
-  //     useNativeDriver: false,
-  //   }).start(() => {
-  //     slide[index==0?1:0].setValue(0); // Reset the animation value
-  //   });
-  // };
-
   useImperativeHandle(
     ref,
     () => {
@@ -77,13 +62,6 @@ export default forwardRef((props, ref) => {
               </Touchable>
               <Skeleton animation="wave" style={styles.skeleton} />
               <Skeleton animation="wave" style={styles.skeleton} />
-              {/* <View>
-              <Text style={styles.subTitle}>Based on previous notes</Text>
-              <Btns
-                txt="Why am I feeling conflicted about my choices?"
-                onPress={() => {setConvo(true)}}
-              />
-            </View> */}
             </View>
             : (
           <View>

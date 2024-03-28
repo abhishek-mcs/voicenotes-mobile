@@ -2,7 +2,7 @@ import Colors from "assets/Colors";
 import { bottomSvg } from "assets/svg/bottomSvg";
 import { home } from "assets/svg/home";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
+import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 interface Props {
@@ -48,7 +48,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             bgColor={"#000"}
             color="#fff"
           />
-          <Button onPress={onAsk} title="Ask" icon={home.ask} />
+          <Button onPress={onAsk} title="Ask" icon={home.ask} style={{paddingHorizontal:20}}/>
           <Button onPress={onCreate} title="Create" icon={home.create} />
         </>
       ) : (
@@ -79,6 +79,7 @@ interface BtnProps{
     bgColor?: string,
     color?: string,
     underlayColor?: string,
+    style?:ViewStyle
 }
 
 const Button = ({
@@ -88,14 +89,15 @@ const Button = ({
   bgColor = "#2222220D",
   color = "#000",
   underlayColor = "rgba(0,0,0,0.1)",
+  style={},
 }:BtnProps) => (
   <TouchableHighlight
     onPress={onPress}
-    style={[styles.tabItem, { backgroundColor: bgColor }]}
+    style={[styles.tabItem, { backgroundColor: bgColor },style]}
     underlayColor={underlayColor}
   >
     <>
-      {icon&&<SvgXml xml={icon} style={{marginRight:8}}/>}
+      {icon&&<SvgXml xml={icon} style={{marginRight:4}}/>}
       <Text style={[styles.tabItemText, { color }]}>{title}</Text>
     </>
   </TouchableHighlight>
@@ -112,13 +114,14 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 60,
     alignItems: "center",
-    shadowColor: "#00000026",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    shadowOpacity: 1,
-    zIndex: 10,
-    elevation: 5,
-    padding: 10,
+    shadowColor:"#00000026",
+		shadowOpacity: 0.9,
+		shadowOffset: { width: 0, height:0.5 },
+		shadowRadius: 1.5,
+    zIndex:10,
+		elevation: 2,
+    paddingHorizontal: 12,
+    paddingVertical:8,
     justifyContent: "space-between",
   },
   tabItem: {
@@ -126,12 +129,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 22,
     backgroundColor: "#2222220D",
     overflow: "hidden",
   },
   tabItemText: {
-    fontFamily: "Primary-Bold",
+    fontFamily: "Primary-Semibold",
     fontSize: 14,
     color: "#000",
     fontWeight: "700",

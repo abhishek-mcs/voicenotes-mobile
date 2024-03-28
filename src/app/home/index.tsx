@@ -12,9 +12,9 @@ import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
 import NotePreview from "components/home/note-preview";
 import AboutProduct from "components/home/about-product";
-import AIModal from "components/home/CreateModal";
+import AIModal from "components/AIModal";
 import { Modalize } from "react-native-modalize";
-import CreateModal from "components/home/AIModal";
+import CreateModal from "components/CreateModal";
 import SearchBar from "components/common/search-bar";
 import { Audio } from "expo-av";
 import BottomBar from "components/home/bottom-bar";
@@ -117,6 +117,8 @@ export default function TabOneScreen() {
     setRecEnabled(false);
   };
 
+  const fetchNextPage=() =>recordingQuery.hasNextPage&& recordingQuery?.fetchNextPage()
+
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
@@ -162,8 +164,10 @@ export default function TabOneScreen() {
             showsVerticalScrollIndicator={false}
             keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
             renderItem={renderItem}
+            onEndReachedThreshold={0.5}
+            onEndReached={fetchNextPage}
             ListFooterComponent={
-              !token? (
+              (!token&&recordingQuery.isFetched)? (
                 <AboutProduct disable={false} />
               ) : null
             }
@@ -174,7 +178,7 @@ export default function TabOneScreen() {
             ):!!token?<AboutProduct disable={true} />:null}
           />
         </View>
-        <CreateModal ref={CreateModalRef} />
+        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
       </KeyboardAvoidingView>
       <BottomBar

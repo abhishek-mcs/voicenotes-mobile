@@ -6,12 +6,22 @@ import axiosApi from "services/api/axios-api";
 export function useGuestToken(){
     return useMutation('guest-token',async (p?:any)=>{
         return await axiosApi.post('/guest');
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
     })
 }
 
 export function useSignup(){
     return useMutation('signup',async ({name,email,password,otp}:{name:string,email:string,password:string,otp:any})=>{
         return await axios.post(`${API_URL}/api/auth/register?name=${name}&email=${email}&password=${password}${!!otp?'&otp='+otp:''}`);
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
     })
 }
 
@@ -24,5 +34,10 @@ export function useLogin(){
 export function useLogout(){
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
     })
 }

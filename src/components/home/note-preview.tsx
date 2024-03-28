@@ -13,8 +13,9 @@ import { useQueryClient } from "react-query";
 import loader from "assets/lottie/loader.json"
 import LottieView from "lottie-react-native";
 import { setStringAsync } from "expo-clipboard";
-import Loader from "components/common/loader";
 import ChatBuble from "components/common/chat-buble";
+import CircularLoader from "components/common/loaders/circular-loader";
+import AiLoader from "components/common/loaders/ai-loader";
 
 export default forwardRef(({
   note,
@@ -148,7 +149,7 @@ export default forwardRef(({
       <View style={[styles.btw, styles.row]}>
         <View style={styles.row}>
           {audioLoading==index?
-          <Loader/>
+          <CircularLoader/>
           :<Touchable onPress={onPlay}>
             <SvgXml xml={isPlay==index?home.pause:home.play} />
           </Touchable>}
@@ -160,11 +161,7 @@ export default forwardRef(({
         <View style={{ marginLeft: 25 }}>
           {!!note?.title?
           <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
-          :<View style={styles.row}>
-            <SvgXml xml={home.bliss} />
-            <Text style={{color:'#58a942',fontFamily:'Primary',fontSize:16,lineHeight:26,marginLeft:6}}>Creating transcript from your voice</Text>
-            <LottieView source={loader} autoPlay loop style={{width:40,height:35,position:'absolute',right:-36,bottom:-8}}/>
-          </View>}
+          :<AiLoader/>}
           {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={styles.row}>
