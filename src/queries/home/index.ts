@@ -147,3 +147,28 @@ export function useSignedUrl(){
         }
     })
 }
+
+export function useSuggestions(){
+    return useQuery('suggestions',(p?:any) => {
+        return axiosApi.get(`/recordings/ask-ai/suggestions`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useAskAI(){
+    return useMutation('chat',(data?:any) => {
+        const {question="",id=null} = data;
+        const endPoints = !!id?`/ai-chat-thread/${id}/messages`:'/ai-chat-thread';
+        const params={question}
+        return axiosApi.post(endPoints,params)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
