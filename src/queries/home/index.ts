@@ -1,12 +1,12 @@
-import { useInfiniteQuery, useMutation, useQuery } from "react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
 
-export function useRecordings(){
-    return useInfiniteQuery(['all-recording'],async ({pageParam=1})=>{
-        return await axiosApi.get('/recordings?page='+pageParam);
+export function useRecordings(tags?:string){
+    return useInfiniteQuery(['all-recording',tags],async ({pageParam=1})=>{
+        return await axiosApi.get('/recordings?page='+pageParam+(!!tags?`&tags[]=${tags}`:''));
     },{
         getNextPageParam:(lastPage)=>{
-            return lastPage.data?.next ? lastPage.data.links?.current_page + 1 : undefined;
+            return lastPage.data?.links?.next ? lastPage.data.meta?.current_page + 1 : undefined;
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -15,10 +15,14 @@ export function useRecordings(){
 }
 
 export function useToggleStar(recording_id:number){
-    return useMutation('toggle-star', () => {
+    const queryClient = useQueryClient();
+    return useMutation('toggle-star', (p?:any) => {
         return axiosApi.patch(`/recordings/${recording_id}/star`)
     },
-    {
+    {   onSuccess:()=>{
+            queryClient.invalidateQueries('all-recording')
+            queryClient.invalidateQueries('all-tags')
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -72,10 +76,15 @@ export function useUploadRecord(){
 }
 
 export function useDeleteRecording(recording_id:number){
+    const queryClient=useQueryClient()
     return useMutation('delete-recording', (p?:any)=> {
         return axiosApi.delete(`/recordings/${recording_id}`)
     },
     {
+        onSuccess:()=>{
+          queryClient.invalidateQueries('all-recording')
+          queryClient.invalidateQueries('all-tags')
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }

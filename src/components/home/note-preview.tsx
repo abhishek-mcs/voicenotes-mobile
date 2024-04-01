@@ -2,11 +2,11 @@ import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
-import { StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate } from "utils/format-date";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { useAddTitle, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
@@ -27,7 +27,7 @@ export default forwardRef(({
   const [visible, setVisible] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
-
+  
   const queryClient = useQueryClient();
   const saveEditedNote=useSaveEditedNote(note?.id)
   const toggleStarred=useToggleStar(note?.id)
@@ -63,6 +63,10 @@ export default forwardRef(({
 
   const onSaveEdit=()=>{
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
+    const temp=note;
+    note.title=editNote?.title;
+    note.transcript=editNote?.transcript;
+    note.tags=editNote?.tags||[]
     saveEditedNote.mutate(
       {title:editNote?.title,transcript:editNote?.transcript,tags:tags||[]},{
         onSuccess:(e:any)=>{
@@ -71,7 +75,7 @@ export default forwardRef(({
         },
         onError:(e:any)=>{
           console.log(e?.response?.data?.message)
-          setEditNote(note)
+          setEditNote(temp)
         }
       })
     setIsEdit(false);
@@ -82,9 +86,23 @@ export default forwardRef(({
   }
   const onEdit=()=>  setIsEdit(true)
   const onStarred=()=>{
-    toggleStarred.mutateAsync()
-    queryClient.invalidateQueries('all-recording')
-    queryClient.invalidateQueries('all-tags')
+    const isStarred=note?.tags?.some((r:any)=>r?.name=='starred');
+    if(!isStarred){
+      note.tags?.push({name:'starred'})
+    } else{
+      let temp=note?.tags;
+      temp=temp.filter((r:any)=>r?.name!="starred")
+      note.tags=temp;
+    }
+    toggleStarred.mutateAsync('',{
+      onError() {
+        if(!isStarred){
+          note.note.tags?.pop()
+        } else{
+          note.tags.push({name:'starred'})
+        }
+      },
+    })
   }
   const onCreateSummary=()=>{}
   const onGenerate=useCallback(()=>{
@@ -103,9 +121,18 @@ export default forwardRef(({
   }
   const onDelete=()=>{
     hideMenu();
-    deleteRecord.mutate('')
-    queryClient.invalidateQueries('all-recording')
-    queryClient.invalidateQueries('all-tags')
+    Alert.alert('','Are you sure you want to delete?',[
+      {
+        text:'No',
+        style:'cancel'
+      },
+      {
+        text:'Yes',
+        onPress:()=>{
+          deleteRecord.mutate('')
+        }
+      }
+    ])
   }
   const onPlaybackStatusUpdate = async(status:any) => {
     if (status?.isLoaded && !status?.isPlaying && status?.didJustFinish) {

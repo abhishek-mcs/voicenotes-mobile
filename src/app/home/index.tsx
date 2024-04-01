@@ -29,6 +29,7 @@ import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "q
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 const {height}=Dimensions.get('screen')
 
@@ -39,6 +40,7 @@ export default function TabOneScreen() {
   // const segments = useSegments();
   const insets=useSafeAreaInsets()
   const notePreviewRef = useRef<any>();
+  const {hashFilter} = useSelector((state: RootState) => state.hash);
   const token = useSelector((state: RootState) => state.userDetails.token);
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
@@ -58,7 +60,7 @@ export default function TabOneScreen() {
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
-  const recordingQuery = useRecordings()
+  const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const uploadRecord = useUploadRecord()
   const addTranscriptRecord = useAddTranscript()
   const addTitleRecord = useAddTitle()
@@ -117,7 +119,7 @@ export default function TabOneScreen() {
     setRecEnabled(false);
   };
 
-  const fetchNextPage=() =>recordingQuery.hasNextPage&& recordingQuery?.fetchNextPage()
+  const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -176,6 +178,7 @@ export default function TabOneScreen() {
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
             ):!!token?<AboutProduct disable={true} />:null}
+            automaticallyAdjustKeyboardInsets
           />
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />

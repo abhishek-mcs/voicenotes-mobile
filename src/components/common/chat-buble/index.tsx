@@ -16,7 +16,7 @@ export default ({ message,style={},triggerAnimation=0,disableGenerating=()=>{} }
             disableGenerating()
             clearInterval(interval);
           }
-        }, 10); // Adjust the interval for faster typing speed
+        }, 30); // Adjust the interval for faster typing speed
       } else {
         setDisplayedMessage(message);
       }

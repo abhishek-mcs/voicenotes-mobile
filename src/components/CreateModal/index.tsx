@@ -1,12 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
 import Records from "./records";
 import AiLoader from "components/common/loaders/ai-loader";
 import Notes from "./notes";
 import { useCreate } from "queries/home";
-import { useFocusEffect } from "expo-router";
 
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
@@ -41,8 +40,8 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
     aiCreate.mutate({recording_id:id,type:noteType},{
       onSuccess:(data)=>{
        if(title!="") {
-        setPreview("note");
         setResult({id,result:data?.data?.result})
+        setPreview("note");
       }
       }
     })
@@ -55,7 +54,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
     setTitle("")
     setVisible(false)
   }
-
+console.log(result.result,"result")
   return (
     <ReactNativeModal
       isVisible={visible}
@@ -72,7 +71,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
         :preview === 'records' ?
         <Records recordingList={recordingList} fetchNextPage={fetchNextPage} onSelect={onSetRecord} />
         :preview=="loader"? <AiLoader text="AI is writing your points"/>
-        :<Notes type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onSetRecord} />
+        :<Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onSetRecord} />
         }
       </View>
     </ReactNativeModal>

@@ -1,5 +1,5 @@
 import { configureStore,combineReducers } from '@reduxjs/toolkit'
-import counterReducer from 'redux/reducers/counterSlice'
+import hashReducer from 'redux/reducers/hashSlice'
 import userDetails from 'redux/reducers/userDetails'
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import '@react-native-async-storage/async-storage/jest/async-storage-mock';
@@ -12,7 +12,7 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-    counter:counterReducer,
+    hash:hashReducer,
     userDetails:userDetails 
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);

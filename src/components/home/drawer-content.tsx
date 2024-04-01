@@ -6,34 +6,49 @@ import { useEffect, useState } from "react";
 import { Button, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgXml } from "react-native-svg";
+import { useDispatch, useSelector } from "react-redux";
+import { setHashTags,setTagsFilter } from "redux/reducers/hashSlice";
+import { RootState } from "redux/store/store";
+import { useRouter } from "expo-router";
 
-export default ({ setFilter = (v: string) => {} }) => {
-  const [hashtags, setHashtags] = useState<string[]>([]);
+export default (props:any) => {
+  const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
+  const dispatch = useDispatch();
+  const router = useRouter()
+  const [currentTag, setCurrentTag] = useState<string>(hashFilter);
 
   const getTags=useGetTags()
 
   useEffect(() => {
     const tags=getTags.data?.data?.flatMap((t:any)=>t?.name)||[];
-    setHashtags(tags);
+    dispatch(setHashTags(tags))
   }, [getTags.data]);
 
   const handleTagPress = (tag: string) => {
-    setFilter(tag);
+    dispatch(setTagsFilter(tag))
+    setCurrentTag(tag)
+    router.back()
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         contentContainerStyle={{ alignItems: "flex-start" }}
-        data={['All',...hashtags]}
+        data={['All',...hashTags]}
         renderItem={({ item, index }) => (
           <Touchable onPress={() => handleTagPress(item)} style={[styles.btn,{
-            backgroundColor: index==0?Colors.primaryWithOpacity(0.1):'transparent'}]}>
-            <SvgXml xml={drawerSvg.hash} />
+            backgroundColor: item==currentTag?Colors.darkWithOpacity(0.1):'transparent'}]}>
+            <SvgXml xml={
+              item=='All'?
+              drawerSvg.home?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
+              :item=='starred'?
+              drawerSvg.star?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
+              :drawerSvg.hash?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):Colors.grey)
+            } />
             <Text
               style={[
                 styles.btnTxt,
-                { color: index == 0 ? Colors.primary : Colors.grey },
+                { color: item==currentTag ? Colors.darkWithOpacity(1) : Colors.grey },
               ]}
             >{item}</Text>
           </Touchable>
@@ -48,7 +63,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: Colors.primaryWithOpacity(0.1),
+    backgroundColor: '#f9f9f9',
   },
   title: {
     fontSize: 20,

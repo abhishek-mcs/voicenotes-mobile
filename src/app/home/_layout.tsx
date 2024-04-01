@@ -10,7 +10,7 @@ export default function Layout() {
   }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer drawerContent={(props) => <DrawerContent {...props} setFilter={setFilter} />} screenOptions={{headerShown:false,drawerStyle:{width:'60%'}}}/>
+      <Drawer drawerContent={(props) => <DrawerContent {...props} />} screenOptions={{headerShown:false,drawerStyle:{width:'60%'}}}/>
     </GestureHandlerRootView>
   );
 }

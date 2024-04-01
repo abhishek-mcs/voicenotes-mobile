@@ -15,7 +15,7 @@ export default (
     const onCopy = async()=>{
         let copy=Array.isArray(result)?result.join('\n'):result;
         if(type=="email"){
-            copy=`Subject: ${result[0]}\nBody: ${result[1]}`
+            copy=`Subject: ${result?.subject}\nBody: ${result?.body}`
         }
         await setStringAsync(copy||'');
     }
@@ -43,8 +43,8 @@ export default (
                     <Text key={i} style={text}>{itm}</Text>
                 )
                 :<View>
-                    <Text style={subject}>Subject: {result&&result[0]}</Text>
-                    <Text style={text}>Body: {result&&result[1]}</Text>
+                    <Text style={subject}>Subject: {result?.subject}</Text>
+                    <Text style={text}>Body: {result?.body}</Text>
                 </View>
                 }
             </ScrollView>

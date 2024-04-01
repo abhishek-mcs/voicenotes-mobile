@@ -22,13 +22,14 @@ export default ({isLogged=true}) => {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
+  const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
 
   const logout=useLogout()
   const queryClient=useQueryClient()
   const data:any=queryClient.getQueryData('user-data')||null;
   const photo_url=data?.photo_url||null;
   const tags:any=queryClient.getQueryData('all-tags')||[];
-
+  
   const onLogout = () =>{
     setShowMenu(false)
     Alert.alert('',"Are you sure you want to log out?",
@@ -55,7 +56,7 @@ export default ({isLogged=true}) => {
       <View
         style={styles.container}
       >
-       {tags?.length==0?
+       {tags?.data?.length!=0?
        <Touchable style={{ flex: 1 }} onPress={()=>router?.openDrawer()}>
           <SvgXml xml={home.hash} />
         </Touchable>

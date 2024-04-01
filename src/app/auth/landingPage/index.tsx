@@ -4,7 +4,7 @@ import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import { decrement, increment, incrementByAmount } from "redux/reducers/counterSlice"
+import { decrement, increment, incrementByAmount } from "redux/reducers/hashSlice"
 
 const bmclogo = require("assets/images/bmclogo.png")
 WebBrowser.maybeCompleteAuthSession()
