@@ -138,6 +138,7 @@ export default function TabOneScreen() {
     ),
     [isPlay,play,recordingList,audioLoading]
   );
+  console.log(recordingList)
   
   return (
     <SafeAreaView style={styles.container}>

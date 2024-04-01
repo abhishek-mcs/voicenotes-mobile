@@ -48,13 +48,15 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
   }
   
   const onClose=()=>{
-    setPreview("suggestions")
-    setResult({id:0,result:null})
-    setNoteType("summary")
-    setTitle("")
     setVisible(false)
+    setTimeout(() => {
+      setPreview("suggestions")
+      setResult({id:0,result:null})
+      setNoteType("summary")
+      setTitle("")
+    }, 300);
   }
-console.log(result.result,"result")
+
   return (
     <ReactNativeModal
       isVisible={visible}

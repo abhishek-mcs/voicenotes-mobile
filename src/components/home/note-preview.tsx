@@ -16,6 +16,8 @@ import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/store/store";
 
 export default forwardRef(({
   note,
@@ -27,6 +29,8 @@ export default forwardRef(({
   const [visible, setVisible] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
+
+  const {token} = useSelector((state:RootState)=>state.userDetails)
   
   const queryClient = useQueryClient();
   const saveEditedNote=useSaveEditedNote(note?.id)
@@ -229,12 +233,12 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Copy note</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onDelete}>
+          {!!token&&<MenuItem style={styles.menuItem} onPress={onDelete}>
             <View style={styles.row}>
               <SvgXml xml={home.delete} />
               <Text style={styles.menuItemTxt}>Delete</Text>
             </View>
-          </MenuItem>
+          </MenuItem>}
         </Menu>
       </View>
     </View>

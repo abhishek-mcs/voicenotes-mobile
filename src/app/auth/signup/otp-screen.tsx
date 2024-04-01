@@ -53,8 +53,8 @@ export default ()=>{
             dispatch(setUserDetail(userData))
             setAuthToken(token,false);
             moveRecords.mutate(guestToken,{onSuccess:()=>{ 
-              queryClient.invalidateQueries('all-recording')
-              queryClient.invalidateQueries('user-data')
+              queryClient.resetQueries('all-recording')
+              queryClient.resetQueries('user-data')
               router.replace("/home/");
             }})
           }

@@ -42,8 +42,8 @@ export default ({isLogged=true}) => {
         await logout.mutateAsync('',{
           onSuccess:()=>{
             setAuthToken(guestToken,true)
-            queryClient.invalidateQueries('all-recording')
-            queryClient.invalidateQueries('user-data')
+            queryClient.resetQueries('all-recording')
+            queryClient.resetQueries('user-data')
             dispatch(setToken(''))
           }
         })

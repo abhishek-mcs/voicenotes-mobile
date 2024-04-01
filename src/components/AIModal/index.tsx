@@ -33,13 +33,16 @@ type chatProps = {
   messages: [
     { id?:number,question: string; answer: string; answer2?: string | undefined }
   ];
-  user_id: number;
-  id: number;
+  user_id?: number;
+  id?: number;
 };
 
 export default forwardRef((props, ref) => {
   const userName = useSelector(
     (state: any) => state.userDetails?.userDetails.name
+  );
+  const token = useSelector(
+    (state: any) => state.userDetails?.token
   );
 
   const initChat: chatProps = {
@@ -48,7 +51,7 @@ export default forwardRef((props, ref) => {
     messages: [
       {
         question: "",
-        answer: `Hi ${userName}, I am your personal AI.`,
+        answer: `Hi${token?(' '+userName):''}, I am your personal AI.`,
         answer2: "What would you like to ask about your notes?",
       },
     ],
@@ -62,7 +65,7 @@ export default forwardRef((props, ref) => {
   const scrollRef = useRef<FlatList>(null);
 
   const getSuggestions = useSuggestions();
-  const askAI = useAskAI();
+  const askAI = useAskAI(!token);
 
   useEffect(() => {
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
@@ -99,8 +102,10 @@ export default forwardRef((props, ref) => {
 
   const onClose = () => {
     setVisible(false);
-    setChats(initChat);
-    setChatStarted(false);
+    setTimeout(() => {
+      setChats(initChat);
+      setChatStarted(false);
+    }, 300);
   };
 
   const onSend = (question: string) => {
@@ -113,12 +118,21 @@ export default forwardRef((props, ref) => {
     scrollToEnd();
     askAI.mutate(data, {
       onSuccess: (res) => {
-        setChats({
-          ...res?.data,
-          messages: [...initChat.messages, ...res?.data?.messages],
-        });
+        if(!!token){
+          setChats({
+            ...res?.data,
+            messages: [...initChat.messages, ...res?.data?.messages],
+          })
+        }else{
+          const temp:chatProps=chats;
+          temp.messages[temp.messages?.length-1].answer=res?.data.answer;
+          setChats({...temp,messages: [...temp.messages]});
+        }
         scrollToEnd();
       },
+      onError:()=>{
+        tempChats?.messages.pop();
+      }
     });
   };
 
@@ -163,7 +177,8 @@ export default forwardRef((props, ref) => {
         contentInsetAdjustmentBehavior="always"
         />
         <View>
-          {!chatStarted && (
+          {!chatStarted &&
+          getSuggestions.data?.data?.length>0&& (
             <View style={styles.suggestContainer}>
               <View style={[styles.row, { marginBottom: 4 }]}>
                 <SvgXml xml={AIModalSVG.suggestion} />

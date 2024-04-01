@@ -168,12 +168,17 @@ export function useSuggestions(){
     })
 }
 
-export function useAskAI(){
+export function useAskAI(isGuest:boolean=true){
     return useMutation('chat',(data?:any) => {
         const {question="",id=null} = data;
-        const endPoints = !!id?`/ai-chat-thread/${id}/messages`:'/ai-chat-thread';
         const params={question}
-        return axiosApi.post(endPoints,params)
+        if(isGuest){
+            const endPoints = '/recordings/ask-ai';
+            return axiosApi.get(endPoints,{params: {question}});
+        }else{
+            const endPoints = isGuest?'/recordings/ask-ai':!!id?`/ai-chat-thread/${id}/messages`:'/ai-chat-thread';
+            return axiosApi.post(endPoints,params);
+        }
     },
     {
         onError:(error:any)=>{

@@ -61,8 +61,8 @@ export default () => {
             setAuthToken(token,false);
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
-            queryClient.invalidateQueries('all-recording')
-            queryClient.invalidateQueries('user-data')
+            queryClient.resetQueries('all-recording')
+            queryClient.resetQueries('user-data')
             router.replace("/home/");
           }
         },

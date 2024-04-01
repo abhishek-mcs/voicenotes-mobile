@@ -20,6 +20,7 @@ export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{}}:
                     </>
                 </TouchableHighlight>
             )}
+            ListEmptyComponent={()=><View style={itemContainer}><Text style={titleStyle}>You don't have any notes to create with.</Text></View>}
             onEndReachedThreshold={0.5}
             onEndReached={()=>fetchNextPage()}
             />
