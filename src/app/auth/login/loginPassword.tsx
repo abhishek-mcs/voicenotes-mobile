@@ -20,8 +20,6 @@ import { useQueryClient } from "react-query";
 import { isIOS } from "utils/common";
 import { home } from "assets/svg/home";
 
-const logo = require("assets/images/logo.png");
-
 export default () => {
   const router = useRouter();
   const refPassword = useRef<TextInput>();

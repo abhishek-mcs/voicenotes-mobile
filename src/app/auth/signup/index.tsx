@@ -18,8 +18,6 @@ import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import { isIOS } from "utils/common";
 
-const logo = require("assets/images/logo.png");
-
 export default () => {
   const router = useRouter();
   const refPassword = useRef<TextInput>();
