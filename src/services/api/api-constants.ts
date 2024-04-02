@@ -57,9 +57,9 @@ const ENVURLSet: ENVURLs = {
     CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
   stage: {
-    MAIN_URL: "https://rd1.buymeacoffee.com",
-    API_URL: "https://rd3.buymeacoffee.com",
-    SHORT_URL: "buymeacoffee.com",
+    MAIN_URL: "https://stageview.voicenotes.com",
+    API_URL: "https://stageapi.voicenotes.com",
+    SHORT_URL: "stageview.voicenotes.com",
     CDN_URL: "https://cdn.buymeacoffee.com",
   },
   production: {

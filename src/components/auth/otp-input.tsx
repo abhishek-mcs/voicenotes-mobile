@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, InteractionManager, Platform, Text } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+import { isIOS } from 'utils/common';
 
 export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='' }) => {
   const inputRefs = Array.from({ length: numberOfInputs }, () => useRef<TextInput>(null));
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: isIOS?'center':'space-around',
   },
   inputContainer: {
     flexDirection: 'row',

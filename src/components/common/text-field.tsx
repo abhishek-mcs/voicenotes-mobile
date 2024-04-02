@@ -1,3 +1,4 @@
+import Colors from "assets/Colors"
 import React from "react"
 import { ColorValue, TextInput, TextInputProps, TextStyle, View, ViewStyle,Text } from "react-native"
 
@@ -57,7 +58,7 @@ export function TextField(props: TextFieldProps) {
         style={[
           inputStyle,
           inputStyleOverride,
-          hasFocus ? {borderColor:'#000'} : {borderColor:'#222'},
+          hasFocus ? {borderColor:Colors.primary} : {borderColor:Colors.primaryWithOpacity(0.1)},
         ]}
         ref={forwardedRef}
       />

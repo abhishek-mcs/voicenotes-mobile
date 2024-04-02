@@ -9,26 +9,20 @@ import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
 import { useLogout } from "queries/auth";
-import { setAuthToken } from "services/api/axios-api";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { setToken } from "redux/reducers/userDetails";
 import { useQueryClient } from "react-query";
+import { isIOS } from "utils/common";
 
 export default ({isLogged=true}) => {
   const router:any=useNavigation()
-  const dispatch=useDispatch()
   const [showMenu,setShowMenu]=useState(false)
-  const guestToken = useSelector(
-    (state: RootState) => state.userDetails.guestToken
-  );
-  const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
+  const {hashTags} = useSelector((state: RootState) => state.hash);
 
   const logout=useLogout()
   const queryClient=useQueryClient()
   const data:any=queryClient.getQueryData('user-data')||null;
   const photo_url=data?.photo_url||null;
-  const tags:any=queryClient.getQueryData('all-tags')||[];
   
   const onLogout = () =>{
     setShowMenu(false)
@@ -38,17 +32,7 @@ export default ({isLogged=true}) => {
       style:"cancel"
     },{
       text:"Yes",
-      onPress:async()=>{
-        await logout.mutateAsync('',{
-          onSuccess:()=>{
-            setAuthToken(guestToken,true)
-            queryClient.resetQueries('all-recording')
-            queryClient.resetQueries('user-data')
-            dispatch(setToken(''))
-          }
-        })
-            route.replace("/home/")
-      }
+      onPress:async()=>await logout.mutateAsync('')
     }])
   }
   return (
@@ -56,7 +40,7 @@ export default ({isLogged=true}) => {
       <View
         style={styles.container}
       >
-       {tags?.data?.length!=0?
+       {hashTags?.length!=0?
        <Touchable style={{ flex: 1 }} onPress={()=>router?.openDrawer()}>
           <SvgXml xml={home.hash} />
         </Touchable>
@@ -107,18 +91,17 @@ const styles=StyleSheet.create({
     borderRadius: 12,
     marginTop:36,
     marginLeft:10
-
   },
   menuPress: {
     alignItems: "flex-end",
     justifyContent: "center",
   },
-  menuItem: { paddingHorizontal: 16, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingHorizontal: isIOS? 16:8, borderRadius: 12, overflow: "hidden", },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,
     color: "#222",
     lineHeight: 24,
-    marginLeft: 12,
+    marginLeft: 0,
   },
 })

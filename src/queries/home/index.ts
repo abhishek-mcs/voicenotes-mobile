@@ -1,7 +1,9 @@
+import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
 
 export function useRecordings(tags?:string){
+    const logout =useLogout()
     return useInfiniteQuery(['all-recording',tags],async ({pageParam=1})=>{
         return await axiosApi.get('/recordings?page='+pageParam+(!!tags?`&tags[]=${tags}`:''));
     },{
@@ -10,6 +12,9 @@ export function useRecordings(tags?:string){
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
+            if(error?.response?.data?.message?.includes('Unauthenticated')){
+                logout.mutateAsync('');
+            }
         }
     })
 }
@@ -31,7 +36,7 @@ export function useToggleStar(recording_id:number){
 
 export function useCreate(){
     return useMutation('ai-create', (data:{recording_id:number,type:string}) => {
-        return axiosApi.get(`/ai-create`, { params: data });
+        return axiosApi.post(`/ai-create`, data);
     },
     {
         onError:(error:any)=>{

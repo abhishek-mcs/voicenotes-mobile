@@ -6,6 +6,8 @@ import Records from "./records";
 import AiLoader from "components/common/loaders/ai-loader";
 import Notes from "./notes";
 import { useCreate } from "queries/home";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/store/store";
 
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
@@ -13,6 +15,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
   const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email'>("summary");
   const [result, setResult] = useState({id:0,result:null})
   const [title, setTitle] = useState("");
+  const {token}=useSelector((state:RootState)=>state.userDetails)
 
   const aiCreate=useCreate()
 
@@ -40,7 +43,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
     aiCreate.mutate({recording_id:id,type:noteType},{
       onSuccess:(data)=>{
        if(title!="") {
-        setResult({id,result:data?.data?.result})
+        setResult({id,result:!!token?data?.data?.content?.data:data?.data?.result})
         setPreview("note");
       }
       }

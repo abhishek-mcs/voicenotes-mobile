@@ -4,6 +4,7 @@ import { home } from "assets/svg/home";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
+import { isIOS } from "utils/common";
 
 interface Props {
   onRecord: () => void;
@@ -97,7 +98,7 @@ const Button = ({
     underlayColor={underlayColor}
   >
     <>
-      {icon&&<SvgXml xml={icon} style={{marginRight:4}}/>}
+      {icon&&<SvgXml xml={icon} style={{marginRight:isIOS?4:6}}/>}
       <Text style={[styles.tabItemText, { color }]}>{title}</Text>
     </>
   </TouchableHighlight>
@@ -114,12 +115,12 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 60,
     alignItems: "center",
-    shadowColor:"#00000026",
+    shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
 		shadowOpacity: 0.9,
 		shadowOffset: { width: 0, height:0.5 },
 		shadowRadius: 1.5,
     zIndex:10,
-		elevation: 2,
+		elevation: 3,
     paddingHorizontal: 12,
     paddingVertical:8,
     justifyContent: "space-between",
@@ -138,6 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#000",
     fontWeight: "700",
+    lineHeight:17
   },
   row:{flexDirection:'row',alignItems:"center"},
 });

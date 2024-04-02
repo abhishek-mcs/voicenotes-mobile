@@ -1,8 +1,10 @@
 import Colors from "assets/Colors";
+import { CreateModalSvg } from "assets/svg/CreateModal";
 import { home } from "assets/svg/home";
 import { StyleSheet, Text, TouchableHighlight } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg";
+import { isIOS } from "utils/common";
 
 export default ({onPress=(v:string)=>{}})=>{
     return (
@@ -14,12 +16,12 @@ export default ({onPress=(v:string)=>{}})=>{
               </Touchable> */}
           </View>
           <View style={styles.row}>
-              <Btns onPress={onPress} type="summary" title="Summary" icon={home.create} />
-              <Btns onPress={onPress} type="points" title="List main points" icon={home.create} />
-              <Btns onPress={onPress} type="todo" title="To-do list" icon={home.create} />
-              <Btns onPress={onPress} type="blog" title="Blog post" icon={home.create} />
-              <Btns onPress={onPress} type="tweet" title="Tweet" icon={home.create} />
-              <Btns onPress={onPress} type="email" title="Email" icon={home.create} />
+              <Btns onPress={onPress} type="summary" title="Summary" icon={CreateModalSvg.summary} />
+              <Btns onPress={onPress} type="points" title="List main points" icon={CreateModalSvg.points} />
+              <Btns onPress={onPress} type="todo" title="To-do list" icon={CreateModalSvg.todo} />
+              <Btns onPress={onPress} type="blog" title="Blog post" icon={CreateModalSvg.blog} />
+              <Btns onPress={onPress} type="tweet" title="Tweet" icon={CreateModalSvg.tweet} />
+              <Btns onPress={onPress} type="email" title="Email" icon={CreateModalSvg.email} />
           </View>
         </View>)
 }
@@ -60,7 +62,7 @@ const styles = StyleSheet.create({
       marginTop:8
     },
     btnTxt:{
-      marginLeft:4,
+      marginLeft:isIOS?4:6,
       fontSize:14,
       fontFamily:'Primary'
     },

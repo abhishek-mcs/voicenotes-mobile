@@ -18,6 +18,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
+import { isIOS } from "utils/common";
 
 export default forwardRef(({
   note,
@@ -184,15 +185,15 @@ export default forwardRef(({
           :<Touchable onPress={onPlay}>
             <SvgXml xml={isPlay==index?home.pause:home.play} />
           </Touchable>}
-          <Text style={styles.date}>{formatDate()}</Text>
+          <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row", marginTop: 8 }}>
         <View style={styles.timeLine} />
-        <View style={{ marginLeft: 25 }}>
+        <View style={{marginLeft:isIOS?25:24}}>
           {!!note?.title?
           <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
-          :<AiLoader/>}
+          :<AiLoader style={{marginTop:isIOS?0:-6}}/>}
           {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={styles.row}>
@@ -265,9 +266,9 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>
-      <View style={[styles.row,{flexWrap:'wrap',width:'60%',alignSelf:'center'}]}>
+      <View style={[styles.row,{flexWrap:'wrap',width:'55%',alignSelf:'center'}]}>
       {editNote?.tags?.map((tag:any,indx:number)=>
-      <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={{backgroundColor:Colors.primaryWithOpacity(0.1),paddingHorizontal:8,paddingVertical:2,marginRight:8,marginBottom:8,borderRadius:8}}>
+      <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={styles.tagWrap}>
         <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
       </Touchable>
       )}
@@ -282,7 +283,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
         selectTextOnFocus={false}
         onChangeText={txt=>setTag(txt)}
         onSubmitEditing={()=>{
-          setEditNote({...editNote,tags:[...editNote.tags,{name:tag}]})
+          setEditNote({...editNote,tags:[...editNote.tags,{name:tag?.replace(/ /g, '')}]})
           setTag('')
           }} />
       </View>
@@ -297,7 +298,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
        underlayColor={Colors.primaryWithOpacity(0.7)}
        onPress={onSaveEdit}
        >
-        <Text style={{color:'#fff',fontFamily:'Primary',fontSize:14}}>Save</Text>
+        <Text style={{color:'#fff',fontFamily:'Primary',fontSize:14,lineHeight:19}}>Save</Text>
       </TouchableHighlight>
       </View>
     </View>
@@ -317,15 +318,16 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "500",
     fontFamily: "Primary-Medium",
-    fontSize: 18,
+    fontSize: isIOS?18:17,
     color: "#222",
-    lineHeight: 26,
+    lineHeight: isIOS?26:24,
+    marginTop:isIOS?0:-4
   },
   text: {
     fontFamily: "Primary",
     fontSize: 14,
     color: "rgba(34, 34, 34, 0.9)",
-    lineHeight: 23,
+    lineHeight:isIOS?23:22,
     marginTop: 4,
   },
   titleInput: {
@@ -366,7 +368,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     justifyContent: "center",
   },
-  menuItem: { paddingHorizontal: 16, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingHorizontal:isIOS? 16:4, borderRadius: 12, overflow: "hidden" },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,
@@ -374,7 +376,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginLeft: 12,
   },
-  tagInput: { color: Colors.darkWithOpacity(0.9), fontFamily: "Primary" },
+  tagInput: { color: Colors.darkWithOpacity(0.9), fontFamily: "Primary",flex:1 },
   editContainer:{
     borderWidth: 1,
     borderColor: Colors.primaryWithOpacity(0.1),
@@ -384,7 +386,7 @@ const styles = StyleSheet.create({
   },
   tag:{
     fontSize:14,
-    lineHeight:21.1,
+    lineHeight:19,
     fontFamily:'Primary',
     color:'#717171',
     marginTop:4,
@@ -393,15 +395,23 @@ const styles = StyleSheet.create({
   date:{
     color: Colors.grey,
     fontFamily: "Primary",
-    fontSize: 14,
-    marginLeft: 16,
+    fontSize: isIOS?14:12,
+    marginLeft: isIOS?16:12,
   },
   tagContainer:{
     flex: 1,
     paddingHorizontal: 12,
-    paddingTop: 16,
+    paddingTop: isIOS?16:10,
     flexDirection: "row",
     justifyContent:'space-between',
     alignItems:'flex-start'
+  },
+  tagWrap:{
+    backgroundColor:Colors.primaryWithOpacity(0.1),
+    paddingHorizontal:8,
+    paddingVertical:2,
+    marginRight:8,
+    marginBottom:8,
+    borderRadius:8
   }
 });

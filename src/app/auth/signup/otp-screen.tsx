@@ -112,7 +112,7 @@ const isIOS=Platform.OS=='ios'
 
 const styles=StyleSheet.create({
   container:{flex:1,backgroundColor:'#f8f8f8',paddingTop:16},
-  contentContainer:{flex:1,backgroundColor:'#f8f8f8',padding:16},
+  contentContainer:{flex:1,backgroundColor:'#f8f8f8',padding:16,paddingTop:isIOS?0:48},
   tabBarStyle:{height:6,marginBottom:isIOS?24:20,width:rspValue(198),alignSelf:'center',backgroundColor:'#f8f8f8',borderWidth:0,flexDirection:'row',justifyContent:'space-between'},
   tabBarIndicatorStyle:{height:6,width:rspValue(62),borderRadius:100,overflow:'hidden'},
   box:{paddingVertical:24,paddingHorizontal:16,backgroundColor:'#fff',borderRadius:12,shadowColor:'rgba(0, 0, 0, 0.0.04)',shadowOffset:{width:0,height:2},shadowRadius:10,shadowOpacity:0.1},

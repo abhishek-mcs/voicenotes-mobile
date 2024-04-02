@@ -2,11 +2,11 @@ import Colors from "assets/Colors"
 import { home } from "assets/svg/home"
 import Touchable from "components/common/Touchable"
 import { setStringAsync } from "expo-clipboard"
-import { ScrollView, StyleSheet, Text } from "react-native"
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native"
 import { View } from "react-native"
 import { TouchableHighlight } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
-import { capitalizeFirstLetter } from "utils/common"
+import { capitalizeFirstLetter, isIOS } from "utils/common"
 
 export default (
     {type="summary",result=null,title="",id,onClose,onEdit,onRetry}
@@ -49,18 +49,18 @@ export default (
                 }
             </ScrollView>
             <View style={btnBox}>
-                <TouchableHighlight onPress={onCopy} style={btn} underlayColor={Colors.greyWithOpacity(0.1)}>
+                <Touchable onPress={onCopy} style={btn}>
                     <>
                     <SvgXml xml={home.copy}/>
                     <Text style={btnText}>Copy</Text>
                     </>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={()=>onRetry(id,title)} style={btn} underlayColor={Colors.greyWithOpacity(0.1)}>
+                </Touchable>
+                <Touchable onPress={()=>onRetry(id,title)} style={btn}>
                     <>
                     <SvgXml xml={home.retry}/>
                     <Text style={[btnText,{marginLeft:6}]}>Retry</Text>
                     </>
-                </TouchableHighlight>
+                </Touchable>
             </View>
         </View>
     )
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     titleStyle:{fontFamily:'Primary-Medium',fontSize:16,lineHeight:26,color:'#000',marginVertical:20},
     text:{color:'#222',fontFamily:'Primary',fontSize:14,marginBottom:8},
     svg:{marginRight:16},
-    btnBox:{flexDirection:'row',alignItems:'center',marginHorizontal:32},
+    btnBox:{flexDirection:'row',alignItems:'center',marginHorizontal:32,bottom:isIOS?5:10},
     btn:{flexDirection:'row',alignItems:'center',marginRight:12,marginLeft:-6,paddingHorizontal:6,paddingVertical:4,borderRadius:8},
     btnText:{fontFamily:'Primary',fontSize:12,color:Colors.grey,marginLeft:4},
     subject:{fontFamily:'Primary-Medium',fontSize:14,color:"#222",marginBottom:20}

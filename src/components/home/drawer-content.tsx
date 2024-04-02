@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setHashTags,setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { useRouter } from "expo-router";
+import { isIOS } from "utils/common";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
@@ -62,6 +63,7 @@ export default (props:any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop:isIOS?0:20,
     padding: 20,
     backgroundColor: '#f9f9f9',
   },

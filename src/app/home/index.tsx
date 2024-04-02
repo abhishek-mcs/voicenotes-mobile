@@ -30,6 +30,7 @@ import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { isIOS } from "utils/common";
 
 const {height}=Dimensions.get('screen')
 
@@ -57,6 +58,7 @@ export default function TabOneScreen() {
   const [isPlay,setIsPlay] = useState(-1)
   const [play,setPlay] = useState<Audio.Sound|null>()
   const [audioLoading, setAudioLoading] = useState(-1);
+  const scrollRef = useRef<FlatList>(null);
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -93,6 +95,7 @@ export default function TabOneScreen() {
         {
           onSuccess: (r) => {
             queryClient.invalidateQueries('all-recording');
+            scrollRef.current?.scrollToOffset({animated: true, offset: 0});
             addTranscriptRecord.mutate(r?.data?.recording?.id,
               {
                 onSuccess:async()=>{
@@ -138,10 +141,9 @@ export default function TabOneScreen() {
     ),
     [isPlay,play,recordingList,audioLoading]
   );
-  console.log(recordingList)
-  
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} >
       <KeyboardAvoidingView behavior="padding">
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
@@ -156,6 +158,7 @@ export default function TabOneScreen() {
             />
           )} */}
           <FlatList
+            ref={scrollRef}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
@@ -204,6 +207,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     paddingHorizontal: 18,
+    paddingVertical:isIOS?0:32
   },
   tab: {
     flexDirection: "row",

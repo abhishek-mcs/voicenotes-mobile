@@ -17,6 +17,8 @@ import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { useLogin } from "queries/auth";
 import { useQueryClient } from "react-query";
+import { isIOS } from "utils/common";
+import { home } from "assets/svg/home";
 
 const logo = require("assets/images/logo.png");
 
@@ -87,6 +89,9 @@ export default () => {
           <SvgXml xml={}/>
           <Text>Back</Text>
         </Touchable> */}
+        <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
+          <SvgXml xml={home.logo} /> 
+        </View>
       <Text
         style={{
           alignSelf: "center",
@@ -101,17 +106,18 @@ export default () => {
       </Text>
       <TextField
         forwardedRef={inputRef}
-        style={{ marginTop: 36 }}
-        inputStyle={{ height: 48, borderRadius: 8 }}
+        style={{ marginTop: isIOS? 36: 24 }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0}}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
         returnKeyType="next"
         onChangeText={(text: string) => setEmailText(text)}
         onSubmitEditing={() => refPassword?.current?.focus()}
-        placeholder="john@doe.com"
+        placeholder="Email Address"
         keyboardType="email-address"
         autoCapitalize="none"
+        placeholderTextColor={"rgba(34,34,34,0.25)"}
         autoCorrect={false}
       />
       {signInMutation.isError &&
@@ -130,8 +136,9 @@ export default () => {
         returnKeyType={"next"}
         onSubmitEditing={continueClicked}
         placeholder="Password"
+        placeholderTextColor={"rgba(34,34,34,0.25)"}
         style={{ marginTop: 0, backgroundColor: "white" }}
-        inputStyle={{ height: 48, borderRadius: 8 }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&

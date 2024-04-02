@@ -14,6 +14,9 @@ import { RootState } from "redux/store/store";
 import { setEmail } from "redux/reducers/userDetails";
 import Colors from "assets/Colors";
 import { useSignup } from "queries/auth";
+import { SvgXml } from "react-native-svg";
+import { home } from "assets/svg/home";
+import { isIOS } from "utils/common";
 
 const logo = require("assets/images/logo.png");
 
@@ -64,6 +67,10 @@ export default () => {
       }}
     >
       {/* <Image src={} /> */}
+
+      <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
+          <SvgXml xml={home.logo} /> 
+        </View>
       <Text
         style={{
           alignSelf: "center",
@@ -78,8 +85,8 @@ export default () => {
       </Text>
       <TextField
         // forwardedRef={inputref}
-        style={{ marginTop: 36 }}
-        inputStyle={{ height: 48, borderRadius: 8 }}
+        style={{ marginTop: isIOS?36:24 }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
         value={name|| ""}
         textContentType="familyName"
         // label={"Enter your email"}
@@ -90,20 +97,22 @@ export default () => {
         keyboardType="default"
         autoCapitalize="none"
         autoCorrect={false}
+        placeholderTextColor={"rgba(34,34,34,0.25)"}
       />
       <TextField
         forwardedRef={inputRef}
-        inputStyle={{ height: 48, borderRadius: 8 }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
         returnKeyType="next"
         onChangeText={(text: string) => setEmailText(text)}
         onSubmitEditing={() => refPassword?.current?.focus()}
-        placeholder="john@doe.com"
+        placeholder="Email Address"
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
+        placeholderTextColor={"rgba(34,34,34,0.25)"}
       />
       <TextField
         forwardedRef={refPassword}
@@ -116,8 +125,9 @@ export default () => {
         onSubmitEditing={continueClicked}
         placeholder="Password"
         style={{ marginTop: 0, backgroundColor: "white" }}
-        inputStyle={{ height: 48, borderRadius: 8 }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
         autoCapitalize="none"
+        placeholderTextColor={"rgba(34,34,34,0.25)"}
       />
       {signInMutation.isError &&
         signInMutation.error.response.data.errors?.password && (

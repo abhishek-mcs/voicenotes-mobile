@@ -1,11 +1,11 @@
 import { home } from "assets/svg/home"
 import LottieView from "lottie-react-native"
-import { StyleSheet, Text, View } from "react-native"
+import { StyleSheet, Text, View, ViewStyle } from "react-native"
 import { SvgXml } from "react-native-svg"
 import loader from "assets/lottie/loader.json"
 
-export default ({text="Creating transcript from your voice"})=>(
-  <View style={styles.row}>
+export default ({text="Creating transcript from your voice",style={}}:{text?:string,style?:ViewStyle})=>(
+  <View style={[styles.row,style]}>
     <SvgXml xml={home.bliss} />
     <Text style={styles.text}>{text}</Text>
     <View><LottieView source={loader} autoPlay loop style={styles.lottie}/></View>

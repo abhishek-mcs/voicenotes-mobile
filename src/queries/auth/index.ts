@@ -1,7 +1,11 @@
 import axios from "axios";
-import { useMutation } from "react-query";
+import { useRouter } from "expo-router";
+import { useMutation, useQueryClient } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { setToken } from "redux/reducers/userDetails";
+import { RootState } from "redux/store/store";
 import { API_URL } from "services/api/api-constants";
-import axiosApi from "services/api/axios-api";
+import axiosApi, { setAuthToken } from "services/api/axios-api";
 
 export function useGuestToken(){
     return useMutation('guest-token',async (p?:any)=>{
@@ -32,12 +36,27 @@ export function useLogin(){
 }
 
 export function useLogout(){
+    const {guestToken} = useSelector((state: RootState) => state.userDetails);
+    const dispatch=useDispatch()
+    const queryClient=useQueryClient()
+    const route = useRouter()
+    const logout=()=>{
+        setAuthToken(guestToken,true)
+        queryClient.resetQueries('all-recording')
+        queryClient.resetQueries('user-data')
+        dispatch(setToken(''))
+        route.replace("/home/")
+    }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);
     },
     {
+        onSuccess:logout,
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
+            if(error?.response?.data?.message?.includes('Unauthenticated')){
+                logout()
+            }
         }
     })
 }

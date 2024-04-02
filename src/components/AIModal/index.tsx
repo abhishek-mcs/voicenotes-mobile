@@ -28,6 +28,7 @@ import { ScrollView } from "react-native";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
+import { isIOS } from "utils/common";
 
 type chatProps = {
   messages: [
@@ -308,21 +309,20 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     width: "80%",
     lineHeight: 24,
+    paddingTop:isIOS?13:16,
+    paddingBottom:16
   },
   inputContainer: {
     minHeight: 60,
     borderTopWidth: 1,
     borderTopColor: Colors.darkWithOpacity(0.1),
     paddingLeft: 24,
-    paddingTop: 6,
-    paddingBottom: 16,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
   },
   send: {
-    height: 36,
-    marginTop: 2,
+    paddingVertical:16,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
