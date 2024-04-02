@@ -24,7 +24,8 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "package": "com.voiceappoi"
+      "package": "com.voiceappoi",
+      "versionCode": 2
     },
     "web": {
       "bundler": "metro",
@@ -58,7 +59,7 @@
         "projectId": "dab72bb3-d6ef-48fe-aa32-ecc4f3507aa2"
       }
     },
-    "owner": "voicenotes",
+    "owner": "buymeacoffee",
     "runtimeVersion": {
       "policy": "appVersion"
     },
