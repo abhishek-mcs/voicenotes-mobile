@@ -75,9 +75,9 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         {firstHalf.map((inputRef, index) => (
-          <View style={{flexDirection:'row'}} onTouchStart={(e)=>e?.stopPropagation()}>
+          <View key={index} style={{flexDirection:'row'}} onTouchStart={(e)=>e?.stopPropagation()}>
             {(index!=0&&currentIndex==index)&&<View style={styles.separator}/>}
-          <View key={index} style={[styles.inputWrapper, index === 0 && styles.firstHalfBorderRadius, index === firstHalf.length - 1 && styles.lastInputRadiusRight,index!=0&&styles.noBorderLeft,currentIndex==index&&styles.activeColor]}>
+          <View style={[styles.inputWrapper, index === 0 && styles.firstHalfBorderRadius, index === firstHalf.length - 1 && styles.lastInputRadiusRight,index!=0&&styles.noBorderLeft,currentIndex==index&&styles.activeColor]}>
             <TextInput
               ref={inputRef}
               onFocus={()=>setCurrentIndex(index)}
@@ -97,13 +97,13 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
       {/* <SvgXml style={styles.dash} xml={settingsSVG.dash} /> */}
       <View style={styles.inputContainer}>
         {secondHalf.map((inputRef, index) => (
-          <View style={{flexDirection:'row'}} onTouchStart={(e)=>e?.stopPropagation()}>
+          <View key={index+numberOfInputs/2} style={{flexDirection:'row'}} onTouchStart={(e)=>e?.stopPropagation()}>
           {(index!=0&&currentIndex==index+numberOfInputs/2)&&<View style={styles.separator}/>}
-          <View key={index+numberOfInputs/2} style={[styles.inputWrapper, index === 0 && styles.firstHalfBorderRadius, index === secondHalf.length - 1 && styles.lastInputRadiusRight,index!=0&&styles.noBorderLeft,(currentIndex==(index+numberOfInputs/2))&&styles.activeColor]}>
+          <View style={[styles.inputWrapper, index === 0 && styles.firstHalfBorderRadius, index === secondHalf.length - 1 && styles.lastInputRadiusRight,index!=0&&styles.noBorderLeft,(currentIndex==(index+numberOfInputs/2))&&styles.activeColor]}>
             <TextInput
               ref={inputRef}
               onFocus={()=>setCurrentIndex(index+numberOfInputs/2)}
-              style={[Platform.OS=="ios"?{width:42}:{},styles.input]}
+              style={[isIOS?{width:42}:{},styles.input]}
               placeholder='0'
               placeholderTextColor={'rgba(113, 113, 113, 0.44)'}
               maxLength={1}
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: isIOS?'center':'space-around',
+    justifyContent: 'space-around',
   },
   inputContainer: {
     flexDirection: 'row',

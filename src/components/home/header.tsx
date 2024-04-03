@@ -20,7 +20,7 @@ export default ({isLogged=true}) => {
   const {hashTags} = useSelector((state: RootState) => state.hash);
 
   const logout=useLogout()
-  const data=useGetUserData();
+  const data=isLogged?useGetUserData():null;
   const photo_url=data?.data?.data?.photo_url||null;
   const onLogout = () =>{
     setShowMenu(false)
