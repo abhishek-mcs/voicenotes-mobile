@@ -17,6 +17,8 @@ import { useSignup } from "queries/auth";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import { isIOS } from "utils/common";
+import Touchable from "components/common/Touchable";
+import { commonSvg } from "assets/svg/commonSvg";
 
 const logo = require("assets/images/logo.png");
 
@@ -66,7 +68,9 @@ export default () => {
         backgroundColor: "white",
       }}
     >
-      {/* <Image src={} /> */}
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:54,padding:16}}>
+          <SvgXml xml={commonSvg.back1}/>
+        </Touchable>
 
       <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 

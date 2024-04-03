@@ -2,20 +2,14 @@ import React, { useEffect, useRef, useState } from "react"
 import { View, Pressable, Platform, Animated,Text, TouchableOpacity,StyleSheet } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
-import { useDispatch, useSelector } from "react-redux"
-import { RootState } from "redux/store/store"
-import { decrement, increment, incrementByAmount } from "redux/reducers/hashSlice"
 
-const bmclogo = require("assets/images/bmclogo.png")
+const logo = require("assets/images/logo.png")
 WebBrowser.maybeCompleteAuthSession()
 
 
 export default () => {
   const router=useRouter()
   const [loginError, setLoginError] = useState()
-
-  const count = useSelector((state: RootState) => state.counter.value)
-  const dispatch = useDispatch()
 
   //Animations
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -72,7 +66,7 @@ export default () => {
             opacity: fadeAnim,
           },
         ]}
-        source={bmclogo}
+        source={logo}
       />
       <Animated.View
         style={[
@@ -86,15 +80,15 @@ export default () => {
         <View style={{marginTop:48,flexDirection:'row',alignItems:'center',paddingHorizontal:24}} />
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {dispatch(increment())}}
-        ><Text style={styles.text}>Sign up {count}</Text></TouchableOpacity>
+          onPress={() => {}}
+        ><Text style={styles.text}>Sign up</Text></TouchableOpacity>
         <TouchableOpacity
           style={styles.button2}
-          onPress={()=>{dispatch(decrement())}}
+          onPress={()=>{}}
           ><Text style={styles.text}>Continue with Twitter</Text></TouchableOpacity>
         <TouchableOpacity
         style={styles.button2}
-          onPress={()=>{dispatch(incrementByAmount(5))}}
+          onPress={()=>{}}
         ><Text style={styles.text}>Continue with Google</Text></TouchableOpacity>
         <TouchableOpacity
         style={styles.button2}

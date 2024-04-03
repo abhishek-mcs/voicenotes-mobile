@@ -1,10 +1,7 @@
 import { useEffect} from 'react';
 import { useFonts } from 'expo-font';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Redirect } from 'expo-router';
-import { useGetUserData } from 'queries/home';
 import Home from './home';
-import { useSelector } from 'react-redux';
 
 export {
   ErrorBoundary,
@@ -24,9 +21,7 @@ export default function App() {
     "Primary-Semibold": require('../assets/fonts/Inter-SemiBold.ttf'),
     ...FontAwesome.font,
   });
-  const {token}=useSelector((state:any)=>state.userDetails)
   
-  const userData=!!token?useGetUserData():null
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;

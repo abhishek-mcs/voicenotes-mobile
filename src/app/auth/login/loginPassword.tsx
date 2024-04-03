@@ -19,8 +19,8 @@ import { useLogin } from "queries/auth";
 import { useQueryClient } from "react-query";
 import { isIOS } from "utils/common";
 import { home } from "assets/svg/home";
-
-const logo = require("assets/images/logo.png");
+import Touchable from "components/common/Touchable";
+import { commonSvg } from "assets/svg/commonSvg";
 
 export default () => {
   const router = useRouter();
@@ -85,10 +85,9 @@ export default () => {
         backgroundColor: "white",
       }}
     >
-        {/* <Touchable>
-          <SvgXml xml={}/>
-          <Text>Back</Text>
-        </Touchable> */}
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:54,padding:16}}>
+          <SvgXml xml={commonSvg.back1}/>
+        </Touchable>
         <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
         </View>
