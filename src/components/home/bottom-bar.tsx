@@ -4,6 +4,8 @@ import { home } from "assets/svg/home";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 
 interface Props {
@@ -17,14 +19,18 @@ interface Props {
 
 export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel }: Props) => {
     const [duration, setDuration] = useState(0);
+    const {token} = useSelector((state: RootState) => state.userDetails);
     useEffect(() => {
         if (recEnabled) {
           const timerId = setInterval(() => {
             setDuration(prevDuration => {
               const newDuration = prevDuration + 1000;
-              if (newDuration >= 60000) {
+              if (newDuration >= 60000&&!token) {
                 onStopRecord(newDuration);
                 return 0;
+              }else if(newDuration>=3600000&&!!token){
+                onStopRecord(newDuration);
+                return 0
               }
               return newDuration;
             }); // Update duration every second
@@ -57,7 +63,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
           <Button title="Cancel" onPress={onCancel}/>
           <View style={styles.row}>
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
-            <Text style={styles.tabItemText}>{`${formattedDuration}/01:00`}</Text>
+            <Text style={styles.tabItemText}>{`${formattedDuration}${!!token?'':'/01:00'}`}</Text>
           </View>
           <Button
             title="Done"
