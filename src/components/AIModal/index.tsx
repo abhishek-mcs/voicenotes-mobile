@@ -142,7 +142,7 @@ export default forwardRef((props, ref) => {
       isVisible={visible}
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
-      onBackdropPress={onClose}
+      // onBackdropPress={onClose}
       style={[styles.modalContainer, { bottom: keyboardShown ? 30 : 60 }]}
       backdropOpacity={0.05}
       avoidKeyboard
