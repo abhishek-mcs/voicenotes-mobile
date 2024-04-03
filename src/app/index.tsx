@@ -2,6 +2,7 @@ import { useEffect} from 'react';
 import { useFonts } from 'expo-font';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Home from './home';
+import { Redirect } from 'expo-router';
 
 export {
   ErrorBoundary,
@@ -34,7 +35,7 @@ export default function App() {
   //   return <Redirect href="/home/" />;
   // }else{
     return (
-      <Home/>
+      <Redirect href="/home/" />
     );
   // }
 }

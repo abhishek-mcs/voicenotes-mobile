@@ -44,6 +44,7 @@ export function useLogout(){
         setAuthToken(guestToken,true)
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
+        queryClient.resetQueries('all-tags')
         dispatch(setToken(''))
         route.replace("/home/")
     }
