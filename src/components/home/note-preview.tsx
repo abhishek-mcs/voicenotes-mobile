@@ -19,10 +19,11 @@ import AiLoader from "components/common/loaders/ai-loader";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import { router, useRouter } from "expo-router";
 
 export default forwardRef(({
   note,
-  list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading
+  list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
@@ -133,8 +134,9 @@ export default forwardRef(({
       },
       {
         text:'Yes',
-        onPress:()=>{
-          deleteRecord.mutate('')
+        onPress:async()=>{
+          await deleteRecord.mutateAsync('')
+          onDeleteCallBack()
         }
       }
     ])
@@ -191,7 +193,10 @@ export default forwardRef(({
         <View style={styles.timeLine} />
         <View style={{marginLeft:isIOS?25:24}}>
           {!!note?.title?
-          <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
+          <Touchable onPress={()=>{
+            router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
+            <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
+          </Touchable>
           :<AiLoader style={{marginTop:isIOS?0:-6}}/>}
           {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
@@ -201,7 +206,7 @@ export default forwardRef(({
         </View>
       </View>
 
-      <View style={[styles.row,{marginLeft:28,marginTop:16,position:'relative'}]}>
+      {!hideIcons&&<View style={[styles.row,{marginLeft:28,marginTop:16,position:'relative'}]}>
       <Touchable onPress={onStarred} style={{paddingHorizontal:6,paddingVertical:4}}>
         <SvgXml xml={home.star}/>
       </Touchable>
@@ -240,7 +245,7 @@ export default forwardRef(({
             </View>
           </MenuItem>}
         </Menu>
-      </View>
+      </View>}
     </View>
   );
 });
