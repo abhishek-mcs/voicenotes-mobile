@@ -32,6 +32,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { isIOS } from "utils/common";
 
+const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
 
 export default ()=> {
@@ -59,6 +60,7 @@ export default ()=> {
   const [play,setPlay] = useState<Audio.Sound|null>()
   const [audioLoading, setAudioLoading] = useState(-1);
   const scrollRef = useRef<FlatList>(null);
+  const soundRef = useRef<any>(null);
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -82,8 +84,10 @@ export default ()=> {
   const onCreate = () => {
     CreateModalRef.current?.open();
   };
-  const onStartRecord = () => {
+  const onStartRecord = async() => {
     onRecord(setRec, setRecEnabled);
+    soundRef.current = new Audio.Sound();
+    await soundRef.current?.loadAsync(recordSound,{shouldPlay:true})
   };
   const onStopRecord = async(d:number) => {
     const file = rec?.getURI()||"";
@@ -115,11 +119,13 @@ export default ()=> {
           },
         }
       );
+      await soundRef.current?.unloadAsync()
   };
-  const onCancel = () => {
+  const onCancel = async() => {
     cancelRecording(rec);
     setRec(null);
     setRecEnabled(false);
+    await soundRef.current?.unloadAsync()
   };
 
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
