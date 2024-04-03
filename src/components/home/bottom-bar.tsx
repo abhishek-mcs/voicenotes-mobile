@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 20,
     right: 20,
-    bottom: 60,
+    bottom: 40,
     alignItems: "center",
     shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
 		shadowOpacity: 0.9,

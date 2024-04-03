@@ -34,7 +34,7 @@ import { isIOS } from "utils/common";
 
 const {height}=Dimensions.get('screen')
 
-export default function TabOneScreen() {
+export default ()=> {
   // const pathname = usePathname();
   // const params = useGlobalSearchParams();
   // const router = useRouter();

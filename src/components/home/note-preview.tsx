@@ -151,11 +151,10 @@ export default forwardRef(({
   };
   const onPlay=async()=>{
     try {
-      // if(isPlay==index){
         setIsPlay(-1)
         await play?.unloadAsync()
         setPlay(null)
-      // }else{
+      if(isPlay!=index){
         setAudioLoading(index);
         signedURL.mutate(note?.id,{
           onSuccess:async(r)=>{
@@ -168,7 +167,7 @@ export default forwardRef(({
             setPlay(sound);
           }
         })
-      // }
+      }
     } catch (error) {
       console.error('Error playing audio:', error);
     }

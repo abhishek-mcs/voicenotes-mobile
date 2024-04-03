@@ -9,7 +9,7 @@ import axiosApi, { setAuthToken } from "services/api/axios-api";
 
 export function useGuestToken(){
     return useMutation('guest-token',async (p?:any)=>{
-        return await axiosApi.post('/guest');
+        return await axios.post(API_URL+'/api/guest');
     },
     {
         onError:(error:any)=>{
