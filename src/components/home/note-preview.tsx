@@ -201,11 +201,11 @@ export default forwardRef(({
         </View>
       </View>
 
-      <View style={[styles.row,{marginLeft:34,marginTop:16,position:'relative'}]}>
-      <Touchable onPress={onStarred}>
+      <View style={[styles.row,{marginLeft:28,marginTop:16,position:'relative'}]}>
+      <Touchable onPress={onStarred} style={{paddingHorizontal:6,paddingVertical:4}}>
         <SvgXml xml={home.star}/>
       </Touchable>
-      <Touchable style={{marginLeft:16}} onPress={onEdit}>
+      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5,marginLeft:4}}>
         <SvgXml xml={home.edit}/>
       </Touchable>
       {/* <Touchable style={{marginLeft:16}} onPress={onCreateSummary} >
@@ -362,10 +362,11 @@ const styles = StyleSheet.create({
     marginLeft:10
   },
   menuPress: {
-    height: 20,
-    width: 30,
-    alignItems: "flex-end",
+    height: 25,
+    width: 35,
+    alignItems: "center",
     justifyContent: "center",
+    marginLeft:4
   },
   menuItem: { paddingHorizontal:isIOS? 16:4, borderRadius: 12, overflow: "hidden" },
   menuItemTxt: {
