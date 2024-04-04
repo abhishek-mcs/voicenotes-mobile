@@ -80,9 +80,9 @@ export default ()=> {
     CreateModalRef.current?.open();
   };
   const onStartRecord = async() => {
-    onRecord(setRec, setRecEnabled);
-     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true})
+     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false})
      soundRef.current=sound
+     onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
     const file = rec?.getURI()||"";
@@ -116,15 +116,18 @@ export default ()=> {
       );
       await soundRef.current?.unloadAsync()
   };
-  const onCancel = () => {
-    cancelRecording(rec);
+  const onCancel = async() => {
+    await cancelRecording(rec,soundRef.current);
     setRec(null);
     setRecEnabled(false);
-    soundRef.current?.unloadAsync()
   };
 
   useEffect(() => {
-    return rec?()=>onCancel():undefined
+    return rec?()=>{
+      cancelRecording(rec,soundRef.current);
+      setRec(null);
+      setRecEnabled(false);
+    }:undefined
   },[])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
