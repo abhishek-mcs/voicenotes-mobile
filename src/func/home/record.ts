@@ -41,7 +41,7 @@ export const onRecord = async (
         );
         setRec(recordingObject);
         setRecEnabled(true);
-      } else if (status.canAskAgain && status.status == "undetermined") {
+      } else if (status.canAskAgain && status.status == "undetermined"||status.status == "denied") {
         await Audio.requestPermissionsAsync().then(
           async ({ canAskAgain, status }) => {
             if (status == "granted") {
