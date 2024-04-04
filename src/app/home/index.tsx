@@ -6,7 +6,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { View } from "../../components/common/Themed";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
@@ -29,17 +29,12 @@ import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "q
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import CircularLoader from "components/common/loaders/circular-loader";
 import { isIOS } from "utils/common";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
 
 export default ()=> {
-  // const pathname = usePathname();
-  // const params = useGlobalSearchParams();
-  // const router = useRouter();
-  // const segments = useSegments();
   const insets=useSafeAreaInsets()
   const notePreviewRef = useRef<any>();
   const {hashFilter} = useSelector((state: RootState) => state.hash);
@@ -86,8 +81,8 @@ export default ()=> {
   };
   const onStartRecord = async() => {
     onRecord(setRec, setRecEnabled);
-    soundRef.current = new Audio.Sound();
-    await soundRef.current?.loadAsync(recordSound,{shouldPlay:true})
+     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true})
+     soundRef.current=sound
   };
   const onStopRecord = async(d:number) => {
     const file = rec?.getURI()||"";
@@ -121,13 +116,17 @@ export default ()=> {
       );
       await soundRef.current?.unloadAsync()
   };
-  const onCancel = async() => {
+  const onCancel = () => {
     cancelRecording(rec);
     setRec(null);
     setRecEnabled(false);
-    await soundRef.current?.unloadAsync()
+    soundRef.current?.unloadAsync()
   };
 
+  useEffect(() => {
+    return rec?()=>onCancel():undefined
+  },[])
+  
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
   const renderItem = useCallback(

@@ -36,12 +36,9 @@ export const onRecord = async (
           playThroughEarpieceAndroid: true,
         });
 
-        const recordingObject = new Audio.Recording();
-        await recordingObject.prepareToRecordAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        const { recording: recordingObject, status } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY
         );
-        await recordingObject.setProgressUpdateInterval(500);
-        await recordingObject.startAsync();
         setRec(recordingObject);
         setRecEnabled(true);
       } else if (status.canAskAgain && status.status == "undetermined") {

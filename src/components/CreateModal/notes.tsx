@@ -51,7 +51,7 @@ export default (
             <View style={btnBox}>
                 <Touchable onPress={onCopy} style={btn}>
                     <>
-                    <SvgXml xml={home.copy}/>
+                    <SvgXml xml={home.copy2}/>
                     <Text style={btnText}>Copy</Text>
                     </>
                 </Touchable>

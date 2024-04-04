@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { ActivityIndicator, FlatList, SafeAreaView, ScrollView, Text, View } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { useQueryClient } from "react-query"
+import { isIOS } from "utils/common"
 
 export default ()=>{
     const router=useRouter()
@@ -55,7 +56,7 @@ export default ()=>{
     );
 
     return (
-        <SafeAreaView style={{backgroundColor:'#fff',flex:1}}>
+        <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:32}}>
             <View>
                 <Touchable onPress={()=>router.back()} style={{flexDirection:'row',alignItems:'center',padding:12}}>
                     <SvgXml xml={commonSvg.back} height={21}/>
@@ -84,10 +85,13 @@ export default ()=>{
                         keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
                         renderItem={renderItem}
                         ListEmptyComponent={() => getRelatedNote.isLoading?(
-                          <View style={{flex:1,minHeight:300,justifyContent:'center',alignItems:'center'}}>
+                          <View style={{flex:1,minHeight:200,justifyContent:'center',alignItems:'center'}}>
                             <ActivityIndicator size={"small"} color={"#000"}/>
                           </View>
-                        ):null}
+                        ):
+                        <View style={{flex:1,minHeight:200,justifyContent:'center',alignItems:'center'}}>
+                            <Text style={{fontFamily:'Primary',fontSize:14,color:Colors.darkWithOpacity(0.5)}}>No related notes found</Text>
+                        </View>}
                         />
                     </View>
                 </ScrollView>
