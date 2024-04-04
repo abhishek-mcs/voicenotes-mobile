@@ -251,7 +251,7 @@ export default forwardRef(({
 });
 
 const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>(
-  <View style={styles.editContainer}>
+  <View style={styles.editContainer} onTouchStart={e=>e?.stopPropagation()}>
     <TextInput 
       style={styles.titleInput}
       autoComplete="off"

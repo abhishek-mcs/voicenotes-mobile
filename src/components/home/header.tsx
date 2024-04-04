@@ -91,8 +91,8 @@ const styles=StyleSheet.create({
     marginLeft:10
   },
   menuPress: {
-    alignItems: "flex-end",
-    justifyContent: "center",
+    alignSelf: "flex-end",
+    justifyContent: "center",width:30,height:30,borderRadius:8
   },
   menuItem: { paddingHorizontal: isIOS? 16:8, borderRadius: 12, overflow: "hidden", },
   menuItemTxt: {

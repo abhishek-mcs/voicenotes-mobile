@@ -196,6 +196,7 @@ export default forwardRef((props, ref) => {
           )}
           <View style={styles.inputContainer}>
             <TextInput
+              onTouchStart={e=>e?.stopPropagation()}
               onFocus={()=>scrollToEnd()}
               style={styles.input}
               scrollEnabled={false}
@@ -206,7 +207,7 @@ export default forwardRef((props, ref) => {
               enablesReturnKeyAutomatically={true} 
               returnKeyType="send"
               autoCorrect={false}
-              autoFocus
+              autoFocus={false}
               autoCapitalize="none"
               onChangeText={(text) => setInput(text)}
               onSubmitEditing={() => onSend(input)}

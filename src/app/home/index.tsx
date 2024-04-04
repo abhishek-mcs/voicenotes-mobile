@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
@@ -44,11 +45,8 @@ export default ()=> {
   );
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [searchParam, setSearchParam] = useState("");
-  const [searchText, setSearchText] = useState("");
   const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
-  const [searchEnabled, setSearchEnabled] = useState(true);
   const AIModalRef = useRef<Modalize>();
   const CreateModalRef = useRef<Modalize>();
   const [isPlay,setIsPlay] = useState(-1)
@@ -70,7 +68,7 @@ export default ()=> {
     [recordingQuery]
   );
   
-  const isListEmpty = recordingList?.length == 0 || true;
+  const isListEmpty = recordingList?.length == 0 || null;
   // setupAudioRec(rec)
 
   const onAsk = () => {
@@ -151,20 +149,13 @@ export default ()=> {
   );
 
   return (
-    <SafeAreaView style={styles.container} >
-      <KeyboardAvoidingView behavior="padding">
+    <SafeAreaView style={styles.container} onTouchStart={()=>Keyboard.dismiss()}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
-          {/* {!isListEmpty && (
-            <SearchBar
-              searchParam={searchParam}
-              setSearchText={setSearchText}
-              setSearchEnabled={setSearchEnabled}
-              setSearchParam={setSearchParam}
-              searchEnabled={searchEnabled}
-              type={"messages"}
-            />
-          )} */}
+          {!isListEmpty && (
+            <SearchBar />
+          )}
           <FlatList
             ref={scrollRef}
             data={
@@ -190,7 +181,7 @@ export default ()=> {
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
             ):!!token?<AboutProduct disable={true} />:null}
-            automaticallyAdjustKeyboardInsets
+            // automaticallyAdjustKeyboardInsets
           />
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
