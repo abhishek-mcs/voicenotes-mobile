@@ -11,8 +11,8 @@ import {router as route} from "expo-router"
 import { useLogout } from "queries/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { useQueryClient } from "react-query";
 import { isIOS } from "utils/common";
+import { useGetUserData } from "queries/home";
 
 export default ({isLogged=true}) => {
   const router:any=useNavigation()
@@ -20,10 +20,8 @@ export default ({isLogged=true}) => {
   const {hashTags} = useSelector((state: RootState) => state.hash);
 
   const logout=useLogout()
-  const queryClient=useQueryClient()
-  const data:any=queryClient.getQueryData('user-data')||null;
-  const photo_url=data?.photo_url||null;
-  
+  const data=useGetUserData();
+  const photo_url=data?.data?.data?.photo_url||null;
   const onLogout = () =>{
     setShowMenu(false)
     Alert.alert('',"Are you sure you want to log out?",

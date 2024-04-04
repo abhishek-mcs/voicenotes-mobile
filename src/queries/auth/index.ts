@@ -9,7 +9,7 @@ import axiosApi, { setAuthToken } from "services/api/axios-api";
 
 export function useGuestToken(){
     return useMutation('guest-token',async (p?:any)=>{
-        return await axiosApi.post('/guest');
+        return await axios.post(API_URL+'/api/guest');
     },
     {
         onError:(error:any)=>{
@@ -44,6 +44,7 @@ export function useLogout(){
         setAuthToken(guestToken,true)
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
+        queryClient.resetQueries('all-tags')
         dispatch(setToken(''))
         route.replace("/home/")
     }

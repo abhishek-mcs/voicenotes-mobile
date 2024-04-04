@@ -6,7 +6,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { View } from "../../components/common/Themed";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
@@ -29,16 +29,12 @@ import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "q
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import CircularLoader from "components/common/loaders/circular-loader";
 import { isIOS } from "utils/common";
 
+const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
 
-export default function TabOneScreen() {
-  // const pathname = usePathname();
-  // const params = useGlobalSearchParams();
-  // const router = useRouter();
-  // const segments = useSegments();
+export default ()=> {
   const insets=useSafeAreaInsets()
   const notePreviewRef = useRef<any>();
   const {hashFilter} = useSelector((state: RootState) => state.hash);
@@ -59,6 +55,7 @@ export default function TabOneScreen() {
   const [play,setPlay] = useState<Audio.Sound|null>()
   const [audioLoading, setAudioLoading] = useState(-1);
   const scrollRef = useRef<FlatList>(null);
+  const soundRef = useRef<any>(null);
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -82,8 +79,10 @@ export default function TabOneScreen() {
   const onCreate = () => {
     CreateModalRef.current?.open();
   };
-  const onStartRecord = () => {
-    onRecord(setRec, setRecEnabled);
+  const onStartRecord = async() => {
+     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false})
+     soundRef.current=sound
+     onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
     const file = rec?.getURI()||"";
@@ -115,13 +114,22 @@ export default function TabOneScreen() {
           },
         }
       );
+      await soundRef.current?.unloadAsync()
   };
-  const onCancel = () => {
-    cancelRecording(rec);
+  const onCancel = async() => {
+    await cancelRecording(rec,soundRef.current);
     setRec(null);
     setRecEnabled(false);
   };
 
+  useEffect(() => {
+    return rec?()=>{
+      cancelRecording(rec,soundRef.current);
+      setRec(null);
+      setRecEnabled(false);
+    }:undefined
+  },[])
+  
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
   const renderItem = useCallback(

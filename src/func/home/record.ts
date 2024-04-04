@@ -36,12 +36,9 @@ export const onRecord = async (
           playThroughEarpieceAndroid: true,
         });
 
-        const recordingObject = new Audio.Recording();
-        await recordingObject.prepareToRecordAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        const { recording: recordingObject, status } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY
         );
-        await recordingObject.setProgressUpdateInterval(500);
-        await recordingObject.startAsync();
         setRec(recordingObject);
         setRecEnabled(true);
       } else if (status.canAskAgain && status.status == "undetermined") {
@@ -88,10 +85,11 @@ export const stopRecording = async (recording: Audio.Recording | null) => {
   }
 };
 
-export const cancelRecording = async (recording: Audio.Recording | null) => {
+export const cancelRecording = async (recording: Audio.Recording | null,soundRef:Audio.Sound|null) => {
   try {
     await recording?.stopAndUnloadAsync();
     await recording?._cleanupForUnloadedRecorder()
+    await soundRef?.unloadAsync();
   } catch (error) {
     console.error("Failed to stop recording", error);
   }

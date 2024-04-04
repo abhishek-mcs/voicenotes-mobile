@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react"
 import { View, Pressable, Platform, Animated,Text, TouchableOpacity,StyleSheet } from "react-native"
 import * as WebBrowser from "expo-web-browser"
+import { useRouter } from "expo-router"
 
-const logo = require("assets/images/icon.png")
+const logo = require("assets/images/logo.png")
 WebBrowser.maybeCompleteAuthSession()
 
 

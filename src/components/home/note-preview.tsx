@@ -19,10 +19,11 @@ import AiLoader from "components/common/loaders/ai-loader";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import { router, useRouter } from "expo-router";
 
 export default forwardRef(({
   note,
-  list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading
+  list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
@@ -133,8 +134,9 @@ export default forwardRef(({
       },
       {
         text:'Yes',
-        onPress:()=>{
-          deleteRecord.mutate('')
+        onPress:async()=>{
+          await deleteRecord.mutateAsync('')
+          onDeleteCallBack()
         }
       }
     ])
@@ -151,11 +153,10 @@ export default forwardRef(({
   };
   const onPlay=async()=>{
     try {
-      // if(isPlay==index){
         setIsPlay(-1)
         await play?.unloadAsync()
         setPlay(null)
-      // }else{
+      if(isPlay!=index){
         setAudioLoading(index);
         signedURL.mutate(note?.id,{
           onSuccess:async(r)=>{
@@ -168,7 +169,7 @@ export default forwardRef(({
             setPlay(sound);
           }
         })
-      // }
+      }
     } catch (error) {
       console.error('Error playing audio:', error);
     }
@@ -192,7 +193,10 @@ export default forwardRef(({
         <View style={styles.timeLine} />
         <View style={{marginLeft:isIOS?25:24}}>
           {!!note?.title?
-          <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
+          <Touchable onPress={()=>{
+            router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
+            <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
+          </Touchable>
           :<AiLoader style={{marginTop:isIOS?0:-6}}/>}
           {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
@@ -202,11 +206,11 @@ export default forwardRef(({
         </View>
       </View>
 
-      <View style={[styles.row,{marginLeft:34,marginTop:16,position:'relative'}]}>
-      <Touchable onPress={onStarred}>
+      {!hideIcons&&<View style={[styles.row,{marginLeft:28,marginTop:16,position:'relative'}]}>
+      <Touchable onPress={onStarred} style={{paddingHorizontal:6,paddingVertical:4}}>
         <SvgXml xml={home.star}/>
       </Touchable>
-      <Touchable style={{marginLeft:16}} onPress={onEdit}>
+      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5,marginLeft:4}}>
         <SvgXml xml={home.edit}/>
       </Touchable>
       {/* <Touchable style={{marginLeft:16}} onPress={onCreateSummary} >
@@ -241,7 +245,7 @@ export default forwardRef(({
             </View>
           </MenuItem>}
         </Menu>
-      </View>
+      </View>}
     </View>
   );
 });
@@ -363,10 +367,11 @@ const styles = StyleSheet.create({
     marginLeft:10
   },
   menuPress: {
-    height: 20,
-    width: 30,
-    alignItems: "flex-end",
+    height: 25,
+    width: 35,
+    alignItems: "center",
     justifyContent: "center",
+    marginLeft:4
   },
   menuItem: { paddingHorizontal:isIOS? 16:4, borderRadius: 12, overflow: "hidden" },
   menuItemTxt: {

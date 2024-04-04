@@ -25,4 +25,5 @@ export default {
   greenWithOpacity: (opacity:number) => `rgba(88, 169, 66, ${opacity})`,
   grey:'#9b9b9b',
   green:'#58a942',
+  lightGrey:'#f9f9f9',
 };

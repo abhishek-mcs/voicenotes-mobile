@@ -67,7 +67,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
       animationOut={"fadeOut"}
       onBackdropPress={onClose}
       style={{justifyContent:'flex-end',bottom:130}}
-      backdropOpacity={0.75}
+      backdropOpacity={0.05}
     > 
       <View style={[styles.modal,styles[preview]]}>
         {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}

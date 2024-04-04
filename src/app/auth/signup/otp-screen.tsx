@@ -10,6 +10,9 @@ import {OTPInput} from "components/auth/otp-input"
 import { useQueryClient } from "react-query"
 import { useMoveGuestRecords } from "queries/home"
 import { RootState } from "redux/store/store"
+import Touchable from "components/common/Touchable"
+import { SvgXml } from "react-native-svg"
+import { commonSvg } from "assets/svg/commonSvg"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -83,8 +86,14 @@ export default ()=>{
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior="padding" style={{flex:1}}>
+      <View style={{justifyContent:'space-between',flexDirection:'row',alignItems:'center',marginTop:16}}>
+        <Touchable style={{height:56,paddingHorizontal:16}} onPress={()=>{router.back()}}>
+          <SvgXml xml={commonSvg.back1}/>
+        </Touchable>
+        <Text style={styles.title}>Confirm Sign Up</Text>
+        <View style={{width:56}}/>
+      </View>
       <View style={styles.contentContainer}>
-      <Text style={styles.title}>Confirm Sign Up</Text>
       <View style={[styles.box,{paddingHorizontal:24,paddingTop:25,paddingBottom:32}]}>
         <Text style={styles.otpDesc}>{`Enter the 6-digit code we sent to your email`}</Text>
         {/* <Text style={styles.otpDesc}>{secureEmail(userStore.email)}</Text> */}
@@ -112,7 +121,7 @@ const isIOS=Platform.OS=='ios'
 
 const styles=StyleSheet.create({
   container:{flex:1,backgroundColor:'#f8f8f8',paddingTop:16},
-  contentContainer:{flex:1,backgroundColor:'#f8f8f8',padding:16,paddingTop:isIOS?0:48},
+  contentContainer:{flex:1,backgroundColor:'#f8f8f8',padding:16},
   tabBarStyle:{height:6,marginBottom:isIOS?24:20,width:rspValue(198),alignSelf:'center',backgroundColor:'#f8f8f8',borderWidth:0,flexDirection:'row',justifyContent:'space-between'},
   tabBarIndicatorStyle:{height:6,width:rspValue(62),borderRadius:100,overflow:'hidden'},
   box:{paddingVertical:24,paddingHorizontal:16,backgroundColor:'#fff',borderRadius:12,shadowColor:'rgba(0, 0, 0, 0.0.04)',shadowOffset:{width:0,height:2},shadowRadius:10,shadowOpacity:0.1},
@@ -122,7 +131,7 @@ const styles=StyleSheet.create({
   radioFill:{borderWidth:5,borderColor:'#222',backgroundColor:'#fff',width:20,height:20,borderRadius:100,justifyContent:'center',alignItems:'center'},
   continueBtn:{alignSelf:'center',backgroundColor:Colors.primary,marginVertical:32,position:'absolute',bottom:0,width:'100%',borderRadius:100,height:49,alignItems:'center',justifyContent:'center'},
   continueBtnText:{color:'#222',fontFamily:'Primary-Bold',fontSize:16,lineHeight:19.2},
-  title:{fontSize:24,fontFamily:'Primary-Medium',color:'#222',textAlign:'center',marginBottom:16},
+  title:{fontSize:24,fontFamily:'Primary-Medium',color:'#222',textAlign:'center',marginBottom:32},
   checkBoxStyle:{minHeight:32, marginBottom:16},
   checkboxLabel:{alignSelf:'center',color:'#222',fontSize:14,lineHeight:22,fontFamily:'Primary',flex:1,marginLeft:6},
   textInput:{paddingTop:13,paddingBottom:13,paddingHorizontal:16,backgroundColor:'rgba(240, 240, 240, 1)',borderWidth:0,borderRadius:12,marginTop:20,fontSize:14,fontFamily:'Primary-Medium',lineHeight:19,color:'#222',textAlignVertical:'top'},
