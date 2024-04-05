@@ -91,9 +91,12 @@ export default forwardRef((props, ref) => {
         close() {
           setVisible(false);
         },
+        toggle(){
+          setVisible(!visible)
+        }
       };
     },
-    []
+    [visible]
   );
 
   const scrollToEnd = () => 
@@ -143,9 +146,11 @@ export default forwardRef((props, ref) => {
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 20 : 50 }]}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 20 : 64 }]}
       backdropOpacity={0.005}
       avoidKeyboard
+      hasBackdrop={false}
+      coverScreen={false}
     >
       <View style={styles.modal}>
         <View style={[styles.header1, !chatStarted ? styles.header2 : {}]}>

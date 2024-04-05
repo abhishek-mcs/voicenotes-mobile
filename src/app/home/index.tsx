@@ -14,7 +14,6 @@ import Header from "components/home/header";
 import NotePreview from "components/home/note-preview";
 import AboutProduct from "components/home/about-product";
 import AIModal from "components/AIModal";
-import { Modalize } from "react-native-modalize";
 import CreateModal from "components/CreateModal";
 import SearchBar from "components/common/search-bar";
 import { Audio } from "expo-av";
@@ -47,8 +46,8 @@ export default ()=> {
   const dispatch = useDispatch();
   const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
-  const AIModalRef = useRef<Modalize>();
-  const CreateModalRef = useRef<Modalize>();
+  const AIModalRef = useRef<any>();
+  const CreateModalRef = useRef<any>();
   const [isPlay,setIsPlay] = useState(-1)
   const [play,setPlay] = useState<Audio.Sound|null>()
   const [audioLoading, setAudioLoading] = useState(-1);
@@ -73,12 +72,16 @@ export default ()=> {
   // setupAudioRec(rec)
 
   const onAsk = () => {
-    AIModalRef.current?.open();
+    CreateModalRef.current?.close()
+    AIModalRef.current?.toggle();
   };
   const onCreate = () => {
-    CreateModalRef.current?.open();
+    AIModalRef?.current?.close()
+    CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    AIModalRef.current?.close()
+    CreateModalRef.current?.close()
      const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false})
      soundRef.current=sound
      onRecord(setRec, setRecEnabled);
@@ -151,7 +154,7 @@ export default ()=> {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>setHideSearch(true)}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
           {!isListEmpty&&!!token && (

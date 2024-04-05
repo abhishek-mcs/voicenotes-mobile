@@ -60,8 +60,8 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
           <Button onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
         </>
       ) : (
-        <>
-          <Button title="Cancel" onPress={onCancel}/>
+        <View style={{justifyContent:'space-between',flexDirection:'row',flex:1}}>
+          <Button title="Cancel" onPress={onCancel} style={{paddingHorizontal:20}}/>
           <View style={styles.row}>
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
             <Text style={styles.tabItemText}>{`${formattedDuration}${!!token?'':'/01:00'}`}</Text>
@@ -73,8 +73,9 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             bgColor={Colors.greenWithOpacity(0.2)}
             underlayColor={Colors.greenWithOpacity(0.3)}
             onPress={()=>onStopRecord(duration)}
+            style={{paddingHorizontal:20}}
           />
-        </>
+        </View>
       )}
     </View>
   );
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
-    flex:1,justifyContent:'center',
+    justifyContent:'center',
     backgroundColor: "#2222220D",
     overflow: "hidden",
   },
