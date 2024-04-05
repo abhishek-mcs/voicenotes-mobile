@@ -6,7 +6,7 @@ import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacit
 import { SvgXml } from "react-native-svg";
 import { formatDate } from "utils/format-date";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { useAddTitle, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
@@ -21,6 +21,7 @@ import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
+import AiCreatedView from "./ai-created-view";
 
 export default forwardRef(({
   note,
@@ -29,7 +30,9 @@ export default forwardRef(({
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
-  const [visible, setVisible] = useState(false);
+  const [moreOption, setMoreOption] = useState(false);
+  const [createOption, setCreateOption] = useState(false);
+  const [creationLoader, setCreationLoader] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
 
@@ -65,9 +68,10 @@ export default forwardRef(({
       setTriggerTypingTranscript(2)
   },[triggerTypingTranscript])
 
-  const hideMenu = () => setVisible(false);
-
-  const showMenu = () => setVisible(true);
+  const hideMoreOption = () => setMoreOption(false);
+  const showMoreOption = () => setMoreOption(true);
+  const hideCreateOption = () => setCreateOption(false);
+  const showCreateOption = () => setCreateOption(true);
 
   const onSaveEdit=()=>{
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
@@ -113,12 +117,15 @@ export default forwardRef(({
     })
   }
 
-  const onCreate=(type='summary')=>{
-    createAI.mutate({recording_id:note?.id,type})
+  const onCreate=async(type='summary')=>{
+    setCreationLoader(true)
+    hideCreateOption()
+    await createAI.mutateAsync({recording_id:note?.id,type})
+    setCreationLoader(false)
   }
 
   const onGenerate=useCallback(()=>{
-    hideMenu();
+    hideMoreOption();
     list[index].title=null
     addTitleRecord.mutate(note?.id,{
       onSuccess:async()=>{
@@ -128,11 +135,11 @@ export default forwardRef(({
     })
   },[])
   const onCopy=async()=>{
-    hideMenu();
+    hideMoreOption();
     await setStringAsync(note?.transcript||'');
   }
   const onDelete=()=>{
-    hideMenu();
+    hideMoreOption();
     Alert.alert('','Are you sure you want to delete?',[
       {
         text:'No',
@@ -180,7 +187,8 @@ export default forwardRef(({
       console.error('Error playing audio:', error);
     }
   }
-  
+
+  const creationList=useMemo(()=>note?.creations?.reverse(),[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
@@ -197,7 +205,7 @@ export default forwardRef(({
       </View>
       <View style={{ flexDirection: "row", marginTop: 8 }}>
         <View style={styles.timeLine} />
-        <View style={{marginLeft:isIOS?25:24}}>
+        <View style={{marginLeft:isIOS?25:24,flex:1}}>
           {!!note?.title?
           <Touchable onPress={()=>{
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
@@ -209,24 +217,19 @@ export default forwardRef(({
           <View style={styles.row}>
           {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
           </View>}
-        </View>
-      </View>
 
-      {!hideIcons&&<View style={[styles.row,{marginLeft:28,marginTop:16,position:'relative'}]}>
-      <Touchable onPress={onStarred} style={{paddingHorizontal:6,paddingVertical:4}}>
-        <SvgXml xml={home.star}/>
-      </Touchable>
-      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5,marginLeft:4}}>
+      {!hideIcons&&<View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
+      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}}>
         <SvgXml xml={home.edit}/>
       </Touchable>
-      {/* <Menu
-          visible={visible}
+      <Menu
+          visible={createOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMenu}>
+            <Touchable style={styles.menuPress} onPress={showCreateOption}>
               <SvgXml xml={home.create1} />
             </Touchable>
           }
-          onRequestClose={hideMenu}
+          onRequestClose={hideCreateOption}
           style={styles.menu}
         >
         <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
@@ -265,15 +268,15 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Email</Text>
             </View>
           </MenuItem>
-        </Menu> */}
+        </Menu>
       <Menu
-          visible={visible}
+          visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMenu}>
+            <Touchable style={styles.menuPress} onPress={showMoreOption}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
-          onRequestClose={hideMenu}
+          onRequestClose={hideMoreOption}
           style={styles.menu}
         >
         <MenuItem style={styles.menuItem} onPress={onStarred}>
@@ -302,6 +305,12 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
+        {creationLoader&&<AiLoader text="Creating summary from your voice" />}
+        {creationList?.map((itm:any,i:number)=>(
+          <AiCreatedView type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
+        ))}
+        </View>
+      </View>
     </View>
   );
 });
@@ -429,7 +438,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft:4
   },
-  menuItem: { paddingHorizontal:isIOS? 16:4, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingHorizontal:isIOS? 0:4,paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden" },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,
