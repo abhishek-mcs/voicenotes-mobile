@@ -54,9 +54,10 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             underlayColor={Colors.blackWithOpacity(0.7)}
             bgColor={"#000"}
             color="#fff"
+            style={{flex:2}}
           />
-          <Button onPress={onAsk} title="Ask" icon={home.ask} style={{paddingHorizontal:20}}/>
-          <Button onPress={onCreate} title="Create" icon={home.create} />
+          <Button onPress={onAsk} title="Ask" icon={home.ask} style={{paddingHorizontal:20,marginHorizontal:8}}/>
+          <Button onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
         </>
       ) : (
         <>
@@ -129,14 +130,14 @@ const styles = StyleSheet.create({
 		elevation: 3,
     paddingHorizontal: 12,
     paddingVertical:8,
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
   },
   tabItem: {
     height: 40,
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 22,
+    flex:1,justifyContent:'center',
     backgroundColor: "#2222220D",
     overflow: "hidden",
   },
