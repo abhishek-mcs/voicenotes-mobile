@@ -8,7 +8,7 @@ import { formatDate } from "utils/format-date";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Audio } from "expo-av";
-import { useAddTitle, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
+import { useAddTitle, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
 import loader from "assets/lottie/loader.json"
 import LottieView from "lottie-react-native";
@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { router, useRouter } from "expo-router";
+import { CreateModalSvg } from "assets/svg/CreateModal";
 
 export default forwardRef(({
   note,
@@ -40,6 +41,7 @@ export default forwardRef(({
   const deleteRecord=useDeleteRecording(note?.id)
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
+  const createAI=useCreate()
 
   useImperativeHandle(ref,()=>({
     onTriggerTranscript:()=>{
@@ -110,7 +112,11 @@ export default forwardRef(({
       },
     })
   }
-  const onCreateSummary=()=>{}
+
+  const onCreate=(type='summary')=>{
+    createAI.mutate({recording_id:note?.id,type})
+  }
+
   const onGenerate=useCallback(()=>{
     hideMenu();
     list[index].title=null
@@ -213,9 +219,53 @@ export default forwardRef(({
       <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5,marginLeft:4}}>
         <SvgXml xml={home.edit}/>
       </Touchable>
-      {/* <Touchable style={{marginLeft:16}} onPress={onCreateSummary} >
-        <SvgXml xml={home.create1}/>
-      </Touchable> */}
+      {/* <Menu
+          visible={visible}
+          anchor={
+            <Touchable style={styles.menuPress} onPress={showMenu}>
+              <SvgXml xml={home.create1} />
+            </Touchable>
+          }
+          onRequestClose={hideMenu}
+          style={styles.menu}
+        >
+        <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={CreateModalSvg.summary} />
+            <Text style={styles.menuItemTxt}>Summarize</Text>
+          </View>
+        </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('points')}>
+            <View style={[styles.row,{width:180}]}>
+              <SvgXml xml={CreateModalSvg.points} />
+              <Text style={styles.menuItemTxt}>List main points</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('todo')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.todo} />
+              <Text style={styles.menuItemTxt}>To-do list</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('blog')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.blog} />
+              <Text style={styles.menuItemTxt}>Blog post</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('tweet')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.tweet} />
+              <Text style={styles.menuItemTxt}>Tweet</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('email')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.email} />
+              <Text style={styles.menuItemTxt}>Email</Text>
+            </View>
+          </MenuItem>
+        </Menu> */}
       <Menu
           visible={visible}
           anchor={
@@ -226,6 +276,12 @@ export default forwardRef(({
           onRequestClose={hideMenu}
           style={styles.menu}
         >
+        <MenuItem style={styles.menuItem} onPress={onStarred}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={home.smallStar} />
+            <Text style={styles.menuItemTxt}>Tag as #starred</Text>
+          </View>
+        </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerate}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />

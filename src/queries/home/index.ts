@@ -35,10 +35,14 @@ export function useToggleStar(recording_id:number){
 }
 
 export function useCreate(){
+    const queryClient = useQueryClient();
     return useMutation('ai-create', (data:{recording_id:number,type:string}) => {
         return axiosApi.post(`/ai-create`, data);
     },
     {
+        onSuccess:()=>{
+            queryClient.invalidateQueries('all-recording')
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
