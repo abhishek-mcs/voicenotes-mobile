@@ -305,8 +305,8 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
-        {creationLoader&&<AiLoader text="Creating summary from your voice" />}
-        {creationList?.map((itm:any,i:number)=>(
+        {!!token&&creationLoader&&<AiLoader text="Creating summary from your voice" />}
+        {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}
         </View>
