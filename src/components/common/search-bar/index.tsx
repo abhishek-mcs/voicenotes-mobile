@@ -1,6 +1,6 @@
 import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, TouchableHighlight, View } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
 import Colors from "assets/Colors";
 import { Text } from "react-native";
@@ -9,11 +9,12 @@ import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
 const {debounce}=require("lodash")
 
-export default ()=>{
+export default ({hideView=true,setHide=(v:boolean)=>{}})=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter()
+    const ref=useRef<TextInput>(null)
 
     const searchHistoryData=useSearchHistory()
     const setSearchHistory=useSetSearchHistory()
@@ -35,6 +36,7 @@ export default ()=>{
     const clearSearch=()=>{
       setSearchText('')
       setSearchQuery('')
+      setHide(true)
       Keyboard.dismiss()
     }
 
@@ -45,20 +47,16 @@ export default ()=>{
     }
 
     return (
-        <View style={[styles.container]} onTouchStart={(e)=>e.stopPropagation()}>
+        <View style={[styles.container]}>
             <View style={[styles.box,isFocused?{borderColor:'#222'}:{borderColor:Colors.darkWithOpacity(0.1)}]}>
               <SvgXml xml={commonSvg.search?.replace('{color}',"#828282")} style={[{paddingHorizontal:8}]} />
               <View style={{flex:1}}>
                 <TextInput
-                  onFocus={() => setIsFocused(true)}
+                  onFocus={() => {setIsFocused(true);}}
                   onBlur={() => setIsFocused(false)}
                   textAlignVertical="center"
                   value={searchText}
                   returnKeyType={"search"}
-                  // onSubmitEditing={() => {
-                  //   setSearchText(searchParam)
-                  //   if (!searchEnabled&&searchParam!='') setSearchEnabled(true)
-                  // }}
                   autoFocus={false}
                   onChangeText={onSearch}
                   placeholder={"Search"}
@@ -67,6 +65,7 @@ export default ()=>{
                   autoCapitalize="none"
                   autoCorrect={false}
                   autoComplete="off"
+                  ref={ref}
                 />
               </View>
               {searchText != "" ? (
@@ -80,14 +79,17 @@ export default ()=>{
                 </Pressable>
               ) : null}
             </View>
-            {(searchHistoryList?.length!=0&&isFocused)&&
+            {(searchHistoryList?.length!=0&&!hideView)&&
               <View style={styles.modal}>
                   <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
                     {(searchText==''&&searchHistoryList?.length!=0)?
                     (<View style={{paddingVertical:12}}>
                       <Text style={styles.recent}>Recent searches</Text>
                       {searchHistoryList?.map((itm:any,i:number)=>
-                      <TouchableHighlight onPress={()=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword)}} style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} key={i} onPressIn={(e)=>e.stopPropagation()}>
+                      <TouchableHighlight 
+                        onPressIn={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
+                        style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
+                        key={i}>
                         <><SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
                         <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text></>
                       </TouchableHighlight>)}
@@ -100,7 +102,7 @@ export default ()=>{
                         <View style={{backgroundColor:'#222',width:6,height:6,borderRadius:9}}/>
                         <Text style={styles.title}>{itm?.title}</Text>
                       </View>
-                      <Text style={styles.txt}>...{itm?.transcript}</Text></View>
+                      <Text style={styles.txt}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
                     :getSearchData?.isLoading?
                     <View style={styles.result}>
@@ -173,7 +175,7 @@ const styles=StyleSheet.create({
     },
     title:{fontFamily:'Primary-Semibold',fontSize:16,color:'#222',marginLeft:8},
     txt:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:4},
-    result:{paddingHorizontal:20,paddingTop:16},
+    result:{paddingHorizontal:20,paddingVertical:16},
     noData:{
       fontFamily:'Primary-Semibold',
       color:"#222",

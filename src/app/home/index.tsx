@@ -54,6 +54,7 @@ export default ()=> {
   const [audioLoading, setAudioLoading] = useState(-1);
   const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
+  const [hideSearch,setHideSearch]=useState(true)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -149,12 +150,14 @@ export default ()=> {
   );
 
   return (
-    <SafeAreaView style={styles.container} onTouchStart={()=>Keyboard.dismiss()}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}}>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>setHideSearch(true)}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
           {!isListEmpty && (
-            <SearchBar />
+            <View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}}>
+            <SearchBar hideView={hideSearch} setHide={setHideSearch}/>
+            </View>
           )}
           <FlatList
             ref={scrollRef}
@@ -181,7 +184,7 @@ export default ()=> {
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
             ):!!token?<AboutProduct disable={true} />:null}
-            // automaticallyAdjustKeyboardInsets
+            automaticallyAdjustKeyboardInsets
           />
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
