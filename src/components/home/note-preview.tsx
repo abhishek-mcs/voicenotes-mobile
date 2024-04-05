@@ -98,6 +98,7 @@ export default forwardRef(({
   }
   const onEdit=()=>  setIsEdit(true)
   const onStarred=()=>{
+    hideMoreOption()
     const isStarred=note?.tags?.some((r:any)=>r?.name=='starred');
     if(!isStarred){
       note.tags?.push({name:'starred'})
@@ -188,7 +189,7 @@ export default forwardRef(({
     }
   }
 
-  const creationList=useMemo(()=>note?.creations?.reverse(),[list])
+  const creationList=useMemo(()=>note?.creations,[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
@@ -222,7 +223,7 @@ export default forwardRef(({
       <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}}>
         <SvgXml xml={home.edit}/>
       </Touchable>
-      <Menu
+      {!!token&&<Menu
           visible={createOption}
           anchor={
             <Touchable style={styles.menuPress} onPress={showCreateOption}>
@@ -268,7 +269,7 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Email</Text>
             </View>
           </MenuItem>
-        </Menu>
+        </Menu>}
       <Menu
           visible={moreOption}
           anchor={

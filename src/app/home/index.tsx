@@ -154,7 +154,7 @@ export default ()=> {
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>setHideSearch(true)}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
-          {!isListEmpty && (
+          {!isListEmpty&&!!token && (
             <View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}}>
             <SearchBar hideView={hideSearch} setHide={setHideSearch}/>
             </View>
