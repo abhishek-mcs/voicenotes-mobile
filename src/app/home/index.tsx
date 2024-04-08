@@ -161,15 +161,12 @@ export default ()=> {
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
     if (currentOffset > 0 && currentOffset < 40) {
       setIsSearchVisible(false);
-      setIsBottomBarVisible(false)
     } else if (currentOffset <= 0) {
       setIsSearchVisible(true);
-      setIsBottomBarVisible(true)
     }
   };
 
@@ -215,7 +212,7 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
-      {!!token&&<AskMeSomething isVisible={isBottomBarVisible}/>}
+      {!!token&&<AskMeSomething/>}
       </KeyboardAvoidingView>
       <BottomBar
         onAsk={onAsk}
@@ -224,7 +221,6 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
-        isVisible={isBottomBarVisible}
       />
     </SafeAreaView>
   );

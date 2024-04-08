@@ -1,6 +1,5 @@
-import { StyleSheet } from "react-native"
+import { StyleSheet, View } from "react-native"
 import { isIOS } from "utils/common"
-import * as Animatable from "react-native-animatable"
 import { Text } from "react-native"
 import AiLoader from "components/common/loaders/ai-loader"
 import { useRef, useState } from "react"
@@ -8,7 +7,7 @@ import { useAskSomething } from "queries/home"
 import ChatBuble from "components/common/chat-buble"
 import Colors from "assets/Colors"
 
-export default ({isVisible=false})=>{
+export default ()=>{
     const [loading,setLoading]=useState(false)
     const [qstn,setQstn]=useState('')
     const askSomething=useAskSomething()
@@ -27,12 +26,12 @@ export default ({isVisible=false})=>{
         }, 10000);
     }
     return (
-        <Animatable.View style={container} animation={isVisible?"fadeIn":"fadeOut"}>
+        <View style={container}>
             <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
             {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={14} style={{marginTop:8}}/>
             :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}
-            <Text style={caption}>Get personalized, thoughtful questions as you record more notes.</Text>
-        </Animatable.View>
+            {qstn!=''&&<Text style={caption}>Get personalized, thoughtful questions as you record more notes.</Text>}
+        </View>
     )
 }
 
