@@ -177,6 +177,17 @@ export function useSuggestions(){
     })
 }
 
+export function useAskSomething(){
+    return useMutation('ask-me-something',(p?:any) => {
+        return axiosApi.get(`/recordings/suggestion`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
 export function useAskAI(isGuest:boolean=true){
     return useMutation('chat',(data?:any) => {
         const {question="",id=null} = data;

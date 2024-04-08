@@ -31,6 +31,7 @@ import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS } from "utils/common";
 import * as Animatable from "react-native-animatable"
+import AskMeSomething from "components/ask-me-something";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -160,12 +161,15 @@ export default ()=> {
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
     if (currentOffset > 0 && currentOffset < 40) {
       setIsSearchVisible(false);
+      setIsBottomBarVisible(false)
     } else if (currentOffset <= 0) {
       setIsSearchVisible(true);
+      setIsBottomBarVisible(true)
     }
   };
 
@@ -212,6 +216,7 @@ export default ()=> {
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
       </KeyboardAvoidingView>
+      <AskMeSomething isVisible={!!token&&isBottomBarVisible}/>
       <BottomBar
         onAsk={onAsk}
         onCreate={onCreate}
@@ -219,7 +224,7 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
-        isVisible={isSearchVisible}
+        isVisible={isBottomBarVisible}
       />
     </SafeAreaView>
   );
