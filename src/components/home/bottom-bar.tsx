@@ -7,6 +7,7 @@ import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import * as Animatable from "react-native-animatable";
 
 interface Props {
   onRecord: () => void;
@@ -15,9 +16,10 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: ()=> void;
+  isVisible:boolean
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel }: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,isVisible }: Props) => {
     const [duration, setDuration] = useState(0);
     const {token} = useSelector((state: RootState) => state.userDetails);
     useEffect(() => {
@@ -44,7 +46,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
       }, [recEnabled]);
     const formattedDuration = new Date(duration).toISOString().substring(14, 19);
   return (
-    <View style={styles.tab}>
+    <Animatable.View style={styles.tab} animation={isVisible?"fadeIn":'fadeOut'} duration={250} useNativeDriver={true}>
       {!recEnabled ? (
         <>
           <Button
@@ -77,7 +79,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
           />
         </View>
       )}
-    </View>
+    </Animatable.View>
   );
 };
 
