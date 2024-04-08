@@ -91,9 +91,12 @@ export default forwardRef((props, ref) => {
         close() {
           setVisible(false);
         },
+        toggle(){
+          setVisible(!visible)
+        }
       };
     },
-    []
+    [visible]
   );
 
   const scrollToEnd = () => 
@@ -143,9 +146,11 @@ export default forwardRef((props, ref) => {
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 30 : 60 }]}
-      backdropOpacity={0.05}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 20 : 64 }]}
+      backdropOpacity={0.005}
       avoidKeyboard
+      hasBackdrop={false}
+      coverScreen={false}
     >
       <View style={styles.modal}>
         <View style={[styles.header1, !chatStarted ? styles.header2 : {}]}>
@@ -196,6 +201,7 @@ export default forwardRef((props, ref) => {
           )}
           <View style={styles.inputContainer}>
             <TextInput
+              onTouchStart={e=>e?.stopPropagation()}
               onFocus={()=>scrollToEnd()}
               style={styles.input}
               scrollEnabled={false}
@@ -206,7 +212,7 @@ export default forwardRef((props, ref) => {
               enablesReturnKeyAutomatically={true} 
               returnKeyType="send"
               autoCorrect={false}
-              autoFocus
+              autoFocus={false}
               autoCapitalize="none"
               onChangeText={(text) => setInput(text)}
               onSubmitEditing={() => onSend(input)}
@@ -254,7 +260,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 );
 
 const styles = StyleSheet.create({
-  modalContainer: { justifyContent: "flex-end", bottom: 60 },
+  modalContainer: { justifyContent: "flex-end", bottom: 40 },
   modal: {
     height: "70%",
     justifyContent: "space-between",

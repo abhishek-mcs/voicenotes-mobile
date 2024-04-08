@@ -35,10 +35,14 @@ export function useToggleStar(recording_id:number){
 }
 
 export function useCreate(){
+    const queryClient = useQueryClient();
     return useMutation('ai-create', (data:{recording_id:number,type:string}) => {
         return axiosApi.post(`/ai-create`, data);
     },
     {
+        onSuccess:()=>{
+            queryClient.invalidateQueries('all-recording')
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -165,6 +169,17 @@ export function useSignedUrl(){
 export function useSuggestions(){
     return useQuery('suggestions',(p?:any) => {
         return axiosApi.get(`/recordings/ask-ai/suggestions`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useAskSomething(){
+    return useMutation('ask-me-something',(p?:any) => {
+        return axiosApi.get(`/recordings/suggestion`)
     },
     {
         onError:(error:any)=>{

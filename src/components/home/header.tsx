@@ -4,7 +4,7 @@ import { commonSvg } from "assets/svg/commonSvg";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { useState } from "react";
-import { Alert, Image, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
@@ -34,7 +34,7 @@ export default ({isLogged=true}) => {
     }])
   }
   return (
-    <View style={{ height: 53 }}>
+    <View style={{ height: 53 }} onTouchStart={()=>Keyboard.dismiss()}>
       <View
         style={styles.container}
       >
@@ -91,8 +91,8 @@ const styles=StyleSheet.create({
     marginLeft:10
   },
   menuPress: {
-    alignItems: "flex-end",
-    justifyContent: "center",
+    alignSelf: "flex-end",
+    justifyContent: "center",width:30,height:30,borderRadius:8
   },
   menuItem: { paddingHorizontal: isIOS? 16:8, borderRadius: 12, overflow: "hidden", },
   menuItemTxt: {

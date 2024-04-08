@@ -7,6 +7,7 @@ import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import * as Animatable from "react-native-animatable";
 
 interface Props {
   onRecord: () => void;
@@ -15,9 +16,10 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: ()=> void;
+  isVisible:boolean
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel }: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,isVisible }: Props) => {
     const [duration, setDuration] = useState(0);
     const {token} = useSelector((state: RootState) => state.userDetails);
     useEffect(() => {
@@ -44,7 +46,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
       }, [recEnabled]);
     const formattedDuration = new Date(duration).toISOString().substring(14, 19);
   return (
-    <View style={styles.tab}>
+    <Animatable.View style={styles.tab} animation={isVisible?"fadeIn":'fadeOut'} duration={250} useNativeDriver={true}>
       {!recEnabled ? (
         <>
           <Button
@@ -54,13 +56,14 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             underlayColor={Colors.blackWithOpacity(0.7)}
             bgColor={"#000"}
             color="#fff"
+            style={{flex:2}}
           />
-          <Button onPress={onAsk} title="Ask" icon={home.ask} style={{paddingHorizontal:20}}/>
-          <Button onPress={onCreate} title="Create" icon={home.create} />
+          <Button onPress={onAsk} title="Ask" icon={home.ask} style={{paddingHorizontal:20,marginHorizontal:8}}/>
+          <Button onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
         </>
       ) : (
-        <>
-          <Button title="Cancel" onPress={onCancel}/>
+        <View style={{justifyContent:'space-between',flexDirection:'row',flex:1}}>
+          <Button title="Cancel" onPress={onCancel} style={{paddingHorizontal:20}}/>
           <View style={styles.row}>
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
             <Text style={styles.tabItemText}>{`${formattedDuration}${!!token?'':'/01:00'}`}</Text>
@@ -72,10 +75,11 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             bgColor={Colors.greenWithOpacity(0.2)}
             underlayColor={Colors.greenWithOpacity(0.3)}
             onPress={()=>onStopRecord(duration)}
+            style={{paddingHorizontal:20}}
           />
-        </>
+        </View>
       )}
-    </View>
+    </Animatable.View>
   );
 };
 
@@ -129,14 +133,14 @@ const styles = StyleSheet.create({
 		elevation: 3,
     paddingHorizontal: 12,
     paddingVertical:8,
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
   },
   tabItem: {
     height: 40,
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 22,
+    justifyContent:'center',
     backgroundColor: "#2222220D",
     overflow: "hidden",
   },

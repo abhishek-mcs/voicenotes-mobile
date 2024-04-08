@@ -6,9 +6,9 @@ import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacit
 import { SvgXml } from "react-native-svg";
 import { formatDate } from "utils/format-date";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
-import { useAddTitle, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
+import { useAddTitle, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
 import loader from "assets/lottie/loader.json"
 import LottieView from "lottie-react-native";
@@ -20,6 +20,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { router, useRouter } from "expo-router";
+import { CreateModalSvg } from "assets/svg/CreateModal";
+import AiCreatedView from "./ai-created-view";
 
 export default forwardRef(({
   note,
@@ -28,7 +30,9 @@ export default forwardRef(({
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
-  const [visible, setVisible] = useState(false);
+  const [moreOption, setMoreOption] = useState(false);
+  const [createOption, setCreateOption] = useState(false);
+  const [creationLoader, setCreationLoader] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
 
@@ -40,6 +44,7 @@ export default forwardRef(({
   const deleteRecord=useDeleteRecording(note?.id)
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
+  const createAI=useCreate()
 
   useImperativeHandle(ref,()=>({
     onTriggerTranscript:()=>{
@@ -63,9 +68,10 @@ export default forwardRef(({
       setTriggerTypingTranscript(2)
   },[triggerTypingTranscript])
 
-  const hideMenu = () => setVisible(false);
-
-  const showMenu = () => setVisible(true);
+  const hideMoreOption = () => setMoreOption(false);
+  const showMoreOption = () => setMoreOption(true);
+  const hideCreateOption = () => setCreateOption(false);
+  const showCreateOption = () => setCreateOption(true);
 
   const onSaveEdit=()=>{
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
@@ -92,6 +98,7 @@ export default forwardRef(({
   }
   const onEdit=()=>  setIsEdit(true)
   const onStarred=()=>{
+    hideMoreOption()
     const isStarred=note?.tags?.some((r:any)=>r?.name=='starred');
     if(!isStarred){
       note.tags?.push({name:'starred'})
@@ -110,9 +117,16 @@ export default forwardRef(({
       },
     })
   }
-  const onCreateSummary=()=>{}
+
+  const onCreate=async(type='summary')=>{
+    setCreationLoader(true)
+    hideCreateOption()
+    await createAI.mutateAsync({recording_id:note?.id,type})
+    setCreationLoader(false)
+  }
+
   const onGenerate=useCallback(()=>{
-    hideMenu();
+    hideMoreOption();
     list[index].title=null
     addTitleRecord.mutate(note?.id,{
       onSuccess:async()=>{
@@ -122,11 +136,11 @@ export default forwardRef(({
     })
   },[])
   const onCopy=async()=>{
-    hideMenu();
+    hideMoreOption();
     await setStringAsync(note?.transcript||'');
   }
   const onDelete=()=>{
-    hideMenu();
+    hideMoreOption();
     Alert.alert('','Are you sure you want to delete?',[
       {
         text:'No',
@@ -174,7 +188,8 @@ export default forwardRef(({
       console.error('Error playing audio:', error);
     }
   }
-  
+
+  const creationList=useMemo(()=>note?.creations,[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
@@ -191,7 +206,7 @@ export default forwardRef(({
       </View>
       <View style={{ flexDirection: "row", marginTop: 8 }}>
         <View style={styles.timeLine} />
-        <View style={{marginLeft:isIOS?25:24}}>
+        <View style={{marginLeft:isIOS?25:24,flex:1}}>
           {!!note?.title?
           <Touchable onPress={()=>{
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
@@ -203,29 +218,74 @@ export default forwardRef(({
           <View style={styles.row}>
           {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
           </View>}
-        </View>
-      </View>
 
-      {!hideIcons&&<View style={[styles.row,{marginLeft:28,marginTop:16,position:'relative'}]}>
-      <Touchable onPress={onStarred} style={{paddingHorizontal:6,paddingVertical:4}}>
-        <SvgXml xml={home.star}/>
-      </Touchable>
-      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5,marginLeft:4}}>
+      {!hideIcons&&<View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
+      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}}>
         <SvgXml xml={home.edit}/>
       </Touchable>
-      {/* <Touchable style={{marginLeft:16}} onPress={onCreateSummary} >
-        <SvgXml xml={home.create1}/>
-      </Touchable> */}
-      <Menu
-          visible={visible}
+      {!!token&&<Menu
+          visible={createOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMenu}>
+            <Touchable style={styles.menuPress} onPress={showCreateOption}>
+              <SvgXml xml={home.create1} />
+            </Touchable>
+          }
+          onRequestClose={hideCreateOption}
+          style={styles.menu}
+        >
+        <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={CreateModalSvg.summary} />
+            <Text style={styles.menuItemTxt}>Summarize</Text>
+          </View>
+        </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('points')}>
+            <View style={[styles.row,{width:180}]}>
+              <SvgXml xml={CreateModalSvg.points} />
+              <Text style={styles.menuItemTxt}>List main points</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('todo')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.todo} />
+              <Text style={styles.menuItemTxt}>To-do list</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('blog')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.blog} />
+              <Text style={styles.menuItemTxt}>Blog post</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('tweet')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.tweet} />
+              <Text style={styles.menuItemTxt}>Tweet</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCreate('email')}>
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.email} />
+              <Text style={styles.menuItemTxt}>Email</Text>
+            </View>
+          </MenuItem>
+        </Menu>}
+      <Menu
+          visible={moreOption}
+          anchor={
+            <Touchable style={styles.menuPress} onPress={showMoreOption}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
-          onRequestClose={hideMenu}
+          onRequestClose={hideMoreOption}
           style={styles.menu}
         >
+        <MenuItem style={styles.menuItem} onPress={onStarred}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={home.smallStar} />
+            <Text style={styles.menuItemTxt}>Tag as #starred</Text>
+          </View>
+        </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerate}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />
@@ -246,12 +306,18 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
+        {!!token&&creationLoader&&<AiLoader text="Creating summary from your voice" />}
+        {!!token&&creationList?.map((itm:any,i:number)=>(
+          <AiCreatedView type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
+        ))}
+        </View>
+      </View>
     </View>
   );
 });
 
 const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>(
-  <View style={styles.editContainer}>
+  <View style={styles.editContainer} onTouchStart={e=>e?.stopPropagation()}>
     <TextInput 
       style={styles.titleInput}
       autoComplete="off"
@@ -373,7 +439,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft:4
   },
-  menuItem: { paddingHorizontal:isIOS? 16:4, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingHorizontal:isIOS? 0:4,paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden" },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,

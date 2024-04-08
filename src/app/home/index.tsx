@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
@@ -13,7 +14,6 @@ import Header from "components/home/header";
 import NotePreview from "components/home/note-preview";
 import AboutProduct from "components/home/about-product";
 import AIModal from "components/AIModal";
-import { Modalize } from "react-native-modalize";
 import CreateModal from "components/CreateModal";
 import SearchBar from "components/common/search-bar";
 import { Audio } from "expo-av";
@@ -30,9 +30,17 @@ import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS } from "utils/common";
+import * as Animatable from "react-native-animatable"
+import AskMeSomething from "components/ask-me-something";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
+const fadeIn={
+  from:{opacity:0},to:{opacity:1}
+}
+const fadeOut={
+  from:{opacity:1},to:{opacity:0}
+}
 
 export default ()=> {
   const insets=useSafeAreaInsets()
@@ -44,18 +52,16 @@ export default ()=> {
   );
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [searchParam, setSearchParam] = useState("");
-  const [searchText, setSearchText] = useState("");
   const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
-  const [searchEnabled, setSearchEnabled] = useState(true);
-  const AIModalRef = useRef<Modalize>();
-  const CreateModalRef = useRef<Modalize>();
+  const AIModalRef = useRef<any>();
+  const CreateModalRef = useRef<any>();
   const [isPlay,setIsPlay] = useState(-1)
   const [play,setPlay] = useState<Audio.Sound|null>()
   const [audioLoading, setAudioLoading] = useState(-1);
   const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
+  const [hideSearch,setHideSearch]=useState(true)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -70,16 +76,20 @@ export default ()=> {
     [recordingQuery]
   );
   
-  const isListEmpty = recordingList?.length == 0 || true;
+  const isListEmpty = recordingList?.length == 0 || null;
   // setupAudioRec(rec)
 
   const onAsk = () => {
-    AIModalRef.current?.open();
+    CreateModalRef.current?.close()
+    AIModalRef.current?.toggle();
   };
   const onCreate = () => {
-    CreateModalRef.current?.open();
+    AIModalRef?.current?.close()
+    CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    AIModalRef.current?.close()
+    CreateModalRef.current?.close()
      const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false})
      soundRef.current=sound
      onRecord(setRec, setRecEnabled);
@@ -150,21 +160,29 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading]
   );
 
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
+  const handleScroll = (event:any) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    if (currentOffset > 0 && currentOffset < 40) {
+      setIsSearchVisible(false);
+      setIsBottomBarVisible(false)
+    } else if (currentOffset <= 0) {
+      setIsSearchVisible(true);
+      setIsBottomBarVisible(true)
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container} >
-      <KeyboardAvoidingView behavior="padding">
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
-          {/* {!isListEmpty && (
-            <SearchBar
-              searchParam={searchParam}
-              setSearchText={setSearchText}
-              setSearchEnabled={setSearchEnabled}
-              setSearchParam={setSearchParam}
-              searchEnabled={searchEnabled}
-              type={"messages"}
-            />
-          )} */}
+          {!isListEmpty&&!!token && (
+            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
+            <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+            </Animatable.View>
+          )}
           <FlatList
             ref={scrollRef}
             data={
@@ -174,6 +192,8 @@ export default ()=> {
                   : []
                 : recordingList
             }
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
             contentContainerStyle={{ paddingBottom: 300 }}
             showsVerticalScrollIndicator={false}
             keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
@@ -196,6 +216,7 @@ export default ()=> {
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
       </KeyboardAvoidingView>
+      <AskMeSomething isVisible={!!token&&isBottomBarVisible}/>
       <BottomBar
         onAsk={onAsk}
         onCreate={onCreate}
@@ -203,6 +224,7 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
+        isVisible={isBottomBarVisible}
       />
     </SafeAreaView>
   );
