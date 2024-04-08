@@ -215,8 +215,8 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
+      {!!token&&<AskMeSomething isVisible={isBottomBarVisible}/>}
       </KeyboardAvoidingView>
-      <AskMeSomething isVisible={!!token&&isBottomBarVisible}/>
       <BottomBar
         onAsk={onAsk}
         onCreate={onCreate}
