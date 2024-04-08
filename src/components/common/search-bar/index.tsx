@@ -7,9 +7,38 @@ import { Text } from "react-native";
 import { useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
 import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
+import * as Animatable from "react-native-animatable"
 const {debounce}=require("lodash")
 
-export default ({hideView=true,setHide=(v:boolean)=>{}})=>{
+const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
+const heightIn = {
+  from: {
+    height: 0,
+    borderColor:Colors.darkWithOpacity(0)
+  },
+  to: {
+    height: 40,
+    borderColor:Colors.darkWithOpacity(0.1)
+  },
+};
+const heightOut = {
+  from: {
+    height: 40,
+    borderColor:Colors.darkWithOpacity(0.1)
+  },
+  to: {
+    height: 0,
+    borderColor:Colors.darkWithOpacity(0)
+  },
+};
+const fadeIn={
+  from:{opacity:0},to:{opacity:1}
+}
+const fadeOut={
+  from:{opacity:1},to:{opacity:0}
+}
+
+export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false})=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -48,8 +77,8 @@ export default ({hideView=true,setHide=(v:boolean)=>{}})=>{
 
     return (
         <View style={[styles.container]}>
-            <View style={[styles.box,isFocused?{borderColor:'#222'}:{borderColor:Colors.darkWithOpacity(0.1)}]}>
-              <SvgXml xml={commonSvg.search?.replace('{color}',"#828282")} style={[{paddingHorizontal:8}]} />
+            <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box,isFocused?{borderColor:'#222'}:{borderColor:Colors.darkWithOpacity(0.1)}]}>
+              <AnimSVG duration={150} xml={commonSvg.search?.replace('{color}',"#828282")} animation={!isSearchVisible?fadeOut:fadeIn} style={[{paddingHorizontal:8}]} />
               <View style={{flex:1}}>
                 <TextInput
                   onFocus={() => {setIsFocused(true);}}
@@ -75,10 +104,10 @@ export default ({hideView=true,setHide=(v:boolean)=>{}})=>{
                     setSearchText("")
                   }}
                 >
-                  <SvgXml xml={commonSvg.searchClose}/>
+                  <AnimSVG xml={commonSvg.searchClose} duration={150} animation={isSearchVisible?"fadeIn":"fadeOut"}/>
                 </Pressable>
               ) : null}
-            </View>
+            </Animatable.View>
             {(searchHistoryList?.length!=0&&!hideView)&&
               <View style={styles.modal}>
                   <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
@@ -123,9 +152,9 @@ const styles=StyleSheet.create({
     container: {
         flexDirection:'row',
         alignItems:'center',
-        marginTop:16,
+        marginTop:0,
         marginHorizontal:0,
-        marginBottom:12,zIndex:1
+        marginBottom:0,zIndex:1
     },
     box:{
         flex:1,

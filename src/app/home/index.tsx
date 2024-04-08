@@ -30,9 +30,16 @@ import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS } from "utils/common";
+import * as Animatable from "react-native-animatable"
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
+const fadeIn={
+  from:{opacity:0},to:{opacity:1}
+}
+const fadeOut={
+  from:{opacity:1},to:{opacity:0}
+}
 
 export default ()=> {
   const insets=useSafeAreaInsets()
@@ -152,15 +159,24 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading]
   );
 
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const handleScroll = (event:any) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    if (currentOffset > 0 && currentOffset < 40) {
+      setIsSearchVisible(false);
+    } else if (currentOffset <= 0) {
+      setIsSearchVisible(true);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
           {!isListEmpty&&!!token && (
-            <View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}}>
-            <SearchBar hideView={hideSearch} setHide={setHideSearch}/>
-            </View>
+            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100}>
+            <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+            </Animatable.View>
           )}
           <FlatList
             ref={scrollRef}
@@ -171,6 +187,8 @@ export default ()=> {
                   : []
                 : recordingList
             }
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
             contentContainerStyle={{ paddingBottom: 300 }}
             showsVerticalScrollIndicator={false}
             keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
