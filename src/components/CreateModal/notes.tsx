@@ -2,6 +2,7 @@ import Colors from "assets/Colors"
 import { home } from "assets/svg/home"
 import Touchable from "components/common/Touchable"
 import { setStringAsync } from "expo-clipboard"
+import { useState } from "react"
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native"
 import { View } from "react-native"
 import { TouchableHighlight } from "react-native-gesture-handler"
@@ -12,12 +13,17 @@ export default (
     {type="summary",result=null,title="",id,onClose,onEdit,onRetry}
     :{type:string,result:any,title:string,id:number,onClose:()=>void,onEdit:()=>void,onRetry:(i:number,v:string)=>void}
     )=>{
+        const [copy,setCopy]=useState('Copy')
     const onCopy = async()=>{
+        setCopy('Copied')
         let copy=Array.isArray(result)?result.join('\n'):result;
         if(type=="email"){
             copy=`Subject: ${result?.subject}\nBody: ${result?.body}`
         }
         await setStringAsync(copy||'');
+        setTimeout(() => {
+            setCopy('Copy')
+        }, 1000);
     }
 
     return (
@@ -52,7 +58,7 @@ export default (
                 <Touchable onPress={onCopy} style={btn}>
                     <>
                     <SvgXml xml={home.copy2}/>
-                    <Text style={btnText}>Copy</Text>
+                    <Text style={btnText}>{copy}</Text>
                     </>
                 </Touchable>
                 <Touchable onPress={()=>onRetry(id,title)} style={btn}>
