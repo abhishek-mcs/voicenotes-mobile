@@ -146,7 +146,7 @@ export default forwardRef((props, ref) => {
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 20 : 64 }]}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 50 : 118 }]}
       backdropOpacity={0.005}
       avoidKeyboard
       hasBackdrop={false}
@@ -260,7 +260,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 );
 
 const styles = StyleSheet.create({
-  modalContainer: { justifyContent: "flex-end", bottom: 40 },
+  modalContainer: { justifyContent: "flex-end" },
   modal: {
     height: "70%",
     justifyContent: "space-between",

@@ -212,11 +212,11 @@ export default ()=> {
             ):!!token?<AboutProduct disable={true} />:null}
             automaticallyAdjustKeyboardInsets
           />
-        </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
-      </KeyboardAvoidingView>
       <AskMeSomething isVisible={!!token&&isBottomBarVisible}/>
+        </View>
+      </KeyboardAvoidingView>
       <BottomBar
         onAsk={onAsk}
         onCreate={onCreate}
