@@ -55,11 +55,9 @@ export const onRecord = async (
                 playThroughEarpieceAndroid: true,
               });
 
-              const recordingObject = new Audio.Recording();
-              await recordingObject.prepareToRecordAsync(
+              const { recording: recordingObject, status } = await Audio.Recording.createAsync(
                 Audio.RecordingOptionsPresets.HIGH_QUALITY
               );
-              await recordingObject.startAsync();
               setRec(recordingObject);
               setRecEnabled(true);
             } else if (!canAskAgain && status == "denied") {
