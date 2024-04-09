@@ -70,6 +70,7 @@ export default ()=> {
   const addTranscriptRecord = useAddTranscript()
   const addTitleRecord = useAddTitle()
   const queryClient = useQueryClient();
+  const [generateDummy,setGenerateDummy]=useState<any>(null)
   
   const recordingList = useMemo(
     () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
@@ -90,11 +91,12 @@ export default ()=> {
   const onStartRecord = async() => {
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
-     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false})
+     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
      soundRef.current=sound
      onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
+    setGenerateDummy({})
     const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
@@ -102,8 +104,9 @@ export default ()=> {
       uploadRecord.mutate(
         {audio:file,duration:d},
         {
-          onSuccess: (r) => {
-            queryClient.invalidateQueries('all-recording');
+          onSuccess: async(r) => {
+            await queryClient.invalidateQueries('all-recording');
+            setGenerateDummy(null)
             scrollRef.current?.scrollToOffset({animated: true, offset: 0});
             addTranscriptRecord.mutate(r?.data?.recording?.id,
               {
@@ -185,9 +188,9 @@ export default ()=> {
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
-                  ? recordingList
+                  ? (generateDummy?[generateDummy,...recordingList]:recordingList)
                   : []
-                : recordingList
+                : (generateDummy?[generateDummy,...recordingList]:recordingList)
             }
             onScroll={handleScroll}
             scrollEventThrottle={16}
