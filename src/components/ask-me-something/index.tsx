@@ -1,13 +1,12 @@
-import { StyleSheet } from "react-native"
+import { StyleSheet, View } from "react-native"
 import { isIOS } from "utils/common"
-import * as Animatable from "react-native-animatable"
 import { Text } from "react-native"
 import AiLoader from "components/common/loaders/ai-loader"
 import { useRef, useState } from "react"
 import { useAskSomething } from "queries/home"
 import ChatBuble from "components/common/chat-buble"
 
-export default ({isVisible=false})=>{
+export default ()=>{
     const [loading,setLoading]=useState(false)
     const [qstn,setQstn]=useState('')
     const askSomething=useAskSomething()
@@ -26,11 +25,11 @@ export default ({isVisible=false})=>{
         }, 10000);
     }
     return (
-        <Animatable.View style={container} animation={isVisible?"fadeIn":"fadeOut"}>
+        <View style={container}>
             <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
             {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={14} style={{marginTop:8}}/>
             :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}
-        </Animatable.View>
+        </View>
     )
 }
 
@@ -42,7 +41,7 @@ const {container,heading,question}=StyleSheet.create({
       position: "absolute",
       left: 20,
       right: 20,
-      bottom: 140,
+      bottom: 86,
       shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
           shadowOpacity: 0.9,
           shadowOffset: { width: 0, height:0.5 },

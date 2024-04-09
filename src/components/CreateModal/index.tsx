@@ -69,7 +69,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',bottom:118}}
+      style={{justifyContent:'flex-end',bottom:64}}
       backdropOpacity={0.005}
       hasBackdrop={false}
       coverScreen={false}

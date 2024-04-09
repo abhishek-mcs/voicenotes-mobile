@@ -212,10 +212,10 @@ export default ()=> {
             ):!!token?<AboutProduct disable={true} />:null}
             automaticallyAdjustKeyboardInsets
           />
+        </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
-      <AskMeSomething isVisible={!!token&&isBottomBarVisible}/>
-        </View>
+        <AskMeSomething/>
       </KeyboardAvoidingView>
       <BottomBar
         onAsk={onAsk}
@@ -224,7 +224,6 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
-        isVisible={isBottomBarVisible}
       />
     </SafeAreaView>
   );
