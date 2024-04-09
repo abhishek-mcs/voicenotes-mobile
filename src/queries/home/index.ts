@@ -133,7 +133,8 @@ export function useGetTags(){
     })
 }
 
-export function useGetUserData(){
+export function useGetUserData(token:any){
+    if(!!token)
     return useQuery('user-data',(p?:any)=> {
         return axiosApi.get(`/auth/me`)
     },
@@ -199,6 +200,18 @@ export function useAskAI(isGuest:boolean=true){
             const endPoints = isGuest?'/recordings/ask-ai':!!id?`/ai-chat-thread/${id}/messages`:'/ai-chat-thread';
             return axiosApi.post(endPoints,params);
         }
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useStreak(token:any){
+    if(!!token)
+    return useQuery('streaks',(p?:any) => {
+        return axiosApi.get(`/streaks`)
     },
     {
         onError:(error:any)=>{
