@@ -34,7 +34,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "app.voicenotes",
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "bundler": "metro",

@@ -35,7 +35,7 @@ export default ()=>{
         }
     },[])
     return (
-        <View style={[container,{bottom:keyboardShown?-80:85}]}>
+        <View style={[container,{bottom:keyboardShown?-80:(isIOS?85:114)}]}>
             <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
             {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={14} style={{marginTop:8}}/>
             :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}

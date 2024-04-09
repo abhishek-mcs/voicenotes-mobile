@@ -146,7 +146,7 @@ export default forwardRef((props, ref) => {
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 0 : 64 }]}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? 64:94) }]}
       backdropOpacity={0.005}
       avoidKeyboard
       hasBackdrop={false}

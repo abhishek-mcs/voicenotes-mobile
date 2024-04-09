@@ -179,7 +179,7 @@ export default ()=> {
       <View style={{ flex: 1}}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
-          {!isListEmpty&&!!token && (
+          {isIOS&&!isListEmpty&&!!token && (
             <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
             <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>

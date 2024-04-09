@@ -166,7 +166,7 @@ const styles=StyleSheet.create({
         alignItems:'center',
         borderWidth:1,
         borderColor:Colors.darkWithOpacity(0.1),
-        zIndex:1
+        zIndex:10
     },
     modal:{
       flex:1,
@@ -180,7 +180,7 @@ const styles=StyleSheet.create({
       shadowOpacity: 1,
       shadowOffset: { width: 0, height: 0.5 },
       shadowRadius: 1.5,
-      elevation: 2,
+      elevation: 10,
     },
     row:{
       flexDirection:'row',

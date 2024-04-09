@@ -8,6 +8,7 @@ import Notes from "./notes";
 import { useCreate } from "queries/home";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
+import { isIOS } from "utils/common";
 
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
@@ -69,7 +70,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',bottom:64}}
+      style={{justifyContent:'flex-end',bottom:isIOS?64:94}}
       backdropOpacity={0.005}
       hasBackdrop={false}
       coverScreen={false}
