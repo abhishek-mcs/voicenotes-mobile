@@ -1,0 +1,135 @@
+diff --git a/node_modules/@react-native-async-storage/async-storage/jest/async-storage-mock.js b/node_modules/@react-native-async-storage/async-storage/jest/async-storage-mock.js
+index ea311bf..e5f684b 100644
+--- a/node_modules/@react-native-async-storage/async-storage/jest/async-storage-mock.js
++++ b/node_modules/@react-native-async-storage/async-storage/jest/async-storage-mock.js
+@@ -8,43 +8,46 @@ const merge = require("merge-options").bind({
+ const asMock = {
+   __INTERNAL_MOCK_STORAGE__: {},
+ 
+-  setItem: jest.fn(async (key, value, callback) => {
++  setItem: async (key, value, callback) => {
+     const setResult = await asMock.multiSet([[key, value]], undefined);
+ 
+-    callback && callback(setResult);
++    if (callback) {
++      callback(setResult);
++    }
+     return setResult;
+-  }),
++  },
+ 
+-  getItem: jest.fn(async (key, callback) => {
++  getItem: async (key, callback) => {
+     const getResult = await asMock.multiGet([key], undefined);
+ 
+     const result = getResult[0] ? getResult[0][1] : null;
+ 
+-    callback && callback(null, result);
++    if (callback) {
++      callback(null, result);
++    }
+     return result;
+-  }),
+-
+-  removeItem: jest.fn((key, callback) => asMock.multiRemove([key], callback)),
+-  mergeItem: jest.fn((key, value, callback) =>
+-    asMock.multiMerge([[key, value]], callback)
+-  ),
+-
+-  clear: jest.fn(_clear),
+-  getAllKeys: jest.fn(_getAllKeys),
+-  flushGetRequests: jest.fn(),
+-
+-  multiGet: jest.fn(_multiGet),
+-  multiSet: jest.fn(_multiSet),
+-  multiRemove: jest.fn(_multiRemove),
+-  multiMerge: jest.fn(_multiMerge),
+-  useAsyncStorage: jest.fn((key) => {
++  },
++
++  removeItem: (key, callback) => asMock.multiRemove([key], callback),
++  mergeItem: (key, value, callback) =>
++    asMock.multiMerge([[key, value]], callback),
++
++  clear: _clear,
++  getAllKeys: _getAllKeys,
++  // flushGetRequests: jest.fn(),
++
++  multiGet: _multiGet,
++  multiSet: _multiSet,
++  multiRemove: _multiRemove,
++  // multiMerge: _multiMerge,
++  useAsyncStorage: (key) => {
+     return {
+       getItem: (...args) => asMock.getItem(key, ...args),
+       setItem: (...args) => asMock.setItem(key, ...args),
+       mergeItem: (...args) => asMock.mergeItem(key, ...args),
+       removeItem: (...args) => asMock.removeItem(key, ...args),
+     };
+-  }),
++  },
+ };
+ 
+ async function _multiSet(keyValuePairs, callback) {
+@@ -53,7 +56,9 @@ async function _multiSet(keyValuePairs, callback) {
+ 
+     asMock.__INTERNAL_MOCK_STORAGE__[key] = keyValue[1];
+   });
+-  callback && callback(null);
++  if (callback) {
++    callback(null);
++  }
+   return null;
+ }
+ 
+@@ -62,7 +67,9 @@ async function _multiGet(keys, callback) {
+     key,
+     asMock.__INTERNAL_MOCK_STORAGE__[key] || null,
+   ]);
+-  callback && callback(null, values);
++  if (callback) {
++    callback(null, values);
++  }
+ 
+   return values;
+ }
+@@ -74,14 +81,18 @@ async function _multiRemove(keys, callback) {
+     }
+   });
+ 
+-  callback && callback(null);
++  if (callback) {
++    callback(null);
++  }
+   return null;
+ }
+ 
+ async function _clear(callback) {
+   asMock.__INTERNAL_MOCK_STORAGE__ = {};
+ 
+-  callback && callback(null);
++  if (callback) {
++    callback(null);
++  }
+ 
+   return null;
+ }
+@@ -90,18 +101,4 @@ async function _getAllKeys() {
+   return Object.keys(asMock.__INTERNAL_MOCK_STORAGE__);
+ }
+ 
+-async function _multiMerge(keyValuePairs, callback) {
+-  keyValuePairs.forEach((keyValue) => {
+-    const [key, value] = keyValue;
+-    const oldValue = asMock.__INTERNAL_MOCK_STORAGE__[key];
+-    asMock.__INTERNAL_MOCK_STORAGE__[key] =
+-      oldValue != null
+-        ? JSON.stringify(merge(JSON.parse(oldValue), JSON.parse(value)))
+-        : value;
+-  });
+-
+-  callback && callback(null);
+-  return null;
+-}
+-
+ module.exports = asMock;
