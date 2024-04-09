@@ -176,6 +176,7 @@ export default ()=> {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
+      <View style={{ flex: 1}}>
         <View style={styles.wrapper}>
           <Header isLogged={!!token} />
           {!isListEmpty&&!!token && (
@@ -211,11 +212,13 @@ export default ()=> {
               </View>
             ):!!token?<AboutProduct disable={true} />:null}
             automaticallyAdjustKeyboardInsets
+            keyboardShouldPersistTaps="handled"
           />
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
       {!!token&&<AskMeSomething/>}
+      </View>
       </KeyboardAvoidingView>
       <BottomBar
         onAsk={onAsk}

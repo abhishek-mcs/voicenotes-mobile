@@ -146,7 +146,7 @@ export default forwardRef((props, ref) => {
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 20 : 64 }]}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 0 : 64 }]}
       backdropOpacity={0.005}
       avoidKeyboard
       hasBackdrop={false}
@@ -181,9 +181,8 @@ export default forwardRef((props, ref) => {
         )}
         contentInset={{ bottom: 16 }}
         contentInsetAdjustmentBehavior="always"
-        />
-        <View>
-          {!chatStarted &&
+        keyboardShouldPersistTaps="handled"
+        ListFooterComponent={()=>!chatStarted ?
           getSuggestions.data?.data?.length>0&& (
             <View style={styles.suggestContainer}>
               <View style={[styles.row, { marginBottom: 4 }]}>
@@ -198,7 +197,9 @@ export default forwardRef((props, ref) => {
                 />
               ))}
             </View>
-          )}
+          ):null}
+        />
+        <View>
           <View style={styles.inputContainer}>
             <TextInput
               onTouchStart={e=>e?.stopPropagation()}
@@ -376,7 +377,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  suggestContainer: { marginBottom: 24, marginHorizontal: 16 },
+  suggestContainer: { marginBottom: 24, marginHorizontal: 16,marginTop:100 },
   aiChat: { marginLeft: 45, marginTop: -8 },
   header1: {
     height: 57,

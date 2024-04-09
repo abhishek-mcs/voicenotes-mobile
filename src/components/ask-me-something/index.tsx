@@ -1,8 +1,8 @@
-import { StyleSheet, View } from "react-native"
+import { Keyboard, StyleSheet, View } from "react-native"
 import { isIOS } from "utils/common"
 import { Text } from "react-native"
 import AiLoader from "components/common/loaders/ai-loader"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAskSomething } from "queries/home"
 import ChatBuble from "components/common/chat-buble"
 import Colors from "assets/Colors"
@@ -10,6 +10,7 @@ import Colors from "assets/Colors"
 export default ()=>{
     const [loading,setLoading]=useState(false)
     const [qstn,setQstn]=useState('')
+    const [keyboardShown,setKeyboardShown]=useState(false)
     const askSomething=useAskSomething()
     const textTimeout=useRef<any>()
     const onAsk=()=>{
@@ -25,8 +26,16 @@ export default ()=>{
             setQstn('')
         }, 10000);
     }
+    useEffect(()=>{
+        const keyShow=Keyboard.addListener("keyboardDidShow",()=>setKeyboardShown(true))
+        const keyHide=Keyboard.addListener("keyboardDidHide",()=>setKeyboardShown(false))
+        return ()=>{
+            keyShow.remove()
+            keyHide.remove()
+        }
+    },[])
     return (
-        <View style={container}>
+        <View style={[container,{bottom:keyboardShown?-80:85}]}>
             <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
             {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={14} style={{marginTop:8}}/>
             :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}
@@ -51,7 +60,8 @@ const {container,heading,question,caption}=StyleSheet.create({
       zIndex:1,
           elevation: 3,
       paddingHorizontal:20,
-      paddingVertical:16
+      paddingVertical:16,
+      justifyContent:'center'
     },
     heading:{
         fontFamily:'Primary',
