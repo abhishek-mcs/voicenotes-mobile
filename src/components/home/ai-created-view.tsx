@@ -20,7 +20,7 @@ export default ({content,date=undefined,type="Summary"}:{content:any,date:any,ty
       </View>
       {(type=="summary"||type=="tweet")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
       :(type=="points"||type=="todo")?
-      <Text numberOfLines={expand?1000:1} style={{marginTop:4}}>{content?.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}`}</Text>)}</Text>
+      <Text numberOfLines={expand?1000:1} style={{marginTop:4}}>{content?.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}${content?.length-1==i?'':'\n'}`}</Text>)}</Text>
       :type=="blog"?
       <Text numberOfLines={expand?1000:1}>
       {content?.map((itm:string,i:number)=>
