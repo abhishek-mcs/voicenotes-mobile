@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "voicenotes",
+    "name": "Voicenotes",
     "slug": "voicenotes",
     "version": "1.0.4",
     "orientation": "portrait",
@@ -34,7 +34,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "app.voicenotes",
-      "versionCode": 6
+      "versionCode": 5
     },
     "web": {
       "bundler": "metro",
