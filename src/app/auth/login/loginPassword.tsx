@@ -7,6 +7,7 @@ import {
   Text,
   KeyboardAvoidingView,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { setAuthToken } from "services/api/axios-api";
 import { useRouter } from "expo-router";
@@ -76,6 +77,7 @@ export default () => {
   };
 
   return (
+    <SafeAreaView style={{backgroundColor: "white",flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
@@ -85,7 +87,7 @@ export default () => {
         backgroundColor: "white",
       }}
     >
-        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:54,padding:16}}>
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
         <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
@@ -207,5 +209,6 @@ export default () => {
         </Pressable>
       </View>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };

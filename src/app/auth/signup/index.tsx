@@ -7,6 +7,7 @@ import {
   Text,
   KeyboardAvoidingView,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -57,6 +58,7 @@ export default () => {
     }
 
   return (
+    <SafeAreaView style={{backgroundColor: "white",flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
@@ -66,7 +68,7 @@ export default () => {
         backgroundColor: "white",
       }}
     >
-        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:54,padding:16}}>
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
 
@@ -201,5 +203,6 @@ export default () => {
         </Pressable>
       </View>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
