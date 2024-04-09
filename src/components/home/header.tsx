@@ -12,16 +12,20 @@ import { useLogout } from "queries/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
-import { useGetUserData } from "queries/home";
+import { useGetUserData, useStreak } from "queries/home";
+import Streaks from "components/streaks";
 
 export default ({isLogged=true}) => {
   const router:any=useNavigation()
   const [showMenu,setShowMenu]=useState(false)
   const {hashTags} = useSelector((state: RootState) => state.hash);
+  const {token}=useSelector((state:RootState)=>state?.userDetails)
 
   const logout=useLogout()
-  const data=useGetUserData();
+  const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
+  const streaks=useStreak(token)
+  console.warn(streaks?.data?.data)
   const onLogout = () =>{
     setShowMenu(false)
     Alert.alert('',"Are you sure you want to log out?",
@@ -38,11 +42,15 @@ export default ({isLogged=true}) => {
       <View
         style={styles.container}
       >
-       {hashTags?.length!=0?
-       <Touchable style={{ flex: 1 }} onPress={()=>router?.openDrawer()}>
+       <View style={{flex:1,flexDirection:'row',alignSelf:'center'}}>
+       {hashTags?.length!=0&&
+       <Touchable style={{alignSelf:'flex-start',padding:16,paddingRight:10,marginRight:6,marginLeft:-16 }} onPress={()=>router?.openDrawer()}>
           <SvgXml xml={home.hash} />
+        </Touchable>}
+        <Touchable onPress={()=>{}} style={{marginVertical:12,width:22,height:22,borderRadius:100,borderWidth:1,borderStyle:'dashed',justifyContent:'center',alignItems:'center',borderColor:'#222'}}>
+          <Text style={{fontSize:12,fontFamily:'Primary-Bold',color:'#222'}}>1</Text>
         </Touchable>
-        :<View style={{flex:1}}/>}
+        </View>
         <SvgXml xml={home.logo} style={{ flex: 1 }} />
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
 
@@ -73,6 +81,7 @@ export default ({isLogged=true}) => {
           </Touchable>}
         </View>
       </View>
+      <Streaks data={[]}/>
     </View>
   );
 };

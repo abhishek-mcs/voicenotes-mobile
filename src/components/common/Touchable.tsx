@@ -1,7 +1,7 @@
 import React from 'react'
-import { TouchableOpacity } from "react-native"
+import { TouchableOpacity, TouchableOpacityProps } from "react-native"
 
-export default ({children,...rest}:any)=>{
+export default ({children,...rest}:TouchableOpacityProps)=>{
     return (
         <TouchableOpacity {...rest}>
             {children}
