@@ -2,7 +2,7 @@ import Colors from "assets/Colors";
 import { commonSvg } from "assets/svg/commonSvg";
 import Touchable from "components/common/Touchable";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { capitalizeFirstLetter } from "utils/common";
 import { formatDate } from "utils/format-date";
@@ -11,10 +11,10 @@ export default ({content,date=undefined,type="Summary"}:{content:any,date:any,ty
     const [expand,setExpand]=useState(false)
     const dt=Date.now()
   return (
-    <View style={container}>
-        <Touchable onPress={()=>{setExpand(!expand)}} style={{position:'absolute',right:0,top:0,padding:8,paddingHorizontal:12,zIndex:10}}>
+    <TouchableHighlight style={container} onPress={()=>{setExpand(!expand)}} underlayColor={Colors.greyWithOpacity(0.2)}><>
+        <View style={{position:'absolute',right:0,top:0,padding:8,paddingHorizontal:12,zIndex:10}}>
             <SvgXml xml={commonSvg.smallArrow}  style={{transform:[{rotate:!expand?'180deg':'360deg'}]}}/>
-        </Touchable>
+        </View>
       <View style={[row,btw]}>
         <Text style={txt}>{`${capitalizeFirstLetter(type)} created on ${formatDate(date||dt)}`}</Text>
       </View>
@@ -30,7 +30,7 @@ export default ({content,date=undefined,type="Summary"}:{content:any,date:any,ty
         <Text style={[titleStyle,{fontFamily:'Primary-Medium'}]}>Subject: {content?.subject}</Text>
         <Text style={titleStyle}>{'\n\n'}{content?.body}</Text>
       </Text>}
-    </View>
+    </></TouchableHighlight>
   );
 };
 const { container,row,btw,txt,titleStyle } = StyleSheet.create({
