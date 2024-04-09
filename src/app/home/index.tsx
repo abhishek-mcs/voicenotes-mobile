@@ -71,6 +71,7 @@ export default ()=> {
   const addTitleRecord = useAddTitle()
   const queryClient = useQueryClient();
   const [generateDummy,setGenerateDummy]=useState<any>(null)
+  const streakRef=useRef<any>()
   
   const recordingList = useMemo(
     () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
@@ -175,10 +176,10 @@ export default ()=> {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close();streakRef?.current?.close()}}>
       <View style={{ flex: 1}}>
         <View style={styles.wrapper}>
-          <Header isLogged={!!token} />
+          <Header isLogged={!!token} streakRef={streakRef}/>
           {!isListEmpty&&!!token && (
             <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
             <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
