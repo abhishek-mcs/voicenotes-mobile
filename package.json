@@ -26,6 +26,7 @@
     "buffer": "^6.0.3",
     "expo": "~50.0.14",
     "expo-application": "~5.8.3",
+    "expo-auth-session": "~5.4.0",
     "expo-av": "~13.10.5",
     "expo-clipboard": "~5.0.1",
     "expo-device": "~5.9.3",

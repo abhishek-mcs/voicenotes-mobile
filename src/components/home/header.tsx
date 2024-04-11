@@ -22,9 +22,9 @@ export default ({isLogged=true,streakRef=null}:any) => {
   const {token}=useSelector((state:RootState)=>state?.userDetails)
 
   const logout=useLogout()
-  const data=useGetUserData(token);
+  const data=useGetUserData();
   const photo_url=data?.data?.data?.photo_url||null;
-  const streaks=useStreak(token)
+  const streaks=useStreak()
   
   const onLogout = () =>{
     setShowMenu(false)

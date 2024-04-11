@@ -133,8 +133,8 @@ export function useGetTags(){
     })
 }
 
-export function useGetUserData(token:any){
-    if(!!token)
+export function useGetUserData(){
+    // if(!!token)
     return useQuery('user-data',(p?:any)=> {
         return axiosApi.get(`/auth/me`)
     },
@@ -208,8 +208,8 @@ export function useAskAI(isGuest:boolean=true){
     })
 }
 
-export function useStreak(token:any){
-    if(!!token)
+export function useStreak(){
+    // if(!!token)
     return useQuery('streaks',(p?:any) => {
         return axiosApi.get(`/streaks`)
     },
