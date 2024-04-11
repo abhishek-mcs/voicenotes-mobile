@@ -4,6 +4,7 @@ import ReactNativeModal from "react-native-modal";
 import Colors from "assets/Colors";
 import { formatDate, getLastSixMonths } from "utils/format-date";
 import ControlledTooltip from "components/common/ControlledTooltip";
+import { isIOS } from "utils/common";
 
 export default forwardRef(({data=null}:Props, ref) => {
   const [visible, setVisible] = useState(false);
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical:16,
     paddingHorizontal:20,
-    shadowColor:"#00000026",
+    shadowColor:isIOS?"#00000026":"#00000066",
 		shadowOpacity: 0.9,
 		shadowOffset: { width: 0, height:0 },
 		shadowRadius: 1.5,
