@@ -7,6 +7,18 @@ import { useAskSomething } from "queries/home"
 import ChatBuble from "components/common/chat-buble"
 import Colors from "assets/Colors"
 
+const customSuggestions = [
+    ' What book has influenced you the most?',
+     'What\'s your go-to comfort food?',
+     'Who do you admire most and why?',
+     'What\'s a tradition that means a lot to you?',
+     'What\'s your favorite place you\'ve visited?',
+     'What\'s something new you tried this year?',
+     'How do you tackle a challenging task?',
+     'What\'s a movie that stayed with you and why?',
+     'What\'s an important lesson life has taught you?',
+     'What\'s a dream you\'re working towards?'
+   ]
 export default ()=>{
     const [loading,setLoading]=useState(false)
     const [qstn,setQstn]=useState('')
@@ -17,7 +29,16 @@ export default ()=>{
         setLoading(true);
         askSomething.mutateAsync('',{
             onSuccess:(r)=>{
-                setQstn(r?.data?.suggestion)
+                if(!!r?.data?.suggestion)
+                    setQstn(r?.data?.suggestion)
+                else{
+                    const randomIndex = Math.floor(Math.random() * customSuggestions.length);
+                    setQstn(customSuggestions[randomIndex])
+                }
+            },
+            onError:()=>{
+                const randomIndex = Math.floor(Math.random() * customSuggestions.length);
+                setQstn(customSuggestions[randomIndex])
             }
         })
         setLoading(false)
@@ -39,7 +60,7 @@ export default ()=>{
             <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
             {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={14} style={{marginTop:8}}/>
             :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}
-            {qstn!=''&&<Text style={caption}>Get personalized, thoughtful questions as you record more notes.</Text>}
+            {qstn!=''&&<Text style={caption}>We’ll show personalized questions as you record more notes.</Text>}
         </View>
     )
 }

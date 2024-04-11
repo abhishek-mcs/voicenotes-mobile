@@ -218,7 +218,7 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
-      {!!token&&<AskMeSomething/>}
+        <AskMeSomething/>
       </View>
       </KeyboardAvoidingView>
       <BottomBar
