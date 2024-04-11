@@ -29,6 +29,8 @@
     "expo-auth-session": "~5.4.0",
     "expo-av": "~13.10.5",
     "expo-clipboard": "~5.0.1",
+    "expo-crypto": "~12.8.1",
+    "expo-dev-client": "~3.3.11",
     "expo-device": "~5.9.3",
     "expo-file-system": "~16.0.8",
     "expo-font": "~11.10.3",

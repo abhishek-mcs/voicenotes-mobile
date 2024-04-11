@@ -58,14 +58,14 @@ export default () => {
     }
 
   return (
-    <SafeAreaView style={{backgroundColor: "white",flex:1}}>
+    <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "white",
+        backgroundColor: "#f4f6f6",
       }}
     >
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
@@ -90,7 +90,7 @@ export default () => {
       <TextField
         // forwardedRef={inputref}
         style={{ marginTop: isIOS?36:24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
         value={name|| ""}
         textContentType="familyName"
         // label={"Enter your email"}
@@ -105,7 +105,7 @@ export default () => {
       />
       <TextField
         forwardedRef={inputRef}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -128,8 +128,8 @@ export default () => {
         returnKeyType={"next"}
         onSubmitEditing={continueClicked}
         placeholder="Password"
-        style={{ marginTop: 0, backgroundColor: "white" }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
+        style={{ marginTop: 0}}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
         autoCapitalize="none"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
       />

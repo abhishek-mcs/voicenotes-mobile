@@ -89,9 +89,9 @@ const TWITTER_AUTH_URL = "https://api.twitter.com/oauth/authenticate"
 const ELASTIC_SEARCH_URL = "https://elastic.buymeacoffee.com/api/as/v1/engines/coffee/search.json"
 
 const iosGoogleClientID =
-  "1060077575595-o329sirmr3isp9ejdlp7c8gs6bhdrmr4.apps.googleusercontent.com"
+  "103631669429-p3boki91qji4lqp5m2mc6s8nch5i7ad8.apps.googleusercontent.com"
 const androidGoogleClientID =
-  "1060077575595-ue45supjln965vfva3tu9iof020br9up.apps.googleusercontent.com"
+  "103631669429-sufk71is9ko40ng0kkvedj3qirsuqv5h.apps.googleusercontent.com"
 const expoClientID = "1060077575595-q0v2o6ddq379f1vkoedkrqndtds890k1.apps.googleusercontent.com"
 
 const facebookAPPID = "471960279833154"

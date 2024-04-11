@@ -48,7 +48,7 @@ export function TextField(props: TextFieldProps) {
 
   return (
     <View style={[containerStyle, styleOverride]}>
-      <Text style={{color:'#222',fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'}}>{label}</Text>
+      {!!label&&<Text style={{color:'#222',fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'}}>{label}</Text>}
       <TextInput
         onFocus={(state) => setHasFocus(true)}
         onBlur={(state) => setHasFocus(false)}

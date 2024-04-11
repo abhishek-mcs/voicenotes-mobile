@@ -35,6 +35,12 @@ export function useLogin(){
     })
 }
 
+export function signInWithGoogle() {
+    return useMutation("sign_in_google_mutation", async(params:any) => 
+     await axios.post(`${API_URL}/api/auth/token`,params)
+    )
+}
+
 export function useLogout(){
     const {guestToken} = useSelector((state: RootState) => state.userDetails);
     const dispatch=useDispatch()

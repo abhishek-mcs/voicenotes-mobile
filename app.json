@@ -2,7 +2,7 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "voicenotes",
@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "11",
+      "buildNumber": "12",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -34,7 +34,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "app.voicenotes",
-      "versionCode": 6
+      "versionCode": 7
     },
     "web": {
       "bundler": "metro",
