@@ -42,10 +42,10 @@ export default ()=>{
             }
         })
         setLoading(false)
-        textTimeout?.current&&clearTimeout(textTimeout?.current)
-        textTimeout.current=setTimeout(() => {
-            setQstn('')
-        }, 10000);
+        // textTimeout?.current&&clearTimeout(textTimeout?.current)
+        // textTimeout.current=setTimeout(() => {
+        //     setQstn('')
+        // }, 10000);
     }
     useEffect(()=>{
         const keyShow=Keyboard.addListener("keyboardDidShow",()=>setKeyboardShown(true))
