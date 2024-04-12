@@ -25,61 +25,43 @@ export default ({isLogged=true,streakRef=null}:any) => {
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
   const streaks=useStreak(token)
-  
-  const onLogout = () =>{
-    setShowMenu(false)
-    Alert.alert('',"Are you sure you want to log out?",
-    [{
-      text:"Cancel",
-      style:"cancel"
-    },{
-      text:"Yes",
-      onPress:async()=>await logout.mutateAsync('')
-    }])
-  }
+
   return (
     <View style={{ height: 53,zIndex:10 }} onTouchStart={()=>Keyboard.dismiss()}>
       <View
         style={styles.container}
       >
        <View style={{flex:1,flexDirection:'row',alignSelf:'center'}}>
-       {hashTags?.length!=0&&
+       {token&&
        <Touchable style={{alignSelf:'flex-start',padding:16,paddingRight:10,marginRight:6,marginLeft:-16 }} onPress={()=>router?.openDrawer()}>
-          <SvgXml xml={home.hash} />
-        </Touchable>}
-        {!!token&&streaks?.data?.data?.current_streak>0&&
-        <Touchable onPress={()=>{streakRef?.current?.open()}} style={{marginVertical:12,width:22,height:22,borderRadius:100,borderWidth:1,borderStyle:'dashed',justifyContent:'center',alignItems:'center',borderColor:'#222'}} activeOpacity={0.6}>
-          <Text style={{fontSize:12,fontFamily:'Primary-Bold',color:'#222'}}>{streaks?.data?.data?.current_streak}</Text>
+          <SvgXml xml={home.drawer} />
         </Touchable>}
         </View>
-        <SvgXml xml={home.logo} style={{ flex: 1 }} />
-        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        {/* <SvgXml xml={home.logo} style={{ flex: 1 }} /> */}
+        <View style={{  justifyContent: "flex-end" }}>
 
-     {isLogged? <Menu
-          visible={showMenu}
-          anchor={
-            <Touchable style={styles.menuPress} onPress={()=>setShowMenu(true)}>
-              {photo_url?
-              <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
-              :<SvgXml xml={commonSvg.profileIcon}/>}
-            </Touchable>
-          }
-          onRequestClose={()=>setShowMenu(false)}
-          style={styles.menu}
-        >
-          <MenuItem style={styles.menuItem} onPress={onLogout}>
-            <View style={[styles.row,{width:180}]}>
-              <Text style={styles.menuItemTxt}>Log out</Text>
-            </View>
-          </MenuItem>
-        </Menu>
-         : <Touchable
+     {isLogged? 
+         !!token&&
+        <Touchable onPress={()=>{streakRef?.current?.open()}} style={{marginVertical:12,width:22,height:22,borderRadius:100,borderWidth:1,borderStyle:'dashed',justifyContent:'center',alignItems:'center',borderColor:'#222'}} activeOpacity={0.6}>
+          <Text style={{fontSize:12,fontFamily:'Primary-Bold',color:'#222'}}>{streaks?.data?.data?.current_streak}</Text>
+        </Touchable>
+        :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
+         <Touchable
+            onPress={() => {
+              route.navigate("/auth/signup");
+            }}
+            style={{marginRight:16}}
+            activeOpacity={0.6}
+          ><Text style={{ color: Colors.grey, fontFamily:'Primary-Semibold',fontSize:12,paddingLeft:12,paddingVertical:8 }}>Sign up</Text>
+          </Touchable>
+         <Touchable
+            activeOpacity={0.6}
             onPress={() => {
               route.navigate("/auth/login/loginPassword");
             }}
-            style={{ alignSelf: "flex-end" }}
-          ><Text style={{ color: Colors.grey,fontFamily:'Primary',fontSize:14 }}>Login</Text>
-          </Touchable>}
+            style={{ alignSelf: "flex-end",backgroundColor:'#222',borderRadius:16,padding:12,paddingVertical:8,height:35 }}
+          ><Text style={{ color: '#fff',fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
+          </Touchable></View>}
         </View>
       </View>
       <Streaks ref={streakRef} data={streaks?.data?.data}/>
@@ -94,22 +76,5 @@ const styles=StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  menu: {
-    borderRadius: 12,
-    marginTop:36,
-    marginLeft:10
-  },
-  menuPress: {
-    alignSelf: "flex-end",
-    justifyContent: "center",width:30,height:30,borderRadius:8
-  },
-  menuItem: { paddingHorizontal: isIOS? 16:8, borderRadius: 12, overflow: "hidden", },
-  menuItemTxt: {
-    fontFamily: "Primary",
-    fontSize: 14,
-    color: "#222",
-    lineHeight: 24,
-    marginLeft: 0,
-  },
+  }
 })

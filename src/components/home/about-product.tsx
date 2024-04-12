@@ -68,7 +68,6 @@ const Description = ({ highlight = "", text = "", icon = "",img="",text2="" }) =
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
-    backgroundColor: Colors.primaryWithOpacity(0.05),
     borderRadius: 12,
     padding: 20,
   },
