@@ -19,6 +19,14 @@ const alertPermission=()=>{
           ]
         );
 }
+
+export const checkRecordPermission = async () => {
+  await Audio.getPermissionsAsync().then(async status => {
+    if (status.status != "granted") {
+      await Audio.requestPermissionsAsync();
+  }})
+}
+
 export const onRecord = async (
   setRec = (v: Audio.Recording) => {},
   setRecEnabled = (v: boolean) => {}
@@ -34,6 +42,7 @@ export const onRecord = async (
           shouldDuckAndroid: true,
           interruptionModeAndroid: 1,
           playThroughEarpieceAndroid: true,
+          staysActiveInBackground:true,
         });
 
         const { recording: recordingObject, status } = await Audio.Recording.createAsync(

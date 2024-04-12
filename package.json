@@ -24,7 +24,7 @@
     "@rneui/themed": "^4.0.0-rc.8",
     "axios": "^1.6.8",
     "buffer": "^6.0.3",
-    "expo": "~50.0.14",
+    "expo": "~50.0.15",
     "expo-application": "~5.8.3",
     "expo-auth-session": "~5.4.0",
     "expo-av": "~13.10.5",
