@@ -4,7 +4,7 @@ import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
 import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate } from "utils/format-date";
+import { formatDate, isSameDay } from "utils/format-date";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
@@ -196,25 +196,24 @@ export default forwardRef(({
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View style={styles.container}>
-      <View style={[styles.btw, styles.row]}>
-        <View style={styles.row}>
+    {(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
+      <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
+      <View style={{ flexDirection: "row"}}>
+        <View style={[{alignItems:'flex-start'}]}>
           {audioLoading==index?
           <CircularLoader/>
           :<Touchable onPress={onPlay}>
             <SvgXml xml={isPlay==index?home.pause:home.play} />
           </Touchable>}
-          <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
-        </View>
-      </View>
-      <View style={{ flexDirection: "row", marginTop: 8 }}>
         <View style={styles.timeLine} />
-        <View style={{marginLeft:isIOS?25:24,flex:1}}>
+        </View>
+        <View style={{marginLeft:9,flex:1}}>
           {!!note?.title?
           <Touchable onPress={()=>{
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
-          :<AiLoader text={`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:isIOS?0:-6}}/>}
+          :<AiLoader text={`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{}}/>}
           {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={styles.row}>
@@ -383,21 +382,21 @@ const styles = StyleSheet.create({
   btw: { justifyContent: "space-between" },
   timeLine: {
     width: 1,
-    height: "100%",
     backgroundColor: Colors.primaryWithOpacity(0.1),
-    marginLeft: 9,
+    marginTop: 8,
+    flex:1,
+    alignSelf:'center'
   },
   title: {
     fontWeight: "500",
-    fontFamily: "Primary-Medium",
+    fontFamily: "Primary-Semibold",
     fontSize: 16,
     color: "#222",
-    lineHeight: isIOS?26:24,
-    marginTop:isIOS?0:-4
+    lineHeight: 24,
   },
   text: {
     fontFamily: "Primary",
-    fontSize: 14,
+    fontSize: 16,
     color: "rgba(34, 34, 34, 0.9)",
     lineHeight:isIOS?23:22,
     marginTop: 4,
@@ -469,7 +468,7 @@ const styles = StyleSheet.create({
     color: Colors.grey,
     fontFamily: "Primary",
     fontSize: isIOS?14:12,
-    marginLeft: isIOS?16:12,
+    marginBottom: 8,
   },
   tagContainer:{
     flex: 1,
