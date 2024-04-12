@@ -19,7 +19,7 @@ export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
   const {token} = useSelector((state: RootState) => state.userDetails);
   const dispatch = useDispatch();
-  const router = useRouter()
+  const router = useRouter();
   const [currentTag, setCurrentTag] = useState<string>(hashFilter);
   const [showMenu,setShowMenu]=useState(false)
 
@@ -40,6 +40,7 @@ export default (props:any) => {
   };
 
   const onLogout = () =>{
+    router.back()
     setShowMenu(false)
     Alert.alert('',"Are you sure you want to log out?",
     [{
@@ -76,7 +77,7 @@ export default (props:any) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      <View style={[styles.row,{justifyContent:'space-between'}]}>
+     {!!token&& <View style={[styles.row,{justifyContent:'space-between'}]}>
         <View style={styles.row}>
       {photo_url?
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
@@ -99,7 +100,7 @@ export default (props:any) => {
             </View>
           </MenuItem>
         </Menu>
-        </View>
+        </View>}
     </SafeAreaView>
   );
 };

@@ -11,30 +11,35 @@ export default ({disable=false}) => {
     <View style={styles.container}>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
       <Text style={styles.title}>A place to dump your thoughts.</Text>
-      {!disable&&<Touchable style={{marginTop:4}} onPress={()=>{router.push("/auth/login/loginPassword")}}>
+      {/* {!disable&&<Touchable style={{marginTop:4}} onPress={()=>{router.push("/auth/login/loginPassword")}}>
         <SvgXml xml={home.close} />
-      </Touchable>}
+      </Touchable>} */}
       </View>
       <View style={{ marginTop: 20 }}>
         <Description
           icon={home.recordBlack}
           highlight="Record"
-          text="to capture your thoughts, family moments, lectures, new ideas, anything."
+          text="new ideas, family moments, meetings, podcast takeaways, anything"
         />
         <Description
           icon={home.ask}
           highlight="Ask your AI"
-          text="about your past notes, how you felt, your ideas, or for feedback."
+          text="to review past notes or brainstorm new ideas. It has perfect memory"
         />
         <Description
           icon={home.create}
           highlight="Create"
-          text="summary, blog posts, tweet, to-do list, and more with your notes."
+          text="summary, to-do list, blog post, and more using your notes"
+        />
+        <Description
+          icon={home.intelligent}
+          highlight=""
+          text="Intelligent suggestions, 50+ languages, mobile apps, and a zillion small things"
         />
         <Description
           icon={home.leaf}
           highlight=""
-          text="Commitment to privacy, longevity, and beauty."
+          text="Commitment to privacy, longevity, and beauty"
         />
         
         <Touchable 
@@ -53,13 +58,15 @@ export default ({disable=false}) => {
   );
 };
 
-const Description = ({ highlight = "", text = "", icon = "",img="",text2="" }) => (
+const Description = ({ highlight = "", text = "", text1="", icon = "",img="",text2="" }) => (
   <View style={{ flexDirection: "row", alignItems: "flex-start" ,marginBottom:12}}>
     <SvgXml xml={icon} />
     <View style={{flexDirection:'row',alignItems:'center',flexWrap:'nowrap'}}>
     <Text style={styles.highlights}>
       <Text style={{ fontWeight: "700",fontFamily:'Primary-Bold' }}>{!!highlight&&`${highlight} `}</Text>
       {text}
+      {!!text1&&<Text style={{textDecorationLine:'underline'}}>{text1}</Text>}
+      .
     </Text>
     </View>
   </View>
