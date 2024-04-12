@@ -19,8 +19,9 @@ export function useGuestToken(){
 }
 
 export function useSignup(){
-    return useMutation('signup',async ({name,email,password,otp}:{name:string,email:string,password:string,otp:any})=>{
-        return await axios.post(`${API_URL}/api/auth/register?name=${name}&email=${email}&password=${password}${!!otp?'&otp='+otp:''}`);
+    return useMutation('signup',async ({name,email,password,otp=null}:{name:string,email:string,password:string,otp?:any})=>{
+        const params=!!otp?{otp,password,name,email}:{password,name,email}
+        return await axios.post(`${API_URL}/api/auth/register`,params);
     },
     {
         onError:(error:any)=>{
@@ -31,7 +32,7 @@ export function useSignup(){
 
 export function useLogin(){
     return useMutation('login',async ({email,password}:{password:string,email:string}) => {
-        return await axios.post(`${API_URL}/api/auth/login?password=${password}&email=${email}`);
+        return await axios.post(`${API_URL}/api/auth/login`,{password,email});
     })
 }
 

@@ -4,7 +4,7 @@ import { useSignup } from "queries/auth"
 import React, { useContext, useState } from "react"
 import {ActivityIndicator, Alert,Dimensions,KeyboardAvoidingView,Platform,SafeAreaView,StyleSheet,Text,TouchableHighlight,View,} from "react-native"
 import { useDispatch, useSelector } from "react-redux"
-import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
+import { setEmail, setGuestToken, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { setAuthToken } from "services/api/axios-api"
 import {OTPInput} from "components/auth/otp-input"
 import { useQueryClient } from "react-query"
@@ -55,7 +55,7 @@ export default ()=>{
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             setAuthToken(token,false);
-            moveRecords.mutate(guestToken,{onSuccess:()=>{ 
+            moveRecords.mutate(guestToken,{onSuccess:()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
               router.replace("/home/");
