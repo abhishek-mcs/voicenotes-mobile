@@ -89,7 +89,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
         <Suggestions onPress={onSuggest}/>
         :preview === 'records' ?
         <Records recordingList={recordingList} fetchNextPage={fetchNextPage} onSelect={onSetRecord} />
-        :preview=="loader"? <AiLoader text="AI is writing your points"/>
+        :preview=="loader"? <AiLoader text={`AI is writing your ${noteType}`}/>
         :<Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onSetRecord} />
         }
       </View>

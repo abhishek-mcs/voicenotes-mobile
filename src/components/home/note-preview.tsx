@@ -35,6 +35,7 @@ export default forwardRef(({
   const [creationLoader, setCreationLoader] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
+  const [createType,setCreateType]=useState('summary')
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
   
@@ -119,6 +120,7 @@ export default forwardRef(({
   }
 
   const onCreate=async(type='summary')=>{
+    setCreateType(type)
     setCreationLoader(true)
     hideCreateOption()
     await createAI.mutateAsync({recording_id:note?.id,type})
@@ -306,7 +308,7 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
-        {!!token&&creationLoader&&<AiLoader text="Creating summary from your voice" />}
+        {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
         {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}
