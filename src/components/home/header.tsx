@@ -27,7 +27,7 @@ export default ({isLogged=true,streakRef=null}:any) => {
   const streaks=useStreak(token)
 
   return (
-    <View style={{ height: 53,zIndex:10 }} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{ height: 53,zIndex:20 }} onTouchStart={()=>Keyboard.dismiss()}>
       <View
         style={styles.container}
       >
