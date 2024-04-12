@@ -20,6 +20,7 @@ import { Audio } from "expo-av";
 import BottomBar from "components/home/bottom-bar";
 import {
   cancelRecording,
+  checkRecordPermission,
   onRecord,
   stopRecording,
 } from "func/home/record";
@@ -79,6 +80,10 @@ export default ()=> {
   );
   
   const isListEmpty = recordingList?.length == 0 || null;
+
+  useEffect(()=>{
+    checkRecordPermission()
+  },[])
   // setupAudioRec(rec)
 
   const onAsk = () => {
