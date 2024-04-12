@@ -32,6 +32,9 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
         },
         toggle() {
           setVisible(!visible)
+        },
+        onReset(){
+          onReset()
         }
       };
     },
@@ -53,14 +56,18 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
       }
     })
   }
-  
+
+  const onReset=()=>{
+    setPreview("suggestions")
+    setResult({id:0,result:null})
+    setNoteType("summary")
+    setTitle("")
+  }
+
   const onClose=()=>{
     setVisible(false)
     setTimeout(() => {
-      setPreview("suggestions")
-      setResult({id:0,result:null})
-      setNoteType("summary")
-      setTitle("")
+      onReset()
     }, 300);
   }
 

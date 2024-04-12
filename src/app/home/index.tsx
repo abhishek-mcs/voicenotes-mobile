@@ -86,6 +86,7 @@ export default ()=> {
     AIModalRef.current?.toggle();
   };
   const onCreate = () => {
+    CreateModalRef.current?.onReset();
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
