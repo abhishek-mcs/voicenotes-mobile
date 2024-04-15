@@ -10,9 +10,9 @@ import Colors from "assets/Colors"
 import { MAIN_URL } from "services/api/api-constants"
 import * as AuthSession from 'expo-auth-session';
 import { API_URL } from 'services/api/api-constants';
+import * as Google from "expo-auth-session/providers/google";
 
 WebBrowser.maybeCompleteAuthSession()
-
 
 export default () => {
   const router=useRouter()
@@ -58,13 +58,24 @@ export default () => {
     toggleSlide()
     fadeIn()
   }, [])
+const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleusercontent.com'
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId,
+      redirectUri: AuthSession.makeRedirectUri({
+        scheme: 'voicenotes',
+        path: '/home',
+      }),
+      responseType:'code',
+      extraParams:{
+        
+      }
+    },
+    {
+      authorizationEndpoint: `${API_URL}/api/auth/redirect/google`,
+    }
+  );
 
-
-  const redirectUri = AuthSession.makeRedirectUri({ scheme:"voicenotes" });
-  // backend authentication URLs
-  const authUrl = API_URL+'/api/auth/redirect/google';
-  const [request,response,promptAsync] = AuthSession.useAuthRequest({redirectUri:redirectUri,clientId:''},{authorizationEndpoint:authUrl});
-  
   useEffect(()=>{
     console.warn(response?.type)
   },[response])
@@ -113,7 +124,7 @@ export default () => {
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
-            onPress={promptAsync}
+            onPress={async()=>await promptAsync().catch(e=>{console.log(e)})}
             text="Continue with Google"
             logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
