@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "18",
+      "buildNumber": "19",
       "config": {
         "usesNonExemptEncryption": false
       },
