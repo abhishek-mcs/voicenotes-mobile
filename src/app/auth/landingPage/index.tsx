@@ -67,12 +67,13 @@ const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleuserco
         path: '/home',
       }),
       responseType:'code',
+      prompt:AuthSession.Prompt.SelectAccount,
       extraParams:{
-        
-      }
+        device:"mobile_app"
+      },
     },
     {
-      authorizationEndpoint: `${API_URL}/api/auth/redirect/google`,
+      authorizationEndpoint: `${API_URL}/api/auth/redirect/google?device=mobile_app`,
     }
   );
 

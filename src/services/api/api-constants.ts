@@ -77,7 +77,7 @@ const ENVURLSet: ENVURLs = {
 //     ? Environment.stage
 //     : Environment.production
 
-const currentENV = Environment.production;
+const currentENV = Environment.stage;
 
 const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
 const API_URL = ENVURLSet[currentENV].API_URL
