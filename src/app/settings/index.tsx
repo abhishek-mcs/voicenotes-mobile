@@ -17,13 +17,17 @@ export default () => {
     const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
 
   const onLogout = () =>{
+    
     Alert.alert('',"Are you sure you want to log out?",
     [{
       text:"Cancel",
       style:"cancel"
     },{
       text:"Yes",
-      onPress:async()=>await logout.mutateAsync('')
+      onPress:async()=>{
+        router?.back();
+        await logout.mutateAsync('')
+    }
     }])
   }
 
