@@ -53,7 +53,7 @@ export function useLogout(){
         queryClient.resetQueries('user-data')
         queryClient.resetQueries('all-tags')
         dispatch(setToken(''))
-        route.replace("/home/")
+        route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);

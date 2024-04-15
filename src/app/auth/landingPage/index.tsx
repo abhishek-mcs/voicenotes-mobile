@@ -1,13 +1,21 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View, Pressable, Platform, Animated,Text, TouchableOpacity,StyleSheet } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
+import LottieView from "lottie-react-native"
+import { SvgXml } from "react-native-svg"
+import { SafeAreaView } from "react-native"
+import { LandingSvg } from "assets/svg/LandingSvg"
+import Colors from "assets/Colors"
+import { MAIN_URL } from "services/api/api-constants"
+import * as AuthSession from 'expo-auth-session';
+import { API_URL } from 'services/api/api-constants';
 
-const logo = require("assets/images/logo.png")
 WebBrowser.maybeCompleteAuthSession()
 
 
 export default () => {
+  const router=useRouter()
   const [loginError, setLoginError] = useState()
 
   //Animations
@@ -51,22 +59,27 @@ export default () => {
     fadeIn()
   }, [])
 
-  return (
-    <View
-      style={{paddingBottom:32,paddingHorizontal:24,backgroundColor:'#fff',flex:1}}
-    >
-      <View style={{flex:1}} />
 
-      <Animated.Image
-        style={[
-          {alignSelf:'center'},
-          {
-            // Bind opacity to animated value
-            opacity: fadeAnim,
-          },
-        ]}
-        source={logo}
-      />
+  const redirectUri = AuthSession.makeRedirectUri({ scheme:"voicenotes" });
+  // backend authentication URLs
+  const authUrl = API_URL+'/api/auth/redirect/google';
+  const [request,response,promptAsync] = AuthSession.useAuthRequest({redirectUri:redirectUri,clientId:''},{authorizationEndpoint:authUrl});
+  
+  useEffect(()=>{
+    console.warn(response?.type)
+  },[response])
+  
+  return (
+    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
+    <View
+      style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:'#fff',flex:1,justifyContent:'space-between'}}
+    >
+      <View>
+      <SvgXml xml={LandingSvg.logo} />
+      <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:'#000',marginTop:20}}>
+        A place to dump your thoughts.
+      </Text>
+      </View>
       <Animated.View
         style={[
           {
@@ -76,34 +89,36 @@ export default () => {
           { transform: [{ translateY: bounceValue }] },
         ]}
       >
-        <View style={{marginTop:48,flexDirection:'row',alignItems:'center',paddingHorizontal:24}} />
-        <TouchableOpacity
+        <View style={{alignItems:'center'}} />
+        {/* <TouchableOpacity
           style={styles.button}
           onPress={() => {}}
-        ><Text style={styles.text}>Sign up</Text></TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button2}
-          onPress={()=>{}}
-          ><Text style={styles.text}>Continue with Twitter</Text></TouchableOpacity>
-        <TouchableOpacity
-        style={styles.button2}
-          onPress={()=>{}}
-        ><Text style={styles.text}>Continue with Google</Text></TouchableOpacity>
-        <TouchableOpacity
-        style={styles.button2}
-          onPress={()=>{}}>
-            <Text style={styles.text}>Continue with Facebook</Text></TouchableOpacity>
+        ><Text style={styles.text}>Sign up</Text></TouchableOpacity> */}
         {(Platform.OS === "ios" || Platform.OS === "macos") && (
-          <TouchableOpacity
-            style={styles.button2}
-            onPress={()=>{}}>
-                <Text style={styles.text}>Continue with Apple</Text>
-          </TouchableOpacity>
+          <Btn
+            underlayColor={Colors.grey2WithOpacity(0.8)}
+            style={styles.button}
+            onPress={()=>{router.push('/auth/signup/')}}
+            text="Sign up"
+            color="#fff"
+            // logo={LandingSvg.apple}
+            />
         )}
-
+          <Btn
+            underlayColor={Colors.grey2WithOpacity(0.3)}
+            style={styles.button2}
+            onPress={()=>{router.push('/auth/login/loginPassword')}}
+            text="Continue with Email"
+            logo={LandingSvg.email}/>
+          <Btn
+            underlayColor={Colors.grey2WithOpacity(0.3)}
+            style={styles.button2}
+            onPress={promptAsync}
+            text="Continue with Google"
+            logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
 
-        <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
+        {/* <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
           <Pressable
             // onPress={() => router.push('/auth/login')}
           >
@@ -113,21 +128,44 @@ export default () => {
               <Text style={{color : "#1A0FAB"}}> Log in</Text>
               </Text>
           </Pressable>
-        </View>
-        <Text style={{fontFamily:'Primary',fontSize:12,color:'#222',textAlign:'center'}}>
+        </View> */}
+        <Text style={{fontFamily:'Primary',fontSize:12,color:'#222',textAlign:'center',marginTop:16}}>
           {`By signing up, you agree to our `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync("https://www.buymeacoffee.com/terms")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]} >terms</Text>
+          <Text onPress={()=>{}} style={[{fontFamily:'Primary',fontSize:12}]} >terms</Text>
           {` and `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync("https://www.buymeacoffee.com/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
+          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
           {`.`}
           {`\nYou must be at least 18 years old to start a page.`}
         </Text>
       </Animated.View>
-    </View>
+      </View>
+    </SafeAreaView>
   )
 }
+
+const Btn=({text,onPress,style,underlayColor,logo,color}:Props)=>(
+  <TouchableHighlight
+  underlayColor={underlayColor}
+  style={style}
+  onPress={onPress}>
+    <>
+      {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
+      <Text style={[styles.text,color?{color}:{}]}>{text}</Text>
+    </>
+</TouchableHighlight>
+)
+
 const styles=StyleSheet.create({
-    text:{fontFamily:'Primary-Bold',fontSize:14,fontWeight:'bold'},
-    button:{backgroundColor:'#ffdd00',paddingVertical:12,alignItems:'center',borderRadius:50},
-    button2:{marginTop:12,borderWidth:1,borderColor:'rgba(34,34,34,0.1)',borderRadius:50,paddingVertical:16,alignItems:'center'}
+    text:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.grey2WithOpacity(1)},
+    button:{backgroundColor:Colors.grey2WithOpacity(1),height:48,justifyContent:'center',alignItems:'center',borderRadius:16,flexDirection:'row'},
+    button2:{marginTop:12,backgroundColor:Colors.grey2WithOpacity(0.1),borderRadius:16,height:48,justifyContent:'center',alignItems:'center',flexDirection:'row'}
 })
+
+interface Props{
+  text:string
+  onPress:()=>void
+  style:object
+  underlayColor:string
+  logo?:any
+  color?:string
+}
