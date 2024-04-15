@@ -14,6 +14,7 @@ import { isIOS } from "utils/common";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
+import * as Wb from "expo-web-browser";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
@@ -50,6 +51,20 @@ export default (props:any) => {
       text:"Yes",
       onPress:async()=>await logout.mutateAsync('')
     }])
+  }
+
+  const onDelete = () =>{
+    router.back()
+    setShowMenu(false)
+    Alert.alert('',"Are you sure you wish to delete your account?",
+    [{
+      text:"Cancel",
+      style:"cancel"
+    },{
+      text:"Yes",
+      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey')
+    }])
+    
   }
 
   return (
@@ -94,6 +109,11 @@ export default (props:any) => {
           onRequestClose={()=>setShowMenu(false)}
           style={styles.menu}
         >
+        <MenuItem style={styles.menuItem} onPress={onDelete}>
+          <View style={[styles.row,{width:180}]}>
+            <Text style={[styles.menuItemTxt,{color:Colors.grey}]}>Delete account</Text>
+          </View>
+        </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onLogout}>
             <View style={[styles.row,{width:180}]}>
               <Text style={styles.menuItemTxt}>Log out</Text>
