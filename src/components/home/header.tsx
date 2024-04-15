@@ -14,6 +14,7 @@ import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { useGetUserData, useStreak } from "queries/home";
 import Streaks from "components/streaks";
+import formatBigNumber from "utils/formatBigNumber";
 
 export default ({isLogged=true,streakRef=null}:any) => {
   const router:any=useNavigation()
@@ -42,8 +43,9 @@ export default ({isLogged=true,streakRef=null}:any) => {
 
      {isLogged? 
          !!token&&
-        <Touchable onPress={()=>{streakRef?.current?.open()}} style={{marginVertical:12,width:22,height:22,borderRadius:100,borderWidth:1,borderStyle:'dashed',justifyContent:'center',alignItems:'center',borderColor:'#222'}} activeOpacity={0.6}>
-          <Text style={{fontSize:12,fontFamily:'Primary-Bold',color:'#222'}}>{streaks?.data?.data?.current_streak}</Text>
+        <Touchable onPress={()=>{streakRef?.current?.open()}} style={{marginVertical:12,width:22,height:22}} activeOpacity={0.6}>
+          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)}<`)}/>
+          {/* <Text style={{fontSize:9.6,fontFamily:'Primary-Bold',color:'#222'}}>{formatBigNumber(streaks?.data?.data?.current_streak)}</Text> */}
         </Touchable>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
          <Touchable
