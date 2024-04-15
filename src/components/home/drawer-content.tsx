@@ -3,7 +3,7 @@ import { drawerSvg } from "assets/svg/drawerSvg";
 import Touchable from "components/common/Touchable";
 import { useGetTags, useGetUserData } from "queries/home";
 import { useEffect, useState } from "react";
-import { Alert, Button, FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { Alert, Button, FlatList, Image, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -67,15 +67,21 @@ export default (props:any) => {
     
   }
 
+  const openSettings=()=>{
+    router.back();
+    setTimeout(() => {
+    router?.push('/settings/')
+    }, 500);
+  }
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         contentContainerStyle={{ alignItems: "flex-start" }}
         data={['All',...hashTags]}
         renderItem={({ item, index }) => (
-          <Touchable onPress={() => handleTagPress(item)} style={[styles.btn,{
-            backgroundColor: item==currentTag?Colors.darkWithOpacity(0.1):'transparent'}]}>
-            <SvgXml xml={
+          <TouchableHighlight onPress={() => handleTagPress(item)} style={[styles.btn,{
+            backgroundColor: item==currentTag?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
+            <><SvgXml xml={
               item=='All'?
               drawerSvg.home?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
               :item=='starred'?
@@ -87,13 +93,14 @@ export default (props:any) => {
                 styles.btnTxt,
                 { color: item==currentTag ? Colors.darkWithOpacity(1) : Colors.grey },
               ]}
-            >{item}</Text>
-          </Touchable>
+            >{item}</Text></>
+          </TouchableHighlight>
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-     {!!token&& <View style={[styles.row,{justifyContent:'space-between'}]}>
-        <View style={styles.row}>
+     {!!token&& 
+     <TouchableHighlight onPress={openSettings} style={[styles.row,styles.btn,{justifyContent:'space-between',paddingLeft:6,paddingRight:4,marginLeft:-6,height:40}]} underlayColor={Colors.darkWithOpacity(0.1)}>
+        <><View style={styles.row}>
       {photo_url?
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
@@ -102,7 +109,7 @@ export default (props:any) => {
       <Menu
           visible={showMenu}
           anchor={
-            <Touchable style={styles.menuPress} onPress={()=>setShowMenu(true)}>
+            <Touchable style={styles.menuPress} onPress={openSettings}>
               <SvgXml xml={drawerSvg.more} />
             </Touchable>
           }
@@ -120,7 +127,8 @@ export default (props:any) => {
             </View>
           </MenuItem>
         </Menu>
-        </View>}
+        </>
+        </TouchableHighlight>}
     </SafeAreaView>
   );
 };

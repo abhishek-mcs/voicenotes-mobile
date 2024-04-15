@@ -158,10 +158,10 @@ export default forwardRef((props, ref) => {
     >
       <View style={styles.modal}>
         <View style={[styles.header1]}>
-          <Touchable onPress={onDrawer} style={{ padding: 4, flexDirection:'row',alignItems:'center' }}>
+          {/* <Touchable onPress={onDrawer} style={{ padding: 4, flexDirection:'row',alignItems:'center' }}>
             <SvgXml xml={AIModalSVG.history} />
             <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text>
-          </Touchable>
+          </Touchable> */}
           <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
             <SvgXml xml={AIModalSVG.close} />
           </Touchable>
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   header1: {
     height: 57,
     paddingHorizontal: 20,
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     alignItems: "center",
     justifyContent:'space-between',
     borderBottomWidth: 1,
