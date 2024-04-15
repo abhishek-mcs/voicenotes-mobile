@@ -389,14 +389,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "500",
-    fontFamily: "Primary-Semibold",
+    fontFamily: "Primary-Medium",
     fontSize: 16,
     color: "#222",
     lineHeight: 24,
   },
   text: {
     fontFamily: "Primary",
-    fontSize: 16,
+    fontSize: 14,
     color: "rgba(34, 34, 34, 0.9)",
     lineHeight:isIOS?23:22,
     marginTop: 4,

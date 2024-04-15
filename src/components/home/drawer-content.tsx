@@ -40,38 +40,11 @@ export default (props:any) => {
     router.back()
   };
 
-  const onLogout = () =>{
-    router.back()
-    setShowMenu(false)
-    Alert.alert('',"Are you sure you want to log out?",
-    [{
-      text:"Cancel",
-      style:"cancel"
-    },{
-      text:"Yes",
-      onPress:async()=>await logout.mutateAsync('')
-    }])
-  }
-
-  const onDelete = () =>{
-    router.back()
-    setShowMenu(false)
-    Alert.alert('',"Are you sure you wish to delete your account?",
-    [{
-      text:"Cancel",
-      style:"cancel"
-    },{
-      text:"Yes",
-      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey')
-    }])
-    
-  }
-
   const openSettings=()=>{
-    router.back();
-    setTimeout(() => {
+    // router.back();
+    // setTimeout(() => {
     router?.push('/settings/')
-    }, 500);
+    // }, 500);
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -99,20 +72,20 @@ export default (props:any) => {
         keyExtractor={(item, index) => index.toString()}
       />
      {!!token&& 
-     <TouchableHighlight onPress={openSettings} style={[styles.row,styles.btn,{justifyContent:'space-between',paddingLeft:6,paddingRight:4,marginLeft:-6,height:40}]} underlayColor={Colors.darkWithOpacity(0.1)}>
+     <Touchable onPress={openSettings} style={[styles.row,styles.btn,{justifyContent:'space-between',paddingLeft:6,paddingRight:4,marginLeft:-6,height:40}]} activeOpacity={0.6}>
         <><View style={styles.row}>
       {photo_url?
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
               <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d'}}>{data?.data?.data?.name}</Text>
               </View>
-      <Menu
+      {/* <Menu
           visible={showMenu}
-          anchor={
-            <Touchable style={styles.menuPress} onPress={openSettings}>
+          anchor={ */}
+            <View style={styles.menuPress} >
               <SvgXml xml={drawerSvg.more} />
-            </Touchable>
-          }
+            </View>
+          {/* }
           onRequestClose={()=>setShowMenu(false)}
           style={styles.menu}
         >
@@ -126,9 +99,9 @@ export default (props:any) => {
               <Text style={styles.menuItemTxt}>Log out</Text>
             </View>
           </MenuItem>
-        </Menu>
+        </Menu> */}
         </>
-        </TouchableHighlight>}
+        </Touchable>}
     </SafeAreaView>
   );
 };
