@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { setAuthToken } from "services/api/axios-api";
 import { useRouter } from "expo-router";
@@ -91,9 +92,10 @@ export default () => {
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
-        <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
+        {/* <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
-        </View>
+        </View> */}
+        <ScrollView contentContainerStyle={{flex:1,justifyContent:'center'}}>
       <Text
         style={{
           alignSelf: "center",
@@ -101,7 +103,7 @@ export default () => {
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
-          marginTop: 24,
+          marginTop: 0,
         }}
       >
         Welcome back
@@ -215,6 +217,7 @@ export default () => {
       <View style={{flex:1,height:1,backgroundColor:Colors.primaryWithOpacity(0.1),width:'45%'}}/>
     </View>
     <GoogleAuthButton/> */}
+    </ScrollView>
     </KeyboardAvoidingView>
     </SafeAreaView>
   );

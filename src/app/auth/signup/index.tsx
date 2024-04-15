@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -72,9 +73,10 @@ export default () => {
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
 
-      <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
+      {/* <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
-        </View>
+        </View> */}
+        <ScrollView contentContainerStyle={{flex:1,justifyContent:'center'}}>
       <Text
         style={{
           alignSelf: "center",
@@ -82,7 +84,7 @@ export default () => {
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
-          marginTop: 24,
+          marginTop: 48,
         }}
       >
         Create an account
@@ -202,6 +204,7 @@ export default () => {
           </Text>
         </Pressable>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
     </SafeAreaView>
   );
