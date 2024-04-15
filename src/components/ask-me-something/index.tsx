@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, View } from "react-native"
+import { Keyboard, StyleSheet, useWindowDimensions, View } from "react-native"
 import { isIOS } from "utils/common"
 import { Text } from "react-native"
 import AiLoader from "components/common/loaders/ai-loader"
@@ -55,8 +55,10 @@ export default ()=>{
             keyHide.remove()
         }
     },[])
+    const {height}=useWindowDimensions()
+    const top=height>690?85:120
     return (
-        <View style={[container,{bottom:keyboardShown?-80:(isIOS?85:114)}]}>
+        <View style={[container,{bottom:keyboardShown?-80:(isIOS?top:114)}]}>
             <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
             {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={14} style={{marginTop:8}}/>
             :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}

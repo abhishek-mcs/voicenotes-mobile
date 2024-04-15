@@ -8,6 +8,7 @@ import {
   Text,
   TextInput,
   TouchableHighlight,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -144,14 +145,16 @@ export default forwardRef((props, ref) => {
     });
   };
 
+  const {height}=useWindowDimensions()
+  const top=height>690?64:99
   return (
     <ReactNativeModal
       isVisible={visible}
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? 64:94) }]}
-      backdropOpacity={0.005}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:94) }]}
+      backdropOpacity={0.05}
       avoidKeyboard
       hasBackdrop={false}
       coverScreen={false}

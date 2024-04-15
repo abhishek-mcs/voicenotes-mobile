@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
@@ -71,14 +71,16 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
     }, 300);
   }
 
+  const {height}=useWindowDimensions()
+  const top=height>690?64:99
   return (
     <ReactNativeModal
       isVisible={visible}
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
       onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',bottom:isIOS?64:94}}
-      backdropOpacity={0.005}
+      style={{justifyContent:'flex-end',bottom:isIOS?top:94}}
+      backdropOpacity={0.05}
       hasBackdrop={false}
       coverScreen={false}
       onTouchStart={(e)=>e?.stopPropagation()}
