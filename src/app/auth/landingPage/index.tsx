@@ -6,7 +6,7 @@ import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
 import Colors from "assets/Colors"
-import { MAIN_URL } from "services/api/api-constants"
+import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
 import * as AuthSession from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
 import * as AppleAuth from "expo-apple-authentication";
@@ -81,12 +81,10 @@ export default () => {
     }
   }
 //google login start
-const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleusercontent.com'
-const iosGoogleClientID= '364915655162-rv9t4rijv08090u74g8qor6lfnolg9lr.apps.googleusercontent.com'
 const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuthRequest({
-  expoClientId: clientId,
+  expoClientId: expoClientID,
   iosClientId: iosGoogleClientID,
-  // androidClientId: androidGoogleClientID,
+  androidClientId: androidGoogleClientID,
   scopes: ["profile", "email"],
 })
 const loginGoogle=signInWithGoogle()
