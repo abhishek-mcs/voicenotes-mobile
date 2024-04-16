@@ -11,6 +11,7 @@ import { MAIN_URL } from "services/api/api-constants"
 import * as AuthSession from 'expo-auth-session';
 import { API_URL } from 'services/api/api-constants';
 import * as Google from "expo-auth-session/providers/google";
+import * as Linking from "expo-linking"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -59,28 +60,39 @@ export default () => {
     fadeIn()
   }, [])
 const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleusercontent.com'
+const redirectUri= AuthSession.makeRedirectUri({});
+const authorizationEndpoint= `${API_URL}/api/auth/redirect/google`
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId,
-      redirectUri: AuthSession.makeRedirectUri({
-        scheme: 'voicenotes',
-        path: '/home',
-      }),
+      redirectUri,
       responseType:'code',
       prompt:AuthSession.Prompt.SelectAccount,
       extraParams:{
-        device:"mobile_app"
+        device:"mobile_app",
+        redirect_uri:encodeURIComponent(redirectUri)
       },
     },
     {
-      authorizationEndpoint: `${API_URL}/api/auth/redirect/google?device=mobile_app`,
+      authorizationEndpoint,
     }
   );
 
   useEffect(()=>{
-    console.warn(response?.type)
+    console.warn(response)
+    // return ()=>
   },[response])
-  
+
+  const handleOpenURL = (e:any) => {
+    console.warn(e)
+  }
+  const onGoogleLogin=async()=>{
+    // console.warn(redirectUri)
+   const res=await promptAsync().then(e=>{
+      console.warn(e)
+    }).catch(e=>{console.log(e)})
+  }
+
   return (
     <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
     <View
@@ -125,7 +137,7 @@ const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleuserco
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
-            onPress={async()=>await promptAsync().catch(e=>{console.log(e)})}
+            onPress={onGoogleLogin}
             text="Continue with Google"
             logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
