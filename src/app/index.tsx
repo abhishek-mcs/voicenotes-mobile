@@ -3,6 +3,8 @@ import { useFonts } from 'expo-font';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Home from './home';
 import { Redirect } from 'expo-router';
+import { RootState } from 'redux/store/store';
+import { useSelector } from 'react-redux';
 
 export {
   ErrorBoundary,
@@ -14,7 +16,7 @@ export const unstable_settings = {
 
 
 export default function App() {
-
+  const {token} = useSelector((state: RootState) => state.userDetails);
   const [fontsLoaded,error] = useFonts({
     "Primary-Bold": require('../assets/fonts/Inter-Bold.ttf'),
     "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
@@ -31,11 +33,11 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
-  // if (token) {
-  //   return <Redirect href="/home/" />;
-  // }else{
+  if (token) {
+    return <Redirect href="/home/" />;
+  }else{
     return (
-      <Redirect href="/home/" />
+      <Redirect href="/auth/landingPage/" />
     );
-  // }
+  }
 }

@@ -38,7 +38,13 @@ export function useLogin(){
 
 export function signInWithGoogle() {
     return useMutation("sign_in_google_mutation", async(params:any) => 
-     await axios.post(`${API_URL}/api/auth/token`,params)
+        await axios.get(`${API_URL}/api/auth/google/login`,{params})
+    )
+}
+
+export function signInWithApple() {
+    return useMutation("sign_in_apple_mutation", (params:any) =>
+        axios.get(`${API_URL}/api/auth/apple/login`, {params})
     )
 }
 
@@ -53,7 +59,7 @@ export function useLogout(){
         queryClient.resetQueries('user-data')
         queryClient.resetQueries('all-tags')
         dispatch(setToken(''))
-        route.replace("/home/")
+        route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);

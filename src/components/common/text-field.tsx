@@ -23,6 +23,7 @@ export interface TextFieldProps extends TextInputProps {
   rightIcon?: any
   errorStyle?: any
   validate?: boolean
+  labelStyle?:TextStyle[]|TextStyle
 }
 
 export function TextField(props: TextFieldProps) {
@@ -38,6 +39,7 @@ export function TextField(props: TextFieldProps) {
     underlineColorActive,
     underlineColorDeActive,
     errorMessage,
+    labelStyle,
     ...rest
   } = props
 
@@ -48,7 +50,7 @@ export function TextField(props: TextFieldProps) {
 
   return (
     <View style={[containerStyle, styleOverride]}>
-      {!!label&&<Text style={{color:'#222',fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'}}>{label}</Text>}
+      {!!label&&<Text style={[{color:'#222',fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'},labelStyle]}>{label}</Text>}
       <TextInput
         onFocus={(state) => setHasFocus(true)}
         onBlur={(state) => setHasFocus(false)}
