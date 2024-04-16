@@ -67,7 +67,6 @@ export default () => {
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
-      console.warn(data?.data)
       const token = data?.data?.token
       const userData = data?.data?.user
       if (token) {
@@ -95,7 +94,6 @@ const signInGoogle=(token:any,params:any)=>{
   })
 }
   useEffect(()=>{
-    console.warn(googleResponse)
     if (googleResponse?.type === "success") {
       signInGoogle(googleResponse?.params.id_token,googleResponse?.params)
     }
@@ -127,7 +125,6 @@ const signInGoogle=(token:any,params:any)=>{
           AppleAuth.AppleAuthenticationScope.EMAIL,
         ],
       })
-      console.warn(credential)
       if (credential.email) dispatch(setEmail(credential.email))
       signInAppleAPI(credential?.identityToken)
       // signed in
