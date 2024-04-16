@@ -2,22 +2,27 @@ import React, { useEffect, useRef, useState } from "react"
 import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
-import LottieView from "lottie-react-native"
 import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
 import Colors from "assets/Colors"
 import { MAIN_URL } from "services/api/api-constants"
-import * as AuthSession from 'expo-auth-session';
-import { API_URL } from 'services/api/api-constants';
+import * as AuthSession from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
-import * as Linking from "expo-linking"
+import * as AppleAuth from "expo-apple-authentication";
+import { signInWithApple, signInWithGoogle } from "queries/auth"
+import { setAuthToken } from "services/api/axios-api"
+import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
+import { useQueryClient } from "react-query"
+import { useDispatch } from "react-redux"
 
 WebBrowser.maybeCompleteAuthSession()
 
 export default () => {
   const router=useRouter()
   const [loginError, setLoginError] = useState()
+  const queryClient=useQueryClient()
+  const dispatch=useDispatch()
 
   //Animations
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -59,39 +64,84 @@ export default () => {
     toggleSlide()
     fadeIn()
   }, [])
-const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleusercontent.com'
-const redirectUri= AuthSession.makeRedirectUri({});
-const authorizationEndpoint= `${API_URL}/api/auth/redirect/google`
-  const [request, response, promptAsync] = AuthSession.useAuthRequest(
-    {
-      clientId,
-      redirectUri,
-      responseType:'code',
-      prompt:AuthSession.Prompt.SelectAccount,
-      extraParams:{
-        device:"mobile_app",
-        redirect_uri:encodeURIComponent(redirectUri)
-      },
-    },
-    {
-      authorizationEndpoint,
+
+  const onLoginSuccess=(data:any)=>{
+    if(!!data?.data){
+      console.warn(data?.data)
+      const token = data?.data?.token
+      const userData = data?.data?.user
+      if (token) {
+        setAuthToken(token,false);
+        dispatch(setToken(token));
+        dispatch(setUserDetail(userData))
+        queryClient.resetQueries('all-recording')
+        queryClient.resetQueries('user-data')
+        router.replace("/home/");
+      }
     }
-  );
-
+  }
+//google login start
+const clientId= '364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleusercontent.com'
+const iosGoogleClientID= '364915655162-rv9t4rijv08090u74g8qor6lfnolg9lr.apps.googleusercontent.com'
+const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuthRequest({
+  expoClientId: clientId,
+  iosClientId: iosGoogleClientID,
+  // androidClientId: androidGoogleClientID,
+  scopes: ["profile", "email"],
+})
+const loginGoogle=signInWithGoogle()
+const signInGoogle=(token:any,params:any)=>{
+  const {code,state,prompt,authuser,scope}=params
+  loginGoogle.mutate({access_token:token,client_id:iosGoogleClientID,device:'mobile_app',code,state,prompt,authuser,scope},{
+    onSuccess:onLoginSuccess
+  })
+}
   useEffect(()=>{
-    console.warn(response)
-    // return ()=>
-  },[response])
+    console.warn(googleResponse)
+    if (googleResponse?.type === "success") {
+      signInGoogle(googleResponse?.params.id_token,googleResponse?.params)
+    }
+  },[googleResponse])
 
-  const handleOpenURL = (e:any) => {
-    console.warn(e)
-  }
   const onGoogleLogin=async()=>{
-    // console.warn(redirectUri)
-   const res=await promptAsync().then(e=>{
-      console.warn(e)
-    }).catch(e=>{console.log(e)})
+   const res= await googlePromptAsync().then(e=>{
+    console.warn(e)
+   }).catch(e=>{
+    console.warn(e)
+   })
   }
+//google login end
+
+//apple login start
+  const loginApple = signInWithApple()
+
+  const signInAppleAPI=(token:any)=>{
+    loginApple.mutate({access_token:token},{
+      onSuccess:onLoginSuccess
+    })
+  }
+
+  const signInAppleAsync = async () => {
+    try {
+      const credential = await AppleAuth.signInAsync({
+        requestedScopes: [
+          AppleAuth.AppleAuthenticationScope.FULL_NAME,
+          AppleAuth.AppleAuthenticationScope.EMAIL,
+        ],
+      })
+      console.warn(credential)
+      if (credential.email) dispatch(setEmail(credential.email))
+      signInAppleAPI(credential?.identityToken)
+      // signed in
+    } catch (e:any) {
+      if (e?.code === "ERR_CANCELED") {
+        // handle that the user canceled the sign-in flow
+      } else {
+        // handle other errors
+      }
+    }
+  }
+//apple login end
 
   return (
     <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
@@ -122,10 +172,10 @@ const authorizationEndpoint= `${API_URL}/api/auth/redirect/google`
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.8)}
             style={styles.button}
-            onPress={()=>{router.push('/auth/signup/')}}
-            text="Sign up"
+            onPress={signInAppleAsync}
+            text="Continue with Apple"
             color="#fff"
-            // logo={LandingSvg.apple}
+            logo={LandingSvg.apple}
             />
         )}
           <Btn

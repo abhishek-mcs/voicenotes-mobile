@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useRef, useState } from "react"
-import { InteractionManager, Keyboard, View, Text, TextInput, Pressable } from "react-native"
+import { InteractionManager, Keyboard, View, Text, TextInput, Pressable, KeyboardAvoidingView } from "react-native"
 import { validateEmail } from "utils/api-queries/auth/signin-mutations"
 import { useMutation } from "react-query"
 import axiosApi from "services/api/axios-api"
@@ -10,6 +10,11 @@ import { TextField } from "components/common/text-field"
 import { useDispatch } from "react-redux"
 import { setEmail } from "redux/reducers/userDetails"
 import Colors from "assets/Colors"
+import Touchable from "components/common/Touchable"
+import { SvgXml } from "react-native-svg"
+import { commonSvg } from "assets/svg/commonSvg"
+import { isIOS } from "utils/common"
+import { ActivityIndicator } from "react-native"
 
 function usecheckEmailMutation() {
   return useMutation("check_email", ({ email, captcheToken }:{email:string,captcheToken:string}) =>
@@ -64,52 +69,59 @@ export default ()=> {
   }
 
   const continueClicked = () => {
-    setEmailError(null)
-    setCaptchaError(null)
-    if (!validateEmail(emailText) || emailText === "") {
-      setValidationError(true)
-    } else {
-      setValidationError(false)
-      dispatch(setEmail(emailText))
-      checkEmailMutation.mutate(
-        { email: emailText,
-          // captcheToken: token
-        },
-        {
-          onSuccess: async (response:any) => {
-            if (response.data?.has_password) {
-              router.push({pathname:"/auth/login/loginPassword"})
-            } 
-            // else if (response.data?.otp_login) {
-            //   router.push("/auth/login/")
-            // }
-          },
-          onError: (error:any) => {
-            for (const er in error.response.data.errors) {
-              if (er == "email") {
-                setEmailError(error.response.data.errors[er][0])
-              } 
-              // else if (er == "client_response") {
-              //   setCaptchaError(error.response.data.errors[er][0])
-              // }
-              return
-            }
-          },
-        },
-      )
-    }
+    router?.push({pathname:"/auth/login/loginPassword"})
+    // setEmailError(null)
+    // setCaptchaError(null)
+    // if (!validateEmail(emailText) || emailText === "") {
+    //   setValidationError(true)
+    // } else {
+    //   setValidationError(false)
+    //   dispatch(setEmail(emailText))
+    //   checkEmailMutation.mutate(
+    //     { email: emailText,
+    //       // captcheToken: token
+    //     },
+    //     {
+    //       onSuccess: async (response:any) => {
+    //         if (response.data?.has_password) {
+    //           router.push({pathname:"/auth/login/loginPassword"})
+    //         } 
+    //         // else if (response.data?.otp_login) {
+    //         //   router.push("/auth/login/")
+    //         // }
+    //       },
+    //       onError: (error:any) => {
+    //         for (const er in error.response.data.errors) {
+    //           if (er == "email") {
+    //             setEmailError(error.response.data.errors[er][0])
+    //           } 
+    //           // else if (er == "client_response") {
+    //           //   setCaptchaError(error.response.data.errors[er][0])
+    //           // }
+    //           return
+    //         }
+    //       },
+    //     },
+    //   )
+    // }
   }
 
   return (
-    <View style={{flex:1,paddingHorizontal:24,backgroundColor:'white',justifyContent:'center',paddingVertical:200}}>
-      <View style={{marginTop:24}}>
-        <Text style={{alignSelf:'center',fontWeight:'bold',color:'#222',fontFamily:'Primary-Bold',fontSize:24}}>Welcome back</Text>
+    <KeyboardAvoidingView 
+    behavior="padding"
+    style={{flex:1,paddingHorizontal:24,backgroundColor: "#f4f6f6",paddingTop:150,justifyContent:'space-between'}}>
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?54:54,padding:16}}>
+          <SvgXml xml={commonSvg.back1}/>
+        </Touchable>
+      <View style={{marginTop:0}}>
+
         <TextField
           forwardedRef={inputRef}
-          style={{marginTop:36,flexDirection:'column'}}
-          inputStyle={{flexWrap:'wrap',height:48,color:'#222'}}
+          style={{marginTop:0,flexDirection:'column'}}
+          inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:'#fff'}}
           value={emailText}
           label={"Enter your email"}
+          labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
           returnKeyType="go"
           textContentType="emailAddress"
           onSubmitEditing={continueClicked}
@@ -118,6 +130,7 @@ export default ()=> {
           autoComplete="email"
           keyboardType="email-address"
           autoCapitalize="none"
+          autoFocus
         />
         {validationError && (
           <Text style={{color:'red',fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
@@ -139,12 +152,34 @@ export default ()=> {
 
       {/* <View style={{flex:1}} /> */}
       <Pressable
-        testID="SignInEmailBtn"
-        style={{backgroundColor:Colors.primary,marginTop:24,width:'100%',alignItems:'center',marginBottom:32,paddingHorizontal:32,paddingVertical:16,borderRadius:50}}
+        testID="signInPasswordBtn"
+        style={{
+          alignSelf: "center",
+          backgroundColor: Colors.primary,
+          marginBottom: 36,
+          marginTop: 24,
+          paddingVertical: 16,
+          borderRadius: 8,
+          width: "100%",
+          alignItems: "center",
+        }}
         onPress={continueClicked}
       >
-        <Text style={{fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'}}>Continue</Text>
-        </Pressable>
+        {/* {signInMutation.isLoading?
+        <ActivityIndicator size={"small"} color={"#fff"}/>
+        : */}
+        <Text
+          style={{
+            fontFamily: "Primary-Bold",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#fff",
+          }}
+        >
+          Continue
+        </Text>
+        {/* } */}
+      </Pressable>
       {/* <Recaptcha
         ref={recaptcha}
         siteKey="6LdtjRkgAAAAAB-kYeIXk8208HEcMbrvzZj83oDS"
@@ -154,6 +189,6 @@ export default ()=> {
         size="invisible"
         style={{ height: 0, width: 0 }}
       /> */}
-    </View>
+    </KeyboardAvoidingView>
   )
 }
