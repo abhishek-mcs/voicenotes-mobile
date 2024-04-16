@@ -3,7 +3,7 @@ import Colors from "assets/Colors";
 import { commonSvg } from "assets/svg/commonSvg";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
@@ -18,7 +18,7 @@ import formatBigNumber from "utils/formatBigNumber";
 
 export default ({isLogged=true,streakRef=null}:any) => {
   const router:any=useNavigation()
-  const [showMenu,setShowMenu]=useState(false)
+  const [showStreak,setStreak]=useState(false)
   const {hashTags} = useSelector((state: RootState) => state.hash);
   const {token}=useSelector((state:RootState)=>state?.userDetails)
 
@@ -28,7 +28,7 @@ export default ({isLogged=true,streakRef=null}:any) => {
   const streaks=useStreak(token)
 
   return (
-    <View style={{ height: 53,zIndex:20 }} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{ height: 30,zIndex:20}} onTouchStart={()=>Keyboard.dismiss()}>
       <View
         style={styles.container}
       >
@@ -43,10 +43,12 @@ export default ({isLogged=true,streakRef=null}:any) => {
 
      {isLogged? 
          !!token&&
-        <Touchable onPress={()=>{streakRef?.current?.open()}} style={{marginVertical:12,width:22,height:22}} activeOpacity={0.6}>
+        <View onTouchStart={(e)=>e?.stopPropagation()}>
+        <Touchable onPress={()=>{streakRef?.current?.toggle()}} style={{marginVertical:12,width:22,height:22}} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)}<`)}/>
           {/* <Text style={{fontSize:9.6,fontFamily:'Primary-Bold',color:'#222'}}>{formatBigNumber(streaks?.data?.data?.current_streak)}</Text> */}
         </Touchable>
+        </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
          <Touchable
             onPress={() => {
@@ -63,7 +65,8 @@ export default ({isLogged=true,streakRef=null}:any) => {
             }}
             style={{ alignSelf: "flex-end",backgroundColor:'#222',borderRadius:16,padding:12,paddingVertical:8,height:35 }}
           ><Text style={{ color: '#fff',fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
-          </Touchable></View>}
+          </Touchable>
+          </View>}
         </View>
       </View>
       <Streaks ref={streakRef} data={streaks?.data?.data}/>

@@ -5,6 +5,7 @@ import Colors from "assets/Colors";
 import { formatDate, getLastSixMonths } from "utils/format-date";
 import ControlledTooltip from "components/common/ControlledTooltip";
 import { isIOS } from "utils/common";
+import { Dimensions } from "react-native";
 
 export default forwardRef(({data=null}:Props, ref) => {
   const [visible, setVisible] = useState(false);
@@ -37,14 +38,16 @@ export default forwardRef(({data=null}:Props, ref) => {
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"fadeIn"}
-      animationOut={"fadeOut"}
+      animationIn="fadeInDown"
+      animationOut="fadeOutUp"
       onBackdropPress={onClose}
-      style={{ justifyContent: "flex-end", top: 175 }}
+      style={{ justifyContent: "flex-end", top: 190 }}
       backdropOpacity={0.005}
       hasBackdrop={false}
       coverScreen={false}
       onTouchStart={(e) => e?.stopPropagation()}
+      animationInTiming={100}
+      animationOutTiming={100}
     >
       <View style={[styles.modal]}>
         <Text
@@ -83,7 +86,7 @@ export default forwardRef(({data=null}:Props, ref) => {
                     popover={<Text style={{fontFamily:'Primary',color:'#fff',fontSize:12}}>{formatDate(itm?.date)+' - '+itm?.recordings_count+' notes'}</Text>}
                     width={150}
                     backgroundColor={'#222'}>
-                      <View style={{backgroundColor:Colors.primaryWithOpacity(itm?.recordings_count==0?0.1:itm?.recordings_count==1?0.25:itm?.recordings_count==2?0.5:itm?.recordings_count==3?0.75:1),width:9,height:9,borderRadius:2,marginBottom:2}}/>
+                      <View style={{backgroundColor:Colors.primaryWithOpacity(itm?.recordings_count==0?0.1:itm?.recordings_count==1?0.25:itm?.recordings_count==2?0.5:itm?.recordings_count==3?0.75:1),width:11,height:11,borderRadius:2,marginBottom:2}}/>
                     </ControlledTooltip>
                   ))}
                 </View>
@@ -94,21 +97,23 @@ export default forwardRef(({data=null}:Props, ref) => {
     </ReactNativeModal>
   );
 });
-
+const {width} = Dimensions.get("window");
 const styles = StyleSheet.create({
   modal: {
     // justifyContent: "center",
     backgroundColor: "#fff",
     borderRadius: 12,
-    paddingVertical:16,
-    paddingHorizontal:20,
     shadowColor:isIOS?"#00000026":"#00000066",
 		shadowOpacity: 0.9,
 		shadowOffset: { width: 0, height:0 },
 		shadowRadius: 1.5,
     zIndex:10,
 		elevation: 10,
-    height:156
+    height:180,
+    justifyContent:'center',
+    alignItems:'center',
+    width:width-20,
+    marginLeft:-28
   },
   heading:{
       fontSize:20,
