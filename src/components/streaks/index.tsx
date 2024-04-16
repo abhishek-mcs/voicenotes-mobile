@@ -38,8 +38,8 @@ export default forwardRef(({data=null}:Props, ref) => {
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn="fadeInDown"
-      animationOut="fadeOutUp"
+      animationIn="fadeIn"
+      animationOut="fadeOut"
       onBackdropPress={onClose}
       style={{ justifyContent: "flex-end", top: 190 }}
       backdropOpacity={0.005}
@@ -69,7 +69,7 @@ export default forwardRef(({data=null}:Props, ref) => {
                   fontSize: 10,
                   color: Colors.grey,
                   fontFamily: "Primary",
-                  marginRight: 24,
+                  marginRight: 29,
                 }}
               >
                 {itm}

@@ -207,7 +207,7 @@ export default forwardRef(({
           </Touchable>}
         <View style={styles.timeLine} />
         </View>
-        <View style={{marginLeft:9,flex:1,marginTop:-4}}>
+        <View style={{marginLeft:9,flex:1,marginTop:-3}}>
           {!!note?.title?
           <Touchable onPress={()=>{
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>

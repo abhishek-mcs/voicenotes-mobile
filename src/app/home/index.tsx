@@ -63,6 +63,7 @@ export default ()=> {
   const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
   const [hideSearch,setHideSearch]=useState(true)
+  const [showAskMe,setShowAskMe]=useState(true)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -123,6 +124,7 @@ export default ()=> {
                   addTitleRecord.mutate(r?.data?.recording?.id,{
                     onSuccess:()=>{
                       queryClient.invalidateQueries('all-recording');
+                      queryClient.invalidateQueries('streaks');
                       notePreviewRef.current?.onTriggerTitle()
                     }
                   })
@@ -224,7 +226,7 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
         <AIModal ref={AIModalRef} />
-        <AskMeSomething/>
+       {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
       </View>
       </KeyboardAvoidingView>
       <BottomBar
