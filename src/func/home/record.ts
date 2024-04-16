@@ -3,7 +3,7 @@ import { openSettings } from "expo-linking";
 import { useEffect } from "react";
 import { Alert, Platform } from "react-native";
 const alertPermission=()=>{
-  const txt = "Please enable permissions to continue";
+  const txt = "Please enable microphone permission to continue";
         Alert.alert(
           Platform.OS == "ios" ? txt : "",
           Platform.OS == "ios" ? "" : txt,

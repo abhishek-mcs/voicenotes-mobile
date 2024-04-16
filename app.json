@@ -54,7 +54,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Allow voicenotes app to access your microphone."
+          "microphonePermission": "To enhance your experience, Voice Notes requires access to your microphone. This allows you to seamlessly record audio notes, which are then transcribed into text using AI technology, making it easier to organize and reference your ideas on-the-go."
         }
       ]
     ],
