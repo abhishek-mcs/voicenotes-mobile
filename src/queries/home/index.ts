@@ -100,6 +100,22 @@ export function useDeleteRecording(recording_id:number){
     })
 }
 
+export function useDeleteFormattedNote(id:number){
+    const queryClient=useQueryClient()
+    return useMutation('delete-recording', (p?:any)=> {
+        return axiosApi.delete(`/ai-create/${id}`)
+    },
+    {
+        onSuccess:()=>{
+          queryClient.invalidateQueries('all-recording')
+          queryClient.invalidateQueries('all-tags')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
 export function useAddTranscript(){
     return useMutation('add-transcript',(recording_id:number) => {
         return axiosApi.patch(`/recordings/${recording_id}/transcript`)
