@@ -1,9 +1,7 @@
 import Colors from "assets/Colors";
 import {
-  Dimensions,
   FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TextInput,
@@ -21,15 +19,15 @@ import {
 } from "react";
 import ReactNativeModal from "react-native-modal";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
-import { Skeleton } from "@rneui/themed";
-import { Animated } from "react-native";
 import { useAskAI, useSuggestions } from "queries/home";
 import Touchable from "components/common/Touchable";
-import { ScrollView } from "react-native";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
 import { isIOS } from "utils/common";
+import aiSuggestions from "utils/constants/ai-suggestions";
+import { RootState } from "redux/store/store";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 type chatProps = {
   messages: [
@@ -41,10 +39,10 @@ type chatProps = {
 
 export default forwardRef((props, ref) => {
   const userName = useSelector(
-    (state: any) => state.userDetails?.userDetails.name
+    (state: any) => state.userDetails?.userDetails?.name
   );
   const token = useSelector(
-    (state: any) => state.userDetails?.token
+    (state: RootState) => state.userDetails?.token
   );
 
   const initChat: chatProps = {
@@ -60,15 +58,29 @@ export default forwardRef((props, ref) => {
   };
 
   const [visible, setVisible] = useState(false);
+  const [suggLoaded, setSuggLoaded] = useState(false);
   const [chatStarted, setChatStarted] = useState(false);
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [input, setInput] = useState("");
   const [chats, setChats] = useState<chatProps>(initChat);
   const scrollRef = useRef<FlatList>(null);
+  const [suggIndex, setSuggIndex] = useState(-2);
 
-  const getSuggestions = useSuggestions();
+  const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
+  // useSuggestions();
   const askAI = useAskAI(!token);
 
+  const getNewSugg = () => {
+    setSuggLoaded(false)
+    setTimeout(() => {
+      if(suggIndex+2>=aiSuggestions.length)
+        setSuggIndex(0)
+      else
+        setSuggIndex(suggIndex + 2);
+      setSuggLoaded(true)
+    }, 1000);
+  }
+  
   useEffect(() => {
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
@@ -94,7 +106,10 @@ export default forwardRef((props, ref) => {
         },
         toggle(){
           setVisible(!visible)
-        }
+        },
+        getNewSugg(){
+          !visible&&getNewSugg()
+        },
       };
     },
     [visible]
@@ -194,19 +209,26 @@ export default forwardRef((props, ref) => {
         contentInsetAdjustmentBehavior="always"
         keyboardShouldPersistTaps="handled"
         ListFooterComponent={()=>!chatStarted ?
-          getSuggestions.data?.data?.length>0&& (
+          getSuggestions.data?.data?.length>0 &&(
             <View style={styles.suggestContainer}>
               <View style={[styles.row, { marginBottom: 4 }]}>
                 <SvgXml xml={AIModalSVG.suggestion} />
                 <Text style={styles.suggest}>Suggestions</Text>
+                <Touchable onPress={getNewSugg} style={{padding:12}}>  
+                  <SvgXml xml={AIModalSVG.refresh} />
+                </Touchable>
               </View>
-              {getSuggestions.data?.data?.map((suggestion: any) => (
+              {suggLoaded?
+              getSuggestions.data?.data?.map((suggestion: any) => (
                 <Btns
                   onPress={() => onSend(suggestion)}
                   txt={suggestion}
                   key={suggestion}
                 />
-              ))}
+              )):<View style={{marginTop:32,alignItems:'center'}}>
+                <CircularLoader width={25} height={25} strokeWidth={3}/>
+                </View>
+              }
             </View>
           ):null}
         />
@@ -374,9 +396,9 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   suggest: {
-    fontFamily: "Primary",
+    fontFamily: "Primary-Medium",
     fontSize: 12,
-    color: Colors.darkWithOpacity(0.5),
+    color: Colors.darkWithOpacity(1),
     marginLeft: 6,
   },
   aiIcon: {
@@ -388,7 +410,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  suggestContainer: { marginBottom: 24, marginHorizontal: 16,marginTop:100 },
+  suggestContainer: { marginBottom: 24, marginHorizontal: 16,marginTop:150 },
   aiChat: { marginLeft: 45, marginTop: -8 },
   header1: {
     height: 57,

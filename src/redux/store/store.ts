@@ -4,6 +4,7 @@ import userDetails from 'redux/reducers/userDetails'
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import suggestionState from 'redux/reducers/suggestionState';
 
 const persistConfig = {
   key: 'root',
@@ -13,7 +14,8 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
     hash:hashReducer,
-    userDetails:userDetails 
+    userDetails:userDetails,
+    suggestionState:suggestionState
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

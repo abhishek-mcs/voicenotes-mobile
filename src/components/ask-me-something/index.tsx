@@ -9,20 +9,10 @@ import Colors from "assets/Colors"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import Touchable from "components/common/Touchable"
+import askMeSuggestions from "utils/constants/ask-me-suggestions"
 
-const customSuggestions = [
-    ' What book has influenced you the most?',
-     'What\'s your go-to comfort food?',
-     'Who do you admire most and why?',
-     'What\'s a tradition that means a lot to you?',
-     'What\'s your favorite place you\'ve visited?',
-     'What\'s something new you tried this year?',
-     'How do you tackle a challenging task?',
-     'What\'s a movie that stayed with you and why?',
-     'What\'s an important lesson life has taught you?',
-     'What\'s a dream you\'re working towards?'
-   ]
 export default ({onClose=()=>{}})=>{
+    const customSuggestions=askMeSuggestions
     const [loading,setLoading]=useState(false)
     const [qstn,setQstn]=useState('')
     const [keyboardShown,setKeyboardShown]=useState(false)

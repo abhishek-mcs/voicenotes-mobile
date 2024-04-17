@@ -142,7 +142,7 @@ export default () => {
         placeholder="Password"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
         style={{ marginTop: 0}}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 0,backgroundColor:'#fff' }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:'#fff' }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&

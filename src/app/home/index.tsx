@@ -90,6 +90,7 @@ export default ()=> {
   const onAsk = () => {
     CreateModalRef.current?.close()
     AIModalRef.current?.toggle();
+    AIModalRef.current?.getNewSugg()
   };
   const onCreate = () => {
     CreateModalRef.current?.onReset();

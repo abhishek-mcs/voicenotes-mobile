@@ -45,7 +45,7 @@ export default ({isLogged=true,streakRef=null}:any) => {
          !!token&&
         <View onTouchStart={(e)=>e?.stopPropagation()}>
         <Touchable onPress={()=>{streakRef?.current?.toggle()}} style={{marginVertical:12,width:22,height:22}} activeOpacity={0.6}>
-          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)}<`)}/>
+          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
           {/* <Text style={{fontSize:9.6,fontFamily:'Primary-Bold',color:'#222'}}>{formatBigNumber(streaks?.data?.data?.current_streak)}</Text> */}
         </Touchable>
         </View>
