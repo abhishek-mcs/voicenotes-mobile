@@ -1,48 +1,39 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import {Menu,MenuItem} from 'react-native-material-menu';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import { View } from 'react-native';
+import menuProps from './menu-props';
+import { SvgXml } from 'react-native-svg';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 
-export default () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current;
-
-  const toggleOptions = () => {
-    const toValue = isOpen ? 0 : 1;
-    setIsOpen(!isOpen);
-    Animated.timing(animation, {
-      toValue,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const rotateInterpolation = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '90deg'],
-  });
-
-  const optionsStyles = {
-    transform: [{ rotate: rotateInterpolation }],
-    opacity: animation,
-  };
-
+export default forwardRef(({title='',options=[]}:{title:string,options:menuProps[]},ref) => {
+  const [visible, setVisible] = useState(true);
+  useImperativeHandle(ref, () => {
+    return {
+      show(){setVisible(true)},
+      hide(){setVisible(false)}
+    }
+},[visible]);
   return (
-    <View style={{ alignItems: 'flex-end', marginTop: 20 }}>
-      <TouchableOpacity onPress={toggleOptions}>
-        <Text>Show more options</Text>
-      </TouchableOpacity>
-      <Animated.View style={[{ marginTop: 10 }, optionsStyles]}>
-        {isOpen && (
-          <View style={{ backgroundColor: 'lightgray', padding: 10 }}>
-            <TouchableOpacity onPress={() => console.log('Option 1 pressed')}>
-              <Text>Option 1</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => console.log('Option 2 pressed')}>
-              <Text>Option 2</Text>
-            </TouchableOpacity>
-            {/* Add more options as needed */}
-          </View>
-        )}
-      </Animated.View>
-    </View>
+    <Menu
+          visible={visible}
+          onRequestClose={()=>{setVisible(false)}}
+          anchor={<Pressable onPress={()=>setVisible(true)}><Text>{title}</Text></Pressable>}
+        >
+       {options?.map((itm:any,index:number) =>
+       <MenuItem style={itm?.style} onPress={itm?.onPress}>
+          {itm?.title}
+        </MenuItem>)}
+        </Menu>
   );
-};
+});
+
+const { button, buttonText } = StyleSheet.create({
+  button: {
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+  }
+})
