@@ -191,7 +191,7 @@ export default forwardRef(({
     }
   }
 
-  const creationList=useMemo(()=>note?.creations,[list])
+  const creationList=useMemo(()=>note?.creations?.reverse(),[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
@@ -309,7 +309,7 @@ export default forwardRef(({
       </View>}
         {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
         {!!token&&creationList?.map((itm:any,i:number)=>(
-          <AiCreatedView type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
+          <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}
         </View>
       </View>
