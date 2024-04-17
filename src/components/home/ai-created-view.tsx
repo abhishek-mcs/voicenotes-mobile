@@ -12,6 +12,7 @@ export default ({content,date=undefined,type="Summary"}:{content:any,date:any,ty
     const dt=Date.now()
   return (
     <TouchableHighlight style={container} onPress={()=>{setExpand(!expand)}} underlayColor={Colors.greyWithOpacity(0.2)}><>
+    <View></View>
         <View style={{position:'absolute',right:0,top:0,padding:8,paddingHorizontal:12,zIndex:10}}>
             <SvgXml xml={commonSvg.smallArrow}  style={{transform:[{rotate:!expand?'180deg':'360deg'}]}}/>
         </View>
@@ -36,7 +37,7 @@ export default ({content,date=undefined,type="Summary"}:{content:any,date:any,ty
 const { container,row,btw,txt,titleStyle } = StyleSheet.create({
   container: {
     marginTop: 8,
-    backgroundColor: Colors.darkWithOpacity(0.05),
+    // backgroundColor: Colors.darkWithOpacity(0.05),
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius:12,
