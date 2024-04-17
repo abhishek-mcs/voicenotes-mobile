@@ -191,7 +191,7 @@ export default forwardRef(({
     }
   }
 
-  const creationList=useMemo(()=>note?.creations?.reverse(),[list])
+  const creationList=useMemo(()=>note?.creations,[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (

@@ -15,6 +15,7 @@ import { setAuthToken } from "services/api/axios-api"
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { useQueryClient } from "react-query"
 import { useDispatch } from "react-redux"
+import { isIOS } from "utils/common"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -179,12 +180,12 @@ const signInGoogle=(token:any,params:any)=>{
             onPress={()=>{router.push('/auth/login/loginPassword')}}
             text="Continue with Email"
             logo={LandingSvg.email}/>
-          <Btn
+          {isIOS&&<Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
             onPress={onGoogleLogin}
             text="Continue with Google"
-            logo={LandingSvg.google}/>
+            logo={LandingSvg.google}/>}
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
 
         {/* <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
@@ -204,7 +205,6 @@ const signInGoogle=(token:any,params:any)=>{
           {` and `}
           <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
           {`.`}
-          {`\nYou must be at least 18 years old to start a page.`}
         </Text>
       </Animated.View>
       </View>
