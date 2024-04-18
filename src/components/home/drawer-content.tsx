@@ -3,7 +3,7 @@ import { drawerSvg } from "assets/svg/drawerSvg";
 import Touchable from "components/common/Touchable";
 import { useGetTags, useGetUserData } from "queries/home";
 import { useEffect, useState } from "react";
-import { Alert, Button, FlatList, Image, StyleSheet, Text, TouchableHighlight, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,10 +11,10 @@ import { setHashTags,setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { useRouter } from "expo-router";
 import { isIOS } from "utils/common";
-import { Menu, MenuItem } from "react-native-material-menu";
 import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
-import * as Wb from "expo-web-browser";
+import { setLang, setUserDetail } from "redux/reducers/userDetails";
+import { languages } from "utils/constants/languages";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
@@ -28,6 +28,13 @@ export default (props:any) => {
   const logout=useLogout()
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
+
+  useEffect(() => {
+    if(data?.data?.data){
+      dispatch(setUserDetail(data?.data?.data))
+      data?.data?.data?.settings?.language&& dispatch(setLang(languages[data?.data?.data?.settings?.language]))
+    }
+  }, [data?.data?.data]);
 
   useEffect(() => {
     const tags=getTags.data?.data?.flatMap((t:any)=>t?.name)||[];

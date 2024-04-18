@@ -5,14 +5,16 @@ export interface userState {
   email: string,
   token: string,
   guestToken:string,
-  userDetails:string
+  userDetails:string,
+  lang:string
 }
 
 const initialState: userState = {
   email: '',
   token: '',
   guestToken:'',
-  userDetails:''
+  userDetails:'',
+  lang:'English'
 }
 
 export const userDetails = createSlice({
@@ -33,11 +35,14 @@ export const userDetails = createSlice({
     },
     logOut: (state, action: PayloadAction<string>)=>{
         state.token= action.payload||'';
+    },
+    setLang: (state, action: PayloadAction<string>)=>{
+        state.lang= action.payload||'';
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setEmail, setToken, setGuestToken, logOut, setUserDetail } = userDetails.actions
+export const { setEmail, setToken, setGuestToken, logOut, setUserDetail,setLang } = userDetails.actions
 
 export default userDetails.reducer

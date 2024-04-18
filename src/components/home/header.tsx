@@ -1,30 +1,21 @@
 import { useNavigation } from "@react-navigation/native";
 import Colors from "assets/Colors";
-import { commonSvg } from "assets/svg/commonSvg";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
-import { Menu, MenuItem } from "react-native-material-menu";
+import { Keyboard, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
-import { useLogout } from "queries/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS, isIOSSmall } from "utils/common";
-import { useGetUserData, useStreak } from "queries/home";
+import { useStreak } from "queries/home";
 import Streaks from "components/streaks";
 import formatBigNumber from "utils/formatBigNumber";
 
 export default ({isLogged=true,streakRef=null}:any) => {
   const router:any=useNavigation()
-  const [showStreak,setStreak]=useState(false)
-  const {hashTags} = useSelector((state: RootState) => state.hash);
   const {token}=useSelector((state:RootState)=>state?.userDetails)
 
-  const logout=useLogout()
-  const data=useGetUserData(token);
-  const photo_url=data?.data?.data?.photo_url||null;
   const streaks=useStreak(token)
 
   return (

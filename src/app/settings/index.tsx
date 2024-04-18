@@ -7,28 +7,22 @@ import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollV
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useSelector } from "react-redux";
-import { RootState } from "redux/store/store";
-import MoreOptions from "components/common/more-options";
-import { useRef, useState } from "react";
-import languages from "utils/constants/languages";
+import { useState } from "react";
+import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
-import { useQueryClient } from "react-query";
 import { useSaveSettings } from "queries/settings";
 import { isIOS } from "utils/common";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "redux/store/store";
+import { setLang } from "redux/reducers/userDetails";
 
 export default () => {
     const router = useRouter();
     const logout=useLogout()
-    // const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
-    const queryClient=useQueryClient()
-    const userData:any=queryClient.getQueriesData('user-data')
-    const userDetails:any=userData[0][1]?.data
-    const settings:any=userData[0][1]?.data?.settings
-    const lang:any=languages.find(language => Object.keys(language)[0] === settings?.language);
-    const [langSelected,setLangSelected]=useState(lang[settings?.language])
+    const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
+    const settings:any=userDetails.settings
     const saveSettings=useSaveSettings()
-
+    const dispatch=useDispatch()
   const onLogout = () =>{
     
     Alert.alert('',"Are you sure you want to log out?",
@@ -57,9 +51,8 @@ export default () => {
 
   const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com')
 
-  const onSelectLang=(code:string)=>{
-    const l:any=languages.find(language => Object.keys(language)[0] === code);
-    setLangSelected(l[code])
+  const onSelectLang=(code='en')=>{
+    dispatch(setLang(languages[code]))
     saveSettings.mutate({
       language:code,
       about:settings?.about,
@@ -68,7 +61,7 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
-
+console.warn(lang)
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
             <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
@@ -80,11 +73,11 @@ export default () => {
                 {title:'Name',value:userDetails?.name||''},
                 {title:'Email',value:userDetails?.email||''},
             ]}/>
-            <Grouped 
-            title="APP"
-            items={[
-                {title:'Language',isMenu:true,data:languages,value:langSelected,onPressMenu:onSelectLang}
-            ]}/>
+            {Grouped({
+            title:"APP",
+            items:[
+                {title:'Language',isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang}
+            ]})}
             <Grouped 
             title="MORE"
             items={[
@@ -129,9 +122,9 @@ const Grouped=({title,items}:{title:string,items:any})=>{
           <View key={v}>
             <MenuItem onPress={()=>{
               onHideMenu()
-              item?.onPressMenu(Object.keys(t)[0])
+              item?.onPressMenu(t[0])
               }} style={{paddingRight:60}}>
-              {Object.values(t)[0]}
+              {t[1]}
             </MenuItem>
             {v<item?.data?.length&&<MenuDivider/>}
           </View>
