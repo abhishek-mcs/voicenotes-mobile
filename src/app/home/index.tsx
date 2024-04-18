@@ -121,12 +121,10 @@ export default ()=> {
               {
                 onSuccess:async()=>{
                   queryClient.invalidateQueries('all-recording');
-                  notePreviewRef.current?.onTriggerTranscript()
                   addTitleRecord.mutate(r?.data?.recording?.id,{
                     onSuccess:()=>{
                       queryClient.invalidateQueries('all-recording');
                       queryClient.invalidateQueries('streaks');
-                      notePreviewRef.current?.onTriggerTitle()
                     }
                   })
                 }

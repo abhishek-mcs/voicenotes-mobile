@@ -47,17 +47,6 @@ export default forwardRef(({
   const signedURL = useSignedUrl()
   const createAI=useCreate()
 
-  useImperativeHandle(ref,()=>({
-    onTriggerTranscript:()=>{
-        // setTriggerTypingTranscript(1)
-        // console.log('triggered',index)
-    },
-    onTriggerTitle:()=>{
-        // setTriggerTypingTitle(1)
-        // console.log('triggered title',index)
-    }
-  }),[index])
-
   useEffect(()=>{
     if(triggerTypingTitle==1){
       setTriggerTypingTitle(2)
@@ -68,6 +57,16 @@ export default forwardRef(({
     if(triggerTypingTranscript==1)
       setTriggerTypingTranscript(2)
   },[triggerTypingTranscript])
+
+  useEffect(()=>{
+    if(triggerTypingTranscript==0&&!note?.transcript)
+      setTriggerTypingTranscript(1)
+  },[note?.transcript])
+
+  useEffect(()=>{
+    if(triggerTypingTitle==0&&!note?.title)
+      setTriggerTypingTitle(1)
+  },[note?.title])
 
   const hideMoreOption = () => setMoreOption(false);
   const showMoreOption = () => setMoreOption(true);
@@ -191,6 +190,10 @@ export default forwardRef(({
     }
   }
 
+  useEffect(() => {
+    setEditNote(note); // Update editNote when the note prop changes
+  }, [note]);
+
   const creationList=useMemo(()=>note?.creations,[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
@@ -221,13 +224,13 @@ export default forwardRef(({
           </View>}
 
       {!hideIcons&&<View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
-      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}}>
+      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}} disabled={!note?.title}>
         <SvgXml xml={home.edit}/>
       </Touchable>
       {!!token&&<Menu
           visible={createOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showCreateOption}>
+            <Touchable style={styles.menuPress} onPress={showCreateOption} disabled={!note?.title}>
               <SvgXml xml={home.create1} />
             </Touchable>
           }
@@ -274,7 +277,7 @@ export default forwardRef(({
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMoreOption}>
+            <Touchable style={styles.menuPress} onPress={showMoreOption} disabled={!note?.title}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
@@ -317,7 +320,9 @@ export default forwardRef(({
   );
 });
 
-const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>(
+const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>{
+  console.warn(editNote)
+  return (
   <View style={styles.editContainer} onTouchStart={e=>e?.stopPropagation()}>
     <TextInput 
       style={styles.titleInput}
@@ -374,7 +379,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
       </View>
     </View>
   </View>
-);
+)};
 
 const styles = StyleSheet.create({
   container: { marginTop: 24 },
