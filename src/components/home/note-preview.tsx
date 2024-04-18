@@ -1,17 +1,14 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
-import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
 import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, isSameDay } from "utils/format-date";
-import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
+import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { useAddTitle, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
-import loader from "assets/lottie/loader.json"
-import LottieView from "lottie-react-native";
 import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
