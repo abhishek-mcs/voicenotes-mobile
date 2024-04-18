@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
@@ -102,9 +102,9 @@ const signInGoogle=(token:any,params:any)=>{
 
   const onGoogleLogin=async()=>{
    const res= await googlePromptAsync().then(e=>{
-    console.warn(e)
+    console.log(e)
    }).catch(e=>{
-    console.warn(e)
+    console.log(e)
    })
   }
 //google login end
@@ -180,12 +180,12 @@ const signInGoogle=(token:any,params:any)=>{
             onPress={()=>{router.push('/auth/login/loginPassword')}}
             text="Continue with Email"
             logo={LandingSvg.email}/>
-          {isIOS&&<Btn
+          <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
             onPress={onGoogleLogin}
             text="Continue with Google"
-            logo={LandingSvg.google}/>}
+            logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
 
         {/* <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>

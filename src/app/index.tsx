@@ -5,6 +5,7 @@ import Home from './home';
 import { Redirect } from 'expo-router';
 import { RootState } from 'redux/store/store';
 import { useSelector } from 'react-redux';
+import * as WebBrowser from 'expo-web-browser';
 
 export {
   ErrorBoundary,
@@ -25,6 +26,14 @@ export default function App() {
     ...FontAwesome.font,
   });
   
+  useEffect(() => {
+    WebBrowser.warmUpAsync();
+
+    return () => {
+      WebBrowser.coolDownAsync();
+    };
+  }, []);
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
