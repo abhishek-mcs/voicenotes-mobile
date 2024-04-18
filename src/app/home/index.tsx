@@ -33,6 +33,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
+import { Redirect } from "expo-router";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -180,7 +181,8 @@ export default ()=> {
       setIsSearchVisible(true);
     }
   };
-
+  if(!token)
+      return <Redirect href="/auth/landingPage/" />
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close();streakRef?.current?.close()}}>
