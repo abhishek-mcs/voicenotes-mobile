@@ -11,7 +11,7 @@ import {router as route} from "expo-router"
 import { useLogout } from "queries/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { isIOS, isIOSSmall } from "utils/common";
 import { useGetUserData, useStreak } from "queries/home";
 import Streaks from "components/streaks";
 import formatBigNumber from "utils/formatBigNumber";
@@ -28,7 +28,7 @@ export default ({isLogged=true,streakRef=null}:any) => {
   const streaks=useStreak(token)
 
   return (
-    <View style={{ height:isIOS? 30:50,zIndex:20}} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{ height:isIOSSmall?40:isIOS? 30:50,zIndex:20}} onTouchStart={()=>Keyboard.dismiss()}>
       <View
         style={styles.container}
       >
