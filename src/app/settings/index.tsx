@@ -114,7 +114,12 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         {item?.isMenu?
         <Menu visible={showMenu}
         onRequestClose={onHideMenu}
-        anchor={<Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>}
+        anchor={
+        <View style={{flexDirection:'row',alignItems:'center',marginRight:-7}}>
+          <Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>
+          <SvgXml xml={settingsSvg.optionArrow}  />
+        </View>
+        }
         style={{height:'40%',marginTop:36,right:0,width:'50%'}}
         animationDuration={200}
         >
