@@ -12,7 +12,7 @@ import { RootState } from "redux/store/store";
 import MoreOptions from "components/common/more-options";
 import { useRef, useState } from "react";
 import languages from "utils/constants/languages";
-import { Menu, MenuItem } from "react-native-material-menu";
+import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useQueryClient } from "react-query";
 import { useSaveSettings } from "queries/settings";
 
@@ -115,16 +115,21 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         <Menu visible={showMenu}
         onRequestClose={onHideMenu}
         anchor={<Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>}
-        style={{maxHeight:300,marginTop:20,marginRight:-30}}
+        style={{height:'40%',marginTop:36,right:0,width:'50%'}}
+        animationDuration={200}
         >
           <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
           {item?.data?.map((t:string,v:number)=>
-            <MenuItem key={v} onPress={()=>{
+          <View key={v}>
+            <MenuItem onPress={()=>{
               onHideMenu()
               item?.onPressMenu(Object.keys(t)[0])
-              }}>
+              }} style={{paddingRight:60}}>
               {Object.values(t)[0]}
-            </MenuItem>)}
+            </MenuItem>
+            {v<item?.data?.length&&<MenuDivider/>}
+          </View>
+          )}
             </ScrollView>
         </Menu>
         :!!item?.rightIcon?
