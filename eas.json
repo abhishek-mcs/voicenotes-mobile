@@ -26,7 +26,7 @@
   "submit": {
     "production": {
       "android": {
-        "serviceAccountKeyPath": "./voicenotes-419111-6755f68eafd4.json",
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
         "track": "internal",
         "changesNotSentForReview" : false
       }
