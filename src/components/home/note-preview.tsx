@@ -307,6 +307,12 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
+      <Touchable onPress={()=>{}} style={{paddingHorizontal:16,height:36,flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',marginTop:8,borderRadius:30}}>
+        <>
+        <SvgXml xml={home.retry} />
+        <Text style={{marginLeft:8}}>Retry</Text>
+        </>
+      </Touchable>
         {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
         {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
