@@ -61,7 +61,7 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
-console.warn(lang)
+
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
             <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>

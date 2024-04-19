@@ -90,7 +90,10 @@ const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuth
 const loginGoogle=signInWithGoogle()
 const signInGoogle=(token:any,params:any)=>{
   const {code,state,prompt,authuser,scope}=params
-  loginGoogle.mutate({access_token:token,client_id:iosGoogleClientID,device:'mobile_app',code,state,prompt,authuser,scope},{
+  loginGoogle.mutate({
+    access_token:token,
+    client_id:isIOS?iosGoogleClientID:androidGoogleClientID,
+    device:'mobile_app',code,state,prompt,authuser,scope},{
     onSuccess:onLoginSuccess
   })
 }
