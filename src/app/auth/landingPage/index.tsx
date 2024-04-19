@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
@@ -98,12 +98,17 @@ const signInGoogle=(token:any,params:any)=>{
   })
 }
   useEffect(()=>{
+    Linking.removeAllListeners('url')
     if (googleResponse?.type === "success") {
       signInGoogle(googleResponse?.params.id_token,googleResponse?.params)
     }
   },[googleResponse])
 
   const onGoogleLogin=async()=>{
+    Linking.addEventListener('url', (e) => {
+      if(e?.url.includes('app.voicenotes:/0authredirect'))
+        router.push("/auth/landingPage/")
+    })
    const res= await googlePromptAsync().then(e=>{
     console.log(e)
    }).catch(e=>{
@@ -182,12 +187,14 @@ const signInGoogle=(token:any,params:any)=>{
             style={styles.button2}
             onPress={()=>{router.push('/auth/login/loginPassword')}}
             text="Continue with Email"
+            isLoading={loginApple?.isLoading||false}
             logo={LandingSvg.email}/>
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
             onPress={onGoogleLogin}
             text="Continue with Google"
+            isLoading={loginGoogle?.isLoading||false}
             logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
 
@@ -215,15 +222,15 @@ const signInGoogle=(token:any,params:any)=>{
   )
 }
 
-const Btn=({text,onPress,style,underlayColor,logo,color}:Props)=>(
+const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=>(
   <TouchableHighlight
   underlayColor={underlayColor}
   style={style}
   onPress={onPress}>
-    <>
+    {!isLoading?<>
       {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
       <Text style={[styles.text,color?{color}:{}]}>{text}</Text>
-    </>
+    </>:<ActivityIndicator size={"small"} color={"#222"}/>}
 </TouchableHighlight>
 )
 
@@ -240,4 +247,5 @@ interface Props{
   underlayColor:string
   logo?:any
   color?:string
+  isLoading?:boolean
 }
