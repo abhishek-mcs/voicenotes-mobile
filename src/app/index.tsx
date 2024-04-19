@@ -5,6 +5,7 @@ import Home from './home';
 import { Redirect } from 'expo-router';
 import { RootState } from 'redux/store/store';
 import { useSelector } from 'react-redux';
+import useIAPSetup from 'hooks/iap/useIAPSetup';
 
 export {
   ErrorBoundary,
@@ -29,6 +30,8 @@ export default function App() {
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+  
+  useIAPSetup()
 
   if (!fontsLoaded) {
     return null;

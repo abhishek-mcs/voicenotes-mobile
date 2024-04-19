@@ -5,17 +5,19 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import suggestionState from 'redux/reducers/suggestionState';
+import IAPStates from 'redux/reducers/IAPStates';
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist:['userDetails']
+  whitelist:['userDetails','IAPStates']
 };
 
 const rootReducer = combineReducers({
     hash:hashReducer,
     userDetails:userDetails,
-    suggestionState:suggestionState
+    suggestionState:suggestionState,
+    IAPStates:IAPStates
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
