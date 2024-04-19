@@ -2509,6 +2509,11 @@
   dependencies:
     web-streams-polyfill "^3.1.1"
 
+"@revenuecat/purchases-typescript-internal@10.4.1":
+  version "10.4.1"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-10.4.1.tgz#ff9272e4d2cd8a92b70c0ecb2f0e0d84ec17c65b"
+  integrity sha512-RaN4dAhsieV+oLJNJEd7Am05qpBuhyzigIaOjgTWJtyonYKDqeNmvKkWoDG4obN2ONbIzShfFXaBnReBa5GuhQ==
+
 "@rneui/base@^4.0.0-rc.8":
   version "4.0.0-rc.8"
   resolved "https://registry.yarnpkg.com/@rneui/base/-/base-4.0.0-rc.8.tgz#6fbf9b3049a9207d47c3c53b70c0f68f3627a170"
@@ -8452,6 +8457,13 @@ react-native-modal@^13.0.1:
   dependencies:
     prop-types "^15.6.2"
     react-native-animatable "1.3.3"
+
+react-native-purchases@^7.26.2:
+  version "7.26.2"
+  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-7.26.2.tgz#c55966986ee88c357549f52c2d295b39d912c1fb"
+  integrity sha512-s87KGiRnjZyZlspXVrq9Kfqhgf9wZodHorapgX8+JjKcYEJQNFKvedLvH5zwIh/Xw/JNU5VCnDwik3k/ZIbnuA==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "10.4.1"
 
 react-native-ratings@^8.1.0:
   version "8.1.0"

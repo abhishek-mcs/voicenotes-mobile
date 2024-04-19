@@ -55,6 +55,7 @@
     "react-native-gesture-handler": "~2.14.0",
     "react-native-material-menu": "^2.0.0",
     "react-native-modal": "^13.0.1",
+    "react-native-purchases": "^7.26.2",
     "react-native-reanimated": "~3.6.2",
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
