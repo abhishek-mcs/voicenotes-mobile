@@ -16,6 +16,7 @@ import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { useQueryClient } from "react-query"
 import { useDispatch } from "react-redux"
 import { isIOS } from "utils/common"
+import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -25,46 +26,7 @@ export default () => {
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
 
-  //Animations
-  const fadeAnim = useRef(new Animated.Value(0)).current
-
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start()
-  }
-
-  const [bounceValue, setBounceValue] = useState(new Animated.Value(50))
-
-  //Is the animated view hidden or not?
-  const [isHidden, setIsHidden] = useState(true)
-
-  //I toggle the animated slide with this method
-  const toggleSlide = () => {
-    let toValue = 475 //How to get dynamic height of View to animate
-
-    if (isHidden) {
-      //Here I hide (slide down) the animated View container
-      toValue = 0
-    }
-
-    Animated.spring(bounceValue, {
-      toValue: toValue,
-      velocity: 10,
-      tension: 3,
-      friction: 6,
-      useNativeDriver: true,
-    }).start()
-    setIsHidden(!isHidden)
-  }
-
-  useEffect(() => {
-    toggleSlide()
-    fadeIn()
-  }, [])
+  const {bounceValue,fadeAnim} = useAnimatedSlide()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){

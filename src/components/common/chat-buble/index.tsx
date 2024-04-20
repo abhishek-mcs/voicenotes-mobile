@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextStyle } from 'react-native';
+import { View, Text, TextStyle } from 'react-native';
 
 export default ({ message,style={},triggerAnimation=0,disableGenerating=()=>{} }:{message:string,style:TextStyle,triggerAnimation:number,disableGenerating:()=>void})=> {
     const [displayedMessage, setDisplayedMessage] = useState('');
@@ -8,9 +8,9 @@ export default ({ message,style={},triggerAnimation=0,disableGenerating=()=>{} }
       let currentIndex = 0;
       let interval:any;
   
-      if (triggerAnimation==2) {
+      if (triggerAnimation==2&&!!message) {
         interval = setInterval(() => {
-          setDisplayedMessage(message.substring(0, currentIndex + 1));
+          setDisplayedMessage(message?.substring(0, currentIndex + 1));
           currentIndex++;
           if (currentIndex === message.length) {
             disableGenerating()

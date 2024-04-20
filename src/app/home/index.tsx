@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
@@ -26,7 +25,7 @@ import {
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
+import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -70,8 +69,7 @@ export default ()=> {
 
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const uploadRecord = useUploadRecord()
-  const addTranscriptRecord = useAddTranscript()
-  const addTitleRecord = useAddTitle()
+  const addTranscriptRecord = useAddTranscript(true)
   const queryClient = useQueryClient();
   const [generateDummy,setGenerateDummy]=useState<any>(null)
   const streakRef=useRef<any>()
@@ -106,7 +104,7 @@ export default ()=> {
      onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
-    setGenerateDummy({})
+    setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
@@ -118,26 +116,18 @@ export default ()=> {
             await queryClient.invalidateQueries('all-recording');
             setGenerateDummy(null)
             scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id,
-              {
-                onSuccess:async()=>{
-                  queryClient.invalidateQueries('all-recording');
-                  addTitleRecord.mutate(r?.data?.recording?.id,{
-                    onSuccess:()=>{
-                      queryClient.invalidateQueries('all-recording');
-                      queryClient.invalidateQueries('streaks');
-                    }
-                  })
-                }
-              });
-          },
-          onError: (r:any) => {
-            console.log(r?.response?.data?.message);
-          },
+            addTranscriptRecord.mutate(r?.data?.recording?.id);
+          }
         }
       );
       await soundRef.current?.unloadAsync()
   };
+
+  useEffect(()=>{
+    if(!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
+      recordingQuery.data&&(recordingQuery.data.pages[0].data.data[0].transcript='')
+  },[generateDummy])
+
   const onCancel = async() => {
     await cancelRecording(rec,soundRef.current);
     setRec(null);
