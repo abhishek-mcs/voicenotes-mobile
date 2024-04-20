@@ -24,9 +24,9 @@ export function useToggleStar(recording_id:number){
     return useMutation('toggle-star', (p?:any) => {
         return axiosApi.patch(`/recordings/${recording_id}/star`)
     },
-    {   onSuccess:()=>{
-            queryClient.invalidateQueries('all-recording')
-            queryClient.invalidateQueries('all-tags')
+    {   onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording')
+            await queryClient.invalidateQueries('all-tags')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -40,8 +40,8 @@ export function useCreate(){
         return axiosApi.post(`/ai-create`, data);
     },
     {
-        onSuccess:()=>{
-            queryClient.invalidateQueries('all-recording')
+        onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -90,9 +90,9 @@ export function useDeleteRecording(recording_id:number){
         return axiosApi.delete(`/recordings/${recording_id}`)
     },
     {
-        onSuccess:()=>{
-          queryClient.invalidateQueries('all-recording')
-          queryClient.invalidateQueries('all-tags')
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+          await queryClient.invalidateQueries('all-tags')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -106,9 +106,9 @@ export function useDeleteFormattedNote(id:number){
         return axiosApi.delete(`/ai-create/${id}`)
     },
     {
-        onSuccess:()=>{
-          queryClient.invalidateQueries('all-recording')
-          queryClient.invalidateQueries('all-tags')
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+          await queryClient.invalidateQueries('all-tags')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -116,11 +116,19 @@ export function useDeleteFormattedNote(id:number){
     })
 }
 
-export function useAddTranscript(){
+export function useAddTranscript(doGenerateTitle=false){
+    const queryC=useQueryClient()
+    const addTitle=useAddTitle()
+    let rec_id:number;
     return useMutation('add-transcript',(recording_id:number) => {
+        doGenerateTitle&&(rec_id=recording_id)
         return axiosApi.patch(`/recordings/${recording_id}/transcript`)
     },
     {
+        onSuccess:async()=>{
+            await queryC.invalidateQueries('all-recording')
+            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -128,10 +136,15 @@ export function useAddTranscript(){
 }
 
 export function useAddTitle(){
+    const queryClient=useQueryClient();
     return useMutation('add-title',(recording_id:number) => {
         return axiosApi.patch(`/recordings/${recording_id}/title`)
     },
     {
+        onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording');
+            await queryClient.invalidateQueries('streaks');
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
