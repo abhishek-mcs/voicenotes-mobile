@@ -34,6 +34,7 @@ import { isIOS } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
 import { Redirect } from "expo-router";
+import useIAPInfo from "hooks/iap/useIAPInfo";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -82,6 +83,8 @@ export default ()=> {
   );
   
   const isListEmpty = recordingList?.length == 0 || null;
+
+  useIAPInfo()
 
   useEffect(()=>{
     checkRecordPermission()

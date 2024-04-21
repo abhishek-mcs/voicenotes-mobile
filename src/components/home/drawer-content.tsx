@@ -19,6 +19,7 @@ import { iapSvg } from "assets/svg/iapSvg";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
+  const {isIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {token} = useSelector((state: RootState) => state.userDetails);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -81,7 +82,7 @@ export default (props:any) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      <TouchableHighlight onPress={onUpgrade} style={styles.upgrade} underlayColor={Colors.primaryWithOpacity(0.1)}>
+      {!isIAPPurchased&&<TouchableHighlight onPress={onUpgrade} style={styles.upgrade} underlayColor={Colors.primaryWithOpacity(0.1)}>
         <>
         <SvgXml xml={iapSvg.upgrade} />
         <View>
@@ -89,7 +90,7 @@ export default (props:any) => {
           <Text style={styles.upgradeText}>Record longer, GPT-4 and more</Text>
         </View>
         </>
-      </TouchableHighlight>
+      </TouchableHighlight>}
      {!!token&& 
      <Touchable onPress={openSettings} style={[styles.row,styles.btn,{justifyContent:'space-between',paddingLeft:6,paddingRight:4,marginLeft:-6,height:40}]} activeOpacity={0.6}>
         <><View style={styles.row}>

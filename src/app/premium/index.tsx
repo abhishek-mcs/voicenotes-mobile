@@ -2,18 +2,40 @@ import Colors from "assets/Colors"
 import { iapSvg } from "assets/svg/iapSvg"
 import { settingsSvg } from "assets/svg/settingsSvg"
 import Touchable from "components/common/Touchable"
-import { useState } from "react"
+import { useRouter } from "expo-router"
+import { useEffect, useState } from "react"
 import { Image, SafeAreaView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
-import { Svg, SvgXml } from "react-native-svg"
+import Purchases from "react-native-purchases"
+import { SvgXml } from "react-native-svg"
 import { useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
 
 export default (props:any) => {
+  const router = useRouter()
+  const [isLoading,setIsLoading]=useState(true)
   const [selected, setSelected] = useState('monthly')
-  const {IAPOfferings}=useSelector((state:RootState)=>state.IAPStates)
+  const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
+  const pack=IAPOfferings?.availablePackages
+  console.log(pack[0])
+  const onUpgrade = async() => {
+    try {
+      const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
+      console.warn(productToBuy?.productIdentifier)
+      const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
+      if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
+        // Unlock that great "pro" content
+        router.replace("/home/")
+      }
+    } catch (e:any) {
+      if (!e.userCancelled) {
+        // showError(e);
+      }
+    }
+  }
+
   return (
     <SafeAreaView style={styles.main}>
-    <Touchable style={{position:'absolute',padding:20,right:50,top:200}}>
+    <Touchable style={{position:'absolute',padding:10,right:10,top:30,zIndex:10}} onPress={()=>router?.back()}>
       <SvgXml xml={settingsSvg.close}/>
     </Touchable>
       <View style={styles.container}>
@@ -28,9 +50,9 @@ export default (props:any) => {
             <SvgXml xml={iapSvg.done}/>
             <Text style={styles.desc}>Smartest AI models (GPT-4 Turbo, Claude Opus)</Text>
           </View>
-          <Btn type="monthly" price={'$50.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
-          <Btn type="believer" price={'$10.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
-          <Btn type="upgrade" onPress={()=>{}} underlay={Colors.primaryWithOpacity(0.8)} title="Upgrade"/>
+          <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
+          <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
+          <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title="Upgrade"/>
         </View>
       </View>
     </SafeAreaView>
@@ -45,10 +67,10 @@ const Btn = ({title,type,price,onPress,underlay,selected=false}:Props) =>
         {type=="believer"&&
         <View style={styles.btnContent}>
           <SvgXml xml={iapSvg.limit} /> 
-          <Text style={styles.offer}>Only for the first 1000 members </Text>
+          <Text style={styles.offer}>Only for the first 1k members </Text>
         </View>}
       </View>
-      <Text style={styles.btnPrice}>{price}<Text style={styles.btnPriceType}>{}</Text></Text>
+      <Text style={styles.btnPrice}>{price}<Text style={styles.btnPriceType}>{type=='believer'?'/lifetime':'/monthly'}</Text></Text>
     </>
     :<Text style={[styles.btnText,{color:'#fff'}]}>{title}</Text>}</>
   </TouchableHighlight>
@@ -64,7 +86,7 @@ const styles = StyleSheet.create({
   desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Regular',color:'#222',lineHeight:22},
   border:{borderWidth:1,borderColor:Colors.greyWithOpacity(0.5)},
   btnFilled:{height:56,width:'100%',backgroundColor:Colors.primary,justifyContent:'center',marginVertical:20},
-  btn:{minHeight:60,width:'100%',justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:16,backgroundColor:'#fff',borderRadius:8},
+  btn:{minHeight:60,width:'100%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:16,backgroundColor:'#fff',borderRadius:8},
   btnContent:{marginTop:4,flexDirection:'row',alignItems:'center'},
   btnText:{fontSize:16,fontFamily:'Primary-Medium',color:'#222'},
   offer:{color:'#FF4538', fontFamily:'Primary-Regular',fontSize:12,textAlignVertical:'center',marginLeft:4},

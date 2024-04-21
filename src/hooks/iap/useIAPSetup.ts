@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { isAndroid } from "utils/common";
-import Purchases, { LOG_LEVEL, PurchasesOffering } from 'react-native-purchases';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import IAPKeys from "utils/constants/IAPKeys";
 import { useDispatch } from "react-redux";
 import { setIAPOffering } from "redux/reducers/IAPStates";
