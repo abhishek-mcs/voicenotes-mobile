@@ -74,3 +74,9 @@ export function useLogout(){
         }
     })
 }
+
+export function useCheckEmail(){
+    return useMutation("check_email", (p?:any)=>{
+        return axios.post(API_URL+"/api/auth/check-email",p)
+    })
+}
