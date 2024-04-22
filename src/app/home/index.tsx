@@ -167,7 +167,7 @@ export default ()=> {
     const currentOffset = event.nativeEvent.contentOffset.y;
     if (currentOffset > 0 && currentOffset < 40) {
       setIsSearchVisible(false);
-    } else if (currentOffset <= 0) {
+    } else if (currentOffset < 10) {
       setIsSearchVisible(true);
     }
   };
@@ -180,12 +180,13 @@ export default ()=> {
         <View style={styles.wrapper}>
           <Header isLogged={!!token} streakRef={streakRef}/>
           {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
+            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
             <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
           <FlatList
             ref={scrollRef}
+            bounces={false}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
