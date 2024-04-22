@@ -218,7 +218,7 @@ export default forwardRef(({
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
           {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
-          :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
+          :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={styles.row}>
           {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
