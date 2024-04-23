@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Keyboard, StyleSheet, Text, View } from "react-native";
+import { Keyboard, LayoutAnimation, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
 import { useSelector } from "react-redux";
@@ -11,31 +11,38 @@ import { isIOS, isIOSSmall } from "utils/common";
 import { useStreak } from "queries/home";
 import Streaks from "components/streaks";
 import formatBigNumber from "utils/formatBigNumber";
+import { useState } from "react";
 
-export default ({isLogged=true,streakRef=null}:any) => {
+export default ({isLogged=true,}:any) => {
   const router:any=useNavigation()
   const {token}=useSelector((state:RootState)=>state?.userDetails)
+  const [streakVisible,setStreakVisible]=useState(false)
 
   const streaks=useStreak(token)
 
+  const toggleStreaks = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setStreakVisible(!streakVisible);
+  };
+
   return (
-    <View style={{ height:isIOSSmall?40:isIOS? 30:50,zIndex:20}} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{height: streakVisible?'auto':30}} onTouchStart={()=>Keyboard.dismiss()}>
       <View
         style={styles.container}
       >
-       <View style={{flex:1,flexDirection:'row',alignSelf:'center'}}>
+       <View style={{flexDirection:'row',alignSelf:'center'}}>
        {token&&
-       <Touchable style={{alignSelf:'flex-start',padding:16,paddingRight:10,marginRight:6,marginLeft:-16 }} onPress={()=>router?.openDrawer()}>
+       <Touchable style={{alignSelf:'flex-start',padding:16,paddingRight:10,paddingBottom:0,marginRight:6,marginLeft:-16,marginTop:-24 }} onPress={()=>router?.openDrawer()}>
           <SvgXml xml={home.drawer} />
         </Touchable>}
         </View>
         {/* <SvgXml xml={home.logo} style={{ flex: 1 }} /> */}
-        <View style={{  justifyContent: "flex-end" }}>
+        <View style={{  justifyContent: "flex-start" }}>
 
      {isLogged? 
          !!token&&
         <View onTouchStart={(e)=>e?.stopPropagation()}>
-        <Touchable onPress={()=>{streakRef?.current?.toggle()}} style={{marginVertical:12,width:22,height:22}} activeOpacity={0.6}>
+        <Touchable onPress={toggleStreaks} style={{padding:12,marginTop:-12,marginRight:-12}} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
           {/* <Text style={{fontSize:9.6,fontFamily:'Primary-Bold',color:'#222'}}>{formatBigNumber(streaks?.data?.data?.current_streak)}</Text> */}
         </Touchable>
@@ -60,16 +67,15 @@ export default ({isLogged=true,streakRef=null}:any) => {
           </View>}
         </View>
       </View>
-      <Streaks ref={streakRef} data={streaks?.data?.data}/>
+      <Streaks data={streaks?.data?.data} visible={streakVisible}/>
     </View>
   );
-};
+}
 
 const styles=StyleSheet.create({
   row:{flexDirection:'row',alignItems:'center'},
   container:{
     flexDirection: "row",
-    flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
   }
