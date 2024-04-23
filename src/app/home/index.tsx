@@ -65,6 +65,7 @@ export default ()=> {
   const soundRef = useRef<any>(null);
   const [hideSearch,setHideSearch]=useState(true)
   const [showAskMe,setShowAskMe]=useState(true)
+  const [hideBackground,setHideBg]=useState(false)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -177,19 +178,20 @@ export default ()=> {
   if(!token)
       return <Redirect href="/auth/landingPage/" />
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
       <View style={{ flex: 1}}>
-        <View style={styles.wrapper}>
+        <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           <Header isLogged={!!token}/>
           {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View style={{zIndex:30}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
-              <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
+              <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
           <FlatList
             ref={scrollRef}
             bounces={false}
+            style={{opacity:hideBackground?0:1}}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
@@ -219,8 +221,8 @@ export default ()=> {
             keyboardShouldPersistTaps="handled"
           />
         </View>
-        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
-        <AIModal ref={AIModalRef} />
+        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
+        <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
        {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
       </View>
       </KeyboardAvoidingView>
@@ -280,4 +282,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: "700",
   },
+  hideBg:{backgroundColor:'#F4F6F6'}
 });

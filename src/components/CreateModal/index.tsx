@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 
-export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalProps, ref) => {
+export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("suggestions");
   const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email'>("summary");
@@ -26,12 +26,15 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{}}:createModalPr
       return {
         open() {
           setVisible(true);
+          setHideBg(true)
         },
         close() {
           setVisible(false);
+          setHideBg(false)
         },
-        toggle() {
+        toggle(){
           setVisible(!visible)
+          setHideBg(!visible)
         },
         onReset(){
           onReset()
@@ -132,4 +135,5 @@ export interface createModalProps{
   fetchNextPage:()=>void,
   onSelect?:(id:number,v:string)=>void
   title?:string
+  setHideBg?:(v:boolean)=>void
 }

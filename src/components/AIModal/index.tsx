@@ -36,8 +36,11 @@ type chatProps = {
   user_id?: number;
   id?: number;
 };
+type AIProps = {
+  setHideBg?: (v: boolean) => void;
+}
 
-export default forwardRef((props, ref) => {
+export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const userName = useSelector(
     (state: any) => state.userDetails?.userDetails?.name
   );
@@ -100,12 +103,15 @@ export default forwardRef((props, ref) => {
       return {
         open() {
           setVisible(true);
+          setHideBg(true)
         },
         close() {
           setVisible(false);
+          setHideBg(false)
         },
         toggle(){
           setVisible(!visible)
+          setHideBg(!visible)
         },
         getNewSugg(){
           !visible&&getNewSugg()
@@ -165,8 +171,9 @@ export default forwardRef((props, ref) => {
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"fadeIn"}
-      animationOut={"fadeOut"}
+      animationIn={"fadeInUp"}
+      hideModalContentWhileAnimating={true}
+      animationOut={"fadeOutDown"}
       // onBackdropPress={onClose}
       style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:94) }]}
       backdropOpacity={0.05}
