@@ -15,7 +15,7 @@ import { setAuthToken } from "services/api/axios-api"
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { useQueryClient } from "react-query"
 import { useDispatch } from "react-redux"
-import { isIOS } from "utils/common"
+import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 
 WebBrowser.maybeCompleteAuthSession()
@@ -67,8 +67,8 @@ const signInGoogle=(token:any,params:any)=>{
   },[googleResponse])
 
   const onGoogleLogin=async()=>{
-    Linking.addEventListener('url', (e) => {
-      if(e?.url.includes('app.voicenotes:/0authredirect'))
+   isAndroid&& Linking.addEventListener('url', (e) => {
+      if(e?.url.includes('com.app.voicenotes:/0authredirect'))
         router.push("/auth/landingPage/")
     })
    const res= await googlePromptAsync().then(e=>{
