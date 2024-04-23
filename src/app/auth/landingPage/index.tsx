@@ -147,7 +147,7 @@ const signInGoogle=(token:any,params:any)=>{
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
-            onPress={()=>{router.push('/auth/login/loginPassword')}}
+            onPress={()=>{router.push('/auth/login/')}}
             text="Continue with Email"
             isLoading={loginApple?.isLoading||false}
             logo={LandingSvg.email}/>
