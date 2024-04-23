@@ -56,7 +56,7 @@ export default ({onClose=()=>{}})=>{
                 <View style={{width:'90%'}}>
                     <Text style={heading}>What's on your mind? <Text onPress={onAsk} style={{textDecorationLine:'underline'}}>Ask me something</Text></Text>
                     {askSomething.isLoading?<AiLoader text="Coming up with a question for you" size={16} style={{marginTop:6}}/>
-                    :qstn!=''?<ChatBuble style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}
+                    :qstn!=''?<ChatBuble delay={10} style={question} message={qstn} triggerAnimation={loading?0:2} disableGenerating={()=>{}}/>:null}
                     {/* {qstn!=''&&<Text style={caption}>We’ll show personalized questions as you record more notes.</Text>} */}
                 </View>
                 <Touchable onPress={onClose} style={{width:20,height:20,alignItems:'flex-end',justifyContent:'center',paddingRight:0}}>

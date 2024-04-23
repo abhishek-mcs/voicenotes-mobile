@@ -1,4 +1,4 @@
-import { Animated, StyleSheet, Text, UIManager, View } from "react-native";
+import { Animated, Easing, StyleSheet, Text, UIManager, View } from "react-native";
 import { forwardRef, useEffect, useState } from "react";
 import Colors from "assets/Colors";
 import { formatDate, getLastSixMonths } from "utils/format-date";
@@ -15,18 +15,26 @@ if (isAndroid) {
 
 export default forwardRef(({data=null,visible}:Props, ref) => {
   const [shadowOpacity, setShadowOpacity] = useState(new Animated.Value(0));
+  const [opacity, setOpacity] = useState(new Animated.Value(0));
   const previousMonths = getLastSixMonths();
 
   useEffect(() => {
     Animated.timing(shadowOpacity, {
       toValue: visible ? 1 : 0,
-      duration: 50,
+      duration: 250,
+      easing:Easing.ease,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(opacity, {
+      toValue: visible ? 1 : 0,
+      duration: 20,
+      easing:Easing.ease,
       useNativeDriver: false,
     }).start();
   }, [visible]);
   
   return (
-      <Animated.View style={[styles.modal,{height:visible?'auto':0,transform:[{scaleY:visible?1:0}]},visible?{...styles.shadow,shadowOpacity,opacity:shadowOpacity}:{}]}>
+      <Animated.View style={[styles.modal,{height:visible?'auto':0,transform:[{scaleY:visible?1:0}]},visible?{...styles.shadow,shadowOpacity,opacity}:{}]}>
         {visible&&<><Text
           style={{
             fontSize: 14,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextStyle } from 'react-native';
 
-export default ({ message,style={},triggerAnimation=0,disableGenerating=()=>{},continueGenerating=true }:{message:string,style:TextStyle,triggerAnimation:number,disableGenerating:()=>void,continueGenerating?:boolean})=> {
+export default ({ delay=30,message,style={},triggerAnimation=0,disableGenerating=()=>{},continueGenerating=true }:{delay?:number,message:string,style:TextStyle,triggerAnimation:number,disableGenerating:()=>void,continueGenerating?:boolean})=> {
     const [displayedMessage, setDisplayedMessage] = useState('');
 
     useEffect(() => {
