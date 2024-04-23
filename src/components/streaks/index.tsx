@@ -21,7 +21,7 @@ export default forwardRef(({data=null,visible}:Props, ref) => {
   useEffect(() => {
     Animated.timing(shadowOpacity, {
       toValue: visible ? 1 : 0,
-      duration: 250,
+      duration: 350,
       easing:Easing.ease,
       useNativeDriver: false,
     }).start();

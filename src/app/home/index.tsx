@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Easing,
   FlatList,
   KeyboardAvoidingView,
   SafeAreaView,
@@ -162,13 +163,16 @@ export default ()=> {
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [prevOffset, setPrevOffset] = useState(0);
+
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    if (currentOffset > 0 && currentOffset < 40) {
+    if (currentOffset >prevOffset && currentOffset > 0) {
       setIsSearchVisible(false);
-    } else if (currentOffset < 10) {
+    } else if (currentOffset < prevOffset && currentOffset > 0) {
       setIsSearchVisible(true);
     }
+    setPrevOffset(currentOffset);
   };
   if(!token)
       return <Redirect href="/auth/landingPage/" />
@@ -179,7 +183,7 @@ export default ()=> {
         <View style={styles.wrapper}>
           <Header isLogged={!!token}/>
           {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
+            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
             <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}

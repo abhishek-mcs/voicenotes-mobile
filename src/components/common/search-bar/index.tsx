@@ -78,7 +78,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false})=>
     return (
         <View style={[styles.container]}>
             <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box,isFocused?{borderColor:'#222'}:{borderColor:Colors.darkWithOpacity(0.1)}]}>
-              <AnimSVG duration={150} xml={commonSvg.search?.replace('{color}',"#828282")} animation={!isSearchVisible?fadeOut:fadeIn} style={[{paddingHorizontal:8}]} />
+              <SvgXml xml={commonSvg.search} style={[{paddingHorizontal:8}]} />
               <View style={{flex:1}}>
                 <TextInput
                   onFocus={() => {setIsFocused(true);}}
