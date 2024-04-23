@@ -162,7 +162,7 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading]
   );
 
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
   const handleScroll = (event:any) => {
@@ -183,8 +183,8 @@ export default ()=> {
         <View style={styles.wrapper}>
           <Header isLogged={!!token}/>
           {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
-            <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+            <Animatable.View style={{zIndex:30}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
+              <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
           <FlatList
