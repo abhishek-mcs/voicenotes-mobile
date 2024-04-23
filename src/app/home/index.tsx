@@ -130,7 +130,7 @@ export default ()=> {
   },[generateDummy])
 
   const onCancel = async() => {
-    await cancelRecording(rec,soundRef.current);
+    await cancelRecording(rec,soundRef?.current);
     setRec(null);
     setRecEnabled(false);
   };
@@ -179,7 +179,7 @@ export default ()=> {
       return <Redirect href="/auth/landingPage/" />
   return (
     <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           <Header isLogged={!!token}/>

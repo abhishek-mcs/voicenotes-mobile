@@ -36,7 +36,7 @@ export function useToggleStar(recording_id:number){
 
 export function useCreate(){
     const queryClient = useQueryClient();
-    return useMutation('ai-create', (data:{recording_id:number,type:string}) => {
+    return useMutation('ai-create', (data:any) => {
         return axiosApi.post(`/ai-create`, data);
     },
     {

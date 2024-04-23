@@ -8,14 +8,20 @@ import Notes from "./notes";
 import { useCreate } from "queries/home";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
+import Touchable from "components/common/Touchable";
+import { SvgXml } from "react-native-svg";
+import { home } from "assets/svg/home";
+import Colors from "assets/Colors";
+import { CreateModalSvg } from "assets/svg/CreateModal";
 
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("suggestions");
   const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email'>("summary");
-  const [result, setResult] = useState({id:0,result:null})
+  const [result, setResult] = useState({id:recordingList[0]?.id||null,result:null})
   const [title, setTitle] = useState("");
+  const [noteId, setNoteId] = useState<number[]>([]);
   const {token}=useSelector((state:RootState)=>state.userDetails)
 
   const aiCreate=useCreate()
@@ -45,17 +51,23 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   );
   const onSuggest=(type:any)=>{
     setNoteType(type)
-    setPreview("records")
   }
   const onSetRecord=(id:number,title:string)=>{
+    if(noteId?.includes(id)){
+      const filtered=noteId?.filter((v:any)=>v!=id)
+      setNoteId([...filtered])
+    }else
+      setNoteId([...noteId,id])
+  }
+
+  const onCreate=()=>{
     setPreview("loader");
-    setTitle(title)
-    aiCreate.mutate({recording_id:id,type:noteType},{
+    aiCreate.mutate({recording_id:noteId,type:noteType,payload:{custom_prompt:""}},{
       onSuccess:(data)=>{
-       if(title!="") {
-        setResult({id,result:!!token?data?.data?.content?.data:data?.data?.result})
+      //  if(title!="") {
+        setResult({id:noteId,result:!!token?data?.data?.content?.data:data?.data?.result})
         setPreview("note");
-      }
+      // }
       }
     })
   }
@@ -64,10 +76,12 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
     setPreview("suggestions")
     setResult({id:0,result:null})
     setNoteType("summary")
-    setTitle("")
+    // setTitle("")
+    setNoteId([])
   }
 
   const onClose=()=>{
+    setHideBg(false)
     setVisible(false)
     setTimeout(() => {
       onReset()
@@ -75,27 +89,37 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   }
 
   const {height}=useWindowDimensions()
-  const top=height>690?64:99
+  const top=height>690?200:99
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"fadeIn"}
-      animationOut={"fadeOut"}
+      animationIn={"fadeInUp"}
+      animationOut={"fadeOutDown"}
       onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',bottom:isIOS?top:94}}
+      style={{justifyContent:'flex-end',marginBottom:84}}
       backdropOpacity={0.05}
       hasBackdrop={false}
       coverScreen={false}
-      onTouchStart={(e)=>e?.stopPropagation()}
+      // onTouchStart={(e)=>e?.stopPropagation()}
+      swipeDirection={"down"}
+      propagateSwipe={true}
+      onSwipeComplete={onClose}
     > 
       <View style={[styles.modal,styles[preview]]}>
+          <View style={styles.drag}/>
         {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
-        {preview === 'suggestions' ?
-        <Suggestions onPress={onSuggest}/>
-        :preview === 'records' ?
-        <Records recordingList={recordingList} fetchNextPage={fetchNextPage} onSelect={onSetRecord} />
+        {(preview === 'suggestions'||preview === 'records') ?
+        <View style={{height:screenHeight-230}} onTouchStart={(e)=>e?.stopPropagation()}>
+          <Suggestions onPress={onSuggest} type={noteType}/>
+          <Records recordingList={recordingList} fetchNextPage={fetchNextPage} onSelect={onSetRecord} selected={noteId}/>
+          {noteId?.length>0&&
+          <Touchable style={styles.createBtn} onPress={onCreate}>
+            <Text style={styles.createTxt}>Create</Text>
+            <SvgXml xml={CreateModalSvg.create} />
+          </Touchable>}
+        </View>
         :preview=="loader"? <AiLoader text={`AI is writing your ${noteType}`}/>
-        :<Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onSetRecord} />
+        :<Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }
       </View>
     </ReactNativeModal>
@@ -107,7 +131,7 @@ const styles = StyleSheet.create({
     // justifyContent: "center",
     backgroundColor: "#fff",
     borderRadius: 20,
-    paddingBottom:24,
+    paddingBottom:0,
     paddingTop:24,
     paddingHorizontal:24,
     shadowColor:"#00000026",
@@ -116,18 +140,22 @@ const styles = StyleSheet.create({
 		shadowRadius: 1.5,
     zIndex:10,
 		elevation: 2,
-    height:'45%'
+    height:screenHeight-230
   },
   heading:{
-      fontSize:20,
-      fontFamily:"Primary-Medium",
+      fontSize:16,
+      fontFamily:"Primary-Semibold",
       marginBottom:8,
-      paddingHorizontal:0
+      paddingHorizontal:0,
+      marginTop:12
   },
-  suggestions:{height:'auto',paddingTop:16},
+  suggestions:{height:'auto',paddingTop:16,paddingHorizontal:0},
   records:{},
   note:{paddingHorizontal:0,paddingTop:16},
-  loader:{justifyContent:'flex-start',paddingTop:36,paddingLeft:28}
+  loader:{justifyContent:'flex-start',paddingTop:16,paddingLeft:28},
+  createBtn:{flexDirection:'row',alignItems:'center',backgroundColor:Colors.primary,alignSelf:'center',paddingHorizontal:16,height:40,borderRadius:16,marginVertical:16},
+  createTxt:{fontSize:14,fontFamily:'Primary-Semibold',color:'#fff',marginRight:8},
+  drag:{backgroundColor:'#D9D9D9',height:5,width:64,marginTop:-8,borderRadius:14,alignSelf:'center'}
 });
 
 export interface createModalProps{
@@ -136,4 +164,5 @@ export interface createModalProps{
   onSelect?:(id:number,v:string)=>void
   title?:string
   setHideBg?:(v:boolean)=>void
+  selected?:any
 }

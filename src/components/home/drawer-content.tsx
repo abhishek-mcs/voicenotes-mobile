@@ -37,9 +37,9 @@ export default (props:any) => {
   }, [data?.data?.data]);
 
   useEffect(() => {
-    const tags=getTags.data?.data?.flatMap((t:any)=>t?.name)||[];
+    const tags=getTags?.data?.data?.flatMap((t:any)=>t?.name)||[];
     dispatch(setHashTags(tags))
-  }, [getTags.data]);
+  }, [getTags?.data]);
 
   const handleTagPress = (tag: string) => {
     dispatch(setTagsFilter(tag))
