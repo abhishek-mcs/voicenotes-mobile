@@ -1,7 +1,7 @@
 import {
   ActivityIndicator,
+  Easing,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
@@ -26,7 +26,7 @@ import {
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
+import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -66,16 +66,15 @@ export default ()=> {
   const soundRef = useRef<any>(null);
   const [hideSearch,setHideSearch]=useState(true)
   const [showAskMe,setShowAskMe]=useState(true)
+  const [hideBackground,setHideBg]=useState(false)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const uploadRecord = useUploadRecord()
-  const addTranscriptRecord = useAddTranscript()
-  const addTitleRecord = useAddTitle()
+  const addTranscriptRecord = useAddTranscript(true)
   const queryClient = useQueryClient();
   const [generateDummy,setGenerateDummy]=useState<any>(null)
-  const streakRef=useRef<any>()
   
   const recordingList = useMemo(
     () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
@@ -109,7 +108,7 @@ export default ()=> {
      onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
-    setGenerateDummy({})
+    setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
@@ -121,28 +120,20 @@ export default ()=> {
             await queryClient.invalidateQueries('all-recording');
             setGenerateDummy(null)
             scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id,
-              {
-                onSuccess:async()=>{
-                  queryClient.invalidateQueries('all-recording');
-                  addTitleRecord.mutate(r?.data?.recording?.id,{
-                    onSuccess:()=>{
-                      queryClient.invalidateQueries('all-recording');
-                      queryClient.invalidateQueries('streaks');
-                    }
-                  })
-                }
-              });
-          },
-          onError: (r:any) => {
-            console.log(r?.response?.data?.message);
-          },
+            addTranscriptRecord.mutate(r?.data?.recording?.id);
+          }
         }
       );
       await soundRef.current?.unloadAsync()
   };
+
+  useEffect(()=>{
+    if(!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
+      recordingQuery.data&&(recordingQuery.data.pages[0].data.data[0].transcript='')
+  },[generateDummy])
+
   const onCancel = async() => {
-    await cancelRecording(rec,soundRef.current);
+    await cancelRecording(rec,soundRef?.current);
     setRec(null);
     setRecEnabled(false);
   };
@@ -175,30 +166,35 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading]
   );
 
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(true);
+  const [prevOffset, setPrevOffset] = useState(0);
+
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    if (currentOffset > 0 && currentOffset < 40) {
+    if (currentOffset >prevOffset && currentOffset > 0) {
       setIsSearchVisible(false);
-    } else if (currentOffset <= 0) {
+    } else if (currentOffset < prevOffset && currentOffset > 0) {
       setIsSearchVisible(true);
     }
+    setPrevOffset(currentOffset);
   };
   if(!token)
       return <Redirect href="/auth/landingPage/" />
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close();streakRef?.current?.close()}}>
+    <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
-        <View style={styles.wrapper}>
-          <Header isLogged={!!token} streakRef={streakRef}/>
+        <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
+          <Header isLogged={!!token}/>
           {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
-            <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
+              <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
           <FlatList
             ref={scrollRef}
+            bounces={false}
+            style={{opacity:hideBackground?0:1}}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
@@ -228,8 +224,8 @@ export default ()=> {
             keyboardShouldPersistTaps="handled"
           />
         </View>
-        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
-        <AIModal ref={AIModalRef} />
+        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
+        <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
        {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
       </View>
       </KeyboardAvoidingView>
@@ -289,4 +285,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: "700",
   },
+  hideBg:{backgroundColor:'#F4F6F6'}
 });

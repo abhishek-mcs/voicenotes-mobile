@@ -24,7 +24,7 @@ import Touchable from "components/common/Touchable";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
-import { isIOS } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
@@ -36,8 +36,11 @@ type chatProps = {
   user_id?: number;
   id?: number;
 };
+type AIProps = {
+  setHideBg?: (v: boolean) => void;
+}
 
-export default forwardRef((props, ref) => {
+export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const userName = useSelector(
     (state: any) => state.userDetails?.userDetails?.name
   );
@@ -100,12 +103,15 @@ export default forwardRef((props, ref) => {
       return {
         open() {
           setVisible(true);
+          setHideBg(true)
         },
         close() {
           setVisible(false);
+          setHideBg(false)
         },
         toggle(){
           setVisible(!visible)
+          setHideBg(!visible)
         },
         getNewSugg(){
           !visible&&getNewSugg()
@@ -122,6 +128,7 @@ export default forwardRef((props, ref) => {
 
   const onClose = () => {
     setVisible(false);
+    setHideBg(false);
     setTimeout(() => {
       setChats(initChat);
       setChatStarted(false);
@@ -165,8 +172,9 @@ export default forwardRef((props, ref) => {
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"fadeIn"}
-      animationOut={"fadeOut"}
+      animationIn={"fadeInUp"}
+      hideModalContentWhileAnimating={true}
+      animationOut={"fadeOutDown"}
       // onBackdropPress={onClose}
       style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:94) }]}
       backdropOpacity={0.05}
@@ -296,7 +304,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 const styles = StyleSheet.create({
   modalContainer: { justifyContent: "flex-end", bottom: 40 },
   modal: {
-    height: "88%",
+    height: screenHeight>690?'88%':'80%',
     justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 24,
@@ -410,7 +418,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  suggestContainer: { marginBottom: 24, marginHorizontal: 16,marginTop:150 },
+  suggestContainer: { marginBottom: 24, marginHorizontal: 16,marginTop:screenHeight>690?150:50 },
   aiChat: { marginLeft: 45, marginTop: -8 },
   header1: {
     height: 57,

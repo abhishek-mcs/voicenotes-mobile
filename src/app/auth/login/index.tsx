@@ -1,10 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useRef, useState } from "react"
-import { InteractionManager, Keyboard, View, Text, TextInput, Pressable, KeyboardAvoidingView } from "react-native"
+import { InteractionManager, View, Text, TextInput, Pressable, KeyboardAvoidingView,ActivityIndicator } from "react-native"
 import { validateEmail } from "utils/api-queries/auth/signin-mutations"
-import { useMutation } from "react-query"
-import axiosApi from "services/api/axios-api"
-// import Recaptcha from "react-native-recaptcha-that-works"
 import { useRouter } from "expo-router"
 import { TextField } from "components/common/text-field"
 import { useDispatch } from "react-redux"
@@ -14,17 +11,8 @@ import Touchable from "components/common/Touchable"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import { isIOS } from "utils/common"
-import { ActivityIndicator } from "react-native"
+import { useCheckEmail } from "queries/auth"
 
-function usecheckEmailMutation() {
-  return useMutation("check_email", ({ email, captcheToken }:{email:string,captcheToken:string}) =>
-    axiosApi.post("/email/login", {
-      email: email,
-      client_response: captcheToken,
-      captcha_version: "v3",
-    }),
-  )
-}
 
 export default ()=> {
   const router=useRouter()
@@ -32,11 +20,8 @@ export default ()=> {
   const [emailError, setEmailError]:any = useState('')
   const [captchaError, setCaptchaError]:any = useState('')
   const [validationError, setValidationError]:any = useState(false)
-  const checkEmailMutation:any = usecheckEmailMutation()
-
+  const checkEmailMutation:any = useCheckEmail()
   const dispatch = useDispatch()
-
-  const recaptcha:any = useRef()
 
   const inputRef = useRef<TextInput>(null)
 
@@ -49,61 +34,37 @@ export default ()=> {
     })
   }, [inputRef])
 
-  const send = () => {
-    // if(__DEV__) {
-    //   continueClicked("")
-    // }
-    // else {
-    Keyboard.dismiss()
-    recaptcha.current.open()
-    // }
-  }
-
-  const onVerify = (token:any) => {
-    // continueClicked(token)
-  }
-
-  const onExpire = () => {
-    setCaptchaError("Captcha Expired")
-    recaptcha.current.close()
-  }
-
   const continueClicked = () => {
-    router?.push({pathname:"/auth/login/loginPassword"})
-    // setEmailError(null)
-    // setCaptchaError(null)
-    // if (!validateEmail(emailText) || emailText === "") {
-    //   setValidationError(true)
-    // } else {
-    //   setValidationError(false)
-    //   dispatch(setEmail(emailText))
-    //   checkEmailMutation.mutate(
-    //     { email: emailText,
-    //       // captcheToken: token
-    //     },
-    //     {
-    //       onSuccess: async (response:any) => {
-    //         if (response.data?.has_password) {
-    //           router.push({pathname:"/auth/login/loginPassword"})
-    //         } 
-    //         // else if (response.data?.otp_login) {
-    //         //   router.push("/auth/login/")
-    //         // }
-    //       },
-    //       onError: (error:any) => {
-    //         for (const er in error.response.data.errors) {
-    //           if (er == "email") {
-    //             setEmailError(error.response.data.errors[er][0])
-    //           } 
-    //           // else if (er == "client_response") {
-    //           //   setCaptchaError(error.response.data.errors[er][0])
-    //           // }
-    //           return
-    //         }
-    //       },
-    //     },
-    //   )
-    // }
+    setEmailError(null)
+    setCaptchaError(null)
+    if (!validateEmail(emailText) || emailText === "") {
+      setValidationError(true)
+    } else {
+      setValidationError(false)
+      dispatch(setEmail(emailText))
+      checkEmailMutation.mutate(
+        { email: emailText },
+        {
+          onSuccess: async (response:any) => {
+            if (response.data?.exists) {
+              router?.push("/auth/login/loginPassword")
+            }else{
+              setEmailError("There is no account with the given email address.")
+            }
+          },
+          onError: (error:any) => {
+            console.log('clicked2')
+            console.warn(error?.response?.data,'s')
+            for (const er in error.response.data.errors) {
+              if (er == "email") {
+                setEmailError(error.response.data.errors[er][0])
+              } 
+              return
+            }
+          },
+        },
+      )
+    }
   }
 
   return (
@@ -125,7 +86,7 @@ export default ()=> {
           returnKeyType="go"
           textContentType="emailAddress"
           onSubmitEditing={continueClicked}
-          onChangeText={(text) => setEmailText(text)}
+          onChangeText={(text) =>{ setEmailText(text);setEmailError(null);setValidationError(false)}}
           placeholder="john@doe.com"
           autoComplete="email"
           keyboardType="email-address"
@@ -136,13 +97,13 @@ export default ()=> {
           <Text style={{color:'red',fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
         )}
         {emailError && (
-          <Text style={{marginTop:4}}>
+          <Text style={{marginTop:8}}>
             <Text style={{color:'red',fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
-            {/* <Text
-              onPress={() => navigation.navigate("signup_password")}
-              style={st("text-red-600 text-sm font-extrabold underline")}
-              text=" Sign up "
-            /> */}
+            <Text
+            suppressHighlighting={true}
+              onPress={() => router.push("/auth/signup/")}
+              style={{color:'red',fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
+            >{` Sign up`}</Text>
           </Text>
         )}
         {captchaError && (
@@ -165,9 +126,9 @@ export default ()=> {
         }}
         onPress={continueClicked}
       >
-        {/* {signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={"#fff"}/>
-        : */}
+        {checkEmailMutation.isLoading?
+        <ActivityIndicator size={17} color={"#fff"}/>
+        :
         <Text
           style={{
             fontFamily: "Primary-Bold",
@@ -178,7 +139,7 @@ export default ()=> {
         >
           Continue
         </Text>
-        {/* } */}
+        }
       </Pressable>
       {/* <Recaptcha
         ref={recaptcha}

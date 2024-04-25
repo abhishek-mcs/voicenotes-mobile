@@ -1,56 +1,41 @@
-import { StyleSheet, Text, View } from "react-native";
-import { forwardRef, useImperativeHandle, useState } from "react";
-import ReactNativeModal from "react-native-modal";
+import { Animated, Easing, StyleSheet, Text, UIManager, View } from "react-native";
+import { forwardRef, useEffect, useState } from "react";
 import Colors from "assets/Colors";
 import { formatDate, getLastSixMonths } from "utils/format-date";
 import ControlledTooltip from "components/common/ControlledTooltip";
-import { isIOS } from "utils/common";
+import { isAndroid, isIOS } from "utils/common";
 import { Dimensions } from "react-native";
 
-export default forwardRef(({data=null}:Props, ref) => {
-  const [visible, setVisible] = useState(false);
+// Enable LayoutAnimation
+if (isAndroid) {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
+export default forwardRef(({data=null,visible}:Props, ref) => {
+  const [shadowOpacity, setShadowOpacity] = useState(new Animated.Value(0));
+  const [opacity, setOpacity] = useState(new Animated.Value(0));
   const previousMonths = getLastSixMonths();
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        open() {
-          setVisible(true);
-        },
-        close() {
-          setVisible(false);
-        },
-        toggle() {
-          setVisible(!visible)
-        }
-      };
-    },
-    [visible]
-  );
+  useEffect(() => {
+    Animated.timing(shadowOpacity, {
+      toValue: visible ? 1 : 0,
+      duration: 350,
+      easing:Easing.ease,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(opacity, {
+      toValue: visible ? 1 : 0,
+      duration: 20,
+      easing:Easing.ease,
+      useNativeDriver: false,
+    }).start();
+  }, [visible]);
   
-  
-  const onClose=()=>{
-    
-  }
-
   return (
-    <ReactNativeModal
-      isVisible={visible}
-      animationIn="fadeIn"
-      animationOut="fadeOut"
-      onBackdropPress={onClose}
-      style={{ justifyContent: "flex-end", top: 190 }}
-      backdropOpacity={0.005}
-      hasBackdrop={false}
-      coverScreen={false}
-      onTouchStart={(e) => e?.stopPropagation()}
-      animationInTiming={100}
-      animationOutTiming={100}
-    >
-      <View style={[styles.modal]}>
-        <Text
+      <Animated.View style={[styles.modal,{height:visible?'auto':0,transform:[{scaleY:visible?1:0}]},visible?{...styles.shadow,shadowOpacity,opacity}:{}]}>
+        {visible&&<><Text
           style={{
             fontSize: 14,
             fontFamily: "Primary",
@@ -92,28 +77,29 @@ export default forwardRef(({data=null}:Props, ref) => {
                 </View>
               ))}
             </View>
-        </View>
-      </View>
-    </ReactNativeModal>
+        </View></>}
+    </Animated.View>
   );
 });
 const {width} = Dimensions.get("window");
 const styles = StyleSheet.create({
   modal: {
-    // justifyContent: "center",
     backgroundColor: "#fff",
     borderRadius: 12,
+    paddingVertical:20,
+    justifyContent:'center',
+    alignItems:'center',
+    width:'100%',
+    alignSelf:'center'
+  },
+  shadow:{
     shadowColor:isIOS?"#00000026":"#00000066",
 		shadowOpacity: 0.9,
 		shadowOffset: { width: 0, height:0 },
 		shadowRadius: 1.5,
     zIndex:10,
 		elevation: 10,
-    height:180,
-    justifyContent:'center',
-    alignItems:'center',
-    width:width-20,
-    marginLeft:-28
+    marginBottom:16
   },
   heading:{
       fontSize:20,
@@ -128,5 +114,6 @@ const styles = StyleSheet.create({
 });
 
 interface Props{
-    data:any
+    data:any,
+    visible:boolean
 }

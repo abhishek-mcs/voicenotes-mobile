@@ -38,7 +38,7 @@ const fadeOut={
   from:{opacity:1},to:{opacity:0}
 }
 
-export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false})=>{
+export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,style={}})=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -76,9 +76,9 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false})=>
     }
 
     return (
-        <View style={[styles.container]}>
+        <View style={[styles.container,style]}>
             <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box,isFocused?{borderColor:'#222'}:{borderColor:Colors.darkWithOpacity(0.1)}]}>
-              <AnimSVG duration={150} xml={commonSvg.search?.replace('{color}',"#828282")} animation={!isSearchVisible?fadeOut:fadeIn} style={[{paddingHorizontal:8}]} />
+              <SvgXml xml={commonSvg.search} style={[{paddingHorizontal:8}]} />
               <View style={{flex:1}}>
                 <TextInput
                   onFocus={() => {setIsFocused(true);}}

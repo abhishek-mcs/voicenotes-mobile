@@ -15,7 +15,8 @@ import { setAuthToken } from "services/api/axios-api"
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { useQueryClient } from "react-query"
 import { useDispatch } from "react-redux"
-import { isIOS } from "utils/common"
+import { isAndroid, isIOS } from "utils/common"
+import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -25,46 +26,7 @@ export default () => {
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
 
-  //Animations
-  const fadeAnim = useRef(new Animated.Value(0)).current
-
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start()
-  }
-
-  const [bounceValue, setBounceValue] = useState(new Animated.Value(50))
-
-  //Is the animated view hidden or not?
-  const [isHidden, setIsHidden] = useState(true)
-
-  //I toggle the animated slide with this method
-  const toggleSlide = () => {
-    let toValue = 475 //How to get dynamic height of View to animate
-
-    if (isHidden) {
-      //Here I hide (slide down) the animated View container
-      toValue = 0
-    }
-
-    Animated.spring(bounceValue, {
-      toValue: toValue,
-      velocity: 10,
-      tension: 3,
-      friction: 6,
-      useNativeDriver: true,
-    }).start()
-    setIsHidden(!isHidden)
-  }
-
-  useEffect(() => {
-    toggleSlide()
-    fadeIn()
-  }, [])
+  const {bounceValue,fadeAnim} = useAnimatedSlide()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
@@ -105,8 +67,8 @@ const signInGoogle=(token:any,params:any)=>{
   },[googleResponse])
 
   const onGoogleLogin=async()=>{
-    Linking.addEventListener('url', (e) => {
-      if(e?.url.includes('app.voicenotes:/0authredirect'))
+   isAndroid&& Linking.addEventListener('url', (e) => {
+      if(e?.url.includes('com.app.voicenotes:/0authredirect'))
         router.push("/auth/landingPage/")
     })
    const res= await googlePromptAsync().then(e=>{
@@ -185,7 +147,7 @@ const signInGoogle=(token:any,params:any)=>{
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
             style={styles.button2}
-            onPress={()=>{router.push('/auth/login/loginPassword')}}
+            onPress={()=>{router.push('/auth/login/')}}
             text="Continue with Email"
             isLoading={loginApple?.isLoading||false}
             logo={LandingSvg.email}/>
