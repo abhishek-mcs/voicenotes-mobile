@@ -1,15 +1,15 @@
 import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
-import { home } from "assets/svg/home";
+import { TextField } from "components/common/text-field";
 import Touchable from "components/common/Touchable";
-import { StyleSheet, Text, TouchableHighlight } from "react-native"
+import { StyleSheet, Text } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg";
-import { isIOS, screenHeight } from "utils/common";
+import { isIOS } from "utils/common";
 
-export default ({onPress=(v:string)=>{},type='summary'})=>{
+export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomText=(v:string)=>{}})=>{
     return (
-        <View style={{maxHeight:screenHeight/3,paddingHorizontal:28}}>
+        <View style={{paddingHorizontal:28,marginBottom:13}}>
           <View style={[styles.row,styles.btw]}>
               <Text style={styles.title}><Text style={{color:Colors.grey}}>1.  </Text>What do you want to create?</Text>
               {/* <Touchable onPress={()=>setVisible(false)} style={{marginTop:12,marginRight:8}}>
@@ -27,14 +27,25 @@ export default ({onPress=(v:string)=>{},type='summary'})=>{
           <View style={styles.row}>
               <Btns onPress={onPress} type="email" title="Email" icon={CreateModalSvg.email} selected={type=='email'}/>
               <Btns onPress={onPress} type="blog" title="Blog post" icon={CreateModalSvg.blog} selected={type=='blog'}/>
+              <Btns onPress={onPress} type="custom" title="+ Custom instructions" selected={type=='custom'} style={{width:'auto',paddingHorizontal:12}}/>
           </View>
+        {type=='custom'&&
+        <TextField
+          style={{marginTop:0,flexDirection:'column'}}
+          inputStyle={{ height: 42, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:'#fff',marginLeft:0}}
+          value={customText}
+          labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
+          onChangeText={(t:string)=>setCustomText(t)}
+          placeholder="Enter your instructions here..."
+          autoCapitalize="none"
+        />}
         </View>)
 }
 
 
-const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false }) => (
-    <Touchable style={[styles.btn,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
-        <SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?'#fff':'#000001')} />
+const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => (
+    <Touchable style={[styles.btn,style,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
+        {icon&&<SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?'#fff':'#000001')} />}
         <Text style={[styles.btnTxt,selected?styles.selected1:{}]}>{title}</Text>
     </Touchable>
   );

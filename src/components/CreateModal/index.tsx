@@ -1,5 +1,5 @@
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { FlatList, Keyboard, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
 import Records from "./records";
@@ -17,11 +17,13 @@ import { CreateModalSvg } from "assets/svg/CreateModal";
 
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
-  const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("suggestions");
-  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email'>("summary");
+  const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("note");
+  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom'>("summary");
   const [result, setResult] = useState({id:recordingList[0]?.id||null,result:null})
+  const [keyboardShown, setKeyboardShown] = useState(false);
   const [title, setTitle] = useState("");
   const [noteId, setNoteId] = useState<number[]>([]);
+  const [customText, setCustomText] = useState("");
   const {token}=useSelector((state:RootState)=>state.userDetails)
 
   const aiCreate=useCreate()
@@ -51,6 +53,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   );
   const onSuggest=(type:any)=>{
     setNoteType(type)
+    setCustomText("")
   }
   const onSetRecord=(id:number,title:string)=>{
     if(noteId?.includes(id)){
@@ -62,7 +65,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
 
   const onCreate=()=>{
     setPreview("loader");
-    aiCreate.mutate({recording_id:noteId,type:noteType,payload:{custom_prompt:""}},{
+    aiCreate.mutate({recording_id:noteId,type:noteType,payload:{custom_prompt:customText}},{
       onSuccess:(data)=>{
       //  if(title!="") {
         setResult({id:noteId,result:!!token?data?.data?.content?.data:data?.data?.result})
@@ -76,7 +79,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
     setPreview("suggestions")
     setResult({id:0,result:null})
     setNoteType("summary")
-    // setTitle("")
+    setCustomText("")
     setNoteId([])
   }
 
@@ -88,17 +91,30 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
     }, 300);
   }
 
+  useEffect(() => {
+    const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
+      setKeyboardShown(true)
+    );
+    const keyboardHide = Keyboard.addListener("keyboardWillHide", () =>
+      setKeyboardShown(false)
+    );
+    return () => {
+      keyboardShown.remove();
+      keyboardHide.remove();
+    };
+  }, []);
+
   const {height}=useWindowDimensions()
-  const top=height>690?200:99
+  const top=height>690?84:118
   return (
     <ReactNativeModal
       isVisible={visible}
       animationIn={"fadeInUp"}
       animationOut={"fadeOutDown"}
       onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',marginBottom:84}}
-      backdropOpacity={0.05}
-      hasBackdrop={false}
+      style={{justifyContent:'flex-end',marginBottom:keyboardShown?10:top}}
+      backdropOpacity={0}
+      hasBackdrop={true}
       coverScreen={false}
       // onTouchStart={(e)=>e?.stopPropagation()}
       swipeDirection={"down"}
@@ -109,17 +125,26 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
           <View style={styles.drag}/>
         {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
         {(preview === 'suggestions'||preview === 'records') ?
-        <View style={{height:screenHeight-230}} onTouchStart={(e)=>e?.stopPropagation()}>
-          <Suggestions onPress={onSuggest} type={noteType}/>
-          <Records recordingList={recordingList} fetchNextPage={fetchNextPage} onSelect={onSetRecord} selected={noteId}/>
-          {noteId?.length>0&&
+        <View style={{height:keyboardShown?screenHeight/2.1:screenHeight/1.4}} onTouchStart={(e)=>e?.stopPropagation()}>
+          <FlatList
+          data={[1]}
+          keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
+          renderItem={({item})=>(
+          <>
+            <Suggestions onPress={onSuggest} type={noteType} setCustomText={setCustomText} customText={customText}/>
+            <Records recordingList={recordingList} fetchNextPage={fetchNextPage} onSelect={onSetRecord} selected={noteId}/>
+          </>
+          )}
+          />
+          {(noteId?.length>0&&(noteType !== 'custom'||(noteType=='custom'&&customText?.length>0)))&&
           <Touchable style={styles.createBtn} onPress={onCreate}>
             <Text style={styles.createTxt}>Create</Text>
             <SvgXml xml={CreateModalSvg.create} />
           </Touchable>}
         </View>
-        :preview=="loader"? <AiLoader text={`AI is writing your ${noteType}`}/>
-        :<Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
+        :preview=="loader"? <AiLoader text={noteType=="custom"?'AI is writing based on your custom instructions':`AI is writing your ${noteType}`}/>
+        :
+        <Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }
       </View>
     </ReactNativeModal>
@@ -140,7 +165,7 @@ const styles = StyleSheet.create({
 		shadowRadius: 1.5,
     zIndex:10,
 		elevation: 2,
-    height:screenHeight-230
+    height:screenHeight/1.4
   },
   heading:{
       fontSize:16,

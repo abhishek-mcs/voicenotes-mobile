@@ -9,13 +9,14 @@ import { CreateModalSvg } from "assets/svg/CreateModal"
 export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
     return (
-        <View style={{flex:1,height:'auto',maxHeight:'60%',marginTop:13}}>
+        <View style={{flex:1,height:'auto',marginTop:10}}>
             <Text style={heading}><Text style={{color:Colors.grey}}>2.  </Text>Select the note</Text>
             <FlatList 
             data={recordingList}
             contentContainerStyle={list}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
+            scrollEnabled={false}
             renderItem={({item})=>(
                 <TouchableHighlight onPress={()=>onSelect(item?.id,item?.title)} style={[itemContainer,isSelected(item?.id)?styles.selected:{}]} underlayColor={Colors.greyWithOpacity(0)}>
                     <View style={styles.row}>
@@ -28,7 +29,7 @@ export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{},s
                 </TouchableHighlight>
             )}
             ListEmptyComponent={()=><View style={itemContainer}><Text style={titleStyle}>You don't have any notes to create with.</Text></View>}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={50}
             onEndReached={()=>fetchNextPage()}
             />
         </View>
