@@ -15,7 +15,7 @@ export default (props:any) => {
   const [isLoading,setIsLoading]=useState(true)
   const [selected, setSelected] = useState('monthly')
   const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
-  const pack=IAPOfferings?.availablePackages
+  const pack=IAPOfferings?.availablePackages||[]
   console.log(pack[0])
   const onUpgrade = async() => {
     try {

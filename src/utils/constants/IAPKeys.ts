@@ -1,4 +1,4 @@
 export default {
-    apple: "your_revenuecat_apple_api_key",
+    apple: "appl_CvXjKRiaDILkbLtTSeAHKCXHXpQ",
     google: "goog_sikxoZEdHxqcBoHhcHEKZUGZkcy",
   };
