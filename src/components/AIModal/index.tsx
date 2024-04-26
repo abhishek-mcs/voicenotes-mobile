@@ -304,7 +304,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 const styles = StyleSheet.create({
   modalContainer: { justifyContent: "flex-end", bottom: 40 },
   modal: {
-    height: screenHeight>690?'88%':'80%',
+    height:isIOS? screenHeight>690?'88%':'80%':'75%',
     justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 24,

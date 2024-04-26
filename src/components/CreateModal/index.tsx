@@ -105,7 +105,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   }, []);
 
   const {height}=useWindowDimensions()
-  const top=height>690?84:118
+  const top=isIOS?height>690?84:118:115
   return (
     <ReactNativeModal
       isVisible={visible}
@@ -128,6 +128,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
         <View style={{height:keyboardShown?screenHeight/2.1:screenHeight/1.4}} onTouchStart={(e)=>e?.stopPropagation()}>
           <FlatList
           data={[1]}
+          scrollIndicatorInsets={{top:20,bottom:20}}
           keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
           renderItem={({item})=>(
           <>
