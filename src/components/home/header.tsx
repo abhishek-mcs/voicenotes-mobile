@@ -11,7 +11,8 @@ import { isIOS, isIOSSmall } from "utils/common";
 import { useStreak } from "queries/home";
 import Streaks from "components/streaks";
 import formatBigNumber from "utils/formatBigNumber";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import * as Haptics from 'expo-haptics';
 
 export default ({isLogged=true,}:any) => {
   const router:any=useNavigation()
@@ -20,19 +21,21 @@ export default ({isLogged=true,}:any) => {
 
   const streaks=useStreak(token)
 
-  const toggleStreaks = () => {
+  const toggleStreaks = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setStreakVisible(!streakVisible);
   };
-
+  const openDrawer=()=>{
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    router?.openDrawer()
+  }
   return (
     <View style={{height: streakVisible?'auto':30}} onTouchStart={()=>Keyboard.dismiss()}>
-      <View
-        style={styles.container}
-      >
+      <View style={styles.container}>
        <View style={{flexDirection:'row',alignSelf:'center'}}>
        {token&&
-       <Touchable style={{alignSelf:'flex-start',padding:16,paddingRight:10,paddingBottom:0,marginRight:6,marginLeft:-16,marginTop:-24 }} onPress={()=>router?.openDrawer()}>
+       <Touchable style={styles.drawer} onPress={openDrawer} >
           <SvgXml xml={home.drawer} />
         </Touchable>}
         </View>
@@ -40,9 +43,9 @@ export default ({isLogged=true,}:any) => {
         <View style={{  justifyContent: "flex-start" }}>
 
      {isLogged? 
-         !!token&&
+         !!token&&streaks?.data?.data?.current_streak&&
         <View onTouchStart={(e)=>e?.stopPropagation()}>
-        <Touchable onPress={toggleStreaks} style={{padding:12,marginTop:-12,marginRight:-12}} activeOpacity={0.6}>
+        <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
           {/* <Text style={{fontSize:9.6,fontFamily:'Primary-Bold',color:'#222'}}>{formatBigNumber(streaks?.data?.data?.current_streak)}</Text> */}
         </Touchable>
@@ -67,16 +70,28 @@ export default ({isLogged=true,}:any) => {
           </View>}
         </View>
       </View>
-      <Streaks data={streaks?.data?.data} visible={streakVisible}/>
+      <Streaks data={streaks?.data?.data||[]} visible={streakVisible}/>
     </View>
   );
 }
 
-const styles=StyleSheet.create({
-  row:{flexDirection:'row',alignItems:'center'},
-  container:{
+const styles = StyleSheet.create({
+  row: { flexDirection: "row", alignItems: "center" },
+  container: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  }
-})
+    marginTop: isIOS ? 0 : 10,
+    marginBottom:8
+  },
+  drawer: {
+    alignSelf: "flex-start",
+    padding: 16,
+    paddingRight: 10,
+    paddingBottom: 0,
+    marginRight: 6,
+    marginLeft: -16,
+    marginTop: -24,
+  },
+  streak:{padding:12,marginTop:-12,marginRight:-12}
+});

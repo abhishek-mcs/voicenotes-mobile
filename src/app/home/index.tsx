@@ -34,6 +34,7 @@ import { isIOS } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
 import { Redirect } from "expo-router";
+import * as Haptics from 'expo-haptics';
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -98,11 +99,12 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
-     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
-     soundRef.current=sound
-     onRecord(setRec, setRecEnabled);
+    const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
+    soundRef.current=sound
+    onRecord(setRec, setRecEnabled);
   };
   const onStopRecord = async(d:number) => {
     setGenerateDummy({isUploading:true})
