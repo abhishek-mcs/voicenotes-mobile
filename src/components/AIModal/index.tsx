@@ -20,7 +20,7 @@ import {
 } from "react";
 import ReactNativeModal from "react-native-modal";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
-import { useAskAI,useAskAIHistory, useGetAskChat } from "queries/home";
+import { useAskAI,useAskAIHistory, useDeleteAskHistory, useGetAskChat } from "queries/home";
 import Touchable from "components/common/Touchable";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
@@ -83,6 +83,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const getAskHistory= useAskAIHistory();
   const askAIHistory=useMemo(()=>getAskHistory?.data?.pages?.flatMap((r:any)=>r?.data)??[],[getAskHistory])
   const getChat = useGetAskChat();
+  const deleteChatHistory = useDeleteAskHistory();
   
   const getNewSugg = () => {
     setSuggLoaded(false)
@@ -196,7 +197,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     setChatStarted(false);
   }
 
-  const onDeleteHistory = () => {}
+  const onDeleteHistory = (id:any) => {
+    deleteChatHistory?.mutate({id},{
+      onSuccess:()=>{
+        getAskHistory.refetch()
+      }
+    })
+  }
   
   const renderDrawer = () => {
     return (
@@ -212,7 +219,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             <TouchableHighlight onPress={()=>onHistoryPress(item?.id)} underlayColor={Colors.greyWithOpacity(0.05)}>
               <View style={styles.selectHistory}>
               <Text style={styles.historyText} numberOfLines={1}>{item?.title}</Text>
-              <Touchable onPress={onDeleteHistory} style={{padding:8,marginRight:-8}}>
+              <Touchable onPress={()=>onDeleteHistory(item?.id)} style={{padding:8,marginRight:-8}}>
                 <SvgXml xml={commonSvg.smallClose} />
               </Touchable>
               </View>

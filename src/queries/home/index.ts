@@ -242,6 +242,14 @@ export function useGetAskChat(){
         })
 }
 
+export function useDeleteAskHistory(){
+    return useMutation('get-chat',(data?:any) => axiosApi.delete(`/ai-chat-thread/${data?.id}`),  
+        {
+            onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+        })
+}
 export function useAskAI(isGuest:boolean=true,post:boolean=true){
     return useMutation('chat',(data?:any) => {
         const {question="",id=null} = data;
