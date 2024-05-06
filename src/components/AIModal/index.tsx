@@ -14,12 +14,13 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import ReactNativeModal from "react-native-modal";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
-import { useAskAI, useSuggestions } from "queries/home";
+import { useAskAI,useAskAIHistory, useDeleteAskHistory, useGetAskChat } from "queries/home";
 import Touchable from "components/common/Touchable";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
@@ -28,6 +29,10 @@ import { isIOS, screenHeight } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { DrawerLayout } from "react-native-gesture-handler";
+import { home } from "assets/svg/home";
+import { formatDate, isSameDay } from "utils/format-date";
+import { commonSvg } from "assets/svg/commonSvg";
 
 type chatProps = {
   messages: [
@@ -41,6 +46,7 @@ type AIProps = {
 }
 
 export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
+  const drawerRef=useRef<DrawerLayout>(null)
   const userName = useSelector(
     (state: any) => state.userDetails?.userDetails?.name
   );
@@ -68,11 +74,17 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [chats, setChats] = useState<chatProps>(initChat);
   const scrollRef = useRef<FlatList>(null);
   const [suggIndex, setSuggIndex] = useState(-2);
+  const [drawerIndex, setDrawerIndex] = useState(-10);
+  const [chatLoader,setChatLoader]=useState(false);
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
   const askAI = useAskAI(!token);
-
+  const getAskHistory= useAskAIHistory();
+  const askAIHistory=useMemo(()=>getAskHistory?.data?.pages?.flatMap((r:any)=>r?.data)??[],[getAskHistory])
+  const getChat = useGetAskChat();
+  const deleteChatHistory = useDeleteAskHistory();
+  
   const getNewSugg = () => {
     setSuggLoaded(false)
     setTimeout(() => {
@@ -129,14 +141,15 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const onClose = () => {
     setVisible(false);
     setHideBg(false);
-    setTimeout(() => {
-      setChats(initChat);
-      setChatStarted(false);
-    }, 300);
+    // setTimeout(() => {
+    //   setChats(initChat);
+    //   setChatStarted(false);
+    // }, 300);
   };
 
   const onDrawer = () => {
-    
+    setDrawerIndex(10)
+    drawerRef.current?.openDrawer()
   }
 
   const onSend = (question: string) => {
@@ -167,6 +180,59 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     });
   };
 
+  const onHistoryPress = async(id:any) => {
+    setChatLoader(true)
+    drawerRef.current?.closeDrawer()
+    setChatStarted(true);
+   await getChat.mutateAsync({id},{
+    onSuccess:(res)=>{
+      setChats(res?.data)
+    }
+   })
+   setChatLoader(false)
+  }
+
+  const onNewChat = () => {
+    setChats(initChat);
+    setChatStarted(false);
+  }
+
+  const onDeleteHistory = (id:any) => {
+    deleteChatHistory?.mutate({id},{
+      onSuccess:()=>{
+        getAskHistory.refetch()
+      }
+    })
+  }
+  
+  const renderDrawer = () => {
+    return (
+      <View style={styles.history}>
+        <FlatList
+        data={askAIHistory}
+        ListHeaderComponent={()=><Text style={[styles.historyText,{paddingHorizontal:20}]}>History</Text>}
+        keyExtractor={(item, index) => `${item?.id}-${index}`}
+        renderItem={({ item,index }) => (
+          <View style={{}}>
+            {(index==0||(index!=0&&!isSameDay(item?.created_at,askAIHistory[index-1]?.created_at)))&&
+            <Text style={styles.date}>{formatDate(item?.created_at)}</Text>}
+            <TouchableHighlight onPress={()=>onHistoryPress(item?.id)} underlayColor={Colors.greyWithOpacity(0.05)}>
+              <View style={styles.selectHistory}>
+              <Text style={styles.historyText} numberOfLines={1}>{item?.title}</Text>
+              <Touchable onPress={()=>onDeleteHistory(item?.id)} style={{padding:8,marginRight:-8}}>
+                <SvgXml xml={commonSvg.smallClose} />
+              </Touchable>
+              </View>
+            </TouchableHighlight>
+          </View>
+        )}
+        onEndReachedThreshold={0.5}
+        onEndReached={()=>getAskHistory.hasNextPage&&getAskHistory.fetchNextPage()}
+        />
+      </View>
+    );
+  };
+
   const {height}=useWindowDimensions()
   const top=height>690?64:99
   return (
@@ -184,18 +250,20 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     >
       <View style={styles.modal}>
         <View style={[styles.header1]}>
-          {/* <Touchable onPress={onDrawer} style={{ padding: 4, flexDirection:'row',alignItems:'center' }}>
-            <SvgXml xml={AIModalSVG.history} />
-            <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text>
-          </Touchable> */}
+          <View style={{flexDirection:'row',alignItems:'center'}}>
+          {chatStarted&&<Touchable onPress={onNewChat} style={{ padding: 4, marginLeft: 12 }}>
+            <SvgXml xml={AIModalSVG.newChat} />
+          </Touchable>}
           <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
             <SvgXml xml={AIModalSVG.close} />
           </Touchable>
-          {/* <Touchable onPress={onHistory} style={{ padding: 4 }}>
+          </View>
+          <Touchable onPress={onDrawer} style={{ padding: 4, flexDirection:'row',alignItems:'center' }}>
             <SvgXml xml={AIModalSVG.history} />
-          </Touchable> */}
+            {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
+          </Touchable>
         </View>
-        <FlatList
+        {!chatLoader?<FlatList
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -239,7 +307,9 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               }
             </View>
           ):null}
-        />
+        />:<View style={{marginTop:-50,alignItems:'center'}}>
+        <CircularLoader width={25} height={25} strokeWidth={3}/>
+        </View>}
         <View>
           <View style={styles.inputContainer}>
             <TextInput
@@ -267,6 +337,20 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               <SvgXml xml={AIModalSVG.send} />
             </Touchable>
           </View>
+        </View>
+        <View style={{position:'absolute',flex:1,zIndex:drawerIndex,top:0,width:'100%',height:'100%'}}>
+        <DrawerLayout
+          ref={drawerRef}
+          drawerWidth={200}
+          drawerPosition={'left'}
+          drawerType="front"
+          drawerBackgroundColor="#fff"
+          overlayColor="transparent"
+          renderNavigationView={renderDrawer}
+          contentContainerStyle={{flex:1}}
+          onDrawerClose={()=>setDrawerIndex(-10)}
+          drawerContainerStyle={styles.drawer}
+          />
         </View>
       </View>
     </ReactNativeModal>
@@ -304,7 +388,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 const styles = StyleSheet.create({
   modalContainer: { justifyContent: "flex-end", bottom: 40 },
   modal: {
-    height: screenHeight>690?'88%':'80%',
+    height:isIOS? screenHeight>690?'88%':'80%':'75%',
     justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 24,
@@ -314,6 +398,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1.5,
     zIndex: 10,
     elevation: 2,
+    overflow:'hidden'
   },
   title: {
     fontSize: 24,
@@ -431,5 +516,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   header2: { marginBottom:0, borderBottomWidth: 0 },
-  lottie:{width:15,height:10,alignSelf:'flex-end'}
+  lottie:{width:15,height:10,alignSelf:'flex-end'},
+  drawer:{
+  shadowColor: "#00000026",
+  shadowOpacity: 0.9,
+  shadowOffset: { width: 0, height: 0.75 },
+  shadowRadius: 1.5,
+  zIndex: 10,
+  elevation: 2,
+},
+historyText:{fontFamily:'Primary',fontSize:14,color:'#222',maxWidth:'80%'},
+history:{paddingVertical:20},
+date:{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(0.5),marginTop:16,marginBottom:12,paddingHorizontal:20},
+selectHistory:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:4,marginBottom:8,paddingHorizontal:20}
 });
