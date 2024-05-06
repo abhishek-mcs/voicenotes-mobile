@@ -219,7 +219,30 @@ export function useAskSomething(){
     })
 }
 
-export function useAskAI(isGuest:boolean=true){
+export function useAskAIHistory(tags?:string){
+    const logout =useLogout()
+    return useInfiniteQuery(['ask-ai-history'],async ({pageParam=1})=>{
+        return await axiosApi.get('/ai-chat-thread');
+    },{
+        getNextPageParam:(lastPage)=>{
+            return lastPage.data?.links?.next ? lastPage.data.meta?.current_page + 1 : undefined;
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useGetAskChat(){
+    return useMutation('get-chat',(data?:any) => axiosApi.get(`/ai-chat-thread/${data?.id}`),  
+        {
+            onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+        })
+}
+
+export function useAskAI(isGuest:boolean=true,post:boolean=true){
     return useMutation('chat',(data?:any) => {
         const {question="",id=null} = data;
         const params={question}
@@ -228,7 +251,8 @@ export function useAskAI(isGuest:boolean=true){
             return axiosApi.get(endPoints,{params: {question}});
         }else{
             const endPoints = isGuest?'/recordings/ask-ai':!!id?`/ai-chat-thread/${id}/messages`:'/ai-chat-thread';
-            return axiosApi.post(endPoints,params);
+            if(post) return axiosApi.post(endPoints,params);
+            else return axiosApi.get(endPoints);
         }
     },
     {
