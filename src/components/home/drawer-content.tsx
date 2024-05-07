@@ -99,7 +99,7 @@ export default (props:any) => {
       {photo_url?
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
-              <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d'}}>{data?.data?.data?.name}</Text>
+              <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',width:'70%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
               </View>
             <View style={styles.menuPress} >
               <SvgXml xml={drawerSvg.more} />

@@ -67,7 +67,7 @@ const Btn = ({title,type,price,onPress,underlay,selected=false}:Props) =>
         {type=="believer"&&
         <View style={styles.btnContent}>
           <SvgXml xml={iapSvg.limit} /> 
-          <Text style={styles.offer}>Only for the first 1k members </Text>
+          <Text style={styles.offer}>Limited launch offer</Text>
         </View>}
       </View>
       <Text style={styles.btnPrice}>{price}<Text style={styles.btnPriceType}>{type=='believer'?'/lifetime':'/monthly'}</Text></Text>
