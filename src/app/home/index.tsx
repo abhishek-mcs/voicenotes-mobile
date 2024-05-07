@@ -128,8 +128,11 @@ export default ()=> {
   };
 
   useEffect(()=>{
-    if(!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
-      recordingQuery.data&&(recordingQuery.data.pages[0].data.data[0].transcript='')
+    try{
+      if(!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
+        if(recordingQuery.data)
+          recordingQuery.data.pages[0].data.data[0].transcript=''
+      }catch{}
   },[generateDummy])
 
   const onCancel = async() => {

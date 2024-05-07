@@ -4,7 +4,7 @@ import { settingsSvg } from "assets/svg/settingsSvg"
 import Touchable from "components/common/Touchable"
 import { useRouter } from "expo-router"
 import { useEffect, useState } from "react"
-import { Image, SafeAreaView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
+import { ActivityIndicator, Image, SafeAreaView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useSelector } from "react-redux"
@@ -12,16 +12,17 @@ import { RootState } from "redux/store/store"
 
 export default (props:any) => {
   const router = useRouter()
-  const [isLoading,setIsLoading]=useState(true)
+  const [isLoading,setIsLoading]=useState(false)
   const [selected, setSelected] = useState('monthly')
   const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
   const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
   const pack=IAPOfferings?.availablePackages||[]
   const onUpgrade = async() => {
     try {
-      Purchases.setAttributes({['email']:userDetails?.email})
+      setIsLoading(true)
+      await Purchases.setAttributes({'email':userDetails?.email})
       const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
-      console.warn(productToBuy?.productIdentifier)
+      console.warn(productToBuy)
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
         // Unlock that great "pro" content
@@ -32,6 +33,7 @@ export default (props:any) => {
         // showError(e);
       }
     }
+    setIsLoading(false)
   }
 
   return (
@@ -53,16 +55,16 @@ export default (props:any) => {
           </View>
           <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
           <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
-          <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title="Upgrade"/>
+          <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title="Upgrade" isLoading={isLoading}/>
         </View>
       </View>
     </SafeAreaView>
   )
 }
 
-const Btn = ({title,type,price,onPress,underlay,selected=false}:Props) =>
+const Btn = ({title,type,price,onPress,underlay,selected=false,isLoading=false}:Props) =>
   <TouchableHighlight onPress={onPress} style={[styles.btn,styles.border,type=="upgrade"?styles.btnFilled:selected?{borderColor:Colors.primary}:{}]} underlayColor={underlay}>
-    <>{(type=='monthly'||type=='believer')?
+    {(type=='monthly'||type=='believer')?
     <><View>
         <Text style={styles.btnText}>{title}</Text>
         {type=="believer"&&
@@ -73,7 +75,9 @@ const Btn = ({title,type,price,onPress,underlay,selected=false}:Props) =>
       </View>
       <Text style={styles.btnPrice}>{price}<Text style={styles.btnPriceType}>{type=='believer'?'/lifetime':'/monthly'}</Text></Text>
     </>
-    :<Text style={[styles.btnText,{color:'#fff'}]}>{title}</Text>}</>
+    :!isLoading?<Text style={[styles.btnText,{color:'#fff'}]}>{title}</Text>
+    : <ActivityIndicator size={"small"} color={"#fff"}/>
+  }
   </TouchableHighlight>
 
 
@@ -101,5 +105,6 @@ interface Props {
   onPress: () => void,
   underlay: string,
   title: string,
-  selected?: boolean
+  selected?: boolean,
+  isLoading?: boolean
 }
