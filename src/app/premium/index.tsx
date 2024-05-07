@@ -9,6 +9,9 @@ import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
+import { screenHeight, screenWidth } from "utils/common"
+
+const premium = require('../../assets/images/premium.png')
 
 export default (props:any) => {
   const router = useRouter()
@@ -42,7 +45,7 @@ export default (props:any) => {
       <SvgXml xml={settingsSvg.close}/>
     </Touchable>
       <View style={styles.container}>
-        <Image source={{uri:'https://voicenotes.com/_nuxt/payment.C2X8M5Sn.png'}} style={styles.img}/>
+        <Image source={premium} style={styles.img} resizeMode="contain"/>
         <View style={styles.subContainer}>
           <Text style={styles.title}>Upgrade for more</Text>
           <View style={styles.descView}>
@@ -85,7 +88,7 @@ const styles = StyleSheet.create({
   main:{flex:1,backgroundColor:'#fff'},
   container:{flex:1},
   subContainer:{flex:2,padding:16},
-  img:{flex:1,width:'100%',height:'100%'},
+  img:{flex:1,width:'80%',height:screenHeight/2,alignSelf:'center'},
   title:{fontSize:30,fontFamily:'Primary-Medium',color:'#222',marginBottom:24},
   descView:{flexDirection:'row',alignItems:'flex-start',marginBottom:12},
   desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Regular',color:'#222',lineHeight:22},

@@ -129,8 +129,7 @@ export default ()=> {
 
   useEffect(()=>{
     try{
-      if(!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
-        if(recordingQuery.data)
+      if(recordingQuery?.data&&!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
           recordingQuery.data.pages[0].data.data[0].transcript=''
       }catch{}
   },[generateDummy])
