@@ -35,6 +35,7 @@ import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
 import { Redirect } from "expo-router";
 import * as Haptics from 'expo-haptics';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -105,8 +106,10 @@ export default ()=> {
     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
     soundRef.current=sound
     onRecord(setRec, setRecEnabled);
+    // activateKeepAwakeAsync()
   };
   const onStopRecord = async(d:number) => {
+    // deactivateKeepAwake()
     setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
