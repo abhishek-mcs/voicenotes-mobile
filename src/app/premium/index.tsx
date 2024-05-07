@@ -15,10 +15,11 @@ export default (props:any) => {
   const [isLoading,setIsLoading]=useState(true)
   const [selected, setSelected] = useState('monthly')
   const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
+  const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
   const pack=IAPOfferings?.availablePackages||[]
-  console.log(pack[0])
   const onUpgrade = async() => {
     try {
+      Purchases.setAttributes({['email']:userDetails?.email})
       const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
       console.warn(productToBuy?.productIdentifier)
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);

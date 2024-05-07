@@ -21,6 +21,10 @@
     "production": {
       "autoIncrement": true,
       "channel": "production"
+    },
+    "staging": {
+      "autoIncrement": true,
+      "channel": "staging"
     }
   },
   "submit": {
