@@ -16,7 +16,7 @@ const premium = require('../../assets/images/premium.png')
 export default (props:any) => {
   const router = useRouter()
   const [isLoading,setIsLoading]=useState(false)
-  const [selected, setSelected] = useState('monthly')
+  const [selected, setSelected] = useState('believer')
   const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
   const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
   const pack=IAPOfferings?.availablePackages||[]
