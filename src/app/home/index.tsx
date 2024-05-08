@@ -106,10 +106,10 @@ export default ()=> {
     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
     soundRef.current=sound
     onRecord(setRec, setRecEnabled);
-    // activateKeepAwakeAsync()
+    activateKeepAwakeAsync()
   };
   const onStopRecord = async(d:number) => {
-    // deactivateKeepAwake()
+    deactivateKeepAwake()
     setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
