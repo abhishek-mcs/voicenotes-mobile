@@ -39,15 +39,12 @@ export default ({isLogged=true,}:any) => {
           <SvgXml xml={home.drawer} />
         </Touchable>}
         </View>
-        {/* <SvgXml xml={home.logo} style={{ flex: 1 }} /> */}
         <View style={{  justifyContent: "flex-start" }}>
 
-     {isLogged? 
-         !!token&&streaks?.data?.data?.current_streak&&
+     {isLogged?
         <View onTouchStart={(e)=>e?.stopPropagation()}>
         <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
-          {/* <Text style={{fontSize:9.6,fontFamily:'Primary-Bold',color:'#222'}}>{formatBigNumber(streaks?.data?.data?.current_streak)}</Text> */}
         </Touchable>
         </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
