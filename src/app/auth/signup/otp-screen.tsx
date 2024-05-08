@@ -55,11 +55,11 @@ export default ()=>{
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             setAuthToken(token,false);
-            moveRecords.mutate(guestToken,{onSuccess:()=>{
+            // moveRecords.mutate(guestToken,{onSuccess:()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
               router.replace("/home/");
-            }})
+            // }})
           }
         },
         onError: (error: any) => {

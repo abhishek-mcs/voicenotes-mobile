@@ -107,7 +107,7 @@ export default () => {
       />
       <TextField
         forwardedRef={inputRef}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:8 , backgroundColor: "white"  }}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -131,7 +131,7 @@ export default () => {
         onSubmitEditing={continueClicked}
         placeholder="Password"
         style={{ marginTop: 0}}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:8, backgroundColor: "white"  }}
         autoCapitalize="none"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
       />

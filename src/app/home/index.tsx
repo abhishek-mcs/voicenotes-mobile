@@ -35,6 +35,8 @@ import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
 import { Redirect } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
+import * as Haptics from 'expo-haptics';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -101,13 +103,16 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
-     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
-     soundRef.current=sound
-     onRecord(setRec, setRecEnabled);
+    const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
+    soundRef.current=sound
+    onRecord(setRec, setRecEnabled);
+    activateKeepAwakeAsync()
   };
   const onStopRecord = async(d:number) => {
+    deactivateKeepAwake()
     setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
@@ -130,8 +135,8 @@ export default ()=> {
   useEffect(()=>{
     try{
       if(recordingQuery?.data&&!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
-          recordingQuery.data.pages[0].data.data[0].transcript=''
-      }catch{}
+        recordingQuery.data.pages[0].data.data[0].transcript=''
+    }catch{ }
   },[generateDummy])
 
   const onCancel = async() => {
