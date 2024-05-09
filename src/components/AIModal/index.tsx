@@ -204,7 +204,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       }
     })
   }
-  
+  console.warn(chats.messages)
   const renderDrawer = () => {
     return (
       <View style={styles.history}>
@@ -274,10 +274,11 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         renderItem={({ item,index }) => (
           <View>
               {!!item?.question && <ChatItem text={item?.question} isAI={false} />}
-              <ChatItem
+              <VoiceChatItem
                 text={item?.answer}
                 text2={item?.answer2 || undefined}
                 isAI={true}
+                url={item?.question_url}
               />
             </View>
         )}
@@ -331,11 +332,11 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             />
             <Touchable
               style={styles.send}
-              onPress={() => onSend(input)}
-              disabled={input == ""}
+              onPress={() => !!input?onSend(input):onRecordStart()}
             >
-              <SvgXml xml={AIModalSVG.send} />
+              <SvgXml xml={!!input?AIModalSVG.send:AIModalSVG.record} />
             </Touchable>
+            </>
           </View>
         </View>
         <View style={{position:'absolute',flex:1,zIndex:drawerIndex,top:0,width:'100%',height:'100%'}}>
@@ -358,6 +359,24 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
 });
 
 const ChatItem = ({ text = "", text2 = "", isAI = true }) => (
+  <View style={styles.convoContentContainer}>
+    <View style={{ flexDirection: "row" }}>
+      <View style={styles.aiIcon}>
+        <SvgXml xml={isAI ? AIModalSVG.ai : AIModalSVG.you} />
+      </View>
+      <Text style={styles.ai}>{isAI ? "AI" : "You"}</Text>
+    </View>
+    <View style={styles.aiChat}>
+      <Text style={[styles.text]}>
+        {text}
+        {text=="Typing"&&<LottieView source={typing} autoPlay loop style={styles.lottie}/>}
+      </Text>
+      {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
+    </View>
+  </View>
+);
+
+const VoiceChatItem = ({ text = "", text2 = "", url="", isAI = true }) => (
   <View style={styles.convoContentContainer}>
     <View style={{ flexDirection: "row" }}>
       <View style={styles.aiIcon}>
