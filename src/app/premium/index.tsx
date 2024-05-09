@@ -29,7 +29,8 @@ export default (props:any) => {
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
         // Unlock that great "pro" content
-        router.replace("/home/")
+        router?.back()
+        router?.back()
       }
     } catch (e:any) {
       if (!e.userCancelled) {
