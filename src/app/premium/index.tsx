@@ -5,7 +5,7 @@ import { settingsSvg } from "assets/svg/settingsSvg"
 import Touchable from "components/common/Touchable"
 import { useRouter } from "expo-router"
 import { useEffect, useState } from "react"
-import { ActivityIndicator, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
+import { ActivityIndicator, Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useSelector } from "react-redux"
@@ -42,6 +42,17 @@ export default (props:any) => {
     setIsLoading(false)
   }
 
+  const onRestore=async()=>{
+    setIsLoading(true)
+    const actives=await Purchases.restorePurchases();
+    if(actives.activeSubscriptions.length==0||!userDetails?.subscription_status){
+      Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{}}])
+    }else{
+        Alert.alert('Restored','You have successfully restored your purchase',[{text:'OK',onPress:()=>{router?.back();router?.back()}}])
+    }
+    setIsLoading(false)
+  }
+
   return (
     <SafeAreaView style={styles.main}>
     <Touchable style={{position:'absolute',padding:10,right:8,top:8,zIndex:10}} onPress={()=>router?.back()}>
@@ -72,7 +83,10 @@ export default (props:any) => {
             <Text style={[styles.footerText,{color:'#000'}]}>Terms of Service</Text>
           </Touchable>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy')}>
-            <Text style={[styles.footerText,{color:'#000'}]}>Privacy Policy</Text>
+            <Text style={[styles.footerText,{color:'#000',marginHorizontal:16}]}>Privacy Policy</Text>
+          </Touchable>
+          <Touchable onPress={onRestore}>
+            <Text style={[styles.footerText,{color:'#000'}]}>Restore</Text>
           </Touchable>
         </View>
       </View>
@@ -115,7 +129,7 @@ const styles = StyleSheet.create({
   offer:{color:'#FF4538', fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
   btnPrice:{fontSize:14,fontFamily:'Primary-Medium',color:'#222'},
   btnPriceType:{color:Colors.grey,fontSize:14,fontFamily:'Primary-Medium',marginLeft:4},
-  footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:11,lineHeight:15,paddingHorizontal:16,textAlign:'center',marginBottom:4},
+  footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:11,lineHeight:15,textAlign:'center',marginBottom:4},
   footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',bottom:-12},
 })
 
