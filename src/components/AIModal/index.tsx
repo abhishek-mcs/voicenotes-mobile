@@ -33,6 +33,8 @@ import { DrawerLayout } from "react-native-gesture-handler";
 import { home } from "assets/svg/home";
 import { formatDate, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
+import RecButton from "components/common/recording/rec-button";
+import Recording from "components/common/recording";
 
 type chatProps = {
   messages: [
@@ -76,6 +78,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [suggIndex, setSuggIndex] = useState(-2);
   const [drawerIndex, setDrawerIndex] = useState(-10);
   const [chatLoader,setChatLoader]=useState(false);
+  const [duration,setDuration]=useState(0);
+  const [isRecording,setIsRecording]=useState(false);
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -139,6 +143,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     }, 100);
 
   const onClose = () => {
+    onCancelRecord()
     setVisible(false);
     setHideBg(false);
     // setTimeout(() => {
@@ -182,6 +187,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
 
   const onHistoryPress = async(id:any) => {
     setChatLoader(true)
+    isRecording&&onCancelRecord()
     drawerRef.current?.closeDrawer()
     setChatStarted(true);
    await getChat.mutateAsync({id},{
@@ -204,7 +210,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       }
     })
   }
-  console.warn(chats.messages)
+  
   const renderDrawer = () => {
     return (
       <View style={styles.history}>
@@ -232,6 +238,37 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       </View>
     );
   };
+
+  const onRecordStart = () => {
+    setIsRecording(true)
+  }
+  const onCancelRecord = () => {
+    setIsRecording(false)
+  }
+  const onStopRecord = (d:number) => {
+    setIsRecording(false)
+    // setDuration(d)
+  }
+
+  useEffect(() => {
+    if (isRecording) {
+      const timerId = setInterval(() => {
+        setDuration(prevDuration => {
+          const newDuration = prevDuration + 1000;
+          if (newDuration >= 20000) {
+            onStopRecord(newDuration);
+            return 0;
+          }
+          return newDuration;
+        }); // Update duration every second
+      }, 1000);
+
+      return () => {
+        clearInterval(timerId);
+        setDuration(0);
+      }; // Cleanup the interval on component unmount
+    }
+  }, [isRecording]);
 
   const {height}=useWindowDimensions()
   const top=height>690?64:99
@@ -313,6 +350,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         </View>}
         <View>
           <View style={styles.inputContainer}>
+            {!isRecording?<>
             <TextInput
               onTouchStart={e=>e?.stopPropagation()}
               onFocus={()=>scrollToEnd()}
@@ -337,6 +375,14 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               <SvgXml xml={!!input?AIModalSVG.send:AIModalSVG.record} />
             </Touchable>
             </>
+            :<View style={{width:'100%',marginLeft:-12,marginTop:0,justifyContent:'center'}}>
+              <Recording
+                totalDuration={'/00:20'}
+                duration={duration}
+                onCancel={onCancelRecord}
+                onStopRecord={onStopRecord}
+              />
+            </View>}
           </View>
         </View>
         <View style={{position:'absolute',flex:1,zIndex:drawerIndex,top:0,width:'100%',height:'100%'}}>

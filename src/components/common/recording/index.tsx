@@ -6,9 +6,9 @@ import { Button, View } from "react-native"
 import RecButton from "./rec-button"
 
 export default ({onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{}})=>{
-    const formattedDuration=''
+  const formattedDuration = new Date(duration).toISOString().substring(14, 19);
     return (
-        <View style={{justifyContent:'space-between',flexDirection:'row',flex:1}}>
+        <View style={{justifyContent:'space-between',flexDirection:'row',flex:1,alignItems:'center'}}>
           <RecButton title="Cancel" onPress={onCancel} style={{paddingHorizontal:20}}/>
           <View style={styles.row}>
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>

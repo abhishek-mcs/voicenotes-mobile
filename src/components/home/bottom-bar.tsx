@@ -44,7 +44,6 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
           }; // Cleanup the interval on component unmount
         }
       }, [recEnabled]);
-    const formattedDuration = new Date(duration).toISOString().substring(14, 19);
   return (
     <View style={styles.tab}>
       {!recEnabled ? (
