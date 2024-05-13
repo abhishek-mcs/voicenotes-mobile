@@ -19,7 +19,7 @@ import { iapSvg } from "assets/svg/iapSvg";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
-  const {isIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
+  const {isIAPPurchased,isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -84,7 +84,9 @@ export default (props:any) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      {!isIAPPurchased&&!userDetails?.subscription_status&&<TouchableHighlight onPress={onUpgrade} style={styles.upgrade} underlayColor={Colors.primaryWithOpacity(0.1)}>
+      {(userDetails?.subscription_status||isTempIAPPurchased)?
+      null
+      :<TouchableHighlight onPress={onUpgrade} style={styles.upgrade} underlayColor={Colors.primaryWithOpacity(0.1)}>
         <>
         <SvgXml xml={iapSvg.upgrade} />
         <View>

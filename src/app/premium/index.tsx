@@ -8,10 +8,13 @@ import { useEffect, useState } from "react"
 import { ActivityIndicator, Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
 import { screenHeight, screenWidth } from "utils/common"
 import * as webBrowser from 'expo-web-browser'
+import * as Updates from 'expo-updates';
+import { useQueryClient } from "react-query"
+import { setTempIsIAPPurchased } from "redux/reducers/IAPStates"
 
 const premium = require('../../assets/images/premium.png')
 
@@ -22,17 +25,21 @@ export default (props:any) => {
   const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
   const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
   const pack=IAPOfferings?.availablePackages||[]
+  const dispatch=useDispatch()
+  const queryClient=useQueryClient()
+
   const onUpgrade = async() => {
     try {
       setIsLoading(true)
       await Purchases.setAttributes({'email':userDetails?.email})
       const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
-      console.warn(productToBuy)
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
         // Unlock that great "pro" content
-        router?.back()
-        router?.back()
+        dispatch(setTempIsIAPPurchased(true))
+        router?.back();
+        router?.back();
+        await queryClient.invalidateQueries('user-data');
       }
     } catch (e:any) {
       if (!e.userCancelled) {
@@ -46,9 +53,18 @@ export default (props:any) => {
     setIsLoading(true)
     const actives=await Purchases.restorePurchases();
     if(actives.activeSubscriptions.length==0||!userDetails?.subscription_status){
-      Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{}}])
+      Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
+        // Updates.reloadAsync()
+      }}])
     }else{
-        Alert.alert('Restored','You have successfully restored your purchase',[{text:'OK',onPress:()=>{router?.back();router?.back()}}])
+      
+        Alert.alert(
+          'Restored',
+          'You have successfully restored your purchase',
+          [{text:'OK',onPress:async()=>{
+            Updates.reloadAsync()
+            await queryClient.invalidateQueries('user-data');
+          }}])
     }
     setIsLoading(false)
   }

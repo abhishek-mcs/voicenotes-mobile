@@ -37,6 +37,7 @@ import { Redirect } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -89,6 +90,7 @@ export default ()=> {
 
   useEffect(()=>{
     checkRecordPermission()
+    dispatch(setTempIsIAPPurchased(false))
   },[])
   // setupAudioRec(rec)
 

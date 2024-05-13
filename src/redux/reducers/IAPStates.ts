@@ -5,12 +5,14 @@ export interface IAPState {
   IAPOfferings: object|null,
   IAPInfo:object|null
   isIAPPurchased:boolean
+  isTempIAPPurchased:boolean
 }
 
 const initialState: IAPState = {
   IAPOfferings:null,
   IAPInfo:null,
-  isIAPPurchased:false
+  isIAPPurchased:false,
+  isTempIAPPurchased:false
 }
 
 export const IAPStates = createSlice({
@@ -26,10 +28,13 @@ export const IAPStates = createSlice({
     setIsIAPPurchased: (state, action: PayloadAction<boolean>) => {
       state.isIAPPurchased = action.payload
     },
+    setTempIsIAPPurchased: (state, action: PayloadAction<boolean>) => {
+      state.isTempIAPPurchased = action.payload
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setIAPOffering,setIAPInfo,setIsIAPPurchased } = IAPStates.actions
+export const { setIAPOffering,setIAPInfo,setIsIAPPurchased,setTempIsIAPPurchased } = IAPStates.actions
 
 export default IAPStates.reducer
