@@ -15,7 +15,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { formatHtmlText, isIOS } from "utils/common";
 import { router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
@@ -352,7 +352,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote.transcript} 
+      value={formatHtmlText(editNote.transcript)} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>

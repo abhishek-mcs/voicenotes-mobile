@@ -61,6 +61,11 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
         </>
       ) : (
         <View style={{justifyContent:'space-between',flexDirection:'row',flex:1}}>
+        <Button title="Cancel" onPress={onCancel} style={{paddingHorizontal:20}}/>
+          <View style={styles.row}>
+            <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
+            <Text style={styles.tabItemText}>{`${formattedDuration}${(!!token&&userDetails?.subscription_status)?'':'/01:00'}`}</Text>
+          </View>
           <Button
             title="Done"
             icon={bottomSvg.done}
@@ -70,11 +75,6 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             onPress={()=>onStopRecord(duration)}
             style={{paddingHorizontal:20}}
           />
-          <View style={styles.row}>
-            <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
-            <Text style={styles.tabItemText}>{`${formattedDuration}${(!!token&&userDetails?.subscription_status)?'':'/01:00'}`}</Text>
-          </View>
-          <Button title="Cancel" onPress={onCancel} style={{paddingHorizontal:20}}/>
         </View>
       )}
     </View>
