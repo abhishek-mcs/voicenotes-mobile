@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
 import Colors from "assets/Colors";
 import { Text } from "react-native";
-import { useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
+import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
 import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import * as Animatable from "react-native-animatable"
@@ -47,6 +47,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
 
     const searchHistoryData=useSearchHistory()
     const setSearchHistory=useSetSearchHistory()
+    const deleteSearchHistory=useDeleteSearchHistory()
     const getSearchData=useSearch(searchQuery);
 
     const searchHistoryList=searchHistoryData.data?.data||[]
@@ -119,8 +120,15 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                         onPressIn={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
                         style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
-                        <><SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
-                        <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text></>
+                          <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+                            <>
+                              <SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
+                              <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text>
+                            </>
+                            <Pressable onPress={()=>deleteSearchHistory.mutate(itm?.id)}>
+                              <SvgXml xml={commonSvg.smallClose} />
+                            </Pressable>
+                          </View>
                       </TouchableHighlight>)}
                     </View>)
                     :searchText.length>0&&searchData?.length>0?

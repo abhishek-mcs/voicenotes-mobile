@@ -164,6 +164,19 @@ export default forwardRef(({
       setAudioLoading(-1);
     }
   };
+
+  const onPlaySet=async(res:any)=>{
+   try{ 
+      setIsPlay(index);
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: res.data?.url || "" },
+        {shouldPlay:true,isLooping:false},
+        onPlaybackStatusUpdate,
+      );
+      setPlay(sound);
+    }catch{}
+  }
+
   const onPlay=async()=>{
     try {
       await Audio.setAudioModeAsync({
@@ -180,17 +193,15 @@ export default forwardRef(({
         setPlay(null)
       if(isPlay!=index){
         setAudioLoading(index);
-        signedURL.mutate(note?.id,{
+        if(!!note?.audio?.data?.url){
+          onPlaySet(note?.audio)
+        }else{
+          signedURL.mutate(note?.id,{
           onSuccess:async(r)=>{
-            setIsPlay(index);
-            const { sound } = await Audio.Sound.createAsync(
-              { uri: r.data?.url || "" },
-              {shouldPlay:true,isLooping:false},
-              onPlaybackStatusUpdate,
-            );
-            setPlay(sound);
+            onPlaySet(r)
           }
         })
+      }
       }
     } catch (error) {
       console.error('Error playing audio:', error);

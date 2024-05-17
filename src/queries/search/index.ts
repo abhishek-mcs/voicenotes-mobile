@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
 
 export function useSearch(q:string){
@@ -30,6 +30,21 @@ export function useSearchHistory(){
     {
         onError:(error:any)=>{
             console.log('reg-search',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useDeleteSearchHistory(){
+    const queryClient = useQueryClient()
+    return useMutation('delete-search-history',(id:any) => {
+        return axiosApi.delete(`/search-history/${id}`)
+    },
+    {
+        onSuccess:async()=>{
+            queryClient.invalidateQueries('search-history')
+        },
+        onError:(error:any)=>{
+            console.log('delete-search',error?.response?.data?.message);
         }
     })
 }

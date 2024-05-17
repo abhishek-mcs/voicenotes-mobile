@@ -116,8 +116,8 @@ export default ()=> {
   };
   const onStopRecord = async(d:number) => {
     deactivateKeepAwake()
-    setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
+    setGenerateDummy({isUploading:true,audio:{data:{url:file}}})
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
