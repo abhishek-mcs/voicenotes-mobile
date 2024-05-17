@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "41",
+      "buildNumber": "42",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -38,7 +38,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 9
+      "versionCode": 10
     },
     "web": {
       "bundler": "metro",
