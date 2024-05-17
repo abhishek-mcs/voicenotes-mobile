@@ -10,7 +10,3 @@ export const isAndroid = Platform.OS=="android"
 export const screenHeight=Dimensions.get('window').height
 export const screenWidth=Dimensions.get('window').width
 export const isIOSSmall = isIOS && screenHeight<690
-
-export function formatHtmlText(txt:any){
-    return txt?.replaceAll(/<br\s*\/?>/gi, '\n')?.replaceAll(/&nbsp;|&#160;/gi, ' ')
-}

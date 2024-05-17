@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextStyle } from 'react-native';
-import { formatHtmlText, screenWidth } from 'utils/common';
+import { screenWidth } from 'utils/common';
 import {RenderHTML} from 'react-native-render-html';
 
 export default ({ delay=30,message,style={},triggerAnimation=0,disableGenerating=()=>{},continueGenerating=true }:{delay?:number,message:string,style:TextStyle,triggerAnimation:number,disableGenerating:()=>void,continueGenerating?:boolean})=> {
