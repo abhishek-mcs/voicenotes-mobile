@@ -166,6 +166,15 @@ export default forwardRef(({
   };
   const onPlay=async()=>{
     try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        interruptionModeIOS: 2,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        interruptionModeAndroid: 2,
+        playThroughEarpieceAndroid: false,
+        staysActiveInBackground:true,
+      });
         setIsPlay(-1)
         await play?.unloadAsync()
         setPlay(null)
