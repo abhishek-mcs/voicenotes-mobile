@@ -81,7 +81,7 @@ export default () => {
             title="MORE"
             items={[
                 {title:'Delete account',value:'',onPress:onDelete,rightIcon:settingsSvg.arrow},
-                {title:'Give us feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
+                {title:'Share feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
                 {title:'Sign out',value:'',onPress:onLogout,style:{color:'#FF453A'},leftIcon:settingsSvg.signOut},
             ]}/>
         </SafeAreaView>
