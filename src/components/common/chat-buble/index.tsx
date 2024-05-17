@@ -32,7 +32,7 @@ export default ({ delay=30,message,style={},triggerAnimation=0,disableGenerating
   
       return () => clearInterval(interval);
     }, [message, triggerAnimation,continueGenerating]);
-    console.log('displayedMessage',containsHTML(displayedMessage))
+    
   if(containsHTML(displayedMessage)){
     return(
       <View style={{marginTop:8}}>
