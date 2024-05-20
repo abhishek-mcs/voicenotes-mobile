@@ -1,6 +1,7 @@
 import Colors from "assets/Colors";
 import {
   FlatList,
+  Image,
   Keyboard,
   StyleSheet,
   Text,
@@ -49,20 +50,17 @@ type AIProps = {
 
 export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const drawerRef=useRef<DrawerLayout>(null)
-  const userName = useSelector(
-    (state: any) => state.userDetails?.userDetails?.name
+  const {userDetails,token} = useSelector(
+    (state: any) => state.userDetails
   );
-  const token = useSelector(
-    (state: RootState) => state.userDetails?.token
-  );
-
+  
   const initChat: chatProps = {
     id: 0,
     user_id: 0,
     messages: [
       {
         question: "",
-        answer: `Hi${token?(' '+userName):''}, I am your personal AI.`,
+        answer: `Hi${token?(' '+userDetails?.name):''}, I am your personal AI.`,
         answer2: "What would you like to ask about your notes?",
       },
     ],
@@ -300,7 +298,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
           </Touchable>
         </View>
-        {!chatLoader?<FlatList
+        {!chatLoader?
+        <FlatList
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -310,12 +309,18 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         keyExtractor={(item, index) => `${item?.id}-${index}`}
         renderItem={({ item,index }) => (
           <View>
-              {!!item?.question && <ChatItem text={item?.question} isAI={false} />}
+              {!!item?.question && 
+              <VoiceChatItem 
+              text={item?.question} 
+              isAI={false} 
+              photo={userDetails?.photo_url} 
+              url={item?.question_url}/>}
               <VoiceChatItem
                 text={item?.answer}
                 text2={item?.answer2 || undefined}
                 isAI={true}
                 url={item?.question_url}
+                photo={userDetails?.photo_url}
               />
             </View>
         )}
@@ -422,11 +427,13 @@ const ChatItem = ({ text = "", text2 = "", isAI = true }) => (
   </View>
 );
 
-const VoiceChatItem = ({ text = "", text2 = "", url="", isAI = true }) => (
+const VoiceChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='' }) => (
   <View style={styles.convoContentContainer}>
     <View style={{ flexDirection: "row" }}>
       <View style={styles.aiIcon}>
-        <SvgXml xml={isAI ? AIModalSVG.ai : AIModalSVG.you} />
+        {!isAI&&!!photo? 
+        <Image source={{uri:photo}} style={{width:30,height:30,borderRadius:9}}/>
+        :<SvgXml xml={isAI ? AIModalSVG.ai : AIModalSVG.you} />}
       </View>
       <Text style={styles.ai}>{isAI ? "AI" : "You"}</Text>
     </View>
