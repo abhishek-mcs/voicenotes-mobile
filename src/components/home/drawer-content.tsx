@@ -91,7 +91,7 @@ export default (props:any) => {
         <SvgXml xml={iapSvg.upgrade} />
         <View>
           <Text style={styles.upgradeTitle}>Upgrade for a lifetime</Text>
-          <Text style={styles.upgradeText}>Record longer, GPT-4 and more</Text>
+          <Text style={styles.upgradeText}>Record longer, GPT-4o and more</Text>
         </View>
         </>
       </TouchableHighlight>}
