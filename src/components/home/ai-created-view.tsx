@@ -18,7 +18,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const onCopy=async()=>{
       setCopied(true)
       let txtCopy=''
-      if(type=="summary"||type=="tweet")
+      if(type=="summary"||type=="tweet"||type=="custom")
         txtCopy=content
       else if(type=="points"||type=="todo")
         txtCopy=content.join('\n')

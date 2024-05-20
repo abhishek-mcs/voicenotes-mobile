@@ -84,7 +84,7 @@ export default (props:any) => {
           </View>
           <View style={[styles.descView]}>
             <SvgXml xml={iapSvg.done}/>
-            <Text style={styles.desc}>Smartest AI models (GPT-4 Turbo, Claude Opus)</Text>
+            <Text style={styles.desc}>Smartest AI models (GPT-4o, Claude Opus)</Text>
           </View>
           <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
           <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
