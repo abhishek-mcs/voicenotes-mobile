@@ -14,7 +14,7 @@ const initialState: userState = {
   token: '',
   guestToken:'',
   userDetails:'',
-  lang:'English'
+  lang:'Detect language'
 }
 
 export const userDetails = createSlice({

@@ -34,8 +34,10 @@ import { isIOS } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
 import { Redirect } from "expo-router";
+import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -68,6 +70,7 @@ export default ()=> {
   const [hideSearch,setHideSearch]=useState(true)
   const [showAskMe,setShowAskMe]=useState(true)
   const [hideBackground,setHideBg]=useState(false)
+  const [isRefreshing,setRefreshing]=useState(false)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -84,8 +87,11 @@ export default ()=> {
   
   const isListEmpty = recordingList?.length == 0 || null;
 
+  useIAPInfo()
+
   useEffect(()=>{
     checkRecordPermission()
+    dispatch(setTempIsIAPPurchased(false))
   },[])
   // setupAudioRec(rec)
 
@@ -191,13 +197,13 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           <Header isLogged={!!token}/>
           {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={250} easing={Easing.ease} useNativeDriver={true}>
+            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
               <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
           <FlatList
             ref={scrollRef}
-            bounces={false}
+            // bounces={false}
             style={{opacity:hideBackground?0:1}}
             data={
               recordingList?.length == 1
@@ -214,6 +220,12 @@ export default ()=> {
             renderItem={renderItem}
             onEndReachedThreshold={0.5}
             onEndReached={fetchNextPage}
+            onRefresh={async()=>{
+              setRefreshing(true);
+              await recordingQuery.refetch()
+              setRefreshing(false)
+            }}
+            refreshing={isRefreshing}
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
                 <AboutProduct disable={false} />

@@ -41,7 +41,7 @@ export const onRecord = async (
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
           interruptionModeAndroid: 1,
-          playThroughEarpieceAndroid: true,
+          playThroughEarpieceAndroid: false,
           staysActiveInBackground:true,
         });
 

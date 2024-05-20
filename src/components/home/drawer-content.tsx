@@ -15,10 +15,12 @@ import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
 import { setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
+import { iapSvg } from "assets/svg/iapSvg";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
-  const {token} = useSelector((state: RootState) => state.userDetails);
+  const {isIAPPurchased,isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
+  const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const dispatch = useDispatch();
   const router = useRouter();
   const [currentTag, setCurrentTag] = useState<string>(hashFilter);
@@ -50,11 +52,13 @@ export default (props:any) => {
   };
 
   const openSettings=()=>{
-    // router.back();
-    // setTimeout(() => {
     router?.push('/settings/')
-    // }, 500);
   }
+
+  const onUpgrade=()=>{
+    router?.push('/premium/')
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -80,35 +84,28 @@ export default (props:any) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
+      {(userDetails?.subscription_status||isTempIAPPurchased)?
+      null
+      :<TouchableHighlight onPress={onUpgrade} style={styles.upgrade} underlayColor={Colors.primaryWithOpacity(0.1)}>
+        <>
+        <SvgXml xml={iapSvg.upgrade} />
+        <View>
+          <Text style={styles.upgradeTitle}>Upgrade for a lifetime</Text>
+          <Text style={styles.upgradeText}>Record longer, GPT-4 and more</Text>
+        </View>
+        </>
+      </TouchableHighlight>}
      {!!token&& 
      <Touchable onPress={openSettings} style={[styles.row,styles.btn,{justifyContent:'space-between',paddingLeft:6,paddingRight:4,marginLeft:-6,height:40}]} activeOpacity={0.6}>
         <><View style={styles.row}>
       {photo_url?
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
-              <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d'}}>{data?.data?.data?.name}</Text>
+              <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',width:'70%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
               </View>
-      {/* <Menu
-          visible={showMenu}
-          anchor={ */}
             <View style={styles.menuPress} >
               <SvgXml xml={drawerSvg.more} />
             </View>
-          {/* }
-          onRequestClose={()=>setShowMenu(false)}
-          style={styles.menu}
-        >
-        <MenuItem style={styles.menuItem} onPress={onDelete}>
-          <View style={[styles.row,{width:180}]}>
-            <Text style={[styles.menuItemTxt,{color:Colors.grey}]}>Delete account</Text>
-          </View>
-        </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onLogout}>
-            <View style={[styles.row,{width:180}]}>
-              <Text style={styles.menuItemTxt}>Log out</Text>
-            </View>
-          </MenuItem>
-        </Menu> */}
         </>
         </Touchable>}
     </SafeAreaView>
@@ -165,4 +162,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginLeft: 0,
   },
+  upgrade:{flexDirection:'row',alignItems:'center',padding:12,borderRadius:8,marginVertical:20,backgroundColor:Colors.primaryWithOpacity(0.05),overflow:'hidden'},
+  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#222'},
+  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:'#222',marginTop:4}
 });

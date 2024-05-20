@@ -50,13 +50,12 @@ export default () => {
   }
 
   const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com')
-
   const onSelectLang=(code='en')=>{
     dispatch(setLang(languages[code]))
     saveSettings.mutate({
       language:code,
       about:settings?.about,
-      remember_words:settings?.remember_words,
+      remember_words:settings?.remember_words||[],
       name:userDetails?.name,
       fix_punctuation:settings?.fix_punctuation,
     })
@@ -82,7 +81,7 @@ export default () => {
             title="MORE"
             items={[
                 {title:'Delete account',value:'',onPress:onDelete,rightIcon:settingsSvg.arrow},
-                {title:'Give us feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
+                {title:'Share feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
                 {title:'Sign out',value:'',onPress:onLogout,style:{color:'#FF453A'},leftIcon:settingsSvg.signOut},
             ]}/>
         </SafeAreaView>
