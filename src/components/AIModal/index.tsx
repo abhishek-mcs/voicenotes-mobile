@@ -3,6 +3,7 @@ import {
   FlatList,
   Image,
   Keyboard,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -21,12 +22,13 @@ import {
 } from "react";
 import ReactNativeModal from "react-native-modal";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
-import { useAskAI,useAskAIHistory, useDeleteAskHistory, useGetAskChat } from "queries/home";
+import { useAskAI,useAskAIHistory, useDeleteAskHistory, useGetAskChat, useUploadChatRecord, useVoiceChatResponse } from "queries/home";
 import Touchable from "components/common/Touchable";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
-import { isIOS, screenHeight } from "utils/common";
+import chatLoader from "assets/lottie/chatLoader.json";
+import { isIOS, screenHeight, screenWidth } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
@@ -34,12 +36,16 @@ import { DrawerLayout } from "react-native-gesture-handler";
 import { home } from "assets/svg/home";
 import { formatDate, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
-import RecButton from "components/common/recording/rec-button";
 import Recording from "components/common/recording";
+import AudioPlayer from "./AudioPlayer";
+import * as Haptics from 'expo-haptics';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { onRecord, stopRecording } from "func/home/record";
+import { Audio } from "expo-av";
 
 type chatProps = {
-  messages: [
-    { id?:number,question: string; answer: string; answer2?: string | undefined }
+  related_messages: [
+    { id?:number,question: string; answer: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
   ];
   user_id?: number;
   id?: number;
@@ -57,11 +63,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const initChat: chatProps = {
     id: 0,
     user_id: 0,
-    messages: [
+    related_messages: [
       {
         question: "",
         answer: `Hi${token?(' '+userDetails?.name):''}, I am your personal AI.`,
         answer2: "What would you like to ask about your notes?",
+        question_url:"",
+        answer_url:"",
       },
     ],
   };
@@ -78,6 +86,9 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [chatLoader,setChatLoader]=useState(false);
   const [duration,setDuration]=useState(0);
   const [isRecording,setIsRecording]=useState(false);
+  const [rec, setRec] = useState<Audio.Recording | null>(null);
+  const [recEnabled, setRecEnabled] = useState<boolean>(false);
+  const [audioLoader,setAudioLoader]=useState(false);
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -86,6 +97,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const askAIHistory=useMemo(()=>getAskHistory?.data?.pages?.flatMap((r:any)=>r?.data)??[],[getAskHistory])
   const getChat = useGetAskChat();
   const deleteChatHistory = useDeleteAskHistory();
+  const uploadRecord=useUploadChatRecord();
+  const getAnswer=useVoiceChatResponse();
   
   const getNewSugg = () => {
     setSuggLoaded(false)
@@ -155,30 +168,32 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     drawerRef.current?.openDrawer()
   }
 
+  const onSuccessSendChat=(res:any) => {
+    if(!!token){
+      setChats({
+        ...res?.data,
+        related_messages: [...initChat.related_messages, ...res?.data?.related_messages],
+      })
+    }else{
+      const temp:chatProps=chats;
+      temp.related_messages[temp.related_messages?.length-1].answer=res?.data.answer;
+      setChats({...temp,related_messages: [...temp.related_messages]});
+    }
+    scrollToEnd();
+  }
+  
   const onSend = (question: string) => {
     !chatStarted&&setChatStarted(true)
     const tempChats = chats;
-    tempChats?.messages.push({ question, answer: "Typing" });
-    setChats({ ...tempChats, messages: tempChats?.messages || [] });
+    tempChats?.related_messages.push({ question, answer: "Typing" });
+    setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
     const data = chats?.id != 0 ? { question, id: chats.id } : { question };
     setInput("");
     scrollToEnd();
     askAI.mutate(data, {
-      onSuccess: (res) => {
-        if(!!token){
-          setChats({
-            ...res?.data,
-            messages: [...initChat.messages, ...res?.data?.messages],
-          })
-        }else{
-          const temp:chatProps=chats;
-          temp.messages[temp.messages?.length-1].answer=res?.data.answer;
-          setChats({...temp,messages: [...temp.messages]});
-        }
-        scrollToEnd();
-      },
+      onSuccess: onSuccessSendChat,
       onError:()=>{
-        tempChats?.messages.pop();
+        tempChats?.related_messages.pop();
       }
     });
   };
@@ -190,7 +205,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     setChatStarted(true);
    await getChat.mutateAsync({id},{
     onSuccess:(res)=>{
-      setChats(res?.data)
+      setChats({...res?.data,related_messages:[...initChat?.related_messages,...res?.data?.related_messages||[]]})
     }
    })
    setChatLoader(false)
@@ -237,15 +252,42 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     );
   };
 
-  const onRecordStart = () => {
+  const onRecordStart = async() => {
     setIsRecording(true)
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    onRecord(setRec, setRecEnabled);
+    activateKeepAwakeAsync()
   }
   const onCancelRecord = () => {
     setIsRecording(false)
   }
+
   const onStopRecord = (d:number) => {
     setIsRecording(false)
     // setDuration(d)
+    deactivateKeepAwake()
+    const file = rec?.getURI()||"";
+    stopRecording(rec);
+    setRec(null);
+    !chatStarted&&setChatStarted(true)
+    const tempChats = chats;
+    tempChats?.related_messages.push({ question:"Typing", answer: "", question_url:file });
+    setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
+    uploadRecord.mutate({audio:file,duration,id:chats?.id},{
+      onSuccess:(data)=>{
+        const mes=data?.data?.related_messages
+        const id=mes[mes.length-1]?.id
+        tempChats.related_messages[tempChats?.related_messages?.length-1]={ question:mes[mes?.length]?.question, question_url:file, answer: "Typing" }
+        setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
+        onSuccessSendChat(data)
+        getAnswer.mutate({id},{
+          onSuccess:(data)=>{
+            onSuccessSendChat(data)
+            setAudioLoader(false)
+          }
+        })
+      },
+    })
   }
 
   useEffect(() => {
@@ -305,23 +347,25 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         contentContainerStyle={{
           justifyContent: chatStarted ? "flex-end" : "flex-start",
         }}
-        data={chats?.messages || []}
+        data={chats?.related_messages || []}
         keyExtractor={(item, index) => `${item?.id}-${index}`}
+        key={chats?.related_messages[chats?.related_messages?.length-1]?.question}
         renderItem={({ item,index }) => (
           <View>
               {!!item?.question && 
-              <VoiceChatItem 
+              <ChatItem 
               text={item?.question} 
               isAI={false} 
-              photo={userDetails?.photo_url} 
+              photo={userDetails?.photo_url}
               url={item?.question_url}/>}
-              <VoiceChatItem
+              {!!item?.answer&&
+              <ChatItem
                 text={item?.answer}
                 text2={item?.answer2 || undefined}
                 isAI={true}
-                url={item?.question_url}
+                url={item?.answer_url}
                 photo={userDetails?.photo_url}
-              />
+              />}
             </View>
         )}
         contentInset={{ bottom: 16 }}
@@ -409,25 +453,26 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   );
 });
 
-const ChatItem = ({ text = "", text2 = "", isAI = true }) => (
-  <View style={styles.convoContentContainer}>
-    <View style={{ flexDirection: "row" }}>
-      <View style={styles.aiIcon}>
-        <SvgXml xml={isAI ? AIModalSVG.ai : AIModalSVG.you} />
+const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='' }) => {
+  const [expand,setExpand]=useState(false)
+  if(!!url){
+  return (
+  <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{}]}>
+    {text=='Typing'?
+    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,marginLeft:!isAI?0:30,marginRight:!isAI?30:0,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
+    :<View style={{backgroundColor:isAI?Colors.primary:Colors.darkWithOpacity(0.05),padding:16,borderRadius:12,width:'85%'}}>
+      <AudioPlayer isAI={isAI} url={url}/>
+      <Text style={{color:isAI?Colors.whiteWithOpacity(0.5):Colors.grey,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
+    </View>}
+    <View style={[styles.aiIcon,{width:20,height:20,marginTop:10,borderRadius:100,borderWidth:isAI?1:0}]}>
+        {!isAI&&!!photo? 
+        <Image source={{uri:photo}} style={{width:20,height:20,borderRadius:100}}/>
+        :<SvgXml xml={isAI ? AIModalSVG.aiSmall : AIModalSVG.youSmall} style={{borderRadius:100}}/>}
       </View>
-      <Text style={styles.ai}>{isAI ? "AI" : "You"}</Text>
-    </View>
-    <View style={styles.aiChat}>
-      <Text style={[styles.text]}>
-        {text}
-        {text=="Typing"&&<LottieView source={typing} autoPlay loop style={styles.lottie}/>}
-      </Text>
-      {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
-    </View>
-  </View>
-);
-
-const VoiceChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='' }) => (
+  </Pressable>
+)}
+else{
+return (
   <View style={styles.convoContentContainer}>
     <View style={{ flexDirection: "row" }}>
       <View style={styles.aiIcon}>
@@ -445,7 +490,7 @@ const VoiceChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='' }) 
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
     </View>
   </View>
-);
+)}}
 
 const Btns = ({ txt = "", onPress = () => {} }) => (
   <TouchableHighlight

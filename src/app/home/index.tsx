@@ -109,8 +109,8 @@ export default ()=> {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
-    const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
-    soundRef.current=sound
+    // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
+    // soundRef.current=sound
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
   };
@@ -132,7 +132,7 @@ export default ()=> {
           }
         }
       );
-      await soundRef.current?.unloadAsync()
+      // await soundRef.current?.unloadAsync()
   };
 
   useEffect(()=>{
