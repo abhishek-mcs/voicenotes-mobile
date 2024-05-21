@@ -37,10 +37,28 @@ export default ({isAI=false,url=''}) => {
 
     return () => {
       if (sound) {
+        if(isPlaying){
+          sound?.pauseAsync()
+          setIsPlaying(false)
+          console.log('paused')
+        }
         sound.unloadAsync();
       }
     };
   }, []);
+
+  useEffect(()=>{
+    return () => {
+      if (sound) {
+        if(isPlaying){
+          sound?.pauseAsync()
+          setIsPlaying(false)
+          console.log('paused')
+        }
+        sound.unloadAsync();
+      }
+    };
+  },[sound])
 
   const onPlaybackStatusUpdate = (status:any) => {
     if (status?.isLoaded) {
