@@ -31,7 +31,8 @@ export default ({ width=22,height=22, strokeWidth = 2, color = '#0D0D0D' }) => {
               height,
               borderWidth: strokeWidth,
               borderRadius: width / 2,
-              borderColor: color,
+              borderTopColor: color,
+              borderRightColor:color,
               transform: [{ rotate: spin }],
             },
           ]}

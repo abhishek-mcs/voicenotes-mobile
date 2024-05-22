@@ -40,7 +40,6 @@ export default ({isAI=false,url=''}) => {
         if(isPlaying){
           sound?.pauseAsync()
           setIsPlaying(false)
-          console.log('paused')
         }
         sound.unloadAsync();
       }
@@ -53,7 +52,6 @@ export default ({isAI=false,url=''}) => {
         if(isPlaying){
           sound?.pauseAsync()
           setIsPlaying(false)
-          console.log('paused')
         }
         sound.unloadAsync();
       }
