@@ -40,7 +40,7 @@ import Recording from "components/common/recording";
 import AudioPlayer from "./AudioPlayer";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { onRecord, stopRecording } from "func/home/record";
+import { cancelRecording, onRecord, stopRecording } from "func/home/record";
 import { Audio } from "expo-av";
 
 type chatProps = {
@@ -89,6 +89,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const [audioLoader,setAudioLoader]=useState(false);
+  const soundRef = useRef<any>(null);
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -258,8 +259,11 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
   }
-  const onCancelRecord = () => {
+  const onCancelRecord = async() => {
     setIsRecording(false)
+    await cancelRecording(rec,soundRef?.current);
+    setRec(null);
+    setRecEnabled(false);
   }
 
   const onStopRecord = (d:number) => {
