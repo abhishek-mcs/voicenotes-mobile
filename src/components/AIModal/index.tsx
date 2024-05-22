@@ -277,7 +277,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       onSuccess:(data)=>{
         const mes=data?.data?.related_messages
         const id=mes[mes.length-1]?.id
-        tempChats.related_messages[tempChats?.related_messages?.length-1]={ question:mes[mes?.length-1]?.question, question_url:file, answer: "Typing" ,answer_url:'file://'}
+        tempChats.related_messages[tempChats?.related_messages?.length-1]={ id:mes[mes?.length-1]?.id,question:mes[mes?.length-1]?.question, question_url:mes[mes?.length-1]?.question_url, answer: "Typing" ,answer_url:'file://'}
         setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
         scrollToEnd()
         getAnswer.mutate({id},{

@@ -20,7 +20,8 @@ export default ({isAI=false,url=''}) => {
 
   useEffect(() => {
     const loadSound = async () => {
-     signedURL.mutateAsync(url,{
+    if (!!url)
+     signedURL.mutate(url,{
         onSuccess:async(data:any)=>{
           const uri=data?.request?.responseURL
           if (uri) {
@@ -34,16 +35,6 @@ export default ({isAI=false,url=''}) => {
     };
 
     loadSound();
-
-    return () => {
-      if (sound) {
-        if(isPlaying){
-          sound?.pauseAsync()
-          setIsPlaying(false)
-        }
-        sound.unloadAsync();
-      }
-    };
   }, []);
 
   useEffect(()=>{
