@@ -8703,11 +8703,6 @@ react-native-animatable@^1.4.0:
   dependencies:
     prop-types "^15.8.1"
 
-react-native-audiowaveform@^2.0.5:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/react-native-audiowaveform/-/react-native-audiowaveform-2.0.5.tgz#fb60fe92a81433d5394c770c1bebd81f0092420d"
-  integrity sha512-i/8RAgBGcO8EOwY8j+y56Y6tr98dU+oYWRbuujYAvcxUUYpI2knnOkVxI7d2QiOMGt2+AqesynHq031brhB1tQ==
-
 react-native-gesture-handler@~2.14.0:
   version "2.14.1"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.14.1.tgz#930640231024b7921435ab476aa501dd4a6b2e01"
