@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
@@ -76,6 +77,43 @@ export function useUploadRecord(){
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useUploadChatRecord(){
+    return useMutation('chat-upload-audio', async(data:any) => {
+        const uri = data.audio;
+        const filetype = uri.split(".").pop();
+        const filename = uri.split("/").pop();
+
+        const formData:any = new FormData();
+        formData.append("audio", {
+          uri: uri,
+          name: filename,
+          type: `audio/${filetype}`,
+        });
+        formData.append("duration", data.duration.toString());
+        const endPoint =`/ai-chat-thread/${data?.id?data?.id+'/':''}audio`;
+        console.log(endPoint);
+        return axiosApi.post(endPoint,formData,{
+            headers: {"Content-Type": "multipart/form-data"}
+        })
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useVoiceChatResponse(){
+    return useMutation('voice-chat-response', (data:any)=> {
+        return axiosApi.get(`/ai-chat-thread/${data?.id}/audio-answer`)
     },
     {
         onError:(error:any)=>{
@@ -193,6 +231,17 @@ export function useSignedUrl(){
     {
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useSignedUrlForChat(){
+    return useMutation('chat-audio-signed-url',(url:string) => {
+        return axios.get(url)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'chat-audio-signed-url');
         }
     })
 }

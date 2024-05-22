@@ -34,6 +34,13 @@
         "track": "internal",
         "changesNotSentForReview" : false
       }
+    },
+    "staging": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview" : false
+      }
     }
   }
 }
