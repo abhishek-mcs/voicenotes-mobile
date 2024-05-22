@@ -28,7 +28,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
                 onStopRecord(newDuration);
                 return 0;
-              }else if(newDuration>=3600000&&!!token){
+              }else if(newDuration>=1800000&&!!token){
                 onStopRecord(newDuration);
                 return 0
               }
