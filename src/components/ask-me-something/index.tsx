@@ -41,7 +41,7 @@ export default ({onClose=()=>{}})=>{
         // }, 10000);
     }
     useEffect(()=>{
-        const keyShow=Keyboard.addListener("keyboardDidShow",()=>setKeyboardShown(true))
+        const keyShow=Keyboard.addListener(isIOS?"keyboardWillShow":"keyboardDidShow",()=>setKeyboardShown(true))
         const keyHide=Keyboard.addListener("keyboardDidHide",()=>setKeyboardShown(false))
         return ()=>{
             keyShow.remove()
