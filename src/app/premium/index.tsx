@@ -5,7 +5,7 @@ import { settingsSvg } from "assets/svg/settingsSvg"
 import Touchable from "components/common/Touchable"
 import { useRouter } from "expo-router"
 import { useEffect, useState } from "react"
-import { ActivityIndicator, Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
+import { ActivityIndicator, Alert, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useDispatch, useSelector } from "react-redux"
@@ -28,6 +28,11 @@ export default (props:any) => {
   const dispatch=useDispatch()
   const queryClient=useQueryClient()
 
+  useEffect(()=>{
+    StatusBar.setHidden(true)
+    return ()=>StatusBar.setHidden(false)
+  },[])
+  
   const onUpgrade = async() => {
     try {
       setIsLoading(true)
@@ -76,7 +81,6 @@ export default (props:any) => {
     </Touchable>
       <View style={styles.container}>
         <Image source={premium} style={styles.img} resizeMode="contain"/>
-        <ScrollView style={styles.subContainer} showsVerticalScrollIndicator={false}>
           <Text style={styles.title}>Upgrade for more</Text>
           <View style={styles.descView}>
             <SvgXml xml={iapSvg.done}/>
@@ -86,11 +90,12 @@ export default (props:any) => {
             <SvgXml xml={iapSvg.done}/>
             <Text style={styles.desc}>Smartest AI models (GPT-4o, Claude Opus)</Text>
           </View>
+        <ScrollView style={styles.subContainer} showsVerticalScrollIndicator={false}>
           <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
           <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
           <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title="Upgrade" isLoading={isLoading}/>
         
-        <Text style={styles.footerText}>
+        <Text style={[styles.footerText]}>
         This subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. If you have used a trial subscription previously, payment will be charged to your Apple ID account at the confirmation of purchase.
         </Text>
         </ScrollView>
@@ -128,17 +133,16 @@ const Btn = ({title,type,price,onPress,underlay,selected=false,isLoading=false}:
   }
   </TouchableHighlight>
 
-
 const styles = StyleSheet.create({
   main:{flex:1,backgroundColor:'#fff'},
   container:{flex:1},
-  subContainer:{flex:2,padding:16,paddingVertical:0},
-  img:{width:'80%',height:screenHeight/3,alignSelf:'center',marginTop:20},
+  subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0},
+  img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},
   title:{fontSize:20,fontFamily:'Primary-Semibold',color:'#222',marginBottom:20,alignSelf:'center'},
-  descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:17},
+  descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:screenHeight>690?17:12},
   desc:{marginLeft:9,fontSize:14,fontFamily:'Primary-Regular',color:'#222',lineHeight:22,marginTop:-4},
   border:{borderWidth:1,borderColor:'rgba(229, 229, 229, 0.9)'},
-  btnFilled:{height:56,width:'100%',backgroundColor:'#0E3934',justifyContent:'center',marginVertical:20,borderWidth:0},
+  btnFilled:{height:56,width:'100%',backgroundColor:'#0E3934',justifyContent:'center',marginVertical:screenHeight>690?20:14,borderWidth:0},
   btn:{minHeight:48,width:'100%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:16,backgroundColor:'#fff',borderRadius:8},
   btnContent:{marginTop:4,flexDirection:'row',alignItems:'center'},
   btnText:{fontSize:14,fontFamily:'Primary-Medium',color:'#222'},
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
   btnPrice:{fontSize:14,fontFamily:'Primary-Medium',color:'#222'},
   btnPriceType:{color:Colors.grey,fontSize:14,fontFamily:'Primary-Medium',marginLeft:4},
   footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:11,lineHeight:15,textAlign:'center',marginBottom:4},
-  footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',bottom:-12},
+  footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',bottom:0,paddingVertical:10},
 })
 
 interface Props {

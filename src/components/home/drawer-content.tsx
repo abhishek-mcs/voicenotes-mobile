@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setHashTags,setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { useRouter } from "expo-router";
-import { isIOS } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
 import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
 import { setLang, setUserDetail } from "redux/reducers/userDetails";
@@ -62,6 +62,8 @@ export default (props:any) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        style={{marginBottom:20}}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: "flex-start" }}
         data={['All',...hashTags]}
         renderItem={({ item, index }) => (
@@ -163,6 +165,6 @@ const styles = StyleSheet.create({
     marginLeft: 0,
   },
   upgrade:{flexDirection:'row',alignItems:'center',padding:12,borderRadius:8,marginVertical:20,backgroundColor:Colors.primaryWithOpacity(0.05),overflow:'hidden'},
-  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#222'},
-  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:'#222',marginTop:4}
+  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#222',width:screenHeight>690?'76%':'74%'},
+  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:'#222',marginTop:4,width:screenHeight>690?'76%':'74%'}
 });
