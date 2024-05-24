@@ -1,4 +1,5 @@
 export const languages:any = {
+    '':'Detect language',
     'af': 'Afrikaans',
     'ar': 'Arabic',
     'hy': 'Armenian',

@@ -30,7 +30,7 @@ import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isIOS } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
 import { Redirect } from "expo-router";
@@ -109,8 +109,8 @@ export default ()=> {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
-    const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
-    soundRef.current=sound
+    // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
+    // soundRef.current=sound
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
   };
@@ -132,7 +132,7 @@ export default ()=> {
           }
         }
       );
-      await soundRef.current?.unloadAsync()
+      // await soundRef.current?.unloadAsync()
   };
 
   useEffect(()=>{
@@ -195,12 +195,14 @@ export default ()=> {
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
+          {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token}/>
           {isIOS&&!isListEmpty&&!!token && (
             <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
               <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
+          {/* </View> */}
           <FlatList
             ref={scrollRef}
             // bounces={false}
