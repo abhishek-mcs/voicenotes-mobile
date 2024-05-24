@@ -1,7 +1,7 @@
-export default ({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry}:any)=>{
+export default ({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d}:any)=>{
     setGenerateDummy({isUploading:true,audio:{data:{url:file,duration:d}}})
       uploadRecord.mutate(
-        {audio:file,duration:d,isRetry:isRetry},
+        {audio:file,duration:d},
         {
           onSuccess: async(r:any) => {
             await queryClient.invalidateQueries('all-recording');
