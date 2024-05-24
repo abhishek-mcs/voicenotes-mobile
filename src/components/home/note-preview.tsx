@@ -24,6 +24,7 @@ export default forwardRef(({
   note,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
+  const route=useRouter()
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
@@ -104,6 +105,14 @@ export default forwardRef(({
         }
       },
     })
+  }
+
+  const onGotoAddTag=()=>{
+    hideMoreOption()
+    setTimeout(() => {
+      const tags=note?.tags?.flatMap((tag:any)=>tag?.name)
+      route.push({pathname:"/add-tags/",params:{tagsArray:JSON.stringify(tags),recording_id:note?.id}})
+    }, 500);
   }
 
   const onCreate=async(type='summary')=>{
@@ -301,6 +310,18 @@ export default forwardRef(({
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
+        <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={home.addTag} />
+            <Text style={styles.menuItemTxt}>Add Tag</Text>
+          </View>
+        </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={onCopy}>
+            <View style={styles.row}>
+              <SvgXml xml={home.copy} />
+              <Text style={styles.menuItemTxt}>Copy note</Text>
+            </View>
+          </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />
@@ -311,12 +332,6 @@ export default forwardRef(({
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.retry} />
               <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
-            </View>
-          </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onCopy}>
-            <View style={styles.row}>
-              <SvgXml xml={home.copy} />
-              <Text style={styles.menuItemTxt}>Copy note</Text>
             </View>
           </MenuItem>
           {!!token&&<MenuItem style={styles.menuItem} onPress={onDelete}>
@@ -371,7 +386,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
         <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
       </Touchable>
       )}
-      <TextInput
+      {/* <TextInput
         style={styles.tagInput}
         placeholder="#Add tags"
         placeholderTextColor={Colors.greyWithOpacity(0.82)}
@@ -384,7 +399,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
         onSubmitEditing={()=>{
           setEditNote({...editNote,tags:[...editNote.tags,{name:tag?.replace(/ /g, '')}]})
           setTag('')
-          }} />
+          }} /> */}
       </View>
       <View style={styles.row}>
       <Touchable 
