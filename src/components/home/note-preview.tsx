@@ -22,6 +22,7 @@ import AiCreatedView from "./ai-created-view";
 
 export default forwardRef(({
   note,
+  onUploadRetry,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
   const [editNote,setEditNote] = useState(note)
@@ -127,11 +128,15 @@ export default forwardRef(({
   },[note])
 
   const onRetry=async()=>{
-    note.transcript=''
-    note.title=null
-    await addTranscript.mutateAsync(note?.id,{
-      onSuccess:async()=>await addTitleRecord.mutateAsync(note?.id)
-    })
+    if(!!note?.audio?.data?.url){
+      onUploadRetry()
+    }else{
+      note.transcript=''
+      note.title=null
+      await addTranscript.mutateAsync(note?.id,{
+        onSuccess:async()=>await addTitleRecord.mutateAsync(note?.id)
+      })
+    }
   }
 
   const onCopy=async()=>{
@@ -234,6 +239,7 @@ export default forwardRef(({
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
+          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
@@ -299,7 +305,7 @@ export default forwardRef(({
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMoreOption} disabled={!note?.transcript}>
+            <Touchable style={styles.menuPress} onPress={showMoreOption}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
