@@ -17,9 +17,12 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: ()=> void;
+  showAskMe: boolean;
+  setShowAskMe: (v:boolean)=>void;
+  onPause?:()=>void;
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel }: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause}: Props) => {
     const [duration, setDuration] = useState(0);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
     useEffect(() => {
@@ -66,6 +69,9 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
         duration={duration}
         onCancel={onCancel}
         onStopRecord={onStopRecord}
+        setShowAskMe={setShowAskMe}
+        onPause={onPause}
+        showAskMe={showAskMe}
         />
       )}
     </View>
@@ -76,7 +82,7 @@ const styles = StyleSheet.create({
   tab: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    height: 64,
+    minHeight: 64,
     borderRadius: 24,
     position: "absolute",
     left: 20,

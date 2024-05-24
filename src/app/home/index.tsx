@@ -114,10 +114,15 @@ export default ()=> {
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
   };
+
+  const onPause = async() => {
+    await rec?.pauseAsync()
+  };
+
   const onStopRecord = async(d:number) => {
     deactivateKeepAwake()
-    setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
+    setGenerateDummy({isUploading:true})
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
@@ -254,6 +259,9 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
+        showAskMe={showAskMe}
+        setShowAskMe={setShowAskMe}
+        onPause={onPause}
       />
     </SafeAreaView>
   );

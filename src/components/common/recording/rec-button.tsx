@@ -18,8 +18,8 @@ import { isIOS } from "utils/common";
       underlayColor={underlayColor}
     >
       <>
-        {icon&&<SvgXml xml={icon} style={{marginRight:isIOS?4:6}}/>}
-        <Text style={[tabItemText, { color }]}>{title}</Text>
+        {!!icon&&<SvgXml xml={icon} style={[!!title?{marginRight:isIOS?4:6}:{}]}/>}
+        {!!title&&<Text style={[tabItemText, { color }]}>{title}</Text>}
       </>
     </TouchableHighlight>
   );
