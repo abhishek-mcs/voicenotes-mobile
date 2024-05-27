@@ -196,10 +196,10 @@ export default ()=> {
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token}/>
           {!isListEmpty&&!!token && (
-            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} sharedTransitionTag="sharedTag" onTouchEnd={()=>router.push('/search/')}>
-            <Animatable.View style={{zIndex:30}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
-              <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
-            </Animatable.View>
+            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} sharedTransitionTag="sharedTag" onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
+              <Animatable.View style={{zIndex:1}} animation={isSearchVisible?fadeIn:fadeOut} duration={40} easing={Easing.ease} useNativeDriver={true}>
+                <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+              </Animatable.View>
             </Animated.View>
           )}
           {/* </View> */}

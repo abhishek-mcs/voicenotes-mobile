@@ -45,6 +45,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
     }
 
     const goto=(id:number)=>{
+      Keyboard.dismiss();
       setSearchHistory.mutate(searchText)
       router.push({pathname:"/RelatedNotes/",params:{id}})
       clearSearch()
@@ -95,13 +96,16 @@ export default ({setHide=(v:boolean)=>{}})=>{
             </Animated.View>
             <Text onPress={()=>router.back()} suppressHighlighting={true} style={{color:'#155CE5',fontFamily:'Primary',fontSize:14,padding:10}}>Cancel</Text>
           </View>
-                  <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
+                  <ScrollView 
+                    showsVerticalScrollIndicator={false} 
+                    style={{overflow:'hidden'}} 
+                    keyboardShouldPersistTaps="handled">
                     {(searchText==''&&searchHistoryList?.length!=0)?
                     (<View style={{paddingVertical:12}}>
                       <Text style={styles.recent}>Recent searches</Text>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
-                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
+                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);Keyboard.dismiss();}}
                         style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
                           <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
