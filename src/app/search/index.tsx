@@ -1,86 +1,69 @@
-import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, TouchableHighlight, View } from "react-native"
+import { InteractionManager, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet, TextInput, TouchableHighlight, View } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
 import Colors from "assets/Colors";
 import { Text } from "react-native";
 import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
-import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
-import * as Animatable from "react-native-animatable"
-import CircularLoader from "../loaders/circular-loader";
+import CircularLoader from "components/common/loaders/circular-loader";
+import Animated from "react-native-reanimated";
+import { isIOS } from "utils/common";
+
 const {debounce}=require("lodash")
 
-const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
-const heightIn = {
-  from: {
-    height: 0,
-    borderColor:Colors.darkWithOpacity(0)
-  },
-  to: {
-    height: 40,
-    borderColor:Colors.darkWithOpacity(0.1)
-  },
-};
-const heightOut = {
-  from: {
-    height: 40,
-    borderColor:Colors.darkWithOpacity(0.1)
-  },
-  to: {
-    height: 0,
-    borderColor:Colors.darkWithOpacity(0)
-  },
-};
-const fadeIn={
-  from:{opacity:0},to:{opacity:1}
-}
-const fadeOut={
-  from:{opacity:1},to:{opacity:0}
-}
-
-export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,style={}})=>{
+export default ({setHide=(v:boolean)=>{}})=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter()
     const ref=useRef<TextInput>(null)
 
-    // const searchHistoryData=useSearchHistory()
-    // const setSearchHistory=useSetSearchHistory()
-    // const deleteSearchHistory=useDeleteSearchHistory()
-    // const getSearchData=useSearch(searchQuery);
+    const searchHistoryData=useSearchHistory()
+    const setSearchHistory=useSetSearchHistory()
+    const deleteSearchHistory=useDeleteSearchHistory()
+    const getSearchData=useSearch(searchQuery);
 
-    // const searchHistoryList=searchHistoryData.data?.data||[]
-    // const searchData=getSearchData.data?.data||[]
+    const searchHistoryList=searchHistoryData.data?.data||[]
+    const searchData=getSearchData.data?.data||[]
 
-    // const debouncedSearch = debounce((q:string) => {
-    //   setSearchQuery(q);
-    // }, 500); 
+    const debouncedSearch = debounce((q:string) => {
+      setSearchQuery(q);
+    }, 500); 
 
     const onSearch=(q:string)=>{
-    //   setSearchText(q)
-    //   debouncedSearch(q);
-    //   q==''&&setSearchQuery('')
+      setSearchText(q)
+      debouncedSearch(q);
+      q==''&&setSearchQuery('')
     }
     
-    // const clearSearch=()=>{
-    //   setSearchText('')
-    //   setSearchQuery('')
-    //   setHide(true)
-    //   Keyboard.dismiss()
-    // }
+    const clearSearch=()=>{
+      setSearchText('')
+      setSearchQuery('')
+      setHide(true)
+      Keyboard.dismiss()
+    }
 
-    // const goto=(id:number)=>{
-    //   setSearchHistory.mutate(searchText)
-    //   router.push({pathname:"/RelatedNotes/",params:{id}})
-    //   clearSearch()
-    // }
+    const goto=(id:number)=>{
+      setSearchHistory.mutate(searchText)
+      router.push({pathname:"/RelatedNotes/",params:{id}})
+      clearSearch()
+    }
+    useEffect(()=>{
+      InteractionManager.runAfterInteractions(() => {
+        if (ref?.current) {
+            ref.current?.focus()
+        }
+      })
+      return ()=>Keyboard.dismiss()
+      },[ref.current])
+
     return (
-        <View style={[styles.container,style]}>
-            <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box]}>
+        <SafeAreaView>
+          <View style={{flexDirection:'row',marginTop:isIOS?10:50,alignItems:'center',marginBottom:4}}>
+            <Animated.View style={[styles.box]} sharedTransitionTag="sharedTag">
               <SvgXml xml={commonSvg.search} style={[{paddingHorizontal:8}]} />
-              <View style={{flex:1}}>
+              <View style={{flex:1}} >
                 <TextInput
                   onFocus={() => {setIsFocused(true);}}
                   onBlur={() => setIsFocused(false)}
@@ -96,29 +79,29 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                   autoCorrect={false}
                   autoComplete="off"
                   ref={ref}
-                  editable={false}
                 />
               </View>
-              {searchText != "" ? (
+              {searchText.length>0 && (
                 <Pressable
                   onPress={() => {
                     setSearchQuery("")
                     setSearchText("")
                   }}
+                  style={{marginLeft:8}}
                 >
-                  <AnimSVG xml={commonSvg.searchClose} duration={150} animation={isSearchVisible?"fadeIn":"fadeOut"}/>
+                  <SvgXml xml={commonSvg.searchClose}/>
                 </Pressable>
-              ) : null}
-            </Animatable.View>
-            {/* {((searchHistoryList?.length!=0||searchText!='')&&!hideView)&&
-              <View style={styles.modal} onTouchStart={(e)=>e?.stopPropagation()}>
+              )}
+            </Animated.View>
+            <Text onPress={()=>router.back()} suppressHighlighting={true} style={{color:'#155CE5',fontFamily:'Primary',fontSize:14,padding:10}}>Cancel</Text>
+          </View>
                   <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
                     {(searchText==''&&searchHistoryList?.length!=0)?
                     (<View style={{paddingVertical:12}}>
                       <Text style={styles.recent}>Recent searches</Text>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
-                        onPressIn={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
+                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
                         style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
                           <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
@@ -149,8 +132,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                     <CircularLoader/>
                   </View>}
                   </ScrollView>
-            </View>} */}
-          </View>
+          </SafeAreaView>
     )
 }
 
@@ -160,34 +142,34 @@ const styles=StyleSheet.create({
         alignItems:'center',
         marginTop:0,
         marginHorizontal:0,
-        marginBottom:0,zIndex:1
+        marginBottom:0
     },
     box:{
-        flex:1,
+        flex:5,
         flexDirection:'row',
         paddingLeft:17,
         paddingRight:16,
+        marginLeft:16,
         height:40,
         borderRadius:12,
         alignItems:'center',
         // borderWidth:1,
         backgroundColor:Colors.darkWithOpacity(0.05),
-        zIndex:10
     },
-    modal:{
-      flex:1,
-      width:'100%',
-      height:200,
-      backgroundColor:'#fff',
-      position:'absolute',
-      top:45,borderRadius:12,
-      zIndex:100,
-      shadowColor: "#00000026",
-      shadowOpacity: 1,
-      shadowOffset: { width: 0, height: 0.5 },
-      shadowRadius: 1.5,
-      elevation: 10,
-    },
+    // modal:{
+    //   flex:1,
+    //   width:'100%',
+    //   height:200,
+    //   backgroundColor:'#fff',
+    //   position:'absolute',
+    //   top:45,borderRadius:12,
+    //   zIndex:100,
+    //   shadowColor: "#00000026",
+    //   shadowOpacity: 1,
+    //   shadowOffset: { width: 0, height: 0.5 },
+    //   shadowRadius: 1.5,
+    //   elevation: 10,
+    // },
     row:{
       flexDirection:'row',
       alignItems:'center',

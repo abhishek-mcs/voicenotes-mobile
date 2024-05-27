@@ -33,12 +33,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
-import { Redirect } from "expo-router";
+import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import onUploadRecord from "func/home/on-upload-record";
+import Animated from "react-native-reanimated";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -194,10 +195,12 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token}/>
-          {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
-              <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+          {!isListEmpty&&!!token && (
+            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} sharedTransitionTag="sharedTag" onTouchEnd={()=>router.push('/search/')}>
+            <Animatable.View style={{zIndex:30}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
+              <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
+            </Animated.View>
           )}
           {/* </View> */}
           <FlatList
@@ -235,8 +238,8 @@ export default ()=> {
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
             ):!!token?<AboutProduct disable={true} />:null}
-            automaticallyAdjustKeyboardInsets
-            keyboardShouldPersistTaps="handled"
+            // automaticallyAdjustKeyboardInsets
+            // keyboardShouldPersistTaps="handled"
           />
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
