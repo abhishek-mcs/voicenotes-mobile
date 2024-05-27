@@ -8,6 +8,8 @@ import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistor
 import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import * as Animatable from "react-native-animatable"
+import CircularLoader from "../loaders/circular-loader";
+import { isIOS } from "utils/common";
 const {debounce}=require("lodash")
 
 const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
@@ -109,7 +111,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                 </Pressable>
               ) : null}
             </Animatable.View>
-            {(searchHistoryList?.length!=0&&!hideView)&&
+            {((searchHistoryList?.length>0||searchText.length>0)&&!hideView)&&
               <View style={styles.modal}>
                   <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
                     {(searchText==''&&searchHistoryList?.length!=0)?
@@ -117,7 +119,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                       <Text style={styles.recent}>Recent searches</Text>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
-                        onPressIn={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
+                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
                         style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
                           <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
@@ -142,12 +144,8 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                       <Text style={styles.txt}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
                     :getSearchData?.isLoading?
-                    <View style={styles.result}>
-                      <Skeleton animation="wave" style={styles.skeleton}/>
-                      <Skeleton animation="wave" style={styles.skeleton}/>
-                      <Skeleton animation="wave" style={styles.skeleton}/>
-                      <Skeleton animation="wave" style={styles.skeleton}/>
-                      <Skeleton animation="wave" style={styles.skeleton}/>
+                    <View style={[styles.result,{alignItems:'center',marginTop:30}]}>
+                      <CircularLoader/>
                     </View>
                     :<Text style={styles.noData}>No data found</Text>}
                   </ScrollView>
@@ -184,7 +182,7 @@ const styles=StyleSheet.create({
       position:'absolute',
       top:45,borderRadius:12,
       zIndex:10,
-      shadowColor: "#00000026",
+      shadowColor: isIOS?"#00000026":'rgba(0, 0, 0, 0.6)',
       shadowOpacity: 1,
       shadowOffset: { width: 0, height: 0.5 },
       shadowRadius: 1.5,

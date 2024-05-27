@@ -194,8 +194,8 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token}/>
-          {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
+          {!isListEmpty&&!!token && (
+            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1,marginTop:10}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
               <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
