@@ -43,7 +43,7 @@ export default (props:any) => {
       const tags=getTags?.data?.data?.flatMap((t:any)=>t?.name)??[];
       dispatch(setHashTags(tags))
     }
-  }, [getTags?.isSuccess]);
+  }, [getTags?.data?.data]);
 
   const handleTagPress = (tag: string) => {
     dispatch(setTagsFilter(tag))
@@ -68,18 +68,18 @@ export default (props:any) => {
         data={['All',...hashTags]}
         renderItem={({ item, index }) => (
           <TouchableHighlight onPress={() => handleTagPress(item)} style={[styles.btn,{
-            backgroundColor: item==currentTag?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
+            backgroundColor: item==hashFilter?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
             <><SvgXml xml={
               item=='All'?
-              drawerSvg.home?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
+              drawerSvg.home?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):'#717171')
               :item=='starred'?
-              drawerSvg.star?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
-              :drawerSvg.hash?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):Colors.grey)
+              drawerSvg.star?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):'#717171')
+              :drawerSvg.hash?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
             } />
             <Text
               style={[
                 styles.btnTxt,
-                { color: item==currentTag ? Colors.darkWithOpacity(1) : Colors.grey },
+                { color: item==hashFilter ? Colors.darkWithOpacity(1) : Colors.grey },
               ]}
             >{item}</Text></>
           </TouchableHighlight>

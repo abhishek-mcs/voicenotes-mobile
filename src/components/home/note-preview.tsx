@@ -13,12 +13,13 @@ import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
+import { setTagsFilter } from "redux/reducers/hashSlice";
 
 export default forwardRef(({
   note,
@@ -34,6 +35,7 @@ export default forwardRef(({
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
   const [createType,setCreateType]=useState('summary')
+  const dispatch=useDispatch()
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
   
@@ -239,7 +241,14 @@ export default forwardRef(({
           :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={[styles.row,{flexWrap:'wrap'}]}>
-          {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
+          {note?.tags?.map((tag:any,i:number)=>
+          <Text 
+            key={i} 
+            style={styles.tag} 
+            onPress={()=>dispatch(setTagsFilter(tag?.name))}
+            suppressHighlighting>
+              {'#'+tag?.name}
+          </Text>)}
           </View>}
 
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
@@ -381,11 +390,11 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>
       <View style={[styles.row,{flexWrap:'wrap',width:'55%',alignSelf:'center'}]}>
-      {editNote?.tags?.map((tag:any,indx:number)=>
+      {/* {editNote?.tags?.map((tag:any,indx:number)=>
       <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={styles.tagWrap}>
         <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
       </Touchable>
-      )}
+      )} */}
       {/* <TextInput
         style={styles.tagInput}
         placeholder="#Add tags"

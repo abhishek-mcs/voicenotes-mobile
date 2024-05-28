@@ -73,7 +73,7 @@ export default () => {
             <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
-            <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
+            <Touchable onPress={onDone} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary-Semibold',fontSize:16,color:'#007AFF'}}>Done</Text>
             </Touchable>
           </View>
