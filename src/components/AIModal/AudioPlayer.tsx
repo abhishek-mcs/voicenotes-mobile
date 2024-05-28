@@ -65,6 +65,16 @@ export default ({isAI=false,url=''}) => {
       }else if((duration-position)<=100) {
         await sound.replayAsync()
       }else {
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        interruptionModeIOS: 2,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        interruptionModeAndroid: 2,
+        playThroughEarpieceAndroid: false,
+        staysActiveInBackground:true,
+      });
         await sound.playAsync();
       }
     }

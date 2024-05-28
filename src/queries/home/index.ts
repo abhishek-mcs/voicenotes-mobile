@@ -64,6 +64,7 @@ export function useSaveEditedNote(recording_id:any){
 export function useUploadRecord(){
     return useMutation('upload-audio', async(data:any) => {
         const uri = data.audio;
+        console.warn(data.audio);
         const filetype = uri.split(".").pop();
         const filename = uri.split("/").pop();
 

@@ -38,6 +38,7 @@ import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
+import onUploadRecord from "func/home/on-upload-record";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -115,25 +116,20 @@ export default ()=> {
     activateKeepAwakeAsync()
   };
   const onStopRecord = async(d:number) => {
-    deactivateKeepAwake()
-    setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
-      uploadRecord.mutate(
-        {audio:file,duration:d},
-        {
-          onSuccess: async(r) => {
-            await queryClient.invalidateQueries('all-recording');
-            setGenerateDummy(null)
-            scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id);
-          }
-        }
-      );
+    onUploadRecord({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
       // await soundRef.current?.unloadAsync()
   };
+
+  const onUploadRetry = () => {
+    activateKeepAwakeAsync();
+    const d=generateDummy?.audio?.data?.duration||0
+    const file = generateDummy?.audio?.data?.url||"";
+    onUploadRecord({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry:true})
+  }
 
   useEffect(()=>{
     try{
@@ -171,6 +167,7 @@ export default ()=> {
         setPlay={setPlay}
         audioLoading={audioLoading}
         setAudioLoading={setAudioLoading}
+        onUploadRetry={onUploadRetry}
       />
     ),
     [isPlay,play,recordingList,audioLoading]
@@ -197,8 +194,8 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token}/>
-          {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
+          {!isListEmpty&&!!token && (
+            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1,marginTop:10}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
               <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
