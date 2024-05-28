@@ -499,8 +499,8 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderRadius: 12,
-    marginTop:25,
-    marginLeft:10
+    // marginTop:25,
+    // marginLeft:10
   },
   menuPress: {
     height: 25,
