@@ -13,7 +13,7 @@ export default ({text="Creating transcript from your voice",size=16,style={}}:{t
 )
 
 const styles = StyleSheet.create({
-    row:{flexDirection:'row',alignItems:'center',position:'relative'},
-    text:{color:'#58a942',fontFamily:'Primary',fontSize:16,lineHeight:26,marginLeft:6},
+    row:{flexDirection:'row',alignItems:'center',position:'relative',width:'92%'},
+    text:{color:'#58a942',fontFamily:'Primary',fontSize:16,marginLeft:6,lineHeight:24},
     lottie:{width:40,height:35,bottom:-2,right:4}
 })

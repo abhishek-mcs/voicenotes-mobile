@@ -7,6 +7,8 @@ import {
   Text,
   KeyboardAvoidingView,
   ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,8 +21,6 @@ import { home } from "assets/svg/home";
 import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
-
-const logo = require("assets/images/logo.png");
 
 export default () => {
   const router = useRouter();
@@ -59,22 +59,24 @@ export default () => {
     }
 
   return (
+    <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "white",
+        backgroundColor: "#f4f6f6",
       }}
     >
-        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:54,padding:16}}>
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
 
-      <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
+      {/* <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
-        </View>
+        </View> */}
+        <ScrollView contentContainerStyle={{flex:1,justifyContent:'center'}}>
       <Text
         style={{
           alignSelf: "center",
@@ -82,7 +84,7 @@ export default () => {
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
-          marginTop: 24,
+          marginTop: 48,
         }}
       >
         Create an account
@@ -90,7 +92,7 @@ export default () => {
       <TextField
         // forwardedRef={inputref}
         style={{ marginTop: isIOS?36:24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
         value={name|| ""}
         textContentType="familyName"
         // label={"Enter your email"}
@@ -105,7 +107,7 @@ export default () => {
       />
       <TextField
         forwardedRef={inputRef}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:8 , backgroundColor: "white"  }}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -128,8 +130,8 @@ export default () => {
         returnKeyType={"next"}
         onSubmitEditing={continueClicked}
         placeholder="Password"
-        style={{ marginTop: 0, backgroundColor: "white" }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0  }}
+        style={{ marginTop: 0}}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:8, backgroundColor: "white"  }}
         autoCapitalize="none"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
       />
@@ -202,6 +204,8 @@ export default () => {
           </Text>
         </Pressable>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };

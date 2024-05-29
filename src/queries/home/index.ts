@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
@@ -24,9 +25,9 @@ export function useToggleStar(recording_id:number){
     return useMutation('toggle-star', (p?:any) => {
         return axiosApi.patch(`/recordings/${recording_id}/star`)
     },
-    {   onSuccess:()=>{
-            queryClient.invalidateQueries('all-recording')
-            queryClient.invalidateQueries('all-tags')
+    {   onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording')
+            await queryClient.invalidateQueries('all-tags')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -36,12 +37,12 @@ export function useToggleStar(recording_id:number){
 
 export function useCreate(){
     const queryClient = useQueryClient();
-    return useMutation('ai-create', (data:{recording_id:number,type:string}) => {
+    return useMutation('ai-create', (data:any) => {
         return axiosApi.post(`/ai-create`, data);
     },
     {
-        onSuccess:()=>{
-            queryClient.invalidateQueries('all-recording')
+        onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -84,15 +85,52 @@ export function useUploadRecord(){
     })
 }
 
+export function useUploadChatRecord(){
+    return useMutation('chat-upload-audio', async(data:any) => {
+        const uri = data.audio;
+        const filetype = uri.split(".").pop();
+        const filename = uri.split("/").pop();
+
+        const formData:any = new FormData();
+        formData.append("audio", {
+          uri: uri,
+          name: filename,
+          type: `audio/${filetype}`,
+        });
+        formData.append("duration", data.duration.toString());
+        const endPoint =`/ai-chat-thread/${data?.id?data?.id+'/':''}audio`;
+        console.log(endPoint);
+        return axiosApi.post(endPoint,formData,{
+            headers: {"Content-Type": "multipart/form-data"}
+        })
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useVoiceChatResponse(){
+    return useMutation('voice-chat-response', (data:any)=> {
+        return axiosApi.get(`/ai-chat-thread/${data?.id}/audio-answer`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
 export function useDeleteRecording(recording_id:number){
     const queryClient=useQueryClient()
     return useMutation('delete-recording', (p?:any)=> {
         return axiosApi.delete(`/recordings/${recording_id}`)
     },
     {
-        onSuccess:()=>{
-          queryClient.invalidateQueries('all-recording')
-          queryClient.invalidateQueries('all-tags')
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+          await queryClient.invalidateQueries('all-tags')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
@@ -100,11 +138,35 @@ export function useDeleteRecording(recording_id:number){
     })
 }
 
-export function useAddTranscript(){
+export function useDeleteFormattedNote(id:number){
+    const queryClient=useQueryClient()
+    return useMutation('delete-recording', (p?:any)=> {
+        return axiosApi.delete(`/ai-create/${id}`)
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+          await queryClient.invalidateQueries('all-tags')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useAddTranscript(doGenerateTitle=false){
+    const queryC=useQueryClient()
+    const addTitle=useAddTitle()
+    let rec_id:number;
     return useMutation('add-transcript',(recording_id:number) => {
+        doGenerateTitle&&(rec_id=recording_id)
         return axiosApi.patch(`/recordings/${recording_id}/transcript`)
     },
     {
+        onSuccess:async()=>{
+            await queryC.invalidateQueries('all-recording')
+            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -112,10 +174,15 @@ export function useAddTranscript(){
 }
 
 export function useAddTitle(){
+    const queryClient=useQueryClient();
     return useMutation('add-title',(recording_id:number) => {
         return axiosApi.patch(`/recordings/${recording_id}/title`)
     },
     {
+        onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording');
+            await queryClient.invalidateQueries('streaks');
+        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -133,8 +200,10 @@ export function useGetTags(){
     })
 }
 
-export function useGetUserData(){
+export function useGetUserData(token:any){
+   
     return useQuery('user-data',(p?:any)=> {
+        if(!!token)
         return axiosApi.get(`/auth/me`)
     },
     {
@@ -166,6 +235,17 @@ export function useSignedUrl(){
     })
 }
 
+export function useSignedUrlForChat(){
+    return useMutation('chat-audio-signed-url',(url:string) => {
+        return axios.get(url)
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'chat-audio-signed-url');
+        }
+    })
+}
+
 export function useSuggestions(){
     return useQuery('suggestions',(p?:any) => {
         return axiosApi.get(`/recordings/ask-ai/suggestions`)
@@ -188,7 +268,38 @@ export function useAskSomething(){
     })
 }
 
-export function useAskAI(isGuest:boolean=true){
+export function useAskAIHistory(tags?:string){
+    const logout =useLogout()
+    return useInfiniteQuery(['ask-ai-history'],async ({pageParam=1})=>{
+        return await axiosApi.get('/ai-chat-thread');
+    },{
+        getNextPageParam:(lastPage)=>{
+            return lastPage.data?.links?.next ? lastPage.data.meta?.current_page + 1 : undefined;
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useGetAskChat(){
+    return useMutation('get-chat',(data?:any) => axiosApi.get(`/ai-chat-thread/${data?.id}`),  
+        {
+            onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+        })
+}
+
+export function useDeleteAskHistory(){
+    return useMutation('get-chat',(data?:any) => axiosApi.delete(`/ai-chat-thread/${data?.id}`),  
+        {
+            onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+        })
+}
+export function useAskAI(isGuest:boolean=true,post:boolean=true){
     return useMutation('chat',(data?:any) => {
         const {question="",id=null} = data;
         const params={question}
@@ -197,8 +308,21 @@ export function useAskAI(isGuest:boolean=true){
             return axiosApi.get(endPoints,{params: {question}});
         }else{
             const endPoints = isGuest?'/recordings/ask-ai':!!id?`/ai-chat-thread/${id}/messages`:'/ai-chat-thread';
-            return axiosApi.post(endPoints,params);
+            if(post) return axiosApi.post(endPoints,params);
+            else return axiosApi.get(endPoints);
         }
+    },
+    {
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useStreak(token:any){
+    return useQuery('streaks',(p?:any) => {
+    if(!!token)
+        return axiosApi.get(`/streaks`)
     },
     {
         onError:(error:any)=>{

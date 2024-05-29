@@ -1,105 +1,94 @@
 import { useNavigation } from "@react-navigation/native";
 import Colors from "assets/Colors";
-import { commonSvg } from "assets/svg/commonSvg";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { useState } from "react";
-import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
-import { Menu, MenuItem } from "react-native-material-menu";
+import { Keyboard, LayoutAnimation, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
-import { useLogout } from "queries/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
-import { useGetUserData } from "queries/home";
+import { isIOS, isIOSSmall } from "utils/common";
+import { useStreak } from "queries/home";
+import Streaks from "components/streaks";
+import formatBigNumber from "utils/formatBigNumber";
+import { useMemo, useState } from "react";
+import * as Haptics from 'expo-haptics';
 
-export default ({isLogged=true}) => {
+export default ({isLogged=true,}:any) => {
   const router:any=useNavigation()
-  const [showMenu,setShowMenu]=useState(false)
-  const {hashTags} = useSelector((state: RootState) => state.hash);
+  const {token}=useSelector((state:RootState)=>state?.userDetails)
+  const [streakVisible,setStreakVisible]=useState(false)
 
-  const logout=useLogout()
-  const data=useGetUserData();
-  const photo_url=data?.data?.data?.photo_url||null;
-  const onLogout = () =>{
-    setShowMenu(false)
-    Alert.alert('',"Are you sure you want to log out?",
-    [{
-      text:"Cancel",
-      style:"cancel"
-    },{
-      text:"Yes",
-      onPress:async()=>await logout.mutateAsync('')
-    }])
+  const streaks=useStreak(token)
+
+  const toggleStreaks = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setStreakVisible(!streakVisible);
+  };
+  const openDrawer=()=>{
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    router?.openDrawer()
   }
   return (
-    <View style={{ height: 53 }} onTouchStart={()=>Keyboard.dismiss()}>
-      <View
-        style={styles.container}
-      >
-       {hashTags?.length!=0?
-       <Touchable style={{ flex: 1 }} onPress={()=>router?.openDrawer()}>
-          <SvgXml xml={home.hash} />
-        </Touchable>
-        :<View style={{flex:1}}/>}
-        <SvgXml xml={home.logo} style={{ flex: 1 }} />
-        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+    <View style={{height: streakVisible?'auto':30}} onTouchStart={()=>Keyboard.dismiss()}>
+      <View style={styles.container}>
+       <View style={{flexDirection:'row',alignSelf:'center'}}>
+       {token&&
+       <Touchable style={styles.drawer} onPress={openDrawer} >
+          <SvgXml xml={home.drawer} />
+        </Touchable>}
+        </View>
+        <View style={{  justifyContent: "flex-start" }}>
 
-     {isLogged? <Menu
-          visible={showMenu}
-          anchor={
-            <Touchable style={styles.menuPress} onPress={()=>setShowMenu(true)}>
-              {photo_url?
-              <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
-              :<SvgXml xml={commonSvg.profileIcon}/>}
-            </Touchable>
-          }
-          onRequestClose={()=>setShowMenu(false)}
-          style={styles.menu}
-        >
-          <MenuItem style={styles.menuItem} onPress={onLogout}>
-            <View style={[styles.row,{width:180}]}>
-              <Text style={styles.menuItemTxt}>Log out</Text>
-            </View>
-          </MenuItem>
-        </Menu>
-         : <Touchable
+     {isLogged?
+        <View onTouchStart={(e)=>e?.stopPropagation()}>
+        <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
+          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
+        </Touchable>
+        </View>
+        :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
+         <Touchable
+            onPress={() => {
+              route.navigate("/auth/signup");
+            }}
+            style={{marginRight:16}}
+            activeOpacity={0.6}
+          ><Text style={{ color: Colors.grey, fontFamily:'Primary-Semibold',fontSize:12,paddingLeft:12,paddingVertical:8 }}>Sign up</Text>
+          </Touchable>
+         <Touchable
+            activeOpacity={0.6}
             onPress={() => {
               route.navigate("/auth/login/loginPassword");
             }}
-            style={{ alignSelf: "flex-end" }}
-          ><Text style={{ color: Colors.grey,fontFamily:'Primary',fontSize:14 }}>Login</Text>
-          </Touchable>}
+            style={{ alignSelf: "flex-end",backgroundColor:'#222',borderRadius:16,padding:12,paddingVertical:8,height:35 }}
+          ><Text style={{ color: '#fff',fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
+          </Touchable>
+          </View>}
         </View>
       </View>
+      <Streaks data={streaks?.data?.data||[]} visible={streakVisible}/>
     </View>
   );
-};
+}
 
-const styles=StyleSheet.create({
-  row:{flexDirection:'row',alignItems:'center'},
-  container:{
+const styles = StyleSheet.create({
+  row: { flexDirection: "row", alignItems: "center" },
+  container: {
     flexDirection: "row",
-    flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
+    marginTop: isIOS ? 0 : 10,
+    marginBottom:8
   },
-  menu: {
-    borderRadius: 12,
-    marginTop:36,
-    marginLeft:10
+  drawer: {
+    alignSelf: "flex-start",
+    padding: 16,
+    paddingRight: 10,
+    paddingBottom: 0,
+    marginRight: 6,
+    marginLeft: -16,
+    marginTop: -24,
   },
-  menuPress: {
-    alignSelf: "flex-end",
-    justifyContent: "center",width:30,height:30,borderRadius:8
-  },
-  menuItem: { paddingHorizontal: isIOS? 16:8, borderRadius: 12, overflow: "hidden", },
-  menuItemTxt: {
-    fontFamily: "Primary",
-    fontSize: 14,
-    color: "#222",
-    lineHeight: 24,
-    marginLeft: 0,
-  },
-})
+  streak:{padding:12,marginTop:-12,marginRight:-12}
+});

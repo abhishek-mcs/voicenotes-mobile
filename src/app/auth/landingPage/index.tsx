@@ -1,73 +1,125 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View, Pressable, Platform, Animated,Text, TouchableOpacity,StyleSheet } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { useRouter } from "expo-router"
+import { SvgXml } from "react-native-svg"
+import { SafeAreaView } from "react-native"
+import { LandingSvg } from "assets/svg/LandingSvg"
+import Colors from "assets/Colors"
+import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
+import * as AuthSession from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
+import * as AppleAuth from "expo-apple-authentication";
+import { signInWithApple, signInWithGoogle } from "queries/auth"
+import { setAuthToken } from "services/api/axios-api"
+import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
+import { useQueryClient } from "react-query"
+import { useDispatch } from "react-redux"
+import { isAndroid, isIOS } from "utils/common"
+import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 
-const logo = require("assets/images/logo.png")
 WebBrowser.maybeCompleteAuthSession()
-
 
 export default () => {
   const router=useRouter()
   const [loginError, setLoginError] = useState()
+  const queryClient=useQueryClient()
+  const dispatch=useDispatch()
 
-  //Animations
-  const fadeAnim = useRef(new Animated.Value(0)).current
+  const {bounceValue,fadeAnim} = useAnimatedSlide()
 
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start()
-  }
-
-  const [bounceValue, setBounceValue] = useState(new Animated.Value(50))
-
-  //Is the animated view hidden or not?
-  const [isHidden, setIsHidden] = useState(true)
-
-  //I toggle the animated slide with this method
-  const toggleSlide = () => {
-    let toValue = 475 //How to get dynamic height of View to animate
-
-    if (isHidden) {
-      //Here I hide (slide down) the animated View container
-      toValue = 0
+  const onLoginSuccess=(data:any)=>{
+    if(!!data?.data){
+      const token = data?.data?.token
+      const userData = data?.data?.user
+      if (token) {
+        setAuthToken(token,false);
+        dispatch(setToken(token));
+        dispatch(setUserDetail(userData))
+        queryClient.resetQueries('all-recording')
+        queryClient.resetQueries('user-data')
+        router.replace("/home/");
+      }
     }
+  }
+//google login start
+const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuthRequest({
+  expoClientId: expoClientID,
+  iosClientId: iosGoogleClientID,
+  androidClientId: androidGoogleClientID,
+  scopes: ["profile", "email"],
+})
+const loginGoogle=signInWithGoogle()
+const signInGoogle=(token:any,params:any)=>{
+  const {code,state,prompt,authuser,scope}=params
+  loginGoogle.mutate({
+    access_token:token,
+    client_id:isIOS?iosGoogleClientID:androidGoogleClientID,
+    device:'mobile_app',code,state,prompt,authuser,scope},{
+    onSuccess:onLoginSuccess
+  })
+}
+  useEffect(()=>{
+    Linking.removeAllListeners('url')
+    if (googleResponse?.type === "success") {
+      signInGoogle(googleResponse?.params.id_token,googleResponse?.params)
+    }
+  },[googleResponse])
 
-    Animated.spring(bounceValue, {
-      toValue: toValue,
-      velocity: 10,
-      tension: 3,
-      friction: 6,
-      useNativeDriver: true,
-    }).start()
-    setIsHidden(!isHidden)
+  const onGoogleLogin=async()=>{
+   isAndroid&& Linking.addEventListener('url', (e) => {
+      if(e?.url.includes('com.app.voicenotes:/0authredirect'))
+        router.push("/auth/landingPage/")
+    })
+   const res= await googlePromptAsync().then(e=>{
+    console.log(e)
+   }).catch(e=>{
+    console.log(e)
+   })
+  }
+//google login end
+
+//apple login start
+  const loginApple = signInWithApple()
+
+  const signInAppleAPI=(token:any)=>{
+    loginApple.mutate({access_token:token},{
+      onSuccess:onLoginSuccess
+    })
   }
 
-  useEffect(() => {
-    toggleSlide()
-    fadeIn()
-  }, [])
+  const signInAppleAsync = async () => {
+    try {
+      const credential = await AppleAuth.signInAsync({
+        requestedScopes: [
+          AppleAuth.AppleAuthenticationScope.FULL_NAME,
+          AppleAuth.AppleAuthenticationScope.EMAIL,
+        ],
+      })
+      if (credential.email) dispatch(setEmail(credential.email))
+      signInAppleAPI(credential?.identityToken)
+      // signed in
+    } catch (e:any) {
+      if (e?.code === "ERR_CANCELED") {
+        // handle that the user canceled the sign-in flow
+      } else {
+        // handle other errors
+      }
+    }
+  }
+//apple login end
 
   return (
+    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
     <View
-      style={{paddingBottom:32,paddingHorizontal:24,backgroundColor:'#fff',flex:1}}
+      style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:'#fff',flex:1,justifyContent:'space-between'}}
     >
-      <View style={{flex:1}} />
-
-      <Animated.Image
-        style={[
-          {alignSelf:'center'},
-          {
-            // Bind opacity to animated value
-            opacity: fadeAnim,
-          },
-        ]}
-        source={logo}
-      />
+      <View>
+      <SvgXml xml={LandingSvg.logo} />
+      <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:'#000',marginTop:20}}>
+        A place to dump your thoughts.
+      </Text>
+      </View>
       <Animated.View
         style={[
           {
@@ -77,34 +129,38 @@ export default () => {
           { transform: [{ translateY: bounceValue }] },
         ]}
       >
-        <View style={{marginTop:48,flexDirection:'row',alignItems:'center',paddingHorizontal:24}} />
-        <TouchableOpacity
+        <View style={{alignItems:'center'}} />
+        {/* <TouchableOpacity
           style={styles.button}
           onPress={() => {}}
-        ><Text style={styles.text}>Sign up</Text></TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button2}
-          onPress={()=>{}}
-          ><Text style={styles.text}>Continue with Twitter</Text></TouchableOpacity>
-        <TouchableOpacity
-        style={styles.button2}
-          onPress={()=>{}}
-        ><Text style={styles.text}>Continue with Google</Text></TouchableOpacity>
-        <TouchableOpacity
-        style={styles.button2}
-          onPress={()=>{}}>
-            <Text style={styles.text}>Continue with Facebook</Text></TouchableOpacity>
+        ><Text style={styles.text}>Sign up</Text></TouchableOpacity> */}
         {(Platform.OS === "ios" || Platform.OS === "macos") && (
-          <TouchableOpacity
-            style={styles.button2}
-            onPress={()=>{}}>
-                <Text style={styles.text}>Continue with Apple</Text>
-          </TouchableOpacity>
+          <Btn
+            underlayColor={Colors.grey2WithOpacity(0.8)}
+            style={styles.button}
+            onPress={signInAppleAsync}
+            text="Continue with Apple"
+            color="#fff"
+            logo={LandingSvg.apple}
+            />
         )}
-
+          <Btn
+            underlayColor={Colors.grey2WithOpacity(0.3)}
+            style={styles.button2}
+            onPress={()=>{router.push('/auth/login/')}}
+            text="Continue with Email"
+            isLoading={loginApple?.isLoading||false}
+            logo={LandingSvg.email}/>
+          <Btn
+            underlayColor={Colors.grey2WithOpacity(0.3)}
+            style={styles.button2}
+            onPress={onGoogleLogin}
+            text="Continue with Google"
+            isLoading={loginGoogle?.isLoading||false}
+            logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
 
-        <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
+        {/* <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
           <Pressable
             // onPress={() => router.push('/auth/login')}
           >
@@ -114,21 +170,44 @@ export default () => {
               <Text style={{color : "#1A0FAB"}}> Log in</Text>
               </Text>
           </Pressable>
-        </View>
-        <Text style={{fontFamily:'Primary',fontSize:12,color:'#222',textAlign:'center'}}>
+        </View> */}
+        <Text style={{fontFamily:'Primary',fontSize:12,color:'#222',textAlign:'center',marginTop:16}}>
           {`By signing up, you agree to our `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync("https://www.buymeacoffee.com/terms")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]} >terms</Text>
+          <Text onPress={()=>{}} style={[{fontFamily:'Primary',fontSize:12}]} >terms</Text>
           {` and `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync("https://www.buymeacoffee.com/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
+          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
           {`.`}
-          {`\nYou must be at least 18 years old to start a page.`}
         </Text>
       </Animated.View>
-    </View>
+      </View>
+    </SafeAreaView>
   )
 }
+
+const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=>(
+  <TouchableHighlight
+  underlayColor={underlayColor}
+  style={style}
+  onPress={onPress}>
+    {!isLoading?<>
+      {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
+      <Text style={[styles.text,color?{color}:{}]}>{text}</Text>
+    </>:<ActivityIndicator size={"small"} color={"#222"}/>}
+</TouchableHighlight>
+)
+
 const styles=StyleSheet.create({
-    text:{fontFamily:'Primary-Bold',fontSize:14,fontWeight:'bold'},
-    button:{backgroundColor:'#ffdd00',paddingVertical:12,alignItems:'center',borderRadius:50},
-    button2:{marginTop:12,borderWidth:1,borderColor:'rgba(34,34,34,0.1)',borderRadius:50,paddingVertical:16,alignItems:'center'}
+    text:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.grey2WithOpacity(1)},
+    button:{backgroundColor:Colors.grey2WithOpacity(1),height:48,justifyContent:'center',alignItems:'center',borderRadius:16,flexDirection:'row'},
+    button2:{marginTop:12,backgroundColor:Colors.grey2WithOpacity(0.1),borderRadius:16,height:48,justifyContent:'center',alignItems:'center',flexDirection:'row'}
 })
+
+interface Props{
+  text:string
+  onPress:()=>void
+  style:object
+  underlayColor:string
+  logo?:any
+  color?:string
+  isLoading?:boolean
+}

@@ -7,6 +7,8 @@ import {
   Text,
   KeyboardAvoidingView,
   ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { setAuthToken } from "services/api/axios-api";
 import { useRouter } from "expo-router";
@@ -21,6 +23,7 @@ import { isIOS } from "utils/common";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
+import GoogleAuthButton from "components/auth/google-auth-button";
 
 export default () => {
   const router = useRouter();
@@ -76,21 +79,23 @@ export default () => {
   };
 
   return (
+    <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "white",
+        backgroundColor: "#f4f6f6",
       }}
     >
-        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:54,padding:16}}>
+        <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
-        <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
+        {/* <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
-        </View>
+        </View> */}
+        <ScrollView contentContainerStyle={{flex:1,justifyContent:'center'}}>
       <Text
         style={{
           alignSelf: "center",
@@ -98,7 +103,7 @@ export default () => {
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
-          marginTop: 24,
+          marginTop: 0,
         }}
       >
         Welcome back
@@ -106,7 +111,7 @@ export default () => {
       <TextField
         forwardedRef={inputRef}
         style={{ marginTop: isIOS? 36: 24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0}}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:'#fff'}}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -136,8 +141,8 @@ export default () => {
         onSubmitEditing={continueClicked}
         placeholder="Password"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
-        style={{ marginTop: 0, backgroundColor: "white" }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 }}
+        style={{ marginTop: 0}}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:'#fff' }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&
@@ -206,6 +211,14 @@ export default () => {
           </Text>
         </Pressable>
       </View>
+    {/* <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+      <View style={{flex:1,height:1,backgroundColor:Colors.primaryWithOpacity(0.1),width:'45%'}}/>
+      <Text style={{color:Colors.primary,fontSize:14,fontFamily:'Primary',marginHorizontal:8}}>OR</Text>
+      <View style={{flex:1,height:1,backgroundColor:Colors.primaryWithOpacity(0.1),width:'45%'}}/>
+    </View>
+    <GoogleAuthButton/> */}
+    </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };

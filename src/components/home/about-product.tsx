@@ -5,80 +5,110 @@ import { router } from "expo-router";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser"
+import ControlledTooltip from "components/common/ControlledTooltip";
+import { screenWidth } from "utils/common";
 
 export default ({disable=false}) => {
   return (
     <View style={styles.container}>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
       <Text style={styles.title}>A place to dump your thoughts.</Text>
-      {!disable&&<Touchable style={{marginTop:4}} onPress={()=>{router.push("/auth/login/loginPassword")}}>
+      {/* {!disable&&<Touchable style={{marginTop:4}} onPress={()=>{router.push("/auth/login/loginPassword")}}>
         <SvgXml xml={home.close} />
-      </Touchable>}
+      </Touchable>} */}
       </View>
-      <View style={{ marginTop: 20 }}>
+      <View style={{ marginTop: 24 }}>
         <Description
           icon={home.recordBlack}
           highlight="Record"
-          text="to capture your thoughts, family moments, lectures, new ideas, anything."
+          text={`new ideas, family moments, meetings, podcast takeaways, `}
+          text1="anything"
         />
         <Description
-          icon={home.ask}
+          icon={home.askBig}
           highlight="Ask your AI"
-          text="about your past notes, how you felt, your ideas, or for feedback."
+          text="to review past notes or brainstorm new ideas. It has perfect memory"
         />
         <Description
-          icon={home.create}
+          icon={home.createBig}
           highlight="Create"
-          text="summary, blog posts, tweet, to-do list, and more with your notes."
+          text="summary, to-do list, blog post, and more using your notes"
         />
-        <Description
-          icon={home.leaf}
-          highlight=""
-          text="Commitment to privacy, longevity, and beauty."
-        />
-        
-        <Touchable 
-            style={{flexDirection:'row',marginBottom:12}}
-            onPress={()=>WebBrowser.openBrowserAsync("https://www.youtube.com/watch?v=XUOlQSlIUbI")}>
-            <Image 
-                source={{uri:'https://voicenotes.com/backstory.png'}} 
-                style={{width:50,height:40,marginTop:-8,transform:[{scale:0.7}]}} />
-            <Text style={[styles.highlights,{marginTop:0,marginLeft:2}]}>Watch out backstory.</Text>
-        </Touchable>
-        <Text style={styles.highlights}>
-            Go ahead, record your first voice note (no sign-up required).
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center" ,marginBottom:12}}>
+          <SvgXml xml={home.leaf} />
+          <View style={{flexDirection:'row',alignItems:'center',flexWrap:'nowrap'}}>
+          <Text style={[styles.highlights,{fontFamily:'Primary',lineHeight:30}]}>
+            {`Commitment to `}
+            <TextWithTooltip
+              tooltip="We built Voicenotes for ourselves and decided to take no shortcuts. All notes are secured on the cloud, not used for AI training, and only retrieved upon authenticated user requests."
+              text="privacy,"/>
+            {` `}
+            <TextWithTooltip
+              tooltip="Why is it so rare to see products older than a decade or two? We like products that last a lifetime. To avoid any external influence, Voicenotes is 100% self-funded."
+              text="longevity,"/>
+            {` `}
+            <TextWithTooltip
+              tooltip="We are designers first. We like to own and use simple, beautiful things. We go to great lengths to keep Voicenotes as simple as we can. And simplicity takes enormous time and effort."
+              text="beauty"/>
+            {`. Watch `}
+          <Image 
+                source={{uri:'https://voicenotes.com/backstory_v1.png'}} 
+                style={{width:33,height:22,borderRadius:2}} />
+            {` `}
+            <Text onPress={()=>WebBrowser.openBrowserAsync("https://www.youtube.com/watch?v=XUOlQSlIUbI")}
+                  suppressHighlighting={true}
+                  style={{textDecorationLine:'underline'}}>{`our backstory`}</Text>
+            .
+          </Text>
+          </View>
+        </View>
       </View>
     </View>
   );
 };
 
-const Description = ({ highlight = "", text = "", icon = "",img="",text2="" }) => (
-  <View style={{ flexDirection: "row", alignItems: "flex-start" ,marginBottom:12}}>
+const Description = ({ highlight = "", text = "", text1="", icon = "",img="",text2="" }) => (
+  <View style={{ flexDirection: "row", alignItems: "center" ,marginBottom:12}}>
     <SvgXml xml={icon} />
     <View style={{flexDirection:'row',alignItems:'center',flexWrap:'nowrap'}}>
     <Text style={styles.highlights}>
-      <Text style={{ fontWeight: "700",fontFamily:'Primary-Bold' }}>{!!highlight&&`${highlight} `}</Text>
+      <Text style={{ fontFamily:'Primary-Bold' }}>{!!highlight&&`${highlight} `}</Text>
       {text}
+      {!!text1&&
+      <TextWithTooltip
+        text={text1}
+        tooltip="We recommend capturing your raw thoughts as freely and as often as you can. In a world where AI can organize and surface your notes when you need them, we believe one should optimize for maximum input."
+      />}
+      .
     </Text>
     </View>
   </View>
 );
 
+const TextWithTooltip = ({text="",tooltip=""}) => (
+  <ControlledTooltip
+    popover={
+      <Text style={{fontFamily:'Primary-Medium',color:'#fff',fontSize:12}}>{tooltip}</Text>}
+    width={screenWidth/1.5}
+    withPointer={false}
+    height={110}
+    backgroundColor={'#000'}>
+      <Text style={[styles.highlights,{marginLeft:0,textDecorationLine:'underline'}]}>{text}</Text>
+  </ControlledTooltip>
+);
+
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
-    backgroundColor: Colors.primaryWithOpacity(0.05),
     borderRadius: 12,
-    padding: 20,
+    padding: 24,
   },
-  title: { fontFamily:'Primary-Semibold',fontSize: 24, color: "#000", fontWeight: "600" },
+  title: { fontFamily:'Primary-Medium',fontSize: 36, color: "#0D0D0D", fontWeight: "500" },
   highlights: {
-    marginLeft: 8,
-    fontFamily:'Primary',fontSize: 16,
+    marginLeft: 26,
+    fontFamily:'Primary-Medium',fontSize: 16,
     fontWeight: "400",
-    color: "#000",
-    lineHeight: 22,
-    marginTop: -4,
+    color: "#0D0D0D",
+    lineHeight: 24,
   },
 });

@@ -19,8 +19,9 @@ export function useGuestToken(){
 }
 
 export function useSignup(){
-    return useMutation('signup',async ({name,email,password,otp}:{name:string,email:string,password:string,otp:any})=>{
-        return await axios.post(`${API_URL}/api/auth/register?name=${name}&email=${email}&password=${password}${!!otp?'&otp='+otp:''}`);
+    return useMutation('signup',async ({name,email,password,otp=null}:{name:string,email:string,password:string,otp?:any})=>{
+        const params=!!otp?{otp,password,name,email}:{password,name,email}
+        return await axios.post(`${API_URL}/api/auth/register`,params);
     },
     {
         onError:(error:any)=>{
@@ -31,8 +32,20 @@ export function useSignup(){
 
 export function useLogin(){
     return useMutation('login',async ({email,password}:{password:string,email:string}) => {
-        return await axios.post(`${API_URL}/api/auth/login?password=${password}&email=${email}`);
+        return await axios.post(`${API_URL}/api/auth/login`,{password,email});
     })
+}
+
+export function signInWithGoogle() {
+    return useMutation("sign_in_google_mutation", async(params:any) => 
+        await axios.get(`${API_URL}/api/auth/google/login`,{params})
+    )
+}
+
+export function signInWithApple() {
+    return useMutation("sign_in_apple_mutation", (params:any) =>
+        axios.get(`${API_URL}/api/auth/apple/login`, {params})
+    )
 }
 
 export function useLogout(){
@@ -46,7 +59,7 @@ export function useLogout(){
         queryClient.resetQueries('user-data')
         queryClient.resetQueries('all-tags')
         dispatch(setToken(''))
-        route.replace("/home/")
+        route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);
@@ -59,5 +72,11 @@ export function useLogout(){
                 logout()
             }
         }
+    })
+}
+
+export function useCheckEmail(){
+    return useMutation("check_email", (p?:any)=>{
+        return axios.post(API_URL+"/api/auth/check-email",p)
     })
 }

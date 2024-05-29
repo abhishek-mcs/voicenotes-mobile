@@ -1,7 +1,7 @@
 import {
   ActivityIndicator,
+  Easing,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   SafeAreaView,
   StyleSheet,
@@ -20,18 +20,24 @@ import { Audio } from "expo-av";
 import BottomBar from "components/home/bottom-bar";
 import {
   cancelRecording,
+  checkRecordPermission,
   onRecord,
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useAddTitle, useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
+import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isIOS } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
+import { Redirect } from "expo-router";
+import useIAPInfo from "hooks/iap/useIAPInfo";
+import * as Haptics from 'expo-haptics';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -62,14 +68,17 @@ export default ()=> {
   const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
   const [hideSearch,setHideSearch]=useState(true)
+  const [showAskMe,setShowAskMe]=useState(true)
+  const [hideBackground,setHideBg]=useState(false)
+  const [isRefreshing,setRefreshing]=useState(false)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const uploadRecord = useUploadRecord()
-  const addTranscriptRecord = useAddTranscript()
-  const addTitleRecord = useAddTitle()
+  const addTranscriptRecord = useAddTranscript(true)
   const queryClient = useQueryClient();
+  const [generateDummy,setGenerateDummy]=useState<any>(null)
   
   const recordingList = useMemo(
     () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
@@ -77,24 +86,37 @@ export default ()=> {
   );
   
   const isListEmpty = recordingList?.length == 0 || null;
+
+  useIAPInfo()
+
+  useEffect(()=>{
+    checkRecordPermission()
+    dispatch(setTempIsIAPPurchased(false))
+  },[])
   // setupAudioRec(rec)
 
   const onAsk = () => {
     CreateModalRef.current?.close()
     AIModalRef.current?.toggle();
+    AIModalRef.current?.getNewSugg()
   };
   const onCreate = () => {
+    CreateModalRef.current?.onReset();
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
-     const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false})
-     soundRef.current=sound
-     onRecord(setRec, setRecEnabled);
+    // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
+    // soundRef.current=sound
+    onRecord(setRec, setRecEnabled);
+    activateKeepAwakeAsync()
   };
   const onStopRecord = async(d:number) => {
+    deactivateKeepAwake()
+    setGenerateDummy({isUploading:true})
     const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
@@ -102,32 +124,26 @@ export default ()=> {
       uploadRecord.mutate(
         {audio:file,duration:d},
         {
-          onSuccess: (r) => {
-            queryClient.invalidateQueries('all-recording');
+          onSuccess: async(r) => {
+            await queryClient.invalidateQueries('all-recording');
+            setGenerateDummy(null)
             scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id,
-              {
-                onSuccess:async()=>{
-                  queryClient.invalidateQueries('all-recording');
-                  notePreviewRef.current?.onTriggerTranscript()
-                  addTitleRecord.mutate(r?.data?.recording?.id,{
-                    onSuccess:()=>{
-                      queryClient.invalidateQueries('all-recording');
-                      notePreviewRef.current?.onTriggerTitle()
-                    }
-                  })
-                }
-              });
-          },
-          onError: (r:any) => {
-            console.log(r?.response?.data?.message);
-          },
+            addTranscriptRecord.mutate(r?.data?.recording?.id);
+          }
         }
       );
-      await soundRef.current?.unloadAsync()
+      // await soundRef.current?.unloadAsync()
   };
+
+  useEffect(()=>{
+    try{
+      if(recordingQuery?.data&&!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
+        recordingQuery.data.pages[0].data.data[0].transcript=''
+    }catch{ }
+  },[generateDummy])
+
   const onCancel = async() => {
-    await cancelRecording(rec,soundRef.current);
+    await cancelRecording(rec,soundRef?.current);
     setRec(null);
     setRecEnabled(false);
   };
@@ -160,37 +176,43 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading]
   );
 
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
+  const [isSearchVisible, setIsSearchVisible] = useState(true);
+  const [prevOffset, setPrevOffset] = useState(0);
+
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    if (currentOffset > 0 && currentOffset < 40) {
+    if (currentOffset >prevOffset && currentOffset > 0) {
       setIsSearchVisible(false);
-      setIsBottomBarVisible(false)
-    } else if (currentOffset <= 0) {
+    } else if (currentOffset < prevOffset && currentOffset > 0) {
       setIsSearchVisible(true);
-      setIsBottomBarVisible(true)
     }
+    setPrevOffset(currentOffset);
   };
-
+  if(!token)
+      return <Redirect href="/auth/landingPage/" />
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);CreateModalRef.current?.close()}}>
-        <View style={styles.wrapper}>
-          <Header isLogged={!!token} />
-          {!isListEmpty&&!!token && (
-            <Animatable.View onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} style={{zIndex:10}} animation={isSearchVisible?fadeIn:fadeOut} duration={100} useNativeDriver={true}>
-            <SearchBar hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+    <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
+      <View style={{ flex: 1}}>
+        <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
+          {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
+          <Header isLogged={!!token}/>
+          {isIOS&&!isListEmpty&&!!token && (
+            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
+              <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
             </Animatable.View>
           )}
+          {/* </View> */}
           <FlatList
             ref={scrollRef}
+            // bounces={false}
+            style={{opacity:hideBackground?0:1}}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
-                  ? recordingList
+                  ? (generateDummy?[generateDummy,...recordingList]:recordingList)
                   : []
-                : recordingList
+                : (generateDummy?[generateDummy,...recordingList]:recordingList)
             }
             onScroll={handleScroll}
             scrollEventThrottle={16}
@@ -200,6 +222,12 @@ export default ()=> {
             renderItem={renderItem}
             onEndReachedThreshold={0.5}
             onEndReached={fetchNextPage}
+            onRefresh={async()=>{
+              setRefreshing(true);
+              await recordingQuery.refetch()
+              setRefreshing(false)
+            }}
+            refreshing={isRefreshing}
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
                 <AboutProduct disable={false} />
@@ -211,11 +239,13 @@ export default ()=> {
               </View>
             ):!!token?<AboutProduct disable={true} />:null}
             automaticallyAdjustKeyboardInsets
+            keyboardShouldPersistTaps="handled"
           />
         </View>
-        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} />
-        <AIModal ref={AIModalRef} />
-        <AskMeSomething/>
+        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
+        <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
+       {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
+      </View>
       </KeyboardAvoidingView>
       <BottomBar
         onAsk={onAsk}
@@ -273,4 +303,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: "700",
   },
+  hideBg:{backgroundColor:'#F4F6F6'}
 });

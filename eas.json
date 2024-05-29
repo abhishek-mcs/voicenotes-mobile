@@ -6,7 +6,13 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "android": {
+        "withoutCredentials": true
+      },
+      "ios": {
+        "simulator": true
+      }
     },
     "preview": {
       "distribution": "internal",
@@ -15,9 +21,26 @@
     "production": {
       "autoIncrement": true,
       "channel": "production"
+    },
+    "staging": {
+      "autoIncrement": true,
+      "channel": "staging"
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview" : false
+      }
+    },
+    "staging": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview" : false
+      }
+    }
   }
 }

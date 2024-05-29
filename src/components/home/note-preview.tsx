@@ -1,17 +1,14 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
-import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
-import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, View } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate } from "utils/format-date";
-import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
+import { formatDate, isSameDay } from "utils/format-date";
+import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
-import { useAddTitle, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
+import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
-import loader from "assets/lottie/loader.json"
-import LottieView from "lottie-react-native";
 import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
@@ -35,6 +32,7 @@ export default forwardRef(({
   const [creationLoader, setCreationLoader] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
+  const [createType,setCreateType]=useState('summary')
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
   
@@ -45,28 +43,19 @@ export default forwardRef(({
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
   const createAI=useCreate()
+  const addTranscript=useAddTranscript()
 
-  useImperativeHandle(ref,()=>({
-    onTriggerTranscript:()=>{
-        // setTriggerTypingTranscript(1)
-        // console.log('triggered',index)
-    },
-    onTriggerTitle:()=>{
-        // setTriggerTypingTitle(1)
-        // console.log('triggered title',index)
-    }
-  }),[index])
+
 
   useEffect(()=>{
-    if(triggerTypingTitle==1){
-      setTriggerTypingTitle(2)
-    }
-  },[triggerTypingTitle])
-
-  useEffect(()=>{
-    if(triggerTypingTranscript==1)
+    if(triggerTypingTranscript==0&&!note?.transcript)
       setTriggerTypingTranscript(2)
-  },[triggerTypingTranscript])
+  },[note?.transcript])
+
+  useEffect(()=>{
+    if(triggerTypingTitle==0&&!note?.title)
+      setTriggerTypingTitle(2)
+  },[note?.title])
 
   const hideMoreOption = () => setMoreOption(false);
   const showMoreOption = () => setMoreOption(true);
@@ -86,7 +75,6 @@ export default forwardRef(({
           queryClient.invalidateQueries('all-tags')
         },
         onError:(e:any)=>{
-          console.log(e?.response?.data?.message)
           setEditNote(temp)
         }
       })
@@ -119,22 +107,33 @@ export default forwardRef(({
   }
 
   const onCreate=async(type='summary')=>{
+    setCreateType(type)
     setCreationLoader(true)
     hideCreateOption()
     await createAI.mutateAsync({recording_id:note?.id,type})
     setCreationLoader(false)
   }
 
-  const onGenerate=useCallback(()=>{
+  const onGenerateTitle=useCallback(()=>{
     hideMoreOption();
-    list[index].title=null
-    addTitleRecord.mutate(note?.id,{
-      onSuccess:async()=>{
-        await queryClient.invalidateQueries('all-recording');
-        setTriggerTypingTitle(1)
-      }
+    note.title=null
+    addTitleRecord.mutate(note?.id)
+  },[note])
+
+  const onReGenerateTranscript=useCallback(()=>{
+    hideMoreOption();
+    note.transcript=''
+    addTranscript.mutate(note?.id)
+  },[note])
+
+  const onRetry=async()=>{
+    note.transcript=''
+    note.title=null
+    await addTranscript.mutateAsync(note?.id,{
+      onSuccess:async()=>await addTitleRecord.mutateAsync(note?.id)
     })
-  },[])
+  }
+
   const onCopy=async()=>{
     hideMoreOption();
     await setStringAsync(note?.transcript||'');
@@ -167,6 +166,15 @@ export default forwardRef(({
   };
   const onPlay=async()=>{
     try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        interruptionModeIOS: 2,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        interruptionModeAndroid: 2,
+        playThroughEarpieceAndroid: false,
+        staysActiveInBackground:true,
+      });
         setIsPlay(-1)
         await play?.unloadAsync()
         setPlay(null)
@@ -189,44 +197,51 @@ export default forwardRef(({
     }
   }
 
+  useEffect(() => {
+    setEditNote(note); // Update editNote when the note prop changes
+  }, [note]);
+
   const creationList=useMemo(()=>note?.creations,[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View style={styles.container}>
-      <View style={[styles.btw, styles.row]}>
-        <View style={styles.row}>
+    {(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
+      <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
+      <View style={{ flexDirection: "row"}}>
+        <View style={[{alignItems:'flex-start'}]}>
           {audioLoading==index?
           <CircularLoader/>
           :<Touchable onPress={onPlay}>
             <SvgXml xml={isPlay==index?home.pause:home.play} />
           </Touchable>}
-          <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
-        </View>
-      </View>
-      <View style={{ flexDirection: "row", marginTop: 8 }}>
         <View style={styles.timeLine} />
-        <View style={{marginLeft:isIOS?25:24,flex:1}}>
+        </View>
+        <View style={{marginLeft:9,flex:1,marginTop:-3}}>
           {!!note?.title?
           <Touchable onPress={()=>{
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
-          :<AiLoader style={{marginTop:isIOS?0:-6}}/>}
-          {!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
+          :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
+          :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
+          }
+          {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
+          :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
-          <View style={styles.row}>
+          <View style={[styles.row,{flexWrap:'wrap'}]}>
           {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
           </View>}
 
-      {!hideIcons&&<View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
-      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}}>
+      {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
+      <View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
+      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}} disabled={!note?.transcript}>
         <SvgXml xml={home.edit}/>
       </Touchable>
       {!!token&&<Menu
           visible={createOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showCreateOption}>
+            <Touchable style={styles.menuPress} onPress={showCreateOption} disabled={!note?.transcript}>
               <SvgXml xml={home.create1} />
             </Touchable>
           }
@@ -273,7 +288,7 @@ export default forwardRef(({
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMoreOption}>
+            <Touchable style={styles.menuPress} onPress={showMoreOption} disabled={!note?.transcript}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
@@ -286,10 +301,16 @@ export default forwardRef(({
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onGenerate}>
+          <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />
               <Text style={styles.menuItemTxt}>Generate another title</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={onReGenerateTranscript}>
+            <View style={[styles.row,{width:180}]}>
+              <SvgXml xml={home.retry} />
+              <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onCopy}>
@@ -306,9 +327,16 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
-        {!!token&&creationLoader&&<AiLoader text="Creating summary from your voice" />}
+      {note?.transcript==null&&!note?.isUploading&&
+      <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
+        <>
+        <SvgXml xml={home.retry} />
+        <Text style={styles.retryTxt}>Retry</Text>
+        </>
+      </TouchableHighlight>}
+        {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
         {!!token&&creationList?.map((itm:any,i:number)=>(
-          <AiCreatedView type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
+          <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}
         </View>
       </View>
@@ -316,7 +344,8 @@ export default forwardRef(({
   );
 });
 
-const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>(
+const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>{
+  return (
   <View style={styles.editContainer} onTouchStart={e=>e?.stopPropagation()}>
     <TextInput 
       style={styles.titleInput}
@@ -373,7 +402,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
       </View>
     </View>
   </View>
-);
+)};
 
 const styles = StyleSheet.create({
   container: { marginTop: 24 },
@@ -381,17 +410,17 @@ const styles = StyleSheet.create({
   btw: { justifyContent: "space-between" },
   timeLine: {
     width: 1,
-    height: "100%",
     backgroundColor: Colors.primaryWithOpacity(0.1),
-    marginLeft: 9,
+    marginTop: 8,
+    flex:1,
+    alignSelf:'center'
   },
   title: {
     fontWeight: "500",
     fontFamily: "Primary-Medium",
-    fontSize: isIOS?18:17,
+    fontSize: 16,
     color: "#222",
-    lineHeight: isIOS?26:24,
-    marginTop:isIOS?0:-4
+    lineHeight: 24,
   },
   text: {
     fontFamily: "Primary",
@@ -467,7 +496,7 @@ const styles = StyleSheet.create({
     color: Colors.grey,
     fontFamily: "Primary",
     fontSize: isIOS?14:12,
-    marginLeft: isIOS?16:12,
+    marginBottom: 8,
   },
   tagContainer:{
     flex: 1,
@@ -484,5 +513,7 @@ const styles = StyleSheet.create({
     marginRight:8,
     marginBottom:8,
     borderRadius:8
-  }
+  },
+  retry:{paddingHorizontal:16,height:36,flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',marginTop:0,borderRadius:30},
+  retryTxt:{marginLeft:2,fontFamily:'Primary',fontSize:12,color:'#222',marginTop:-2}
 });

@@ -3,7 +3,7 @@ import { openSettings } from "expo-linking";
 import { useEffect } from "react";
 import { Alert, Platform } from "react-native";
 const alertPermission=()=>{
-  const txt = "Please enable permissions to continue";
+  const txt = "Please enable microphone permission to continue";
         Alert.alert(
           Platform.OS == "ios" ? txt : "",
           Platform.OS == "ios" ? "" : txt,
@@ -19,6 +19,14 @@ const alertPermission=()=>{
           ]
         );
 }
+
+export const checkRecordPermission = async () => {
+  await Audio.getPermissionsAsync().then(async status => {
+    if (status.status != "granted") {
+      await Audio.requestPermissionsAsync();
+  }})
+}
+
 export const onRecord = async (
   setRec = (v: Audio.Recording) => {},
   setRecEnabled = (v: boolean) => {}
@@ -33,7 +41,8 @@ export const onRecord = async (
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
           interruptionModeAndroid: 1,
-          playThroughEarpieceAndroid: true,
+          playThroughEarpieceAndroid: false,
+          staysActiveInBackground:true,
         });
 
         const { recording: recordingObject, status } = await Audio.Recording.createAsync(
@@ -55,11 +64,9 @@ export const onRecord = async (
                 playThroughEarpieceAndroid: true,
               });
 
-              const recordingObject = new Audio.Recording();
-              await recordingObject.prepareToRecordAsync(
+              const { recording: recordingObject, status } = await Audio.Recording.createAsync(
                 Audio.RecordingOptionsPresets.HIGH_QUALITY
               );
-              await recordingObject.startAsync();
               setRec(recordingObject);
               setRecEnabled(true);
             } else if (!canAskAgain && status == "denied") {

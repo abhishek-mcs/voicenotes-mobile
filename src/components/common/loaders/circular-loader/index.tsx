@@ -32,6 +32,7 @@ export default ({ width=22,height=22, strokeWidth = 2, color = '#0D0D0D' }) => {
               borderWidth: strokeWidth,
               borderRadius: width / 2,
               borderTopColor: color,
+              borderRightColor:color,
               transform: [{ rotate: spin }],
             },
           ]}
@@ -42,7 +43,6 @@ export default ({ width=22,height=22, strokeWidth = 2, color = '#0D0D0D' }) => {
   
   const styles = StyleSheet.create({
     loader: {
-      borderTopColor: '#0D0D0D',
       borderLeftColor: Colors.greyWithOpacity(0.3),
       borderBottomColor: Colors.greyWithOpacity(0.3),
       position: 'absolute',
