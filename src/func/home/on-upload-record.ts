@@ -1,18 +1,29 @@
-export default ({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d}:any)=>{
-    setGenerateDummy({isUploading:true,audio:{data:{url:file,duration:d}}})
+export default ({setGenerateDummy,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry}:any)=>{
       uploadRecord.mutate(
         {audio:file,duration:d},
         {
           onSuccess: async(r:any) => {
             await queryClient.invalidateQueries('all-recording');
-            setGenerateDummy(null)
+            if(!!generateDummy){
+              const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!=file)
+              filterDummy.length==0?setGenerateDummy(null):setGenerateDummy(filterDummy)
+            }else{
+              setGenerateDummy(null)
+            }
             scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id);
+            addTranscriptRecord.mutate(r?.data?.recording?.id,{
+              onError:()=>{
+                recordingList[0].transcript=null;
+                setReduxRecordingList([...recordingList])
+              }
+            });
             deactivateKeepAwake()
           },
           onError:()=>{
             deactivateKeepAwake()
-            setGenerateDummy({isUploading:false,audio:{data:{url:file}}})
+            const dump={isUploading:false,audio:{data:{url:file,duration:d}}}  
+            const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!==file)??[]
+            setGenerateDummy(!!generateDummy?[...filterDummy,dump]:[dump])
           }
         }
       );

@@ -39,6 +39,7 @@ import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import onUploadRecord from "func/home/on-upload-record";
+import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -57,6 +58,7 @@ export default ()=> {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
+  const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
   const [rec, setRec] = useState<Audio.Recording | null>(null);
@@ -79,12 +81,20 @@ export default ()=> {
   const uploadRecord = useUploadRecord()
   const addTranscriptRecord = useAddTranscript(true)
   const queryClient = useQueryClient();
-  const [generateDummy,setGenerateDummy]=useState<any>(null)
+
+  const generateDummy=tempRecordings;
   
-  const recordingList = useMemo(
-    () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
-    [recordingQuery]
-  );
+  const setGenerateDummy=(val:any)=>dispatch(setTempRecordings(val))
+  const setReduxRecordingList=(val:any)=>dispatch(setRecordingList(val))
+  
+  // Only dispatch if the recording list has changed
+  useEffect(() => {
+    const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
+    if (JSON.stringify(recordingList) != JSON.stringify(records)) {
+      records[0]?.transcript==null&&(records[0].transcript='');
+      setReduxRecordingList(records);
+    }
+  }, [recordingQuery]);
   
   const isListEmpty = recordingList?.length == 0 || null;
 
@@ -120,15 +130,22 @@ export default ()=> {
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
-    onUploadRecord({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
-      // await soundRef.current?.unloadAsync()
+    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}  
+    setGenerateDummy(!!generateDummy?[...generateDummy,dump]:[dump])
+    onUploadRecord({setGenerateDummy,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
+    await soundRef.current?.unloadAsync()
   };
-
-  const onUploadRetry = () => {
+  
+  const onUploadRetry = (note:any) => {
     activateKeepAwakeAsync();
-    const d=generateDummy?.audio?.data?.duration||0
-    const file = generateDummy?.audio?.data?.url||"";
-    onUploadRecord({setGenerateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry:true})
+    const d=note?.audio?.data?.duration||0
+    const file = note?.audio?.data?.url||"";
+    let temp=[...generateDummy]
+    const indx=temp?.findIndex((g:any)=>g.audio.data.url==file)
+    temp[indx] = { ...temp[indx], isUploading: true }
+    const itm=temp.splice(indx,1)
+    setGenerateDummy([...temp,...itm])
+    onUploadRecord({setGenerateDummy,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry:true})
   }
 
   useEffect(()=>{
@@ -170,7 +187,7 @@ export default ()=> {
         onUploadRetry={onUploadRetry}
       />
     ),
-    [isPlay,play,recordingList,audioLoading]
+    [isPlay,play,recordingList,audioLoading,generateDummy]
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
@@ -207,9 +224,9 @@ export default ()=> {
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
-                  ? (generateDummy?[generateDummy,...recordingList]:recordingList)
+                  ? (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
                   : []
-                : (generateDummy?[generateDummy,...recordingList]:recordingList)
+                : (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
             }
             onScroll={handleScroll}
             scrollEventThrottle={16}
@@ -230,11 +247,11 @@ export default ()=> {
                 <AboutProduct disable={false} />
               ) : null
             }
-            ListEmptyComponent={() => recordingQuery.isLoading?(
+            ListEmptyComponent={() => (recordingList?.length>0&&recordingQuery.isLoading)?(
               <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
-            ):!!token?<AboutProduct disable={true} />:null}
+            ):(recordingList?.length>0&&!!token)?<AboutProduct disable={true} />:null}
             automaticallyAdjustKeyboardInsets
             keyboardShouldPersistTaps="handled"
           />

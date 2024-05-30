@@ -140,7 +140,7 @@ export default forwardRef(({
 
   const onRetry=async()=>{
     if(!!note?.audio?.data?.url){
-      onUploadRetry()
+      onUploadRetry(note)
     }else{
       note.transcript=''
       note.title=null
@@ -251,7 +251,7 @@ export default forwardRef(({
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
           :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
-          :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
+          :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.{note?.transcript}</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
           {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
