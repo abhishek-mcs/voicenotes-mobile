@@ -250,7 +250,7 @@ export default forwardRef(({
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
-          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
+          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Voice failed to upload. Please retry.</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
