@@ -91,7 +91,7 @@ export default ()=> {
   useEffect(() => {
     const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
     if (JSON.stringify(recordingList) != JSON.stringify(records)) {
-      records[0]?.transcript==null&&(records[0].transcript='');
+      records?.length>0&&records[0]?.transcript==null&&(records[0].transcript='');
       setReduxRecordingList(records);
     }
   }, [recordingQuery]);
