@@ -20,10 +20,13 @@ import { router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
 import { setTagsFilter } from "redux/reducers/hashSlice";
+import { MAIN_URL } from "services/api/api-constants";
+import { useUnpublishRecording } from "queries/home/share";
 
 export default forwardRef(({
   note,
   onUploadRetry,
+  hashFilter,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
   const route=useRouter()
@@ -48,6 +51,7 @@ export default forwardRef(({
   const signedURL = useSignedUrl()
   const createAI=useCreate()
   const addTranscript=useAddTranscript()
+  const unPublishRecording=useUnpublishRecording()
 
 
 
@@ -150,9 +154,43 @@ export default forwardRef(({
     }
   }
 
+  const onUnpublish=()=>{
+    hideMoreOption();
+    unPublishRecording.mutateAsync({id:note?.id})
+  }
+
+  const onShareNote=(t?:any,slug?:any)=>{
+    hideMoreOption();
+    (note?.is_published==1||t==true)?
+    Alert.alert('Your shareable link is ready',MAIN_URL+'/s/'+(note?.public_slug??slug),
+    [{
+      text:'Copy link',
+      onPress:async()=>await setStringAsync(MAIN_URL+'/s/'+note?.public_slug)
+    },{
+      text:'Unpublish',
+      onPress:async()=>unPublishRecording.mutateAsync({id:note?.id})
+    },{text:''}])
+    :Alert.alert('Are you sure you want to share this note?','',
+    [{
+      text:'Yes',
+      onPress:async()=>{
+        await unPublishRecording.mutateAsync({id:note?.id},{
+          onSuccess:(d)=>{
+            console.warn(d?.data)
+            onShareNote(true,d?.data?.recording?.public_slug)
+          }
+        })
+      }
+    },{
+      text:'No',
+      style:'cancel'
+    },{text:''}])
+  }
+  
   const onCopy=async()=>{
     hideMoreOption();
-    await setStringAsync(note?.transcript||'');
+    const content=hashFilter=='shared'?MAIN_URL+'/s/'+note?.public_slug:(note?.transcript||'')
+    await setStringAsync(content);
   }
   const onDelete=()=>{
     hideMoreOption();
@@ -270,10 +308,11 @@ export default forwardRef(({
 
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
+      {hashFilter!='shared'&&
       <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}} disabled={!note?.transcript}>
         <SvgXml xml={home.edit}/>
-      </Touchable>
-      {!!token&&<Menu
+      </Touchable>}
+      {!!token&&hashFilter!='shared'&&<Menu
           visible={createOption}
           anchor={
             <Touchable style={styles.menuPress} onPress={showCreateOption} disabled={!note?.transcript}>
@@ -323,13 +362,15 @@ export default forwardRef(({
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMoreOption}>
+            <Touchable style={[styles.menuPress,hashFilter!='shared'?{}:{marginLeft:0}]} onPress={showMoreOption}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
           onRequestClose={hideMoreOption}
           style={styles.menu}
         >
+        {hashFilter!='shared'?
+        <>
         <MenuItem style={styles.menuItem} onPress={onStarred}>
           <View style={[styles.row,{width:180}]}>
             <SvgXml xml={home.smallStar} />
@@ -348,10 +389,16 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Copy note</Text>
             </View>
           </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={onShareNote}>
+            <View style={[styles.row,{width:180}]}>
+              <SvgXml xml={home.shareOptIcon} />
+              <Text style={styles.menuItemTxt}>Get shareable link</Text>
+            </View>
+          </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />
-              <Text style={styles.menuItemTxt}>Generate another title</Text>
+              <Text style={styles.menuItemTxt}>Regenerate title</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onReGenerateTranscript}>
@@ -366,6 +413,22 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Delete</Text>
             </View>
           </MenuItem>}
+          </>
+          :
+          <>
+          <MenuItem style={[styles.menuItem,{paddingLeft:0}]} onPress={onCopy}>
+            {/* <View style={[styles.row]}> */}
+              {/* <SvgXml xml={home.generate} /> */}
+              <Text style={styles.menuItemTxt}>Copy link</Text>
+            {/* </View> */}
+          </MenuItem>
+          <MenuItem style={[styles.menuItem,{paddingLeft:0}]} onPress={onUnpublish}>
+            {/* <View style={[styles.row]}> */}
+              {/* <SvgXml xml={home.retry} /> */}
+              <Text style={styles.menuItemTxt}>Unpublish</Text>
+            {/* </View> */}
+          </MenuItem>
+          </>}
         </Menu>
       </View>}
       {note?.transcript==null&&!note?.isUploading&&
