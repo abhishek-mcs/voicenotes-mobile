@@ -289,7 +289,7 @@ export default forwardRef(({
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
-          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
+          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Voice failed to upload. Please retry.</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
@@ -373,13 +373,13 @@ export default forwardRef(({
         {hashFilter!='shared'?
         <>
         <MenuItem style={styles.menuItem} onPress={onStarred}>
-          <View style={[styles.row,{width:180}]}>
+          <View style={[styles.row,{}]}>
             <SvgXml xml={home.smallStar} />
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
         <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
-          <View style={[styles.row,{width:180}]}>
+          <View style={[styles.row,{}]}>
             <SvgXml xml={home.addTag} />
             <Text style={styles.menuItemTxt}>Add Tag</Text>
           </View>
@@ -397,13 +397,13 @@ export default forwardRef(({
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row,{}]}>
               <SvgXml xml={home.generate} />
               <Text style={styles.menuItemTxt}>Regenerate title</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onReGenerateTranscript}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row,{}]}>
               <SvgXml xml={home.retry} />
               <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
             </View>
@@ -575,6 +575,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // marginTop:25,
     // marginLeft:10
+    paddingHorizontal:isIOS?0:4
   },
   menuPress: {
     height: 25,
@@ -583,12 +584,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft:4
   },
-  menuItem: { paddingHorizontal:isIOS? 0:4,paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden" },
   menuItemTxt: {
     fontFamily: "Primary",
-    fontSize: 14,
+    fontSize: isIOS?14:12,
     color: "#222",
-    lineHeight: 24,
+    lineHeight: isIOS?24:18,
     marginLeft: 12,
   },
   tagInput: { color: Colors.darkWithOpacity(0.9), fontFamily: "Primary",flex:1 },
