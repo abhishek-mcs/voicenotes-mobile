@@ -22,6 +22,7 @@ import AiCreatedView from "./ai-created-view";
 import { setTagsFilter } from "redux/reducers/hashSlice";
 import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
+import ReactNativeModal from "react-native-modal";
 
 export default forwardRef(({
   note,
@@ -507,6 +508,16 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
     </View>
   </View>
 )};
+
+const PublishModal=()=>{
+  return (
+    <ReactNativeModal isVisible={true}>
+      <View>
+        <Text></Text>
+      </View>
+    </ReactNativeModal>
+  )
+}
 
 const styles = StyleSheet.create({
   container: { marginTop: 24 },
