@@ -7,7 +7,7 @@ import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollV
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -21,6 +21,7 @@ export default () => {
     const logout=useLogout()
     const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
     const settings:any=userDetails.settings
+    console.log(userDetails?.settings)
     const saveSettings=useSaveSettings()
     const dispatch=useDispatch()
   const onLogout = () =>{
@@ -60,6 +61,14 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
+  
+  useEffect(() => {
+    if(!!userDetails?.settings?.language){
+      dispatch(setLang(languages[userDetails?.settings?.language]))
+    }else{
+      dispatch(setLang(languages['']))
+    }
+  },[userDetails?.settings])
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
@@ -113,7 +122,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
           <SvgXml xml={settingsSvg.optionArrow}  />
         </View>
         }
-        style={{height:'40%',marginTop:36,right:0,width:'50%'}}
+        style={{height:'40%',marginTop:36,right:0,width:'60%'}}
         animationDuration={200}
         >
           <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
