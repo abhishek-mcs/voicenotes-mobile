@@ -23,6 +23,7 @@ import { setTagsFilter } from "redux/reducers/hashSlice";
 import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
+import PublishedModal from "./published-modal";
 
 export default forwardRef(({
   note,
@@ -418,16 +419,16 @@ export default forwardRef(({
           </>}
         </Menu>
       </View>}
-      <Menu
+      {isIOS?<Menu
           visible={shareVisible}
           anchor={null}
           onRequestClose={()=>setShareVisible(false)}
           animationDuration={1}
           style={{borderRadius:12,width:isPublished?screenWidth/1.35:'auto'}}
         >
-        <MenuItem style={{padding:16,width:'100%',height:'100%'}} disabled={true}>
+        <MenuItem style={{padding:16,width:'100%',height:200,flex:1}} disabled={true} >
           {!isPublished?
-            <View>
+            <View style={{maxWidth:300,maxHeight:300}}>
             <Text style={{fontSize:14,fontFamily:'Primary-Semibold',color:Colors.darkWithOpacity(1),lineHeight:19.2}}>
               Are you sure you want to share this note?
             </Text>
@@ -454,7 +455,7 @@ export default forwardRef(({
             </Text>
             </View>
             <Text onPress={()=>wb.openBrowserAsync(MAIN_URL+'/s/'+note?.public_slug)} suppressHighlighting style={{fontSize:14,fontFamily:'Primary',color:Colors.primary,textDecorationLine:'underline',marginTop:4,width:screenWidth/1.5}} numberOfLines={1}>
-            {MAIN_URL+'/s/'+note?.public_slug+'kmksmksmksmksm'}
+            {MAIN_URL+'/s/'+note?.public_slug}
             </Text>
             <View style={{marginTop:12,flexDirection:'row',alignItems:'center'}}>
             <Touchable activeOpacity={0.5} onPress={()=>onCopy(MAIN_URL+'/s/'+note?.public_slug)} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}}>
@@ -470,6 +471,7 @@ export default forwardRef(({
           </View>}
         </MenuItem>
         </Menu>
+        :<PublishedModal slug={MAIN_URL+'/s'+note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
       {note?.transcript==null&&!note?.isUploading&&
       <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
         <>

@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import { setStringAsync } from "expo-clipboard";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { useState } from "react";
 import { TouchableHighlight } from "react-native";
 import { Text } from "react-native";
 import { View } from "react-native";
@@ -10,34 +10,16 @@ import { SvgXml } from "react-native-svg";
 import { MAIN_URL } from "services/api/api-constants";
 import { screenWidth } from "utils/common";
 
-export default forwardRef(({hideModal=()=>{},isPublished=false,slug='',onPressDone=()=>{},onPressCancel=()=>{}}:PublishModalProps,ref)=>{
+export default ({visible,hideModal=()=>{},isPublished=false,slug='',onPressDone=()=>{},onPressCancel=()=>{}}:PublishModalProps)=>{
     const [copy,setCopy]=useState(false)
-    const [visible,setVisible]=useState(false)
     const onCopy=async()=>{
       setCopy(true)
       await setStringAsync(MAIN_URL+'/s/'+slug)
-      setCopy(false)
+      setTimeout(() => {
+        setCopy(false)
+      }, 700);
     }
   
-    useImperativeHandle(
-      ref,
-      () => {
-        return {
-          open() {
-            setVisible(true);
-            console.log('open')
-          },
-          close() {
-            setVisible(false);
-          },
-          toggle(){
-            setVisible(!visible)
-          },
-        };
-      },
-      [visible]
-    );
-console.log(visible)
     return (
           <ReactNativeModal
           isVisible={visible}
@@ -45,7 +27,12 @@ console.log(visible)
           onBackdropPress={hideModal}
           animationIn={"fadeIn"}
           animationOut={"fadeOut"}
-          style={{flex:1}}
+          hideModalContentWhileAnimating
+          useNativeDriverForBackdrop
+          backdropTransitionInTiming={500}
+          backdropTransitionOutTiming={500}
+          // style={{flex:1}}
+          backdropOpacity={0.3}
           >
           <View style={{padding:16,backgroundColor:Colors.whiteWithOpacity(1),borderRadius:12,shadowColor:'rgba(0,0,0,0.5)'}}>
             {!isPublished?
@@ -54,10 +41,10 @@ console.log(visible)
                 Are you sure you want to share this note?
               </Text>
               <View style={{marginVertical:12,flexDirection:'row',alignItems:'center'}}>
-              <TouchableHighlight onPress={onPressDone} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}}>
+              <TouchableHighlight onPress={onPressDone} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}} underlayColor={Colors.darkWithOpacity(0.8)}>
                 <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>Yes</Text>
               </TouchableHighlight>
-              <TouchableHighlight onPress={onPressCancel} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}}>
+              <TouchableHighlight onPress={onPressCancel} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}} underlayColor={Colors.darkWithOpacity(0.1)}>
                 <Text style={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>No</Text>
               </TouchableHighlight>
               </View>
@@ -79,13 +66,13 @@ console.log(visible)
               {MAIN_URL+'/s/'+slug}
               </Text>
               <View style={{marginTop:12,flexDirection:'row',alignItems:'center'}}>
-              <TouchableHighlight onPress={onCopy} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}}>
+              <TouchableHighlight onPress={onCopy} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}} underlayColor={Colors.darkWithOpacity(0.8)}>
                 <View style={{flexDirection:'row',alignItems:'center'}}>
               <SvgXml xml={CreateModalSvg.publishCopy} />
                 <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12,marginLeft:4}}>{copy?'Copied':'Copy link'}</Text>
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress={onPressDone} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}}>
+              <TouchableHighlight onPress={onPressDone} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}} underlayColor={Colors.darkWithOpacity(0.1)}>
                 <Text style={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>Unpublish</Text>
               </TouchableHighlight>
               </View>
@@ -93,10 +80,10 @@ console.log(visible)
           </View>
           </ReactNativeModal>
     )
-  });
+  };
   
   interface PublishModalProps{
-    visible?:boolean,
+    visible:boolean,
     hideModal:()=>void,
     isPublished:boolean,
     slug:string|any,
