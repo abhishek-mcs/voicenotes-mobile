@@ -284,13 +284,13 @@ export default forwardRef(({
           style={styles.menu}
         >
         <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
-          <View style={[styles.row,{width:180}]}>
+          <View style={[styles.row]}>
             <SvgXml xml={CreateModalSvg.summary} />
             <Text style={styles.menuItemTxt}>Summarize</Text>
           </View>
         </MenuItem>
           <MenuItem style={styles.menuItem} onPress={()=>onCreate('points')}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row]}>
               <SvgXml xml={CreateModalSvg.points} />
               <Text style={styles.menuItemTxt}>List main points</Text>
             </View>
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft:4
   },
-  menuItem: { paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden",width:'100%' },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: isIOS?14:12,
