@@ -40,6 +40,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import onUploadRecord from "func/home/on-upload-record";
 import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
+import NetInfo from '@react-native-community/netinfo';
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -90,8 +91,8 @@ export default ()=> {
   // Only dispatch if the recording list has changed
   useEffect(() => {
     const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
-    if (JSON.stringify(recordingList) != JSON.stringify(records)) {
-      records?.length>0&&records[0]?.transcript==null&&(records[0].transcript='');
+    if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>0) {
+      records[0]?.transcript==null&&(records[0].transcript='');
       setReduxRecordingList(records);
     }
   }, [recordingQuery]);

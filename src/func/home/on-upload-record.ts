@@ -1,6 +1,6 @@
 export default ({setGenerateDummy,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry}:any)=>{
       uploadRecord.mutate(
-        {audio:file,duration:d},
+        {audio:file,duration:d,isRetry:isRetry},
         {
           onSuccess: async(r:any) => {
             await queryClient.invalidateQueries('all-recording');

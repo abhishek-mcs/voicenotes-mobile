@@ -73,7 +73,7 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
-        formData.append("duration", data.duration.toString());
+        data?.isRetry&&formData.append("duration", data.duration.toString());
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })

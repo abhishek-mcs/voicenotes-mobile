@@ -228,6 +228,8 @@ export default forwardRef(({
     setEditNote(note); // Update editNote when the note prop changes
   }, [note]);
 
+  const formattedDuration = (duration=0) => new Date(duration).toISOString().substring(14, 19);
+
   const creationList=useMemo(()=>note?.creations,[list])
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
@@ -250,10 +252,11 @@ export default forwardRef(({
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
-          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
+          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.{note?.transcript}</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
+          {!!note?.audio?.data?.url&&note.isUploading==false&&<Text style={styles.text}>{`Synced and transcribed when you’re back online.`}</Text>}
           {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
           :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
