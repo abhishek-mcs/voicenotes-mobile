@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "51",
+      "buildNumber": "54",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -33,13 +33,13 @@
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#fff"
       },
-      "softwareKeyboardLayoutMode" : "pan",
+      "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 15
+      "versionCode": 18
     },
     "web": {
       "bundler": "metro",
