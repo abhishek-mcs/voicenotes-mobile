@@ -295,10 +295,10 @@ export default forwardRef(({
           {!!note?.audio?.data?.url&&note.isUploading==false&&
           <View style={{flexDirection:'row',alignItems:'flex-start'}}>
             <SvgXml xml={home.wait} style={{marginTop:8,marginRight:8}}/>
-            <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic'}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
+            <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
           </View>}
           {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
-          :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
+          :!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={[styles.row,{flexWrap:'wrap'}]}>
           {note?.tags?.map((tag:any,i:number)=>
