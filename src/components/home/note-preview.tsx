@@ -424,11 +424,11 @@ export default forwardRef(({
           anchor={null}
           onRequestClose={()=>setShareVisible(false)}
           animationDuration={1}
-          style={{borderRadius:12,width:isPublished?screenWidth/1.35:'auto'}}
+          style={{borderRadius:12,width:isPublished?screenWidth/1.2:'auto'}}
         >
-        <MenuItem style={{padding:16,width:'100%',height:200,flex:1}} disabled={true} >
+        <MenuItem style={{padding:16,width:'100%',height:'100%'}} disabled={true} >
           {!isPublished?
-            <View style={{maxWidth:300,maxHeight:300}}>
+            <View>
             <Text style={{fontSize:14,fontFamily:'Primary-Semibold',color:Colors.darkWithOpacity(1),lineHeight:19.2}}>
               Are you sure you want to share this note?
             </Text>
@@ -447,14 +447,14 @@ export default forwardRef(({
             </Text>
             </View>
           </View>
-          :<View style={{width:screenWidth/1.4}}>
+          :<View style={{width:screenWidth/1.2}}>
             <View style={[styles.row]}>
             <SvgXml xml={CreateModalSvg.unlock} />
             <Text style={{fontSize:14,fontFamily:'Primary-Semibold',color:Colors.darkWithOpacity(1),lineHeight:19.2,marginLeft:8,width:screenWidth/1.2}}>
               Your shareable link is ready 
             </Text>
             </View>
-            <Text onPress={()=>wb.openBrowserAsync(MAIN_URL+'/s/'+note?.public_slug)} suppressHighlighting style={{fontSize:14,fontFamily:'Primary',color:Colors.primary,textDecorationLine:'underline',marginTop:4,width:screenWidth/1.5}} numberOfLines={1}>
+            <Text onPress={()=>wb.openBrowserAsync(MAIN_URL+'/s/'+note?.public_slug)} suppressHighlighting style={{fontSize:14,fontFamily:'Primary',color:Colors.primary,textDecorationLine:'underline',marginTop:4,width:screenWidth/1.2}}>
             {MAIN_URL+'/s/'+note?.public_slug}
             </Text>
             <View style={{marginTop:12,flexDirection:'row',alignItems:'center'}}>
