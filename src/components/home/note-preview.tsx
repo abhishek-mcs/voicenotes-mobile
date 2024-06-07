@@ -13,27 +13,37 @@ import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { isIOS, screenWidth } from "utils/common";
 import { router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
+import { setTagsFilter } from "redux/reducers/hashSlice";
+import { MAIN_URL } from "services/api/api-constants";
+import { useUnpublishRecording } from "queries/home/share";
+import * as wb from 'expo-web-browser';
+import PublishedModal from "./published-modal";
 
 export default forwardRef(({
   note,
   onUploadRetry,
+  hashFilter,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
+  const route=useRouter()
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
   const [moreOption, setMoreOption] = useState(false);
   const [createOption, setCreateOption] = useState(false);
+  const [shareVisible, setShareVisible] = useState(false);
+  const [isPublished, setIsPublished] = useState(note?.is_published??false);
   const [creationLoader, setCreationLoader] = useState(false);
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
   const [createType,setCreateType]=useState('summary')
+  const dispatch=useDispatch()
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
   
@@ -45,8 +55,7 @@ export default forwardRef(({
   const signedURL = useSignedUrl()
   const createAI=useCreate()
   const addTranscript=useAddTranscript()
-
-
+  const unPublishRecording=useUnpublishRecording()
 
   useEffect(()=>{
     if(triggerTypingTranscript==0&&!note?.transcript)
@@ -107,6 +116,14 @@ export default forwardRef(({
     })
   }
 
+  const onGotoAddTag=()=>{
+    hideMoreOption()
+    setTimeout(() => {
+      const tags=note?.tags?.flatMap((tag:any)=>tag?.name)
+      route.push({pathname:"/add-tags/",params:{tagsArray:JSON.stringify(tags),recording_id:note?.id}})
+    }, 500);
+  }
+
   const onCreate=async(type='summary')=>{
     setCreateType(type)
     setCreationLoader(true)
@@ -139,9 +156,29 @@ export default forwardRef(({
     }
   }
 
-  const onCopy=async()=>{
+  const onUnpublish=()=>{
+    moreOption&&hideMoreOption();
+    setShareVisible(false)
+    unPublishRecording.mutateAsync({id:note?.id},{
+      onSuccess:(r)=>{
+        setIsPublished((t:boolean)=>!t)
+        !isPublished&&
+        setShareVisible(true)
+      }
+    })
+  }
+
+  const onShareNote=()=>{
     hideMoreOption();
-    await setStringAsync(note?.transcript||'');
+    setTimeout(() => {
+      setShareVisible(true)
+    }, 500);
+  }
+
+  const onCopy=async(content='')=>{
+    hideMoreOption();
+    await setStringAsync(content);
+    setShareVisible(false)
   }
   const onDelete=()=>{
     hideMoreOption();
@@ -239,7 +276,7 @@ export default forwardRef(({
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
-          // :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
+          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
@@ -247,15 +284,23 @@ export default forwardRef(({
           :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={[styles.row,{flexWrap:'wrap'}]}>
-          {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
+          {note?.tags?.map((tag:any,i:number)=>
+          <Text 
+            key={i} 
+            style={styles.tag} 
+            onPress={()=>dispatch(setTagsFilter(tag?.name))}
+            suppressHighlighting>
+              {'#'+tag?.name}
+          </Text>)}
           </View>}
 
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
+      {hashFilter!='shared'&&
       <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}} disabled={!note?.transcript}>
         <SvgXml xml={home.edit}/>
-      </Touchable>
-      {!!token&&<Menu
+      </Touchable>}
+      {!!token&&hashFilter!='shared'&&<Menu
           visible={createOption}
           anchor={
             <Touchable style={styles.menuPress} onPress={showCreateOption} disabled={!note?.transcript}>
@@ -266,13 +311,13 @@ export default forwardRef(({
           style={styles.menu}
         >
         <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
-          <View style={[styles.row,{width:180}]}>
+          <View style={[styles.row]}>
             <SvgXml xml={CreateModalSvg.summary} />
             <Text style={styles.menuItemTxt}>Summarize</Text>
           </View>
         </MenuItem>
           <MenuItem style={styles.menuItem} onPress={()=>onCreate('points')}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row]}>
               <SvgXml xml={CreateModalSvg.points} />
               <Text style={styles.menuItemTxt}>List main points</Text>
             </View>
@@ -305,23 +350,43 @@ export default forwardRef(({
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMoreOption}>
+            <Touchable style={[styles.menuPress,hashFilter!='shared'?{}:{marginLeft:0}]} onPress={showMoreOption}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
           onRequestClose={hideMoreOption}
           style={styles.menu}
         >
+        {hashFilter!='shared'?
+        <>
         <MenuItem style={styles.menuItem} onPress={onStarred}>
           <View style={[styles.row,{width:180}]}>
             <SvgXml xml={home.smallStar} />
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
+        <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={home.addTag} />
+            <Text style={styles.menuItemTxt}>Add Tag</Text>
+          </View>
+        </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={()=>onCopy(note?.transcript??'')}>
+            <View style={styles.row}>
+              <SvgXml xml={home.copy} />
+              <Text style={styles.menuItemTxt}>Copy note</Text>
+            </View>
+          </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={onShareNote}>
+            <View style={[styles.row,{width:180}]}>
+              <SvgXml xml={home.shareOptIcon} />
+              <Text style={styles.menuItemTxt}>Get shareable link</Text>
+            </View>
+          </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />
-              <Text style={styles.menuItemTxt}>Generate another title</Text>
+              <Text style={styles.menuItemTxt}>Regenerate title</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onReGenerateTranscript}>
@@ -330,24 +395,87 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onCopy}>
-            <View style={styles.row}>
-              <SvgXml xml={home.copy} />
-              <Text style={styles.menuItemTxt}>Copy note</Text>
-            </View>
-          </MenuItem>
           {!!token&&<MenuItem style={styles.menuItem} onPress={onDelete}>
             <View style={styles.row}>
               <SvgXml xml={home.delete} />
               <Text style={styles.menuItemTxt}>Delete</Text>
             </View>
           </MenuItem>}
+          </>
+          :
+          <>
+          <MenuItem style={[styles.menuItem,{paddingLeft:0}]} onPress={()=>onCopy(MAIN_URL+'/s/'+note?.public_slug)}>
+            {/* <View style={[styles.row]}> */}
+              {/* <SvgXml xml={home.generate} /> */}
+              <Text style={styles.menuItemTxt}>Copy link</Text>
+            {/* </View> */}
+          </MenuItem>
+          <MenuItem style={[styles.menuItem,{paddingLeft:0}]} onPress={onUnpublish}>
+            {/* <View style={[styles.row]}> */}
+              {/* <SvgXml xml={home.retry} /> */}
+              <Text style={styles.menuItemTxt}>Unpublish</Text>
+            {/* </View> */}
+          </MenuItem>
+          </>}
         </Menu>
       </View>}
+      {isIOS?<Menu
+          visible={shareVisible}
+          anchor={null}
+          onRequestClose={()=>setShareVisible(false)}
+          animationDuration={1}
+          style={{borderRadius:12,width:isPublished?screenWidth/1.2:'auto'}}
+        >
+        <MenuItem style={{padding:16,width:'100%',height:'100%'}} disabled={true} >
+          {!isPublished?
+            <View>
+            <Text style={{fontSize:14,fontFamily:'Primary-Semibold',color:Colors.darkWithOpacity(1),lineHeight:19.2}}>
+              Are you sure you want to share this note?
+            </Text>
+            <View style={{marginVertical:12,flexDirection:'row',alignItems:'center'}}>
+            <Touchable activeOpacity={0.5} onPress={onUnpublish} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}}>
+              <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>Yes</Text>
+            </Touchable>
+            <Touchable activeOpacity={0.5} onPress={()=>setShareVisible(false)} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}}>
+              <Text style={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>No</Text>
+            </Touchable>
+            </View>
+            <View style={[styles.row,{alignItems:'flex-start'}]}>
+            <SvgXml xml={CreateModalSvg.info} style={{marginTop:1}} />
+            <Text style={{fontSize:12,fontFamily:'Primary',color:Colors.grey,lineHeight:16}}>
+              {` Anyone with the link will have access to this voice note.`}
+            </Text>
+            </View>
+          </View>
+          :<View style={{width:screenWidth/1.2}}>
+            <View style={[styles.row]}>
+            <SvgXml xml={CreateModalSvg.unlock} />
+            <Text style={{fontSize:14,fontFamily:'Primary-Semibold',color:Colors.darkWithOpacity(1),lineHeight:19.2,marginLeft:8,width:screenWidth/1.2}}>
+              Your shareable link is ready 
+            </Text>
+            </View>
+            <Text onPress={()=>wb.openBrowserAsync(MAIN_URL+'/s/'+note?.public_slug)} suppressHighlighting style={{fontSize:14,fontFamily:'Primary',color:Colors.primary,textDecorationLine:'underline',marginTop:4,width:screenWidth/1.2}}>
+            {MAIN_URL+'/s/'+note?.public_slug}
+            </Text>
+            <View style={{marginTop:12,flexDirection:'row',alignItems:'center'}}>
+            <Touchable activeOpacity={0.5} onPress={()=>onCopy(MAIN_URL+'/s/'+note?.public_slug)} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}}>
+              <View style={styles.row}>
+            <SvgXml xml={CreateModalSvg.publishCopy} />
+              <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12,marginLeft:4}}>{'Copy link'}</Text>
+              </View>
+            </Touchable>
+            <Touchable activeOpacity={0.5} onPress={onUnpublish} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}}>
+              <Text style={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>Unpublish</Text>
+            </Touchable>
+            </View>
+          </View>}
+        </MenuItem>
+        </Menu>
+        :<PublishedModal slug={MAIN_URL+'/s'+note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
       {note?.transcript==null&&!note?.isUploading&&
       <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
         <>
-        <SvgXml xml={home.retry} />
+        <SvgXml xml={home.retryUpload} />
         <Text style={styles.retryTxt}>Retry</Text>
         </>
       </TouchableHighlight>}
@@ -383,12 +511,12 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>
       <View style={[styles.row,{flexWrap:'wrap',width:'55%',alignSelf:'center'}]}>
-      {editNote?.tags?.map((tag:any,indx:number)=>
+      {/* {editNote?.tags?.map((tag:any,indx:number)=>
       <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={styles.tagWrap}>
         <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
       </Touchable>
-      )}
-      <TextInput
+      )} */}
+      {/* <TextInput
         style={styles.tagInput}
         placeholder="#Add tags"
         placeholderTextColor={Colors.greyWithOpacity(0.82)}
@@ -401,7 +529,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
         onSubmitEditing={()=>{
           setEditNote({...editNote,tags:[...editNote.tags,{name:tag?.replace(/ /g, '')}]})
           setTag('')
-          }} />
+          }} /> */}
       </View>
       <View style={styles.row}>
       <Touchable 
@@ -475,8 +603,8 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderRadius: 12,
-    marginTop:25,
-    marginLeft:10
+    // marginTop:25,
+    // marginLeft:10
   },
   menuPress: {
     height: 25,
@@ -485,7 +613,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft:4
   },
-  menuItem: { paddingHorizontal:isIOS? 0:4,paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden" },
+  menuItem: { paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden",width:'100%' },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,

@@ -39,6 +39,10 @@ import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import onUploadRecord from "func/home/on-upload-record";
+import { Text } from "react-native";
+import Colors from "assets/Colors";
+import { SvgXml } from "react-native-svg";
+import { home } from "assets/svg/home";
 import Animated from "react-native-reanimated";
 
 const recordSound = require("../../assets/sounds/record.wav");
@@ -169,6 +173,7 @@ export default ()=> {
         audioLoading={audioLoading}
         setAudioLoading={setAudioLoading}
         onUploadRetry={onUploadRetry}
+        hashFilter={hashFilter}
       />
     ),
     [isPlay,play,recordingList,audioLoading]
@@ -195,7 +200,7 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token}/>
-          {!isListEmpty&&!!token && (
+          {!isListEmpty&&!!token &&hashFilter!='shared'&& (
             <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} sharedTransitionTag="sharedTag" onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
               <Animatable.View style={{zIndex:1}} animation={isSearchVisible?fadeIn:fadeOut} duration={40} easing={Easing.ease} useNativeDriver={true}>
                 <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
@@ -233,7 +238,15 @@ export default ()=> {
                 <AboutProduct disable={false} />
               ) : null
             }
-            ListEmptyComponent={() => recordingQuery.isLoading?(
+            ListEmptyComponent={() => hashFilter=='shared'?
+            <View style={{flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),paddingHorizontal:24,paddingVertical:12,borderRadius:12,marginTop:20}}>
+              <SvgXml xml={home.share} />
+              <View style={{marginLeft:16,backgroundColor:'transparent'}}>
+                <Text style={{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:4}}>You haven't shared any notes yet.</Text>
+                <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1)}}>To share a note, just tap ‘... More’ in the notes settings and select ‘Share’</Text>
+              </View>
+            </View>
+              :recordingQuery.isLoading?(
               <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>

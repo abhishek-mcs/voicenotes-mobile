@@ -9,6 +9,7 @@ import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import * as Animatable from "react-native-animatable"
 import CircularLoader from "../loaders/circular-loader";
+import { isIOS } from "utils/common";
 const {debounce}=require("lodash")
 
 const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
@@ -118,7 +119,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                       <Text style={styles.recent}>Recent searches</Text>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
-                        onPressIn={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
+                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
                         style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
                           <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>

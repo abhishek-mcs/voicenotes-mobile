@@ -5,8 +5,8 @@ import axiosApi from "services/api/axios-api";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
-    return useInfiniteQuery(['all-recording',tags],async ({pageParam=1})=>{
-        return await axiosApi.get('/recordings?page='+pageParam+(!!tags?`&tags[]=${tags}`:''));
+    return useInfiniteQuery(tags=='shared'?['published-recordings']:['all-recording',tags],async ({pageParam=1})=>{
+        return await axiosApi.get((tags=='shared'?'/recordings/public?page=':'/recordings?page=')+pageParam+(!!tags?`&tags[]=${tags}`:''));
     },{
         getNextPageParam:(lastPage)=>{
             return lastPage.data?.links?.next ? lastPage.data.meta?.current_page + 1 : undefined;
