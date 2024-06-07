@@ -471,7 +471,7 @@ export default forwardRef(({
           </View>}
         </MenuItem>
         </Menu>
-        :<PublishedModal slug={MAIN_URL+'/s'+note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
+        :<PublishedModal slug={note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
       {note?.transcript==null&&!note?.isUploading&&
       <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
         <>
