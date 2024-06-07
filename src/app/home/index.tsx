@@ -101,9 +101,12 @@ export default ()=> {
   useEffect(() => {
     const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
     if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
-      if(hashFilter!='shared'&&records?.length>0)
-        (records[0]?.transcript==null)&&(records[0].transcript='');
-      setReduxRecordingList(records);
+      if(hashFilter!='shared'&&records?.length>0&&records[0]?.transcript==null){
+        records[0].transcript='';
+        setReduxRecordingList(records);
+      }else if(hashFilter=='shared'){
+        setReduxRecordingList(records);
+      }
     }
   }, [recordingQuery,hashFilter]);
   
