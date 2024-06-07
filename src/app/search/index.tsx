@@ -8,7 +8,7 @@ import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistor
 import { useRouter } from "expo-router";
 import CircularLoader from "components/common/loaders/circular-loader";
 import Animated from "react-native-reanimated";
-import { isIOS } from "utils/common";
+import { isIOS, screenWidth } from "utils/common";
 
 const {debounce}=require("lodash")
 
@@ -127,9 +127,9 @@ export default ({setHide=(v:boolean)=>{}})=>{
                         <View style={{backgroundColor:'#222',width:6,height:6,borderRadius:9}}/>
                         <Text style={styles.title}>{itm?.title}</Text>
                       </View>
-                      <Text style={styles.txt}>...{itm?.transcript?.trimEnd()}</Text></View>
+                      <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
-                    :getSearchData.isFetched&&searchData?.length==0?
+                    :((getSearchData.isFetched&&searchData?.length==0)||(searchText==''&&searchHistoryList?.length==0))?
                     <Text style={styles.noData}>No data found</Text>
                   :
                   <View style={[styles.result,{alignItems:'center',marginTop:40}]}>
