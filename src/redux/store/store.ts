@@ -6,18 +6,20 @@ import '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import suggestionState from 'redux/reducers/suggestionState';
 import IAPStates from 'redux/reducers/IAPStates';
+import recordingStates from 'redux/reducers/recordingStates';
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist:['userDetails','IAPStates']
+  whitelist:['userDetails','IAPStates','recordingStates']
 };
 
 const rootReducer = combineReducers({
     hash:hashReducer,
     userDetails:userDetails,
     suggestionState:suggestionState,
-    IAPStates:IAPStates
+    IAPStates:IAPStates,
+    recordingStates:recordingStates
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

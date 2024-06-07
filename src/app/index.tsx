@@ -24,6 +24,7 @@ export default function App() {
     "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
     "Primary": require('../assets/fonts/Inter-Regular.ttf'),
     "Primary-Semibold": require('../assets/fonts/Inter-SemiBold.ttf'),
+    "Primary-Italic": require('../assets/fonts/Inter-Italic.ttf'),
     ...FontAwesome.font,
   });
   
