@@ -256,7 +256,11 @@ export default forwardRef(({
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.{note?.transcript}</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
-          {!!note?.audio?.data?.url&&note.isUploading==false&&<Text style={styles.text}>{`Synced and transcribed when you’re back online.`}</Text>}
+          {!!note?.audio?.data?.url&&note.isUploading==false&&
+          <View style={{flexDirection:'row',alignItems:'flex-start'}}>
+            <SvgXml xml={home.wait} style={{marginTop:8,marginRight:8}}/>
+            <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic'}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
+          </View>}
           {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
           :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
@@ -371,7 +375,7 @@ export default forwardRef(({
           </MenuItem>}
         </Menu>
       </View>}
-      {note?.transcript==null&&!note?.isUploading&&
+      {note?.transcript==null&&note?.isUploading==undefined&&
       <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
         <>
         <SvgXml xml={home.retryUpload} />

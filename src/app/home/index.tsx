@@ -41,6 +41,7 @@ import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import onUploadRecord from "func/home/on-upload-record";
 import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 import NetInfo from '@react-native-community/netinfo';
+import Snackbar from "components/common/snackbar";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -75,6 +76,9 @@ export default ()=> {
   const [showAskMe,setShowAskMe]=useState(true)
   const [hideBackground,setHideBg]=useState(false)
   const [isRefreshing,setRefreshing]=useState(false)
+  const [uploading,setUploading]=useState(0)
+  const [isOffline,setOffline]=useState(false)
+  const snackRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -104,7 +108,16 @@ export default ()=> {
   useEffect(()=>{
     checkRecordPermission()
     dispatch(setTempIsIAPPurchased(false))
+    NetInfo.addEventListener(state => {
+      setOffline(!state.isConnected)
+    })
   },[])
+
+  useEffect(()=>{
+    if(!isOffline&&generateDummy.length>0&&uploading==0){
+      batchRetryUpload()
+    }
+  },[isOffline])
   // setupAudioRec(rec)
 
   const onAsk = () => {
@@ -133,21 +146,44 @@ export default ()=> {
     setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}  
     setGenerateDummy(!!generateDummy?[...generateDummy,dump]:[dump])
-    onUploadRecord({setGenerateDummy,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
+    onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
     await soundRef.current?.unloadAsync()
+    snackRef.current?.show()
   };
   
-  const onUploadRetry = (note:any) => {
+  const onUploadRetry = async(note:any) => {
+    return new Promise(async(resolve, reject) => {
     activateKeepAwakeAsync();
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
-    let temp=[...generateDummy]
-    const indx=temp?.findIndex((g:any)=>g.audio.data.url==file)
-    temp[indx] = { ...temp[indx], isUploading: true }
-    const itm=temp.splice(indx,1)
-    setGenerateDummy([...temp,...itm])
-    onUploadRecord({setGenerateDummy,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry:true})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry:true})
+      .then(()=>resolve('success'))
+      .catch(()=>reject('error'))
+    })
   }
+
+  const batchRetryUpload = async () => {
+    if (generateDummy && generateDummy.length > 0) {
+      setUploading(generateDummy.length);
+      const temp=[...generateDummy]
+      for (let i=0;i<temp.length;i++){
+        temp[i] = { ...temp[i], isUploading: true }
+      }
+      setGenerateDummy([...temp])
+      let j=temp.length-1
+      while(j>=0){
+        await onUploadRetry(temp[j]).then(()=>{
+          temp.pop()
+          setGenerateDummy([...temp])
+          j=temp.length-1
+        }).catch(()=>{
+          // setUploading(0);
+          // temp[j] = { ...temp[j], isUploading: false }
+          // setGenerateDummy([...temp])
+        });
+      }
+    } 
+  };  
 
   useEffect(()=>{
     try{
@@ -169,6 +205,14 @@ export default ()=> {
       setRecEnabled(false);
     }:undefined
   },[])
+
+  useEffect(()=>{
+    if(!!generateDummy&&generateDummy?.length>0){
+      snackRef?.current?.show()
+    }else{
+      snackRef?.current?.close()
+    }
+  },[snackRef,generateDummy])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
@@ -211,7 +255,14 @@ export default ()=> {
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
-          <Header isLogged={!!token}/>
+          <Header isLogged={!!token} isOffline={isOffline}/>
+          {/* <Snackbar
+            ref={snackRef}
+            message="Sync when network is available"
+            actionText="Sync"
+            onAction={batchRetryUpload}
+            count={uploading}
+          /> */}
           {!isListEmpty&&!!token && (
             <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1,marginTop:10}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
               <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
