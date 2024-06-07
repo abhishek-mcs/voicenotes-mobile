@@ -100,11 +100,12 @@ export default ()=> {
   // Only dispatch if the recording list has changed
   useEffect(() => {
     const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
-    if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>0) {
-      records[0]?.transcript==null&&(records[0].transcript='');
+    if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
+      if(hashFilter!='shared'&&records?.length>0)
+        (records[0]?.transcript==null)&&(records[0].transcript='');
       setReduxRecordingList(records);
     }
-  }, [recordingQuery]);
+  }, [recordingQuery,hashFilter]);
   
   const isListEmpty = recordingList?.length == 0 || null;
 

@@ -7,7 +7,7 @@ import { formatDate, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
-import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
+import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useRecordings, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
 import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
@@ -24,6 +24,7 @@ import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
+import { setRecordingList } from "redux/reducers/recordingStates";
 
 export default forwardRef(({
   note,
@@ -56,6 +57,7 @@ export default forwardRef(({
   const createAI=useCreate()
   const addTranscript=useAddTranscript()
   const unPublishRecording=useUnpublishRecording()
+  const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
 
   useEffect(()=>{
     if(triggerTypingTranscript==0&&!note?.transcript)
@@ -160,9 +162,11 @@ export default forwardRef(({
     moreOption&&hideMoreOption();
     setShareVisible(false)
     unPublishRecording.mutateAsync({id:note?.id},{
-      onSuccess:(r)=>{
-        setIsPublished((t:boolean)=>!t)
-        !isPublished&&
+      onSuccess:async(r)=>{
+        const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
+        setRecordingList(records);
+        setIsPublished((t:boolean)=>!t);
+        (hashFilter!='shared'&&!isPublished)&&
         setShareVisible(true)
       }
     })
@@ -249,6 +253,12 @@ export default forwardRef(({
       console.error('Error playing audio:', error);
     }
   }
+
+  useEffect(() => {
+    if(!note?.public_slug){
+      setIsPublished(false)
+    }
+  },[note?.public_slug]);
 
   useEffect(() => {
     setEditNote(note); // Update editNote when the note prop changes
@@ -434,7 +444,7 @@ export default forwardRef(({
           style={{borderRadius:12,width:isPublished?screenWidth/1.2:'auto'}}
         >
         <MenuItem style={{padding:16,width:'100%',height:'100%'}} disabled={true} >
-          {!isPublished?
+          {(!isPublished)?
             <View>
             <Text style={{fontSize:14,fontFamily:'Primary-Semibold',color:Colors.darkWithOpacity(1),lineHeight:19.2}}>
               Are you sure you want to share this note?
