@@ -119,7 +119,7 @@ export default ()=> {
   },[])
 
   useEffect(()=>{
-    if(!isOffline&&generateDummy.length>0&&uploading==0){
+    if(!isOffline&&!!generateDummy&&generateDummy?.length>0&&uploading==0){
       batchRetryUpload()
     }
   },[isOffline])
