@@ -24,8 +24,9 @@ export default ({setHide=(v:boolean)=>{}})=>{
     const deleteSearchHistory=useDeleteSearchHistory()
     const getSearchData=useSearch(searchQuery);
 
-    const searchHistoryList=searchHistoryData.data?.data||[]
     const searchData=getSearchData.data?.data||[]
+
+    const [searchHistoryList, setSearchHistoryList] = useState(searchHistoryData.data?.data||[]);
 
     const debouncedSearch = debounce((q:string) => {
       setSearchQuery(q);
@@ -46,6 +47,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
 
     const goto=(id:number)=>{
       Keyboard.dismiss();
+      setSearchHistoryList([...searchHistoryList,{keyword:searchText}])
       setSearchHistory.mutate(searchText)
       router.push({pathname:"/RelatedNotes/",params:{id}})
       clearSearch()
@@ -58,6 +60,12 @@ export default ({setHide=(v:boolean)=>{}})=>{
       })
       return ()=>Keyboard.dismiss()
       },[ref.current])
+    
+    const onDeleteSearchHistory=(id:number)=>{
+      const temp=searchHistoryList?.filter((itm:any)=>itm?.id!=id)
+      setSearchHistoryList(temp)
+      deleteSearchHistory.mutate(id)
+    }
 
     return (
         <SafeAreaView>
@@ -113,7 +121,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                               <SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
                               <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text>
                             </>
-                            <Pressable onPress={()=>deleteSearchHistory.mutate(itm?.id)}>
+                            <Pressable onPress={()=>onDeleteSearchHistory(itm?.id)}>
                               <SvgXml xml={commonSvg.smallClose} />
                             </Pressable>
                           </View>
@@ -130,7 +138,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                       <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
                     :((getSearchData.isFetched&&searchData?.length==0)||(searchText==''&&searchHistoryList?.length==0))?
-                    <Text style={styles.noData}>No data found</Text>
+                    <Text style={styles.noData}>No Results Found</Text>
                   :
                   <View style={[styles.result,{alignItems:'center',marginTop:40}]}>
                     <CircularLoader/>
