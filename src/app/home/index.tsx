@@ -154,7 +154,7 @@ export default ()=> {
     setRec(null);
     setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}  
-    setGenerateDummy(!!generateDummy?[...generateDummy,dump]:[dump])
+    setGenerateDummy(!!generateDummy?[dump,...generateDummy]:[dump])
     onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
     await soundRef.current?.unloadAsync()
     snackRef.current?.show()
