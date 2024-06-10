@@ -47,6 +47,7 @@ import Animated from "react-native-reanimated";
 import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 import NetInfo from '@react-native-community/netinfo';
 import Snackbar from "components/common/snackbar";
+import { LayoutAnimation } from "react-native";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -153,9 +154,10 @@ export default ()=> {
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
-    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}  
-    setGenerateDummy(!!generateDummy?[dump,...generateDummy]:[dump])
-    onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
+    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
+    const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
+    setGenerateDummy(dummyData)
+    onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
     await soundRef.current?.unloadAsync()
     snackRef.current?.show()
   };
@@ -215,13 +217,13 @@ export default ()=> {
     }:undefined
   },[])
 
-  useEffect(()=>{
-    if(!!generateDummy&&generateDummy?.length>0){
-      snackRef?.current?.show()
-    }else{
-      snackRef?.current?.close()
-    }
-  },[snackRef,generateDummy])
+  // useEffect(()=>{
+  //   if(!!generateDummy&&generateDummy?.length>0){
+  //     snackRef?.current?.show()
+  //   }else{
+  //     snackRef?.current?.close()
+  //   }
+  // },[snackRef,generateDummy])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
@@ -244,6 +246,24 @@ export default ()=> {
     ),
     [isPlay,play,recordingList,audioLoading,generateDummy]
   );
+
+  useEffect(()=>{
+    LayoutAnimation.configureNext({
+      duration: 250,
+      create: {
+        type: LayoutAnimation.Types.easeIn,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      delete: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
+  },[recordingList,generateDummy])
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);

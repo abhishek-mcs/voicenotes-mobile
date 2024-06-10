@@ -26,7 +26,7 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
             deactivateKeepAwake()
             const dump={isUploading:false,audio:{data:{url:file,duration:d}}}  
             const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!==file)??[]
-            setGenerateDummy(!!generateDummy?[...filterDummy,dump]:[dump])
+            setGenerateDummy(!!generateDummy?[dump,...filterDummy]:[dump])
             setUploading(0)
             console.log('error upload failed')
             reject('error');
