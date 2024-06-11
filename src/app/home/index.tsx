@@ -46,9 +46,9 @@ import { home } from "assets/svg/home";
 import Animated from "react-native-reanimated";
 import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 import NetInfo from '@react-native-community/netinfo';
-import Snackbar from "components/common/snackbar";
 import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
+import BannerAlert from "components/common/banner-alert";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -86,7 +86,7 @@ export default ()=> {
   const [isRefreshing,setRefreshing]=useState(false)
   const [uploading,setUploading]=useState(0)
   const [isOffline,setOffline]=useState(false)
-  const snackRef=useRef<any>(null)
+  const bannerRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -149,7 +149,7 @@ export default ()=> {
     CreateModalRef.current?.close()
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     if(!canRecord){
-      snackRef.current?.show()
+      bannerRef.current?.show()
       return
     }
     // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
@@ -167,7 +167,6 @@ export default ()=> {
     setGenerateDummy(dummyData)
     onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
-    snackRef.current?.show()
   };
   
   const onUploadRetry = async(note:any) => {
@@ -227,11 +226,11 @@ export default ()=> {
 
   // useEffect(()=>{
   //   if(!!generateDummy&&generateDummy?.length>0){
-  //     snackRef?.current?.show()
+  //     bannerRef?.current?.show()
   //   }else{
-  //     snackRef?.current?.close()
+  //     bannerRef?.current?.close()
   //   }
-  // },[snackRef,generateDummy])
+  // },[bannerRef,generateDummy])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
@@ -299,9 +298,11 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token} isOffline={isOffline}/>
-          <Snackbar
-            ref={snackRef}
-            snackHeight={60}
+          <BannerAlert
+            ref={bannerRef}
+            snackHeight={52}
+            onAction={()=>bannerRef?.current?.close()}
+            actionText="Close"
             message="Your daily recording limit has been exceeded. Please try again later."
           />
           {!isListEmpty&&!!token &&hashFilter!='shared'&& (
