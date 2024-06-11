@@ -24,7 +24,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
     useEffect(() => {
         if (recEnabled) {
-          const timerId = setInterval(() => {
+          const timerId = setInterval(async() => {
             setDuration(prevDuration => {
               const newDuration = prevDuration + 1000;
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
@@ -32,6 +32,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
                 return 0;
               }else if(newDuration>=1800000&&!!token){
                 onStopRecord(newDuration);
+                onRecord();
                 return 0
               }
               return newDuration;
