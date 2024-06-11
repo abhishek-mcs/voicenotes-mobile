@@ -106,11 +106,15 @@ export default ({setHide=(v:boolean)=>{}})=>{
           </View>
                   <ScrollView 
                     showsVerticalScrollIndicator={false} 
-                    style={{overflow:'hidden'}} 
+                    style={{overflow:'hidden',paddingBottom:100}}
+                    contentContainerStyle={{paddingBottom:100}}
                     keyboardShouldPersistTaps="handled">
+                    {searchText==''&&
+                    <Text style={[styles.recent,{paddingTop:12}]}>
+                      {searchHistoryList?.length>0?'Recent searches':'Try searching notes, keywords, or tags.'}
+                    </Text>}
                     {(searchText==''&&searchHistoryList?.length!=0)?
-                    (<View style={{paddingVertical:12}}>
-                      <Text style={styles.recent}>Recent searches</Text>
+                    (<View style={{paddingBottom:12}}>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
                         onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);Keyboard.dismiss();}}
@@ -137,10 +141,11 @@ export default ({setHide=(v:boolean)=>{}})=>{
                       </View>
                       <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
-                    :((getSearchData.isFetched&&searchData?.length==0)||(searchText==''&&searchHistoryList?.length==0))?
+                    :((getSearchData.isFetched&&searchData?.length==0))?
                     <Text style={styles.noData}>No Results Found</Text>
-                  :
-                  <View style={[styles.result,{alignItems:'center',marginTop:40}]}>
+                  :(searchText==''&&searchHistoryList?.length==0)?
+                  null
+                  :<View style={[styles.result,{alignItems:'center',marginTop:40}]}>
                     <CircularLoader/>
                   </View>}
                   </ScrollView>
