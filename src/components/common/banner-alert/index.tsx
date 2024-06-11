@@ -51,7 +51,7 @@ export default forwardRef(({ message, actionText, onAction, snackHeight = 50,cou
   const showSnackbar = () => {
     onLayoutAnimation()
     setVisible(true);
-    setTimeout(hideSnackbar, 5000);
+    // setTimeout(hideSnackbar, 5000);
   };
 
   useEffect(() => {

@@ -109,9 +109,9 @@ export default ({setHide=(v:boolean)=>{}})=>{
                     style={{overflow:'hidden',paddingBottom:100}}
                     contentContainerStyle={{paddingBottom:100}}
                     keyboardShouldPersistTaps="handled">
-                    {searchText==''&&
+                    {((getSearchData?.isFetched&&searchData.length==0)||searchText=='')&&
                     <Text style={[styles.recent,{paddingTop:12}]}>
-                      {searchHistoryList?.length>0?'Recent searches':'Try searching notes, keywords, or tags.'}
+                      {(searchHistoryList?.length>0&&searchText=='')?'Recent searches':searchText==''?'Try searching notes, keywords, or tags.':(searchText.length>0&&searchData?.length==0)?'No results found.':''}
                     </Text>}
                     {(searchText==''&&searchHistoryList?.length!=0)?
                     (<View style={{paddingBottom:12}}>
@@ -120,12 +120,12 @@ export default ({setHide=(v:boolean)=>{}})=>{
                         onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);Keyboard.dismiss();}}
                         style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
-                          <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-                            <>
+                          <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                            {/* <> */}
                               <SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
                               <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text>
-                            </>
-                            <Pressable onPress={()=>onDeleteSearchHistory(itm?.id)}>
+                            {/* </> */}
+                            <Pressable style={{paddingHorizontal:12,paddingVertical:8}} onPress={()=>onDeleteSearchHistory(itm?.id)}>
                               <SvgXml xml={commonSvg.smallClose} />
                             </Pressable>
                           </View>
@@ -141,9 +141,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                       </View>
                       <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
-                    :((getSearchData.isFetched&&searchData?.length==0))?
-                    <Text style={styles.noData}>No Results Found</Text>
-                  :(searchText==''&&searchHistoryList?.length==0)?
+                  :((getSearchData.isFetched&&searchData?.length==0)||(searchText==''&&searchHistoryList?.length==0))?
                   null
                   :<View style={[styles.result,{alignItems:'center',marginTop:40}]}>
                     <CircularLoader/>
