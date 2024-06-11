@@ -145,13 +145,13 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    AIModalRef.current?.close()
+    CreateModalRef.current?.close()
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     if(!canRecord){
       snackRef.current?.show()
       return
     }
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-    AIModalRef.current?.close()
-    CreateModalRef.current?.close()
     // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
     // soundRef.current=sound
     onRecord(setRec, setRecEnabled);
