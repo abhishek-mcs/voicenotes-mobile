@@ -48,6 +48,7 @@ import { setRecordingList, setTempRecordings } from "redux/reducers/recordingSta
 import NetInfo from '@react-native-community/netinfo';
 import Snackbar from "components/common/snackbar";
 import { LayoutAnimation } from "react-native";
+import { setCanRecord } from "redux/reducers/userDetails";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -63,6 +64,7 @@ export default ()=> {
   const notePreviewRef = useRef<any>();
   const {hashFilter} = useSelector((state: RootState) => state.hash);
   const token = useSelector((state: RootState) => state.userDetails.token);
+  const {canRecord} = useSelector((state: RootState) => state.userDetails);
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
@@ -97,6 +99,8 @@ export default ()=> {
   
   const setGenerateDummy=(val:any)=>dispatch(setTempRecordings(val))
   const setReduxRecordingList=(val:any)=>dispatch(setRecordingList(val))
+  
+  const dispatchCanRecord=(val:boolean)=>dispatch(setCanRecord(val??true))
   
   // Only dispatch if the recording list has changed
   useEffect(() => {
@@ -141,6 +145,10 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    if(!canRecord){
+      snackRef.current?.show()
+      return
+    }
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
@@ -157,7 +165,7 @@ export default ()=> {
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
-    onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d})
+    onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
     snackRef.current?.show()
   };
@@ -167,7 +175,7 @@ export default ()=> {
     activateKeepAwakeAsync();
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry:true})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
       .then(()=>resolve('success'))
       .catch(()=>reject('error'))
     })
@@ -247,7 +255,7 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading,generateDummy]
   );
 
-  useEffect(()=>{
+  const layoutAnimation = () => {
     LayoutAnimation.configureNext({
       duration: 250,
       create: {
@@ -263,10 +271,15 @@ export default ()=> {
         property: LayoutAnimation.Properties.opacity,
       },
     });
-  },[recordingList,generateDummy])
+  }
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
+
+  useEffect(()=>{
+    layoutAnimation()
+  },[recordingList,generateDummy,isSearchVisible])
+
 
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
@@ -286,6 +299,11 @@ export default ()=> {
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
           <Header isLogged={!!token} isOffline={isOffline}/>
+          <Snackbar
+            ref={snackRef}
+            snackHeight={60}
+            message="Your daily recording limit has been exceeded. Please try again later."
+          />
           {!isListEmpty&&!!token &&hashFilter!='shared'&& (
             <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} sharedTransitionTag="sharedTag" onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
               <Animatable.View style={{zIndex:1}} animation={isSearchVisible?fadeIn:fadeOut} duration={40} easing={Easing.ease} useNativeDriver={true}>

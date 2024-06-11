@@ -1,10 +1,11 @@
-export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,isRetry}:any)=>{
+export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord,isRetry}:any)=>{
   return new Promise(async(resolve, reject) => {
     await uploadRecord.mutateAsync(
         {audio:file,duration:d,isRetry:isRetry},
         {
           onSuccess: async(r:any) => {
             await queryClient.invalidateQueries('all-recording');
+            dispatchCanRecord(r?.data?.can_record_more??true)
             if(!!generateDummy){
               const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!=file)
               setUploading(filterDummy.length)

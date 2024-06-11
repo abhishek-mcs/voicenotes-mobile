@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import { isIOS, screenHeight } from "utils/common";
 import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
-import { setLang, setUserDetail } from "redux/reducers/userDetails";
+import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
 import { iapSvg } from "assets/svg/iapSvg";
 
@@ -35,6 +35,7 @@ export default (props:any) => {
     if(data?.data?.data){
       dispatch(setUserDetail(data?.data?.data))
       data?.data?.data?.settings?.language&& dispatch(setLang(languages[data?.data?.data?.settings?.language]))
+      dispatch(setCanRecord(data?.data?.data?.can_record_more??true))
     }
   }, [data?.data?.data]);
 

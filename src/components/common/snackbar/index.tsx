@@ -10,17 +10,17 @@ interface SnackbarProps {
     message: string;
     actionText?: string;
     onAction?: () => void;
-    duration?: number;
+    snackHeight?: number;
     count?:number;
 }
 
-export default forwardRef(({ message, actionText, onAction, duration = 3000,count=0}:SnackbarProps,ref) => {
+export default forwardRef(({ message, actionText, onAction, snackHeight = 50,count=0}:SnackbarProps,ref) => {
   const [visible, setVisible] = useState(false);
   const height = new Animated.Value(0);
 
-  const toggleSnackbar = () => {
+  const onLayoutAnimation = () => {
     LayoutAnimation.configureNext({
-      duration: visible?300:0,
+      duration: 300,
       create: {
         type: LayoutAnimation.Types.easeIn,
         property: LayoutAnimation.Properties.opacity,
@@ -34,21 +34,29 @@ export default forwardRef(({ message, actionText, onAction, duration = 3000,coun
         property: LayoutAnimation.Properties.opacity,
       },
     });
+  }
+
+  const toggleSnackbar = () => {
+    onLayoutAnimation()
     setVisible(!visible);
   };
 
-  const showSnackbar = () => {
-    setVisible(true);
-  };
   const hideSnackbar = () => {
+    onLayoutAnimation()
     setVisible(false);
+  };
+
+  const showSnackbar = () => {
+    onLayoutAnimation()
+    setVisible(true);
+    setTimeout(hideSnackbar, 3000);
   };
 
   useEffect(() => {
     Animated.timing(height, {
-      toValue: visible?50:0,
+      toValue: visible?snackHeight:0,
       useNativeDriver: false,
-      duration:200
+      duration:visible?200:500
     }).start();
   },[visible]);
 
@@ -70,8 +78,6 @@ export default forwardRef(({ message, actionText, onAction, duration = 3000,coun
     [visible]
   );
 
-if(!visible)
-    return null;
   return (
         <Animated.View style={[styles.snackbarContainer,{height}]}>
           <Text style={styles.message}>{message}</Text>
@@ -103,11 +109,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom:12
   },
   message: {
     color: Colors.whiteWithOpacity(1),
-    fontSize: 16,
-    fontFamily:'Primary'
+    fontSize: 14,
+    fontFamily:'Primary-Medium',
+    lineHeight:20
   },
   action: {
     color: Colors.whiteWithOpacity(1),

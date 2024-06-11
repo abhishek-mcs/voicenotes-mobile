@@ -6,6 +6,7 @@ export interface userState {
   token: string,
   guestToken:string,
   userDetails:string,
+  canRecord:boolean,
   lang:string
 }
 
@@ -14,6 +15,7 @@ const initialState: userState = {
   token: '',
   guestToken:'',
   userDetails:'',
+  canRecord:false,
   lang:'Detect language'
 }
 
@@ -38,11 +40,14 @@ export const userDetails = createSlice({
     },
     setLang: (state, action: PayloadAction<string>)=>{
         state.lang= action.payload||'';
-    }
+    },
+    setCanRecord:(state, action: PayloadAction<boolean>)=>{
+      state.canRecord= action.payload||true;
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setEmail, setToken, setGuestToken, logOut, setUserDetail,setLang } = userDetails.actions
+export const { setEmail, setToken, setGuestToken, logOut, setUserDetail,setLang, setCanRecord } = userDetails.actions
 
 export default userDetails.reducer
