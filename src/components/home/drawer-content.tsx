@@ -43,7 +43,7 @@ export default (props:any) => {
       const tags=getTags?.data?.data?.flatMap((t:any)=>t?.name)??[];
       dispatch(setHashTags(tags))
     }
-  }, [getTags?.isSuccess]);
+  }, [getTags?.data?.data]);
 
   const handleTagPress = (tag: string) => {
     dispatch(setTagsFilter(tag))
@@ -68,18 +68,18 @@ export default (props:any) => {
         data={['All',...hashTags]}
         renderItem={({ item, index }) => (
           <TouchableHighlight onPress={() => handleTagPress(item)} style={[styles.btn,{
-            backgroundColor: item==currentTag?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
+            backgroundColor: item==hashFilter?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
             <><SvgXml xml={
               item=='All'?
-              drawerSvg.home?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
+              drawerSvg.home?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):'#717171')
               :item=='starred'?
-              drawerSvg.star?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):'#717171')
-              :drawerSvg.hash?.replace(/{color}/g,item==currentTag?Colors.darkWithOpacity(1):Colors.grey)
+              drawerSvg.star?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):'#717171')
+              :drawerSvg.hash?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
             } />
             <Text
               style={[
                 styles.btnTxt,
-                { color: item==currentTag ? Colors.darkWithOpacity(1) : Colors.grey },
+                { color: item==hashFilter ? Colors.darkWithOpacity(1) : Colors.grey },
               ]}
             >{item}</Text></>
           </TouchableHighlight>
@@ -103,7 +103,10 @@ export default (props:any) => {
       {photo_url?
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
-              <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',width:'70%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
+              <View style={{flexDirection:'row',alignItems:'center',maxWidth:'75%'}}>
+                <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
+                <SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>
+              </View>
               </View>
             <View style={styles.menuPress} >
               <SvgXml xml={drawerSvg.more} />

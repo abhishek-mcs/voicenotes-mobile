@@ -13,17 +13,20 @@ import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
+import { setTagsFilter } from "redux/reducers/hashSlice";
 
 export default forwardRef(({
   note,
+  onUploadRetry,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
+  const route=useRouter()
   const [editNote,setEditNote] = useState(note)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
@@ -33,6 +36,7 @@ export default forwardRef(({
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
   const [createType,setCreateType]=useState('summary')
+  const dispatch=useDispatch()
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
   
@@ -106,6 +110,14 @@ export default forwardRef(({
     })
   }
 
+  const onGotoAddTag=()=>{
+    hideMoreOption()
+    setTimeout(() => {
+      const tags=note?.tags?.flatMap((tag:any)=>tag?.name)
+      route.push({pathname:"/add-tags/",params:{tagsArray:JSON.stringify(tags),recording_id:note?.id}})
+    }, 500);
+  }
+
   const onCreate=async(type='summary')=>{
     setCreateType(type)
     setCreationLoader(true)
@@ -127,11 +139,15 @@ export default forwardRef(({
   },[note])
 
   const onRetry=async()=>{
-    note.transcript=''
-    note.title=null
-    await addTranscript.mutateAsync(note?.id,{
-      onSuccess:async()=>await addTitleRecord.mutateAsync(note?.id)
-    })
+    if(!!note?.audio?.data?.url){
+      onUploadRetry()
+    }else{
+      note.transcript=''
+      note.title=null
+      await addTranscript.mutateAsync(note?.id,{
+        onSuccess:async()=>await addTitleRecord.mutateAsync(note?.id)
+      })
+    }
   }
 
   const onCopy=async()=>{
@@ -164,6 +180,19 @@ export default forwardRef(({
       setAudioLoading(-1);
     }
   };
+
+  const onPlaySet=async(res:any)=>{
+   try{ 
+      setIsPlay(index);
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: res.data?.url || "" },
+        {shouldPlay:true,isLooping:false},
+        onPlaybackStatusUpdate,
+      );
+      setPlay(sound);
+    }catch{}
+  }
+
   const onPlay=async()=>{
     try {
       await Audio.setAudioModeAsync({
@@ -180,17 +209,15 @@ export default forwardRef(({
         setPlay(null)
       if(isPlay!=index){
         setAudioLoading(index);
-        signedURL.mutate(note?.id,{
+        if(!!note?.audio?.data?.url){
+          onPlaySet(note?.audio)
+        }else{
+          signedURL.mutate(note?.id,{
           onSuccess:async(r)=>{
-            setIsPlay(index);
-            const { sound } = await Audio.Sound.createAsync(
-              { uri: r.data?.url || "" },
-              {shouldPlay:true,isLooping:false},
-              onPlaybackStatusUpdate,
-            );
-            setPlay(sound);
+            onPlaySet(r)
           }
         })
+      }
       }
     } catch (error) {
       console.error('Error playing audio:', error);
@@ -223,6 +250,7 @@ export default forwardRef(({
             router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           </Touchable>
+          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={[styles.title,{color:'#ff4538'}]}>Uploading failed!. Please try again.</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
@@ -230,7 +258,14 @@ export default forwardRef(({
           :note?.transcript!=''&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={[styles.row,{flexWrap:'wrap'}]}>
-          {note?.tags?.map((tag:any,i:number)=><Text key={i} style={styles.tag}>{'#'+tag?.name}</Text>)}
+          {note?.tags?.map((tag:any,i:number)=>
+          <Text 
+            key={i} 
+            style={styles.tag} 
+            onPress={()=>dispatch(setTagsFilter(tag?.name))}
+            suppressHighlighting>
+              {'#'+tag?.name}
+          </Text>)}
           </View>}
 
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
@@ -288,7 +323,7 @@ export default forwardRef(({
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={styles.menuPress} onPress={showMoreOption} disabled={!note?.transcript}>
+            <Touchable style={styles.menuPress} onPress={showMoreOption}>
               <SvgXml xml={home.more} />
             </Touchable>
           }
@@ -301,6 +336,18 @@ export default forwardRef(({
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
+        <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
+          <View style={[styles.row,{width:180}]}>
+            <SvgXml xml={home.addTag} />
+            <Text style={styles.menuItemTxt}>Add Tag</Text>
+          </View>
+        </MenuItem>
+          <MenuItem style={styles.menuItem} onPress={onCopy}>
+            <View style={styles.row}>
+              <SvgXml xml={home.copy} />
+              <Text style={styles.menuItemTxt}>Copy note</Text>
+            </View>
+          </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.generate} />
@@ -311,12 +358,6 @@ export default forwardRef(({
             <View style={[styles.row,{width:180}]}>
               <SvgXml xml={home.retry} />
               <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
-            </View>
-          </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onCopy}>
-            <View style={styles.row}>
-              <SvgXml xml={home.copy} />
-              <Text style={styles.menuItemTxt}>Copy note</Text>
             </View>
           </MenuItem>
           {!!token&&<MenuItem style={styles.menuItem} onPress={onDelete}>
@@ -330,7 +371,7 @@ export default forwardRef(({
       {note?.transcript==null&&!note?.isUploading&&
       <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
         <>
-        <SvgXml xml={home.retry} />
+        <SvgXml xml={home.retryUpload} />
         <Text style={styles.retryTxt}>Retry</Text>
         </>
       </TouchableHighlight>}
@@ -366,12 +407,12 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>
       <View style={[styles.row,{flexWrap:'wrap',width:'55%',alignSelf:'center'}]}>
-      {editNote?.tags?.map((tag:any,indx:number)=>
+      {/* {editNote?.tags?.map((tag:any,indx:number)=>
       <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={styles.tagWrap}>
         <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
       </Touchable>
-      )}
-      <TextInput
+      )} */}
+      {/* <TextInput
         style={styles.tagInput}
         placeholder="#Add tags"
         placeholderTextColor={Colors.greyWithOpacity(0.82)}
@@ -384,7 +425,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
         onSubmitEditing={()=>{
           setEditNote({...editNote,tags:[...editNote.tags,{name:tag?.replace(/ /g, '')}]})
           setTag('')
-          }} />
+          }} /> */}
       </View>
       <View style={styles.row}>
       <Touchable 
@@ -458,8 +499,8 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderRadius: 12,
-    marginTop:25,
-    marginLeft:10
+    // marginTop:25,
+    // marginLeft:10
   },
   menuPress: {
     height: 25,

@@ -134,8 +134,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
           setHideBg(true)
         },
         close() {
-          setVisible(false);
-          setHideBg(false)
+          onClose()
         },
         toggle(){
           setVisible(!visible)
@@ -158,10 +157,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     onCancelRecord()
     setVisible(false);
     setHideBg(false);
-    // setTimeout(() => {
-    //   setChats(initChat);
-    //   setChatStarted(false);
-    // }, 300);
+    setTimeout(() => {
+      setChats(initChat);
+      setChatStarted(false);
+    }, 300);
   };
 
   const onDrawer = () => {
