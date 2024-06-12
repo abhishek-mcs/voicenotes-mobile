@@ -92,11 +92,12 @@ export default ({setHide=(v:boolean)=>{}})=>{
               </View>
               {searchText.length>0 && (
                 <Pressable
-                  onPress={() => {
+                  onPress={(e) => {
+                    e?.stopPropagation();
                     setSearchQuery("")
                     setSearchText("")
                   }}
-                  style={{marginLeft:8}}
+                  style={{marginLeft:8,padding:10,marginRight:-10}}
                 >
                   <SvgXml xml={commonSvg.searchClose}/>
                 </Pressable>
@@ -118,14 +119,14 @@ export default ({setHide=(v:boolean)=>{}})=>{
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
                         onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);Keyboard.dismiss();}}
-                        style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
+                        style={[styles.row,{paddingVertical:0,height:40}]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
-                          <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-                            {/* <> */}
+                          <View style={{flexDirection:'row',alignItems:'center',height:40,justifyContent:'space-between'}}>
+                            <View style={{flexDirection:'row',alignItems:'center',width:'85%'}}>
                               <SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
                               <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text>
-                            {/* </> */}
-                            <Pressable style={{paddingHorizontal:12,paddingVertical:8}} onPress={()=>onDeleteSearchHistory(itm?.id)}>
+                            </View>
+                            <Pressable style={{height:40,width:'15%',justifyContent:'center',alignItems:'center'}} onPress={(e)=>{e?.stopPropagation();onDeleteSearchHistory(itm?.id)}}>
                               <SvgXml xml={commonSvg.smallClose} />
                             </Pressable>
                           </View>
