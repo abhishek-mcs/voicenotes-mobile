@@ -67,8 +67,8 @@ export default (
                 </Touchable>
                 <Touchable onPress={()=>onRetry(id,title)} style={btn} activeOpacity={0.6}>
                     <>
-                    <SvgXml xml={home.retry}/>
-                    <Text style={[btnText,{marginLeft:0}]}>Retry</Text>
+                    <SvgXml xml={home.retry1}/>
+                    <Text style={[btnText,{marginLeft:4}]}>Retry</Text>
                     </>
                 </Touchable>
             </View>

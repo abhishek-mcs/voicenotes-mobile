@@ -11,13 +11,14 @@ import { getDatabase } from 'firebase/database';
 // Initialize Firebase
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB1vbhFzpg05KAJ81dHohzeQUwKTIRuw-g",
-  authDomain: "test-status-22295.firebaseapp.com",
-  databaseURL:"https://test-status-22295-default-rtdb.firebaseio.com",
-  projectId: "test-status-22295",
-  storageBucket: "test-status-22295.appspot.com",
-  messagingSenderId: "26565445812",
-  appId: "1:26565445812:web:970b0c212efff91af32fe1"
+  apiKey: "AIzaSyDPQPDEadmLo0Tm3dZTN_jpZjKAlcO5ZUY",
+  authDomain: "voicenotes-747a1.firebaseapp.com",
+  databaseURL: "https://voicenotes-747a1-default-rtdb.firebaseio.com",
+  projectId: "voicenotes-747a1",
+  storageBucket: "voicenotes-747a1.appspot.com",
+  messagingSenderId: "406037921167",
+  appId: "1:406037921167:web:af9b42c7c647c005145ffa",
+  measurementId: "G-02898EPC2Q"
 };
 
 const app = initializeApp(firebaseConfig);
