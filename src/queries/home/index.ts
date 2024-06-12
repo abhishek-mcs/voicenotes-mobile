@@ -36,14 +36,10 @@ export function useToggleStar(recording_id:number){
 }
 
 export function useCreate(){
-    const queryClient = useQueryClient();
     return useMutation('ai-create', (data:any) => {
-        return axiosApi.post(`/ai-create`, data);
+        return axiosApi.post(`/ai-create/new`, data);
     },
     {
-        onSuccess:async()=>{
-            await queryClient.invalidateQueries('all-recording')
-        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -141,13 +137,27 @@ export function useDeleteRecording(recording_id:number){
 
 export function useDeleteFormattedNote(id:number){
     const queryClient=useQueryClient()
-    return useMutation('delete-recording', (p?:any)=> {
+    return useMutation('delete-formatted-note', (p?:any)=> {
         return axiosApi.delete(`/ai-create/${id}`)
     },
     {
         onSuccess:async()=>{
           await queryClient.invalidateQueries('all-recording')
-          await queryClient.invalidateQueries('all-tags')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useGetAiCreation(){
+    const queryClient=useQueryClient()
+    return useMutation('get-formatted-note', (id?:any)=> {
+        return axiosApi.get(`/ai-create/${id}`)
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
