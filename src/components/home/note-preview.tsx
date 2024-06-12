@@ -7,7 +7,7 @@ import { formatDate, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
-import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useRecordings, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
+import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useGetAiCreation, useRecordings, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
 import { setStringAsync } from "expo-clipboard";
 import ChatBuble from "components/common/chat-buble";
@@ -25,6 +25,7 @@ import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
 import { setRecordingList } from "redux/reducers/recordingStates";
+import listenAiCreate from "func/firebase/listen-ai-create";
 
 export default forwardRef(({
   note,
@@ -55,6 +56,7 @@ export default forwardRef(({
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
   const createAI=useCreate()
+  const getAiCreation=useGetAiCreation()
   const addTranscript=useAddTranscript()
   const unPublishRecording=useUnpublishRecording()
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
@@ -126,12 +128,21 @@ export default forwardRef(({
     }, 500);
   }
 
+  const getCreation=async(id:number)=>{
+      await queryClient.invalidateQueries('all-recording');
+      setCreationLoader(false)
+  }
+
   const onCreate=async(type='summary')=>{
     setCreateType(type)
     setCreationLoader(true)
     hideCreateOption()
-    await createAI.mutateAsync({recording_id:note?.id,type})
-    setCreationLoader(false)
+    await createAI.mutateAsync({recording_id:note?.id,type},{
+      onSuccess:async(r)=>{
+        await listenAiCreate({id:r?.data?.id,getCreation})
+      },
+      onError:()=> setCreationLoader(false)
+    })
   }
 
   const onGenerateTitle=useCallback(()=>{

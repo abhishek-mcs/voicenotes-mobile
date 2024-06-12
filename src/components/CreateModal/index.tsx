@@ -5,7 +5,7 @@ import Suggestions from "./suggestions";
 import Records from "./records";
 import AiLoader from "components/common/loaders/ai-loader";
 import Notes from "./notes";
-import { useCreate } from "queries/home";
+import { useCreate, useGetAiCreation } from "queries/home";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS, screenHeight } from "utils/common";
@@ -14,6 +14,7 @@ import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
+import listenAiCreate from "func/firebase/listen-ai-create";
 
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
@@ -27,6 +28,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   const {token}=useSelector((state:RootState)=>state.userDetails)
 
   const aiCreate=useCreate()
+  const getAiCreation=useGetAiCreation()
 
   useImperativeHandle(
     ref,
@@ -63,14 +65,20 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
       setNoteId([...noteId,id])
   }
 
+  const getCreation=async(id:number)=>{
+   await getAiCreation.mutateAsync(id,{
+      onSuccess:(data)=>{
+        setResult({id:noteId,result:!!token?data?.data?.content?.data:data?.data?.result})
+        setPreview("note");
+      }
+    })
+  }
+
   const onCreate=()=>{
     setPreview("loader");
     aiCreate.mutate({recording_id:noteId,type:noteType,payload:{custom_prompt:customText}},{
-      onSuccess:(data)=>{
-      //  if(title!="") {
-        setResult({id:noteId,result:!!token?data?.data?.content?.data:data?.data?.result})
-        setPreview("note");
-      // }
+      onSuccess:async(data)=>{
+        await listenAiCreate({id:data?.data?.id,getCreation})
       }
     })
   }
