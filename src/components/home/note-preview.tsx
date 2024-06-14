@@ -101,21 +101,21 @@ export default forwardRef(({
   const onEdit=()=>  setIsEdit(true)
   const onStarred=()=>{
     hideMoreOption()
-    const isStarred=note?.tags?.some((r:any)=>r?.name=='starred');
-    if(!isStarred){
-      note.tags?.push({name:'starred'})
-    } else{
-      let temp=note?.tags;
-      temp=temp.filter((r:any)=>r?.name!="starred")
-      note.tags=temp;
-    }
+    // const isStarred=note?.tags?.some((r:any)=>r?.name=='starred');
+    // if(!isStarred){
+      // note.tags?.push({name:'starred'})
+    // } else{
+      // let temp=note?.tags;
+      // temp=temp.filter((r:any)=>r?.name!="starred")
+      // note.tags=temp;
+    // }
     toggleStarred.mutateAsync('',{
       onError() {
-        if(!isStarred){
-          note.note.tags?.pop()
-        } else{
-          note.tags.push({name:'starred'})
-        }
+        // if(!isStarred){
+        //   note.note.tags?.pop()
+        // } else{
+        //   note.tags.push({name:'starred'})
+        // }
       },
     })
   }
