@@ -5,7 +5,7 @@ export default async({ id = null, getCreation = async(v: any) => {} }) => {
   onValue(statusRef, async (snapshot) => {
     if (snapshot.exists()) {
       const status = snapshot.val();
-      if (status === 1) {
+      if (status == 1) {
         await getCreation(id);
         remove(statusRef);
       }

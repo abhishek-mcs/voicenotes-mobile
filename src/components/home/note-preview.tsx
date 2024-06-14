@@ -129,7 +129,7 @@ export default forwardRef(({
   }
 
   const getCreation=async(id:number)=>{
-      await queryClient.invalidateQueries('all-recording');
+      await queryClient.refetchQueries('all-recording');
       setCreationLoader(false)
   }
 

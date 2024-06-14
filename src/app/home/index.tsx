@@ -284,7 +284,7 @@ export default ()=> {
     const currentOffset = event.nativeEvent.contentOffset.y;
     if (currentOffset >prevOffset && currentOffset > 0) {
       setIsSearchVisible(false);
-    } else if (currentOffset < prevOffset && currentOffset > 0) {
+    } else if (currentOffset < prevOffset && currentOffset > 10) {
       setIsSearchVisible(true);
     }
     setPrevOffset(currentOffset);
@@ -306,7 +306,7 @@ export default ()=> {
             message="Your daily recording limit has been exceeded. Please try again later."
           />
           {!isListEmpty&&!!token &&hashFilter!='shared'&& (
-            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} sharedTransitionTag="sharedTag" onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
+            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
               <Animatable.View style={{zIndex:1}} animation={isSearchVisible?fadeIn:fadeOut} duration={40} easing={Easing.ease} useNativeDriver={true}>
                 <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
               </Animatable.View>
