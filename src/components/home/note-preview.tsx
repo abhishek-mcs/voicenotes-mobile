@@ -500,9 +500,9 @@ export default forwardRef(({
         </MenuItem>
         </Menu>
         :<PublishedModal slug={note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
-      {note?.transcript==null&&note?.isUploading==undefined&&
-      <View style={{flexDirection:'row',alignItems:'center',marginRight:4,marginTop:8}}>
-        <TouchableHighlight onPress={onRetry} style={[styles.retry]} underlayColor={Colors.greyWithOpacity(0.3)}>
+      {note?.transcript&&note?.isUploading==undefined&&
+      <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
+        <TouchableHighlight onPress={onRetry} style={[styles.retry,{marginRight:8}]} underlayColor={Colors.greyWithOpacity(0.3)}>
           <>
           <SvgXml xml={home.retryUpload} />
           <Text style={styles.retryTxt}>Retry</Text>
@@ -510,7 +510,7 @@ export default forwardRef(({
         </TouchableHighlight>
         <TouchableHighlight onPress={onDelete} style={[styles.retry]} underlayColor={Colors.greyWithOpacity(0.3)}>
           <>
-          <SvgXml xml={home.delete} />
+          <SvgXml xml={home.delete} style={{marginBottom:3,marginRight:3}} />
           <Text style={styles.retryTxt}>Delete</Text>
           </>
         </TouchableHighlight>
