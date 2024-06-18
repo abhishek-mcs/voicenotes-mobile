@@ -501,12 +501,20 @@ export default forwardRef(({
         </Menu>
         :<PublishedModal slug={note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
       {note?.transcript==null&&note?.isUploading==undefined&&
-      <TouchableHighlight onPress={onRetry} style={styles.retry} underlayColor={Colors.greyWithOpacity(0.3)}>
-        <>
-        <SvgXml xml={home.retryUpload} />
-        <Text style={styles.retryTxt}>Retry</Text>
-        </>
-      </TouchableHighlight>}
+      <View style={{flexDirection:'row',alignItems:'center',marginRight:4,marginTop:8}}>
+        <TouchableHighlight onPress={onRetry} style={[styles.retry]} underlayColor={Colors.greyWithOpacity(0.3)}>
+          <>
+          <SvgXml xml={home.retryUpload} />
+          <Text style={styles.retryTxt}>Retry</Text>
+          </>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={onDelete} style={[styles.retry]} underlayColor={Colors.greyWithOpacity(0.3)}>
+          <>
+          <SvgXml xml={home.delete} />
+          <Text style={styles.retryTxt}>Delete</Text>
+          </>
+        </TouchableHighlight>
+      </View>}
         {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
         {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>

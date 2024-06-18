@@ -76,7 +76,7 @@ export function useUploadRecord(){
     },
     {
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('upload audio api',error?.response?.data?.message);
         }
     })
 }

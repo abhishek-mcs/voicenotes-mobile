@@ -157,7 +157,7 @@ export default ()=> {
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
   };
-  const onStopRecord = async(d:number) => {
+  const onStopRecord = useCallback(async(d:number,repeat=false) => {
     const file = rec?.getURI()||"";
     stopRecording(rec);
     setRec(null);
@@ -165,9 +165,11 @@ export default ()=> {
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
-    onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
+    repeat&&onStartRecord()
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
-  };
+    deactivateKeepAwake()
+  },[generateDummy,rec,recEnabled,soundRef]);
   
   const onUploadRetry = async(note:any) => {
     return new Promise(async(resolve, reject) => {
