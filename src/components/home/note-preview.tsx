@@ -500,7 +500,7 @@ export default forwardRef(({
         </MenuItem>
         </Menu>
         :<PublishedModal slug={note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
-      {note?.transcript&&note?.isUploading==undefined&&
+      {note?.transcript==null&&note?.isUploading==undefined&&
       <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
         <TouchableHighlight onPress={onRetry} style={[styles.retry,{marginRight:8}]} underlayColor={Colors.greyWithOpacity(0.3)}>
           <>
