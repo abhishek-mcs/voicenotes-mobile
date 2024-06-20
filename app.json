@@ -2,7 +2,7 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.2.24",
+    "version": "1.2.25",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "voicenotes",
@@ -13,7 +13,8 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "59",
+      "buildNumber": "61",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -39,7 +40,8 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 24
+      "versionCode": 24,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -47,6 +49,7 @@
       "favicon": "./src/assets/images/favicon.png"
     },
     "plugins": [
+      "@react-native-firebase/app",
       [
         "expo-router",
         {
@@ -57,6 +60,14 @@
         "expo-av",
         {
           "microphonePermission": "To enhance your experience, Voicenotes requires access to your microphone. This enables seamless recording of audio notes, which are then automatically transcribed into text."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
         }
       ],
       "expo-apple-authentication"

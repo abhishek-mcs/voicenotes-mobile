@@ -15,6 +15,7 @@ import * as webBrowser from 'expo-web-browser'
 import * as Updates from 'expo-updates';
 import { useQueryClient } from "react-query"
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates"
+import { analytics } from "../../../firebaseConfig"
 
 const premium = require('../../assets/images/premium.png')
 
@@ -45,6 +46,7 @@ export default (props:any) => {
         router?.back();
         router?.back();
         await queryClient.invalidateQueries('user-data');
+        analytics().logEvent(selected=='monthly'?'monthly_subscription_success':'lifetime_purchase_success').catch(e=>{})
       }
     } catch (e:any) {
       if (!e.userCancelled) {

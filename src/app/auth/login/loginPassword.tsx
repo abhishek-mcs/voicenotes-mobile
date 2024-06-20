@@ -24,6 +24,7 @@ import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
 import GoogleAuthButton from "components/auth/google-auth-button";
+import { analytics } from "../../../../firebaseConfig";
 
 export default () => {
   const router = useRouter();
@@ -69,6 +70,7 @@ export default () => {
             queryClient.resetQueries('all-recording')
             queryClient.resetQueries('user-data')
             router.replace("/home/");
+            analytics().logEvent('sign_in_success').catch(()=>{})
           }
         },
         onError: (error: any) => {

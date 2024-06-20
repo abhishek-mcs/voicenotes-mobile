@@ -21,6 +21,7 @@ import { home } from "assets/svg/home";
 import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
+import { analytics } from "../../../../firebaseConfig";
 
 export default () => {
   const router = useRouter();
@@ -45,10 +46,12 @@ export default () => {
       {
         email: emailText,
         password: passwordText,
-        name: name
+        name: name,
+        source:isIOS?'ios':'android',
       },
       {
         onSuccess: async (response: any, _variables: any, _context: any) => {
+          analytics().logEvent('sign_up_initiated').catch(e=>{})
             router.push({pathname:"/auth/signup/otp-screen",params:{email:emailText,password:passwordText,name:name}});
         },
         onError: (error: any) => {

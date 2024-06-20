@@ -15,13 +15,13 @@ import { isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang } from "redux/reducers/userDetails";
+import { setRecordingList } from "redux/reducers/recordingStates";
 
 export default () => {
     const router = useRouter();
     const logout=useLogout()
     const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
     const settings:any=userDetails.settings
-    console.log(userDetails?.settings)
     const saveSettings=useSaveSettings()
     const dispatch=useDispatch()
   const onLogout = () =>{
@@ -33,6 +33,7 @@ export default () => {
     },{
       text:"Yes",
       onPress:async()=>{
+        dispatch(setRecordingList([]))
         router?.back();
         await logout.mutateAsync('')
     }

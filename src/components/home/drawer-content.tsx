@@ -90,7 +90,7 @@ export default (props:any) => {
               :<SvgXml xml={commonSvg.profileIcon}/>}
               <View style={{flexDirection:'row',alignItems:'center',maxWidth:'75%'}}>
                 <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
-                {isIAPPurchased&&<SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>}
+                {(userDetails?.subscription_status||isTempIAPPurchased)&&<SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>}
               </View>
               </View>
             <View style={styles.menuPress} >
