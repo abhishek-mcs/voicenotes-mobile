@@ -5,8 +5,8 @@ import axiosApi from "services/api/axios-api";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
-    return useInfiniteQuery(['all-recording',tags],async ({pageParam=1})=>{
-        return await axiosApi.get('/recordings?page='+pageParam+(!!tags?`&tags[]=${tags}`:''));
+    return useInfiniteQuery(tags=='shared'?['published-recordings']:['all-recording',tags],async ({pageParam=1})=>{
+        return await axiosApi.get((tags=='shared'?'/recordings/public?page=':'/recordings?page=')+pageParam+(!!tags?`&tags[]=${tags}`:''));
     },{
         getNextPageParam:(lastPage)=>{
             return lastPage.data?.links?.next ? lastPage.data.meta?.current_page + 1 : undefined;
@@ -36,14 +36,10 @@ export function useToggleStar(recording_id:number){
 }
 
 export function useCreate(){
-    const queryClient = useQueryClient();
     return useMutation('ai-create', (data:any) => {
-        return axiosApi.post(`/ai-create`, data);
+        return axiosApi.post(`/ai-create/new`, data);
     },
     {
-        onSuccess:async()=>{
-            await queryClient.invalidateQueries('all-recording')
-        },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }
@@ -64,7 +60,6 @@ export function useSaveEditedNote(recording_id:any){
 export function useUploadRecord(){
     return useMutation('upload-audio', async(data:any) => {
         const uri = data.audio;
-        console.warn(data.audio);
         const filetype = uri.split(".").pop();
         const filename = uri.split("/").pop();
 
@@ -81,7 +76,7 @@ export function useUploadRecord(){
     },
     {
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('upload audio api',error?.response?.data?.message);
         }
     })
 }
@@ -141,13 +136,27 @@ export function useDeleteRecording(recording_id:number){
 
 export function useDeleteFormattedNote(id:number){
     const queryClient=useQueryClient()
-    return useMutation('delete-recording', (p?:any)=> {
+    return useMutation('delete-formatted-note', (p?:any)=> {
         return axiosApi.delete(`/ai-create/${id}`)
     },
     {
         onSuccess:async()=>{
           await queryClient.invalidateQueries('all-recording')
-          await queryClient.invalidateQueries('all-tags')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useGetAiCreation(){
+    const queryClient=useQueryClient()
+    return useMutation('get-formatted-note', (id?:any)=> {
+        return axiosApi.get(`/ai-create/${id}`)
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);

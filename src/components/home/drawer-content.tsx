@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import { isIOS, screenHeight } from "utils/common";
 import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
-import { setLang, setUserDetail } from "redux/reducers/userDetails";
+import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
 import { iapSvg } from "assets/svg/iapSvg";
 
@@ -35,12 +35,14 @@ export default (props:any) => {
     if(data?.data?.data){
       dispatch(setUserDetail(data?.data?.data))
       data?.data?.data?.settings?.language&& dispatch(setLang(languages[data?.data?.data?.settings?.language]))
+      dispatch(setCanRecord(data?.data?.data?.can_record_more??true))
     }
   }, [data?.data?.data]);
 
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
-      const tags=getTags?.data?.data?.flatMap((t:any)=>t?.name)??[];
+      const tags=(getTags?.data?.data?.flatMap((t:any)=>t?.name)??[])
+      .filter((name: string) => name !== 'starred') ?? [];;
       dispatch(setHashTags(tags))
     }
   }, [getTags?.data?.data]);
@@ -65,25 +67,8 @@ export default (props:any) => {
         style={{marginBottom:20}}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: "flex-start" }}
-        data={['All',...hashTags]}
-        renderItem={({ item, index }) => (
-          <TouchableHighlight onPress={() => handleTagPress(item)} style={[styles.btn,{
-            backgroundColor: item==hashFilter?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
-            <><SvgXml xml={
-              item=='All'?
-              drawerSvg.home?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):'#717171')
-              :item=='starred'?
-              drawerSvg.star?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):'#717171')
-              :drawerSvg.hash?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
-            } />
-            <Text
-              style={[
-                styles.btnTxt,
-                { color: item==hashFilter ? Colors.darkWithOpacity(1) : Colors.grey },
-              ]}
-            >{item}</Text></>
-          </TouchableHighlight>
-        )}
+        data={['All','shared','starred',...hashTags]}
+        renderItem={({ item }) =><Btn item={item} hashFilter={hashFilter} onPress={()=>handleTagPress(item)}/>}
         keyExtractor={(item, index) => index.toString()}
       />
       {(userDetails?.subscription_status||isTempIAPPurchased)?
@@ -105,7 +90,7 @@ export default (props:any) => {
               :<SvgXml xml={commonSvg.profileIcon}/>}
               <View style={{flexDirection:'row',alignItems:'center',maxWidth:'75%'}}>
                 <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
-                <SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>
+                {isIAPPurchased&&<SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>}
               </View>
               </View>
             <View style={styles.menuPress} >
@@ -116,6 +101,29 @@ export default (props:any) => {
     </SafeAreaView>
   );
 };
+
+const Btn=({item,hashFilter,onPress}:any)=>{
+  return (
+    <TouchableHighlight onPress={onPress} style={[styles.btn,{
+      backgroundColor: item==hashFilter?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
+      <><SvgXml xml={
+        item=='All'?
+        drawerSvg.home?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
+        :item=='starred'?
+        drawerSvg.star?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
+        :item=='shared'?
+        drawerSvg.share?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
+        :drawerSvg.hash?.replace(/{color}/g,item==hashFilter?Colors.darkWithOpacity(1):Colors.grey)
+      } />
+      <Text
+        style={[
+          styles.btnTxt,
+          { color: item==hashFilter ? Colors.darkWithOpacity(1) : Colors.grey },
+        ]}
+      >{item}</Text></>
+    </TouchableHighlight>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {

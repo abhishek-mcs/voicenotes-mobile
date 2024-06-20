@@ -12,7 +12,7 @@ import { isIOS } from "utils/common";
 
 interface Props {
   onRecord: () => void;
-  onStopRecord: (d:number) => void;
+  onStopRecord: (d:number,r?:boolean) => void;
   onAsk: () => void;
   onCreate: () => void;
   recEnabled: boolean;
@@ -24,14 +24,14 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
     useEffect(() => {
         if (recEnabled) {
-          const timerId = setInterval(() => {
+          const timerId = setInterval(async() => {
             setDuration(prevDuration => {
               const newDuration = prevDuration + 1000;
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
                 onStopRecord(newDuration);
                 return 0;
               }else if(newDuration>=1800000&&!!token){
-                onStopRecord(newDuration);
+                onStopRecord(newDuration,true);
                 return 0
               }
               return newDuration;
@@ -43,7 +43,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             setDuration(0);
           }; // Cleanup the interval on component unmount
         }
-      }, [recEnabled]);
+      }, [recEnabled,onStopRecord]);
   return (
     <View style={styles.tab}>
       {!recEnabled ? (

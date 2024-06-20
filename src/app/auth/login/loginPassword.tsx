@@ -164,6 +164,7 @@ export default () => {
           width: "100%",
           alignItems: "center",
         }}
+        disabled={signInMutation.isLoading}
         onPress={continueClicked}
       >
         {signInMutation.isLoading?

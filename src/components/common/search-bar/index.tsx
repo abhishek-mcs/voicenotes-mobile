@@ -47,40 +47,39 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     const router = useRouter()
     const ref=useRef<TextInput>(null)
 
-    const searchHistoryData=useSearchHistory()
-    const setSearchHistory=useSetSearchHistory()
-    const deleteSearchHistory=useDeleteSearchHistory()
-    const getSearchData=useSearch(searchQuery);
+    // const searchHistoryData=useSearchHistory()
+    // const setSearchHistory=useSetSearchHistory()
+    // const deleteSearchHistory=useDeleteSearchHistory()
+    // const getSearchData=useSearch(searchQuery);
 
-    const searchHistoryList=searchHistoryData.data?.data||[]
-    const searchData=getSearchData.data?.data||[]
+    // const searchHistoryList=searchHistoryData.data?.data||[]
+    // const searchData=getSearchData.data?.data||[]
 
-    const debouncedSearch = debounce((q:string) => {
-      setSearchQuery(q);
-    }, 500); 
+    // const debouncedSearch = debounce((q:string) => {
+    //   setSearchQuery(q);
+    // }, 500); 
 
     const onSearch=(q:string)=>{
-      setSearchText(q)
-      debouncedSearch(q);
-      q==''&&setSearchQuery('')
+    //   setSearchText(q)
+    //   debouncedSearch(q);
+    //   q==''&&setSearchQuery('')
     }
     
-    const clearSearch=()=>{
-      setSearchText('')
-      setSearchQuery('')
-      setHide(true)
-      Keyboard.dismiss()
-    }
+    // const clearSearch=()=>{
+    //   setSearchText('')
+    //   setSearchQuery('')
+    //   setHide(true)
+    //   Keyboard.dismiss()
+    // }
 
-    const goto=(id:number)=>{
-      setSearchHistory.mutate(searchText)
-      router.push({pathname:"/RelatedNotes/",params:{id}})
-      clearSearch()
-    }
-
+    // const goto=(id:number)=>{
+    //   setSearchHistory.mutate(searchText)
+    //   router.push({pathname:"/RelatedNotes/",params:{id}})
+    //   clearSearch()
+    // }
     return (
         <View style={[styles.container,style]}>
-            <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box,isFocused?{borderColor:'#222'}:{borderColor:Colors.darkWithOpacity(0.1)}]}>
+            <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box]}>
               <SvgXml xml={commonSvg.search} style={[{paddingHorizontal:8}]} />
               <View style={{flex:1}}>
                 <TextInput
@@ -98,6 +97,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                   autoCorrect={false}
                   autoComplete="off"
                   ref={ref}
+                  editable={false}
                 />
               </View>
               {searchText != "" ? (
@@ -111,8 +111,8 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                 </Pressable>
               ) : null}
             </Animatable.View>
-            {((searchHistoryList?.length>0||searchText.length>0)&&!hideView)&&
-              <View style={styles.modal}>
+            {/* {((searchHistoryList?.length!=0||searchText!='')&&!hideView)&&
+              <View style={styles.modal} onTouchStart={(e)=>e?.stopPropagation()}>
                   <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
                     {(searchText==''&&searchHistoryList?.length!=0)?
                     (<View style={{paddingVertical:12}}>
@@ -143,13 +143,14 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                       </View>
                       <Text style={styles.txt}>...{itm?.transcript?.trimEnd()}</Text></View>
                     </TouchableHighlight>)
-                    :getSearchData?.isLoading?
-                    <View style={[styles.result,{alignItems:'center',marginTop:30}]}>
-                      <CircularLoader/>
-                    </View>
-                    :<Text style={styles.noData}>No data found</Text>}
+                    :getSearchData.isFetched&&searchData?.length==0?
+                    <Text style={styles.noData}>No data found</Text>
+                  :
+                  <View style={[styles.result,{alignItems:'center',marginTop:40}]}>
+                    <CircularLoader/>
+                  </View>}
                   </ScrollView>
-            </View>}
+            </View>} */}
           </View>
     )
 }
@@ -170,8 +171,8 @@ const styles=StyleSheet.create({
         height:40,
         borderRadius:12,
         alignItems:'center',
-        borderWidth:1,
-        borderColor:Colors.darkWithOpacity(0.1),
+        // borderWidth:1,
+        backgroundColor:Colors.darkWithOpacity(0.05),
         zIndex:10
     },
     modal:{
@@ -181,8 +182,8 @@ const styles=StyleSheet.create({
       backgroundColor:'#fff',
       position:'absolute',
       top:45,borderRadius:12,
-      zIndex:10,
-      shadowColor: isIOS?"#00000026":'rgba(0, 0, 0, 0.6)',
+      zIndex:100,
+      shadowColor: "#00000026",
       shadowOpacity: 1,
       shadowOffset: { width: 0, height: 0.5 },
       shadowRadius: 1.5,

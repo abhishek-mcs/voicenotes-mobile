@@ -1,6 +1,22 @@
 export const drawerSvg={
-    hash:`<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-1"><path class="transition-all group-hover:stroke-dark" d="M2.72656 0L2.72656 6.36251" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M3.63574 2.72656L9.99825 2.72656" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M0 7.27344H6.36251" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M7.27148 3.63281L7.27148 9.99532" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M7.27148 0L7.27148 1.81786" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M2.72656 8.17969L2.72656 9.99755" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M0 2.72656H1.81786" stroke="{color}"></path><path class="transition-all group-hover:stroke-dark" d="M8.18066 7.27344H9.99852" stroke="{color}"></path></svg>    `,
-    star:`<svg width="13" height="13" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-1"><path class="transition-all group-hover:fill-dark" d="M2.9248 10.1719C2.82389 10.097 2.76204 9.99609 2.73926 9.86914C2.71973 9.74219 2.73926 9.59082 2.79785 9.41504L3.75488 6.56836L1.31348 4.81543C1.16048 4.70801 1.05306 4.59733 0.991211 4.4834C0.932617 4.36621 0.924479 4.2474 0.966797 4.12695C1.00586 4.00651 1.08236 3.91699 1.19629 3.8584C1.31348 3.7998 1.46484 3.77214 1.65039 3.77539L4.64844 3.79492L5.55664 0.928711C5.61523 0.75293 5.6901 0.619466 5.78125 0.52832C5.8724 0.437174 5.98145 0.391602 6.1084 0.391602C6.23535 0.391602 6.3444 0.437174 6.43555 0.52832C6.52669 0.619466 6.59993 0.75293 6.65527 0.928711L7.56836 3.79492L10.5664 3.77539C10.7487 3.77214 10.8984 3.7998 11.0156 3.8584C11.1328 3.91699 11.2109 4.00651 11.25 4.12695C11.2891 4.2474 11.2793 4.36621 11.2207 4.4834C11.1621 4.59733 11.0563 4.70801 10.9033 4.81543L8.46191 6.56836L9.41895 9.41504C9.47754 9.59082 9.49544 9.74219 9.47266 9.86914C9.45312 9.99609 9.3929 10.097 9.29199 10.1719C9.19108 10.2533 9.07552 10.2809 8.94531 10.2549C8.81836 10.2321 8.68001 10.167 8.53027 10.0596L6.1084 8.27734L3.68652 10.0596C3.53678 10.167 3.39681 10.2321 3.2666 10.2549C3.13965 10.2809 3.02572 10.2533 2.9248 10.1719ZM3.66699 9.15625C3.6735 9.16276 3.68815 9.15951 3.71094 9.14648L5.85449 7.49609C5.94238 7.43099 6.02702 7.39844 6.1084 7.39844C6.18978 7.39844 6.27441 7.43099 6.3623 7.49609L8.50586 9.14648C8.52865 9.15951 8.54329 9.16276 8.5498 9.15625C8.55306 9.14648 8.55143 9.13346 8.54492 9.11719L7.65625 6.55859C7.61719 6.45768 7.60742 6.36979 7.62695 6.29492C7.64974 6.22005 7.70671 6.15169 7.79785 6.08984L10.0293 4.55176C10.0488 4.53874 10.057 4.52734 10.0537 4.51758C10.0505 4.50781 10.0358 4.50293 10.0098 4.50293L7.30469 4.55664C7.19727 4.5599 7.111 4.54036 7.0459 4.49805C6.98405 4.45573 6.93685 4.38249 6.9043 4.27832L6.13281 1.68555C6.1263 1.65951 6.11816 1.64648 6.1084 1.64648C6.09863 1.64648 6.09049 1.65951 6.08398 1.68555L5.3125 4.27832C5.27995 4.38249 5.23112 4.45573 5.16602 4.49805C5.10417 4.54036 5.01953 4.5599 4.91211 4.55664L2.20703 4.50293C2.18099 4.50293 2.16634 4.50781 2.16309 4.51758C2.15983 4.52734 2.16797 4.53874 2.1875 4.55176L4.41895 6.08496C4.51335 6.15007 4.57031 6.22005 4.58984 6.29492C4.60938 6.36979 4.59961 6.45768 4.56055 6.55859L3.66699 9.11719C3.66374 9.13346 3.66374 9.14648 3.66699 9.15625Z" fill="{color}"></path></svg>
+    hash:`<svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.5 2.14844L5 14.1484" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M11.5 2.14844L9 14.1484" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M4 5.64844H14" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M3 10.1484H13" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    </svg>
+    `,
+    star:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 8H14" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M8 14V2" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M3.7998 12.2L12.2851 3.71467" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M12.2002 12.2L3.71491 3.71467" stroke="{color}" stroke-width="1.1" stroke-linecap="round"/>
+    </svg>
+    `,
+    share:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1.5 7.38095L14.0952 3L10.8095 14.5L1.5 7.38095Z" stroke="{color}" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M14.0951 3L5.88086 10.6667V14.5L8.07134 12.8571" stroke="{color}" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg>
     `,
     more:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <mask id="mask0_2485_3386" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20">
@@ -11,5 +27,11 @@ export const drawerSvg={
     </g>
     </svg>
     `,
-    home:`<svg width="16" height="11" viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-1"><path class="transition-all group-hover:fill-dark fill-dark" d="M0.416992 10.5807V4.68169L3.28878 1.74579H4.41699V0.414062H5.5003V1.74579H12.7118L15.5836 4.68169V10.5807H0.416992ZM10.5836 9.49738H14.5003V5.1384L12.55 3.13198L10.5836 5.15444V9.49738ZM1.5003 9.49738H9.50031V5.90923H1.5003V9.49738Z" fill="{color}"></path></svg>`
+    home:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 7L9.08125 6.135C10.0016 5.39874 10.6548 4.38076 10.9407 3.23736V3.23736C10.9561 3.17558 11.0439 3.17558 11.0593 3.23736V3.23736C11.3452 4.38076 11.9984 5.39874 12.9188 6.135L14 7V13H8V7Z" stroke="{color}" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M2 7L1.65642 6.57052C1.52595 6.6749 1.45 6.83292 1.45 7H2ZM8 13V13.55C8.30376 13.55 8.55 13.3038 8.55 13H8ZM2 13H1.45C1.45 13.3038 1.69624 13.55 2 13.55V13ZM11 3.55C11.3038 3.55 11.55 3.30376 11.55 3C11.55 2.69624 11.3038 2.45 11 2.45V3.55ZM2.93143 6.25486L2.58784 5.82538L2.93143 6.25486ZM7.45 7V13H8.55V7H7.45ZM8 12.45H2V13.55H8V12.45ZM2.55 13V7H1.45V13H2.55ZM2.34358 7.42948L3.27501 6.68434L2.58784 5.82538L1.65642 6.57052L2.34358 7.42948ZM5.0528 3.55H11V2.45H5.0528V3.55ZM3.27501 6.68434C4.38656 5.79509 5.17553 4.5656 5.52077 3.18462L4.45362 2.91783C4.16679 4.06514 3.51132 5.0866 2.58784 5.82538L3.27501 6.68434ZM5.52077 3.18462C5.46709 3.39936 5.27415 3.55 5.0528 3.55V2.45C4.76939 2.45 4.52235 2.64288 4.45362 2.91783L5.52077 3.18462Z" fill="{color}"/>
+    <path d="M10.5 12.5V13H11.5V12.5H10.5ZM10.5 10V12.5H11.5V10H10.5Z" fill="{color}"/>
+    <path d="M2 7H8" stroke="{color}" stroke-linejoin="round"/>
+    </svg>
+    `
 }

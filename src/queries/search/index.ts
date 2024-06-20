@@ -13,10 +13,14 @@ export function useSearch(q:string){
 }
 
 export function useSetSearchHistory(){
+    const queryClient = useQueryClient()
     return useMutation('set-search-history',(p:any) => {
         return axiosApi.post(`/search-history`,{keyword:p})
     },
     {
+        onSuccess:()=>{
+            queryClient.invalidateQueries('search-history')
+        },
         onError:(error:any)=>{
             console.log('reg-search',error?.response?.data?.message);
         }
