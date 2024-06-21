@@ -50,6 +50,7 @@ import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -260,30 +261,10 @@ export default ()=> {
     [isPlay,play,recordingList,audioLoading,generateDummy]
   );
 
-  const layoutAnimation = () => {
-    LayoutAnimation.configureNext({
-      duration: 250,
-      create: {
-        type: LayoutAnimation.Types.easeIn,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-    });
-  }
-
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useEffect(()=>{
-    layoutAnimation()
-  },[recordingList,generateDummy,isSearchVisible])
+  useLayoutAnim([recordingList,generateDummy,isSearchVisible])
 
 
   const handleScroll = (event:any) => {
@@ -302,7 +283,7 @@ export default ()=> {
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
-          {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
+          <View style={{backgroundColor:'#fff',paddingHorizontal:18}}>
           <Header isLogged={!!token} isOffline={isOffline}/>
           <BannerAlert
             ref={bannerRef}
@@ -318,11 +299,11 @@ export default ()=> {
               </Animatable.View>
             </Animated.View>
           )}
-          {/* </View> */}
+          </View>
           <FlatList
             ref={scrollRef}
             // bounces={false}
-            style={{opacity:hideBackground?0:1}}
+            style={{opacity:hideBackground?0:1,marginTop:12}}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
@@ -389,7 +370,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   wrapper: {
-    paddingHorizontal: 18,
+    // paddingHorizontal: 18,
     paddingVertical:isIOS?0:32
   },
   tab: {

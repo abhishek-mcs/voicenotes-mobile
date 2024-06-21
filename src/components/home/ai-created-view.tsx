@@ -2,6 +2,7 @@ import Colors from "assets/Colors";
 import { commonSvg } from "assets/svg/commonSvg";
 import Touchable from "components/common/Touchable";
 import { setStringAsync } from "expo-clipboard";
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { useDeleteFormattedNote } from "queries/home";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableHighlight, View } from "react-native";
@@ -39,8 +40,10 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
       ])
     }
 
+    useLayoutAnim([expand])
+
   return (
-    <TouchableHighlight style={container} onPress={()=>{setExpand(!expand)}} underlayColor={Colors.greyWithOpacity(0.2)}>
+    <Touchable style={container} onPress={()=>{setExpand(!expand)}} activeOpacity={0.6}>
       <View style={{paddingVertical:4,paddingLeft:12,borderLeftWidth:2,borderLeftColor:Colors.brownWithOpacity(1)}}>
         {/* <View style={{position:'absolute',right:0,top:0,padding:8,paddingHorizontal:12,zIndex:10}}>
             <SvgXml xml={commonSvg.smallArrow}  style={{transform:[{rotate:!expand?'180deg':'360deg'}]}}/>
@@ -72,7 +75,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
         </Text>
       </View>}
       </View>
-    </TouchableHighlight>
+    </Touchable>
   );
 };
 const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({

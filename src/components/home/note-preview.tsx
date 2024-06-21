@@ -26,6 +26,8 @@ import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
 import { setRecordingList } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
+import NoteButtons from "components/common/note-buttons";
+import { ScrollView } from "react-native";
 
 export default forwardRef(({
   note,
@@ -35,6 +37,7 @@ export default forwardRef(({
 }:any,ref) => {
   const route=useRouter()
   const [editNote,setEditNote] = useState(note)
+  const [expand,setExpand] = useState(false)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
   const [moreOption, setMoreOption] = useState(false);
@@ -281,7 +284,7 @@ export default forwardRef(({
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,expand?{backgroundColor:'#f7f7f7',maxHeight:expand?'auto':0}:{}]}>
     {(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
@@ -323,29 +326,28 @@ export default forwardRef(({
           </View>}
 
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
-      <View style={[styles.row,{marginLeft:-6,marginTop:16,position:'relative'}]}>
+      <ScrollView 
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={[styles.row,{marginLeft:-6,paddingTop:16,paddingBottom:4,paddingLeft:2,position:'relative'}]}>
       {hashFilter!='shared'&&
-      <Touchable onPress={onEdit} style={{paddingHorizontal:6,paddingVertical:5.5}} disabled={!note?.transcript}>
-        <SvgXml xml={home.edit}/>
-      </Touchable>}
-      {!!token&&hashFilter!='shared'&&<Menu
+      <>
+      <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript}/>
+      <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag}/>
+      <Menu
           visible={createOption}
-          anchor={
-            <Touchable style={styles.menuPress} onPress={showCreateOption} disabled={!note?.transcript}>
-              <SvgXml xml={home.create1} />
-            </Touchable>
-          }
+          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>}
           onRequestClose={hideCreateOption}
           style={styles.menu}
         >
         <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
-          <View style={[styles.row]}>
+          <View style={[styles.row,{width:screenWidth/2.8}]}>
             <SvgXml xml={CreateModalSvg.summary} />
             <Text style={styles.menuItemTxt}>Summarize</Text>
           </View>
         </MenuItem>
           <MenuItem style={styles.menuItem} onPress={()=>onCreate('points')}>
-            <View style={[styles.row]}>
+            <View style={[styles.row,{width:screenWidth/2.8}]}>
               <SvgXml xml={CreateModalSvg.points} />
               <Text style={styles.menuItemTxt}>List main points</Text>
             </View>
@@ -374,13 +376,13 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Email</Text>
             </View>
           </MenuItem>
-        </Menu>}
+        </Menu>
+        <NoteButtons icon={home.share1} text="Share" onPress={onShareNote}/>
+        </>}
       <Menu
           visible={moreOption}
           anchor={
-            <Touchable style={[styles.menuPress,hashFilter!='shared'?{}:{marginLeft:0}]} onPress={showMoreOption}>
-              <SvgXml xml={home.more} />
-            </Touchable>
+            <NoteButtons text="More" style={hashFilter!='shared'?{}:{marginLeft:0}} onPress={showMoreOption} icon={home.more}/>
           }
           onRequestClose={hideMoreOption}
           style={styles.menu}
@@ -388,13 +390,13 @@ export default forwardRef(({
         {hashFilter!='shared'?
         <>
         <MenuItem style={styles.menuItem} onPress={onStarred}>
-          <View style={[styles.row,{width:180}]}>
+          <View style={[styles.row]}>
             <SvgXml xml={home.smallStar} />
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
         <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
-          <View style={[styles.row,{width:180}]}>
+          <View style={[styles.row]}>
             <SvgXml xml={home.addTag} />
             <Text style={styles.menuItemTxt}>Add Tag</Text>
           </View>
@@ -406,19 +408,19 @@ export default forwardRef(({
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onShareNote}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row]}>
               <SvgXml xml={home.shareOptIcon} />
               <Text style={styles.menuItemTxt}>Get shareable link</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row]}>
               <SvgXml xml={home.generate} />
               <Text style={styles.menuItemTxt}>Regenerate title</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={onReGenerateTranscript}>
-            <View style={[styles.row,{width:180}]}>
+            <View style={[styles.row]}>
               <SvgXml xml={home.retry} />
               <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
             </View>
@@ -446,7 +448,7 @@ export default forwardRef(({
           </MenuItem>
           </>}
         </Menu>
-      </View>}
+      </ScrollView>}
       {isIOS?<Menu
           visible={shareVisible}
           anchor={null}
@@ -586,7 +588,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
 )};
 
 const styles = StyleSheet.create({
-  container: { marginTop: 24 },
+  container: { paddingHorizontal:18,paddingVertical:12 },
   row: { flexDirection: "row", alignItems: "center" },
   btw: { justifyContent: "space-between" },
   timeLine: {
@@ -664,6 +666,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 24,
     paddingVertical: 12,
+    marginHorizontal:18
   },
   tag:{
     fontSize:14,
