@@ -26,7 +26,7 @@ export default ({list=[],isPlay=false,setIsPlay,setPlay,play,setAudioLoading,aud
     }
 
     useEffect(()=>{
-        expand!=-1&&setExpandNote(-1)
+        expand!=-1&&expandNote!=-1&&setExpandNote(-1)
     },[expand])
 
     return (
@@ -49,7 +49,7 @@ export default ({list=[],isPlay=false,setIsPlay,setPlay,play,setAudioLoading,aud
                 onUploadRetry={onUploadRetry}
                 expand={expandNote}
                 isSubnote={true}
-                setExpand={onExpand}
+                setExpand={()=>onExpand(index)}
                 />
         )}
       />

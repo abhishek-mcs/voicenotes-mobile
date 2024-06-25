@@ -290,7 +290,7 @@ export default forwardRef(({
   const creationList=useMemo(()=>note?.creations,[list])
 
   const onExpand=async()=>{
-    setExpand(index==expand?-1:index);
+    setExpand();
     if(note?.related_notes?.length==0){
       setRelatedNoteLoading(true)
       await relatedNotes.mutateAsync(note?.id)
