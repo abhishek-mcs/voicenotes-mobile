@@ -25,10 +25,8 @@ export default ()=>{
     const {id}:{id:number}=useGlobalSearchParams<any>()
     
     const getIndividualNote = useGetSingleRecording(id)
-    const getRelatedNote = useGetRelatedRecording(id)
     const queryClient = useQueryClient()
     const note = getIndividualNote.data?.data
-    const relatedNotes = getRelatedNote.data?.data
 
     useEffect(()=>{
         // return ()=>{

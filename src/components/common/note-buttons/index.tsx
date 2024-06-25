@@ -5,6 +5,7 @@ import { View } from "react-native"
 import { StyleSheet } from "react-native"
 import { TouchableHighlight } from "react-native"
 import { SvgXml } from "react-native-svg"
+import { isIOS } from "utils/common"
 
 export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={}})=>{
     return (
@@ -24,12 +25,12 @@ const styles = StyleSheet.create({
         borderRadius:12,
         backgroundColor:Colors.whiteWithOpacity(1),
         marginHorizontal:5,
-        shadowColor:'rgba(0,0,0,1)',
+        shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,0)',
         shadowOffset:{width:0,height:1},
         shadowOpacity:0.15,
         shadowRadius:1.3,
         zIndex:10,
-        elevation:10,
+        elevation:2,
     },
     row:{flexDirection:'row',alignItems:'center',justifyContent:'center'},
     text:{marginLeft:6,fontSize:14,color:'#0D0D0D',fontFamily:'Primary-Medium'}

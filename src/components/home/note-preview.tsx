@@ -24,10 +24,11 @@ import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
-import { setRecordingList } from "redux/reducers/recordingStates";
+import { setRecordingList, setRelatedNotes } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
+import { useGetRelatedRecording } from "queries/home/relatedNote";
 
 export default forwardRef(({
   note,
@@ -50,6 +51,7 @@ export default forwardRef(({
   const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
   const [createType,setCreateType]=useState('summary')
+  const [relatedNoteLoading,setRelatedNoteLoading]=useState(false)
   const dispatch=useDispatch()
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
@@ -65,6 +67,7 @@ export default forwardRef(({
   const addTranscript=useAddTranscript()
   const unPublishRecording=useUnpublishRecording()
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
+  const relatedNotes=useGetRelatedRecording(index??0)
 
   useEffect(()=>{
     if(triggerTypingTranscript==0&&!note?.transcript)
@@ -283,10 +286,22 @@ export default forwardRef(({
   const formattedDuration = (duration=0) => new Date(duration).toISOString().substring(14, 19);
 
   const creationList=useMemo(()=>note?.creations,[list])
+
+  const onExpand=async()=>{
+    setExpand(index==expand?-1:index);
+    if(note?.related_notes?.length==0){
+      setRelatedNoteLoading(true)
+      await relatedNotes.mutateAsync(note?.id)
+      setTimeout(() => {
+        setRelatedNoteLoading(false)
+      }, 3000);
+    }
+  }
+
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
-    <Touchable onPress={()=>setExpand(index==expand?-1:index)} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7'}:{}]} activeOpacity={0.6}>
+    <Touchable onPress={onExpand} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7'}:{}]} activeOpacity={0.6}>
     {(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
@@ -520,16 +535,17 @@ export default forwardRef(({
         </TouchableHighlight>
       </View>}
       {/* related notes */}
-        {note?.related_notes?.length>0&&
+        {(note?.related_notes?.length>0||relatedNoteLoading)&&
         <View style={{marginTop:12}}>
           <Text style={{fontFamily:'Primary-Semibold',fontSize:12,color:'#0D0D0D'}}>
             Related Notes
           </Text>
-          <View style={{marginTop:3}}>
-            {
-              note?.related_notes?.map((item:any)=>(
-                <Touchable onPress={()=>{router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}} activeOpacity={0.6} key={item?.id} style={{flexDirection:'row',alignItems:'center',marginTop:8,gap:8}}>
-                  <Text style={{color:Colors.grey3,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/9.6}}>{formatDate(item?.created_at,false,true)}</Text>
+          <View style={{marginTop:(note?.related_notes?.length==0&&relatedNoteLoading)?8:3}}>
+            {(note?.related_notes?.length==0&&relatedNoteLoading)?
+              <CircularLoader width={16} height={16}/>
+              :note?.related_notes?.map((item:any)=>(
+                <Touchable onPress={()=>{router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}} activeOpacity={0.6} key={item?.id} style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
+                  <Text style={{color:Colors.grey3,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/8}}>{formatDate(item?.created_at,false,true)}</Text>
                   <Text style={{color:Colors.black2,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/1.6}} numberOfLines={1}>{item?.title}</Text>
                 </Touchable>
               ))
