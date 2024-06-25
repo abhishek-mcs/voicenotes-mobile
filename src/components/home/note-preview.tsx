@@ -3,7 +3,7 @@ import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, View } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate, isSameDay } from "utils/format-date";
+import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
@@ -33,11 +33,13 @@ export default forwardRef(({
   note,
   onUploadRetry,
   hashFilter,
+  expand,
+  setExpand,
+  isSingle=false,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
   const route=useRouter()
   const [editNote,setEditNote] = useState(note)
-  const [expand,setExpand] = useState(false)
   const [tag,setTag] = useState('')
   const [isEdit,setIsEdit] = useState(false)
   const [moreOption, setMoreOption] = useState(false);
@@ -284,7 +286,7 @@ export default forwardRef(({
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
-    <View style={[styles.container,expand?{backgroundColor:'#f7f7f7',maxHeight:expand?'auto':0}:{}]}>
+    <Touchable onPress={()=>setExpand(index==expand?-1:index)} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7'}:{}]} activeOpacity={0.6}>
     {(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
@@ -298,10 +300,10 @@ export default forwardRef(({
         </View>
         <View style={{marginLeft:9,flex:1,marginTop:-3}}>
           {!!note?.title?
-          <Touchable onPress={()=>{
-            router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
+          // <Touchable onPress={()=>{
+          //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
-          </Touchable>
+          // </Touchable>
           :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.{note?.transcript}</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
@@ -312,7 +314,7 @@ export default forwardRef(({
             <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
           </View>}
           {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
-          :!!note?.transcript&&<ChatBuble style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
+          :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={[styles.row,{flexWrap:'wrap'}]}>
           {note?.tags?.map((tag:any,i:number)=>
@@ -324,7 +326,7 @@ export default forwardRef(({
               {'#'+tag?.name}
           </Text>)}
           </View>}
-
+      {expand==index&&<>
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <ScrollView 
       horizontal
@@ -517,13 +519,34 @@ export default forwardRef(({
           </>
         </TouchableHighlight>
       </View>}
+      {/* related notes */}
+        {note?.related_notes?.length>0&&
+        <View style={{marginTop:12}}>
+          <Text style={{fontFamily:'Primary-Semibold',fontSize:12,color:'#0D0D0D'}}>
+            Related Notes
+          </Text>
+          <View style={{marginTop:3}}>
+            {
+              note?.related_notes?.map((item:any)=>(
+                <Touchable onPress={()=>{router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}} activeOpacity={0.6} key={item?.id} style={{flexDirection:'row',alignItems:'center',marginTop:8,gap:8}}>
+                  <Text style={{color:Colors.grey3,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/9.6}}>{formatDate(item?.created_at,false,true)}</Text>
+                  <Text style={{color:Colors.black2,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/1.6}} numberOfLines={1}>{item?.title}</Text>
+                </Touchable>
+              ))
+            }
+          </View>
+        </View>}
         {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
         {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}
+        <View style={{flex:1,alignItems:'flex-end',marginTop:8}}>
+          <Text style={{color:Colors.grey3,fontFamily:'Primary',fontSize:10}}>{formatDateTime(note?.created_at)}</Text>
+        </View>
+        </>}
         </View>
       </View>
-    </View>
+    </Touchable>
   );
 });
 
@@ -588,7 +611,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
 )};
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal:18,paddingVertical:12 },
+  container: { paddingHorizontal:18,paddingVertical:8,marginBottom:8 },
   row: { flexDirection: "row", alignItems: "center" },
   btw: { justifyContent: "space-between" },
   timeLine: {

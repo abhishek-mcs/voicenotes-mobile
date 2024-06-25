@@ -15,6 +15,7 @@ export default ()=>{
     const router=useRouter()
     const notePreviewRef = useRef<any>();
     const [isPlay,setIsPlay] = useState(-1)
+    const [expand,setExpand] = useState(0)
     const [play,setPlay] = useState<Audio.Sound|null>()
     const [audioLoading,setAudioLoading] = useState(-1)
     const notePreviewRef2 = useRef<any>();
@@ -35,25 +36,6 @@ export default ()=>{
             queryClient.resetQueries('related-recording')
         // }
     },[])
-    
-    const renderItem = useCallback(
-      ({ item, index }: any) => (
-        <NotePreview
-          ref={notePreviewRef2}
-          note={item}
-          index={index}
-          list={relatedNotes}
-          isPlay={isPlay2}
-          setIsPlay={setIsPlay2}
-          play={play2}
-          setPlay={setPlay2}
-          audioLoading={audioLoading2}
-          setAudioLoading={setAudioLoading2}
-          hideIcons={true}
-        />
-      ),
-      [isPlay2,play2,relatedNotes,audioLoading2]
-    );
 
     return (
         <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:32}}>
@@ -62,7 +44,7 @@ export default ()=>{
                     <SvgXml xml={commonSvg.back} height={21}/>
                     <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.darkWithOpacity(1)}}>Back</Text>
                 </Touchable>
-                <ScrollView contentContainerStyle={{paddingHorizontal:16,paddingBottom:100}} showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerStyle={{paddingBottom:100}} showsVerticalScrollIndicator={false}>
                     {getIndividualNote.isFetched&&
                     <NotePreview
                       ref={notePreviewRef}
@@ -76,24 +58,10 @@ export default ()=>{
                       audioLoading={audioLoading}
                       setAudioLoading={setAudioLoading}
                       onDeleteCallBack={()=>{router.back()}}
+                      expand={expand}
+                      setExpand={()=>setExpand(expand==0?-1:0)}
+                      isSingle={true}
                     />}
-                    <View style={{padding:16,paddingVertical:24,backgroundColor:Colors.lightGrey,borderRadius:16,marginTop:24}}>
-                        <Text style={{fontFamily:'Primary-Medium',fontSize:16,color:'#222',marginBottom:12}}>Related notes from your past</Text>
-                        <FlatList
-                        scrollEnabled={false}
-                        data={relatedNotes}
-                        keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
-                        renderItem={renderItem}
-                        ListEmptyComponent={() => getRelatedNote.isLoading?(
-                          <View style={{flex:1,minHeight:200,justifyContent:'center',alignItems:'center'}}>
-                            <ActivityIndicator size={"small"} color={"#000"}/>
-                          </View>
-                        ):
-                        <View style={{flex:1,minHeight:200,justifyContent:'center',alignItems:'center'}}>
-                            <Text style={{fontFamily:'Primary',fontSize:14,color:Colors.darkWithOpacity(0.5)}}>No related notes found</Text>
-                        </View>}
-                        />
-                    </View>
                 </ScrollView>
             </View>
         </SafeAreaView>

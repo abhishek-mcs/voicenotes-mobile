@@ -67,6 +67,7 @@ export default ()=> {
   const {hashFilter} = useSelector((state: RootState) => state.hash);
   const token = useSelector((state: RootState) => state.userDetails.token);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
+  const [expandNote,setExpandNote] = useState(-1)
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
@@ -256,9 +257,11 @@ export default ()=> {
         setAudioLoading={setAudioLoading}
         onUploadRetry={onUploadRetry}
         hashFilter={hashFilter}
+        expand={expandNote}
+        setExpand={()=>setExpandNote(index==expandNote?-1:index)}
       />
     ),
-    [isPlay,play,recordingList,audioLoading,generateDummy]
+    [isPlay,play,recordingList,audioLoading,generateDummy,expandNote]
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
