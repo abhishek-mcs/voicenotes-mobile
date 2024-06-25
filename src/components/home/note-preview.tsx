@@ -29,6 +29,7 @@ import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
+import Subnote from "./subnote";
 
 export default forwardRef(({
   note,
@@ -37,6 +38,7 @@ export default forwardRef(({
   expand,
   setExpand,
   isSingle=false,
+  isSubnote=false,
   list,index,isPlay,setIsPlay,play,setPlay,audioLoading,setAudioLoading,hideIcons=false,onDeleteCallBack=()=>{}
 }:any,ref) => {
   const route=useRouter()
@@ -301,8 +303,9 @@ export default forwardRef(({
   if (isEdit)
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
-    <Touchable onPress={onExpand} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7'}:{}]} activeOpacity={0.6}>
-    {(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
+    <View>
+      <Touchable onPress={onExpand} activeOpacity={0.6} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
+    {!isSubnote&&(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
         <View style={[{alignItems:'flex-start'}]}>
@@ -562,7 +565,21 @@ export default forwardRef(({
         </>}
         </View>
       </View>
-    </Touchable>
+      </Touchable>
+        {note?.subnotes?.length>0&&
+        <Subnote
+          list={note?.subnotes}
+          isPlay={isPlay}
+          setIsPlay={setIsPlay}
+          play={play}
+          setPlay={setPlay}
+          audioLoading={audioLoading}
+          setAudioLoading={setAudioLoading}
+          onUploadRetry={onUploadRetry}
+          setExpand={setExpand}
+          expand={expand}
+          />}
+    </View>
   );
 });
 
