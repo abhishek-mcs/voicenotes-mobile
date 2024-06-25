@@ -397,24 +397,24 @@ export default forwardRef(({
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
         </MenuItem>
-        <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
+        {/* <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
           <View style={[styles.row]}>
             <SvgXml xml={home.addTag} />
             <Text style={styles.menuItemTxt}>Add Tag</Text>
           </View>
-        </MenuItem>
+        </MenuItem> */}
           <MenuItem style={styles.menuItem} onPress={()=>onCopy(note?.transcript??'')}>
             <View style={styles.row}>
               <SvgXml xml={home.copy} />
               <Text style={styles.menuItemTxt}>Copy note</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={onShareNote}>
+          {/* <MenuItem style={styles.menuItem} onPress={onShareNote}>
             <View style={[styles.row]}>
               <SvgXml xml={home.shareOptIcon} />
               <Text style={styles.menuItemTxt}>Get shareable link</Text>
             </View>
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
             <View style={[styles.row]}>
               <SvgXml xml={home.generate} />
