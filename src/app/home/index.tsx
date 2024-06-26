@@ -267,8 +267,7 @@ export default ()=> {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useLayoutAnim([recordingList,generateDummy,isSearchVisible])
-
+  useLayoutAnim([recordingList,generateDummy,isSearchVisible,expandNote])
 
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;

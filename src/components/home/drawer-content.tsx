@@ -32,7 +32,7 @@ export default (props:any) => {
   const photo_url=data?.data?.data?.photo_url||null;
 
   useEffect(() => {
-    if(data?.data?.data){
+    if(!!token&&data?.data?.data){
       dispatch(setUserDetail(data?.data?.data))
       data?.data?.data?.settings?.language&& dispatch(setLang(languages[data?.data?.data?.settings?.language]))
       dispatch(setCanRecord(data?.data?.data?.can_record_more??true))

@@ -2,22 +2,20 @@ import { FlatList } from "react-native";
 import NotePreview from "./note-preview";
 import { useEffect, useState } from "react";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
+import { Audio } from "expo-av";
 
 interface Props {
     list: any[]
-    isPlay: boolean
-    setIsPlay: (val:boolean)=>void
-    play:any
-    setPlay:(val:any)=>void
-    audioLoading:any
-    setAudioLoading:(val:any)=>void
     onUploadRetry:()=>void
     expand:any
     setExpand:(val:any)=>void
 }
-export default ({list=[],isPlay=false,setIsPlay,setPlay,play,setAudioLoading,audioLoading,onUploadRetry,expand,setExpand}:Props)=>{
+export default ({list=[],onUploadRetry,expand,setExpand}:Props)=>{
     const [expandNote,setExpandNote]=useState(-1)
-    
+    const [isPlay,setIsPlay]=useState(-1)
+    const [audioLoading,setAudioLoading]=useState(-1)
+    const [play,setPlay] = useState<Audio.Sound|null>()
+
     useLayoutAnim([expandNote])
 
     const onExpand=(index:number)=>{

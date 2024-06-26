@@ -304,7 +304,7 @@ export default forwardRef(({
     return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View>
-      <Touchable onPress={onExpand} activeOpacity={0.6} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
+      <Touchable onPress={onExpand} activeOpacity={0.8} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
     {!isSubnote&&(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
@@ -569,12 +569,6 @@ export default forwardRef(({
         {note?.subnotes?.length>0&&
         <Subnote
           list={note?.subnotes}
-          isPlay={isPlay}
-          setIsPlay={setIsPlay}
-          play={play}
-          setPlay={setPlay}
-          audioLoading={audioLoading}
-          setAudioLoading={setAudioLoading}
           onUploadRetry={onUploadRetry}
           setExpand={setExpand}
           expand={expand}

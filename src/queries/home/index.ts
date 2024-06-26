@@ -213,12 +213,12 @@ export function useGetTags(){
 export function useGetUserData(token:any){
    
     return useQuery('user-data',(p?:any)=> {
-        if(!!token)
+    if(!!token)
         return axiosApi.get(`/auth/me`)
     },
     {
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('auth me',error?.response?.data?.message);
         }
     })
 }
