@@ -50,8 +50,11 @@ import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
+import * as FileSystem from 'expo-file-system';
 
-const recordSound = require("../../assets/sounds/record.wav");
+// const recordSound = require("../../assets/sounds/record.wav");
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
+
 const {height}=Dimensions.get('screen')
 const fadeIn={
   from:{opacity:0},to:{opacity:1}
@@ -160,7 +163,10 @@ export default ()=> {
     analytics().logEvent('started_recording')
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
-    const file = rec?.getURI()||"";
+    const fileSource:any = rec?.getURI()||"";
+    const fileName = fileSource.match(/\/Library\/Caches\/AV\/([^\/]+)$/)[1];
+    const file =`${DOCUMENT_FOLDER}${fileName}`
+    await FileSystem.moveAsync({ from: file, to: file });
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
