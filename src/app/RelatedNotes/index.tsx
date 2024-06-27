@@ -4,6 +4,7 @@ import Touchable from "components/common/Touchable"
 import NotePreview from "components/home/note-preview"
 import { Audio } from "expo-av"
 import { useGlobalSearchParams, useRouter } from "expo-router"
+import useLayoutAnim from "hooks/anim/useLayoutAnim"
 import { useGetRelatedRecording, useGetSingleRecording } from "queries/home/relatedNote"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { ActivityIndicator, FlatList, SafeAreaView, ScrollView, Text, View } from "react-native"
@@ -35,6 +36,7 @@ export default ()=>{
         // }
     },[])
 
+    useLayoutAnim([expand])
     return (
         <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:32}}>
             <View>

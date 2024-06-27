@@ -437,7 +437,6 @@ export default forwardRef(({
       {isIOS?
       <MoreOptions 
         options={hashFilter!='shared'?[
-          {title:'Tag as #starred',onPress:onStarred,icon:CreateModalSvg.summary},
           {title:'Copy note',onPress:()=>onCopy(note?.transcript??''),icon:CreateModalSvg.points},
           {title:'Regenerate title',onPress:onGenerateTitle,icon:CreateModalSvg.todo},
           {title:'Regenerate transcript',onPress:onReGenerateTranscript,icon:CreateModalSvg.blog},
@@ -457,12 +456,12 @@ export default forwardRef(({
         >
         {hashFilter!='shared'?
         <>
-        <MenuItem style={styles.menuItem} onPress={onStarred}>
+        {/* <MenuItem style={styles.menuItem} onPress={onStarred}>
           <View style={[styles.row]}>
             <SvgXml xml={home.smallStar} />
             <Text style={styles.menuItemTxt}>Tag as #starred</Text>
           </View>
-        </MenuItem>
+        </MenuItem> */}
         {/* <MenuItem style={styles.menuItem} onPress={onGotoAddTag}>
           <View style={[styles.row]}>
             <SvgXml xml={home.addTag} />

@@ -31,14 +31,14 @@ export default () => {
     const queryClient=useQueryClient()
     const tagsQuery:any=queryClient.getQueryData('all-tags')||[]
     let tagsList=useRef((tagsQuery?.data||[]).filter((f:any)=>f?.name!="starred"));
-    const [tags,setTags]=useState(tagsList.current||[])
+    const [tags,setTags]=useState([{name:'starred'},...tagsList.current]||[])
     const [addedTags,setAddedTags]:any=useState(JSON.parse(tagsArray)||[])
     
     const onSearch=useCallback((q:string)=>{
       setSearch(q);
       if(tags?.length>0)
         if(q=='')
-          setTags(tagsList.current||[])
+          setTags([{name:'starred'},...tagsList.current]||[])
         else{
           const temp=tagsList.current?.filter((f:any)=>f?.name?.toLowerCase().includes(q.toLowerCase()))||[]
           setTags(temp)
@@ -116,8 +116,11 @@ export default () => {
 const Btn=({onPress=(v:any)=>{},title,isAdded,style={}}:any)=>(
   <TouchableHighlight onPress={()=>onPress(title)} style={[{padding:7,marginBottom:1,paddingHorizontal:16,backgroundColor:isAdded?'rgba(35,84,159,0.1)':'transparent',borderRadius:8},{...style}]} underlayColor={'rgba(35,84,159,0.2)'}>
   <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-    <Text style={{fontFamily:'Primary-Medium',fontSize:16,color:(isAdded||title?.includes('+Add'))?'rgba(35,84,159,1)':'#0D0D0D'}}>{title?.includes('+Add')?title:'#'+title}</Text>
-    {isAdded&&<SvgXml xml={commonSvg.smallClose} />}
+    <View style={{flexDirection:'row',alignItems:'center'}}>
+      {title=='starred'&&<SvgXml xml={commonSvg.tagStarred?.replaceAll('{color}',isAdded?'rgba(35,84,159,1)':'#0d0d0d')} style={{marginLeft:-4}}/>}
+    <Text style={{fontFamily:'Primary-Medium',fontSize:16,color:(isAdded||title?.includes('+Add'))?'rgba(35,84,159,1)':'#0D0D0D'}}>{title?.includes('+Add')?title:title=='starred'?title:'#'+title}</Text>
+    </View>
+    {isAdded&&title!='starred'&&<SvgXml xml={commonSvg.smallClose} />}
   </View>
 </TouchableHighlight>
 );
