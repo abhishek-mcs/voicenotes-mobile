@@ -30,6 +30,7 @@ import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
 import Subnote from "./subnote";
+import MoreOptions from "components/common/more-options";
 
 export default forwardRef(({
   note,
@@ -354,7 +355,19 @@ export default forwardRef(({
       <>
       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript}/>
       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag}/>
-      <Menu
+      {isIOS?
+      <MoreOptions 
+        options={[
+          {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
+          {title:'List main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
+          {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
+          {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
+          {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
+          {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
+          ]}>
+        <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>
+      </MoreOptions>
+      :<Menu
           visible={createOption}
           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>}
           onRequestClose={hideCreateOption}
@@ -396,10 +409,23 @@ export default forwardRef(({
               <Text style={styles.menuItemTxt}>Email</Text>
             </View>
           </MenuItem>
-        </Menu>
+        </Menu>}
         <NoteButtons icon={home.share1} text="Share" onPress={onShareNote}/>
         </>}
-      <Menu
+      {isIOS?
+      <MoreOptions 
+        options={hashFilter!='shared'?[
+          {title:'Tag as #starred',onPress:onStarred,icon:CreateModalSvg.summary},
+          {title:'Copy note',onPress:()=>onCopy(note?.transcript??''),icon:CreateModalSvg.points},
+          {title:'Regenerate title',onPress:onGenerateTitle,icon:CreateModalSvg.todo},
+          {title:'Regenerate transcript',onPress:onReGenerateTranscript,icon:CreateModalSvg.blog},
+          {title:'Delete',onPress:onDelete,icon:CreateModalSvg.tweet},
+          ]:[{title:'Copy link',onPress:()=>onCopy(MAIN_URL+'/s/'+note?.public_slug),icon:CreateModalSvg.email},
+            {title:'Unpublish',onPress:onUnpublish,icon:CreateModalSvg.email}
+            ]}>
+          <NoteButtons text="More" style={hashFilter!='shared'?{}:{marginLeft:0}} onPress={showMoreOption} icon={home.more}/>
+      </MoreOptions>
+      :<Menu
           visible={moreOption}
           anchor={
             <NoteButtons text="More" style={hashFilter!='shared'?{}:{marginLeft:0}} onPress={showMoreOption} icon={home.more}/>
@@ -467,7 +493,7 @@ export default forwardRef(({
             {/* </View> */}
           </MenuItem>
           </>}
-        </Menu>
+        </Menu>}
       </ScrollView>}
       {isIOS?<Menu
           visible={shareVisible}
