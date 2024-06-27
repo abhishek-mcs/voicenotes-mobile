@@ -163,11 +163,11 @@ export default ()=> {
     analytics().logEvent('started_recording')
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
+    await stopRecording(rec);
     const fileSource:any = rec?.getURI()||"";
     const fileName = fileSource.match(/\/Library\/Caches\/AV\/([^\/]+)$/)[1];
-    const file =`${DOCUMENT_FOLDER}${fileName}`
-    await FileSystem.moveAsync({ from: file, to: file });
-    stopRecording(rec);
+    const file =`${DOCUMENT_FOLDER}${fileName}`;
+    await FileSystem.moveAsync({ from: fileSource, to: file });
     setRec(null);
     setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
@@ -291,6 +291,14 @@ export default ()=> {
     layoutAnimation()
   },[recordingList,generateDummy,isSearchVisible])
 
+  const onRefresh =async()=>{
+    setRefreshing(true);
+    await recordingQuery.refetch()
+    setRefreshing(false);
+    if(!!generateDummy&&generateDummy?.length>0){
+      batchRetryUpload()
+    }
+  }
 
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
@@ -344,11 +352,7 @@ export default ()=> {
             renderItem={renderItem}
             onEndReachedThreshold={0.5}
             onEndReached={fetchNextPage}
-            onRefresh={async()=>{
-              setRefreshing(true);
-              await recordingQuery.refetch()
-              setRefreshing(false)
-            }}
+            onRefresh={onRefresh}
             refreshing={isRefreshing}
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
