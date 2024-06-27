@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Alert, StyleSheet, Text, TextInput, TouchableHighlight, View } from "react-native";
+import { Alert, LayoutAnimation, StyleSheet, Text, TextInput, TouchableHighlight, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
@@ -24,13 +24,14 @@ import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
-import { setRecordingList, setRelatedNotes } from "redux/reducers/recordingStates";
+import { setRecordingList, setRelatedNotes, updateTitle, updateTranscript } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
 import Subnote from "./subnote";
 import MoreOptions from "components/common/more-options";
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
 
 export default forwardRef(({
   note,
@@ -55,6 +56,8 @@ export default forwardRef(({
   const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
   const [createType,setCreateType]=useState('summary')
   const [relatedNoteLoading,setRelatedNoteLoading]=useState(false)
+  const [titleLoading,setTitleLoading]=useState(false)
+  const [transcriptLoading,setTranscriptLoading]=useState(false)
   const dispatch=useDispatch()
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
@@ -156,16 +159,20 @@ export default forwardRef(({
     })
   }
 
-  const onGenerateTitle=useCallback(()=>{
+  const onGenerateTitle=useCallback(async()=>{
+    setTitleLoading(true)
     hideMoreOption();
-    note.title=null
-    addTitleRecord.mutate(note?.id)
+    // dispatch(updateTitle({title:null,index}))
+    await addTitleRecord.mutateAsync(note?.id)
+    setTitleLoading(false)
   },[note])
 
-  const onReGenerateTranscript=useCallback(()=>{
+  const onReGenerateTranscript=useCallback(async()=>{
+    setTranscriptLoading(true)
     hideMoreOption();
-    note.transcript=''
-    addTranscript.mutate(note?.id)
+    // dispatch(updateTranscript({transcript:'',index}))
+    await addTranscript.mutateAsync(note?.id)
+    setTranscriptLoading(false)
   },[note])
 
   const onRetry=async()=>{
@@ -291,8 +298,23 @@ export default forwardRef(({
   const creationList=useMemo(()=>note?.creations,[list])
 
   const onExpand=async()=>{
+    LayoutAnimation.configureNext({
+      duration: 250,
+      create: {
+        type: LayoutAnimation.Types.easeIn,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      delete: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
     setExpand();
-    if(note?.related_notes?.length==0){
+    if(note?.related_notes?.length==0&&!!note?.transcript){
       setRelatedNoteLoading(true)
       await relatedNotes.mutateAsync(note?.id)
       setTimeout(() => {
@@ -318,7 +340,7 @@ export default forwardRef(({
         <View style={styles.timeLine} />
         </View>
         <View style={{marginLeft:9,flex:1,marginTop:-3}}>
-          {!!note?.title?
+          {(!!note?.title&&!titleLoading)?
           // <Touchable onPress={()=>{
           //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
@@ -332,7 +354,7 @@ export default forwardRef(({
             <SvgXml xml={home.wait} style={{marginTop:8,marginRight:8}}/>
             <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
           </View>}
-          {(!note?.transcript&&note?.title)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
+          {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
           :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           {note?.tags?.length>0&&
           <View style={[styles.row,{flexWrap:'wrap'}]}>
@@ -564,7 +586,7 @@ export default forwardRef(({
         </TouchableHighlight>
       </View>}
       {/* related notes */}
-        {(note?.related_notes?.length>0||relatedNoteLoading)&&
+        {(!!note?.transcript&&(note?.related_notes?.length>0||relatedNoteLoading))&&
         <View style={{marginTop:12}}>
           <Text style={{fontFamily:'Primary-Semibold',fontSize:12,color:'#0D0D0D'}}>
             Related Notes
@@ -625,25 +647,6 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
     <View style={[styles.divider1, { width: "100%" }]} />
     <View style={styles.tagContainer}>
       <View style={[styles.row,{flexWrap:'wrap',width:'55%',alignSelf:'center'}]}>
-      {/* {editNote?.tags?.map((tag:any,indx:number)=>
-      <Touchable key={indx} onPress={()=>setEditNote({...editNote,tags:editNote?.tags?.filter((_:any,i:number)=>i!=indx)})} style={styles.tagWrap}>
-        <Text style={[styles.tag,{marginTop:0,marginRight:0}]}>{'#'+tag?.name}</Text>
-      </Touchable>
-      )} */}
-      {/* <TextInput
-        style={styles.tagInput}
-        placeholder="#Add tags"
-        placeholderTextColor={Colors.greyWithOpacity(0.82)}
-        value={tag}
-        autoComplete="off"
-        autoCorrect={false}
-        autoCapitalize="none"
-        selectTextOnFocus={false}
-        onChangeText={txt=>setTag(txt)}
-        onSubmitEditing={()=>{
-          setEditNote({...editNote,tags:[...editNote.tags,{name:tag?.replace(/ /g, '')}]})
-          setTag('')
-          }} /> */}
       </View>
       <View style={styles.row}>
       <Touchable 
@@ -664,7 +667,7 @@ const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onC
 )};
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal:18,paddingVertical:8,marginBottom:8 },
+  container: { paddingHorizontal:18,paddingBottom:8,paddingTop:14 },
   row: { flexDirection: "row", alignItems: "center" },
   btw: { justifyContent: "space-between" },
   timeLine: {
