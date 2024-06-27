@@ -20,6 +20,7 @@ import { useQueryClient } from "react-query";
 import { FlatList } from "react-native";
 import { useSaveEditedNote } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
+import { sendMessage, watchEvents } from 'react-native-watch-connectivity';
 
 export default () => {
     const router = useRouter();

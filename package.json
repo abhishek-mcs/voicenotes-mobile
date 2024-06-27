@@ -71,6 +71,7 @@
     "react-native-three-dots-loader": "^1.0.1",
     "react-native-uuid": "^2.0.2",
     "react-native-wagmi-charts": "^2.4.1",
+    "react-native-watch-connectivity": "^1.1.0",
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.6.4",
     "react-query": "^3.39.3",
