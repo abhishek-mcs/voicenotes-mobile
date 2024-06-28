@@ -1,0 +1,467 @@
+//
+//  ContentViewModel.swift
+//  Watch-voicenotes Watch App
+//
+//  Created by Andriy Hrytsyshyn on 6/4/24.
+//
+
+import SwiftUI
+import KeychainSwift
+import NerdzInject
+import Combine
+import SwiftData
+import SDWebImageLottieCoder
+
+enum ScreenType: Hashable {
+    case recordingDetails(RecordModel)
+    case askAI
+}
+
+final class ContentViewModel: ObservableObject {
+  
+  @Published var recordings = [RecordModel]()
+  @Published var isAccessTokenValid = false
+  @Published var noInternet = false
+  @Published var showRecordView = false
+  @Published var showAIRecordView = false
+  @Published var showCancelView = false
+  @Published var showDeleteView = false
+  @Published var showGotItView = false
+  @Published var recordAudioViewModel = RecordAudioViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
+  @Published var aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
+  @Published var loadAnimation = Image("")
+  @Published var recordingsData: [RecordingDataModel] = []
+  @Published var navigationPath: [ScreenType] = []
+  
+  @ForceInject private var recordingRepository: RecordingRepository
+  @ForceInject private var authRepository: AuthRepository
+  private var context: ModelContext?
+  var subscriptions = Set<AnyCancellable>()
+  var updatedNotesId: [String] = []
+  var userDataModel: UserDataModel?
+  var listPage = 1
+  var recordingForDelete: RecordModel?
+
+  var deleteRecording: (RecordingDataModel) -> Void = { _ in }
+  
+  private let keychain = KeychainSwift()
+  private var getResponse = false
+  
+  // MARK: - Animation
+  private var coder: SDImageLottieCoder?
+  private var loadingFrame: UInt = 0
+  private var loadAnimationTimer: Timer?
+  private var speed: Double = 1.0
+  
+  init() {
+    updateTokenValidation()
+    subscribe()
+    setupLoadAnimation()
+  }
+  
+  func update(context: ModelContext, recordings: [RecordingDataModel]) {
+    self.context = context
+    self.recordingsData = recordings
+    addLocalNote()
+  }
+  
+  // MARK: Add Local Note
+  
+  private func addLocalNote() {
+    var recordings = [RecordModel]()
+    recordingsData.forEach { recording in
+      recordings.append(RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: recording.createdAt), updatedAt: self.getNowStringDate(currentDate: recording.createdAt), duration: recording.duration, audioData: recording.audioData))
+    }
+    
+    self.recordings += recordings
+    self.recordings.sort {
+      guard let date1 = getDateFromString($0.createdAt), let date2 = getDateFromString($1.createdAt) else { return false }
+      return date1 > date2
+    }
+  }
+  
+  private func subscribe() {
+      NotificationCenter.default.publisher(for: Notification.Name("update_token"))
+          .sink { [weak self] _ in
+              guard let self else { return }
+              self.updateTokenValidation()
+          }
+          .store(in: &subscriptions)
+  }
+  
+  // MARK: - Request Methods
+  
+  func getAllRecordings(page: Int) {
+    recordingRepository.getAllRecordings(page: page)
+      .receive(on: DispatchQueue.main)
+      .sink {
+        switch $0 {
+        case .failure(let error):
+          print("ERROR: \(error.localizedDescription)")
+        case .finished: break
+        }
+      } receiveValue: { [weak self] result in
+        guard let self else { return }
+        
+        if page == 1 {
+          recordings = result.data
+          addLocalNote()
+        } else {
+          DispatchQueue.main.async {
+            self.recordings += result.data
+          }
+        }
+        listPage += 1
+      }
+      .store(in: &subscriptions)
+  }
+  
+  func getUserData() {
+    let internetCheckTask = DispatchWorkItem { [weak self] in
+      guard let self = self else { return }
+      if !self.getResponse {
+        withAnimation {
+          self.noInternet = true
+        }
+        self.getResponse = false
+      }
+    }
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: internetCheckTask)
+
+    authRepository.getUserData()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] completion in
+        guard let self else { return }
+        self.getResponse = true
+        internetCheckTask.cancel()
+
+        switch completion {
+        case .failure(let error):
+          print("ERROR: \(error.localizedDescription)")
+        case .finished:
+          self.noInternet = false
+        }
+      } receiveValue: { [weak self] result in
+        internetCheckTask.cancel()
+        self?.userDataModel = result
+      }
+      .store(in: &subscriptions)
+  }
+  
+  // MARK: Store Audio
+  
+  func storeAudio(recording: RecordingDataModel, context: ModelContext) {
+    recordingRepository.storeAudio(model: StoreAudioModel(parameters: ["duration" : "\(recording.duration)"],
+                                                 audioData: recording.audioData))
+    .receive(on: DispatchQueue.main)
+    .sink {
+      switch $0 {
+      case .failure(let error):
+        print("ERROR: \(error.localizedDescription)")
+      case .finished: break
+      }
+    } receiveValue: { [weak self] model in
+      guard let self else { return }
+      
+      if let index = recordings.firstIndex(where: { $0.id == recording.id }) {
+        withAnimation {
+          self.recordings[index].isUploadingAudio = false
+          self.recordings[index].isCreatingTranscript = true
+        }
+      }
+      
+      // if aoudio is aploaded then try to delete it from local storage
+      self.deleteRecording(recording)
+      
+      self.updateRecording(recordingId: String(model.recording.recordingId), listItemId: recording.id)
+    }
+    .store(in: &subscriptions)
+  }
+  
+  func updateRecording(recordingId: String, listItemId: String) {
+    Publishers.Zip(recordingRepository.addTitle(recordingId: recordingId),
+                   recordingRepository.addTranscript(recordingId: recordingId))
+    .receive(on: DispatchQueue.main)
+    .sink {
+      switch $0 {
+      case .failure(let error):
+        print("ERROR: \(error.localizedDescription)")
+        if let index = self.recordings.firstIndex(where: { $0.id == listItemId }) {
+          withAnimation {
+            self.recordings[index].isCreatingTranscript = false
+          }
+        }
+      case .finished: break
+      }
+    } receiveValue: { [weak self] value1, value2 in
+      guard let self else { return }
+      print("Success update recording title and transcript")
+      var recording = value1.recording
+      recording.transcript = value2.recording.transcript
+      if let index = recordings.firstIndex(where: { $0.id == listItemId }) {
+        withAnimation {
+          self.recordings[index] = recording
+        }
+      }
+    }
+    .store(in: &subscriptions)
+  }
+  
+  func getUserData(recording: RecordingDataModel, storeToLocalStorage: Bool = true, internetCheck: Bool = false) {
+    if !updatedNotesId.contains(where: { $0 == recording.id }) {
+      updatedNotesId.append(recording.id)
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+      if self.updatedNotesId.contains(where: { $0 == recording.id }) {
+        // MARK: No interner action
+        withAnimation {
+          self.noInternet = true
+          self.showGotItView = true
+        }
+        if storeToLocalStorage {
+          self.context?.insert(recording)
+        }
+        if let index = self.recordings.firstIndex(where: { $0.id == recording.id }) {
+          withAnimation {
+            self.recordings[index].isCheckInternet = false
+            self.recordings[index].isUploadingAudio = false
+            self.recordings[index].isCreatingTranscript = false
+          }
+        }
+      }
+    }
+    authRepository.getUserData()
+      .receive(on: DispatchQueue.main)
+      .sink {
+        switch $0 {
+        case .failure(let error):
+          print("ERROR: \(error.localizedDescription)")
+          if let index = self.updatedNotesId.firstIndex(where: { $0 == recording.id }) {
+            self.updatedNotesId.remove(at: index)
+          }
+          self.noInternet = false
+        case .finished: break
+        }
+      } receiveValue: { [weak self] result in
+        guard let self else { return }
+        if let index = self.updatedNotesId.firstIndex(where: { $0 == recording.id }) {
+          self.updatedNotesId.remove(at: index)
+          self.userDataModel = result
+        }
+        self.noInternet = false
+        
+        if internetCheck, let context = self.context {
+          if let index = self.recordings.firstIndex(where: { $0.id == recording.id }) {
+            withAnimation {
+              self.recordings[index].isCheckInternet = false
+              self.recordings[index].isUploadingAudio = true
+            }
+          }
+          self.storeAudio(recording: recording, context: context)
+        }
+      }
+      .store(in: &subscriptions)
+  }
+  
+  // MARK: Delete note
+  
+  func deleteNote() {
+
+    
+    // request
+    
+    // success
+    
+    
+    if let index = recordings.firstIndex(where: { $0.id == recordingForDelete?.id }) {
+      recordings.remove(at: index)
+    }
+    recordingForDelete = nil
+    
+  }
+
+  
+  // MARK: Upload Local Note
+  
+  func uploadLocalNote(model: RecordModel) {
+    guard let audioData = model.audioData, let context = self.context else { return }
+    let recording = RecordingDataModel(duration: model.duration, audioData: audioData, createdAt: Date())
+    recording.id = model.id
+    
+    guard let index = self.recordings.firstIndex(where: { $0.id == model.id }) else { return }
+    
+    if noInternet {
+      self.recordings[index].isCheckInternet = true
+      getUserData(recording: recording, storeToLocalStorage: false, internetCheck: true)
+    } else {
+      self.recordings[index].isUploadingAudio = true
+      getUserData(recording: recording, storeToLocalStorage: false)
+      storeAudio(recording: recording, context: context)
+    }
+  }
+  
+  func updateTokenValidation() {
+    guard keychain.get(KeychainKeys.accessToken) != nil else { return }
+    getUserData()
+    getAllRecordings(page: listPage)
+    withAnimation {
+      isAccessTokenValid = true
+    }
+  }
+  
+  func formatMilliseconds(_ milliseconds: Int) -> String {
+    let totalSeconds = Double(milliseconds) / 1000
+    let minutes = Int(totalSeconds) / 60
+    let seconds = Int(totalSeconds) % 60
+    return String(format: "%d:%02d", minutes, seconds)
+  }
+  
+  func convertDateString(_ originalDateString: String) -> String {
+    // Create a DateFormatter for the input date string
+    let inputDateFormatter = DateFormatter()
+    inputDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+    inputDateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    
+    if let date = inputDateFormatter.date(from: originalDateString) {
+      let outputDateFormatter = DateFormatter()
+      outputDateFormatter.dateFormat = "MMM dd"
+      
+      let formattedDateString = outputDateFormatter.string(from: date)
+      
+      return formattedDateString
+    } else {
+      return ""
+    }
+  }
+  
+  func deleteToken() {
+    isAccessTokenValid = false
+    keychain.clear()
+  }
+  
+  // MARK: Init Record Audio ViewModel
+  
+  func initRecordAudioViewModel() -> RecordAudioViewModel {
+    recordAudioViewModel = RecordAudioViewModel(subscriptionStatus: userDataModel?.subscriptionStatus ?? false,
+                                                completion: { recording, hideView in
+      guard let context = self.context else { return }
+      
+      let listItemModel = RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: Date()), updatedAt: self.getNowStringDate(currentDate: Date()), duration: recording.duration, isPublished: nil, audioData: recording.audioData)
+      self.recordings.insert(listItemModel, at: 0)
+      
+      if self.noInternet {
+        self.recordings[0].isCheckInternet = true
+        self.getUserData(recording: recording)
+      } else {
+        self.recordings[0].isUploadingAudio = true
+        self.getUserData(recording: recording)
+        self.storeAudio(recording: recording, context: context)
+      }
+      
+      if !self.navigationPath.isEmpty {
+        self.navigationPath.removeLast(self.navigationPath.count)
+      }
+      
+      withAnimation {
+        self.showRecordView = !hideView
+      }
+    }, cancel: {
+      withAnimation {
+        self.showCancelView = true
+      }
+    })
+    
+    return recordAudioViewModel
+  }
+  
+  // MARK: Init Record Audio ViewModel
+  
+  func initAIRecordingViewModel() -> AIRecordingViewModel {
+    aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: userDataModel?.subscriptionStatus ?? false,
+                                                completion: { recording, hideView in
+//      guard let context = self.context else { return }
+      
+      let listItemModel = RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: Date()), updatedAt: self.getNowStringDate(currentDate: Date()), duration: recording.duration, isPublished: nil, audioData: recording.audioData)
+      self.recordings.insert(listItemModel, at: 0)
+
+      
+      
+//      if self.noInternet {
+//        self.recordings[self.updateNoteIndex].isCheckInternet = true
+//        self.getUserData(recording: recording)
+//      } else {
+//        self.recordings[self.updateNoteIndex].isUploadingAudio = true
+//        self.getUserData(recording: recording)
+//        self.storeAudio(recording: recording, context: context)
+//      }
+      
+      if !self.navigationPath.isEmpty {
+        self.navigationPath.removeLast(self.navigationPath.count)
+      }
+      
+      withAnimation {
+        self.showAIRecordView = !hideView
+      }
+    }, cancel: {
+      withAnimation {
+        self.showCancelView = true
+      }
+    })
+    
+    return aiRecordingViewModel
+  }
+  
+  private func getNowStringDate(currentDate: Date) -> String {
+    let dateFormatter = DateFormatter()
+    
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    
+    let formattedDate = dateFormatter.string(from: currentDate)
+    return formattedDate
+  }
+  
+  // MARK: - Animation Methods
+  
+  private func setupLoadAnimation() {
+    guard let jsonData = loadJSONData(filename: "loadAnimation") else { return }
+    loadingFrame = 0
+    guard let coder = SDImageLottieCoder(animatedImageData: jsonData, options: [SDImageCoderOption.decodeLottieResourcePath: Bundle.main.resourcePath!]),
+          let uiImage = coder.animatedImageFrame(at: loadingFrame) else { return }
+    self.loadAnimation = Image(uiImage: uiImage)
+    
+    loadAnimationTimer?.invalidate()
+    loadAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.05/speed, repeats: true, block: { (timer) in
+      self.loadingFrame += 1
+      if self.loadingFrame >= coder.animatedImageFrameCount {
+        self.loadingFrame = 0
+      }
+      guard let uiImage = coder.animatedImageFrame(at: self.loadingFrame) else { return }
+      self.loadAnimation = Image(uiImage: uiImage)
+    })
+  }
+  
+  private func loadJSONData(filename: String) -> Data? {
+    if let url = Bundle.main.url(forResource: filename, withExtension: "json") {
+      do {
+        let data = try Data(contentsOf: url)
+        return data
+      } catch {
+        print("Error reading JSON file:", error.localizedDescription)
+      }
+    }
+    return nil
+  }
+  
+  private func getDateFromString(_ dateString: String) -> Date? {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXXXX"
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    
+    
+    return dateFormatter.date(from: dateString)
+  }
+}

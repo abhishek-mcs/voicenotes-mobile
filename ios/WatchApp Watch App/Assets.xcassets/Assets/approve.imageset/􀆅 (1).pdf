@@ -1,0 +1,158 @@
+%PDF-1.7
+
+1 0 obj
+  << /Length 2 0 R >>
+stream
+1.182129 0 0.124512 -0.096680 1.057617 1.011719 d1
+
+endstream
+endobj
+
+2 0 obj
+  51
+endobj
+
+3 0 obj
+  [ 1.182129 ]
+endobj
+
+4 0 obj
+  << /Length 5 0 R >>
+stream
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo
+<< /Registry (FigmaPDF)
+   /Ordering (FigmaPDF)
+   /Supplement 0
+>> def
+/CMapName /A-B-C def
+/CMapType 2 def
+1 begincodespacerange
+<00> <FF>
+endcodespacerange
+1 beginbfchar
+<00> <DBC0DD85>
+endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+endstream
+endobj
+
+5 0 obj
+  336
+endobj
+
+6 0 obj
+  << /Subtype /Type3
+     /CharProcs << /C0 1 0 R >>
+     /Encoding << /Type /Encoding
+                  /Differences [ 0 /C0 ]
+               >>
+     /Widths 3 0 R
+     /FontBBox [ 0.000000 0.000000 0.000000 0.000000 ]
+     /FontMatrix [ 1.000000 0.000000 0.000000 1.000000 0.000000 0.000000 ]
+     /Type /Font
+     /ToUnicode 4 0 R
+     /FirstChar 0
+     /LastChar 0
+     /Resources << >>
+  >>
+endobj
+
+7 0 obj
+  << /Font << /F1 6 0 R >> >>
+endobj
+
+8 0 obj
+  << /Length 9 0 R >>
+stream
+/DeviceRGB CS
+/DeviceRGB cs
+q
+1.000000 0.000000 -0.000000 1.000000 -1.898438 1.513672 cm
+0.345098 0.662745 0.258824 scn
+0.404297 -0.353516 m
+h
+6.322266 -1.513672 m
+5.888672 -1.513672 5.548828 -1.367188 5.261719 -1.033203 c
+2.244141 2.523438 l
+1.986328 2.816406 1.898438 3.068359 1.898438 3.373047 c
+1.898438 4.046875 2.402344 4.544922 3.093750 4.544922 c
+3.486328 4.544922 3.773438 4.410156 4.019531 4.117188 c
+6.298828 1.392578 l
+10.839844 8.517578 l
+11.126953 8.962891 11.425781 9.132812 11.888672 9.132812 c
+12.574219 9.132812 13.095703 8.634766 13.095703 7.972656 c
+13.095703 7.726562 13.019531 7.462891 12.837891 7.193359 c
+7.423828 -0.962891 l
+7.171875 -1.337891 6.802734 -1.513672 6.322266 -1.513672 c
+h
+f
+n
+Q
+q
+1.000000 0.000000 -0.000000 1.000000 -1.898438 1.513672 cm
+BT
+12.000000 0.000000 0.000000 12.000000 0.404297 -0.353516 Tm
+/F1 1.000000 Tf
+[ (\000) ] TJ
+ET
+Q
+
+endstream
+endobj
+
+9 0 obj
+  876
+endobj
+
+10 0 obj
+  << /Annots []
+     /Type /Page
+     /MediaBox [ 0.000000 0.000000 11.197266 10.646484 ]
+     /Resources 7 0 R
+     /Contents 8 0 R
+     /Parent 11 0 R
+  >>
+endobj
+
+11 0 obj
+  << /Kids [ 10 0 R ]
+     /Count 1
+     /Type /Pages
+  >>
+endobj
+
+12 0 obj
+  << /Pages 11 0 R
+     /Type /Catalog
+  >>
+endobj
+
+xref
+0 13
+0000000000 65535 f
+0000000010 00000 n
+0000000117 00000 n
+0000000138 00000 n
+0000000169 00000 n
+0000000561 00000 n
+0000000583 00000 n
+0000000995 00000 n
+0000001041 00000 n
+0000001973 00000 n
+0000001995 00000 n
+0000002170 00000 n
+0000002246 00000 n
+trailer
+<< /ID [ (some) (id) ]
+   /Root 12 0 R
+   /Size 13
+>>
+startxref
+2307
+%%EOF
