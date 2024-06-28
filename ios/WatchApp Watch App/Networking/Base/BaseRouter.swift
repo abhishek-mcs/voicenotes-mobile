@@ -16,7 +16,7 @@ struct Server {
 class BaseRouter {
     
     var baseUrl: String {
-        return "https://stageapi.voicenotes.com"
+        return "https://stagingapi.voicenotes.com"
     }
 
     var method: HTTPMethod {

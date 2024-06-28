@@ -58,7 +58,7 @@ const ENVURLSet: ENVURLs = {
   },
   stage: {
     MAIN_URL: "https://stageview.voicenotes.com",
-    API_URL: "https://stageapi.voicenotes.com",
+    API_URL: "https://stagingapi.voicenotes.com",
     SHORT_URL: "stageview.voicenotes.com",
     CDN_URL: "https://cdn.buymeacoffee.com",
   },
