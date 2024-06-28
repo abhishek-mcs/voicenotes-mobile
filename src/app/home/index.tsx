@@ -51,6 +51,7 @@ import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
 import * as FileSystem from 'expo-file-system';
+import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 
 // const recordSound = require("../../assets/sounds/record.wav");
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
@@ -93,7 +94,8 @@ export default ()=> {
   const bannerRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
-
+  useWatchNetInfo()
+  
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const uploadRecord = useUploadRecord()
   const addTranscriptRecord = useAddTranscript(true)

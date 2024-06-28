@@ -1,3 +1,4 @@
+import { useNetInfo } from "@react-native-community/netinfo";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "react-query";
@@ -53,8 +54,9 @@ export function useLogout(){
     const dispatch=useDispatch()
     const queryClient=useQueryClient()
     const route = useRouter()
+    const netInfo=useNetInfo()
     const logout=()=>{
-        setAuthToken(guestToken,true)
+        setAuthToken(guestToken,true,netInfo)
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
         queryClient.resetQueries('all-tags')

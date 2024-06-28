@@ -2,6 +2,7 @@ import axios from "axios"
 import { API_URL } from "./api-constants"
 import * as Device from "expo-device"
 import * as Application from "expo-application"
+import { sendMessage, watchEvents } from 'react-native-watch-connectivity';
 
 const axiosApi = axios.create({
   baseURL: `${API_URL}/api`,
@@ -10,11 +11,22 @@ const axiosApi = axios.create({
   },
 })
 
-export function setAuthToken(token: string | void,isGuest:boolean) {
+export function setAuthToken(token: string | void,isGuest:boolean,netInfo:any) {
   if (!isGuest) {
     axiosApi.defaults.baseURL=`${API_URL}/api`
     axiosApi.defaults.params={}
     axiosApi.defaults.headers.common["Authorization"] = `Bearer ${token}`
+    sendMessage(
+      {tokenFromApp: token,
+        internetType: netInfo.type
+      }, 
+      reply => {console.log(reply)},
+      error => { 
+          if (error) { 
+            console.log("error", error)
+          }
+      }
+    )
   } else {
     delete axiosApi.defaults.headers.common["Authorization"]
     axiosApi.defaults.params={token}

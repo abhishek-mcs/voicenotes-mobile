@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux"
 import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
+import { useNetInfo } from "@react-native-community/netinfo"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -26,6 +27,7 @@ export default () => {
   const [loginError, setLoginError] = useState()
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
+  const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
 
@@ -34,7 +36,7 @@ export default () => {
       const token = data?.data?.token
       const userData = data?.data?.user
       if (token) {
-        setAuthToken(token,false);
+        setAuthToken(token,false,netInfo);
         dispatch(setToken(token));
         dispatch(setUserDetail(userData))
         queryClient.resetQueries('all-recording')

@@ -14,6 +14,7 @@ import Touchable from "components/common/Touchable"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import { analytics } from "../../../../firebaseConfig"
+import { useNetInfo } from "@react-native-community/netinfo"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -31,6 +32,7 @@ export default ()=>{
   const signup=useSignup()
   const moveRecords=useMoveGuestRecords()
   const queryClient=useQueryClient()
+  const netInfo=useNetInfo()
   
 
   const continueDeletion = () => {
@@ -56,7 +58,7 @@ export default ()=>{
           if (token) {
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
-            setAuthToken(token,false);
+            setAuthToken(token,false,netInfo);
             // moveRecords.mutate(guestToken,{onSuccess:()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
