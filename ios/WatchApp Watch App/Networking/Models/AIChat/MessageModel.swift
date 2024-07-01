@@ -1,5 +1,5 @@
 //
-//  MessageModel.swift
+//  ConversationModel.swift
 //  WatchApp Watch App
 //
 //  Created by Andriy Hrytsyshyn on 6/27/24.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct MessageModel: Codable {
-  let id: String
+struct ConversationModel: Codable {
+  let id: Int
   let title: String
   let createdAt: String
   let updatedAt: String
@@ -24,15 +24,15 @@ struct MessageModel: Codable {
 }
 
 struct RelatedMessageModel: Codable {
-  let id: String
-  let aiChatThreadId: String
+  let id: Int
+  let aiChatThreadId: Int
   let question: String
   let answer: String
   let questionUrl: String
   let answerUrl: String?
   let createdAt: String
   let updatedAt: String
-  let source: [String]
+  let source: [MessageSource]
   
   enum CodingKeys: String, CodingKey {
     case id
@@ -44,5 +44,19 @@ struct RelatedMessageModel: Codable {
     case createdAt = "created_at"
     case updatedAt = "updated_at"
     case source
+  }
+}
+
+struct MessageSource: Codable {
+  let id: String
+  let transcript: String
+  let title: String
+  let createdAt: String
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case transcript
+    case title
+    case createdAt = "created_at"
   }
 }

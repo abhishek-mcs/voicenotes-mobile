@@ -99,6 +99,17 @@ final class RecordingRepository {
             .eraseToAnyPublisher()
     }
     
+    func deleteRecording(recordingId: String) -> AnyPublisher<EmptyResponse, Error> {
+        networkService.performRequest(route: RecordingRequest(endpoint: .deleteRecording(recordingId: recordingId)))
+            .map { value in
+                return value
+            }
+            .catch { error -> AnyPublisher<EmptyResponse, Error> in
+                return Fail(error: error).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
     func getRelatedRecordings(recordingId: String) -> AnyPublisher<[RelatedRecordingModel], Error> {
         networkService.performRequest(route: RecordingRequest(endpoint: .getRelatedRecordings(recordingId: recordingId)))
             .map { value in

@@ -16,6 +16,7 @@ enum RecordingRequestEndpoint {
     case getAllRecordings(page: Int)
     case getRecordingSuggestion
     case getIndividualRecording(recordingId: String)
+    case deleteRecording(recordingId: String)
     case getRelatedRecordings(recordingId: String)
 }
 
@@ -44,6 +45,8 @@ final class RecordingRequest: BaseRouter {
             return "/api/recordings/suggestion"
         case .getIndividualRecording(let recordingId):
             return "/api/recordings/\(recordingId)"
+        case .deleteRecording(let recordingId):
+            return "/api/recordings/\(recordingId)"
         case .getRelatedRecordings(let recordingId):
             return "/api/recordings/\(recordingId)/related"
         }
@@ -51,7 +54,7 @@ final class RecordingRequest: BaseRouter {
 
     override var headers: [String: String]? {
         switch endpoint {
-        case .getAudio, .addTranscript, .addTitle, .getAllRecordings, .getRecordingSuggestion, .getIndividualRecording, .getRelatedRecordings:
+        case .getAudio, .addTranscript, .addTitle, .getAllRecordings, .getRecordingSuggestion, .getIndividualRecording, .deleteRecording, .getRelatedRecordings:
             [
                 "Authorization": "Bearer \(keychain.get(KeychainKeys.accessToken) ?? "")",
                 "accept": "application/json",
@@ -74,12 +77,14 @@ final class RecordingRequest: BaseRouter {
             return .patch
         case .getAudio, .getAllRecordings, .getRecordingSuggestion, .getIndividualRecording, .getRelatedRecordings:
             return .get
+        case .deleteRecording:
+          return .delete
         }
     }
     
     override var body: Data? {
         switch endpoint {
-        case .getAudio, .addTranscript, .addTitle, .getAllRecordings, .getRecordingSuggestion, .getIndividualRecording, .getRelatedRecordings:
+        case .getAudio, .addTranscript, .addTitle, .getAllRecordings, .getRecordingSuggestion, .getIndividualRecording, .deleteRecording, .getRelatedRecordings:
             return nil
         case .storeAudio(let model):
             return model.multipartBody
@@ -94,7 +99,7 @@ final class RecordingRequest: BaseRouter {
 
     override var queryItems: [URLQueryItem]? {
         switch endpoint {
-        case .getAudio, .storeAudio, .addTranscript, .addTitle, .getRecordingSuggestion, .getIndividualRecording, .getRelatedRecordings:
+        case .getAudio, .storeAudio, .addTranscript, .addTitle, .getRecordingSuggestion, .getIndividualRecording, .deleteRecording, .getRelatedRecordings:
             nil
         case .getAllRecordings(let page):
             [URLQueryItem(name: "page", value: String(page))]

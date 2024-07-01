@@ -14,12 +14,14 @@ import SDWebImageLottieCoder
 
 enum ScreenType: Hashable {
     case recordingDetails(RecordModel)
-    case askAI
+    case askAI(audioData: Data)
 }
 
 final class ContentViewModel: ObservableObject {
   
   @Published var recordings = [RecordModel]()
+  @Published var firstAIAudio = Data()
+  @Published var askAIButtonDisable = false
   @Published var isAccessTokenValid = false
   @Published var noInternet = false
   @Published var showRecordView = false
@@ -29,10 +31,13 @@ final class ContentViewModel: ObservableObject {
   @Published var showGotItView = false
   @Published var recordAudioViewModel = RecordAudioViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
   @Published var aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
+  @Published var askAIChatViewModel = AskAIChatViewModel(audioData: Data())
   @Published var loadAnimation = Image("")
   @Published var recordingsData: [RecordingDataModel] = []
   @Published var navigationPath: [ScreenType] = []
   
+  @ObservedObject var watchConnection = WatchConnector()
+
   @ForceInject private var recordingRepository: RecordingRepository
   @ForceInject private var authRepository: AuthRepository
   private var context: ModelContext?
@@ -267,18 +272,24 @@ final class ContentViewModel: ObservableObject {
   // MARK: Delete note
   
   func deleteNote() {
-
-    
-    // request
-    
-    // success
-    
-    
-    if let index = recordings.firstIndex(where: { $0.id == recordingForDelete?.id }) {
-      recordings.remove(at: index)
-    }
-    recordingForDelete = nil
-    
+    guard let deletedRecordingID = recordingForDelete?.id else { return }
+    recordingRepository.deleteRecording(recordingId: deletedRecordingID)
+      .receive(on: DispatchQueue.main)
+      .sink {
+        switch $0 {
+        case .failure(let error):
+          print("ERROR: \(error.localizedDescription)")
+        case .finished: break
+        }
+      } receiveValue: { [weak self] _ in
+        guard let self else { return }
+        
+        if let index = recordings.firstIndex(where: { $0.id == deletedRecordingID }) {
+          recordings.remove(at: index)
+        }
+        recordingForDelete = nil
+      }
+      .store(in: &subscriptions)
   }
 
   
@@ -380,24 +391,15 @@ final class ContentViewModel: ObservableObject {
   func initAIRecordingViewModel() -> AIRecordingViewModel {
     aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: userDataModel?.subscriptionStatus ?? false,
                                                 completion: { recording, hideView in
-//      guard let context = self.context else { return }
       
-      let listItemModel = RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: Date()), updatedAt: self.getNowStringDate(currentDate: Date()), duration: recording.duration, isPublished: nil, audioData: recording.audioData)
-      self.recordings.insert(listItemModel, at: 0)
-
+      // TODO: Added no internet case for AI chat
       
-      
-//      if self.noInternet {
-//        self.recordings[self.updateNoteIndex].isCheckInternet = true
-//        self.getUserData(recording: recording)
-//      } else {
-//        self.recordings[self.updateNoteIndex].isUploadingAudio = true
-//        self.getUserData(recording: recording)
-//        self.storeAudio(recording: recording, context: context)
-//      }
-      
-      if !self.navigationPath.isEmpty {
-        self.navigationPath.removeLast(self.navigationPath.count)
+      if self.navigationPath.contains(.askAI(audioData: self.firstAIAudio)) {
+        self.askAIChatViewModel.addNewMessage(audioData: recording.audioData)
+      } else {
+        self.firstAIAudio = recording.audioData
+        self.navigationPath.append(ScreenType.askAI(audioData: recording.audioData))
+        self.askAIButtonDisable = true
       }
       
       withAnimation {
@@ -410,6 +412,14 @@ final class ContentViewModel: ObservableObject {
     })
     
     return aiRecordingViewModel
+  }
+  
+  // MARK: Init Record Audio ViewModel
+  
+  func initAskAIChatViewModel(audioData: Data) -> AskAIChatViewModel {
+    askAIChatViewModel = AskAIChatViewModel(audioData: audioData)
+    
+    return askAIChatViewModel
   }
   
   private func getNowStringDate(currentDate: Date) -> String {

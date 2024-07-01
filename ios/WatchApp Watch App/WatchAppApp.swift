@@ -28,5 +28,6 @@ struct WatchApp_Watch_AppApp: App {
       
         NerdzInject.shared.registerObject(AuthRepository(networkService: networkService))
         NerdzInject.shared.registerObject(RecordingRepository(networkService: networkService))
+        NerdzInject.shared.registerObject(AIChatRepository(networkService: networkService))
     }
 }

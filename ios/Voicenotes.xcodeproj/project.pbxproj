@@ -13,6 +13,11 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		53D762A597CDA2C7E47478F4 /* Pods_Voicenotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82B5DC2C19D609DCC2C11290 /* Pods_Voicenotes.framework */; };
+		84FBBF632C32E79E005524CE /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF622C32E79E005524CE /* Service.swift */; };
+		84FBBF662C32E86E005524CE /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF652C32E86E005524CE /* MessageView.swift */; };
+		84FBBF682C32E87B005524CE /* MessageBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF672C32E87B005524CE /* MessageBarView.swift */; };
+		84FBBF6B2C32E88E005524CE /* AudioPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF6A2C32E88E005524CE /* AudioPlayerView.swift */; };
+		84FBBF6D2C32E89D005524CE /* AudioPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF6C2C32E89D005524CE /* AudioPlayerViewModel.swift */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C61BC69F2C2EA06F00D2F468 /* WatchAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC69E2C2EA06F00D2F468 /* WatchAppApp.swift */; };
@@ -44,7 +49,7 @@
 		C61BC7092C2EA10E00D2F468 /* RecordingRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6CC2C2EA10D00D2F468 /* RecordingRequest.swift */; };
 		C61BC70A2C2EA10E00D2F468 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6CE2C2EA10D00D2F468 /* NetworkService.swift */; };
 		C61BC70B2C2EA10E00D2F468 /* loadAnimationGray.json in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6D02C2EA10D00D2F468 /* loadAnimationGray.json */; };
-		C61BC70C2C2EA10E00D2F468 /* Font+.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6D12C2EA10D00D2F468 /* Font+.swift */; };
+		C61BC70C2C2EA10E00D2F468 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6D12C2EA10D00D2F468 /* Extensions.swift */; };
 		C61BC70D2C2EA10E00D2F468 /* MicrophoneMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6D22C2EA10D00D2F468 /* MicrophoneMonitor.swift */; };
 		C61BC70E2C2EA10E00D2F468 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6D32C2EA10D00D2F468 /* WatchConnector.swift */; };
 		C61BC70F2C2EA10E00D2F468 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6D52C2EA10D00D2F468 /* Preview Assets.xcassets */; };
@@ -109,6 +114,11 @@
 		6C2E3173556A471DD304B334 /* Pods-Voicenotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Voicenotes.debug.xcconfig"; path = "Target Support Files/Pods-Voicenotes/Pods-Voicenotes.debug.xcconfig"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-Voicenotes.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Voicenotes.release.xcconfig"; path = "Target Support Files/Pods-Voicenotes/Pods-Voicenotes.release.xcconfig"; sourceTree = "<group>"; };
 		82B5DC2C19D609DCC2C11290 /* Pods_Voicenotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Voicenotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84FBBF622C32E79E005524CE /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		84FBBF652C32E86E005524CE /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
+		84FBBF672C32E87B005524CE /* MessageBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBarView.swift; sourceTree = "<group>"; };
+		84FBBF6A2C32E88E005524CE /* AudioPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerView.swift; sourceTree = "<group>"; };
+		84FBBF6C2C32E89D005524CE /* AudioPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerViewModel.swift; sourceTree = "<group>"; };
 		8A18B34578644E9C923142A9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Voicenotes/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Voicenotes/SplashScreen.storyboard; sourceTree = "<group>"; };
 		B6D9B2A41BC3433F80DB051A /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Voicenotes/noop-file.swift"; sourceTree = "<group>"; };
@@ -142,7 +152,7 @@
 		C61BC6CC2C2EA10D00D2F468 /* RecordingRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingRequest.swift; sourceTree = "<group>"; };
 		C61BC6CE2C2EA10D00D2F468 /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		C61BC6D02C2EA10D00D2F468 /* loadAnimationGray.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = loadAnimationGray.json; sourceTree = "<group>"; };
-		C61BC6D12C2EA10D00D2F468 /* Font+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Font+.swift"; sourceTree = "<group>"; };
+		C61BC6D12C2EA10D00D2F468 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		C61BC6D22C2EA10D00D2F468 /* MicrophoneMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MicrophoneMonitor.swift; sourceTree = "<group>"; };
 		C61BC6D32C2EA10D00D2F468 /* WatchConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchConnector.swift; sourceTree = "<group>"; };
 		C61BC6D52C2EA10D00D2F468 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -251,6 +261,25 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		84FBBF642C32E852005524CE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				84FBBF652C32E86E005524CE /* MessageView.swift */,
+				84FBBF692C32E882005524CE /* AudioPlayer */,
+				84FBBF672C32E87B005524CE /* MessageBarView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		84FBBF692C32E882005524CE /* AudioPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				84FBBF6A2C32E88E005524CE /* AudioPlayerView.swift */,
+				84FBBF6C2C32E89D005524CE /* AudioPlayerViewModel.swift */,
+			);
+			path = AudioPlayer;
+			sourceTree = "<group>";
+		};
 		92DBD88DE9BF7D494EA9DA96 /* Voicenotes */ = {
 			isa = PBXGroup;
 			children = (
@@ -272,18 +301,18 @@
 			isa = PBXGroup;
 			children = (
 				C61BC72D2C2EA32900D2F468 /* WatchApp-Watch-App-Info.plist */,
-				C61BC6F12C2EA10D00D2F468 /* Assets.xcassets */,
-				C61BC6D42C2EA10D00D2F468 /* Common */,
+				C61BC69E2C2EA06F00D2F468 /* WatchAppApp.swift */,
+				C61BC6A02C2EA06F00D2F468 /* ContentView.swift */,
 				C61BC6AE2C2EA10D00D2F468 /* ContentViewModel.swift */,
+				C61BC6B02C2EA10D00D2F468 /* Model */,
+				C61BC6E82C2EA10D00D2F468 /* Views */,
+				C61BC6D42C2EA10D00D2F468 /* Common */,
+				C61BC6CF2C2EA10D00D2F468 /* Networking */,
 				C61BC6F02C2EA10D00D2F468 /* Fonts */,
 				C61BC6E92C2EA10D00D2F468 /* loadAnimation.json */,
 				C61BC6D02C2EA10D00D2F468 /* loadAnimationGray.json */,
-				C61BC6B02C2EA10D00D2F468 /* Model */,
-				C61BC6CF2C2EA10D00D2F468 /* Networking */,
+				C61BC6F12C2EA10D00D2F468 /* Assets.xcassets */,
 				C61BC6D62C2EA10D00D2F468 /* Preview Content */,
-				C61BC6E82C2EA10D00D2F468 /* Views */,
-				C61BC69E2C2EA06F00D2F468 /* WatchAppApp.swift */,
-				C61BC6A02C2EA06F00D2F468 /* ContentView.swift */,
 			);
 			path = "WatchApp Watch App";
 			sourceTree = "<group>";
@@ -373,11 +402,11 @@
 		C61BC6CF2C2EA10D00D2F468 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				C61BC6B72C2EA10D00D2F468 /* Base */,
-				C61BC6C52C2EA10D00D2F468 /* Models */,
+				C61BC6CE2C2EA10D00D2F468 /* NetworkService.swift */,
 				C61BC6C92C2EA10D00D2F468 /* Repository */,
 				C61BC6CD2C2EA10D00D2F468 /* Request */,
-				C61BC6CE2C2EA10D00D2F468 /* NetworkService.swift */,
+				C61BC6B72C2EA10D00D2F468 /* Base */,
+				C61BC6C52C2EA10D00D2F468 /* Models */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -385,9 +414,10 @@
 		C61BC6D42C2EA10D00D2F468 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				C61BC6D12C2EA10D00D2F468 /* Font+.swift */,
+				C61BC6D12C2EA10D00D2F468 /* Extensions.swift */,
 				C61BC6D22C2EA10D00D2F468 /* MicrophoneMonitor.swift */,
 				C61BC6D32C2EA10D00D2F468 /* WatchConnector.swift */,
+				84FBBF622C32E79E005524CE /* Service.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -414,6 +444,7 @@
 			children = (
 				C61BC6DA2C2EA10D00D2F468 /* AskAIChatView.swift */,
 				C61BC6DB2C2EA10D00D2F468 /* AskAIChatViewModel.swift */,
+				84FBBF642C32E852005524CE /* Views */,
 			);
 			path = AskAIChat;
 			sourceTree = "<group>";
@@ -432,9 +463,9 @@
 		C61BC6E42C2EA10D00D2F468 /* RecordAudio */ = {
 			isa = PBXGroup;
 			children = (
-				C61BC6E12C2EA10D00D2F468 /* Views */,
 				C61BC6E22C2EA10D00D2F468 /* RecordAudioView.swift */,
 				C61BC6E32C2EA10D00D2F468 /* RecordAudioViewModel.swift */,
+				C61BC6E12C2EA10D00D2F468 /* Views */,
 			);
 			path = RecordAudio;
 			sourceTree = "<group>";
@@ -451,8 +482,8 @@
 		C61BC6E82C2EA10D00D2F468 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				C61BC6D92C2EA10D00D2F468 /* AIRecording */,
 				C61BC6DC2C2EA10D00D2F468 /* AskAIChat */,
+				C61BC6D92C2EA10D00D2F468 /* AIRecording */,
 				C61BC6E42C2EA10D00D2F468 /* RecordAudio */,
 				C61BC6E72C2EA10D00D2F468 /* RecordingDetail */,
 			);
@@ -771,21 +802,25 @@
 				C61BC6F62C2EA10E00D2F468 /* EmptyResponse.swift in Sources */,
 				C61BC7112C2EA10E00D2F468 /* AIRecordingViewModel.swift in Sources */,
 				C61BC6F92C2EA10E00D2F468 /* Log.swift in Sources */,
+				84FBBF632C32E79E005524CE /* Service.swift in Sources */,
 				C61BC7172C2EA10E00D2F468 /* GotItView.swift in Sources */,
-				C61BC70C2C2EA10E00D2F468 /* Font+.swift in Sources */,
+				C61BC70C2C2EA10E00D2F468 /* Extensions.swift in Sources */,
 				C61BC6F32C2EA10E00D2F468 /* RecordingModel.swift in Sources */,
 				C61BC6F42C2EA10E00D2F468 /* BaseRouter.swift in Sources */,
 				C61BC6F72C2EA10E00D2F468 /* HTTPMethod.swift in Sources */,
+				84FBBF682C32E87B005524CE /* MessageBarView.swift in Sources */,
 				C61BC7142C2EA10E00D2F468 /* BarView.swift in Sources */,
 				C61BC7132C2EA10E00D2F468 /* AskAIChatViewModel.swift in Sources */,
 				C61BC6FC2C2EA10E00D2F468 /* RefreshTokenModel.swift in Sources */,
 				C61BC7022C2EA10E00D2F468 /* StoreAudioModel.swift in Sources */,
 				C61BC70A2C2EA10E00D2F468 /* NetworkService.swift in Sources */,
 				C61BC7042C2EA10E00D2F468 /* AIChatRepository.swift in Sources */,
+				84FBBF6D2C32E89D005524CE /* AudioPlayerViewModel.swift in Sources */,
 				C61BC7002C2EA10E00D2F468 /* RecordingSuggestionModel.swift in Sources */,
 				C61BC7182C2EA10E00D2F468 /* RecordAudioView.swift in Sources */,
 				C61BC70D2C2EA10E00D2F468 /* MicrophoneMonitor.swift in Sources */,
 				C61BC6F52C2EA10E00D2F468 /* CodaleService.swift in Sources */,
+				84FBBF662C32E86E005524CE /* MessageView.swift in Sources */,
 				C61BC71B2C2EA10E00D2F468 /* RecordingDetailViewModel.swift in Sources */,
 				C61BC6F82C2EA10E00D2F468 /* KeychainKeys.swift in Sources */,
 				C61BC7092C2EA10E00D2F468 /* RecordingRequest.swift in Sources */,
@@ -794,6 +829,7 @@
 				C61BC7082C2EA10E00D2F468 /* AuthRequest.swift in Sources */,
 				C61BC7102C2EA10E00D2F468 /* AIRecordingView.swift in Sources */,
 				C61BC7062C2EA10E00D2F468 /* RecordingRepository.swift in Sources */,
+				84FBBF6B2C32E88E005524CE /* AudioPlayerView.swift in Sources */,
 				C61BC71A2C2EA10E00D2F468 /* RecordingDetailView.swift in Sources */,
 				C61BC7192C2EA10E00D2F468 /* RecordAudioViewModel.swift in Sources */,
 				C61BC6FE2C2EA10E00D2F468 /* AudioUrlModel.swift in Sources */,
@@ -844,11 +880,11 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = app.voicenotes;
-				PRODUCT_NAME = "Voicenotes";
+				PRODUCT_NAME = Voicenotes;
 				SWIFT_OBJC_BRIDGING_HEADER = "Voicenotes/Voicenotes-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -877,10 +913,10 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = app.voicenotes;
-				PRODUCT_NAME = "Voicenotes";
+				PRODUCT_NAME = Voicenotes;
 				SWIFT_OBJC_BRIDGING_HEADER = "Voicenotes/Voicenotes-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -1074,7 +1110,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				WATCHOS_DEPLOYMENT_TARGET = 10.4;
 			};
 			name = Debug;
@@ -1122,7 +1158,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				WATCHOS_DEPLOYMENT_TARGET = 10.4;
 			};
 			name = Release;

@@ -88,8 +88,9 @@ struct ContentView: View {
             switch screenType {
             case .recordingDetails(let recording):
               RecordingDetailView(viewModel: RecordingDetailViewModel(recording: recording))
-            case .askAI:
-              AskAIChatView(viewModel: AskAIChatViewModel())
+            case .askAI(let audioData):
+              AskAIChatView(viewModel: viewModel.initAskAIChatViewModel(audioData: audioData),
+                            askAIButtonDisable: $viewModel.askAIButtonDisable)
             }
         }
         .toolbar {
@@ -108,7 +109,7 @@ struct ContentView: View {
       
       if viewModel.isAccessTokenValid {
         HStack(spacing: 5) {
-          if !viewModel.navigationPath.contains(.askAI) {
+          if !viewModel.navigationPath.contains(ScreenType.askAI(audioData: viewModel.firstAIAudio)) {
             recordButton
           }
           askAIButton
@@ -265,16 +266,16 @@ struct ContentView: View {
           .foregroundStyle(.black)
       }
       .frame(width: 90, height: 35)
-      .background(Color.white)
+      .background(viewModel.askAIButtonDisable ? Color.gray : Color.white)
       .cornerRadius(.infinity)
       .onTapGesture {
         withAnimation {
-          viewModel.navigationPath.append(ScreenType.askAI)
-//          viewModel.showAIRecordView = true
-//          viewModel.aiRecordingViewModel.recordButtonTapped()
+          viewModel.showAIRecordView = true
+          viewModel.aiRecordingViewModel.recordButtonTapped()
         }
       }
     }
+    .disabled(viewModel.askAIButtonDisable)
     .padding(.bottom, 15)
     .ignoresSafeArea()
   }
