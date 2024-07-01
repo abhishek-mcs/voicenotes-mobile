@@ -63,7 +63,6 @@ export default forwardRef(({
   const {token} = useSelector((state:RootState)=>state.userDetails)
   
   const queryClient = useQueryClient();
-  const saveEditedNote=useSaveEditedNote(note?.id)
   const toggleStarred=useToggleStar(note?.id)
   const deleteRecord=useDeleteRecording(note?.id)
   const addTitleRecord = useAddTitle()
@@ -90,49 +89,8 @@ export default forwardRef(({
   const hideCreateOption = () => setCreateOption(false);
   const showCreateOption = () => setCreateOption(true);
 
-  const onSaveEdit=()=>{
-    const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
-    const temp=note;
-    note.title=editNote?.title;
-    note.transcript=editNote?.transcript;
-    note.tags=editNote?.tags||[]
-    saveEditedNote.mutate(
-      {title:editNote?.title,transcript:editNote?.transcript,tags:tags||[]},{
-        onSuccess:(e:any)=>{
-          queryClient.invalidateQueries('all-recording')
-          queryClient.invalidateQueries('all-tags')
-        },
-        onError:(e:any)=>{
-          setEditNote(temp)
-        }
-      })
-    setIsEdit(false);
-  }
-  const onCancelEdit=()=> {
-    setIsEdit(false)
-    setEditNote(note)
-  }
-  const onEdit=()=>  setIsEdit(true)
-  const onStarred=()=>{
-    hideMoreOption()
-    // const isStarred=note?.tags?.some((r:any)=>r?.name=='starred');
-    // if(!isStarred){
-      // note.tags?.push({name:'starred'})
-    // } else{
-      // let temp=note?.tags;
-      // temp=temp.filter((r:any)=>r?.name!="starred")
-      // note.tags=temp;
-    // }
-    toggleStarred.mutateAsync('',{
-      onError() {
-        // if(!isStarred){
-        //   note.note.tags?.pop()
-        // } else{
-        //   note.tags.push({name:'starred'})
-        // }
-      },
-    })
-  }
+  const onEdit=()=>
+    router.navigate({pathname:'/edit-note/',params:{index}})
 
   const onGotoAddTag=()=>{
     hideMoreOption()
@@ -323,8 +281,8 @@ export default forwardRef(({
     }
   }
 
-  if (isEdit)
-    return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
+  // if (isEdit)
+  //   return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View>
       <Touchable onPress={onExpand} activeOpacity={0.8} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
@@ -624,47 +582,6 @@ export default forwardRef(({
   );
 });
 
-const Editor=(editNote:any,setEditNote=(v:object|null)=>{},onSaveEdit=()=>{},onCancelEdit=()=>{},tag='',setTag=(v:string)=>{})=>{
-  return (
-  <View style={styles.editContainer} onTouchStart={e=>e?.stopPropagation()}>
-    <TextInput 
-      style={styles.titleInput}
-      autoComplete="off"
-      autoCorrect={false}
-      selectTextOnFocus={false}
-      value={editNote.title}
-      onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
-    <View style={styles.divider1} />
-    <TextInput 
-      style={styles.textInput}
-      multiline
-      autoComplete="off"
-      autoCorrect={false}
-      selectTextOnFocus={false}
-      value={editNote.transcript} 
-      onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
-    <View style={[styles.divider1, { width: "100%" }]} />
-    <View style={styles.tagContainer}>
-      <View style={[styles.row,{flexWrap:'wrap',width:'55%',alignSelf:'center'}]}>
-      </View>
-      <View style={styles.row}>
-      <Touchable 
-        style={{marginRight:0,paddingVertical:8,paddingHorizontal:16}}
-        onPress={onCancelEdit}>
-        <Text style={{color:'#9b9b9b',fontFamily:'Primary',fontSize:14}}>Cancel</Text>
-      </Touchable>
-      <TouchableHighlight
-       style={{paddingVertical:8,paddingHorizontal:16,backgroundColor:Colors.primary,borderRadius:100}}
-       underlayColor={Colors.primaryWithOpacity(0.7)}
-       onPress={onSaveEdit}
-       >
-        <Text style={{color:'#fff',fontFamily:'Primary',fontSize:14,lineHeight:19}}>Save</Text>
-      </TouchableHighlight>
-      </View>
-    </View>
-  </View>
-)};
-
 const styles = StyleSheet.create({
   container: { paddingHorizontal:18,paddingBottom:8,paddingTop:14 },
   row: { flexDirection: "row", alignItems: "center" },
@@ -690,33 +607,6 @@ const styles = StyleSheet.create({
     lineHeight:isIOS?23:22,
     marginTop: 4,
   },
-  titleInput: {
-    flex: 1,
-    paddingHorizontal: 12,
-    paddingBottom: 10,
-    fontFamily: "Primary-Medium",
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: "500",
-  },
-  textInput: {
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom:10,
-    minHeight: 100,
-    fontFamily: "Primary",
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: "400",
-    textAlignVertical: "top",
-    textAlign:'left',
-  },
-  divider1: {
-    height: 1,
-    width: "93%",
-    backgroundColor: Colors.primaryWithOpacity(0.1),
-    alignSelf: "center",
-  },
   menu: {
     borderRadius: 12,
     // marginTop:25,
@@ -738,14 +628,6 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   tagInput: { color: Colors.darkWithOpacity(0.9), fontFamily: "Primary",flex:1 },
-  editContainer:{
-    borderWidth: 1,
-    borderColor: Colors.primaryWithOpacity(0.1),
-    borderRadius: 12,
-    marginTop: 24,
-    paddingVertical: 12,
-    marginHorizontal:18
-  },
   tag:{
     fontSize:14,
     lineHeight:19,
@@ -759,14 +641,6 @@ const styles = StyleSheet.create({
     fontFamily: "Primary",
     fontSize: isIOS?14:12,
     marginBottom: 8,
-  },
-  tagContainer:{
-    flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: isIOS?16:10,
-    flexDirection: "row",
-    justifyContent:'space-between',
-    alignItems:'flex-start'
   },
   tagWrap:{
     backgroundColor:Colors.primaryWithOpacity(0.1),
