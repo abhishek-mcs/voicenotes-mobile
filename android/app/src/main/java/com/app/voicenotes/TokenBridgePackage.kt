@@ -1,6 +1,6 @@
 package com.app.voicenotes
 
-import com.app.voicenotes.token_bridge.TokenBridgeModule
+import com.app.voicenotes.TokenBridgeModule
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
