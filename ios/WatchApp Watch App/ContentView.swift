@@ -16,7 +16,8 @@ struct ContentView: View {
   @StateObject var viewModel = ContentViewModel()
   @Environment(\.modelContext) private var context
   @Query private var recordings: [RecordingDataModel]
-  
+  @ObservedObject var watchConnection = WatchConnector()
+
   var body: some View {
     ZStack {
       NavigationStack(path: Binding(
