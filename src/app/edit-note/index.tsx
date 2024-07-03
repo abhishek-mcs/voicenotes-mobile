@@ -20,8 +20,9 @@ import { useQueryClient } from "react-query";
 import { FlatList } from "react-native";
 import { useSaveEditedNote } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
-import { updateTitle,updateTranscript } from "redux/reducers/recordingStates";
+import { setRecordingList, updateTitle,updateTranscript } from "redux/reducers/recordingStates";
 import CircularLoader from "components/common/loaders/circular-loader";
+import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 
 export default () => {
     const router = useRouter();
@@ -38,23 +39,22 @@ export default () => {
       return Alert.alert('','Title and Transcript cannot be empty')
     }
     setIsLoading(true)
-    dispatch(updateTitle({index:params?.index,title:editNote?.title}))
-    dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
     const temp={...editNote};
-    saveEditedNote.mutate(
+    await saveEditedNote.mutateAsync(
       {title:editNote?.title,transcript:editNote?.transcript,tags:tags||[]},{
         onSuccess:(e:any)=>{
+          dispatch(updateTitle({index:params?.index,title:editNote?.title}))
+          dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
           queryClient.invalidateQueries('all-recording')
-          router?.back()
           setIsLoading(false)
         },
         onError:(e:any)=>{
           setEditNote(temp)
-          router?.back()
           setIsLoading(false)
         }
       })
+    router?.back()
   }
   const onCancelEdit=()=> {
     router?.back()
@@ -67,7 +67,11 @@ export default () => {
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
-            {<Touchable onPress={onSaveEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
+            {isLoading?
+            <View style={{alignSelf:'flex-end'}} >
+             <ThreeDotLoader/>
+            </View>
+            :<Touchable onPress={onSaveEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary-Semibold',fontSize:16,color:'#007AFF'}}>Save</Text>
             </Touchable>}
           </View>
