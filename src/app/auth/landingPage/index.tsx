@@ -36,7 +36,7 @@ export default () => {
       const token = data?.data?.token
       const userData = data?.data?.user
       if (token) {
-        setAuthToken(token,false,netInfo);
+        setAuthToken(data?.data?.token,false,netInfo);
         dispatch(setToken(token));
         dispatch(setUserDetail(userData))
         queryClient.resetQueries('all-recording')

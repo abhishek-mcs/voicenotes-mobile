@@ -58,7 +58,7 @@ export default ()=>{
           if (token) {
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
-            setAuthToken(token,false,netInfo);
+            setAuthToken(response.data?.authorisation?.token,false,netInfo);
             // moveRecords.mutate(guestToken,{onSuccess:()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
