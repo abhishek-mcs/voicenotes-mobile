@@ -21,6 +21,7 @@ import { FlatList } from "react-native";
 import { useSaveEditedNote } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
 import { updateTitle,updateTranscript } from "redux/reducers/recordingStates";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 export default () => {
     const router = useRouter();
@@ -30,24 +31,30 @@ export default () => {
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
+    const [isLoading,setIsLoading]=useState(false)
     
-  const onSaveEdit=()=>{
-    const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
-    const temp=editNote;
-    console.log(editNote.title,editNote.transcript)
+  const onSaveEdit=async()=>{
+    if(editNote?.transcript?.length===0||editNote?.title?.length===0){
+      return Alert.alert('','Title and Transcript cannot be empty')
+    }
+    setIsLoading(true)
     dispatch(updateTitle({index:params?.index,title:editNote?.title}))
     dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
+    const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
+    const temp={...editNote};
     saveEditedNote.mutate(
       {title:editNote?.title,transcript:editNote?.transcript,tags:tags||[]},{
         onSuccess:(e:any)=>{
           queryClient.invalidateQueries('all-recording')
-          queryClient.invalidateQueries('all-tags')
+          router?.back()
+          setIsLoading(false)
         },
         onError:(e:any)=>{
           setEditNote(temp)
+          router?.back()
+          setIsLoading(false)
         }
       })
-      router?.back()
   }
   const onCancelEdit=()=> {
     router?.back()
@@ -60,9 +67,9 @@ export default () => {
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
-            <Touchable onPress={onSaveEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
+            {<Touchable onPress={onSaveEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary-Semibold',fontSize:16,color:'#007AFF'}}>Save</Text>
-            </Touchable>
+            </Touchable>}
           </View>
           <View style={styles.editContainer}>
     <TextInput 

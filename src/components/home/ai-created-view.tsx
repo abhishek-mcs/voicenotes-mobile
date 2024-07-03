@@ -80,7 +80,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
 };
 const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
   container: {
-    marginTop: 8,
+    marginTop: 4,
     // backgroundColor: Colors.darkWithOpacity(0.05),
     paddingVertical: 8,
     // borderRadius:12,
@@ -91,8 +91,8 @@ const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
     alignItems:'center',
   },
   btw:{justifyContent:'space-between'},
-  titleStyle:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:6},
-  txt:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Medium',fontSize:14},
+  titleStyle:{fontFamily:'Primary',fontSize:12,color:'#222',marginTop:6},
+  txt:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
-  btnTxt:{fontFamily:'Primary',fontSize:12,color:Colors.grey}
+  btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.grey}
 });

@@ -25,10 +25,18 @@ export const recordingStates = createSlice({
       state.recordingList[action.payload?.index].related_notes = action.payload?.related_notes
     },
     updateTitle: (state, action: PayloadAction<any>) => {
-      state.recordingList[action.payload?.index].title = action.payload?.title
+      const list=state.recordingList
+      console.log(list[action.payload?.index].title)
+      list[action.payload?.index].title = action.payload?.title
+      console.log(list[action.payload?.index].title)
+      state.recordingList = [...list]
     },
     updateTranscript: (state, action: PayloadAction<any>) => {
-      state.recordingList[action.payload?.index].transcript= action.payload?.transcript
+      const list=state.recordingList
+      console.log(list[action.payload?.index].transcript)
+      list[action.payload?.index].transcript = action.payload?.transcript
+      console.log(list[action.payload?.index].transcript)
+      state.recordingList = [...list]
     },
   },
 })

@@ -57,7 +57,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             color="#fff"
             style={{flex:2}}
           />
-          <RecButton onPress={onAsk} title="Ask" icon={home.ask} style={{paddingHorizontal:20,marginHorizontal:8}}/>
+          <RecButton onPress={onAsk} title="Ask my AI" icon={home.ask} style={{paddingHorizontal:12,marginHorizontal:8}}/>
           <RecButton onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
         </>
       ) : (

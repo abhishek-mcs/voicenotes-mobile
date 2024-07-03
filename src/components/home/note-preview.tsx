@@ -32,6 +32,7 @@ import { useGetRelatedRecording } from "queries/home/relatedNote";
 import Subnote from "./subnote";
 import MoreOptions from "components/common/more-options";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
+import creationContent from "utils/constants/creation-content";
 
 export default forwardRef(({
   note,
@@ -335,23 +336,26 @@ export default forwardRef(({
       <>
       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript}/>
       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag}/>
-      {isIOS?
-      <MoreOptions 
-        options={[
-          {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
-          {title:'List main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
-          {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
-          {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
-          {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
-          {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
-          ]}>
-        <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>
-      </MoreOptions>
-      :<Menu
+      {
+      // isIOS?
+      // <MoreOptions 
+      //   options={[
+      //     {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
+      //     {title:'Main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
+      //     {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
+      //     {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
+      //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
+      //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
+      //     ]}>
+      //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>
+      // </MoreOptions>
+      // :
+      <Menu
           visible={createOption}
           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>}
           onRequestClose={hideCreateOption}
           style={styles.menu}
+          animationDuration={150}
         >
         <MenuItem style={styles.menuItem} onPress={()=>onCreate('summary')}>
           <View style={[styles.row,{width:screenWidth/2.8}]}>
@@ -362,7 +366,7 @@ export default forwardRef(({
           <MenuItem style={styles.menuItem} onPress={()=>onCreate('points')}>
             <View style={[styles.row,{width:screenWidth/2.8}]}>
               <SvgXml xml={CreateModalSvg.points} />
-              <Text style={styles.menuItemTxt}>List main points</Text>
+              <Text style={styles.menuItemTxt}>Main points</Text>
             </View>
           </MenuItem>
           <MenuItem style={styles.menuItem} onPress={()=>onCreate('todo')}>
@@ -392,25 +396,28 @@ export default forwardRef(({
         </Menu>}
         <NoteButtons icon={home.share1} text="Share" onPress={onShareNote}/>
         </>}
-      {isIOS?
-      <MoreOptions 
-        options={hashFilter!='shared'?[
-          {title:'Copy note',onPress:()=>onCopy(note?.transcript??''),icon:CreateModalSvg.points},
-          {title:'Regenerate title',onPress:onGenerateTitle,icon:CreateModalSvg.todo},
-          {title:'Regenerate transcript',onPress:onReGenerateTranscript,icon:CreateModalSvg.blog},
-          {title:'Delete',onPress:onDelete,icon:CreateModalSvg.tweet},
-          ]:[{title:'Copy link',onPress:()=>onCopy(MAIN_URL+'/s/'+note?.public_slug),icon:CreateModalSvg.email},
-            {title:'Unpublish',onPress:onUnpublish,icon:CreateModalSvg.email}
-            ]}>
-          <NoteButtons text="More" style={hashFilter!='shared'?{}:{marginLeft:0}} onPress={showMoreOption} icon={home.more}/>
-      </MoreOptions>
-      :<Menu
+      {
+      // isIOS?
+      // <MoreOptions 
+      //   options={hashFilter!='shared'?[
+      //     {title:'Copy note',onPress:()=>onCopy(note?.transcript??''),icon:CreateModalSvg.points},
+      //     {title:'Regenerate title',onPress:onGenerateTitle,icon:CreateModalSvg.todo},
+      //     {title:'Regenerate transcript',onPress:onReGenerateTranscript,icon:CreateModalSvg.blog},
+      //     {title:'Delete',onPress:onDelete,icon:CreateModalSvg.tweet},
+      //     ]:[{title:'Copy link',onPress:()=>onCopy(MAIN_URL+'/s/'+note?.public_slug),icon:CreateModalSvg.email},
+      //       {title:'Unpublish',onPress:onUnpublish,icon:CreateModalSvg.email}
+      //       ]}>
+      //     <NoteButtons text="More" style={hashFilter!='shared'?{}:{marginLeft:0}} onPress={showMoreOption} icon={home.more}/>
+      // </MoreOptions>
+      // :
+      <Menu
           visible={moreOption}
           anchor={
             <NoteButtons text="More" style={hashFilter!='shared'?{}:{marginLeft:0}} onPress={showMoreOption} icon={home.more}/>
           }
           onRequestClose={hideMoreOption}
           style={styles.menu}
+          animationDuration={150}
         >
         {hashFilter!='shared'?
         <>
@@ -560,7 +567,7 @@ export default forwardRef(({
             }
           </View>
         </View>}
-        {!!token&&creationLoader&&<AiLoader text={`Creating ${createType} from your voice`} />}
+        {!!token&&creationLoader&&<AiLoader text={creationContent[createType]} style={{marginTop:8}} size={12}/>}
         {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}

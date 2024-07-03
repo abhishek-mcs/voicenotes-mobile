@@ -245,6 +245,7 @@ export default ()=> {
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
+        key={item?.title||item?.transcript}
         ref={notePreviewRef}
         note={item}
         index={index}
