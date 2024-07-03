@@ -16,58 +16,88 @@ protocol ServiceProtocol {
 
 class Service {
     static let shared: ServiceProtocol = Service()
-    private init() { }
+    private init() {}
 }
 
 extension Service: ServiceProtocol {
     func buffer(url: URL, samplesCount: Int, completion: @escaping([AudioPreviewModel]) -> ()) {
-        DispatchQueue.global(qos: .userInteractive).async {
-            do {
-                var cur_url = url
-                if url.absoluteString.hasPrefix("https://") {
-                    let data = try Data(contentsOf: url)
-                    
-                    let directory = FileManager.default.temporaryDirectory
-                    let fileName = "chunk.m4a)"
-                    cur_url = directory.appendingPathComponent(fileName)
-                    
-                    try data.write(to: cur_url)
+        let session = URLSession.shared
+        let task = session.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    completion([])
                 }
+                return
+            }
+            
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    completion([])
+                }
+                return
+            }
+            
+            do {
+                let audioBuffer = try self.decodeAudioData(data: data)
+                let result = self.processAudioBuffer(buffer: audioBuffer, samplesCount: samplesCount)
                 
-                let file = try AVAudioFile(forReading: cur_url)
-                if let format = AVAudioFormat(commonFormat: .pcmFormatFloat32,
-                                              sampleRate: file.fileFormat.sampleRate,
-                                              channels: file.fileFormat.channelCount, interleaved: false),
-                   let buf = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(file.length)) {
-                    
-                    try file.read(into: buf)
-                    guard let floatChannelData = buf.floatChannelData else { return }
-                    let frameLength = Int(buf.frameLength)
-                    
-                    let samples = Array(UnsafeBufferPointer(start:floatChannelData[0], count:frameLength))
-                    //        let samples2 = Array(UnsafeBufferPointer(start:floatChannelData[1], count:frameLength))
-                    
-                    var result = [AudioPreviewModel]()
-                    
-                    let chunked = samples.chunked(into: samples.count / samplesCount)
-                    for row in chunked {
-                        var accumulator: Float = 0
-                        let newRow = row.map{ $0 * $0 }
-                        accumulator = newRow.reduce(0, +)
-                        let power: Float = accumulator / Float(row.count)
-                        let decibles = 10 * log10f(power)
-                        
-                        result.append(AudioPreviewModel(magnitude: decibles, color: Color("808080")))
-                        
-                    }
-                    
-                    DispatchQueue.main.async {
-                        completion(result)
-                    }
+                DispatchQueue.main.async {
+                    completion(result)
                 }
             } catch {
-                print("Audio Error: \(error)")
+                print("Audio Error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion([])
+                }
             }
         }
+        
+        task.resume()
+    }
+    
+    private func decodeAudioData(data: Data) throws -> AVAudioPCMBuffer {
+        let audioFile = try AVAudioFile(forReading: data.audioFileURL)
+        guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32,
+                                         sampleRate: audioFile.fileFormat.sampleRate,
+                                         channels: audioFile.fileFormat.channelCount,
+                                         interleaved: false) else {
+            throw NSError(domain: "AudioProcessing", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to create audio format"])
+        }
+        
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(audioFile.length)) else {
+            throw NSError(domain: "AudioProcessing", code: 2, userInfo: [NSLocalizedDescriptionKey: "Unable to create audio buffer"])
+        }
+        
+        try audioFile.read(into: buffer)
+        return buffer
+    }
+    
+    private func processAudioBuffer(buffer: AVAudioPCMBuffer, samplesCount: Int) -> [AudioPreviewModel] {
+        guard let floatChannelData = buffer.floatChannelData else {
+            return []
+        }
+        
+        let frameLength = Int(buffer.frameLength)
+        let samples = Array(UnsafeBufferPointer(start: floatChannelData[0], count: frameLength))
+        var result = [AudioPreviewModel]()
+        
+        let chunked = samples.chunked(into: max(1, samples.count / samplesCount))
+        for row in chunked {
+            let accumulator = row.map { $0 * $0 }.reduce(0, +)
+            let power: Float = accumulator / Float(row.count)
+            let decibels = 10 * log10f(max(power, 1e-6))
+            
+            result.append(AudioPreviewModel(magnitude: decibels, color: Color("808080")))
+        }
+        
+        return result
+    }
+}
+
+extension Data {
+    var audioFileURL: URL {
+        let tmpFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try? self.write(to: tmpFile)
+        return tmpFile
     }
 }
