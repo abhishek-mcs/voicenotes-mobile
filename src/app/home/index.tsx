@@ -167,7 +167,8 @@ export default ()=> {
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
     await stopRecording(rec);
     const fileSource:any = rec?.getURI()||"";
-    const fileName = fileSource.match(/\/Library\/Caches\/AV\/([^\/]+)$/)[1];
+    const parts = fileSource.split('/');
+    const fileName = parts[parts.length - 1];
     const file =`${DOCUMENT_FOLDER}${fileName}`;
     await FileSystem.moveAsync({ from: fileSource, to: file });
     setRec(null);
