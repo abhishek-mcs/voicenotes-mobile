@@ -33,6 +33,7 @@ import Subnote from "./subnote";
 import MoreOptions from "components/common/more-options";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import creationContent from "utils/constants/creation-content";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default forwardRef(({
   note,
@@ -75,6 +76,9 @@ export default forwardRef(({
   const unPublishRecording=useUnpublishRecording()
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const relatedNotes=useGetRelatedRecording(index??0)
+  const NetInfo=useNetInfo()
+  
+  const isUploadingFailed=(!!note?.audio?.data?.url&&note.isUploading==false)
 
   useEffect(()=>{
     if(triggerTypingTranscript==0&&!note?.transcript)
@@ -93,21 +97,6 @@ export default forwardRef(({
 
   const onEdit=()=>
     router.navigate({pathname:'/edit-note/',params:{index}})
-
-  const handleDeleteTempAudio = (selectedRecording:any) => {
-    Alert.alert('', 'Are you sure you want to delete?', [
-      {
-        text: 'No',
-        style: 'cancel'
-      },
-      {
-        text: 'Yes',
-        onPress: async () => {
-          dispatch(deleteFromTempRecordings(selectedRecording))
-        }
-      }
-    ])
-  }
 
   const onGotoAddTag=()=>{
     hideMoreOption()
@@ -152,8 +141,12 @@ export default forwardRef(({
   },[note])
 
   const onRetry=async()=>{
-    if(!!note?.audio?.data?.url){
-      onUploadRetry(note)
+    if(isUploadingFailed){
+      await onUploadRetry(note).catch(()=>{
+        const temp=[...tempRecordings]
+        temp[index]={...temp[index],isUploading:false}
+        dispatch(setTempRecordings([...temp]))
+      })
     }else{
       note.transcript=''
       note.title=null
@@ -199,8 +192,11 @@ export default forwardRef(({
       {
         text:'Yes',
         onPress:async()=>{
+          if(isUploadingFailed)
+            dispatch(deleteFromTempRecordings(note))
+          else{
           await deleteRecord.mutateAsync('')
-          onDeleteCallBack()
+          onDeleteCallBack()}
         }
       }
     ])
@@ -321,36 +317,28 @@ export default forwardRef(({
           //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
             <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={()=>setTriggerTypingTitle(0)}/>
           // </Touchable>
-          :!!note?.audio?.data?.url&&note.isUploading==false?<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
+          :isUploadingFailed?<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
           :note?.transcript===null?<Text style={[styles.title,{color:'#ff4538'}]}>There was an error generating your transcript.{note?.transcript}</Text>
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
-          {!!note?.audio?.data?.url&&note.isUploading==false&&
-          <View>
+          {isUploadingFailed&&
             <View style={{flexDirection:'row',alignItems:'flex-start'}}>
              <SvgXml xml={home.wait} style={{marginTop:8,marginRight:8}}/>
              <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
-            </View>
-
-            <View>
-            <Touchable onPress={()=>handleDeleteTempAudio(note)} style={{padding: 10}}>
-              <Text>Skip</Text>
-            </Touchable>
-            </View>
+            </View>}
+          {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
+          :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
+          {note?.tags?.length>0&&
+          <View style={[styles.row,{flexWrap:'wrap'}]}>
+          {note?.tags?.map((tag:any,i:number)=>
+          <Text 
+            key={i} 
+            style={styles.tag} 
+            onPress={()=>dispatch(setTagsFilter(tag?.name))}
+            suppressHighlighting>
+              {'#'+tag?.name}
+          </Text>)}
           </View>}
-            {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
-              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
-            {note?.tags?.length > 0 &&
-              <View style={[styles.row, { flexWrap: 'wrap' }]}>
-                {note?.tags?.map((tag: any, i: number) =>
-                  <Text
-                    key={i}
-                    style={styles.tag}
-                    onPress={() => dispatch(setTagsFilter(tag?.name))}
-                    suppressHighlighting>
-                    {'#' + tag?.name}
-                  </Text>)}
-              </View>}
       {expand==index&&<>
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <ScrollView 
@@ -559,20 +547,11 @@ export default forwardRef(({
         </MenuItem>
         </Menu>
         :<PublishedModal slug={note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
-      {note?.transcript==null&&note?.isUploading==undefined&&
+      {(note?.transcript==null||isUploadingFailed)&&
       <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
-        <TouchableHighlight onPress={onRetry} style={[styles.retry,{marginRight:8}]} underlayColor={Colors.greyWithOpacity(0.3)}>
-          <>
-          <SvgXml xml={home.retryUpload} />
-          <Text style={styles.retryTxt}>Retry</Text>
-          </>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={onDelete} style={[styles.retry]} underlayColor={Colors.greyWithOpacity(0.3)}>
-          <>
-          <SvgXml xml={home.delete} style={{marginBottom:3,marginRight:3}} />
-          <Text style={styles.retryTxt}>Delete</Text>
-          </>
-        </TouchableHighlight>
+        {NetInfo.isConnected&&
+        <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload}/>}
+        <NoteButtons text="Delete" onPress={onDelete} icon={home.delete}/>
       </View>}
       {/* related notes */}
         {(!!note?.transcript&&(note?.related_notes?.length>0||relatedNoteLoading))&&

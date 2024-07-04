@@ -171,18 +171,17 @@ export default ()=> {
     setGenerateDummy(dummyData)
     repeat&&onStartRecord()
     !repeat&&setExpandNote(0)
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
-    deactivateKeepAwake()
+    !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')
   },[generateDummy,rec,recEnabled,soundRef]);
   
   const onUploadRetry = async(note:any) => {
     return new Promise(async(resolve, reject) => {
-    activateKeepAwakeAsync();
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
       .then(()=>resolve('success'))
       .catch(()=>reject('error'))
     })
@@ -260,6 +259,15 @@ export default ()=> {
 
   useLayoutAnim([recordingList,generateDummy,isSearchVisible])
 
+  const onRefresh=async()=>{
+    setRefreshing(true);
+    await recordingQuery.refetch()
+    if(!!generateDummy&&generateDummy?.length>0){
+      batchRetryUpload()
+    }
+    setRefreshing(false)
+  }
+
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
     if (currentOffset >prevOffset && currentOffset > 0) {
@@ -312,11 +320,7 @@ export default ()=> {
             renderItem={renderItem}
             onEndReachedThreshold={0.5}
             onEndReached={fetchNextPage}
-            onRefresh={async()=>{
-              setRefreshing(true);
-              await recordingQuery.refetch()
-              setRefreshing(false)
-            }}
+            onRefresh={onRefresh}
             refreshing={isRefreshing}
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
