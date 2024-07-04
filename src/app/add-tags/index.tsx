@@ -105,7 +105,7 @@ export default () => {
             renderItem={({item,index})=>{
               const isAdded=addedTags?.includes(item?.name)
               return (
-                <Btn title={item?.name} isAdded={isAdded} onPress={onAddTag}/>
+                <Btn title={item?.name} isAdded={isAdded} style={{marginTop:8}} onPress={onAddTag}/>
             )}}
           />
           </KeyboardAvoidingView>
