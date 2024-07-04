@@ -24,7 +24,7 @@ import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
-import { setRecordingList, setRelatedNotes, updateTitle, updateTranscript } from "redux/reducers/recordingStates";
+import { deleteFromTempRecordings, setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
@@ -62,6 +62,7 @@ export default forwardRef(({
   const dispatch=useDispatch()
 
   const {token} = useSelector((state:RootState)=>state.userDetails)
+  const {tempRecordings} = useSelector((state: RootState) => state.recordingStates);
   
   const queryClient = useQueryClient();
   const toggleStarred=useToggleStar(note?.id)
@@ -92,6 +93,21 @@ export default forwardRef(({
 
   const onEdit=()=>
     router.navigate({pathname:'/edit-note/',params:{index}})
+
+  const handleDeleteTempAudio = (selectedRecording) => {
+    Alert.alert('', 'Are you sure you want to delete?', [
+      {
+        text: 'No',
+        style: 'cancel'
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          dispatch(deleteFromTempRecordings(selectedRecording))
+        }
+      }
+    ])
+  }
 
   const onGotoAddTag=()=>{
     hideMoreOption()
@@ -310,9 +326,17 @@ export default forwardRef(({
           :<AiLoader text={note?.isUploading?`Uploading your audio`:`Creating ${!note?.transcript?'transcript':'title'} from your voice`} style={{marginTop:-5}}/>
           }
           {!!note?.audio?.data?.url&&note.isUploading==false&&
-          <View style={{flexDirection:'row',alignItems:'flex-start'}}>
-            <SvgXml xml={home.wait} style={{marginTop:8,marginRight:8}}/>
-            <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
+          <View>
+            <View style={{flexDirection:'row',alignItems:'flex-start'}}>
+             <SvgXml xml={home.wait} style={{marginTop:8,marginRight:8}}/>
+             <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
+            </View>
+
+            <View>
+            <Touchable onPress={()=>handleDeleteTempAudio(note)} style={{padding: 10}}>
+              <Text>Skip</Text>
+            </Touchable>
+            </View>
           </View>}
           {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
           :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}

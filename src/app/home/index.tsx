@@ -190,23 +190,20 @@ export default ()=> {
 
   const batchRetryUpload = async () => {
     if (generateDummy && generateDummy.length > 0) {
-      setUploading(generateDummy.length);
-      const temp=[...generateDummy]
-      for (let i=0;i<temp.length;i++){
-        temp[i] = { ...temp[i], isUploading: true }
-      }
-      setGenerateDummy([...temp])
-      let j=temp.length-1
-      while(j>=0){
-        await onUploadRetry(temp[j]).then(()=>{
-          temp.pop()
-          setGenerateDummy([...temp])
-          j=temp.length-1
-        }).catch(()=>{
-          // setUploading(0);
-          // temp[j] = { ...temp[j], isUploading: false }
-          // setGenerateDummy([...temp])
-        });
+      const temp = generateDummy.map(item => ({ ...item, isUploading: true }));
+      setGenerateDummy([...temp]);
+
+      for (let i = temp.length - 1; i >= 0; i--) {
+        try {
+          await onUploadRetry(temp[i]); 
+          temp.splice(i, 1);
+          setGenerateDummy([...temp]);
+          setUploading(prevUploading => prevUploading - 1);
+        } catch (error) {
+          console.error(`Upload failed for item ${i}:`, error);
+          temp[i] = { ...temp[i], isUploading: false };
+          setGenerateDummy([...temp]);
+        }
       }
     } 
   };  
