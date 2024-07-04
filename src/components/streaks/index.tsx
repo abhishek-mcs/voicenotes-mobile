@@ -43,7 +43,7 @@ export default forwardRef(({data=null,visible}:Props, ref) => {
             marginBottom: 12,
           }}
         >
-          You rank #{data?.rank} out of {data?.total_users} note-takers
+          You rank {data?.rank} out of {data?.total_users} note-takers
         </Text>
         <View>
           <View style={{ flexDirection: "row" }}>

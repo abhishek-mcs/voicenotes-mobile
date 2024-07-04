@@ -19,7 +19,7 @@ export default ({ delay=30,message,style={},triggerAnimation=0,disableGenerating
         interval = setInterval(() => {
           setDisplayedMessage(message?.substring(0, currentIndex + 1));
           currentIndex++;
-          if (currentIndex === message.length) {
+          if ((currentIndex === message.length)||(currentIndex === 350)) {
             disableGenerating()
             interval&&clearInterval(interval);
           }

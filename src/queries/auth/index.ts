@@ -19,8 +19,8 @@ export function useGuestToken(){
 }
 
 export function useSignup(){
-    return useMutation('signup',async ({name,email,password,otp=null}:{name:string,email:string,password:string,otp?:any})=>{
-        const params=!!otp?{otp,password,name,email}:{password,name,email}
+    return useMutation('signup',async ({name,email,password,otp=null,source=null}:{name:string,email:string,password:string,otp?:any,source?:any})=>{
+        const params=!!otp?{otp,password,name,email,source}:{password,name,email,source}
         return await axios.post(`${API_URL}/api/auth/register`,params);
     },
     {

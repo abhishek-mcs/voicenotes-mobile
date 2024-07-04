@@ -12,6 +12,7 @@ import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import { isIOS } from "utils/common"
 import { useCheckEmail } from "queries/auth"
+import { analytics } from "../../../../firebaseConfig"
 
 
 export default ()=> {
@@ -101,7 +102,10 @@ export default ()=> {
             <Text style={{color:'red',fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
             <Text
             suppressHighlighting={true}
-              onPress={() => router.push("/auth/signup/")}
+              onPress={() => {
+                analytics().logEvent('sign_up_redirected').catch(e=>{})
+                router.push("/auth/signup/")
+              }}
               style={{color:'red',fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
             >{` Sign up`}</Text>
           </Text>

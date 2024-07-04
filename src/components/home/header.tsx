@@ -14,7 +14,7 @@ import formatBigNumber from "utils/formatBigNumber";
 import { useMemo, useState } from "react";
 import * as Haptics from 'expo-haptics';
 
-export default ({isLogged=true,}:any) => {
+export default ({isLogged=true,isOffline}:any) => {
   const router:any=useNavigation()
   const {token}=useSelector((state:RootState)=>state?.userDetails)
   const [streakVisible,setStreakVisible]=useState(false)
@@ -39,6 +39,10 @@ export default ({isLogged=true,}:any) => {
           <SvgXml xml={home.drawer} />
         </Touchable>}
         </View>
+        {isOffline&&<View style={{flex:1,flexDirection:'row',alignItems:'center',justifyContent:'center',marginLeft:-10,marginTop:-10}}>
+          <SvgXml xml={home.offline} style={{marginRight:8}}/>
+          <Text style={{color:Colors.primary,fontFamily:'Primary-Medium',fontSize:12}}>️Offline mode</Text>
+        </View>}
         <View style={{  justifyContent: "flex-start" }}>
 
      {isLogged?

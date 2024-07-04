@@ -8,9 +8,11 @@ export default function Layout() {
               <Stack.Screen name="home" />
               <Stack.Screen name="auth/login/loginPassword" />
               <Stack.Screen name="auth/signup/index" />
-              <Stack.Screen name="RelatedNotes/index" />
-              <Stack.Screen name="settings/index" options={{presentation:'modal'}}/>
-              <Stack.Screen name="premium/index" options={{presentation:'modal'}}/>
+              <Stack.Screen name="RelatedNotes/index"/>
+              <Stack.Screen name="settings/index" options={{presentation:'formSheet'}}/>
+              <Stack.Screen name="search/index" options={{animation:"fade"}}/>
+              <Stack.Screen name="premium/index" options={{presentation:'formSheet'}}/>
+              <Stack.Screen name="add-tags/index" options={{presentation:'formSheet'}}/>
             </Stack>
           </AppProvider>
         );

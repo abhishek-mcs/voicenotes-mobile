@@ -33,11 +33,23 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable"
 import AskMeSomething from "components/ask-me-something";
-import { Redirect } from "expo-router";
+import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
+import onUploadRecord from "func/home/on-upload-record";
+import { Text } from "react-native";
+import Colors from "assets/Colors";
+import { SvgXml } from "react-native-svg";
+import { home } from "assets/svg/home";
+import Animated from "react-native-reanimated";
+import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
+import NetInfo from '@react-native-community/netinfo';
+import { LayoutAnimation } from "react-native";
+import { setCanRecord } from "redux/reducers/userDetails";
+import BannerAlert from "components/common/banner-alert";
+import { analytics } from "../../../firebaseConfig";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -53,9 +65,11 @@ export default ()=> {
   const notePreviewRef = useRef<any>();
   const {hashFilter} = useSelector((state: RootState) => state.hash);
   const token = useSelector((state: RootState) => state.userDetails.token);
+  const {canRecord} = useSelector((state: RootState) => state.userDetails);
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
+  const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
   const [rec, setRec] = useState<Audio.Recording | null>(null);
@@ -71,6 +85,9 @@ export default ()=> {
   const [showAskMe,setShowAskMe]=useState(true)
   const [hideBackground,setHideBg]=useState(false)
   const [isRefreshing,setRefreshing]=useState(false)
+  const [uploading,setUploading]=useState(0)
+  const [isOffline,setOffline]=useState(false)
+  const bannerRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -78,12 +95,26 @@ export default ()=> {
   const uploadRecord = useUploadRecord()
   const addTranscriptRecord = useAddTranscript(true)
   const queryClient = useQueryClient();
-  const [generateDummy,setGenerateDummy]=useState<any>(null)
+
+  const generateDummy=tempRecordings;
   
-  const recordingList = useMemo(
-    () => recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || [],
-    [recordingQuery]
-  );
+  const setGenerateDummy=(val:any)=>dispatch(setTempRecordings(val))
+  const setReduxRecordingList=(val:any)=>dispatch(setRecordingList(val))
+  
+  const dispatchCanRecord=(val:boolean)=>dispatch(setCanRecord(val??true))
+  
+  // Only dispatch if the recording list has changed
+  useEffect(() => {
+    const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
+    if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
+      if(hashFilter!='shared'&&records?.length>0){
+        records[0]?.transcript==null&&(records[0].transcript='');
+        setReduxRecordingList(records);
+      }else if(hashFilter=='shared'){
+        setReduxRecordingList(records);
+      }
+    }
+  }, [recordingQuery,hashFilter]);
   
   const isListEmpty = recordingList?.length == 0 || null;
 
@@ -92,7 +123,16 @@ export default ()=> {
   useEffect(()=>{
     checkRecordPermission()
     dispatch(setTempIsIAPPurchased(false))
+    NetInfo.addEventListener(state => {
+      setOffline(!state.isConnected)
+    })
   },[])
+
+  useEffect(()=>{
+    if(!isOffline&&!!generateDummy&&generateDummy?.length>0&&uploading==0){
+      batchRetryUpload()
+    }
+  },[isOffline])
   // setupAudioRec(rec)
 
   const onAsk = () => {
@@ -106,39 +146,71 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    if(!canRecord){
+      bannerRef.current?.show()
+      return
+    }
     // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
     // soundRef.current=sound
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
+    analytics().logEvent('started_recording')
   };
-
   const onPause = async() => {
     await rec?.pauseAsync()
   };
-
-  const onStopRecord = async(d:number) => {
-    deactivateKeepAwake()
+  const onStopRecord = useCallback(async(d:number,repeat=false) => {
     const file = rec?.getURI()||"";
     setGenerateDummy({isUploading:true})
     stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
-      uploadRecord.mutate(
-        {audio:file,duration:d},
-        {
-          onSuccess: async(r) => {
-            await queryClient.invalidateQueries('all-recording');
-            setGenerateDummy(null)
-            scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id);
-          }
-        }
-      );
-      // await soundRef.current?.unloadAsync()
-  };
+    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
+    const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
+    setGenerateDummy(dummyData)
+    repeat&&onStartRecord()
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
+    await soundRef.current?.unloadAsync()
+    deactivateKeepAwake()
+    analytics().logEvent('completed_recording')
+  },[generateDummy,rec,recEnabled,soundRef]);
+  
+  const onUploadRetry = async(note:any) => {
+    return new Promise(async(resolve, reject) => {
+    activateKeepAwakeAsync();
+    const d=note?.audio?.data?.duration||0
+    const file = note?.audio?.data?.url||"";
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
+      .then(()=>resolve('success'))
+      .catch(()=>reject('error'))
+    })
+  }
+
+  const batchRetryUpload = async () => {
+    if (generateDummy && generateDummy.length > 0) {
+      setUploading(generateDummy.length);
+      const temp=[...generateDummy]
+      for (let i=0;i<temp.length;i++){
+        temp[i] = { ...temp[i], isUploading: true }
+      }
+      setGenerateDummy([...temp])
+      let j=temp.length-1
+      while(j>=0){
+        await onUploadRetry(temp[j]).then(()=>{
+          temp.pop()
+          setGenerateDummy([...temp])
+          j=temp.length-1
+        }).catch(()=>{
+          // setUploading(0);
+          // temp[j] = { ...temp[j], isUploading: false }
+          // setGenerateDummy([...temp])
+        });
+      }
+    } 
+  };  
 
   useEffect(()=>{
     try{
@@ -151,6 +223,7 @@ export default ()=> {
     await cancelRecording(rec,soundRef?.current);
     setRec(null);
     setRecEnabled(false);
+    analytics().logEvent('cancelled_recording')
   };
 
   useEffect(() => {
@@ -160,6 +233,14 @@ export default ()=> {
       setRecEnabled(false);
     }:undefined
   },[])
+
+  // useEffect(()=>{
+  //   if(!!generateDummy&&generateDummy?.length>0){
+  //     bannerRef?.current?.show()
+  //   }else{
+  //     bannerRef?.current?.close()
+  //   }
+  // },[bannerRef,generateDummy])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
@@ -176,19 +257,44 @@ export default ()=> {
         setPlay={setPlay}
         audioLoading={audioLoading}
         setAudioLoading={setAudioLoading}
+        onUploadRetry={onUploadRetry}
+        hashFilter={hashFilter}
       />
     ),
-    [isPlay,play,recordingList,audioLoading]
+    [isPlay,play,recordingList,audioLoading,generateDummy]
   );
+
+  const layoutAnimation = () => {
+    LayoutAnimation.configureNext({
+      duration: 250,
+      create: {
+        type: LayoutAnimation.Types.easeIn,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      delete: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
+  }
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
+
+  useEffect(()=>{
+    layoutAnimation()
+  },[recordingList,generateDummy,isSearchVisible])
+
 
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
     if (currentOffset >prevOffset && currentOffset > 0) {
       setIsSearchVisible(false);
-    } else if (currentOffset < prevOffset && currentOffset > 0) {
+    } else if (currentOffset < prevOffset && currentOffset > 10) {
       setIsSearchVisible(true);
     }
     setPrevOffset(currentOffset);
@@ -201,11 +307,20 @@ export default ()=> {
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
-          <Header isLogged={!!token}/>
-          {isIOS&&!isListEmpty&&!!token && (
-            <Animatable.View style={{zIndex:30,opacity:hideBackground?0:1}} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}} animation={isSearchVisible?fadeIn:fadeOut} duration={150} easing={Easing.ease} useNativeDriver={true}>
-              <SearchBar style={{opacity:hideBackground?0:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
-            </Animatable.View>
+          <Header isLogged={!!token} isOffline={isOffline}/>
+          <BannerAlert
+            ref={bannerRef}
+            snackHeight={52}
+            onAction={()=>bannerRef?.current?.close()}
+            actionText="Close"
+            message="Your daily recording limit has been exceeded. Please try again later."
+          />
+          {!isListEmpty&&!!token &&hashFilter!='shared'&& (
+            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
+              <Animatable.View style={{zIndex:1}} animation={isSearchVisible?fadeIn:fadeOut} duration={40} easing={Easing.ease} useNativeDriver={true}>
+                <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
+              </Animatable.View>
+            </Animated.View>
           )}
           {/* </View> */}
           <FlatList
@@ -215,9 +330,9 @@ export default ()=> {
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
-                  ? (generateDummy?[generateDummy,...recordingList]:recordingList)
+                  ? (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
                   : []
-                : (generateDummy?[generateDummy,...recordingList]:recordingList)
+                : (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
             }
             onScroll={handleScroll}
             scrollEventThrottle={16}
@@ -238,13 +353,21 @@ export default ()=> {
                 <AboutProduct disable={false} />
               ) : null
             }
-            ListEmptyComponent={() => recordingQuery.isLoading?(
+            ListEmptyComponent={() => hashFilter=='shared'?
+            <View style={{flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),paddingHorizontal:24,paddingVertical:12,borderRadius:12,marginTop:20}}>
+              <SvgXml xml={home.share} />
+              <View style={{marginLeft:16,backgroundColor:'transparent'}}>
+                <Text style={{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:4}}>You haven't shared any notes yet.</Text>
+                <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1)}}>To share a note, just tap ‘... More’ in the notes settings and select ‘Share’</Text>
+              </View>
+            </View>
+              :(recordingList?.length==0&&recordingQuery.isLoading)?(
               <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
-            ):!!token?<AboutProduct disable={true} />:null}
-            automaticallyAdjustKeyboardInsets
-            keyboardShouldPersistTaps="handled"
+            ):(recordingList?.length==0&&!!token)?<AboutProduct disable={true} />:null}
+            // automaticallyAdjustKeyboardInsets
+            // keyboardShouldPersistTaps="handled"
           />
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>

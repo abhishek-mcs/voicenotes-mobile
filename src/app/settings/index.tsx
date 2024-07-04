@@ -7,7 +7,7 @@ import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollV
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -15,6 +15,7 @@ import { isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang } from "redux/reducers/userDetails";
+import { setRecordingList } from "redux/reducers/recordingStates";
 
 export default () => {
     const router = useRouter();
@@ -32,6 +33,7 @@ export default () => {
     },{
       text:"Yes",
       onPress:async()=>{
+        dispatch(setRecordingList([]))
         router?.back();
         await logout.mutateAsync('')
     }
@@ -60,6 +62,14 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
+  
+  useEffect(() => {
+    if(!!userDetails?.settings?.language){
+      dispatch(setLang(languages[userDetails?.settings?.language]))
+    }else{
+      dispatch(setLang(languages['']))
+    }
+  },[userDetails?.settings])
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
@@ -113,7 +123,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
           <SvgXml xml={settingsSvg.optionArrow}  />
         </View>
         }
-        style={{height:'40%',marginTop:36,right:0,width:'50%'}}
+        style={{height:'40%',marginTop:36,right:0,width:'60%'}}
         animationDuration={200}
         >
           <ScrollView showsVerticalScrollIndicator={false} bounces={false}>

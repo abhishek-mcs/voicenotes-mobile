@@ -18,7 +18,7 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
           </View>
           <View style={styles.row}>
               <Btns onPress={onPress} type="summary" title="Summary" icon={CreateModalSvg.summary} selected={type=='summary'}/>
-              <Btns onPress={onPress} type="points" title="List main points" icon={CreateModalSvg.points} selected={type=='points'}/>
+              <Btns onPress={onPress} type="points" title="List points" icon={CreateModalSvg.points} selected={type=='points'}/>
           </View>
           <View style={styles.row}>
               <Btns onPress={onPress} type="todo" title="To-do list" icon={CreateModalSvg.todo} selected={type=='todo'}/>
