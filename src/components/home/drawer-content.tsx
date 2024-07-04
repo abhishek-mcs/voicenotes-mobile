@@ -63,6 +63,7 @@ export default (props:any) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <SvgXml xml={commonSvg.logo} style={{marginBottom:16}}/>
       <FlatList
         style={{marginBottom:20}}
         showsVerticalScrollIndicator={false}

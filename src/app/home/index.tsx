@@ -51,6 +51,7 @@ import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -325,7 +326,10 @@ export default ()=> {
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
                 <AboutProduct disable={false} />
-              ) : null
+              ) : recordingQuery?.isRefetching?
+              <View style={{alignItems:'center',justifyContent:'center',marginTop:20}}>
+                <CircularLoader/>
+              </View>:null
             }
             ListEmptyComponent={() => hashFilter=='shared'?
             <View style={{flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),paddingHorizontal:24,paddingVertical:12,borderRadius:12,marginTop:20}}>

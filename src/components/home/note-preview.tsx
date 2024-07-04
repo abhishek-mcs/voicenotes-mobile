@@ -66,7 +66,6 @@ export default forwardRef(({
   const {tempRecordings} = useSelector((state: RootState) => state.recordingStates);
   
   const queryClient = useQueryClient();
-  const toggleStarred=useToggleStar(note?.id)
   const deleteRecord=useDeleteRecording(note?.id)
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
@@ -271,17 +270,17 @@ export default forwardRef(({
 
   const onExpand=async()=>{
     LayoutAnimation.configureNext({
-      duration: 250,
+      duration: 120,
       create: {
-        type: LayoutAnimation.Types.easeIn,
+        type: LayoutAnimation.Types.keyboard,
         property: LayoutAnimation.Properties.opacity,
       },
       update: {
-        type: LayoutAnimation.Types.easeOut,
+        type: LayoutAnimation.Types.keyboard,
         property: LayoutAnimation.Properties.opacity,
       },
       delete: {
-        type: LayoutAnimation.Types.easeOut,
+        type: LayoutAnimation.Types.keyboard,
         property: LayoutAnimation.Properties.opacity,
       },
     });
@@ -299,7 +298,7 @@ export default forwardRef(({
   //   return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View>
-      <Touchable onPress={onExpand} activeOpacity={0.8} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
+      <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
     {!isSubnote&&(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
@@ -328,17 +327,7 @@ export default forwardRef(({
             </View>}
           {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
           :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
-          {note?.tags?.length>0&&
-          <View style={[styles.row,{flexWrap:'wrap'}]}>
-          {note?.tags?.map((tag:any,i:number)=>
-          <Text 
-            key={i} 
-            style={styles.tag} 
-            onPress={()=>dispatch(setTagsFilter(tag?.name))}
-            suppressHighlighting>
-              {'#'+tag?.name}
-          </Text>)}
-          </View>}
+          <TagsList note={note} onPress={(tag:any)=>dispatch(setTagsFilter(tag?.name))} />
       {expand==index&&<>
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <ScrollView 
@@ -594,6 +583,21 @@ export default forwardRef(({
   );
 });
 
+
+const TagsList=({note,onPress}:any)=>
+  note?.tags?.length>0? (
+        <View style={[styles.row,{flexWrap:'wrap'}]}>
+        {note?.tags?.map((tag:any,i:number)=>
+        <Text 
+          key={i}
+          style={styles.tag} 
+          onPress={()=>onPress(tag)}
+          suppressHighlighting>
+            {'#'+tag?.name}
+        </Text>)}
+        </View>
+  ):null;
+
 const styles = StyleSheet.create({
   container: { paddingHorizontal:18,paddingBottom:8,paddingTop:14 },
   row: { flexDirection: "row", alignItems: "center" },
@@ -650,7 +654,7 @@ const styles = StyleSheet.create({
     color:'#717171',
     marginTop:4,
     marginRight:4,
-    marginLeft: 1
+    marginLeft: 0
   },
   date:{
     color: Colors.grey,
