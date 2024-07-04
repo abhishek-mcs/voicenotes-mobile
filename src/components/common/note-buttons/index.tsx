@@ -6,15 +6,16 @@ import { StyleSheet } from "react-native"
 import { TouchableHighlight } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { isIOS } from "utils/common"
+import Touchable from "../Touchable"
 
 export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={}})=>{
     return (
-        <TouchableHighlight style={[styles.main,style]} onPress={onPress} underlayColor={Colors.darkWithOpacity(0.05)} disabled={disabled}>
+        <Touchable style={[styles.main,style]} onPress={onPress} activeOpacity={0.6}  disabled={disabled}>
             <View style={styles.row}>
                 <SvgXml xml={icon} />
                 <Text style={styles.text}>{text}</Text>
             </View>
-        </TouchableHighlight>
+        </Touchable>
     )
 }
 

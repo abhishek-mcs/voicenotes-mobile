@@ -63,7 +63,7 @@ export default () => {
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
           <KeyboardAvoidingView behavior="padding">
-          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?0:16,marginHorizontal:12}}>
+          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?16:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
