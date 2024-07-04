@@ -1,4 +1,4 @@
-export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord,isRetry}:any)=>{
+export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry}:any)=>{
   return new Promise(async(resolve, reject) => {
     await uploadRecord.mutateAsync(
         {audio:file,duration:d,isRetry:isRetry},
@@ -20,11 +20,9 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
                 setReduxRecordingList([...recordingList])
               }
             });
-            deactivateKeepAwake()
             resolve('success');
           },
           onError:()=>{
-            deactivateKeepAwake()
             const dump={isUploading:false,audio:{data:{url:file,duration:d}}}  
             const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!==file)??[]
             setGenerateDummy(!!generateDummy?[dump,...filterDummy]:[dump])
