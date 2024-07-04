@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
     color:'#717171',
     marginTop:4,
     marginRight:4,
-    marginLeft: 1
+    marginLeft: 0
   },
   date:{
     color: Colors.grey,
