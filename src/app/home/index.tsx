@@ -190,7 +190,7 @@ export default ()=> {
 
   const batchRetryUpload = async () => {
     if (generateDummy && generateDummy.length > 0) {
-      const temp = generateDummy.map(item => ({ ...item, isUploading: true }));
+      const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true }));
       setGenerateDummy([...temp]);
 
       for (let i = temp.length - 1; i >= 0; i--) {

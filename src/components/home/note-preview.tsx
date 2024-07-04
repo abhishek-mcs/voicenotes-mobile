@@ -94,7 +94,7 @@ export default forwardRef(({
   const onEdit=()=>
     router.navigate({pathname:'/edit-note/',params:{index}})
 
-  const handleDeleteTempAudio = (selectedRecording) => {
+  const handleDeleteTempAudio = (selectedRecording:any) => {
     Alert.alert('', 'Are you sure you want to delete?', [
       {
         text: 'No',
