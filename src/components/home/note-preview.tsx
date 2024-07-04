@@ -338,19 +338,19 @@ export default forwardRef(({
             </Touchable>
             </View>
           </View>}
-          {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
-          :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
-          {note?.tags?.length>0&&
-          <View style={[styles.row,{flexWrap:'wrap'}]}>
-          {note?.tags?.map((tag:any,i:number)=>
-          <Text 
-            key={i} 
-            style={styles.tag} 
-            onPress={()=>dispatch(setTagsFilter(tag?.name))}
-            suppressHighlighting>
-              {'#'+tag?.name}
-          </Text>)}
-          </View>}
+            {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
+              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
+            {note?.tags?.length > 0 &&
+              <View style={[styles.row, { flexWrap: 'wrap' }]}>
+                {note?.tags?.map((tag: any, i: number) =>
+                  <Text
+                    key={i}
+                    style={styles.tag}
+                    onPress={() => dispatch(setTagsFilter(tag?.name))}
+                    suppressHighlighting>
+                    {'#' + tag?.name}
+                  </Text>)}
+              </View>}
       {expand==index&&<>
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <ScrollView 
@@ -639,10 +639,13 @@ const styles = StyleSheet.create({
     color: "rgba(34, 34, 34, 0.9)",
     lineHeight:isIOS?23:22,
     marginTop: 4,
+    marginLeft:-3
   },
   menu: {
     borderRadius: 12,
-    // marginTop:25,
+    marginTop:40,
+    paddingVertical: 5,
+    paddingBottom: 0
     // marginLeft:10
   },
   menuPress: {
@@ -652,7 +655,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft:4
   },
-  menuItem: { paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden",width:'100%' },
+  menuItem: { paddingLeft:isIOS?20:0, borderRadius: 12, overflow: "hidden",width:'100%', padding : 0, marginVertical: -6 },
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,
@@ -667,7 +670,8 @@ const styles = StyleSheet.create({
     fontFamily:'Primary',
     color:'#717171',
     marginTop:4,
-    marginRight:4
+    marginRight:4,
+    marginLeft: 1
   },
   date:{
     color: Colors.grey,
