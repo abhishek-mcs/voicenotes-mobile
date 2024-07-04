@@ -2,6 +2,7 @@ import axios from "axios";
 import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
+import { useGetRelatedRecording } from "./relatedNote";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -167,6 +168,7 @@ export function useGetAiCreation(){
 export function useAddTranscript(doGenerateTitle=false){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()
+    const addRelatedNotes=useGetRelatedRecording()
     let rec_id:number;
     return useMutation('add-transcript',(recording_id:number) => {
         doGenerateTitle&&(rec_id=recording_id)
@@ -176,6 +178,7 @@ export function useAddTranscript(doGenerateTitle=false){
         onSuccess:async()=>{
             await queryC.invalidateQueries('all-recording')
             doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+            doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);

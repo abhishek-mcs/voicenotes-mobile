@@ -102,7 +102,8 @@ export default forwardRef(({
   }
 
   const getCreation=async(id:number)=>{
-      await queryClient.refetchQueries('all-recording');
+    await queryClient.refetchQueries('all-recording')
+    isSingle&&await queryClient.resetQueries('single-recording')
       setCreationLoader(false)
   }
 
@@ -567,7 +568,7 @@ export default forwardRef(({
             }
           </View>
         </View>}
-        {!!token&&creationLoader&&<AiLoader text={creationContent[createType]} style={{marginTop:8}} size={12}/>}
+        {!!token&&creationLoader&&<AiLoader text={creationContent[createType]} style={{marginTop:8}} size={14}/>}
         {!!token&&creationList?.map((itm:any,i:number)=>(
           <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i}/>
         ))}

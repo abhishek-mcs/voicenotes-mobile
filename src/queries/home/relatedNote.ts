@@ -14,7 +14,7 @@ export function useGetSingleRecording(id:number){
     })
 }
 
-export function useGetRelatedRecording(index:number){
+export function useGetRelatedRecording(index?:number){
     const queryClient = useQueryClient()
     const dispatch = useDispatch()
     return useMutation('related-recording',(id?:any) => {

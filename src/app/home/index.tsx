@@ -170,6 +170,7 @@ export default ()=> {
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
     repeat&&onStartRecord()
+    !repeat&&setExpandNote(0)
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
     deactivateKeepAwake()
@@ -231,14 +232,6 @@ export default ()=> {
       setRecEnabled(false);
     }:undefined
   },[])
-
-  // useEffect(()=>{
-  //   if(!!generateDummy&&generateDummy?.length>0){
-  //     bannerRef?.current?.show()
-  //   }else{
-  //     bannerRef?.current?.close()
-  //   }
-  // },[bannerRef,generateDummy])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
