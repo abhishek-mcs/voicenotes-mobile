@@ -18,7 +18,7 @@ import { setLang } from "redux/reducers/userDetails";
 import { TextInput } from "react-native";
 import { useQueryClient } from "react-query";
 import { FlatList } from "react-native";
-import { useSaveEditedNote } from "queries/home";
+import { useSaveEditedNote, useToggleStar } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
 
 export default () => {
@@ -28,17 +28,18 @@ export default () => {
     const saveTags=useSaveEditedNote(recording_id)
     const [isFocused,setIsFocused]=useState(false)
     const [search,setSearch]=useState('')
+    const toggleStarred=useToggleStar(recording_id)
     const queryClient=useQueryClient()
     const tagsQuery:any=queryClient.getQueryData('all-tags')||[]
     let tagsList=useRef((tagsQuery?.data||[]).filter((f:any)=>f?.name!="starred"));
-    const [tags,setTags]=useState(tagsList.current||[])
+    const [tags,setTags]=useState([{name:'starred'},...tagsList.current]||[])
     const [addedTags,setAddedTags]:any=useState(JSON.parse(tagsArray)||[])
     
     const onSearch=useCallback((q:string)=>{
       setSearch(q);
       if(tags?.length>0)
         if(q=='')
-          setTags(tagsList.current||[])
+          setTags([{name:'starred'},...tagsList.current]||[])
         else{
           const temp=tagsList.current?.filter((f:any)=>f?.name?.toLowerCase().includes(q.toLowerCase()))||[]
           setTags(temp)
@@ -46,7 +47,6 @@ export default () => {
     },[tagsList.current])
 
     const onAddTag=(name:string,addNew=false)=>{
-      console.log('name',name)
       let temp=addedTags
       temp=temp.includes(name)?temp?.filter((f:any)=>f!=name):[...temp,name]
       setAddedTags([...temp])
@@ -95,7 +95,7 @@ export default () => {
           </View>
           {search!=''&&<Btn title={'+Add '+search} onPress={()=>onAddTag(search,true)} isAdded={false} style={{marginTop:8, marginHorizontal:8}}/>}
           {tags.length>0&&
-          <Text style={{fontFamily:'Primary',color:Colors.grey,fontSize:12,marginBottom:8,marginTop:12,marginHorizontal:24}}>Suggested</Text>}
+          <Text style={{fontFamily:'Primary',color:Colors.grey,fontSize:12,marginBottom:4,marginTop:12,marginHorizontal:24}}>Suggested</Text>}
           <FlatList
             data={tags}
             style={{}}
@@ -105,7 +105,7 @@ export default () => {
             renderItem={({item,index})=>{
               const isAdded=addedTags?.includes(item?.name)
               return (
-                <Btn title={item?.name} isAdded={isAdded} onPress={onAddTag}/>
+                <Btn title={item?.name} isAdded={isAdded} style={{marginTop:2}} onPress={onAddTag}/>
             )}}
           />
           </KeyboardAvoidingView>
@@ -113,13 +113,18 @@ export default () => {
     );
 }
 
+
+
 const Btn=({onPress=(v:any)=>{},title,isAdded,style={}}:any)=>(
-  <TouchableHighlight onPress={()=>onPress(title)} style={[{padding:7,marginBottom:1,paddingHorizontal:16,backgroundColor:isAdded?'rgba(35,84,159,0.1)':'transparent',borderRadius:8},{...style}]} underlayColor={'rgba(35,84,159,0.2)'}>
-  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-    <Text style={{fontFamily:'Primary-Medium',fontSize:16,color:(isAdded||title?.includes('+Add'))?'rgba(35,84,159,1)':'#0D0D0D'}}>{title?.includes('+Add')?title:'#'+title}</Text>
-    {isAdded&&<SvgXml xml={commonSvg.smallClose} />}
-  </View>
-</TouchableHighlight>
+  <TouchableHighlight onPress={() => onPress(title)} style={[{ padding: 6, marginBottom: 1, paddingHorizontal: 16, backgroundColor: isAdded ? 'rgba(35,84,159,0.1)' : 'transparent', borderRadius: 8 }, { ...style }]} underlayColor={'rgba(35,84,159,0.2)'}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <SvgXml xml={(title === 'starred'?commonSvg.tagStarred:commonSvg.tagHash)?.replaceAll('{color}',isAdded?'rgba(35,84,159,1)' : '#0D0D0D')} style={{ marginRight: 3 }}/>
+          <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? 'rgba(35,84,159,1)' : '#0D0D0D' }}>{title === 'starred'?'Starred':title} </Text>
+      </View>
+      {isAdded&&<SvgXml xml={commonSvg.smallClose} />}
+    </View>
+  </TouchableHighlight>
 );
 
 const styles=StyleSheet.create({

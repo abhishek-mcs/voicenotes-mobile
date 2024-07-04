@@ -9329,6 +9329,11 @@ react-native-animatable@^1.4.0:
   dependencies:
     prop-types "^15.8.1"
 
+react-native-context-menu-view@^1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.16.0.tgz#50e376ce30bc9b9aa07c0a5b66f1280befcf98f8"
+  integrity sha512-zqeOAizM7MVV9o6h/quS0REQikBq3J4BkIRLFygY6RiCjr6rwuzSGkif7JRCHpAQQumSKlLqYl4N2h3AdoIHVg==
+
 react-native-gesture-handler@~2.14.0:
   version "2.14.1"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.14.1.tgz#930640231024b7921435ab476aa501dd4a6b2e01"

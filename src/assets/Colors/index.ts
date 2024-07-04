@@ -29,4 +29,5 @@ export default {
   lightGrey:'#f9f9f9',
   grey3:'#717171',
   brownWithOpacity: (opacity:number) => `rgba(214,162,67,${opacity})`,
+  black2:`#0d0d0d`,
 };

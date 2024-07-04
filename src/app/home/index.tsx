@@ -50,6 +50,7 @@ import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -66,6 +67,7 @@ export default ()=> {
   const {hashFilter} = useSelector((state: RootState) => state.hash);
   const token = useSelector((state: RootState) => state.userDetails.token);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
+  const [expandNote,setExpandNote] = useState(-1)
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
@@ -172,18 +174,18 @@ export default ()=> {
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
     repeat&&onStartRecord()
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
+    !repeat&&setExpandNote(0)
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
-    deactivateKeepAwake()
+    !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')
   },[generateDummy,rec,recEnabled,soundRef]);
   
   const onUploadRetry = async(note:any) => {
     return new Promise(async(resolve, reject) => {
-    activateKeepAwakeAsync();
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
       .then(()=>resolve('success'))
       .catch(()=>reject('error'))
     })
@@ -191,23 +193,20 @@ export default ()=> {
 
   const batchRetryUpload = async () => {
     if (generateDummy && generateDummy.length > 0) {
-      setUploading(generateDummy.length);
-      const temp=[...generateDummy]
-      for (let i=0;i<temp.length;i++){
-        temp[i] = { ...temp[i], isUploading: true }
-      }
-      setGenerateDummy([...temp])
-      let j=temp.length-1
-      while(j>=0){
-        await onUploadRetry(temp[j]).then(()=>{
-          temp.pop()
-          setGenerateDummy([...temp])
-          j=temp.length-1
-        }).catch(()=>{
-          // setUploading(0);
-          // temp[j] = { ...temp[j], isUploading: false }
-          // setGenerateDummy([...temp])
-        });
+      const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true }));
+      setGenerateDummy([...temp]);
+
+      for (let i = temp.length - 1; i >= 0; i--) {
+        try {
+          await onUploadRetry(temp[i]); 
+          temp.splice(i, 1);
+          setGenerateDummy([...temp]);
+          setUploading(prevUploading => prevUploading - 1);
+        } catch (error) {
+          console.error(`Upload failed for item ${i}:`, error);
+          temp[i] = { ...temp[i], isUploading: false };
+          setGenerateDummy([...temp]);
+        }
       }
     } 
   };  
@@ -233,20 +232,13 @@ export default ()=> {
       setRecEnabled(false);
     }:undefined
   },[])
-
-  // useEffect(()=>{
-  //   if(!!generateDummy&&generateDummy?.length>0){
-  //     bannerRef?.current?.show()
-  //   }else{
-  //     bannerRef?.current?.close()
-  //   }
-  // },[bannerRef,generateDummy])
   
   const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
+        key={item?.title||item?.transcript}
         ref={notePreviewRef}
         note={item}
         index={index}
@@ -259,36 +251,26 @@ export default ()=> {
         setAudioLoading={setAudioLoading}
         onUploadRetry={onUploadRetry}
         hashFilter={hashFilter}
+        expand={expandNote}
+        setExpand={()=>setExpandNote(index==expandNote?-1:index)}
       />
     ),
-    [isPlay,play,recordingList,audioLoading,generateDummy]
+    [isPlay,play,recordingList,audioLoading,generateDummy,expandNote]
   );
-
-  const layoutAnimation = () => {
-    LayoutAnimation.configureNext({
-      duration: 250,
-      create: {
-        type: LayoutAnimation.Types.easeIn,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-    });
-  }
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useEffect(()=>{
-    layoutAnimation()
-  },[recordingList,generateDummy,isSearchVisible])
+  useLayoutAnim([recordingList,generateDummy,isSearchVisible])
 
+  const onRefresh=async()=>{
+    setRefreshing(true);
+    await recordingQuery.refetch()
+    if(!!generateDummy&&generateDummy?.length>0){
+      batchRetryUpload()
+    }
+    setRefreshing(false)
+  }
 
   const handleScroll = (event:any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
@@ -306,7 +288,7 @@ export default ()=> {
       <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
-          {/* <View style={{marginTop:(isIOS&&screenHeight>690)?0:10,backgroundColor:'transparent'}}> */}
+          <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:18}}>
           <Header isLogged={!!token} isOffline={isOffline}/>
           <BannerAlert
             ref={bannerRef}
@@ -322,11 +304,11 @@ export default ()=> {
               </Animatable.View>
             </Animated.View>
           )}
-          {/* </View> */}
+          </View>
           <FlatList
             ref={scrollRef}
             // bounces={false}
-            style={{opacity:hideBackground?0:1}}
+            style={{opacity:hideBackground?0:1,marginTop:12}}
             data={
               recordingList?.length == 1
                 ? recordingList[0] != undefined
@@ -342,11 +324,7 @@ export default ()=> {
             renderItem={renderItem}
             onEndReachedThreshold={0.5}
             onEndReached={fetchNextPage}
-            onRefresh={async()=>{
-              setRefreshing(true);
-              await recordingQuery.refetch()
-              setRefreshing(false)
-            }}
+            onRefresh={onRefresh}
             refreshing={isRefreshing}
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
@@ -396,7 +374,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   wrapper: {
-    paddingHorizontal: 18,
+    // paddingHorizontal: 18,
     paddingVertical:isIOS?0:32
   },
   tab: {

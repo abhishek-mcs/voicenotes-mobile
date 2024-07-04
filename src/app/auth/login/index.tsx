@@ -30,7 +30,9 @@ export default ()=> {
     // Must run after animations for keyboard to automatically open
     InteractionManager.runAfterInteractions(() => {
       if (inputRef?.current) {
-        inputRef.current.focus()
+        setTimeout(() => {
+          inputRef.current?.focus()
+        }, 1500);
       }
     })
   }, [inputRef])

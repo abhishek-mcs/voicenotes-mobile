@@ -3,7 +3,7 @@ import { View, Text, TextStyle } from 'react-native';
 import { screenWidth } from 'utils/common';
 import {RenderHTML} from 'react-native-render-html';
 
-export default ({ delay=30,message,style={},triggerAnimation=0,disableGenerating=()=>{},continueGenerating=true }:{delay?:number,message:string,style:TextStyle,triggerAnimation:number,disableGenerating:()=>void,continueGenerating?:boolean})=> {
+export default ({ delay=30,lines=100000, message,style={},triggerAnimation=0,disableGenerating=()=>{},continueGenerating=true }:{delay?:number,message:string,style:TextStyle,triggerAnimation:number,disableGenerating:()=>void,continueGenerating?:boolean,lines?:number})=> {
     const [displayedMessage, setDisplayedMessage]:any = useState('');
 
     const containsHTML = (str:string) => {
@@ -44,6 +44,6 @@ export default ({ delay=30,message,style={},triggerAnimation=0,disableGenerating
     )
   }
   return (
-      <Text style={[style,{}]}>{displayedMessage}</Text>
+      <Text style={[style,{}]} numberOfLines={lines}>{displayedMessage}</Text>
   );
 };
