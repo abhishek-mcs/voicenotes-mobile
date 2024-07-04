@@ -583,12 +583,13 @@ export default forwardRef(({
           <View style={{marginTop:(note?.related_notes?.length==0&&relatedNoteLoading)?8:3}}>
             {(note?.related_notes?.length==0&&relatedNoteLoading)?
               <CircularLoader width={16} height={16}/>
-              :note?.related_notes?.map((item:any)=>(
-                <Touchable onPress={()=>{router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}} activeOpacity={0.6} key={item?.id} style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
+              :note?.related_notes?.map((item:any)=>{
+                return (
+                <Touchable onPress={()=>{router.push({pathname:"/RelatedNotes/",params:{id:item?.id}});}} activeOpacity={0.6} key={item?.id} style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
                   <Text style={{color:Colors.grey3,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/8}}>{formatDate(item?.created_at,false,true)}</Text>
                   <Text style={{color:Colors.black2,fontFamily:'Primary-Medium',fontSize:12,width:screenWidth/1.6}} numberOfLines={1}>{item?.title}</Text>
                 </Touchable>
-              ))
+              )})
             }
           </View>
         </View>}
