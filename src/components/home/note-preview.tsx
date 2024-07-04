@@ -272,15 +272,15 @@ export default forwardRef(({
     LayoutAnimation.configureNext({
       duration: 120,
       create: {
-        type: LayoutAnimation.Types.keyboard,
+        type: LayoutAnimation.Types.linear,
         property: LayoutAnimation.Properties.opacity,
       },
       update: {
-        type: LayoutAnimation.Types.keyboard,
+        type: LayoutAnimation.Types.linear,
         property: LayoutAnimation.Properties.opacity,
       },
       delete: {
-        type: LayoutAnimation.Types.keyboard,
+        type: LayoutAnimation.Types.linear,
         property: LayoutAnimation.Properties.opacity,
       },
     });
