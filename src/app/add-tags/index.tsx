@@ -132,7 +132,7 @@ const Btn=({onPress=(v:any)=>{},title,isAdded,style={}}:any)=>(
           <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? 'rgba(35,84,159,1)' : '#0D0D0D' }}>#{title} </Text>
         )}
       </View>
-      <SvgXml xml={commonSvg.smallClose} />
+      {isAdded&&<SvgXml xml={commonSvg.smallClose} />}
     </View>
   </TouchableHighlight>
 );
