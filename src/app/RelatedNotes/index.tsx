@@ -59,7 +59,8 @@ export default ()=>{
                       setAudioLoading={setAudioLoading}
                       onDeleteCallBack={()=>{router.back()}}
                       expand={expand}
-                      setExpand={()=>setExpand(expand==0?-1:0)}
+                    //   setExpand={()=>setExpand(expand==0?-1:0)}
+                      setExpand={()=>{}}
                       isSingle={true}
                     />}
                 </ScrollView>
