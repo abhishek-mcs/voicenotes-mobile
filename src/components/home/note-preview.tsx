@@ -270,17 +270,17 @@ export default forwardRef(({
 
   const onExpand=async()=>{
     LayoutAnimation.configureNext({
-      duration: 150,
+      duration: 120,
       create: {
-        type: LayoutAnimation.Types.easeIn,
+        type: LayoutAnimation.Types.keyboard,
         property: LayoutAnimation.Properties.opacity,
       },
       update: {
-        type: LayoutAnimation.Types.easeOut,
+        type: LayoutAnimation.Types.keyboard,
         property: LayoutAnimation.Properties.opacity,
       },
       delete: {
-        type: LayoutAnimation.Types.easeOut,
+        type: LayoutAnimation.Types.keyboard,
         property: LayoutAnimation.Properties.opacity,
       },
     });
@@ -327,17 +327,7 @@ export default forwardRef(({
             </View>}
           {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
           :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
-          {note?.tags?.length>0&&
-          <View style={[styles.row,{flexWrap:'wrap'}]}>
-          {note?.tags?.map((tag:any,i:number)=>
-          <Text 
-            key={i} 
-            style={styles.tag} 
-            onPress={()=>dispatch(setTagsFilter(tag?.name))}
-            suppressHighlighting>
-              {'#'+tag?.name}
-          </Text>)}
-          </View>}
+          <TagsList note={note} onPress={(tag:any)=>dispatch(setTagsFilter(tag?.name))} />
       {expand==index&&<>
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
       <ScrollView 
@@ -592,6 +582,21 @@ export default forwardRef(({
     </View>
   );
 });
+
+
+const TagsList=({note,onPress}:any)=>
+  note?.tags?.length>0? (
+        <View style={[styles.row,{flexWrap:'wrap'}]}>
+        {note?.tags?.map((tag:any,i:number)=>
+        <Text 
+          key={i}
+          style={styles.tag} 
+          onPress={()=>onPress(tag)}
+          suppressHighlighting>
+            {'#'+tag?.name}
+        </Text>)}
+        </View>
+  ):null;
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal:18,paddingBottom:8,paddingTop:14 },
