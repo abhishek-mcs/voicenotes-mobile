@@ -46,7 +46,6 @@ export default () => {
     },[tagsList.current])
 
     const onAddTag=(name:string,addNew=false)=>{
-      console.log('name',name)
       let temp=addedTags
       temp=temp.includes(name)?temp?.filter((f:any)=>f!=name):[...temp,name]
       setAddedTags([...temp])
@@ -95,7 +94,7 @@ export default () => {
           </View>
           {search!=''&&<Btn title={'+Add '+search} onPress={()=>onAddTag(search,true)} isAdded={false} style={{marginTop:8, marginHorizontal:8}}/>}
           {tags.length>0&&
-          <Text style={{fontFamily:'Primary',color:Colors.grey,fontSize:12,marginBottom:8,marginTop:12,marginHorizontal:24}}>Suggested</Text>}
+          <Text style={{fontFamily:'Primary',color:Colors.grey,fontSize:12,marginBottom:4,marginTop:12,marginHorizontal:24}}>Suggested</Text>}
           <FlatList
             data={tags}
             style={{}}
@@ -105,7 +104,7 @@ export default () => {
             renderItem={({item,index})=>{
               const isAdded=addedTags?.includes(item?.name)
               return (
-                <Btn title={item?.name} isAdded={isAdded} style={{marginTop:8}} onPress={onAddTag}/>
+                <Btn title={item?.name} isAdded={isAdded} style={{marginTop:2}} onPress={onAddTag}/>
             )}}
           />
           </KeyboardAvoidingView>
@@ -113,16 +112,29 @@ export default () => {
     );
 }
 
+
+
 const Btn=({onPress=(v:any)=>{},title,isAdded,style={}}:any)=>(
-  <TouchableHighlight onPress={()=>onPress(title)} style={[{padding:7,marginBottom:1,paddingHorizontal:16,backgroundColor:isAdded?'rgba(35,84,159,0.1)':'transparent',borderRadius:8},{...style}]} underlayColor={'rgba(35,84,159,0.2)'}>
-  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-    <View style={{flexDirection:'row',alignItems:'center'}}>
-      {title=='starred'&&<SvgXml xml={commonSvg.tagStarred?.replaceAll('{color}',isAdded?'rgba(35,84,159,1)':'#0d0d0d')} style={{marginLeft:-4}}/>}
-    <Text style={{fontFamily:'Primary-Medium',fontSize:16,color:(isAdded||title?.includes('+Add'))?'rgba(35,84,159,1)':'#0D0D0D'}}>{title?.includes('+Add')?title:title=='starred'?title:'#'+title}</Text>
+  <TouchableHighlight onPress={() => onPress(title)} style={[{ padding: 6, marginBottom: 1, paddingHorizontal: 16, backgroundColor: isAdded ? 'rgba(35,84,159,0.1)' : 'transparent', borderRadius: 8 }, { ...style }]} underlayColor={'rgba(35,84,159,0.2)'}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+      {title === 'starred' ? (
+        <>
+        <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? 'rgba(35,84,159,1)' : '#0D0D0D' }}>Starred</Text>
+          <SvgXml
+            xml={commonSvg.tagStarred?.replaceAll('{color}',"#8d8d8d" )}
+            style={{ marginLeft: 30 }}
+          />
+        </>
+        ): (
+          <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? 'rgba(35,84,159,1)' : '#0D0D0D' }}>#{title} </Text>
+        )}
+      </View>
+      <SvgXml xml={commonSvg.smallClose} />
     </View>
-    {isAdded&&title!='starred'&&<SvgXml xml={commonSvg.smallClose} />}
-  </View>
-</TouchableHighlight>
+  </TouchableHighlight>
 );
 
 const styles=StyleSheet.create({
