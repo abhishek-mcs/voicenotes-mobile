@@ -3,11 +3,11 @@ import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useGlobalSearchParams, useLocalSearchParams, useRouter } from "expo-router";
 import { useLogout } from "queries/auth";
-import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native";
+import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollView, KeyboardAvoidingView, InteractionManager } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -33,6 +33,7 @@ export default () => {
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
     const [isLoading,setIsLoading]=useState(false)
+    const textRef=useRef<any>(null)
     
   const onSaveEdit=async()=>{
     if(editNote?.transcript?.length===0||editNote?.title?.length===0){
@@ -60,6 +61,12 @@ export default () => {
     router?.back()
   }
 
+  useEffect(()=>{
+    InteractionManager.runAfterInteractions(()=>{
+      textRef.current&&textRef.current?.focus()
+    })
+  },[])
+
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
           <KeyboardAvoidingView behavior="padding">
@@ -83,7 +90,8 @@ export default () => {
       selectTextOnFocus={false}
       value={editNote.title}
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
-    <TextInput 
+    <TextInput
+      ref={textRef}
       style={styles.textInput}
       multiline
       autoComplete="off"

@@ -66,7 +66,6 @@ export default forwardRef(({
   const {tempRecordings} = useSelector((state: RootState) => state.recordingStates);
   
   const queryClient = useQueryClient();
-  const toggleStarred=useToggleStar(note?.id)
   const deleteRecord=useDeleteRecording(note?.id)
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
@@ -271,7 +270,7 @@ export default forwardRef(({
 
   const onExpand=async()=>{
     LayoutAnimation.configureNext({
-      duration: 250,
+      duration: 150,
       create: {
         type: LayoutAnimation.Types.easeIn,
         property: LayoutAnimation.Properties.opacity,
@@ -299,7 +298,7 @@ export default forwardRef(({
   //   return Editor(editNote,setEditNote,onSaveEdit,onCancelEdit,tag,setTag)
   return (
     <View>
-      <Touchable onPress={onExpand} activeOpacity={0.8} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
+      <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container,(expand==index&&!isSingle)?{backgroundColor:'#f7f7f7',borderRadius:isSubnote?12:0,}:{}]}>
     {!isSubnote&&(index==0||(index!=0&&!isSameDay(note?.created_at,list[index-1]?.created_at)))&&
       <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
       <View style={{ flexDirection: "row"}}>
