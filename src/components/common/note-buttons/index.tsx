@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
         borderRadius:12,
         backgroundColor:Colors.whiteWithOpacity(1),
         marginHorizontal:5,
-        shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,0)',
+        shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,1)',
         shadowOffset:{width:0,height:1},
         shadowOpacity:0.15,
         shadowRadius:1.3,
