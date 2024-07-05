@@ -22,13 +22,13 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
             });
             resolve('success');
           },
-          onError:()=>{
+          onError:(e)=>{
+            console.log('error upload failed', e)
             const dump={isUploading:false,audio:{data:{url:file,duration:d}}}  
             const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!==file)??[]
             setGenerateDummy(!!generateDummy?[dump,...filterDummy]:[dump])
             setUploading(0)
-            console.log('error upload failed')
-            reject('error');
+            reject('error: '+ e);
           }
         }
       )});

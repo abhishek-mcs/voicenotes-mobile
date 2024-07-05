@@ -77,7 +77,10 @@ export function useUploadRecord(){
     },
     {
         onError:(error:any)=>{
-            console.log('upload audio api',error?.response?.data?.message);
+            if (error?.response?.data?.message?.includes('Recording audio upload Failed!')) {
+                console.log("Corrupted");
+            }
+            console.error('upload audio api', error);
         }
     })
 }
@@ -171,6 +174,9 @@ export function useAddTranscript(doGenerateTitle=false){
     const addRelatedNotes=useGetRelatedRecording()
     let rec_id:number;
     return useMutation('add-transcript',(recording_id:number) => {
+        if (!recording_id) {
+            throw new Error("recording_id is required");
+        }
         doGenerateTitle&&(rec_id=recording_id)
         return axiosApi.patch(`/recordings/${recording_id}/transcript`)
     },
@@ -181,6 +187,8 @@ export function useAddTranscript(doGenerateTitle=false){
             doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
+            console.log("On error: ", error);
+            
             console.log(error?.response?.data?.message);
         }
     })

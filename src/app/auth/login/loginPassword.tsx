@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TextField } from "components/common/text-field";
 import {
   Pressable,
@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from "react-native";
 import { setAuthToken } from "services/api/axios-api";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails";
@@ -31,6 +31,7 @@ export default () => {
   const refPassword = useRef<TextInput>();
 
   const userEmail = useSelector((state: RootState) => state.userDetails.email);
+  const {token} = useSelector((state: RootState) => state.userDetails);
   const dispatch = useDispatch();
 
   const [emailText, setEmailText] = useState(userEmail);
@@ -51,6 +52,7 @@ export default () => {
   //     }
   //   })
   // }, [refPassword])
+ 
 
   const continueClicked = () => {
     dispatch(setEmail(emailText));
@@ -80,6 +82,9 @@ export default () => {
     );
   };
 
+  if (token){
+    return <Redirect href="/home/" />;
+  }
   return (
     <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
     <KeyboardAvoidingView

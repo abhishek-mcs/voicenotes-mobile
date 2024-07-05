@@ -163,8 +163,8 @@ export default ()=> {
     analytics().logEvent('started_recording')
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
-    const file = rec?.getURI()||"";
-    stopRecording(rec);
+    // const file = rec.getURI()||"";
+    const file = await stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
@@ -184,7 +184,7 @@ export default ()=> {
     const file = note?.audio?.data?.url||"";
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
       .then(()=>resolve('success'))
-      .catch(()=>reject('error'))
+      .catch((error)=>reject('error: '+ error))
     })
   }
 
