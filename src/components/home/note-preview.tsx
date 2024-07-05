@@ -24,7 +24,7 @@ import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
-import { deleteFromTempRecordings, setTempRecordings } from "redux/reducers/recordingStates";
+import { deleteFromTempRecordings, setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
@@ -98,7 +98,7 @@ export default forwardRef(({
   const showCreateOption = () => setCreateOption(true);
 
   const onEdit = () =>
-    router.navigate({ pathname: '/edit-note/', params: { index } })
+    router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
 
   const onGotoAddTag = () => {
     hideMoreOption()
@@ -158,7 +158,7 @@ export default forwardRef(({
     }
   }
   
-  const togglePublish = (isBeingMadePrivate = false) => {
+  const togglePublish = () => {
     const wasPublic = note?.public_slug;
 
     try {
@@ -169,21 +169,23 @@ export default forwardRef(({
         {
           onSuccess: async (r) => {
             try {
-              await queryClient
-                .invalidateQueries("all-recording")
-                .catch(() => {});
-              setIsPublished((t: boolean) => !t);
-
-              if (wasPublic) {
-                setIsNoteJustMadePrivate(true);
-              } else {
-                setShareVisible(true);
-                setIsNoteJustMadePrivate(false);
-              }
+              setShareVisible(false)
+              setTimeout(() => {
+                if (wasPublic) {
+                  setIsNoteJustMadePrivate(true);
+                } else {
+                  setIsNoteJustMadePrivate(false);
+                }
+                setIsPublished((t:any)=>!t)
+              }, 50);
+              await queryClient.invalidateQueries('all-recording')
             } catch (e) {
               console.info("error in toggle publish", e);
             } finally {
               setPublishLoading(false);
+              setTimeout(() => {
+                setShareVisible(true)
+              }, 50);
             }
           },
         }
@@ -194,8 +196,10 @@ export default forwardRef(({
   };
 
   const onPrivateOk = () => {
-    setIsPublished(false);
     setShareVisible(false);
+    setTimeout(() => {
+      setIsNoteJustMadePrivate(false)
+    }, 50);
   }
 
   const onShareNote = () => {
@@ -438,7 +442,7 @@ export default forwardRef(({
                       style={styles.menu}
                       animationDuration={150}
                     >
-                      {/* {hashFilter != 'shared' ?
+                      {hashFilter != 'shared' ?
                         <>
                           <MenuItem style={styles.menuItem} onPress={() => onCopy(note?.transcript ?? '')}>
                             <View style={styles.row}>
@@ -474,10 +478,10 @@ export default forwardRef(({
                             <Text style={styles.menuItemTxt}>Unpublish</Text>
                           </MenuItem>
                         </>
-                        } */}
+                        }
                     </Menu>}
                 </ScrollView>}
-              {/* {isIOS ? <Menu
+              {isIOS ? <Menu
                 visible={shareVisible}
                 anchor={null}
                 onRequestClose={() => setShareVisible(false)}
@@ -485,8 +489,47 @@ export default forwardRef(({
                 style={{ borderRadius: 12, width: isPublished ? screenWidth / 1.2 : 'auto' }}
               >
                 <MenuItem style={{ padding: 16, width: '100%', height: '100%' }} disabled={true} >
-                  {(isPublished == false) ?
-                    <View>
+                  {isNoteJustMadePrivate?
+                    <View style={{ width: screenWidth / 1.2 }}>
+                        <View style={[styles.row]}>
+                          <SvgXml xml={CreateModalSvg.plane} />
+                          <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2, marginLeft: 8, width: screenWidth / 1.2 }}>
+                            Your note is now private
+                          </Text>
+                        </View>
+                        <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+                          <Touchable activeOpacity={0.5} onPress={onPrivateOk} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16 }}>
+                            <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12, marginLeft: 4 }}>Ok</Text>
+                          </Touchable>
+                        </View>
+                      </View>
+                      :isPublished?
+                      <View style={{ width: screenWidth / 1.2 }}>
+                        <View style={[styles.row]}>
+                          <SvgXml xml={CreateModalSvg.unlock} />
+                          <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2, marginLeft: 8, width: screenWidth / 1.2 }}>
+                            Your shareable link is ready
+                          </Text>
+                        </View>
+                        <Text onPress={() => wb.openBrowserAsync(MAIN_URL + '/s/' + note?.public_slug)} suppressHighlighting style={{ fontSize: 14, fontFamily: 'Primary', color: Colors.primary, textDecorationLine: 'underline', marginTop: 4, width: screenWidth / 1.2 }}>
+                          {MAIN_URL + '/s/' + note?.public_slug}
+                        </Text>
+                        <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+                          <Touchable activeOpacity={0.5} onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, width: 100, alignItems: 'center' }}>
+                            <View style={styles.row}>
+                              <SvgXml xml={CreateModalSvg.publishCopy} />
+                              <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12, marginLeft: 4 }}>{'Copy link'}</Text>
+                            </View>
+                          </Touchable>
+                          <Touchable activeOpacity={0.5} onPress={togglePublish} style={{ backgroundColor: Colors.darkWithOpacity(0.05), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, marginLeft: 12, width: 100, alignItems: 'center' }}>
+                            {/* {publishLoading ? */}
+                              {/* <LottieView source={threeDotLoader} autoPlay={publishLoading} loop={publishLoading} style={{ width: 30, height: 15 }} /> */}
+                               <Text style={{ color: Colors.darkWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12 }}>Unpublish</Text>
+                            {/* } */}
+                          </Touchable>
+                        </View>
+                      </View>
+                  :<View>
                       <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2 }}>
                         Are you sure you want to share this note?
                       </Text>
@@ -507,48 +550,10 @@ export default forwardRef(({
                         </Text>
                       </View>
                     </View>
-                    : isPublished == null ?
-                      <View style={{ width: screenWidth / 1.2 }}>
-                        <View style={[styles.row]}>
-                          <SvgXml xml={CreateModalSvg.unlock} />
-                          <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2, marginLeft: 8, width: screenWidth / 1.2 }}>
-                            Your note is now private
-                          </Text>
-                        </View>
-                        <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
-                          <Touchable activeOpacity={0.5} onPress={onPrivateOk} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16 }}>
-                            <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12, marginLeft: 4 }}>Ok</Text>
-                          </Touchable>
-                        </View>
-                      </View>
-                      : <View style={{ width: screenWidth / 1.2 }}>
-                        <View style={[styles.row]}>
-                          <SvgXml xml={CreateModalSvg.unlock} />
-                          <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2, marginLeft: 8, width: screenWidth / 1.2 }}>
-                            Your shareable link is ready
-                          </Text>
-                        </View>
-                        <Text onPress={() => wb.openBrowserAsync(MAIN_URL + '/s/' + note?.public_slug)} suppressHighlighting style={{ fontSize: 14, fontFamily: 'Primary', color: Colors.primary, textDecorationLine: 'underline', marginTop: 4, width: screenWidth / 1.2 }}>
-                          {MAIN_URL + '/s/' + note?.public_slug}
-                        </Text>
-                        <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
-                          <Touchable activeOpacity={0.5} onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, width: 100, alignItems: 'center' }}>
-                            <View style={styles.row}>
-                              <SvgXml xml={CreateModalSvg.publishCopy} />
-                              <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12, marginLeft: 4 }}>{'Copy link'}</Text>
-                            </View>
-                          </Touchable>
-                          <Touchable disabled={publishLoading} activeOpacity={0.5} onPress={togglePublish} style={{ backgroundColor: Colors.darkWithOpacity(0.05), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, marginLeft: 12, width: 100, alignItems: 'center' }}>
-                            {publishLoading ?
-                              <LottieView source={threeDotLoader2} autoPlay loop style={{ width: 30, height: 15 }} />
-                              : <Text style={{ color: Colors.darkWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12 }}>Unpublish</Text>
-                            }
-                          </Touchable>
-                        </View>
-                      </View>}
+                  }
                 </MenuItem>
               </Menu>
-                :  */}
+                : 
                 
                 
                 <PublishedModal 
@@ -562,7 +567,7 @@ export default forwardRef(({
                   setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
                   hideModal={() => setShareVisible(false)} 
                 />
-                {/* } */}
+                }
 
 
 
@@ -611,6 +616,7 @@ export default forwardRef(({
           onUploadRetry={onUploadRetry}
           setExpand={setExpand}
           expand={expand}
+          hashFilter={hashFilter}
         />}
     </View>
   );

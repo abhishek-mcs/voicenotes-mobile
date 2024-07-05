@@ -28,7 +28,7 @@ export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
-    const [editNote,setEditNote] = useState<any>(recordingList[params?.index])
+    const [editNote,setEditNote] = useState<any>(JSON.parse(params?.note))
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
