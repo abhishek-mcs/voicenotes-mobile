@@ -149,6 +149,10 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    if (recEnabled){
+      console.log('Recording already started.');
+      return;
+    }
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
