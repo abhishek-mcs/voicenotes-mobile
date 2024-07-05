@@ -1,8 +1,8 @@
 import { FlatList } from "react-native";
-import NotePreview from "./note-preview";
 import { useEffect, useState } from "react";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { Audio } from "expo-av";
+import SubnotePreview from "./subnote-preview";
 
 interface Props {
     list: any[]
@@ -34,7 +34,7 @@ export default ({list=[],onUploadRetry,expand,setExpand}:Props)=>{
         scrollEnabled={false}
         keyExtractor={(itm, i):any => `${itm?.id + "-" + i?.toString()}`}
         renderItem={({item,index})=>(
-            <NotePreview
+            <SubnotePreview
                 note={item}
                 index={index}
                 list={list}
