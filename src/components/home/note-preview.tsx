@@ -300,7 +300,7 @@ export default forwardRef(({
 
   const onExpand = async () => {
     LayoutAnimation.configureNext({
-      duration: 120,
+      duration: 150,
       create: {
         type: LayoutAnimation.Types.linear,
         property: LayoutAnimation.Properties.opacity,

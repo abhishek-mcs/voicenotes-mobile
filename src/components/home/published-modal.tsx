@@ -25,7 +25,6 @@ export default ({
   isNoteJustMadePrivate = false,
   setIsNoteJustMadePrivte = () => {},
 }: PublishModalProps) => {
-  console.log({ isLoading, slug });
 
   const [copy, setCopy] = useState(false);
   const onCopy = async () => {
