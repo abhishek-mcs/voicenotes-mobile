@@ -2,15 +2,16 @@ import { FlatList } from "react-native";
 import { useEffect, useState } from "react";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { Audio } from "expo-av";
-import SubnotePreview from "./subnote-preview";
+import NotePreview from "./note-preview";
 
 interface Props {
     list: any[]
     onUploadRetry:()=>void
     expand:any
     setExpand:(val:any)=>void
+    hashFilter:string
 }
-export default ({list=[],onUploadRetry,expand,setExpand}:Props)=>{
+export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
     const [expandNote,setExpandNote]=useState(-1)
     const [isPlay,setIsPlay]=useState(-1)
     const [audioLoading,setAudioLoading]=useState(-1)
@@ -34,7 +35,7 @@ export default ({list=[],onUploadRetry,expand,setExpand}:Props)=>{
         scrollEnabled={false}
         keyExtractor={(itm, i):any => `${itm?.id + "-" + i?.toString()}`}
         renderItem={({item,index})=>(
-            <SubnotePreview
+            <NotePreview
                 note={item}
                 index={index}
                 list={list}
@@ -48,6 +49,7 @@ export default ({list=[],onUploadRetry,expand,setExpand}:Props)=>{
                 expand={expandNote}
                 isSubnote={true}
                 setExpand={()=>onExpand(index)}
+                hashFilter={hashFilter}
                 />
         )}
       />
