@@ -64,6 +64,17 @@ final class ContentViewModel: ObservableObject {
     setupLoadAnimation()
   }
   
+  private func checkAppGroup() {
+    let sharedUserDefaults = UserDefaults(suiteName: "group.watchOS.storage")
+    if let token = sharedUserDefaults?.string(forKey: "token_key") {
+        print("Token: \(token)")
+      self.keychain.set(token, forKey: KeychainKeys.accessToken)
+      self.updateTokenValidation()
+    } else {
+        print("No token found")
+    }
+  }
+  
   func update(context: ModelContext, recordings: [RecordingDataModel]) {
     self.context = context
     self.recordingsData = recordings
@@ -313,7 +324,10 @@ final class ContentViewModel: ObservableObject {
   }
   
   func updateTokenValidation() {
-    guard keychain.get(KeychainKeys.accessToken) != nil else { return }
+    guard keychain.get(KeychainKeys.accessToken) != nil else {
+      checkAppGroup()
+      return
+    }
     getUserData()
     getAllRecordings(page: listPage)
     withAnimation {

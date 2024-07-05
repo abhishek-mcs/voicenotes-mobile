@@ -4,7 +4,17 @@ import * as Device from "expo-device"
 import * as Application from "expo-application"
 import { getReachability, getIsPaired, getIsWatchAppInstalled, sendMessage, watchEvents } from 'react-native-watch-connectivity';
 import { isIOS } from "utils/common";
-import { NativeModules } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeModules } from 'react-native';
+
+const setAppGroupValue = async (key: string, value: string) => {
+  try {
+    await NativeModules.AppGroupModule.setValueInAppGroup(key, value);
+  } catch (error) {
+    console.error('Error setting value in App Group:', error);
+  }
+};
+
 
 const axiosApi = axios.create({
   baseURL: `${API_URL}/api`,
@@ -65,6 +75,11 @@ export function setAuthToken(token: string | void, isGuest: boolean, netInfo: an
       sendTokenToWatch(token);
     }
   });
+
+  if (typeof token === 'string') {
+    console.log("set token to AppGroup");
+    setAppGroupValue('token_key', token);
+  }
 
   if (!isGuest && token) {
     axiosApi.defaults.baseURL = `${API_URL}/api`;
