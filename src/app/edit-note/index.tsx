@@ -43,7 +43,7 @@ export default () => {
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
     const temp={...editNote};
 
-    const htmlTranscript = editNote.transcript.replace(/\n/g, '<br/>');
+    const htmlTranscript = editNote.transcript.replaceAll(/\n/g, '<br/>');
 
     await saveEditedNote.mutateAsync(
       {title:editNote?.title,transcript: htmlTranscript ,tags:tags||[]},{
@@ -100,7 +100,7 @@ export default () => {
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote.transcript.replace(/<br\/>/g, '')} 
+      value={editNote.transcript.replaceAll(/<br\/?>/g, '\n')} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
   </View>
           </KeyboardAvoidingView>
