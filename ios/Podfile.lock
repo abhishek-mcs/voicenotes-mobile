@@ -3,9 +3,9 @@ PODS:
   - DoubleConversion (1.1.6)
   - EASClient (0.11.2):
     - ExpoModulesCore
-  - EXApplication (5.8.4):
+  - EXApplication (5.8.3):
     - ExpoModulesCore
-  - EXAV (13.10.6):
+  - EXAV (13.10.5):
     - ExpoModulesCore
     - ReactCommon/turbomodule/core
   - EXConstants (15.4.5):
@@ -15,17 +15,17 @@ PODS:
   - EXJSONUtils (0.12.3)
   - EXManifests (0.13.2):
     - ExpoModulesCore
-  - Expo (50.0.19):
+  - Expo (50.0.15):
     - ExpoModulesCore
-  - expo-dev-client (3.3.12):
+  - expo-dev-client (3.3.11):
     - EXManifests
     - expo-dev-launcher
     - expo-dev-menu
     - expo-dev-menu-interface
     - EXUpdatesInterface
-  - expo-dev-launcher (3.6.10):
+  - expo-dev-launcher (3.6.9):
     - EXManifests
-    - expo-dev-launcher/Main (= 3.6.10)
+    - expo-dev-launcher/Main (= 3.6.9)
     - expo-dev-menu
     - expo-dev-menu-interface
     - ExpoModulesCore
@@ -34,7 +34,7 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - React-RCTAppDelegate
-  - expo-dev-launcher/Main (3.6.10):
+  - expo-dev-launcher/Main (3.6.9):
     - EXManifests
     - expo-dev-launcher/Unsafe
     - expo-dev-menu
@@ -45,7 +45,7 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - React-RCTAppDelegate
-  - expo-dev-launcher/Unsafe (3.6.10):
+  - expo-dev-launcher/Unsafe (3.6.9):
     - EXManifests
     - expo-dev-menu
     - expo-dev-menu-interface
@@ -92,13 +92,13 @@ PODS:
     - ExpoModulesCore
   - ExpoCrypto (12.8.1):
     - ExpoModulesCore
-  - ExpoDevice (5.9.4):
+  - ExpoDevice (5.9.3):
     - ExpoModulesCore
-  - ExpoFileSystem (16.0.9):
+  - ExpoFileSystem (16.0.8):
     - ExpoModulesCore
   - ExpoHaptics (12.8.1):
     - ExpoModulesCore
-  - ExpoHead (3.4.10):
+  - ExpoHead (3.4.8):
     - ExpoModulesCore
   - ExpoKeepAwake (12.8.2):
     - ExpoModulesCore
@@ -109,17 +109,17 @@ PODS:
     - React-NativeModulesApple
     - React-RCTAppDelegate
     - ReactCommon/turbomodule/core
-  - ExpoSystemUI (2.9.4):
+  - ExpoSystemUI (2.9.3):
     - ExpoModulesCore
   - ExpoWebBrowser (12.8.2):
     - ExpoModulesCore
-  - EXSplashScreen (0.26.5):
+  - EXSplashScreen (0.26.4):
     - ExpoModulesCore
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - EXStructuredHeaders (3.7.2)
-  - EXUpdates (0.24.13):
+  - EXUpdates (0.24.12):
     - EASClient
     - EXManifests
     - ExpoModulesCore
@@ -1320,8 +1320,6 @@ PODS:
     - React-Core
   - RNSVG (14.1.0):
     - React-Core
-  - RNWatch (1.1.0):
-    - React
   - SocketRocket (0.6.1)
   - sqlite3 (3.42.0):
     - sqlite3/common (= 3.42.0)
@@ -1420,7 +1418,6 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1621,8 +1618,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNWatch:
-    :path: "../node_modules/react-native-watch-connectivity"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1630,32 +1625,32 @@ SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   EASClient: a42ee8bf36c93b3128352faf2ae49405ab4f80bd
-  EXApplication: 16bcea16789221bd566e64b5ea2608cf7756b005
-  EXAV: e4f6137431ddc4cb025895046bfefa9612025c35
+  EXApplication: 137189a3f149b4e8e546884629392c3efc94cbd3
+  EXAV: 07e50f934907fa8274dd06fbcd20ee4b9478c619
   EXConstants: 988aa430ca0f76b43cd46b66e7fae3287f9cc2fc
   EXFont: f20669cb266ef48b004f1eb1f2b20db96cd1df9f
   EXJSONUtils: 5c42959e87be238b045ef37cc5268b16a6c0ad4a
   EXManifests: 5e8c29f36c716af768a4ea47ec05e1b89ab93091
-  Expo: ad8bce0c0fc557cae703cc8dbce73d61a90ab5c5
-  expo-dev-client: f22fdebdb8760bc22f660b7c0cb1dd58d80005c0
-  expo-dev-launcher: 11c184a2dca65f9bd6dc575a73a554b7be589d1d
+  Expo: 0f04015e4254c8b7c74f3c4b2facdfd0b62152b0
+  expo-dev-client: 29a32387346fe7b6d2a57918fae985bc48bfe9a2
+  expo-dev-launcher: 957d62f7ec983d02091c97fca9ac73c115b54f77
   expo-dev-menu: 68ea53d923996e27b20ce02b51cc820fc2327a83
   expo-dev-menu-interface: 7ba029c9d1a82ac22b9b584c00514860b060553e
   ExpoAppleAuthentication: 4fc9972356977f009911f2f3a5f56319c2a5b11b
   ExpoBlur: e832d874bd94afc0645daddbd3162ec1ce172080
   ExpoClipboard: b597982124f067ff9f5b89093eb3d97898d5d877
   ExpoCrypto: b6428f48599c007676dc81a9b5f72c07e62fdccc
-  ExpoDevice: 97307196d8cab694e245752b8a7afacc35c14e03
-  ExpoFileSystem: 74cc0fae916f9f044248433971dcfc8c3befd057
+  ExpoDevice: d204395e17fffdcefa7470bdef33b07719ac41b1
+  ExpoFileSystem: eecaf6796aed0f4dd20042dc2ca2cac6c4bc1185
   ExpoHaptics: 28a771b630353cd6e8dcf1b1e3e693e38ad7c3c3
-  ExpoHead: 89ffd324e60520751c2c285233fe45e875c91874
+  ExpoHead: 8224345e80abcf4c97b31c99805dd5a3c8d3404d
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
   ExpoModulesCore: 370096473359f5f6aade0871400d063333747719
-  ExpoSystemUI: 735278045c1a28de0018a300bb5abb3f9090652b
+  ExpoSystemUI: 40e222dd9d52222fe1bce389724ac52e662158dc
   ExpoWebBrowser: e31c97230ea93b51a2a74c6c2381b0d4fca5698c
-  EXSplashScreen: 0fabdcf746d29e7f8b8969879cb09125cdd365d2
+  EXSplashScreen: 6bd596128cd52fac91997ebc64f3d394c843a8f9
   EXStructuredHeaders: 5b0f47259db047dc1fdfa84752e292c2bfa68ecd
-  EXUpdates: 4aa99ef9610e0d6fbf80d7f2b3f169b527f24a1d
+  EXUpdates: 17e26679a93e626b0ae3ebbff966cd7021413a0a
   EXUpdatesInterface: 3e444e2093e25b7ca0999a7d8c16e8392dee70c3
   FBLazyVector: f64d1e2ea739b4d8f7e4740cde18089cd97fe864
   FBReactNativeSpec: 9f2b8b243131565335437dba74923a8d3015e780
@@ -1730,7 +1725,6 @@ SPEC CHECKSUMS:
   RNReanimated: 41963a348e738c496a9b129bba9a9217017cd530
   RNScreens: a4d9ce8f68f833f4e42410140eafd88e38bba163
   RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
-  RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   sqlite3: f163dbbb7aa3339ad8fc622782c2d9d7b72f7e9c
   Yoga: 805bf71192903b20fc14babe48080582fee65a80
