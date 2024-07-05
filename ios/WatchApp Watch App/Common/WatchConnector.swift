@@ -20,7 +20,7 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
         self.session = session
         super.init()
         self.session.delegate = self
-        session.activate()
+        self.session.activate()
     }
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: (any Error)?) {

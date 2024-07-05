@@ -245,6 +245,7 @@ struct ContentView: View {
       .cornerRadius(.infinity)
       .onTapGesture {
         withAnimation {
+//          viewModel.deleteToken()
           viewModel.showRecordView = true
           viewModel.recordAudioViewModel.recordButtonTapped()
         }
