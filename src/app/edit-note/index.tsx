@@ -72,7 +72,7 @@ export default () => {
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-          <KeyboardAvoidingView behavior="padding">
+          <KeyboardAvoidingView behavior="padding" style={{marginBottom:200}} >
           <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?16:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
@@ -121,11 +121,11 @@ const styles=StyleSheet.create({
     lineHeight: 28,
     fontWeight: "500",
     color:Colors.darkWithOpacity(1),
+    marginBottom: 6,
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingTop: 6,
-    paddingBottom:10,
+    paddingBottom:60,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,

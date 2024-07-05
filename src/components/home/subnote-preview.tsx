@@ -1,11 +1,11 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Alert, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Alert, LayoutAnimation, StyleSheet, Text, TextInput, TouchableHighlight, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
-import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Audio } from "expo-av";
 import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useGetAiCreation, useRecordings, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
 import { useQueryClient } from "react-query";
@@ -24,12 +24,13 @@ import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import * as wb from 'expo-web-browser';
 import PublishedModal from "./published-modal";
-import { deleteFromTempRecordings, setTempRecordings } from "redux/reducers/recordingStates";
+import { deleteFromTempRecordings, setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-import Subnote from "./subnote";
+import MoreOptions from "components/common/more-options";
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import creationContent from "utils/constants/creation-content";
 import { useNetInfo } from "@react-native-community/netinfo";
 import LottieView from "lottie-react-native";
@@ -158,10 +159,9 @@ export default forwardRef(({
   }
 
   const onUnpublish=()=>{
-    try{
     moreOption&&hideMoreOption();
     setPublishLoading(true)
-    unPublishRecording.mutate({id:note?.id},{
+    unPublishRecording.mutateAsync({id:note?.id},{
       onSuccess:async(r)=>{
         try{
           setShareVisible(false)
@@ -174,9 +174,6 @@ export default forwardRef(({
         }catch{}
       }
     })
-  }catch(e){
-      console.log(e)
-    }
   }
 
   const onPrivateOk=()=>{
@@ -341,7 +338,7 @@ export default forwardRef(({
              <Text style={[styles.text,{color:Colors.grey3,fontFamily:'Primary-Italic',width:screenWidth/1.3}]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
             </View>}
           {((!note?.transcript&&note?.title)||transcriptLoading)?<AiLoader text={`Creating transcript from your voice`} style={{marginTop:0}} size={14}/>
-          :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
+          :!!note?.transcript&&<ChatBuble lines={expand==index?10000:4} style={styles.text} message={note?.transcript?.replace(/<br\/>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={()=>setTriggerTypingTranscript(0)}/>}
           <TagsList note={note} onPress={(tag:any)=>dispatch(setTagsFilter(tag?.name))} />
       {expand==index&&<>
       {!hideIcons&&note?.transcript!=null&&!note?.isUploading&&
@@ -512,12 +509,12 @@ export default forwardRef(({
               Are you sure you want to share this note?
             </Text>
             <View style={{marginVertical:12,flexDirection:'row',alignItems:'center'}}>
-            <Touchable disabled={publishLoading} activeOpacity={0.5} onPress={onUnpublish} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,width:60,alignItems:'center'}}>
+            <Touchable activeOpacity={0.5} onPress={onUnpublish} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,width:60,alignItems:'center'}}>
               {publishLoading?
               <LottieView source={threeDotLoader2} autoPlay loop style={{width:30,height:15}}/>
               :<Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>Yes</Text>}
             </Touchable>
-            <Touchable activeOpacity={0.5} onPress={()=>{setShareVisible(false);setPublishLoading(false)}} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12,width:60,alignItems:'center'}}>
+            <Touchable activeOpacity={0.5} onPress={()=>setShareVisible(false)} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12,width:60,alignItems:'center'}}>
               <Text style={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>No</Text>
             </Touchable>
             </View>
@@ -553,15 +550,15 @@ export default forwardRef(({
             {MAIN_URL+'/s/'+note?.public_slug}
             </Text>
             <View style={{marginTop:12,flexDirection:'row',alignItems:'center'}}>
-            <Touchable activeOpacity={0.5} onPress={()=>onCopy(MAIN_URL+'/s/'+note?.public_slug)} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,width:100,alignItems:'center'}}>
+            <Touchable activeOpacity={0.5} onPress={()=>onCopy(MAIN_URL+'/s/'+note?.public_slug)} style={{backgroundColor:Colors.darkWithOpacity(1),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16}}>
               <View style={styles.row}>
             <SvgXml xml={CreateModalSvg.publishCopy} />
               <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12,marginLeft:4}}>{'Copy link'}</Text>
               </View>
             </Touchable>
-            <Touchable disabled={publishLoading} activeOpacity={0.5} onPress={onUnpublish} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12,width:100,alignItems:'center'}}>
+            <Touchable activeOpacity={0.5} onPress={onUnpublish} style={{backgroundColor:Colors.darkWithOpacity(0.05),alignSelf:'flex-start',borderRadius:12,padding:12,paddingHorizontal:16,marginLeft:12}}>
               {publishLoading?
-                <LottieView source={threeDotLoader2} autoPlay loop style={{width:30,height:15}}/>
+                <LottieView source={threeDotLoader2} autoPlay loop/>
                 :<Text style={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:12}}>Unpublish</Text>
                 }
             </Touchable>
@@ -570,7 +567,7 @@ export default forwardRef(({
         </MenuItem>
         </Menu>
         :<PublishedModal slug={note?.public_slug} visible={shareVisible} isPublished={isPublished} onPressCancel={()=>setShareVisible(false)} onPressDone={onUnpublish} hideModal={()=>setShareVisible(false)} />}
-      {((note?.transcript==null&&note?.isUploading==undefined)||isUploadingFailed)&&
+      {(note?.transcript==null||isUploadingFailed)&&
       <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
         {NetInfo.isConnected&&
         <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload}/>}
@@ -606,13 +603,6 @@ export default forwardRef(({
         </View>
       </View>
       </Touchable>
-        {note?.subnotes?.length>0&&
-        <Subnote
-          list={note?.subnotes}
-          onUploadRetry={onUploadRetry}
-          setExpand={setExpand}
-          expand={expand}
-          />}
     </View>
   );
 });

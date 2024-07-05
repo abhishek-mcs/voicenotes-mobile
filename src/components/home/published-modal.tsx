@@ -31,7 +31,7 @@ export default ({visible,hideModal=()=>{},isPublished=false,slug='',onPressDone=
           useNativeDriverForBackdrop
           backdropTransitionInTiming={500}
           backdropTransitionOutTiming={500}
-          // style={{flex:1}}
+          statusBarTranslucent
           backdropOpacity={0.3}
           >
           <View style={{padding:16,backgroundColor:Colors.whiteWithOpacity(1),borderRadius:12,shadowColor:'rgba(0,0,0,0.5)'}}>
