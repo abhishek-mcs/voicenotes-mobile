@@ -1108,7 +1108,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WatchApp-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = WatchApp;
+				INFOPLIST_KEY_CFBundleDisplayName = Voicenotes;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To enhance your experience, Voicenotes requires access to your microphone. This enables seamless recording of audio notes, which are then automatically transcribed into text.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.voicenotes;
@@ -1160,7 +1160,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WatchApp-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = WatchApp;
+				INFOPLIST_KEY_CFBundleDisplayName = Voicenotes;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To enhance your experience, Voicenotes requires access to your microphone. This enables seamless recording of audio notes, which are then automatically transcribed into text.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.voicenotes;

@@ -38,6 +38,9 @@ struct AskAIChatView: View {
         }
       }
     }
+    .onDisappear {
+      viewModel.activateAskAiButton()
+    }
   }
   
   @ViewBuilder
