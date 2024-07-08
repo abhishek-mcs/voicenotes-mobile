@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Alert, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Alert, Animated, LayoutAnimation, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
@@ -62,6 +62,7 @@ export default forwardRef(({
   const [createType, setCreateType] = useState('summary')
   const [relatedNoteLoading, setRelatedNoteLoading] = useState(false)
   const [titleLoading, setTitleLoading] = useState(false)
+  const [uploadLoading, setUploadLoading] = useState(false)
   const [transcriptLoading, setTranscriptLoading] = useState(false)
   const dispatch = useDispatch()
 
@@ -144,11 +145,13 @@ export default forwardRef(({
 
   const onRetry = async () => {
     if (isUploadingFailed) {
+      setUploadLoading(true)
       await onUploadRetry(note).catch(() => {
         const temp = [...tempRecordings]
-        temp[index] = { ...temp[index], isUploading: false }
+        temp[index] = { ...temp[index], isUploading: false, is_error: false}
         dispatch(setTempRecordings([...temp]))
       })
+      setUploadLoading(false)
     } else {
       note.transcript = ''
       note.title = null
@@ -302,6 +305,8 @@ export default forwardRef(({
 
   const creationList = useMemo(() => note?.creations, [list])
 
+  const opacity = new Animated.Value(0);
+
   const onExpand = async () => {
     LayoutAnimation.configureNext({
       duration: 150,
@@ -328,6 +333,16 @@ export default forwardRef(({
     }
   }
 
+  useEffect(()=>{
+    if(expand>-1){
+      Animated.timing(opacity,{
+        duration:270,
+        toValue:1,
+        useNativeDriver:true
+      }).start()
+    }
+  },[expand])
+
   const slug = note.public_slug || ""
   return (
     <View>
@@ -349,18 +364,19 @@ export default forwardRef(({
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
               <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />
               // </Touchable>
-              : isUploadingFailed ? <Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
+              : isUploadingFailed ?note?.is_error? <Text style={[styles.title, { color: '#ff4538' }]}>{note?.error||''}</Text>
+                  :<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
                 : note?.transcript === null ? <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
                   : <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
             }
-            {isUploadingFailed &&
+            {isUploadingFailed && !note?.is_error &&
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 <SvgXml xml={home.wait} style={{ marginTop: 8, marginRight: 8 }} />
                 <Text style={[styles.text, { color: Colors.grey3, fontFamily: 'Primary-Italic', width: screenWidth / 1.3 }]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
               </View>}
             {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
               : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
-            <TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} />
+            <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
                 <ScrollView
@@ -576,7 +592,7 @@ export default forwardRef(({
               {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
                   {NetInfo.isConnected &&
-                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} />}
+                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading} />}
                   <NoteButtons text="Delete" onPress={onDelete} icon={home.delete} />
                 </View>}
               {/* related notes */}

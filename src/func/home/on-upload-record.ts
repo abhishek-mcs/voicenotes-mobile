@@ -22,9 +22,11 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
             });
             resolve('success');
           },
-          onError:(e)=>{
-            console.log('error upload failed', e)
-            const dump={isUploading:false,audio:{data:{url:file,duration:d}}}  
+          onError:(e:any)=>{
+            let dump:any={isUploading:false,audio:{data:{url:file,duration:d}}}  
+            if(e?.response?.data?.error_code=='ffmpeg_conversion_failed'){
+              dump={isUploading:false,is_error:true,error:e?.response?.data?.message??'Recorded audio is corrupted. Upload failed!',audio:{data:{url:file,duration:d}}}  
+            }
             const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!==file)??[]
             setGenerateDummy(!!generateDummy?[dump,...filterDummy]:[dump])
             setUploading(0)

@@ -204,7 +204,7 @@ export default ()=> {
           setGenerateDummy([...temp]);
           setUploading(prevUploading => prevUploading - 1);
         } catch (error) {
-          console.error(`Upload failed for item ${i}:`, error);
+          console.log(`Upload failed for item ${i}:`, error);
           temp[i] = { ...temp[i], isUploading: false };
           setGenerateDummy([...temp]);
         }
