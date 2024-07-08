@@ -479,7 +479,7 @@ export default forwardRef(({
                           </MenuItem>
                           {!!token && <MenuItem style={styles.menuItem} onPress={onDelete}>
                             <View style={styles.row}>
-                              <SvgXml xml={home.delete} style={{marginLeft: 2}} />
+                              <SvgXml xml={home.deleteGrey} style={{marginLeft: 2}} />
                               <Text style={styles.menuItemTxt}>Delete</Text>
                             </View>
                           </MenuItem>}
