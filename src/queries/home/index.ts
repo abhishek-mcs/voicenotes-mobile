@@ -77,10 +77,11 @@ export function useUploadRecord(){
     },
     {
         onError:(error:any)=>{
-            if (error?.response?.data?.message?.includes('Recording audio upload Failed!')) {
-                console.log("Corrupted");
+            if(error?.response?.data?.error_code==="ffmpeg_conversion_failed"){
+                console.log("Corrupted audio");
+            }else{
+                console.error('Error in upload audio api: ', error);
             }
-            console.error('upload audio api', error);
         }
     })
 }

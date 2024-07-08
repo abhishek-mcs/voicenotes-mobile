@@ -88,8 +88,6 @@ export const stopRecording = async (recording: Audio.Recording ) => {
   try {
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
-    console.log("URI =  ", uri);
-    
     return uri
 
   } catch (error) {

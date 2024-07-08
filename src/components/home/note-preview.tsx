@@ -590,10 +590,10 @@ export default forwardRef(({
 
 
               {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                  {NetInfo.isConnected &&
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
+                  {NetInfo.isConnected && !note.is_error &&
                     <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading} />}
-                  <NoteButtons text="Delete" onPress={onDelete} icon={home.delete} />
+                  <NoteButtons style={note.is_error ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
                 </View>}
               {/* related notes */}
               {(!!note?.transcript && (note?.related_notes?.length > 0 || relatedNoteLoading)) &&
