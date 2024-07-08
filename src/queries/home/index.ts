@@ -169,7 +169,7 @@ export function useGetAiCreation(){
     })
 }
 
-export function useAddTranscript(doGenerateTitle=false){
+export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setReduxRecordingList:any=()=>{}){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()
     const addRelatedNotes=useGetRelatedRecording()
@@ -184,7 +184,13 @@ export function useAddTranscript(doGenerateTitle=false){
     {
         onSuccess:async()=>{
             await queryC.invalidateQueries('all-recording')
-            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id,{
+                onError:(error:any)=>{
+                    const index=recordingList?.findIndex((r:any)=>r.id==rec_id)
+                    recordingList[index].title=null;
+                    setReduxRecordingList([...recordingList])
+                }
+            })
             doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
