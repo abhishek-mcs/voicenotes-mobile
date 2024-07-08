@@ -562,7 +562,8 @@ const styles = StyleSheet.create({
     width: "80%",
     lineHeight: 24,
     paddingTop:isIOS?13:16,
-    paddingBottom:16
+    paddingBottom:16,
+    minHeight:24
   },
   inputContainer: {
     minHeight: 60,

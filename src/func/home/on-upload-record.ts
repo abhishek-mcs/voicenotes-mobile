@@ -5,6 +5,13 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
         {
           onSuccess: async(r:any) => {
             await queryClient.invalidateQueries('all-recording');
+            await addTranscriptRecord.mutateAsync(r?.data?.recording?.id,{
+              onError:()=>{
+                const index=recordingList?.findIndex((r:any)=>r.id==r?.data?.recording_id)
+                recordingList[index].transcript=null;
+                setReduxRecordingList([...recordingList])
+              }
+            }).catch(()=>{});
             dispatchCanRecord(r?.data?.can_record_more??true)
             if(!!generateDummy){
               const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!=file)
@@ -13,13 +20,6 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
             }else{
               setGenerateDummy(null)
             }
-            scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-            addTranscriptRecord.mutate(r?.data?.recording?.id,{
-              onError:()=>{
-                recordingList[0].transcript=null;
-                setReduxRecordingList([...recordingList])
-              }
-            });
             resolve('success');
           },
           onError:(e:any)=>{

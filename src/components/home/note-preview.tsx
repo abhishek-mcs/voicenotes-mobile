@@ -305,7 +305,8 @@ export default forwardRef(({
 
   const creationList = useMemo(() => note?.creations, [list])
 
-  const opacity = new Animated.Value(0);
+  const isLongTranscript=!!note?.transcript&&note?.transcript?.length>520?true:false
+  let opacity = new Animated.Value(1);
 
   const onExpand = async () => {
     LayoutAnimation.configureNext({
@@ -334,7 +335,8 @@ export default forwardRef(({
   }
 
   useEffect(()=>{
-    if(expand>-1){
+    if(expand>-1&&isLongTranscript){
+      opacity.setValue(0)
       Animated.timing(opacity,{
         duration:270,
         toValue:1,
@@ -379,10 +381,7 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
+                <View style={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, position: 'relative',flexWrap:'wrap',rowGap:8 }]}>
                   {hashFilter != 'shared' &&
                     <>
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
@@ -496,7 +495,7 @@ export default forwardRef(({
                         </>
                         }
                     </Menu>}
-                </ScrollView>}
+                </View>}
               {isIOS ? <Menu
                 visible={shareVisible}
                 anchor={null}
@@ -677,7 +676,7 @@ const styles = StyleSheet.create({
     color: "rgba(34, 34, 34, 0.9)",
     lineHeight: isIOS ? 23 : 22,
     marginTop: 4,
-    marginLeft: -3
+    marginLeft: 0
   },
   menu: {
     borderRadius: 12,
