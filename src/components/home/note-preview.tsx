@@ -397,12 +397,12 @@ export default forwardRef(({
                         //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
                         //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
                         //     ]}>
-                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>
+                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create}/>
                         // </MoreOptions>
                         // :
                         <Menu
                           visible={createOption}
-                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1} />}
+                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
                           onRequestClose={hideCreateOption}
                           style={styles.menu}
                           animationDuration={150}
