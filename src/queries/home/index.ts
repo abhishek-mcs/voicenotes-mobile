@@ -3,6 +3,10 @@ import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
 import { useGetRelatedRecording } from "./relatedNote";
+import { Platform } from "react-native";
+import * as Device from 'expo-device';
+import * as Application from 'expo-application';
+
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -70,7 +74,17 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
+        const deviceInfo = {
+            platform: Platform.OS,
+            manufacturer: Device.manufacturer ,
+            modelName: Device.modelName ,
+            deviceType: Device.deviceType === null? null: Device.DeviceType[Device.deviceType],
+            osVersion: Device.osVersion,
+            appVersion:  Application.nativeApplicationVersion
+        }
+
         formData.append("duration", data.duration.toString());
+        formData.append("device-info",deviceInfo.toString());
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })
