@@ -35,6 +35,8 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import LottieView from "lottie-react-native";
 import threeDotLoader from 'assets/lottie/threeDotLoader.json'
 import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
+import { Foundation } from '@expo/vector-icons';
+import { addMenu } from "assets/svg/AddMenu";
 
 export default forwardRef(({
   note,
@@ -396,26 +398,26 @@ export default forwardRef(({
                     <>
                     <Menu
                           visible={showAddMenu}
-                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={home.create1} />}
+                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
                           onRequestClose={closeAddMenu}
                           style={styles.menu}
                           animationDuration={150}
                         >
                           <MenuItem style={styles.menuItem} onPress={onThreadNote}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
-                              <SvgXml xml={CreateModalSvg.summary} />
+                              <Foundation name="record" size={24} color="red" />
                               <Text style={styles.menuItemTxt}>Thread a Note</Text>
                             </View>
                           </MenuItem>
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
-                              <SvgXml xml={CreateModalSvg.summary} />
+                              <SvgXml xml={addMenu.camera} />
                               <Text style={styles.menuItemTxt}>Photos</Text>
                             </View>
                           </MenuItem>
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
-                              <SvgXml xml={CreateModalSvg.summary} />
+                              <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
                               <Text style={styles.menuItemTxt}>Link</Text>
                             </View>
                           </MenuItem>
