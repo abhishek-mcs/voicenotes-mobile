@@ -127,21 +127,21 @@ export default forwardRef(({
     })
   }
 
-  const onGenerateTitle = useCallback(async () => {
+  const onGenerateTitle = async () => {
     setTitleLoading(true)
     hideMoreOption();
-    // dispatch(updateTitle({title:null,index}))
+    // dispatch(updateTitle({title:'',index}))
     await addTitleRecord.mutateAsync(note?.id)
     setTitleLoading(false)
-  }, [note])
+  }
 
-  const onReGenerateTranscript = useCallback(async () => {
+  const onReGenerateTranscript = async () => {
     setTranscriptLoading(true)
     hideMoreOption();
     // dispatch(updateTranscript({transcript:'',index}))
     await addTranscript.mutateAsync(note?.id)
     setTranscriptLoading(false)
-  }, [note])
+  }
 
   const onRetry = async () => {
     if (isUploadingFailed) {
@@ -361,7 +361,7 @@ export default forwardRef(({
             <View style={styles.timeLine} />
           </View>
           <View style={{ marginLeft: 9, flex: 1, marginTop: -3 }}>
-            {(!!note?.title && !titleLoading) ?
+            {(!!note?.title&&note?.title?.length>0&&titleLoading==false) ?
               // <Touchable onPress={()=>{
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
               <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />

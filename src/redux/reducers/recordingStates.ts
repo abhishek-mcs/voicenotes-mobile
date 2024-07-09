@@ -26,9 +26,7 @@ export const recordingStates = createSlice({
     },
     updateTitle: (state, action: PayloadAction<any>) => {
       const list = state.recordingList
-      console.log(list[action.payload?.index].title)
       list[action.payload?.index].title = action.payload?.title
-      console.log(list[action.payload?.index].title)
       state.recordingList = [...list]
     },
     updateTranscript: (state, action: PayloadAction<any>) => {
