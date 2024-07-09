@@ -127,21 +127,21 @@ export default forwardRef(({
     })
   }
 
-  const onGenerateTitle = useCallback(async () => {
+  const onGenerateTitle = async () => {
     setTitleLoading(true)
     hideMoreOption();
-    // dispatch(updateTitle({title:null,index}))
+    // dispatch(updateTitle({title:'',index}))
     await addTitleRecord.mutateAsync(note?.id)
     setTitleLoading(false)
-  }, [note])
+  }
 
-  const onReGenerateTranscript = useCallback(async () => {
+  const onReGenerateTranscript = async () => {
     setTranscriptLoading(true)
     hideMoreOption();
     // dispatch(updateTranscript({transcript:'',index}))
     await addTranscript.mutateAsync(note?.id)
     setTranscriptLoading(false)
-  }, [note])
+  }
 
   const onRetry = async () => {
     if (isUploadingFailed) {
@@ -361,7 +361,7 @@ export default forwardRef(({
             <View style={styles.timeLine} />
           </View>
           <View style={{ marginLeft: 9, flex: 1, marginTop: -3 }}>
-            {(!!note?.title && !titleLoading) ?
+            {(!!note?.title&&note?.title?.length>0&&titleLoading==false) ?
               // <Touchable onPress={()=>{
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
               <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />
@@ -381,7 +381,10 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
-                <View style={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, position: 'relative',flexWrap:'wrap',rowGap:8 }]}>
+                <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
                   {hashFilter != 'shared' &&
                     <>
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
@@ -404,7 +407,7 @@ export default forwardRef(({
                           visible={createOption}
                           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
                           onRequestClose={hideCreateOption}
-                          style={styles.menu}
+                          style={isIOS?styles.menuIOS:styles.menu}
                           animationDuration={150}
                         >
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
@@ -454,7 +457,7 @@ export default forwardRef(({
                         <NoteButtons text="More" style={hashFilter != 'shared' ? {} : { marginLeft: 0 }} onPress={showMoreOption} icon={home.more} />
                       }
                       onRequestClose={hideMoreOption}
-                      style={styles.menu}
+                      style={isIOS?styles.menuIOS:styles.menu}
                       animationDuration={150}
                     >
                       {hashFilter != 'shared' ?
@@ -495,7 +498,7 @@ export default forwardRef(({
                         </>
                         }
                     </Menu>}
-                </View>}
+                </ScrollView>}
               {isIOS ? <Menu
                 visible={shareVisible}
                 anchor={null}
@@ -680,10 +683,12 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderRadius: 12,
-    // marginTop:40,
-    // paddingVertical: 5,
     paddingBottom: 0
-    // marginLeft:10
+  },
+  menuIOS:{
+    marginTop:40,
+    borderRadius: 12,
+    paddingBottom: 0
   },
   menuPress: {
     height: 25,

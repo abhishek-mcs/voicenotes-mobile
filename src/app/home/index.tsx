@@ -112,7 +112,6 @@ export default ()=> {
     if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
       if(hashFilter!='shared'&&records?.length>0){
         records[0]?.transcript==null&&(records[0].transcript='');
-        records[0]?.title==null&&(records[0].title='');
         setReduxRecordingList(records);
       }else if(hashFilter=='shared'){
         setReduxRecordingList(records);
