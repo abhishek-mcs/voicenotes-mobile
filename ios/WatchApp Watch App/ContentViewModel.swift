@@ -247,7 +247,7 @@ final class ContentViewModel: ObservableObject {
   
   // MARK: Get User Data
 
-  func getUserData(recording: RecordingDataModel, storeToLocalStorage: Bool = true, internetCheck: Bool = false) {
+  func getUserData(recording: RecordingDataModel, internetCheck: Bool = false) {
     if !updatedNotesId.contains(where: { $0 == recording.id }) {
       updatedNotesId.append(recording.id)
     }
@@ -257,9 +257,6 @@ final class ContentViewModel: ObservableObject {
         withAnimation {
           self.noInternet = true
           self.showGotItView = true
-        }
-        if storeToLocalStorage {
-          self.context?.insert(recording)
         }
         if let index = self.recordings.firstIndex(where: { $0.id == recording.id }) {
           withAnimation {
@@ -348,10 +345,10 @@ final class ContentViewModel: ObservableObject {
     
     if noInternet {
       self.recordings[index].isCheckInternet = true
-      getUserData(recording: recording, storeToLocalStorage: false, internetCheck: true)
+      getUserData(recording: recording, internetCheck: true)
     } else {
       self.recordings[index].isUploadingAudio = true
-      getUserData(recording: recording, storeToLocalStorage: false)
+      getUserData(recording: recording)
       storeAudio(recording: recording, context: context)
     }
   }
@@ -407,6 +404,8 @@ final class ContentViewModel: ObservableObject {
       
       let listItemModel = RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: Date()), updatedAt: self.getNowStringDate(currentDate: Date()), duration: recording.duration, isPublished: nil, audioData: recording.audioData)
       self.recordings.insert(listItemModel, at: 0)
+      
+      self.context?.insert(recording)
       
       if self.noInternet {
         self.recordings[0].isCheckInternet = true
