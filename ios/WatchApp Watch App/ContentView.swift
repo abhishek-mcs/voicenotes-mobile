@@ -117,16 +117,16 @@ struct ContentView: View {
         }
       }
       
-      RecordAudioView(viewModel: viewModel.initRecordAudioViewModel(), cardShown: $viewModel.showRecordView)
-      AIRecordingView(viewModel: viewModel.initAIRecordingViewModel(), cardShown: $viewModel.showAIRecordView)
+      RecordAudioView(viewModel: viewModel.initRecordAudioViewModel(), 
+                      cardShown: $viewModel.showRecordView)
+      AIRecordingView(viewModel: viewModel.initAIRecordingViewModel(), 
+                      cardShown: $viewModel.showAIRecordView)
       
       CancelView(cardShown: $viewModel.showCancelView, aprove: { success in
         if success {
           viewModel.recordAudioViewModel.cancelRecording()
-          viewModel.aiRecordingViewModel.cancelRecording()
           withAnimation {
             viewModel.showRecordView = false
-            viewModel.showAIRecordView = false
           }
         }
       })
@@ -140,8 +140,8 @@ struct ContentView: View {
     }
     .onAppear() {
       viewModel.update(context: context, recordings: recordings)
-      viewModel.deleteRecording = { recording in
-        guard let index = recordings.firstIndex(where: { $0.id == recording.id}) else { return }
+      viewModel.deleteRecording = { recordingId in
+        guard let index = recordings.firstIndex(where: { $0.id == recordingId}) else { return }
         context.delete(recordings[index])
       }
     }

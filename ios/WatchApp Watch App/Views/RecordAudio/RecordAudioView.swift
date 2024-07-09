@@ -22,12 +22,6 @@ struct RecordAudioView: View {
         }
         .background(.black.opacity(0.7))
         .opacity(cardShown ? 1 : 0)
-//        .onTapGesture {
-//          withAnimation {
-//            viewModel.cancelRecording()
-//            self.cardShown.toggle()
-//          }
-//        }
         
         VStack {
           Spacer()
@@ -58,8 +52,15 @@ struct RecordAudioView: View {
             
             HStack(spacing: 5) {
               Button {
-                viewModel.stopRecording()
-                viewModel.cancel()
+                if viewModel.mic.audioRecorder.currentTime < 10 {
+                  viewModel.cancelRecording()
+                  withAnimation {
+                    cardShown = false
+                  }
+                } else {
+                  viewModel.stopRecording()
+                  viewModel.cancel()
+                }
               } label: {
                 Image("close")
               }

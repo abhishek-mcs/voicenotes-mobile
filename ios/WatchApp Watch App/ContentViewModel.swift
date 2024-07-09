@@ -30,7 +30,7 @@ final class ContentViewModel: ObservableObject {
   @Published var showDeleteView = false
   @Published var showGotItView = false
   @Published var recordAudioViewModel = RecordAudioViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
-  @Published var aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
+  @Published var aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: false, completion: { _, _ in })
   @Published var askAIChatViewModel = AskAIChatViewModel(audioData: Data())
   @Published var loadAnimation = Image("")
   @Published var recordingsData: [RecordingDataModel] = []
@@ -47,7 +47,7 @@ final class ContentViewModel: ObservableObject {
   var listPage = 1
   var recordingForDelete: RecordModel?
 
-  var deleteRecording: (RecordingDataModel) -> Void = { _ in }
+  var deleteRecording: (String) -> Void = { _ in }
   
   private let keychain = KeychainSwift()
   private var getResponse = false
@@ -188,16 +188,15 @@ final class ContentViewModel: ObservableObject {
       }
       
       // if aoudio is aploaded then try to delete it from local storage
-      self.deleteRecording(recording)
+      self.deleteRecording(recording.id)
       
-      self.updateRecording(recordingId: String(model.recording.recordingId), listItemId: recording.id)
+      self.updateTranscripting(recordingId: String(model.recording.recordingId), listItemId: recording.id)
     }
     .store(in: &subscriptions)
   }
   
-  func updateRecording(recordingId: String, listItemId: String) {
-    Publishers.Zip(recordingRepository.addTitle(recordingId: recordingId),
-                   recordingRepository.addTranscript(recordingId: recordingId))
+  func updateTranscripting(recordingId: String, listItemId: String) {
+    recordingRepository.addTranscript(recordingId: recordingId)
     .receive(on: DispatchQueue.main)
     .sink {
       switch $0 {
@@ -210,20 +209,44 @@ final class ContentViewModel: ObservableObject {
         }
       case .finished: break
       }
-    } receiveValue: { [weak self] value1, value2 in
+    } receiveValue: { [weak self] model in
       guard let self else { return }
-      print("Success update recording title and transcript")
-      var recording = value1.recording
-      recording.transcript = value2.recording.transcript
-      if let index = recordings.firstIndex(where: { $0.id == listItemId }) {
-        withAnimation {
-          self.recordings[index] = recording
-        }
-      }
+      print("Success update recording transcript")
+      self.updateTitle(recordingId: recordingId, listItemId: listItemId, recording: model.recording)
     }
     .store(in: &subscriptions)
   }
   
+  private func updateTitle(recordingId: String, listItemId: String, recording: RecordModel) {
+    recordingRepository.addTitle(recordingId: recordingId)
+      .receive(on: DispatchQueue.main)
+      .sink {
+        switch $0 {
+        case .failure(let error):
+          print("ERROR: \(error.localizedDescription)")
+          if let index = self.recordings.firstIndex(where: { $0.id == listItemId }) {
+            withAnimation {
+              self.recordings[index].isCreatingTranscript = false
+            }
+          }
+        case .finished: break
+        }
+      } receiveValue: { [weak self] model in
+        guard let self else { return }
+        print("Success update recording title")
+        var recording = recording
+        recording.title = model.recording.title
+        if let index = recordings.firstIndex(where: { $0.id == listItemId }) {
+          withAnimation {
+            self.recordings[index] = recording
+          }
+        }
+      }
+      .store(in: &subscriptions)
+  }
+  
+  // MARK: Get User Data
+
   func getUserData(recording: RecordingDataModel, storeToLocalStorage: Bool = true, internetCheck: Bool = false) {
     if !updatedNotesId.contains(where: { $0 == recording.id }) {
       updatedNotesId.append(recording.id)
@@ -283,26 +306,36 @@ final class ContentViewModel: ObservableObject {
   // MARK: Delete note
   
   func deleteNote() {
-    guard let deletedRecordingID = recordingForDelete?.id else { return }
-    recordingRepository.deleteRecording(recordingId: deletedRecordingID)
-      .receive(on: DispatchQueue.main)
-      .sink {
-        switch $0 {
-        case .failure(let error):
-          print("ERROR: \(error.localizedDescription)")
-        case .finished: break
+    if recordingForDelete?.audioData == nil {
+      guard let deletedRecordingID = recordingForDelete?.id else { return }
+      recordingRepository.deleteRecording(recordingId: deletedRecordingID)
+        .receive(on: DispatchQueue.main)
+        .sink {
+          switch $0 {
+          case .failure(let error):
+            print("ERROR: \(error.localizedDescription)")
+          case .finished: break
+          }
+        } receiveValue: { [weak self] _ in
+          guard let self else { return }
+          
+          if let index = recordings.firstIndex(where: { $0.id == deletedRecordingID }) {
+            recordings.remove(at: index)
+          }
+          recordingForDelete = nil
         }
-      } receiveValue: { [weak self] _ in
-        guard let self else { return }
-        
-        if let index = recordings.firstIndex(where: { $0.id == deletedRecordingID }) {
-          recordings.remove(at: index)
-        }
-        recordingForDelete = nil
+        .store(in: &subscriptions)
+    } else {
+      // local item
+      guard let recordingForDelete = self.recordingForDelete else { return }
+      self.deleteRecording(recordingForDelete.id)
+      
+      if let index = recordings.firstIndex(where: { $0.id == recordingForDelete.id }) {
+        recordings.remove(at: index)
       }
-      .store(in: &subscriptions)
+      self.recordingForDelete = nil
+    }
   }
-
   
   // MARK: Upload Local Note
   
@@ -418,10 +451,6 @@ final class ContentViewModel: ObservableObject {
       
       withAnimation {
         self.showAIRecordView = !hideView
-      }
-    }, cancel: {
-      withAnimation {
-        self.showCancelView = true
       }
     })
     

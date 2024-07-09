@@ -33,14 +33,12 @@ final class AIRecordingViewModel: ObservableObject {
   private let maxRecordingTime: TimeInterval
   
   var completion: (RecordingDataModel, _ hideView: Bool) -> Void
-  var cancel: () -> Void
   
-  init(subscriptionStatus: Bool, completion: @escaping (RecordingDataModel, Bool) -> Void, cancel: @escaping () -> Void) {
+  init(subscriptionStatus: Bool, completion: @escaping (RecordingDataModel, Bool) -> Void) {
     self.subscriptionStatus = subscriptionStatus
-    self.maxRecordingTime = subscriptionStatus ? 20 * 60 : 1 * 60
+    self.maxRecordingTime = subscriptionStatus ? 20 * 60 : 60
     
     self.completion = completion
-    self.cancel = cancel
     setupLoadAnimation()
   }
   
@@ -85,7 +83,7 @@ final class AIRecordingViewModel: ObservableObject {
   func cancelRecording() {
     guard startRecording else { return }
     mic.audioRecorder.stop()
-    mic.audioRecorder.deleteRecording()
+//    mic.audioRecorder.deleteRecording()
     stopTimer()
     resetTimer()
     startRecording = false
@@ -111,12 +109,7 @@ final class AIRecordingViewModel: ObservableObject {
   private func updateTime() {
     let currentTime = mic.audioRecorder.currentTime
     if currentTime >= maxRecordingTime {
-      if subscriptionStatus {
-        approveRecording(hideView: false)
-        recordButtonTapped()
-      } else {
-        approveRecording()
-      }
+      approveRecording()
     } else {
       let minutes = Int(currentTime) / 60
       let seconds = Int(currentTime) % 60
