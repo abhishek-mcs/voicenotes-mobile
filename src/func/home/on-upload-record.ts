@@ -1,18 +1,33 @@
+import { isAndroid, isIOS } from "utils/common";
+
 export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry}:any)=>{
   return new Promise(async(resolve, reject) => {
     await uploadRecord.mutateAsync(
         {audio:file,duration:d,isRetry:isRetry},
         {
           onSuccess: async(r:any) => {
-            await queryClient.resetQueries('all-recording')
-            if(!!generateDummy){
-              const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!=file)
-              setUploading(filterDummy.length)
-              filterDummy.length==0?setGenerateDummy(null):setGenerateDummy(filterDummy)
-            }else{
-              setGenerateDummy(null)
+            if(isIOS){
+              await queryClient.resetQueries('all-recording')
+              if(!!generateDummy){
+                const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!=file)
+                setUploading(filterDummy.length)
+                filterDummy.length==0?setGenerateDummy(null):setGenerateDummy(filterDummy)
+              }else{
+                setGenerateDummy(null)
+              }
             }
             addTranscriptRecord.mutate(r?.data?.recording?.id,{
+              onSuccess:async()=>{
+                if(isAndroid){
+                  if(!!generateDummy){
+                  const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!=file)
+                  setUploading(filterDummy.length)
+                  filterDummy.length==0?setGenerateDummy(null):setGenerateDummy(filterDummy)
+                }else{
+                  setGenerateDummy(null)
+                }
+              }
+              },
               onError:()=>{
                 const index=recordingList?.findIndex((r:any)=>r.id==r?.data?.recording_id)
                 recordingList[index].transcript=null;

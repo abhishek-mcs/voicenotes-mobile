@@ -381,7 +381,10 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
-                <View style={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, position: 'relative',flexWrap:'wrap',rowGap:8 }]}>
+                <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
                   {hashFilter != 'shared' &&
                     <>
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
@@ -404,7 +407,7 @@ export default forwardRef(({
                           visible={createOption}
                           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1} />}
                           onRequestClose={hideCreateOption}
-                          style={styles.menu}
+                          style={isIOS?styles.menuIOS:styles.menu}
                           animationDuration={150}
                         >
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
@@ -454,7 +457,7 @@ export default forwardRef(({
                         <NoteButtons text="More" style={hashFilter != 'shared' ? {} : { marginLeft: 0 }} onPress={showMoreOption} icon={home.more} />
                       }
                       onRequestClose={hideMoreOption}
-                      style={styles.menu}
+                      style={isIOS?styles.menuIOS:styles.menu}
                       animationDuration={150}
                     >
                       {hashFilter != 'shared' ?
@@ -495,7 +498,7 @@ export default forwardRef(({
                         </>
                         }
                     </Menu>}
-                </View>}
+                </ScrollView>}
               {isIOS ? <Menu
                 visible={shareVisible}
                 anchor={null}
@@ -680,10 +683,12 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderRadius: 12,
-    // marginTop:40,
-    // paddingVertical: 5,
     paddingBottom: 0
-    // marginLeft:10
+  },
+  menuIOS:{
+    marginTop:40,
+    borderRadius: 12,
+    paddingBottom: 0
   },
   menuPress: {
     height: 25,
