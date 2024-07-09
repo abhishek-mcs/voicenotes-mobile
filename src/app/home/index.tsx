@@ -90,6 +90,7 @@ export default ()=> {
   const [isRefreshing,setRefreshing]=useState(false)
   const [uploading,setUploading]=useState(0)
   const [isOffline,setOffline]=useState(false)
+  const [recordingParentId,setRecordingParentId]=useState<string|null>(null)
   const bannerRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
@@ -148,7 +149,7 @@ export default ()=> {
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
-  const onStartRecord = async() => {
+  const onStartRecord = async(parent_id:string|null = null) => {
     if (recEnabled){
       console.log('Recording already started.');
       return;
@@ -162,11 +163,12 @@ export default ()=> {
     }
     // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
     // soundRef.current=sound
+    setRecordingParentId(parent_id)
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
   };
-  const onStopRecord = useCallback(async(d:number,repeat=false) => {
+  const onStopRecord = useCallback(async(d:number,repeat=false ) => {
     // const file = rec.getURI()||"";
     const file = await stopRecording(rec);
     setRec(null);
@@ -176,11 +178,11 @@ export default ()=> {
     setGenerateDummy(dummyData)
     repeat&&onStartRecord()
     !repeat&&setExpandNote(0)
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')
-  },[generateDummy,rec,recEnabled,soundRef]);
+  },[generateDummy,rec,recEnabled,soundRef, recordingParentId]);
   
   const onUploadRetry = async(note:any) => {
     return new Promise(async(resolve, reject) => {
@@ -254,6 +256,7 @@ export default ()=> {
         hashFilter={hashFilter}
         expand={expandNote}
         setExpand={()=>setExpandNote(index==expandNote?-1:index)}
+        onStartRecord={onStartRecord}
       />
     ),
     [isPlay,play,recordingList,audioLoading,generateDummy,expandNote]
@@ -355,9 +358,12 @@ export default ()=> {
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
         <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
        {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
+        <Text>Adding to recording</Text>
       </View>
       </KeyboardAvoidingView>
       <BottomBar
+        recordingParentId={recordingParentId}
+        setRecordingParentId={setRecordingParentId}
         onAsk={onAsk}
         onCreate={onCreate}
         onRecord={onStartRecord}

@@ -44,7 +44,8 @@ export default forwardRef(({
   setExpand,
   isSingle = false,
   isSubnote = false,
-  list, index, isPlay, setIsPlay, play, setPlay, audioLoading, setAudioLoading, hideIcons = false, onDeleteCallBack = () => { }
+  list, index, isPlay, setIsPlay, play, setPlay, audioLoading, setAudioLoading, hideIcons = false, onDeleteCallBack = () => { },
+  onStartRecord = () => { },
 }: any, ref) => {
   const route = useRouter()
   const [editNote, setEditNote] = useState(note)
@@ -64,6 +65,8 @@ export default forwardRef(({
   const [titleLoading, setTitleLoading] = useState(false)
   const [uploadLoading, setUploadLoading] = useState(false)
   const [transcriptLoading, setTranscriptLoading] = useState(false)
+  const [showAddMenu, setShowAddMenu] = useState(false);
+
   const dispatch = useDispatch()
 
   const { token } = useSelector((state: RootState) => state.userDetails)
@@ -97,6 +100,7 @@ export default forwardRef(({
   const showMoreOption = () => setMoreOption(true);
   const hideCreateOption = () => setCreateOption(false);
   const showCreateOption = () => setCreateOption(true);
+  const closeAddMenu = ()=>setShowAddMenu(false)
 
   const onEdit = () =>
     router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
@@ -343,6 +347,11 @@ export default forwardRef(({
     }
   },[expand])
 
+  const onThreadNote = () => {
+    onStartRecord(note.id)
+    closeAddMenu()
+  }
+
   const slug = note.public_slug || ""
   return (
     <View>
@@ -385,22 +394,35 @@ export default forwardRef(({
                   contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
                   {hashFilter != 'shared' &&
                     <>
+                    <Menu
+                          visible={showAddMenu}
+                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={home.create1} />}
+                          onRequestClose={closeAddMenu}
+                          style={styles.menu}
+                          animationDuration={150}
+                        >
+                          <MenuItem style={styles.menuItem} onPress={onThreadNote}>
+                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                              <SvgXml xml={CreateModalSvg.summary} />
+                              <Text style={styles.menuItemTxt}>Thread a Note</Text>
+                            </View>
+                          </MenuItem>
+                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
+                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                              <SvgXml xml={CreateModalSvg.summary} />
+                              <Text style={styles.menuItemTxt}>Photos</Text>
+                            </View>
+                          </MenuItem>
+                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
+                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                              <SvgXml xml={CreateModalSvg.summary} />
+                              <Text style={styles.menuItemTxt}>Link</Text>
+                            </View>
+                          </MenuItem>
+                      </Menu>
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       {
-                        // isIOS?
-                        // <MoreOptions 
-                        //   options={[
-                        //     {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
-                        //     {title:'Main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
-                        //     {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
-                        //     {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
-                        //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
-                        //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
-                        //     ]}>
-                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>
-                        // </MoreOptions>
-                        // :
                         <Menu
                           visible={createOption}
                           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1} />}

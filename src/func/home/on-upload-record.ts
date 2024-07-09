@@ -1,7 +1,7 @@
-export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry}:any)=>{
+export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry, parent_id}:any)=>{
   return new Promise(async(resolve, reject) => {
     await uploadRecord.mutateAsync(
-        {audio:file,duration:d,isRetry:isRetry},
+        {audio:file,duration:d,isRetry:isRetry, parent_id: parent_id},
         {
           onSuccess: async(r:any) => {
             await queryClient.invalidateQueries('all-recording');
