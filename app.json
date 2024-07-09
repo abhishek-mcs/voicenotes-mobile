@@ -40,7 +40,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 40,
+      "versionCode": 53,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
