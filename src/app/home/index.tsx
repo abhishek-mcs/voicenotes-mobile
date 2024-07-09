@@ -49,6 +49,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
+import { analytics } from "../../../firebaseConfig";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -156,6 +157,7 @@ export default ()=> {
     // soundRef.current=sound
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
+    analytics().logEvent('started_recording')
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
     const file = rec?.getURI()||"";
@@ -169,6 +171,7 @@ export default ()=> {
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,deactivateKeepAwake,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
     deactivateKeepAwake()
+    analytics().logEvent('completed_recording')
   },[generateDummy,rec,recEnabled,soundRef]);
   
   const onUploadRetry = async(note:any) => {
@@ -216,6 +219,7 @@ export default ()=> {
     await cancelRecording(rec,soundRef?.current);
     setRec(null);
     setRecEnabled(false);
+    analytics().logEvent('cancelled_recording')
   };
 
   useEffect(() => {
@@ -353,11 +357,11 @@ export default ()=> {
                 <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1)}}>To share a note, just tap ‘... More’ in the notes settings and select ‘Share’</Text>
               </View>
             </View>
-              :(recordingList?.length>0&&recordingQuery.isLoading)?(
+              :(recordingList?.length==0&&recordingQuery.isLoading)?(
               <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
                 <ActivityIndicator size={"small"} color={"#000"}/>
               </View>
-            ):(recordingList?.length>0&&!!token)?<AboutProduct disable={true} />:null}
+            ):(recordingList?.length==0&&!!token)?<AboutProduct disable={true} />:null}
             // automaticallyAdjustKeyboardInsets
             // keyboardShouldPersistTaps="handled"
           />

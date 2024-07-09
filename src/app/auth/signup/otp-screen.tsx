@@ -13,6 +13,7 @@ import { RootState } from "redux/store/store"
 import Touchable from "components/common/Touchable"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
+import { analytics } from "../../../../firebaseConfig"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -45,7 +46,8 @@ export default ()=>{
         email: email,
         password: password,
         name: name,
-        otp:otpText
+        otp:otpText,
+        source:isIOS?'ios':'android',
       },
       {
         onSuccess: async (response: any, _variables: any, _context: any) => {
@@ -58,6 +60,7 @@ export default ()=>{
             // moveRecords.mutate(guestToken,{onSuccess:()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
+              analytics().logEvent('sign_up_success').catch(()=>{})
               router.replace("/home/");
             // }})
           }

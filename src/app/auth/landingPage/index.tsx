@@ -17,6 +17,7 @@ import { useQueryClient } from "react-query"
 import { useDispatch } from "react-redux"
 import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
+import { analytics } from "../../../../firebaseConfig"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -39,6 +40,7 @@ export default () => {
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
         router.replace("/home/");
+        analytics().logEvent('social_sign_in_success').catch(e=>{})
       }
     }
   }
@@ -51,10 +53,12 @@ const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuth
 })
 const loginGoogle=signInWithGoogle()
 const signInGoogle=(token:any,params:any)=>{
+  analytics().logEvent('google_sign_in_clicked').catch(e=>{})
   const {code,state,prompt,authuser,scope}=params
   loginGoogle.mutate({
     access_token:token,
     client_id:isIOS?iosGoogleClientID:androidGoogleClientID,
+    source:isIOS?'ios':'android',
     device:'mobile_app',code,state,prompt,authuser,scope},{
     onSuccess:onLoginSuccess
   })
@@ -83,7 +87,7 @@ const signInGoogle=(token:any,params:any)=>{
   const loginApple = signInWithApple()
 
   const signInAppleAPI=(token:any)=>{
-    loginApple.mutate({access_token:token},{
+    loginApple.mutate({access_token:token,source:isIOS?'ios':'android'},{
       onSuccess:onLoginSuccess
     })
   }
@@ -98,6 +102,7 @@ const signInGoogle=(token:any,params:any)=>{
       })
       if (credential.email) dispatch(setEmail(credential.email))
       signInAppleAPI(credential?.identityToken)
+      analytics().logEvent('apple_sign_in_clicked').catch(e=>{})
       // signed in
     } catch (e:any) {
       if (e?.code === "ERR_CANCELED") {
