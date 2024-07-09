@@ -2,6 +2,7 @@ import axios from "axios";
 import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
+import { useGetRelatedRecording } from "./relatedNote";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -76,7 +77,11 @@ export function useUploadRecord(){
     },
     {
         onError:(error:any)=>{
-            console.log('upload audio api',error?.response?.data?.message);
+            if(error?.response?.data?.error_code==="ffmpeg_conversion_failed"){
+                console.log("Corrupted audio");
+            }else{
+                console.error('Error in upload audio api: ', error);
+            }
         }
     })
 }
@@ -164,20 +169,33 @@ export function useGetAiCreation(){
     })
 }
 
-export function useAddTranscript(doGenerateTitle=false){
+export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setReduxRecordingList:any=()=>{}){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()
+    const addRelatedNotes=useGetRelatedRecording()
     let rec_id:number;
     return useMutation('add-transcript',(recording_id:number) => {
+        if (!recording_id) {
+            throw new Error("recording_id is required");
+        }
         doGenerateTitle&&(rec_id=recording_id)
         return axiosApi.patch(`/recordings/${recording_id}/transcript`)
     },
     {
         onSuccess:async()=>{
             await queryC.invalidateQueries('all-recording')
-            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id,{
+                onError:(error:any)=>{
+                    const index=recordingList?.findIndex((r:any)=>r.id==rec_id)
+                    recordingList[index].title=null;
+                    setReduxRecordingList([...recordingList])
+                }
+            })
+            doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
+            console.log("On error: ", error);
+            
             console.log(error?.response?.data?.message);
         }
     })
@@ -213,12 +231,12 @@ export function useGetTags(){
 export function useGetUserData(token:any){
    
     return useQuery('user-data',(p?:any)=> {
-        if(!!token)
+    if(!!token)
         return axiosApi.get(`/auth/me`)
     },
     {
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('auth me',error?.response?.data?.message);
         }
     })
 }

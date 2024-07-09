@@ -7,6 +7,7 @@ import { RootState } from 'redux/store/store';
 import { useSelector } from 'react-redux';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import * as WebBrowser from 'expo-web-browser';
+import { Platform, UIManager } from 'react-native';
 
 export {
   ErrorBoundary,
@@ -16,6 +17,11 @@ export const unstable_settings = {
   initialRouteName: '/home/',
 };
 
+if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+}
 
 export default function App() {
   const {token} = useSelector((state: RootState) => state.userDetails);

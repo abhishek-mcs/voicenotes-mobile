@@ -84,9 +84,12 @@ export const onRecord = async (
   }
 };
 
-export const stopRecording = async (recording: Audio.Recording | null) => {
+export const stopRecording = async (recording: Audio.Recording ) => {
   try {
-    await recording?.stopAndUnloadAsync();
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+    return uri
+
   } catch (error) {
     console.error("Failed to stop recording", error);
   }

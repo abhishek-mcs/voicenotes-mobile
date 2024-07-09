@@ -13,6 +13,7 @@ export default function Layout() {
               <Stack.Screen name="search/index" options={{animation:"fade"}}/>
               <Stack.Screen name="premium/index" options={{presentation:'formSheet'}}/>
               <Stack.Screen name="add-tags/index" options={{presentation:'formSheet'}}/>
+              <Stack.Screen name="edit-note/index" options={{presentation:'fullScreenModal'}}/>
             </Stack>
           </AppProvider>
         );
