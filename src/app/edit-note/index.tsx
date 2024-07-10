@@ -28,7 +28,7 @@ export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
-    const [editNote,setEditNote] = useState<any>(recordingList[params?.index])
+    const [editNote,setEditNote] = useState<any>(JSON.parse(params?.note))
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
@@ -42,8 +42,11 @@ export default () => {
     setIsLoading(true)
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
     const temp={...editNote};
+
+    const htmlTranscript = editNote.transcript.replaceAll(/\n/g, '<br/>');
+
     await saveEditedNote.mutateAsync(
-      {title:editNote?.title,transcript:editNote?.transcript,tags:tags||[]},{
+      {title:editNote?.title,transcript: htmlTranscript ,tags:tags||[]},{
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
@@ -69,8 +72,8 @@ export default () => {
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-          <KeyboardAvoidingView behavior="padding">
-          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?0:16,marginHorizontal:12}}>
+          <KeyboardAvoidingView behavior="padding" style={{marginBottom:200}} >
+          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?16:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
@@ -97,7 +100,7 @@ export default () => {
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote.transcript} 
+      value={editNote.transcript.replaceAll(/<br\/?>/g, '\n')} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
   </View>
           </KeyboardAvoidingView>
@@ -118,11 +121,11 @@ const styles=StyleSheet.create({
     lineHeight: 28,
     fontWeight: "500",
     color:Colors.darkWithOpacity(1),
+    marginBottom: 6,
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingTop: 6,
-    paddingBottom:10,
+    paddingBottom:60,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,

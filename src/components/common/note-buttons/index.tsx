@@ -6,15 +6,20 @@ import { StyleSheet } from "react-native"
 import { TouchableHighlight } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { isIOS } from "utils/common"
+import Touchable from "../Touchable"
+import LottieView from "lottie-react-native"
+import loader from "assets/lottie/threeDotLoader2.json"
 
-export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={}})=>{
+export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={},isLoading=false})=>{
     return (
-        <TouchableHighlight style={[styles.main,style]} onPress={onPress} underlayColor={Colors.darkWithOpacity(0.05)} disabled={disabled}>
+        <Touchable style={[styles.main,style]} onPress={onPress} activeOpacity={0.6}  disabled={disabled||isLoading}>
+            {!isLoading?
             <View style={styles.row}>
                 <SvgXml xml={icon} />
                 <Text style={styles.text}>{text}</Text>
             </View>
-        </TouchableHighlight>
+            :<LottieView source={loader} style={{width:40,height:20}} autoPlay loop />}
+        </Touchable>
     )
 }
 
@@ -24,7 +29,7 @@ const styles = StyleSheet.create({
         paddingHorizontal:10,
         borderRadius:12,
         backgroundColor:Colors.whiteWithOpacity(1),
-        marginHorizontal:5,
+        marginHorizontal:4,
         shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,1)',
         shadowOffset:{width:0,height:1},
         shadowOpacity:0.15,

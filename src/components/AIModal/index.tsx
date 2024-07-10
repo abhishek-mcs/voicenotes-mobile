@@ -560,9 +560,10 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     flexWrap: "wrap",
     width: "80%",
-    lineHeight: 24,
-    paddingTop:isIOS?13:16,
-    paddingBottom:16
+    // lineHeight: 24,
+    paddingTop:16,
+    paddingBottom:16,
+    minHeight:24
   },
   inputContainer: {
     minHeight: 60,

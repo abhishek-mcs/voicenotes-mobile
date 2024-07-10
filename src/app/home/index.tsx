@@ -51,6 +51,7 @@ import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -74,7 +75,7 @@ export default ()=> {
   const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [rec, setRec] = useState<Audio.Recording | null>(null);
+  const [rec, setRec] = useState<Audio.Recording | any>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const AIModalRef = useRef<any>();
   const CreateModalRef = useRef<any>();
@@ -148,6 +149,10 @@ export default ()=> {
     CreateModalRef.current?.toggle();
   };
   const onStartRecord = async() => {
+    if (recEnabled){
+      console.log('Recording already started.');
+      return;
+    }
     AIModalRef.current?.close()
     CreateModalRef.current?.close()
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
@@ -165,9 +170,8 @@ export default ()=> {
     await rec?.pauseAsync()
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
-    const file = rec?.getURI()||"";
-    setGenerateDummy({isUploading:true})
-    stopRecording(rec);
+    // const file = rec.getURI()||"";
+    const file = await stopRecording(rec);
     setRec(null);
     setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
@@ -175,6 +179,7 @@ export default ()=> {
     setGenerateDummy(dummyData)
     repeat&&onStartRecord()
     !repeat&&setExpandNote(0)
+    scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()
@@ -187,7 +192,7 @@ export default ()=> {
     const file = note?.audio?.data?.url||"";
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
       .then(()=>resolve('success'))
-      .catch(()=>reject('error'))
+      .catch((error)=>reject('error: '+ error))
     })
   }
 
@@ -203,7 +208,7 @@ export default ()=> {
           setGenerateDummy([...temp]);
           setUploading(prevUploading => prevUploading - 1);
         } catch (error) {
-          console.error(`Upload failed for item ${i}:`, error);
+          console.log(`Upload failed for item ${i}:`, error);
           temp[i] = { ...temp[i], isUploading: false };
           setGenerateDummy([...temp]);
         }
@@ -329,7 +334,10 @@ export default ()=> {
             ListFooterComponent={
               (!token&&recordingQuery.isFetched)? (
                 <AboutProduct disable={false} />
-              ) : null
+              ) : recordingQuery?.isRefetching?
+              <View style={{alignItems:'center',justifyContent:'center',marginTop:20}}>
+                <CircularLoader/>
+              </View>:null
             }
             ListEmptyComponent={() => hashFilter=='shared'?
             <View style={{flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),paddingHorizontal:24,paddingVertical:12,borderRadius:12,marginTop:20}}>
