@@ -90,7 +90,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                   ref={ref}
                 />
               </View>
-              {searchText.length>0 && (
+              {searchText?.length>0 && (
                 <Pressable
                   onPress={(e) => {
                     e?.stopPropagation();

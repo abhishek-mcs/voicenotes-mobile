@@ -98,9 +98,12 @@ export default forwardRef(({
   const hideCreateOption = () => setCreateOption(false);
   const showCreateOption = () => setCreateOption(true);
 
-  const onEdit = () =>
-    router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
+  const onEdit = () =>{
+    
+    // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index, id: note?.id} })
+    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
 
+  }
   const onGotoAddTag = () => {
     hideMoreOption()
     setTimeout(() => {
