@@ -69,7 +69,7 @@ function sendTokenToWatchIOS(token: string | void) {
 
 export function setAuthToken(token: string | void, isGuest: boolean, netInfo: any) {
   // Використовуємо watchEvents з react-native-watch-connectivity
-  watchEvents.addListener('reachability', (reachable: boolean) => {
+  isIOS&&watchEvents.addListener('reachability', (reachable: boolean) => {
     console.log('Watch is reachable:', reachable);
     if (reachable && !isGuest && token) {
       sendTokenToWatchIOS(token);
