@@ -109,11 +109,12 @@ struct ContentView: View {
       }
       
       if viewModel.isAccessTokenValid {
-        HStack(spacing: 5) {
+        HStack(spacing: 3) {
+          askAIButton
+          
           if !viewModel.navigationPath.contains(ScreenType.askAI(audioData: viewModel.firstAIAudio)) {
             recordButton
           }
-          askAIButton
         }
       }
       
@@ -236,11 +237,11 @@ struct ContentView: View {
             .foregroundStyle(Color("FF3B30"))
         }
         Text("Record")
-          .font(.SFProRounded(.bold, size: 14))
+          .font(.SFProRounded(.bold, size: 12))
           .multilineTextAlignment(.center)
           .foregroundStyle(.white)
       }
-      .frame(width: 90, height: 35)
+      .frame(width: 85, height: 35)
       .background(Color("FF3B30"))
       .cornerRadius(.infinity)
       .onTapGesture {
@@ -251,7 +252,7 @@ struct ContentView: View {
         }
       }
     }
-    .padding(.bottom, 15)
+    .padding(.bottom, 10)
     .ignoresSafeArea()
   }
   
@@ -263,11 +264,11 @@ struct ContentView: View {
       HStack(spacing: 4) {
         Image("cloud")
         Text("Ask AI")
-          .font(.SFProRounded(.bold, size: 14))
+          .font(.SFProRounded(.bold, size: 12))
           .multilineTextAlignment(.center)
           .foregroundStyle(.black)
       }
-      .frame(width: 90, height: 35)
+      .frame(width: 85, height: 35)
       .background(viewModel.askAIButtonDisable ? Color.gray : Color.white)
       .cornerRadius(.infinity)
       .onTapGesture {
@@ -278,7 +279,7 @@ struct ContentView: View {
       }
     }
     .disabled(viewModel.askAIButtonDisable)
-    .padding(.bottom, 15)
+    .padding(.bottom, 10)
     .ignoresSafeArea()
   }
 }
