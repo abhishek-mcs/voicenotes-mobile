@@ -41,7 +41,7 @@ function checkReachability(token: string | void) {
   getReachability().then(reachable => {
     console.log('Watch is reachable:', reachable);
     if (reachable) {
-      sendTokenToWatch(token);
+      sendTokenToWatchIOS(token);
     } else {
       retryReachability(3, token);
     }
@@ -52,14 +52,14 @@ function retryReachability(retries: number, token: string | void, delay = 1000) 
   getReachability().then(reachable => {
     console.log('Watch is reachable:', reachable);
     if (reachable) {
-      sendTokenToWatch(token);
+      sendTokenToWatchIOS(token);
     } else if (retries > 0) {
       setTimeout(() => retryReachability(retries - 1, token, delay * 2), delay);
     }
   });
 }
 
-function sendTokenToWatch(token: string | void) {
+function sendTokenToWatchIOS(token: string | void) {
   sendMessage(
     {tokenFromApp: token}, 
     reply => {console.log('Token sent successfully:', reply)},
@@ -72,7 +72,7 @@ export function setAuthToken(token: string | void, isGuest: boolean, netInfo: an
   watchEvents.addListener('reachability', (reachable: boolean) => {
     console.log('Watch is reachable:', reachable);
     if (reachable && !isGuest && token) {
-      sendTokenToWatch(token);
+      sendTokenToWatchIOS(token);
     }
   });
 
