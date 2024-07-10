@@ -40,7 +40,6 @@ export default () => {
 
     useEffect(()=>{
       setEditNote(getIndividualNote?.data?.data)
-
     },[getIndividualNote])
     
   const onSaveEdit=async()=>{
@@ -78,12 +77,6 @@ export default () => {
     })
   },[])
 
-  // if(!params.note){
-  //   return <>
-  //   <Text>Loading..</Text>
-  //   </>
-  // }
-
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
           <KeyboardAvoidingView behavior="padding" style={{marginBottom:200}} >
@@ -106,7 +99,7 @@ export default () => {
       autoCorrect={false}
       selectTextOnFocus={false}
       value={editNote?.title}
-      onChangeText={txt=>setEditNote((n:any)=>{return ({...n,title:txt})})} />
+      onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
     <TextInput
       ref={textRef}
       style={styles.textInput}
@@ -114,7 +107,7 @@ export default () => {
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote?.transcript.replaceAll(/<br\/?>/g, '\n')} 
+      value={editNote?.transcript?.replaceAll(/<br\/?>/g, '\n')} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
   </View>
           </KeyboardAvoidingView>
