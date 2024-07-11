@@ -39,6 +39,15 @@ export default ({
   onCancel,
 }: Props) => {
 
+  const singleRecording =  useGetSingleRecording(recordingParentId)
+  const [note, setNote] = useState(null)
+
+  useEffect(()=>{
+    setNote(singleRecording?.data?.data)
+  },[singleRecording])
+  // console.log({note});
+  
+  
   const [duration, setDuration] = useState(0);
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
@@ -68,8 +77,31 @@ export default ({
       }; // Cleanup the interval on component unmount
     }
   }, [recEnabled, onStopRecord]);
+  
   return (
     <View style={{}}>
+      <View style={{
+
+
+flexDirection: "row",
+backgroundColor: "#fff",
+height: 40,
+borderRadius: 24,
+position: "absolute",
+left: 20,
+right: 20,
+bottom: 100,
+alignItems: "center",
+justifyContent:'center',
+shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+shadowOffset: { width: 0, height: 0.5 },
+borderColor: 'black',
+zIndex: 15,
+paddingHorizontal: 12,
+paddingVertical: 8,
+      }}>
+      <Text>Adding as subnote {note?.title ? `of ${note?.title}` : ''}</Text>
+      </View>
       {!recEnabled ? (
         <View style={styles.tab}>
           <RecButton

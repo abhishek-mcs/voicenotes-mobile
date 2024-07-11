@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Alert, Animated, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Alert, Animated, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
@@ -16,7 +16,7 @@ import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS, screenWidth } from "utils/common";
-import { router, useRouter } from "expo-router";
+import { Link, router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
 import { setTagsFilter } from "redux/reducers/hashSlice";
@@ -355,6 +355,9 @@ export default forwardRef(({
   }
 
   const slug = note.public_slug || ""
+  console.log(note.attachments);
+  
+
   return (
     <View>
       <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container, (expand == index && !isSingle) ? { backgroundColor: '#f7f7f7', borderRadius: isSubnote ? 12 : 0, } : {}]}>
@@ -388,6 +391,37 @@ export default forwardRef(({
             {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
               : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
+
+
+            <View style={styles.container}>
+      {note.attachments?.map((attachment, index) => (
+        <View key={index} style={styles.attachmentContainer}>
+          {attachment.type === 2 && (
+            <Image
+              source={{ uri: attachment.url }}
+              style={styles.image}
+              // resizeMode="cover"
+            />
+          )}
+          {attachment.type === 1 && (
+            <TouchableOpacity
+              style={styles.linkContainer}
+              onPress={() => openLink(attachment.url)}
+            >
+              <Link color="#007AFF" size={24} href={attachment.url} />
+              <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
+                {attachment.description}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ))}
+    </View>
+
+
+
+
+
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
                 <ScrollView
@@ -396,7 +430,7 @@ export default forwardRef(({
                   contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
                   {hashFilter != 'shared' &&
                     <>
-                    <Menu
+                    {!isSubnote && <Menu
                           visible={showAddMenu}
                           anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
                           onRequestClose={closeAddMenu}
@@ -409,7 +443,7 @@ export default forwardRef(({
                               <Text style={styles.menuItemTxt}>Thread a Note</Text>
                             </View>
                           </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
+                          {/* <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <SvgXml xml={addMenu.camera} />
                               <Text style={styles.menuItemTxt}>Photos</Text>
@@ -420,8 +454,8 @@ export default forwardRef(({
                               <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
                               <Text style={styles.menuItemTxt}>Link</Text>
                             </View>
-                          </MenuItem>
-                      </Menu>
+                          </MenuItem> */}
+                      </Menu>}
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       {
@@ -470,7 +504,9 @@ export default forwardRef(({
                           </MenuItem>
                         </Menu>}
                       <NoteButtons icon={home.share1} text="Share" onPress={onShareNote} />
-                    </>}
+                    </>
+                    
+                    }
                   {
                  
                     <Menu
@@ -679,6 +715,30 @@ const TagsList = ({ note, onPress }: any) =>
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 18, paddingBottom: 8, paddingTop: 14 },
+
+ 
+  attachmentContainer: {
+    marginBottom: 10,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '50%',
+    height: 50,
+  },
+  linkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 8,
+  },
+  linkText: {
+    marginLeft: 10,
+    color: '#007AFF',
+    flex: 1,
+  },
+
   row: { flexDirection: "row", alignItems: "center" },
   btw: { justifyContent: "space-between" },
   timeLine: {

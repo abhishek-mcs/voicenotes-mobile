@@ -357,7 +357,7 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
         <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
-       {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
+       {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
         <Text>Adding to recording</Text>
       </View>
       </KeyboardAvoidingView>
