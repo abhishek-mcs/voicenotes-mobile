@@ -98,9 +98,12 @@ export default forwardRef(({
   const hideCreateOption = () => setCreateOption(false);
   const showCreateOption = () => setCreateOption(true);
 
-  const onEdit = () =>
-    router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
+  const onEdit = () =>{
+    
+    // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
+    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
 
+  }
   const onGotoAddTag = () => {
     hideMoreOption()
     setTimeout(() => {
@@ -377,7 +380,7 @@ export default forwardRef(({
                 <Text style={[styles.text, { color: Colors.grey3, fontFamily: 'Primary-Italic', width: screenWidth / 1.3 }]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
               </View>}
             {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
-              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
+              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
@@ -400,12 +403,12 @@ export default forwardRef(({
                         //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
                         //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
                         //     ]}>
-                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1}/>
+                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create}/>
                         // </MoreOptions>
                         // :
                         <Menu
                           visible={createOption}
-                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1} />}
+                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
                           onRequestClose={hideCreateOption}
                           style={isIOS?styles.menuIOS:styles.menu}
                           animationDuration={150}

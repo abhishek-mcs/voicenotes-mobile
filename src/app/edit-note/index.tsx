@@ -23,17 +23,24 @@ import { commonSvg } from "assets/svg/commonSvg";
 import { setRecordingList, updateTitle,updateTranscript } from "redux/reducers/recordingStates";
 import CircularLoader from "components/common/loaders/circular-loader";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
+import { useGetSingleRecording } from "queries/home/relatedNote";
 
 export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
-    const [editNote,setEditNote] = useState<any>(JSON.parse(params?.note))
+    const getIndividualNote = useGetSingleRecording(params.id)
+    
+    const [editNote,setEditNote] = useState<any>({})
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
     const [isLoading,setIsLoading]=useState(false)
     const textRef=useRef<any>(null)
+
+    useEffect(()=>{
+      setEditNote(getIndividualNote?.data?.data)
+    },[getIndividualNote])
     
   const onSaveEdit=async()=>{
     if(editNote?.transcript?.length===0||editNote?.title?.length===0){
@@ -91,7 +98,7 @@ export default () => {
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote.title}
+      value={editNote?.title}
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
     <TextInput
       ref={textRef}
@@ -100,7 +107,7 @@ export default () => {
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote.transcript.replaceAll(/<br\/?>/g, '\n')} 
+      value={editNote?.transcript?.replaceAll(/<br\/?>/g, '\n')} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
   </View>
           </KeyboardAvoidingView>
