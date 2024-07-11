@@ -31,7 +31,7 @@ export default () => {
     const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
     const getIndividualNote = useGetSingleRecording(params.id)
     
-    const [editNote,setEditNote] = useState<any>({})
+    const [editNote,setEditNote] = useState<any>(getIndividualNote?.data?.data)
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
@@ -39,8 +39,10 @@ export default () => {
     const textRef=useRef<any>(null)
 
     useEffect(()=>{
-      setEditNote(getIndividualNote?.data?.data)
-    },[getIndividualNote])
+      if(getIndividualNote?.data){
+        setEditNote(getIndividualNote?.data?.data)
+      }
+    },[getIndividualNote.data])
     
   const onSaveEdit=async()=>{
     if(editNote?.transcript?.length===0||editNote?.title?.length===0){
@@ -79,7 +81,7 @@ export default () => {
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-          <KeyboardAvoidingView behavior="padding" style={{marginBottom:200}} >
+          <KeyboardAvoidingView behavior={"padding"} >
           <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?16:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
@@ -100,15 +102,18 @@ export default () => {
       selectTextOnFocus={false}
       value={editNote?.title}
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
+    <ScrollView>
     <TextInput
       ref={textRef}
       style={styles.textInput}
       multiline
       autoComplete="off"
       autoCorrect={false}
+      scrollEnabled={false}
       selectTextOnFocus={false}
       value={editNote?.transcript?.replaceAll(/<br\/?>/g, '\n')} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
+      </ScrollView>
   </View>
           </KeyboardAvoidingView>
         </SafeAreaView>
