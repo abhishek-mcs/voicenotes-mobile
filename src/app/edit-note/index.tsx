@@ -7,7 +7,7 @@ import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollV
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -29,21 +29,15 @@ export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
-    const getIndividualNote = useGetSingleRecording(params.id)
+
+    const data=useMemo(()=>JSON.parse(params?.note),[])
     
-    const [editNote,setEditNote] = useState<any>(getIndividualNote?.data?.data)
+    const [editNote,setEditNote] = useState<any>(data)
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
     const [isLoading,setIsLoading]=useState(false)
     const textRef=useRef<any>(null)
-
-    useEffect(()=>{
-      if(getIndividualNote?.data){
-        setEditNote(getIndividualNote?.data?.data)
-      }
-      return ()=>queryClient.removeQueries(['single-recording'])
-    },[getIndividualNote.data])
     
   const onSaveEdit=async()=>{
     if(editNote?.transcript?.length===0||editNote?.title?.length===0){
@@ -103,7 +97,7 @@ export default () => {
       selectTextOnFocus={false}
       value={editNote?.title}
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
     <TextInput
       ref={textRef}
       style={styles.textInput}
@@ -138,7 +132,7 @@ const styles=StyleSheet.create({
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingBottom:60,
+    paddingBottom:0,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,
