@@ -42,6 +42,7 @@ export default () => {
       if(getIndividualNote?.data){
         setEditNote(getIndividualNote?.data?.data)
       }
+      return ()=>queryClient.removeQueries(['single-recording'])
     },[getIndividualNote.data])
     
   const onSaveEdit=async()=>{

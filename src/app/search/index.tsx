@@ -45,11 +45,10 @@ export default ({setHide=(v:boolean)=>{}})=>{
       Keyboard.dismiss()
     }
 
-    const goto=(id:number)=>{
+    const goto=(rec_id:any)=>{
       Keyboard.dismiss();
-      setSearchHistoryList([...searchHistoryList,{keyword:searchText}])
-      setSearchHistory.mutate(searchText)
-      router.push({pathname:"/RelatedNotes/",params:{id}})
+      setSearchHistory.mutate(rec_id)
+      router.push({pathname:"/RelatedNotes/",params:{id:rec_id}})
       clearSearch()
     }
     useEffect(()=>{
@@ -118,13 +117,13 @@ export default ({setHide=(v:boolean)=>{}})=>{
                     (<View style={{paddingBottom:12}}>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
-                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);Keyboard.dismiss();}}
+                        onPress={(e)=>goto(itm?.recording_id)}
                         style={[styles.row,{paddingVertical:0,height:40}]} underlayColor={Colors.greyWithOpacity(0.1)} 
                         key={i}>
                           <View style={{flexDirection:'row',alignItems:'center',height:40,justifyContent:'space-between'}}>
                             <View style={{flexDirection:'row',alignItems:'center',width:'85%'}}>
-                              <SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
-                              <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text>
+                              <SvgXml xml={commonSvg.playSearchIcon?.replace('{color}','#222')} />
+                              <Text style={styles.recentText} numberOfLines={1}>{itm?.title}</Text>
                             </View>
                             <Pressable style={{height:40,width:'15%',justifyContent:'center',alignItems:'center'}} onPress={(e)=>{e?.stopPropagation();onDeleteSearchHistory(itm?.id)}}>
                               <SvgXml xml={commonSvg.smallClose} />
@@ -134,7 +133,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                     </View>)
                     :searchText.length>0&&searchData?.length>0?
                     searchData.map((itm:any,i:number)=>
-                    <TouchableHighlight onPress={()=>goto(itm?.id)} style={styles.result} underlayColor={Colors.greyWithOpacity(0.1)} key={i}>
+                    <TouchableHighlight onPress={()=>goto(itm?.recording_id)} style={styles.result} underlayColor={Colors.greyWithOpacity(0.1)} key={i}>
                       <View style={{overflow:'hidden'}}>
                       <View style={{flexDirection:'row',alignItems:'center'}}>
                         <View style={{backgroundColor:'#222',width:6,height:6,borderRadius:9}}/>
