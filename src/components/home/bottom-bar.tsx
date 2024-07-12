@@ -19,10 +19,10 @@ interface Props {
   onCancel: ()=> void;
   showAskMe: boolean;
   setShowAskMe: (v:boolean)=>void;
-  onPause?:()=>void;
+  onPause?:(v:any)=>void;
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=()=>{}}: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=(v:any)=>{}}: Props) => {
     const [duration, setDuration] = useState(0);
     const [paused, setPaused] = useState(false);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
@@ -36,8 +36,8 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
                 onStopRecord(newDuration);
                 return 0;
-              }else if(newDuration>=5000&&!!token){
-                onStopRecord(newDuration,true);
+              }else if(newDuration>=1200000&&!!token){
+                onStopRecord(newDuration,false);
                 return 0
               }
               return newDuration;
@@ -47,22 +47,22 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
       }, [recEnabled,paused]);
       
       const onPauseClick = () => {
-        onPause();
+        onPause(!paused);
         setPaused((p)=>{
           !p&&timerId.current&&clearInterval(timerId.current);
           return !p;
         });
       }
 
-      const onDoneClick = () => {
-        onStopRecord(duration);
+      const onDoneClick = async() => {
+        await onStopRecord(duration);
         timerId.current&&clearInterval(timerId.current);
         // setPaused(true);
         setDuration(0);
       }
 
-      const onCancelClick = () => {
-        onCancel();
+      const onCancelClick = async() => {
+        await onCancel();
         timerId.current&&clearInterval(timerId.current);
         setDuration(0);
         // setPaused(true);

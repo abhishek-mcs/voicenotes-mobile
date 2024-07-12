@@ -166,8 +166,9 @@ export default ()=> {
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
   };
-  const onPause = async() => {
-    await rec?.pauseAsync().finally(()=>{})
+  const onPause = async(paused:boolean) => {
+   paused? await rec?.pauseAsync().finally(()=>{console.log('paused')})
+   :await rec?.startAsync().finally(()=>{console.log('resumed')})
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
     // const file = rec.getURI()||"";

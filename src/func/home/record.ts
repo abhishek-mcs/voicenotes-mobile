@@ -84,7 +84,7 @@ export const onRecord = async (
   }
 };
 
-export const stopRecording = async (recording: Audio.Recording ) => {
+export const stopRecording = async (recording: Audio.Recording|any ) => {
   try {
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();

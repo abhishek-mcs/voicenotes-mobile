@@ -5,6 +5,7 @@ import { Text } from "react-native"
 import { Button, View } from "react-native"
 import RecButton from "./rec-button"
 import { useState } from "react"
+import { analyzeAudio, scale, sample } from 'react-native-audio-analyzer';
 
 export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused}:any)=>{
   const [isCanceling, setIsCanceling] = useState(false);
@@ -27,7 +28,7 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
 
   if(!isCanceling)
     return (
-        <View style={{justifyContent:'space-between',flexDirection:'row',flex:1,alignItems:'center'}}>
+        <View style={[{justifyContent:'space-between',flexDirection:'row',flex:1,alignItems:'center'},onPause?{alignItems:'flex-end',height:156}:{}]}>
           <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:20}}/>
           <View style={[styles.row,{width:'20%'}]}>
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>

@@ -57,6 +57,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.73.6",
     "react-native-animatable": "^1.4.0",
+    "react-native-audio-analyzer": "^1.1.1",
     "react-native-context-menu-view": "^1.16.0",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-material-menu": "^2.0.0",
