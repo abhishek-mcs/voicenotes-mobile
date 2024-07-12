@@ -29,15 +29,13 @@ final class RecordAudioViewModel: ObservableObject {
   private var speed: Double = 1.0
   private var getUserInfo = false
   
-  private let subscriptionStatus: Bool
-  private let maxRecordingTime: TimeInterval
+  var maxRecordingTime: TimeInterval = 60
+  var subscriptionStatus = false
   
   var completion: (RecordingDataModel, _ hideView: Bool) -> Void
   var cancel: () -> Void
   
-  init(subscriptionStatus: Bool, completion: @escaping (RecordingDataModel, Bool) -> Void, cancel: @escaping () -> Void) {
-    self.subscriptionStatus = subscriptionStatus
-    self.maxRecordingTime = subscriptionStatus ? 20 * 60 : 1 * 60
+  init(completion: @escaping (RecordingDataModel, Bool) -> Void, cancel: @escaping () -> Void) {
     
     self.completion = completion
     self.cancel = cancel

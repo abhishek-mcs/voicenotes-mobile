@@ -29,8 +29,8 @@ final class ContentViewModel: ObservableObject {
   @Published var showCancelView = false
   @Published var showDeleteView = false
   @Published var showGotItView = false
-  @Published var recordAudioViewModel = RecordAudioViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {})
-  @Published var aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: false, completion: { _, _ in })
+  @Published var recordAudioViewModel = RecordAudioViewModel(completion: { _, _ in }, cancel: {})
+  @Published var aiRecordingViewModel = AIRecordingViewModel(completion: { _, _ in })
   @Published var askAIChatViewModel = AskAIChatViewModel(audioData: Data())
   @Published var loadAnimation = Image("")
   @Published var recordingsData: [RecordingDataModel] = []
@@ -86,7 +86,7 @@ final class ContentViewModel: ObservableObject {
   private func addLocalNote() {
     var recordings = [RecordModel]()
     recordingsData.forEach { recording in
-      recordings.append(RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: recording.createdAt), updatedAt: self.getNowStringDate(currentDate: recording.createdAt), duration: recording.duration, audioData: recording.audioData))
+      recordings.append(RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: recording.createdAt), updatedAt: self.getNowStringDate(currentDate: recording.createdAt), duration: Double(recording.duration), audioData: recording.audioData))
     }
     
     self.recordings += recordings
@@ -175,6 +175,11 @@ final class ContentViewModel: ObservableObject {
       switch $0 {
       case .failure(let error):
         print("ERROR: \(error.localizedDescription)")
+        if let index = self.recordings.firstIndex(where: { $0.id == recording.id }) {
+          withAnimation {
+            self.recordings[index].isUploadingAudio = false
+          }
+        }
       case .finished: break
       }
     } receiveValue: { [weak self] model in
@@ -187,7 +192,7 @@ final class ContentViewModel: ObservableObject {
         }
       }
       
-      // if aoudio is aploaded then try to delete it from local storage
+      // if audio is aploaded then try to delete it from local storage
       self.deleteRecording(recording.id)
       
       self.updateTranscripting(recordingId: String(model.recording.recordingId), listItemId: recording.id)
@@ -247,7 +252,7 @@ final class ContentViewModel: ObservableObject {
   
   // MARK: Get User Data
 
-  func getUserData(recording: RecordingDataModel, internetCheck: Bool = false) {
+  func getUserData(recording: RecordingDataModel) {
     if !updatedNotesId.contains(where: { $0 == recording.id }) {
       updatedNotesId.append(recording.id)
     }
@@ -287,15 +292,19 @@ final class ContentViewModel: ObservableObject {
         }
         self.noInternet = false
         
-        if internetCheck, let context = self.context {
-          if let index = self.recordings.firstIndex(where: { $0.id == recording.id }) {
-            withAnimation {
-              self.recordings[index].isCheckInternet = false
-              self.recordings[index].isUploadingAudio = true
-            }
+        guard let context = self.context else { return }
+        
+        if let index = self.recordings.firstIndex(where: { $0.id == recording.id }) {
+          withAnimation {
+            self.recordings[index].isCheckInternet = false
+            self.recordings[index].isUploadingAudio = true
           }
-          self.storeAudio(recording: recording, context: context)
         }
+        
+        // if we have resopnse we can try to delete it from local storage
+        self.deleteRecording(recording.id)
+        
+        self.storeAudio(recording: recording, context: context)
       }
       .store(in: &subscriptions)
   }
@@ -337,19 +346,18 @@ final class ContentViewModel: ObservableObject {
   // MARK: Upload Local Note
   
   func uploadLocalNote(model: RecordModel) {
-    guard let audioData = model.audioData, let context = self.context else { return }
-    let recording = RecordingDataModel(duration: model.duration, audioData: audioData, createdAt: Date())
+    guard let audioData = model.audioData else { return }
+    let recording = RecordingDataModel(duration: Int(model.duration), audioData: audioData, createdAt: Date())
     recording.id = model.id
     
     guard let index = self.recordings.firstIndex(where: { $0.id == model.id }) else { return }
     
     if noInternet {
       self.recordings[index].isCheckInternet = true
-      getUserData(recording: recording, internetCheck: true)
+      getUserData(recording: recording)
     } else {
       self.recordings[index].isUploadingAudio = true
       getUserData(recording: recording)
-      storeAudio(recording: recording, context: context)
     }
   }
   
@@ -398,11 +406,9 @@ final class ContentViewModel: ObservableObject {
   // MARK: Init Record Audio ViewModel
   
   func initRecordAudioViewModel() -> RecordAudioViewModel {
-    recordAudioViewModel = RecordAudioViewModel(subscriptionStatus: userDataModel?.subscriptionStatus ?? false,
-                                                completion: { recording, hideView in
-      guard let context = self.context else { return }
+    recordAudioViewModel = RecordAudioViewModel(completion: { recording, hideView in
       
-      let listItemModel = RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: Date()), updatedAt: self.getNowStringDate(currentDate: Date()), duration: recording.duration, isPublished: nil, audioData: recording.audioData)
+      let listItemModel = RecordModel(id: recording.id, recordingId: recording.id, createdAt: self.getNowStringDate(currentDate: Date()), updatedAt: self.getNowStringDate(currentDate: Date()), duration: Double(recording.duration), isPublished: nil, audioData: recording.audioData)
       self.recordings.insert(listItemModel, at: 0)
       
       self.context?.insert(recording)
@@ -413,7 +419,6 @@ final class ContentViewModel: ObservableObject {
       } else {
         self.recordings[0].isUploadingAudio = true
         self.getUserData(recording: recording)
-        self.storeAudio(recording: recording, context: context)
       }
       
       if !self.navigationPath.isEmpty {
@@ -435,8 +440,7 @@ final class ContentViewModel: ObservableObject {
   // MARK: Init Record Audio ViewModel
   
   func initAIRecordingViewModel() -> AIRecordingViewModel {
-    aiRecordingViewModel = AIRecordingViewModel(subscriptionStatus: userDataModel?.subscriptionStatus ?? false,
-                                                completion: { recording, hideView in
+    aiRecordingViewModel = AIRecordingViewModel(completion: { recording, hideView in
       
       // TODO: Added no internet case for AI chat
       
@@ -515,5 +519,21 @@ final class ContentViewModel: ObservableObject {
     
     
     return dateFormatter.date(from: dateString)
+  }
+  
+  func recordButton() {
+    showRecordView = true
+    let subscriptionStatus = userDataModel?.subscriptionStatus ?? false
+    recordAudioViewModel.subscriptionStatus = subscriptionStatus
+    recordAudioViewModel.maxRecordingTime = subscriptionStatus ? 20 * 60 : 60
+    recordAudioViewModel.recordButtonTapped()
+  }
+  
+  
+  func askAIButton() {
+    showAIRecordView = true
+    let subscriptionStatus = userDataModel?.subscriptionStatus ?? false
+    aiRecordingViewModel.maxRecordingTime = subscriptionStatus ? 20 * 60 : 60
+    aiRecordingViewModel.recordButtonTapped()
   }
 }

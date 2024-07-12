@@ -93,6 +93,6 @@ struct RecordAudioView: View {
 }
 
 #Preview {
-  RecordAudioView(viewModel: RecordAudioViewModel(subscriptionStatus: false, completion: { _, _ in }, cancel: {}), cardShown: .constant(true))
+  RecordAudioView(viewModel: RecordAudioViewModel(completion: { _, _ in }, cancel: {}), cardShown: .constant(true))
 }
 

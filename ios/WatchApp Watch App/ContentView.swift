@@ -156,7 +156,7 @@ struct ContentView: View {
         Image(systemName: "play.circle")
           .resizable()
           .frame(width: 12, height: 12)
-        Text(viewModel.formatMilliseconds(model.duration))
+        Text(viewModel.formatMilliseconds(Int(model.duration)))
           .font(.SFProRounded(.demibold, size: 12))
         Spacer()
         Text(viewModel.convertDateString(model.createdAt))
@@ -246,9 +246,7 @@ struct ContentView: View {
       .cornerRadius(.infinity)
       .onTapGesture {
         withAnimation {
-//          viewModel.deleteToken()
-          viewModel.showRecordView = true
-          viewModel.recordAudioViewModel.recordButtonTapped()
+          viewModel.recordButton()
         }
       }
     }
@@ -273,8 +271,7 @@ struct ContentView: View {
       .cornerRadius(.infinity)
       .onTapGesture {
         withAnimation {
-          viewModel.showAIRecordView = true
-          viewModel.aiRecordingViewModel.recordButtonTapped()
+          viewModel.askAIButton()
         }
       }
     }

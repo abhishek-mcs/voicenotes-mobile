@@ -19,7 +19,7 @@ struct RecordModel: Codable, Equatable, Identifiable, Hashable {
     var updatedAt: String
     var title: String?
     var transcript: String?
-    var duration: Int
+    var duration: Double
     var isPublished: Int?
     var audioData: Data?
     var isCheckInternet = false

@@ -81,5 +81,5 @@ struct AIRecordingView: View {
 }
 
 #Preview {
-  AIRecordingView(viewModel: AIRecordingViewModel(subscriptionStatus: false, completion: { _, _ in }), cardShown: .constant(true))
+  AIRecordingView(viewModel: AIRecordingViewModel(completion: { _, _ in }), cardShown: .constant(true))
 }

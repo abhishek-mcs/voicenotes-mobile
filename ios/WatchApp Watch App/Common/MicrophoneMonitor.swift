@@ -25,11 +25,12 @@ class MicrophoneMonitor: ObservableObject {
     
     let audioSession = AVAudioSession.sharedInstance()
     
-    let recorderSettings = [
-      AVFormatIDKey: Int(kAudioFormatAppleLossless),
-      AVSampleRateKey: 44100,
-      AVNumberOfChannelsKey: 2,
-      AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+    let recorderSettings: [String: Any] = [
+      AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+      AVSampleRateKey: 16000,
+      AVNumberOfChannelsKey: 1,
+      AVEncoderAudioQualityKey: AVAudioQuality.low.rawValue,
+      AVEncoderBitRateKey: 32000
     ]
     
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
