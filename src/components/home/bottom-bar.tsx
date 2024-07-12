@@ -43,7 +43,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             setDuration(0);
           }; // Cleanup the interval on component unmount
         }
-      }, [recEnabled,onStopRecord]);
+      }, [recEnabled]);
   return (
     <View style={styles.tab}>
       {!recEnabled ? (
