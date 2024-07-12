@@ -3,7 +3,7 @@ import { bottomSvg } from "assets/svg/bottomSvg";
 import { home } from "assets/svg/home";
 import Recording from "components/common/recording";
 import RecButton from "components/common/recording/rec-button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
@@ -22,31 +22,52 @@ interface Props {
   onPause?:()=>void;
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause}: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=()=>{}}: Props) => {
     const [duration, setDuration] = useState(0);
+    const [paused, setPaused] = useState(false);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
+    const timerId = useRef<NodeJS.Timeout>();
     useEffect(() => {
-        if (recEnabled) {
-          const timerId = setInterval(async() => {
+        if (recEnabled&&!paused) {
+            timerId.current&&clearInterval(timerId.current);
+            timerId.current = setInterval(async() => {
             setDuration(prevDuration => {
               const newDuration = prevDuration + 1000;
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
                 onStopRecord(newDuration);
                 return 0;
-              }else if(newDuration>=1200000&&!!token){
+              }else if(newDuration>=5000&&!!token){
                 onStopRecord(newDuration,true);
                 return 0
               }
               return newDuration;
             }); // Update duration every second
           }, 1000);
-
-          return () => {
-            clearInterval(timerId);
-            setDuration(0);
-          }; // Cleanup the interval on component unmount
         }
-      }, [recEnabled,onStopRecord]);
+      }, [recEnabled,paused]);
+      
+      const onPauseClick = () => {
+        onPause();
+        setPaused((p)=>{
+          !p&&timerId.current&&clearInterval(timerId.current);
+          return !p;
+        });
+      }
+
+      const onDoneClick = () => {
+        onStopRecord(duration);
+        timerId.current&&clearInterval(timerId.current);
+        // setPaused(true);
+        setDuration(0);
+      }
+
+      const onCancelClick = () => {
+        onCancel();
+        timerId.current&&clearInterval(timerId.current);
+        setDuration(0);
+        // setPaused(true);
+      }
+
   return (
     <View style={styles.tab}>
       {!recEnabled ? (
@@ -67,11 +88,13 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
         <Recording
         totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
         duration={duration}
-        onCancel={onCancel}
-        onStopRecord={onStopRecord}
+        onCancel={onCancelClick}
+        onStopRecord={onDoneClick}
         setShowAskMe={setShowAskMe}
-        onPause={onPause}
+        onPause={onPauseClick}
         showAskMe={showAskMe}
+        paused={paused}
+        setPaused={setPaused}
         />
       )}
     </View>

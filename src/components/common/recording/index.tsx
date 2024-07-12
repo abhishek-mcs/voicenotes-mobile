@@ -6,9 +6,8 @@ import { Button, View } from "react-native"
 import RecButton from "./rec-button"
 import { useState } from "react"
 
-export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true}:any)=>{
+export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused}:any)=>{
   const [isCanceling, setIsCanceling] = useState(false);
-  const [paused, setPaused] = useState(false);
   const formattedDuration = new Date(duration).toISOString().substring(14, 19);
 
   const continueRecording = () => {
@@ -20,13 +19,10 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
     if(duration>=10000){
       setIsCanceling(true);
       setShowAskMe(false);
-    }else
+    }else{
+      setPaused(false);
       onCancel();
-  }
-
-  const onPauseClick = () =>{
-    setPaused(!paused);
-    onPause();
+    }
   }
 
   if(!isCanceling)
@@ -37,14 +33,14 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
             <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
             <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
           </View>
-          {onPause&&<RecButton icon={!paused?bottomSvg.pause:bottomSvg.play} title="" underlayColor="" onPress={onPauseClick} style={{paddingHorizontal:17,marginRight:-12}}/>}
+          {onPause&&<RecButton icon={!paused?bottomSvg.pause:bottomSvg.play} title="" underlayColor="" onPress={onPause} style={{paddingHorizontal:17,marginRight:-12}}/>}
           <RecButton
             title="Done"
             icon={bottomSvg.done}
             color={Colors.green}
             bgColor={Colors.greenWithOpacity(0.2)}
             underlayColor={Colors.greenWithOpacity(0.3)}
-            onPress={()=>onStopRecord(duration)}
+            onPress={onStopRecord}
             style={{paddingHorizontal:20}}
           />
         </View>
