@@ -28,18 +28,22 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
 
   if(!isCanceling)
     return (
-        <View style={{height:156,width:'100%',padding:16}}>
-          <View style={[styles.row,{justifyContent:'space-between'}]}>
-            <Text style={styles.tabItemText}>Recording...</Text>
-            <View style={[styles.row,{width:'20%'}]}>
+        // <View style={{height:156,width:'100%',padding:16}}>
+          // {/* <View style={[styles.row,{justifyContent:'space-between'}]}>
+          //   <Text style={styles.tabItemText}>Recording...</Text>
+          //   <View style={[styles.row,{width:'20%'}]}>
+          //     <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
+          //     <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
+          //   </View>
+          // </View> */}
+          // {/* <Waveform recording={rec}/> */}
+          <View style={{alignItems:'center',flexDirection:'row',justifyContent:'space-between',width:'100%'}}>
+          <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:20}}/>
+          <View style={[styles.row,{width:'20%'}]}>
               <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
               <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
             </View>
-          </View>
-          <Waveform recording={rec}/>
-          <View style={{alignItems:'center',flexDirection:'row',justifyContent:'space-between'}}>
-          <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:20}}/>
-          {onPause&&<RecButton icon={!paused?bottomSvg.pause:bottomSvg.play} title="" underlayColor="" onPress={onPause} style={{paddingHorizontal:17,marginRight:-12}}/>}
+          {onPause&&<RecButton icon={!paused?bottomSvg.pause:bottomSvg.play} title="" underlayColor="" onPress={onPause} style={{paddingHorizontal:12,marginRight:-12}}/>}
           <RecButton
             title="Done"
             icon={bottomSvg.done}
@@ -50,7 +54,7 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
             style={{paddingHorizontal:20}}
           />
           </View>
-        </View>
+        // </View>
     )
     else
       return (
