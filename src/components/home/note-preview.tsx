@@ -47,7 +47,7 @@ export default forwardRef(({
   isSingle = false,
   isSubnote = false,
   list, index, isPlay, setIsPlay, play, setPlay, audioLoading, setAudioLoading, hideIcons = false, onDeleteCallBack = () => { },
-  onStartRecord = () => { },
+  onStartRecord = (obj: {parent_id: string | null, repeat : boolean | null }) => { },
 }: any, ref) => {
   const route = useRouter()
   const [editNote, setEditNote] = useState(note)
@@ -227,6 +227,20 @@ export default forwardRef(({
   }
   const onDelete = () => {
     hideMoreOption();
+    if (note.subnotes?.length) {
+      Alert.alert(
+        "",
+        "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
+        [
+          {
+            text: "Got It",
+            style: "cancel",
+          },
+        ]
+      );
+      return;
+    }
+
     Alert.alert('', 'Are you sure you want to delete?', [
       {
         text: 'No',
@@ -354,7 +368,7 @@ export default forwardRef(({
   },[expand])
 
   const onThreadNote = () => {
-    onStartRecord(note.id)
+    onStartRecord({parent_id: note.id})
     closeAddMenu()
   }
 

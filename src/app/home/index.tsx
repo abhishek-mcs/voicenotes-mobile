@@ -176,11 +176,11 @@ export default ()=> {
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
-    repeat&&onStartRecord(true)
+    repeat&&onStartRecord({repeat: true})
     !repeat&&setExpandNote(0)
 
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId, recorded_at: new Date()})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')

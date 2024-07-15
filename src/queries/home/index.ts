@@ -65,7 +65,7 @@ export function useSaveEditedNote(recording_id:any){
 export function useUploadRecord(){
     return useMutation('upload-audio', async(data:any) => {
         const uri = data.audio;
-        const {parent_id} = data
+        const {parent_id, recorded_at} = data
         const filetype = uri.split(".").pop();
         const filename = uri.split("/").pop();
 
@@ -75,7 +75,11 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
-        formData.append("parent_id", parent_id || null);
+        console.log({recorded_at});
+        
+        parent_id && formData.append("parent_id", parent_id);
+        recorded_at && formData.append("recorded_at", recorded_at);
+
         const deviceInfo = {
             platform: Platform.OS,
             manufacturer: Device.manufacturer ,
@@ -86,7 +90,7 @@ export function useUploadRecord(){
         }
 
         formData.append("duration", data.duration.toString());
-        // formData.append("device_info",JSON.stringify(deviceInfo));
+        formData.append("device_info",JSON.stringify(deviceInfo));
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })

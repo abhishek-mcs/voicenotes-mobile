@@ -1,9 +1,10 @@
 import { isAndroid, isIOS } from "utils/common";
 
-export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry, parent_id}:any)=>{
+export default async({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry, parent_id, recorded_at}:any)=>{
+
   return new Promise(async(resolve, reject) => {
     await uploadRecord.mutateAsync(
-        {audio:file,duration:d,isRetry:isRetry, parent_id: parent_id},
+        {audio:file,duration:d,isRetry:isRetry, parent_id: parent_id, recorded_at},
         {
           onSuccess: async(r:any) => {
             if(isIOS){
