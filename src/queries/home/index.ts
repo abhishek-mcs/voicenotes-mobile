@@ -222,8 +222,8 @@ export function useAddTitle(){
     },
     {
         onSuccess:async()=>{
-            await queryClient.invalidateQueries('all-recording');
-            await queryClient.invalidateQueries('streaks');
+            await queryClient.resetQueries('all-recording');
+            await queryClient.resetQueries('streaks');
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
