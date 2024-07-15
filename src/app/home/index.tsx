@@ -149,8 +149,8 @@ export default ()=> {
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
-  const onStartRecord = async(parent_id:string|null = null) => {
-    if (recEnabled){
+  const onStartRecord = async({repeat = false, parent_id = null}={}) => {
+    if (recEnabled&&!repeat){
       console.log('Recording already started.');
       return;
     }
@@ -170,14 +170,16 @@ export default ()=> {
   };
   const onStopRecord = useCallback(async(d:number,repeat=false ) => {
     // const file = rec.getURI()||"";
+    setRecEnabled(false);
     const file = await stopRecording(rec);
     setRec(null);
-    setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
-    repeat&&onStartRecord()
+    repeat&&onStartRecord(true)
     !repeat&&setExpandNote(0)
+
+    scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()

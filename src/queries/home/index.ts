@@ -3,6 +3,10 @@ import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
 import { useGetRelatedRecording } from "./relatedNote";
+import { Platform } from "react-native";
+import * as Device from 'expo-device';
+import * as Application from 'expo-application';
+
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -72,7 +76,17 @@ export function useUploadRecord(){
           type: `audio/${filetype}`,
         });
         formData.append("parent_id", parent_id || null);
+        const deviceInfo = {
+            platform: Platform.OS,
+            manufacturer: Device.manufacturer ,
+            modelName: Device.modelName ,
+            deviceType: Device.deviceType === null? null: Device.DeviceType[Device.deviceType],
+            osVersion: Device.osVersion,
+            appVersion:  Application.nativeApplicationVersion
+        }
+
         formData.append("duration", data.duration.toString());
+        // formData.append("device_info",JSON.stringify(deviceInfo));
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })
@@ -171,7 +185,7 @@ export function useGetAiCreation(){
     })
 }
 
-export function useAddTranscript(doGenerateTitle=false){
+export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setReduxRecordingList:any=()=>{}){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()
     const addRelatedNotes=useGetRelatedRecording()
@@ -186,7 +200,13 @@ export function useAddTranscript(doGenerateTitle=false){
     {
         onSuccess:async()=>{
             await queryC.invalidateQueries('all-recording')
-            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id,{
+                onError:(error:any)=>{
+                    const index=recordingList?.findIndex((r:any)=>r.id==rec_id)
+                    recordingList[index].title=null;
+                    setReduxRecordingList([...recordingList])
+                }
+            })
             doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
@@ -204,8 +224,8 @@ export function useAddTitle(){
     },
     {
         onSuccess:async()=>{
-            await queryClient.invalidateQueries('all-recording');
-            await queryClient.invalidateQueries('streaks');
+            await queryClient.resetQueries('all-recording');
+            await queryClient.resetQueries('streaks');
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);

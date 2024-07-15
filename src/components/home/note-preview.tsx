@@ -104,9 +104,11 @@ export default forwardRef(({
   const showCreateOption = () => setCreateOption(true);
   const closeAddMenu = ()=>setShowAddMenu(false)
 
-  const onEdit = () =>
-    router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
+  const onEdit = () =>{
+    // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
+    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id,note:JSON.stringify(note)} })
 
+  }
   const onGotoAddTag = () => {
     hideMoreOption()
     setTimeout(() => {
@@ -133,21 +135,21 @@ export default forwardRef(({
     })
   }
 
-  const onGenerateTitle = useCallback(async () => {
+  const onGenerateTitle = async () => {
     setTitleLoading(true)
     hideMoreOption();
-    // dispatch(updateTitle({title:null,index}))
+    // dispatch(updateTitle({title:'',index}))
     await addTitleRecord.mutateAsync(note?.id)
     setTitleLoading(false)
-  }, [note])
+  }
 
-  const onReGenerateTranscript = useCallback(async () => {
+  const onReGenerateTranscript = async () => {
     setTranscriptLoading(true)
     hideMoreOption();
     // dispatch(updateTranscript({transcript:'',index}))
     await addTranscript.mutateAsync(note?.id)
     setTranscriptLoading(false)
-  }, [note])
+  }
 
   const onRetry = async () => {
     if (isUploadingFailed) {
@@ -311,7 +313,8 @@ export default forwardRef(({
 
   const creationList = useMemo(() => note?.creations, [list])
 
-  const opacity = new Animated.Value(0);
+  const isLongTranscript=!!note?.transcript&&note?.transcript?.length>520?true:false
+  let opacity = new Animated.Value(1);
 
   const onExpand = async () => {
     LayoutAnimation.configureNext({
@@ -340,7 +343,8 @@ export default forwardRef(({
   }
 
   useEffect(()=>{
-    if(expand>-1){
+    if(expand>-1&&isLongTranscript){
+      opacity.setValue(0)
       Animated.timing(opacity,{
         duration:270,
         toValue:1,
@@ -355,7 +359,7 @@ export default forwardRef(({
   }
 
   const slug = note.public_slug || ""
-  console.log(note.attachments);
+  // console.log(note.attachments);
   
 
   return (
@@ -373,7 +377,7 @@ export default forwardRef(({
             <View style={styles.timeLine} />
           </View>
           <View style={{ marginLeft: 9, flex: 1, marginTop: -3 }}>
-            {(!!note?.title && !titleLoading) ?
+            {(!!note?.title&&note?.title?.length>0&&titleLoading==false) ?
               // <Touchable onPress={()=>{
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
               <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />
@@ -389,7 +393,7 @@ export default forwardRef(({
                 <Text style={[styles.text, { color: Colors.grey3, fontFamily: 'Primary-Italic', width: screenWidth / 1.3 }]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
               </View>}
             {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
-              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
+              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
 
 
@@ -425,9 +429,9 @@ export default forwardRef(({
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
                 <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
                   {hashFilter != 'shared' &&
                     <>
                     {!isSubnote && <Menu
@@ -459,11 +463,24 @@ export default forwardRef(({
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       {
+                        // isIOS?
+                        // <MoreOptions 
+                        //   options={[
+                        //     {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
+                        //     {title:'Main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
+                        //     {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
+                        //     {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
+                        //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
+                        //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
+                        //     ]}>
+                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create}/>
+                        // </MoreOptions>
+                        // :
                         <Menu
                           visible={createOption}
-                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create1} />}
+                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
                           onRequestClose={hideCreateOption}
-                          style={styles.menu}
+                          style={isIOS?styles.menuIOS:styles.menu}
                           animationDuration={150}
                         >
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
@@ -515,7 +532,7 @@ export default forwardRef(({
                         <NoteButtons text="More" style={hashFilter != 'shared' ? {} : { marginLeft: 0 }} onPress={showMoreOption} icon={home.more} />
                       }
                       onRequestClose={hideMoreOption}
-                      style={styles.menu}
+                      style={isIOS?styles.menuIOS:styles.menu}
                       animationDuration={150}
                     >
                       {hashFilter != 'shared' ?
@@ -540,7 +557,7 @@ export default forwardRef(({
                           </MenuItem>
                           {!!token && <MenuItem style={styles.menuItem} onPress={onDelete}>
                             <View style={styles.row}>
-                              <SvgXml xml={home.delete} style={{marginLeft: 2}} />
+                              <SvgXml xml={home.deleteGrey} style={{marginLeft: 2}} />
                               <Text style={styles.menuItemTxt}>Delete</Text>
                             </View>
                           </MenuItem>}
@@ -652,7 +669,7 @@ export default forwardRef(({
               {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
                   {NetInfo.isConnected && !note.is_audio_corrupted &&
-                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading} />}
+                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
                   <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
                 </View>}
               {/* related notes */}
@@ -761,14 +778,16 @@ const styles = StyleSheet.create({
     color: "rgba(34, 34, 34, 0.9)",
     lineHeight: isIOS ? 23 : 22,
     marginTop: 4,
-    marginLeft: -3
+    marginLeft: 0
   },
   menu: {
     borderRadius: 12,
-    // marginTop:40,
-    // paddingVertical: 5,
     paddingBottom: 0
-    // marginLeft:10
+  },
+  menuIOS:{
+    marginTop:40,
+    borderRadius: 12,
+    paddingBottom: 0
   },
   menuPress: {
     height: 25,
