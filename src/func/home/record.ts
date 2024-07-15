@@ -45,9 +45,10 @@ export const onRecord = async (
           staysActiveInBackground:true,
         });
 
-        const { recording: recordingObject, status } = await Audio.Recording.createAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY
-        );
+        const { recording: recordingObject, status } = await Audio.Recording.createAsync({
+          ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+          isMeteringEnabled: true,
+        });
         setRec(recordingObject);
         setRecEnabled(true);
       } else if (status.canAskAgain && status.status == "undetermined") {

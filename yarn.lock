@@ -11087,11 +11087,6 @@ warn-once@^0.1.0:
   resolved "https://registry.yarnpkg.com/warn-once/-/warn-once-0.1.1.tgz#952088f4fb56896e73fd4e6a3767272a3fccce43"
   integrity sha512-VkQZJbO8zVImzYFteBXvBOZEl1qL175WH8VmZcxF2fZAoudNhNDvHi+doCaAEdU2l2vtcIwa2zn0QK5+I1HQ3Q==
 
-wavesurfer.js@^7.7.15:
-  version "7.7.15"
-  resolved "https://registry.yarnpkg.com/wavesurfer.js/-/wavesurfer.js-7.7.15.tgz#5a7bfc535561af96a08913220b2ed38ec7cd7099"
-  integrity sha512-qJE7sZ5qnFG9wBtU9+jBpYn7faWXZHEz1I25Xnf4EhGqqS2rFj/hxTtbIaETynalPajxC1xXd/9TnDHWO+mARA==
-
 wcwidth@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/wcwidth/-/wcwidth-1.0.1.tgz#f0b0dcf915bc5ff1528afadb2c0e17b532da2fe8"

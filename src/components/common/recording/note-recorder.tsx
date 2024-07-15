@@ -1,13 +1,13 @@
 import Colors from "assets/Colors"
 import { bottomSvg } from "assets/svg/bottomSvg"
-import { StyleSheet } from "react-native"
+import { ScrollView, StyleSheet } from "react-native"
 import { Text } from "react-native"
 import { Button, View } from "react-native"
 import RecButton from "./rec-button"
-import { useState } from "react"
-import { analyzeAudio, scale, sample } from 'react-native-audio-analyzer';
+import { useEffect, useState } from "react"
+import Waveform from "./waveform"
 
-export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused}:any)=>{
+export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused,rec}:any)=>{
   const [isCanceling, setIsCanceling] = useState(false);
   const formattedDuration = new Date(duration).toISOString().substring(14, 19);
 
@@ -28,12 +28,17 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
 
   if(!isCanceling)
     return (
-        <View style={[{justifyContent:'space-between',flexDirection:'row',flex:1,alignItems:'center'},onPause?{alignItems:'flex-end',height:156}:{}]}>
-          <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:20}}/>
-          <View style={[styles.row,{width:'20%'}]}>
-            <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
-            <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
+        <View style={{height:156,width:'100%',padding:16}}>
+          <View style={[styles.row,{justifyContent:'space-between'}]}>
+            <Text style={styles.tabItemText}>Recording...</Text>
+            <View style={[styles.row,{width:'20%'}]}>
+              <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
+              <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
+            </View>
           </View>
+          <Waveform recording={rec}/>
+          <View style={{alignItems:'center',flexDirection:'row',justifyContent:'space-between'}}>
+          <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:20}}/>
           {onPause&&<RecButton icon={!paused?bottomSvg.pause:bottomSvg.play} title="" underlayColor="" onPress={onPause} style={{paddingHorizontal:17,marginRight:-12}}/>}
           <RecButton
             title="Done"
@@ -44,6 +49,7 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
             onPress={onStopRecord}
             style={{paddingHorizontal:20}}
           />
+          </View>
         </View>
     )
     else
@@ -61,12 +67,26 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
 
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+  },
     tabItemText: {
       fontFamily: "Primary-Semibold",
       fontSize: 14,
-      color: "#000",
-      fontWeight: "700",
+      color: "#0D0D0D",
+      fontWeight: "600",
       lineHeight:17
     },
     row:{flexDirection:'row',alignItems:"center"},
+    scroll: {
+      maxHeight: 200,
+    },
+    item: {
+      width: 3,
+      backgroundColor: 'blue',
+      marginHorizontal: 2,
+    },
   });

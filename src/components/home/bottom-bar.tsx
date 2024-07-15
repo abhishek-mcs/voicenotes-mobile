@@ -1,7 +1,6 @@
 import Colors from "assets/Colors";
-import { bottomSvg } from "assets/svg/bottomSvg";
 import { home } from "assets/svg/home";
-import Recording from "components/common/recording";
+import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
@@ -20,9 +19,10 @@ interface Props {
   showAskMe: boolean;
   setShowAskMe: (v:boolean)=>void;
   onPause?:(v:any)=>void;
+  rec: any;
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=(v:any)=>{}}: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=(v:any)=>{},rec=null}: Props) => {
     const [duration, setDuration] = useState(0);
     const [paused, setPaused] = useState(false);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
@@ -85,7 +85,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
           <RecButton onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
         </>
       ) : (
-        <Recording
+        <NoteRecorder
         totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
@@ -95,6 +95,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
         showAskMe={showAskMe}
         paused={paused}
         setPaused={setPaused}
+        rec={rec}
         />
       )}
     </View>

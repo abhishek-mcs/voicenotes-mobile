@@ -372,6 +372,7 @@ export default ()=> {
         showAskMe={showAskMe}
         setShowAskMe={setShowAskMe}
         onPause={onPause}
+        rec={rec}
       />
     </SafeAreaView>
   );
