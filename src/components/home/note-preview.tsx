@@ -37,6 +37,7 @@ import threeDotLoader from 'assets/lottie/threeDotLoader.json'
 import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
 import { Foundation } from '@expo/vector-icons';
 import { addMenu } from "assets/svg/AddMenu";
+import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 
 export default forwardRef(({
   note,
@@ -373,7 +374,6 @@ export default forwardRef(({
   }
 
   const slug = note.public_slug || ""
-  // console.log(note.attachments);
   
 
   return (
@@ -411,33 +411,7 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
 
 
-            <View style={styles.container}>
-      {note.attachments?.map((attachment, index) => (
-        <View key={index} style={styles.attachmentContainer}>
-          {attachment.type === 2 && (
-            <Image
-              source={{ uri: attachment.url }}
-              style={styles.image}
-              // resizeMode="cover"
-            />
-          )}
-          {attachment.type === 1 && (
-            <TouchableOpacity
-              style={styles.linkContainer}
-              onPress={() => openLink(attachment.url)}
-            >
-              <Link color="#007AFF" size={24} href={attachment.url} />
-              <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
-                {attachment.description}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      ))}
-    </View>
-
-
-
+            {note?.attachments?.length> 0 &&<AttachmentViewer attachments={note?.attachments}  />}
 
 
             {expand == index && <>
