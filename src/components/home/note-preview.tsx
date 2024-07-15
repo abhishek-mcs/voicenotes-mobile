@@ -596,7 +596,7 @@ export default forwardRef(({
               {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
                   {NetInfo.isConnected && !note.is_audio_corrupted &&
-                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading} />}
+                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
                   <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
                 </View>}
               {/* related notes */}
