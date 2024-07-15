@@ -150,7 +150,7 @@ export default forwardRef(({
       setUploadLoading(true)
       await onUploadRetry(note).catch(() => {
         const temp = [...tempRecordings]
-        temp[index] = { ...temp[index], isUploading: false, is_audio_corrupted: false}
+        temp[index] = { ...temp[index], isUploading: false, is_audio_corrupted: false, error: null}
         dispatch(setTempRecordings([...temp]))
       })
       setUploadLoading(false)
@@ -376,9 +376,16 @@ export default forwardRef(({
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
               <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />
               // </Touchable>
-              : isUploadingFailed ? note?.is_audio_corrupted? <Text style={[styles.title, { color: '#ff4538' }]}>{note?.error||''}</Text>
-                  :<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
-                : note?.transcript === null ? <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
+              : isUploadingFailed ? note?.is_audio_corrupted?
+              <>
+               <Text style={[styles.title, { color: '#ff4538' }]}>{note?.error||''}</Text>
+               <EditDeleteButtons/>
+              </>
+                :<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
+                : note?.transcript === null ? <>
+                <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
+                <EditDeleteButtons/>
+                </>
                   : <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
             }
             {isUploadingFailed && !note?.is_audio_corrupted && <>
