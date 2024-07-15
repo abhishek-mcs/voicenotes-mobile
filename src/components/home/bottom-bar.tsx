@@ -37,7 +37,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
                 onStopRecord(newDuration);
                 return 0;
               }else if(newDuration>=1200000&&!!token){
-                onStopRecord(newDuration,false);
+                onStopRecord(newDuration,true);
                 return 0
               }
               return newDuration;
