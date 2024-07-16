@@ -75,7 +75,7 @@ export default ()=> {
   const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [rec, setRec] = useState<Audio.Recording | any>(null);
+  const [rec, setRec] = useState<Audio.Recording|null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const AIModalRef = useRef<any>();
   const CreateModalRef = useRef<any>();
@@ -149,8 +149,8 @@ export default ()=> {
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
-  const onStartRecord = async() => {
-    if (recEnabled){
+  const onStartRecord = async(repeat=false) => {
+    if (recEnabled&&!repeat){
       console.log('Recording already started.');
       return;
     }
@@ -167,15 +167,19 @@ export default ()=> {
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
   };
+  const onPause = async(paused:boolean) => {
+   paused? await rec?.pauseAsync().finally(()=>{console.log('paused')})
+   :await rec?.startAsync().finally(()=>{console.log('resumed')})
+  };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
     // const file = rec.getURI()||"";
+    setRecEnabled(false);
     const file = await stopRecording(rec);
     setRec(null);
-    setRecEnabled(false);
     const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
-    repeat&&onStartRecord()
+    repeat&&onStartRecord(true)
     !repeat&&setExpandNote(0)
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
@@ -196,7 +200,7 @@ export default ()=> {
 
   const batchRetryUpload = async () => {
     if (generateDummy && generateDummy.length > 0) {
-      const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true }));
+      const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true, error: null, is_audio_corrupted: false }));
       setGenerateDummy([...temp]);
 
       for (let i = temp.length - 1; i >= 0; i--) {
@@ -366,6 +370,10 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
+        showAskMe={showAskMe}
+        setShowAskMe={setShowAskMe}
+        onPause={onPause}
+        rec={rec}
       />
     </SafeAreaView>
   );

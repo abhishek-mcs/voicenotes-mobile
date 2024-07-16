@@ -1,10 +1,9 @@
 import Colors from "assets/Colors";
-import { bottomSvg } from "assets/svg/bottomSvg";
 import { home } from "assets/svg/home";
-import Recording from "components/common/recording";
+import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { SafeAreaView, StyleSheet, Text, TouchableHighlight, useWindowDimensions, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
@@ -17,14 +16,23 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: ()=> void;
+  showAskMe: boolean;
+  setShowAskMe: (v:boolean)=>void;
+  onPause?:(v:any)=>void;
+  rec: any;
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel }: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=(v:any)=>{},rec=null}: Props) => {
     const [duration, setDuration] = useState(0);
+    const [paused, setPaused] = useState(false);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
+    const timerId = useRef<NodeJS.Timeout>();
+    const { width } = useWindowDimensions();
+    const isSmallScreen = width < 375; // Threshold for small screens like iPhone 13 mini
     useEffect(() => {
-        if (recEnabled) {
-          const timerId = setInterval(async() => {
+        if (recEnabled&&!paused) {
+            timerId.current&&clearInterval(timerId.current);
+            timerId.current = setInterval(async() => {
             setDuration(prevDuration => {
               const newDuration = prevDuration + 1000;
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
@@ -37,60 +45,109 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
               return newDuration;
             }); // Update duration every second
           }, 1000);
-
-          return () => {
-            clearInterval(timerId);
-            setDuration(0);
-          }; // Cleanup the interval on component unmount
         }
-      }, [recEnabled,onStopRecord]);
+      }, [recEnabled,paused]);
+      
+      const onPauseClick = () => {
+        onPause(!paused);
+        setPaused((p)=>{
+          !p&&timerId.current&&clearInterval(timerId.current);
+          return !p;
+        });
+      }
+
+      const onDoneClick = async() => {
+        await onStopRecord(duration);
+        timerId.current&&clearInterval(timerId.current);
+        // setPaused(true);
+        setDuration(0);
+      }
+
+      const onCancelClick = async() => {
+        await onCancel();
+        timerId.current&&clearInterval(timerId.current);
+        setDuration(0);
+        // setPaused(true);
+      }
+
   return (
+    <SafeAreaView style={styles.safeArea}>
     <View style={styles.tab}>
       {!recEnabled ? (
         <>
           <RecButton
             onPress={onRecord}
-            title="Record"
+            title='Record'
             icon={home.record}
             underlayColor={Colors.blackWithOpacity(0.7)}
-            bgColor={"#000"}
+            bgColor={'#000'}
             color="#fff"
-            style={{flex:2}}
+            style={styles.recordButton}
           />
-          <RecButton onPress={onAsk} title="Ask my AI" icon={home.ask} style={{paddingHorizontal:12,marginHorizontal:8}}/>
-          <RecButton onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
+          <RecButton
+            onPress={onAsk}
+            title={isSmallScreen ? 'Ask AI' : 'Ask my AI'}
+            icon={home.ask}
+            style={styles.askButton}
+          />
+          <RecButton
+            onPress={onCreate}
+            title='Create'
+            icon={home.create}
+            style={styles.createButton}
+          />
         </>
       ) : (
-        <Recording
+        <NoteRecorder
         totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
         duration={duration}
-        onCancel={onCancel}
-        onStopRecord={onStopRecord}
+        onCancel={onCancelClick}
+        onStopRecord={onDoneClick}
+        setShowAskMe={setShowAskMe}
+        onPause={onPauseClick}
+        showAskMe={showAskMe}
+        paused={paused}
+        setPaused={setPaused}
+        rec={rec}
         />
       )}
     </View>
-  );
+  </SafeAreaView>
+);
 };
 
+
 const styles = StyleSheet.create({
+  safeArea: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   tab: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    height: 64,
+    minHeight: 64,
     borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 40,
-    alignItems: "center",
-    shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
-		shadowOpacity: 0.9,
-		shadowOffset: { width: 0, height:0.5 },
-		shadowRadius: 1.5,
-    zIndex:10,
-		elevation: 3,
-    paddingHorizontal: 12,
-    paddingVertical:8,
-    // justifyContent: "space-between",
-  }
+    marginHorizontal: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    shadowColor: isIOS ? '#00000026' : 'rgba(0,0,0,0.7)',
+    shadowOpacity: 0.9,
+    shadowOffset: { width: 0, height: 0.5 },
+    shadowRadius: 1.5,
+    elevation: 3,
+    paddingHorizontal: '3%',
+    paddingVertical: '2%',
+  },
+  recordButton: {
+    flex: 1,
+  },
+  askButton: {
+    flex: 1,
+    marginHorizontal: '2%',
+  },
+  createButton: {
+    flex: 1,
+  },
 });

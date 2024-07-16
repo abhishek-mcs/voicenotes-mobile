@@ -7,7 +7,7 @@ import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollV
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -23,12 +23,16 @@ import { commonSvg } from "assets/svg/commonSvg";
 import { setRecordingList, updateTitle,updateTranscript } from "redux/reducers/recordingStates";
 import CircularLoader from "components/common/loaders/circular-loader";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
+import { useGetSingleRecording } from "queries/home/relatedNote";
 
 export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
-    const [editNote,setEditNote] = useState<any>(JSON.parse(params?.note))
+
+    const data=useMemo(()=>JSON.parse(params?.note),[])
+    
+    const [editNote,setEditNote] = useState<any>(data)
     const dispatch=useDispatch();
     const saveEditedNote=useSaveEditedNote(editNote?.id)
     const queryClient=useQueryClient();
@@ -72,8 +76,8 @@ export default () => {
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-          <KeyboardAvoidingView behavior="padding" style={{marginBottom:200}} >
-          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:isIOS?16:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
+          {/* <KeyboardAvoidingView behavior={"padding"} > */}
+          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
             <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
@@ -91,19 +95,22 @@ export default () => {
       autoComplete="off"
       autoCorrect={false}
       selectTextOnFocus={false}
-      value={editNote.title}
+      value={editNote?.title}
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
+    <ScrollView showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets>
     <TextInput
       ref={textRef}
       style={styles.textInput}
       multiline
       autoComplete="off"
       autoCorrect={false}
+      scrollEnabled={false}
       selectTextOnFocus={false}
-      value={editNote.transcript.replaceAll(/<br\/?>/g, '\n')} 
+      value={editNote?.transcript?.replaceAll(/<br\/?>/g, '\n')} 
       onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
+      </ScrollView>
   </View>
-          </KeyboardAvoidingView>
+          {/* </KeyboardAvoidingView> */}
         </SafeAreaView>
     );
 }
@@ -125,7 +132,7 @@ const styles=StyleSheet.create({
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingBottom:60,
+    paddingBottom:0,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,
