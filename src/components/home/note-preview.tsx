@@ -38,6 +38,7 @@ import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
 import { Foundation } from '@expo/vector-icons';
 import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
+import ImageUploader from "components/NotePreview/ImageUploader";
 
 export default forwardRef(({
   note,
@@ -435,7 +436,7 @@ export default forwardRef(({
                               <Text style={styles.menuItemTxt}>Thread a Note</Text>
                             </View>
                           </MenuItem>
-                          {/* <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
+                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <SvgXml xml={addMenu.camera} />
                               <Text style={styles.menuItemTxt}>Photos</Text>
@@ -446,10 +447,12 @@ export default forwardRef(({
                               <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
                               <Text style={styles.menuItemTxt}>Link</Text>
                             </View>
-                          </MenuItem> */}
+                          </MenuItem>
                       </Menu>}
+                      <ImageUploader/>
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
+                      
                       {
                         // isIOS?
                         // <MoreOptions 

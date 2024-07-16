@@ -171,6 +171,7 @@ const AttachmentViewer = ({ attachments = [] }) => {
 const styles = {
   container: {
     flex: 1,
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 18,
