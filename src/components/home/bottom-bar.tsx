@@ -38,13 +38,6 @@ export default ({
   onStopRecord,
   onCancel,
 }: Props) => {
-  const singleRecording = useGetSingleRecording(recordingParentId);
-  const [note, setNote] = useState(null);
-
-  useEffect(() => {
-    setNote(singleRecording?.data?.data);
-  }, [singleRecording]);
-
   const [duration, setDuration] = useState(0);
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
@@ -97,7 +90,7 @@ export default ({
           paddingVertical: 8,
         }}
       >
-        <Text>Adding as subnote {note?.title ? `of ${note?.title}` : ""}</Text>
+      {recordingParentId && <Text>Adding as subnote</Text>}
       </View>
       {!recEnabled ? (
         <View style={styles.tab}>
