@@ -108,4 +108,5 @@ export {
   androidGoogleClientID,
   expoClientID,
   facebookAPPID,
+  currentENV
 }

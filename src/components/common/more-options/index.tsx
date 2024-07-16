@@ -1,11 +1,8 @@
-import {Menu,MenuItem} from 'react-native-material-menu';
-import { Pressable, StyleSheet, Text } from 'react-native';
-import { View } from 'react-native';
-import menuProps from './menu-props';
-import { SvgXml } from 'react-native-svg';
+import { StyleSheet, } from 'react-native';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import ContextMenu from "react-native-context-menu-view";
 
-export default forwardRef(({title='',options=[]}:{title:string,options:menuProps[]},ref) => {
+export default forwardRef(({options=[],children}:any,ref) => {
   const [visible, setVisible] = useState(true);
   useImperativeHandle(ref, () => {
     return {
@@ -14,17 +11,20 @@ export default forwardRef(({title='',options=[]}:{title:string,options:menuProps
     }
 },[visible]);
   return (
-    <Menu
-          visible={visible}
-          onRequestClose={()=>{setVisible(false)}}
-          anchor={<Pressable onPress={()=>setVisible(true)}><Text>{title}</Text></Pressable>}
+        <ContextMenu
+          actions={options}
+          onPress={(e) => {
+            options?.map((item:any) => {
+              if(item?.title==e?.nativeEvent?.name){
+                item?.onPress?.();
+              }
+            });
+          }}
+          dropdownMenuMode
         >
-       {options?.map((itm:any,index:number) =>
-       <MenuItem style={itm?.style} onPress={itm?.onPress}>
-          {itm?.title}
-        </MenuItem>)}
-        </Menu>
-  );
+          {children}
+        </ContextMenu>
+      );
 });
 
 const { button, buttonText } = StyleSheet.create({
