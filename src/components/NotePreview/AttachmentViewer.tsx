@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   Modal,
   FlatList,
@@ -16,8 +15,13 @@ import { Foundation } from "@expo/vector-icons";
 import { ATTACHMENT_TYPE } from "types";
 import { BlurView } from "expo-blur"; 
 import axiosApi from "services/api/axios-api";
+import { Image } from 'expo-image'; 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
 
 const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}}) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -61,26 +65,29 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}}) => {
     );
   }, [deleteAttachment]);
 
-  const renderImageThumbnail = useCallback(
-    ({ item, index }) => (
-      <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <View style={styles.thumbnailContainer}>
-          <Image
-            source={{ uri: item.url }}
-            style={styles.thumbnail}
-            resizeMode="cover"
-            onError={() => console.log("Error loading thumbnail:", item.url)}
-          />
-          {item.is_uploading && (
-            <BlurView intensity={50} style={styles.blurOverlay}>
-              <ActivityIndicator size="large" color="#ffffff" />
-            </BlurView>
-          )}
-        </View>
-      </TouchableOpacity>
-    ),
-    []
-  );
+
+const renderImageThumbnail = useCallback(
+  ({ item, index }) => (
+    <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
+      <View style={styles.thumbnailContainer}>
+        <Image
+          source={{ uri: item.url }}
+          style={styles.thumbnail}
+          contentFit="cover"
+          transition={300}
+          placeholder={item.placeholderColor || blurhash}
+          cachePolicy="memory-disk"
+        />
+        {item.is_uploading && (
+          <BlurView intensity={50} style={styles.blurOverlay}>
+            <ActivityIndicator size="large" color="#ffffff" />
+          </BlurView>
+        )}
+      </View>
+    </TouchableOpacity>
+  ),
+  []
+);
 
   const renderLinkItem = useCallback(
     ({ item }) => (
