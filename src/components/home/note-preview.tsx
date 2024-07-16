@@ -150,7 +150,7 @@ export default forwardRef(({
       setUploadLoading(true)
       await onUploadRetry(note).catch(() => {
         const temp = [...tempRecordings]
-        temp[index] = { ...temp[index], isUploading: false, is_audio_corrupted: false}
+        temp[index] = { ...temp[index], isUploading: false, is_audio_corrupted: false, error: null}
         dispatch(setTempRecordings([...temp]))
       })
       setUploadLoading(false)
@@ -347,6 +347,14 @@ export default forwardRef(({
     }
   },[expand])
 
+  const EditDeleteButtons = ()=>{
+  return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
+    {NetInfo.isConnected && !note.is_audio_corrupted &&
+      <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
+    <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
+  </View>)
+  }
+
   const slug = note.public_slug || ""
   return (
     <View>
@@ -368,16 +376,27 @@ export default forwardRef(({
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
               <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />
               // </Touchable>
-              : isUploadingFailed ? note?.is_audio_corrupted? <Text style={[styles.title, { color: '#ff4538' }]}>{note?.error||''}</Text>
-                  :<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
-                : note?.transcript === null ? <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
+              : isUploadingFailed ? note?.is_audio_corrupted?
+              <>
+               <Text style={[styles.title, { color: '#ff4538' }]}>{note?.error||''}</Text>
+               <EditDeleteButtons/>
+              </>
+                :<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
+                : note?.transcript === null ? <>
+                <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
+                <EditDeleteButtons/>
+                </>
                   : <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
             }
-            {isUploadingFailed && !note?.is_audio_corrupted &&
+            {isUploadingFailed && !note?.is_audio_corrupted && <>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 <SvgXml xml={home.wait} style={{ marginTop: 8, marginRight: 8 }} />
                 <Text style={[styles.text, { color: Colors.grey3, fontFamily: 'Primary-Italic', width: screenWidth / 1.3 }]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
-              </View>}
+              </View>
+              <EditDeleteButtons/>
+            </>}
+
+
             {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
               : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
@@ -589,16 +608,12 @@ export default forwardRef(({
                 />
                 }
 
-
-
-
-
-              {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
+              {/* {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
                   {NetInfo.isConnected && !note.is_audio_corrupted &&
                     <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
                   <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
-                </View>}
+                </View>} */}
               {/* related notes */}
               {(!!note?.transcript && (note?.related_notes?.length > 0 || relatedNoteLoading)) &&
                 <View style={{ marginTop: 12 }}>
