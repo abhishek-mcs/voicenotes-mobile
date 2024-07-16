@@ -13,13 +13,12 @@ import {
 } from "react-native";
 import { Foundation } from "@expo/vector-icons";
 import { ATTACHMENT_TYPE } from "types";
+import { BlurView } from "expo-blur"; // Make sure to install this package
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const AttachmentViewer = ({ attachments = [] }) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
-    null
-  );
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const fullScreenListRef = useRef(null);
@@ -40,12 +39,19 @@ const AttachmentViewer = ({ attachments = [] }) => {
   const renderImageThumbnail = useCallback(
     ({ item, index }) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <Image
-          source={{ uri: item.url }}
-          style={styles.thumbnail}
-          resizeMode="cover"
-          onError={() => console.log("Error loading thumbnail:", item.url)}
-        />
+        <View style={styles.thumbnailContainer}>
+          <Image
+            source={{ uri: item.url }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+            onError={() => console.log("Error loading thumbnail:", item.url)}
+          />
+          {item.is_uploading && (
+            <BlurView intensity={80} style={styles.blurOverlay}>
+              <ActivityIndicator size="small" color="#ffffff" />
+            </BlurView>
+          )}
+        </View>
       </TouchableOpacity>
     ),
     []
@@ -54,6 +60,7 @@ const AttachmentViewer = ({ attachments = [] }) => {
   const renderLinkItem = useCallback(
     ({ item }) => (
       <TouchableOpacity
+        key={item.id}
         style={styles.linkContainer}
         onPress={() => openLink(item.url)}
       >
@@ -79,21 +86,28 @@ const AttachmentViewer = ({ attachments = [] }) => {
         {imageError ? (
           <Text style={styles.errorText}>Failed to load image</Text>
         ) : (
-          <Image
-            source={{ uri: item.url }}
-            style={styles.fullScreenImage}
-            resizeMode="contain"
-            onLoadStart={() => {
-              setImageLoading(true);
-              setImageError(false);
-            }}
-            onLoadEnd={() => setImageLoading(false)}
-            onError={() => {
-              setImageLoading(false);
-              setImageError(true);
-              console.log("Error loading full-screen image:", item.url);
-            }}
-          />
+          <View style={styles.fullScreenImageWrapper}>
+            <Image
+              source={{ uri: item.url }}
+              style={styles.fullScreenImage}
+              resizeMode="contain"
+              onLoadStart={() => {
+                setImageLoading(true);
+                setImageError(false);
+              }}
+              onLoadEnd={() => setImageLoading(false)}
+              onError={() => {
+                setImageLoading(false);
+                setImageError(true);
+                console.log("Error loading full-screen image:", item.url);
+              }}
+            />
+            {item.is_uploading && (
+              <BlurView intensity={80} style={styles.fullScreenBlurOverlay}>
+                <ActivityIndicator size="large" color="#ffffff" />
+              </BlurView>
+            )}
+          </View>
         )}
       </View>
     ),
@@ -195,11 +209,24 @@ const styles = {
     color: "#0071b0",
     flex: 1,
   },
+  thumbnailContainer: {
+    position: 'relative',
+    marginRight: 10,
+  },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 8,
-    marginRight: 10,
+  },
+  blurOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,
@@ -213,9 +240,23 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
   },
-  fullScreenImage: {
+  fullScreenImageWrapper: {
+    position: 'relative',
     width: SCREEN_WIDTH * 0.75,
     height: SCREEN_HEIGHT * 0.75,
+  },
+  fullScreenImage: {
+    width: '100%',
+    height: '100%',
+  },
+  fullScreenBlurOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalHeader: {
     position: "absolute",

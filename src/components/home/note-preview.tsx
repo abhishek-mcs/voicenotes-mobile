@@ -71,6 +71,7 @@ export default forwardRef(({
   const [transcriptLoading, setTranscriptLoading] = useState(false)
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [attachments, setAttachments] = useState([]);
 
   const dispatch = useDispatch()
 
@@ -100,6 +101,10 @@ export default forwardRef(({
     if (triggerTypingTitle == 0 && !note?.title)
       setTriggerTypingTitle(2)
   }, [note?.title])
+
+  useEffect(()=>{
+    setAttachments(note?.attachments)
+  },[note?.attachments])
 
   const hideMoreOption = () => setMoreOption(false);
   const showMoreOption = () => setMoreOption(true);
@@ -414,7 +419,7 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
 
 
-            {note?.attachments?.length> 0 &&<AttachmentViewer attachments={note?.attachments}  />}
+            {attachments?.length> 0 &&<AttachmentViewer attachments={attachments}  />}
 
 
             {expand == index && <>
@@ -453,7 +458,12 @@ export default forwardRef(({
                             </View>
                           </MenuItem>
                       </Menu>}
-                      {showImagePicker && <ImageUploader showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} />}
+                      {showImagePicker && <ImageUploader 
+                        showImagePicker={showImagePicker} 
+                        setShowImagePicker={setShowImagePicker} 
+                        setAttachments={setAttachments}
+                        noteId={note?.id}
+                        />}
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       
