@@ -1,9 +1,7 @@
 import Colors from "assets/Colors";
-import { bottomSvg } from "assets/svg/bottomSvg";
 import { home } from "assets/svg/home";
 import Recording from "components/common/recording";
 import RecButton from "components/common/recording/rec-button";
-import { useGetSingleRecording } from "queries/home/relatedNote";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -118,7 +116,6 @@ export default ({
         </View>
       ) : (
         <View style={{}}>
-          <Text>Adding to Note </Text>
           <View style={styles.tab}>
             <Recording
               totalDuration={

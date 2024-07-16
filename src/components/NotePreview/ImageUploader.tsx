@@ -14,19 +14,21 @@ import { ATTACHMENT_TYPE } from "types";
 import axiosApi from "services/api/axios-api";
 import axios from "axios";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
+import { useQueryClient } from "react-query";
 
 const ImageUploader = ({
   showImagePicker = false,
   setShowImagePicker = (x: boolean) => {},
   setAttachments = (x: object) => {},
+  onAttachmentUpdate ,
   noteId,
 }: {
   noteId: string;
   showImagePicker?: boolean;
   setShowImagePicker?: Dispatch<SetStateAction<never[]>>;
   setAttachments: Dispatch<SetStateAction<never[]>>;
+  onAttachmentUpdate: () => Promise<void>;
 }) => {
-  const [error, setError] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const validateAndConvertImage = async (uri) => {
@@ -68,21 +70,21 @@ const ImageUploader = ({
           },
         ]);
         await uploadImage(newImage);
+        onAttachmentUpdate();
         setAttachments((attachments) =>
           attachments.filter((item) => item.id != temporaryImageId)
         );
-        setError("");
-        if (needsConversion) {
+        if (newImage.needsConversion) {
           console.log("Image was converted from HEIC/HEIF to JPEG");
         }
       } catch (error) {
-        setError(error.message);
+        console.log("Error in uploading image: " + error);
       }
     }
   };
 
   const launchImagePicker = async (type) => {
-    let permission;
+    let permission : ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse;
     let launch;
 
     if (type === "library") {
@@ -93,8 +95,8 @@ const ImageUploader = ({
       launch = ImagePicker.launchCameraAsync;
     }
 
-    if (permission.status !== "granted") {
-      setError(`Permission to access ${type} was denied`);
+    if (permission?.status !== "granted") {
+      console.error(`Permission to access ${type} was denied`);
       return;
     }
 
@@ -127,7 +129,9 @@ const ImageUploader = ({
           "Content-Type": "multipart/form-data",
         },
       });
+      
       console.log("Upload successful:", result.data);
+
     } catch (error) {
       console.error("Upload error:", error);
       if (axios.isAxiosError(error)) {

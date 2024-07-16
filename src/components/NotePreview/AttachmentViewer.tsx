@@ -10,14 +10,16 @@ import {
   Dimensions,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Foundation } from "@expo/vector-icons";
 import { ATTACHMENT_TYPE } from "types";
-import { BlurView } from "expo-blur"; // Make sure to install this package
+import { BlurView } from "expo-blur"; 
+import axiosApi from "services/api/axios-api";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const AttachmentViewer = ({ attachments = [] }) => {
+const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}}) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -36,6 +38,29 @@ const AttachmentViewer = ({ attachments = [] }) => {
     );
   }, []);
 
+  const deleteAttachment = useCallback(async (attachmentId) => {
+    try {
+      await axiosApi.delete(`/attachment/${attachmentId}`);
+      setSelectedImageIndex(null);
+    } catch (error) {
+      console.error("Error deleting attachment:", error);
+      Alert.alert("Error", "Failed to delete the attachment. Please try again.");
+    }finally{
+      onAttachmentUpdate();
+    }
+  }, [onAttachmentUpdate]);
+
+  const handleDeletePress = useCallback((attachmentId) => {
+    Alert.alert(
+      "Delete Attachment",
+      "Are you sure you want to delete this image?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", onPress: () => deleteAttachment(attachmentId), style: "destructive" }
+      ]
+    );
+  }, [deleteAttachment]);
+
   const renderImageThumbnail = useCallback(
     ({ item, index }) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
@@ -47,8 +72,8 @@ const AttachmentViewer = ({ attachments = [] }) => {
             onError={() => console.log("Error loading thumbnail:", item.url)}
           />
           {item.is_uploading && (
-            <BlurView intensity={80} style={styles.blurOverlay}>
-              <ActivityIndicator size="small" color="#ffffff" />
+            <BlurView intensity={50} style={styles.blurOverlay}>
+              <ActivityIndicator size="large" color="#ffffff" />
             </BlurView>
           )}
         </View>
@@ -169,12 +194,20 @@ const AttachmentViewer = ({ attachments = [] }) => {
                 imageAttachments.length
               }`}
             </Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setSelectedImageIndex(null)}
-            >
-              <Foundation name="x" size={24} color="#ffffff" />
-            </TouchableOpacity>
+            <View style={styles.headerButtons}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDeletePress(imageAttachments[selectedImageIndex].id)}
+              >
+                <Foundation name="trash" size={24} color="#ff4538" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setSelectedImageIndex(null)}
+              >
+                <Foundation name="x" size={24} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -287,6 +320,14 @@ const styles = {
   errorText: {
     color: "white",
     fontSize: 16,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    padding: 10,
+    marginRight: 10,
   },
 };
 

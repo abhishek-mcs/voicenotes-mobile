@@ -383,6 +383,9 @@ export default forwardRef(({
 
   const slug = note.public_slug || ""
   
+  const refreshNoteAfterAttachmentChange =async ()=>{
+    await queryClient.refetchQueries('all-recording')
+  }
 
   return (
     <View>
@@ -419,7 +422,7 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
 
 
-            {attachments?.length> 0 &&<AttachmentViewer attachments={attachments}  />}
+            {attachments?.length> 0 &&<AttachmentViewer attachments={attachments} onAttachmentUpdate={refreshNoteAfterAttachmentChange}/>}
 
 
             {expand == index && <>
@@ -462,6 +465,7 @@ export default forwardRef(({
                         showImagePicker={showImagePicker} 
                         setShowImagePicker={setShowImagePicker} 
                         setAttachments={setAttachments}
+                        onAttachmentUpdate = {refreshNoteAfterAttachmentChange}
                         noteId={note?.id}
                         />}
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
