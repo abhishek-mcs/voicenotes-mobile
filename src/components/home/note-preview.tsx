@@ -433,19 +433,19 @@ export default forwardRef(({
                 contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
                   {hashFilter != 'shared' &&
                     <>
-                    {!isSubnote && <Menu
+                    { <Menu
                           visible={showAddMenu}
                           anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
                           onRequestClose={closeAddMenu}
                           style={styles.menu}
                           animationDuration={150}
                         >
-                          <MenuItem style={styles.menuItem} onPress={onThreadNote}>
+                        {!isSubnote &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <Foundation name="record" size={24} color="red" />
                               <Text style={styles.menuItemTxt}>Thread a Note</Text>
                             </View>
-                          </MenuItem>
+                          </MenuItem>}
                           <MenuItem style={styles.menuItem} onPress={()=>{
                             setShowImagePicker(true)
                             closeAddMenu()}}>

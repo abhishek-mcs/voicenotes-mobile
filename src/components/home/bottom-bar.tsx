@@ -10,7 +10,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
@@ -67,29 +66,32 @@ export default ({
   }, [recEnabled, onStopRecord]);
 
   return (
-    <View style={{}}>
-      <View
-        style={{
-          flexDirection: "row",
-          backgroundColor: "#fff",
-          height: 40,
-          borderRadius: 24,
-          position: "absolute",
-          left: 20,
-          right: 20,
-          bottom: 100,
-          alignItems: "center",
-          justifyContent: "center",
-          shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
-          shadowOffset: { width: 0, height: 0.5 },
-          borderColor: "black",
-          zIndex: 15,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-        }}
-      >
-      {recordingParentId && <Text>Adding as subnote</Text>}
-      </View>
+    <>
+      {recordingParentId && (
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: "#fff",
+            height: 40,
+            flex: 1,
+            borderRadius: 24,
+            position: "absolute",
+            left: 20,
+            right: 20,
+            bottom: 100,
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+            shadowOffset: { width: 0, height: 0.5 },
+            borderColor: "black",
+            zIndex: 15,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+          }}
+        >
+          <Text>Adding as subnote</Text>
+        </View>
+      )}
       {!recEnabled ? (
         <View style={styles.tab}>
           <RecButton
@@ -128,7 +130,7 @@ export default ({
           </View>
         </View>
       )}
-    </View>
+    </>
   );
 };
 
@@ -151,6 +153,5 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    // justifyContent: "space-between",
   },
 });

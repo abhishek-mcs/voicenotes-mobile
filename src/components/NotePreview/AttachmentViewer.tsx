@@ -122,7 +122,7 @@ const renderImageThumbnail = useCallback(
             <Image
               source={{ uri: item.url }}
               style={styles.fullScreenImage}
-              resizeMode="contain"
+              contentFit="contain"
               onLoadStart={() => {
                 setImageLoading(true);
                 setImageError(false);
