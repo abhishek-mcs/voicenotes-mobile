@@ -3,7 +3,7 @@ import { home } from "assets/svg/home";
 import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
+import { SafeAreaView, StyleSheet, Text, TouchableHighlight, useWindowDimensions, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
@@ -27,6 +27,8 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
     const [paused, setPaused] = useState(false);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
     const timerId = useRef<NodeJS.Timeout>();
+    const { width } = useWindowDimensions();
+    const isSmallScreen = width < 375; // Threshold for small screens like iPhone 13 mini
     useEffect(() => {
         if (recEnabled&&!paused) {
             timerId.current&&clearInterval(timerId.current);
@@ -69,20 +71,31 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
       }
 
   return (
+    <SafeAreaView style={styles.safeArea}>
     <View style={styles.tab}>
       {!recEnabled ? (
         <>
           <RecButton
             onPress={onRecord}
-            title="Record"
+            title='Record'
             icon={home.record}
             underlayColor={Colors.blackWithOpacity(0.7)}
-            bgColor={"#000"}
+            bgColor={'#000'}
             color="#fff"
-            style={{flex:2}}
+            style={styles.recordButton}
           />
-          <RecButton onPress={onAsk} title="Ask my AI" icon={home.ask} style={{paddingHorizontal:12,marginHorizontal:8}}/>
-          <RecButton onPress={onCreate} title="Create" icon={home.create} style={{flex:2}} />
+          <RecButton
+            onPress={onAsk}
+            title={isSmallScreen ? 'Ask AI' : 'Ask my AI'}
+            icon={home.ask}
+            style={styles.askButton}
+          />
+          <RecButton
+            onPress={onCreate}
+            title='Create'
+            icon={home.create}
+            style={styles.createButton}
+          />
         </>
       ) : (
         <NoteRecorder
@@ -99,28 +112,42 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
         />
       )}
     </View>
-  );
+  </SafeAreaView>
+);
 };
 
+
 const styles = StyleSheet.create({
+  safeArea: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   tab: {
     flexDirection: "row",
     backgroundColor: "#fff",
     minHeight: 64,
     borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 40,
-    alignItems: "center",
-    shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
-		shadowOpacity: 0.9,
-		shadowOffset: { width: 0, height:0.5 },
-		shadowRadius: 1.5,
-    zIndex:10,
-		elevation: 3,
-    paddingHorizontal: 12,
-    paddingVertical:8,
-    // justifyContent: "space-between",
-  }
+    marginHorizontal: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    shadowColor: isIOS ? '#00000026' : 'rgba(0,0,0,0.7)',
+    shadowOpacity: 0.9,
+    shadowOffset: { width: 0, height: 0.5 },
+    shadowRadius: 1.5,
+    elevation: 3,
+    paddingHorizontal: '3%',
+    paddingVertical: '2%',
+  },
+  recordButton: {
+    flex: 1,
+  },
+  askButton: {
+    flex: 1,
+    marginHorizontal: '2%',
+  },
+  createButton: {
+    flex: 1,
+  },
 });
