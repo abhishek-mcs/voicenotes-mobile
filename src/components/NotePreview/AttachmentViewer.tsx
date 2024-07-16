@@ -11,11 +11,12 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { Foundation } from "@expo/vector-icons";
+import { Entypo, Foundation } from "@expo/vector-icons";
 import { ATTACHMENT_TYPE } from "types";
 import { BlurView } from "expo-blur"; 
 import axiosApi from "services/api/axios-api";
 import { Image } from 'expo-image'; 
+import { Menu, MenuItem } from "react-native-material-menu";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -27,6 +28,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}}) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [visibleMenu, setVisibleMenu] = useState(null);
+
   const fullScreenListRef = useRef(null);
 
   const imageAttachments = attachments.filter(
@@ -54,17 +57,16 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}}) => {
     }
   }, [onAttachmentUpdate]);
 
-  const handleDeletePress = useCallback((attachmentId) => {
+  const handleDeletePress = useCallback((attachmentId, type) => {
     Alert.alert(
       "Delete Attachment",
-      "Are you sure you want to delete this image?",
+      `Are you sure you want to delete this ${type}?`,
       [
         { text: "Cancel", style: "cancel" },
         { text: "Delete", onPress: () => deleteAttachment(attachmentId), style: "destructive" }
       ]
     );
   }, [deleteAttachment]);
-
 
 const renderImageThumbnail = useCallback(
   ({ item, index }) => (
@@ -89,11 +91,11 @@ const renderImageThumbnail = useCallback(
   []
 );
 
-  const renderLinkItem = useCallback(
-    ({ item }) => (
+const renderLinkItem = useCallback(
+  ({ item }) => (
+    <View style={styles.linkContainer}>
       <TouchableOpacity
-        key={item.id}
-        style={styles.linkContainer}
+        style={styles.linkContent}
         onPress={() => openLink(item.url)}
       >
         <Foundation name="link" size={18} color="#0071b0" />
@@ -101,9 +103,28 @@ const renderImageThumbnail = useCallback(
           {item.description}
         </Text>
       </TouchableOpacity>
-    ),
-    [openLink]
-  );
+      <Menu
+        visible={visibleMenu === item.id}
+        anchor={
+          <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
+            <Entypo name="dots-three-vertical" size={18} color="#0071b0" />
+          </TouchableOpacity>
+        }
+        onRequestClose={() => setVisibleMenu(null)}
+      >
+        <MenuItem onPress={() => {
+          setVisibleMenu(null);
+          // onEditLink(item);
+        }}>Edit</MenuItem>
+        <MenuItem onPress={() => {
+          setVisibleMenu(null);
+          handleDeletePress(item.id, 'link');
+        }}>Delete</MenuItem>
+      </Menu>
+    </View>
+  ),
+  [openLink, visibleMenu, handleDeletePress ]
+);
 
   const renderFullScreenImage = useCallback(
     ({ item }) => (
@@ -204,7 +225,7 @@ const renderImageThumbnail = useCallback(
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => handleDeletePress(imageAttachments[selectedImageIndex].id)}
+                onPress={() => handleDeletePress(imageAttachments[selectedImageIndex].id, 'image')}
               >
                 <Foundation name="trash" size={24} color="#ff4538" />
               </TouchableOpacity>
@@ -235,19 +256,6 @@ const styles = {
   },
   linkSection: {
     marginTop: 20,
-  },
-  linkContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f5f8fb",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  linkText: {
-    marginLeft: 10,
-    color: "#0071b0",
-    flex: 1,
   },
   thumbnailContainer: {
     position: 'relative',
@@ -335,6 +343,25 @@ const styles = {
   deleteButton: {
     padding: 10,
     marginRight: 10,
+  },
+  linkContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f8fb",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    justifyContent: 'space-between',
+  },
+  linkContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  linkText: {
+    marginLeft: 10,
+    color: "#0071b0",
+    flex: 1,
   },
 };
 
