@@ -70,6 +70,7 @@ export default forwardRef(({
   const [uploadLoading, setUploadLoading] = useState(false)
   const [transcriptLoading, setTranscriptLoading] = useState(false)
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   const dispatch = useDispatch()
 
@@ -333,6 +334,7 @@ export default forwardRef(({
   let opacity = new Animated.Value(1);
 
   const onExpand = async () => {
+    setShowImagePicker(false)
     LayoutAnimation.configureNext({
       duration: 150,
       create: {
@@ -436,7 +438,9 @@ export default forwardRef(({
                               <Text style={styles.menuItemTxt}>Thread a Note</Text>
                             </View>
                           </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
+                          <MenuItem style={styles.menuItem} onPress={()=>{
+                            setShowImagePicker(true)
+                            closeAddMenu()}}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <SvgXml xml={addMenu.camera} />
                               <Text style={styles.menuItemTxt}>Photos</Text>
@@ -449,7 +453,7 @@ export default forwardRef(({
                             </View>
                           </MenuItem>
                       </Menu>}
-                      <ImageUploader/>
+                      {showImagePicker && <ImageUploader showImagePicker={showImagePicker} setShowImagePicker={setShowImagePicker} />}
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       
