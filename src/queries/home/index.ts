@@ -197,7 +197,7 @@ export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setR
     },
     {
         onSuccess:async()=>{
-            await queryC.invalidateQueries('all-recording')
+            await queryC.resetQueries(['all-recording'])
             doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id,{
                 onError:(error:any)=>{
                     const index=recordingList?.findIndex((r:any)=>r.id==rec_id)
@@ -208,9 +208,9 @@ export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setR
             doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
-            console.log("On error: ", error);
+            console.log("add-transcript: ", error);
             
-            console.log(error?.response?.data?.message);
+            console.log('add-transcript',error?.response?.data?.message);
         }
     })
 }
@@ -222,11 +222,11 @@ export function useAddTitle(){
     },
     {
         onSuccess:async()=>{
-            await queryClient.resetQueries('all-recording');
+            await queryClient.resetQueries(['all-recording']);
             await queryClient.resetQueries('streaks');
         },
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('add-title',error?.response?.data?.message);
         }
     })
 }
