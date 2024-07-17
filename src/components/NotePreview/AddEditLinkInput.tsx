@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
 import axiosApi from 'services/api/axios-api';
@@ -21,8 +21,24 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 }) => {
   const [url, setUrl] = React.useState('');
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['70%', '90%'], []);
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 
-  const snapPoints = useMemo(() => ['30%', '50%'], []);
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      'keyboardWillShow',
+      (e) => setKeyboardHeight(e.endCoordinates.height)
+    );
+    const keyboardWillHideListener = Keyboard.addListener(
+      'keyboardWillHide',
+      () => setKeyboardHeight(0)
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (isVisible) {
@@ -45,7 +61,6 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 
   const handleSave = async () => {
     if (!url) return;
-
     try {
       let response;
       if (editingLink) {
@@ -66,6 +81,12 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
     }
   };
 
+  useEffect(() => {
+    return () => {
+      onClose();
+    };
+  }, []);
+
   return (
     <Portal>
       <BottomSheet
@@ -76,37 +97,46 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
         enablePanDownToClose
         onClose={onClose}
       >
-        <View style={styles.contentContainer}>
-          <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
-          <TextInput
-            style={styles.input}
-            value={url}
-            onChangeText={setUrl}
-            placeholder="Type or paste URL..."
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            autoFocus={true}
-          />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={onClose}>
-              <Text style={styles.buttonTextCancel}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]} 
-              onPress={handleSave}
-              disabled={!url.length}
-            >
-              <Text style={styles.buttonTextSave}>Save</Text>
-            </TouchableOpacity>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={keyboardHeight}
+          style={styles.keyboardAvoidingView}
+        >
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
+            <TextInput
+              style={styles.input}
+              value={url}
+              onChangeText={setUrl}
+              placeholder="Type or paste URL..."
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              autoFocus={true}
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={onClose}>
+                <Text style={styles.buttonTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.button, styles.saveButton]} 
+                onPress={handleSave}
+                disabled={!url.length}
+              >
+                <Text style={styles.buttonTextSave}>Save</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </BottomSheet>
     </Portal>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   contentContainer: {
     flex: 1,
     padding: 16,
