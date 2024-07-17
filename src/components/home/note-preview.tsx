@@ -155,11 +155,13 @@ export default forwardRef(({
       })
       setUploadLoading(false)
     } else {
+      setTranscriptLoading(true)
       note.transcript = ''
       note.title = null
       await addTranscript.mutateAsync(note?.id, {
         onSuccess: async () => await addTitleRecord.mutateAsync(note?.id)
       })
+      setTranscriptLoading(false)
     }
   }
   
