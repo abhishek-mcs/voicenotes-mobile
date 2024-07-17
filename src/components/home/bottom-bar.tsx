@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     minHeight: 64,
     borderRadius: 24,
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 40,
     alignItems: 'center',
     shadowColor: isIOS ? '#00000026' : 'rgba(0,0,0,0.7)',
     shadowOpacity: 0.9,
