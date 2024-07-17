@@ -8,7 +8,7 @@ import { SvgXml } from "react-native-svg"
 import { isIOS } from "utils/common"
 import Touchable from "../Touchable"
 import LottieView from "lottie-react-native"
-import loader from "assets/lottie/threeDotLoader2.json"
+import loader from "assets/lottie/threeDotLoader.json"
 
 export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={},isLoading=false})=>{
     return (

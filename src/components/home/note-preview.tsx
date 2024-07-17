@@ -63,6 +63,7 @@ export default forwardRef(({
   const [relatedNoteLoading, setRelatedNoteLoading] = useState(false)
   const [titleLoading, setTitleLoading] = useState(false)
   const [uploadLoading, setUploadLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [transcriptLoading, setTranscriptLoading] = useState(false)
   const dispatch = useDispatch()
 
@@ -155,13 +156,21 @@ export default forwardRef(({
       })
       setUploadLoading(false)
     } else {
+      console.warn('Retry transcript')
       setTranscriptLoading(true)
-      note.transcript = ''
-      note.title = null
+      note.title=null
+      note.transcript= ''
       await addTranscript.mutateAsync(note?.id, {
-        onSuccess: async () => await addTitleRecord.mutateAsync(note?.id)
+        onSuccess: async () => {
+          setTranscriptLoading(false)
+          await addTitleRecord.mutateAsync(note?.id)
+        },
+        onError: () => {
+          setTranscriptLoading(false)
+        }
+      }).catch(() => {
+        setTranscriptLoading(false)
       })
-      setTranscriptLoading(false)
     }
   }
   
@@ -234,7 +243,9 @@ export default forwardRef(({
           if (isUploadingFailed)
             dispatch(deleteFromTempRecordings(note))
           else {
-            await deleteRecord.mutateAsync('')
+            setDeleteLoading(true)
+            await deleteRecord.mutateAsync('').catch(() => {setDeleteLoading(false)})
+            setDeleteLoading(false)
             onDeleteCallBack()
           }
         }
@@ -353,7 +364,7 @@ export default forwardRef(({
   return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
     {NetInfo.isConnected && !note.is_audio_corrupted &&
       <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
-    <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
+    <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} isLoading={deleteLoading}/> 
   </View>)
   }
 
@@ -399,7 +410,7 @@ export default forwardRef(({
             </>}
 
 
-            {((!note?.transcript && note?.title) || transcriptLoading) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
+            {((!!note?.transcript&&transcriptLoading && note?.title)) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
               : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
             {expand == index && <>
