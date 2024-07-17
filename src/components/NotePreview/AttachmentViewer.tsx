@@ -93,7 +93,7 @@ const renderImageThumbnail = useCallback(
 
 const renderLinkItem = useCallback(
   ({ item }) => (
-    <View style={styles.linkContainer}>
+    <View style={styles.linkContainer} key={item.id?.toString()}>
       <TouchableOpacity
         style={styles.linkContent}
         onPress={() => openLink(item.url)}

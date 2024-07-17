@@ -461,6 +461,8 @@ export default forwardRef(({
                             </View>
                           </MenuItem>
                       </Menu>}
+
+
                       {showImagePicker && <ImageUploader 
                         showImagePicker={showImagePicker} 
                         setShowImagePicker={setShowImagePicker} 
@@ -468,6 +470,9 @@ export default forwardRef(({
                         onAttachmentUpdate = {refreshNoteAfterAttachmentChange}
                         noteId={note?.id}
                         />}
+
+{/* show link add and show link add/edit input field */}
+
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       
