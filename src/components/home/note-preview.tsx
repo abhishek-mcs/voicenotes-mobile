@@ -431,10 +431,9 @@ export default forwardRef(({
               attachments={attachments} 
               onAttachmentUpdate={refreshNoteAfterAttachmentChange}
               onEditLink={(linkItem)=>{
-                setEditingLink(linkItem)
                 setShowLinkEditModal(true)
+                setEditingLink(linkItem)
               }}
-              
               />}
 
 
@@ -443,7 +442,7 @@ export default forwardRef(({
                 <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
+                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, }]}>
                   {hashFilter != 'shared' &&
                     <>
                     { <Menu
@@ -501,19 +500,6 @@ export default forwardRef(({
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       
                       {
-                        // isIOS?
-                        // <MoreOptions 
-                        //   options={[
-                        //     {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
-                        //     {title:'Main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
-                        //     {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
-                        //     {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
-                        //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
-                        //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
-                        //     ]}>
-                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create}/>
-                        // </MoreOptions>
-                        // :
                         <Menu
                           visible={createOption}
                           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}

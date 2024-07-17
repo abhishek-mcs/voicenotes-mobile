@@ -1,20 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet, 
-  Modal, 
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView
-} from 'react-native';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { Portal } from '@gorhom/portal';
 import axiosApi from 'services/api/axios-api';
 
-interface AddEditLinkModalProps {
+interface AddEditLinkBottomSheetProps {
   noteId: string;
   onAttachmentUpdate: () => void;
   editingLink: { id: string; url: string } | null;
@@ -22,27 +12,39 @@ interface AddEditLinkModalProps {
   onClose: () => void;
 }
 
-const AddEditLinkModal: React.FC<AddEditLinkModalProps> = ({ 
+const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({ 
   noteId,
   onAttachmentUpdate, 
   editingLink,
   isVisible,
   onClose
 }) => {
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = React.useState('');
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const snapPoints = useMemo(() => ['30%', '50%'], []);
 
   useEffect(() => {
-    if (editingLink) {
-      setUrl(editingLink.url);
+    if (isVisible) {
+      bottomSheetRef.current?.expand();
+      if (editingLink) {
+        setUrl(editingLink.url);
+      } else {
+        setUrl('');
+      }
     } else {
-      setUrl('');
+      bottomSheetRef.current?.close();
     }
-  }, [editingLink, isVisible]);
+  }, [isVisible, editingLink]);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      onClose();
+    }
+  }, [onClose]);
 
   const handleSave = async () => {
-    if (!url) {
-      return;
-    }
+    if (!url) return;
 
     try {
       let response;
@@ -61,83 +63,59 @@ const AddEditLinkModal: React.FC<AddEditLinkModalProps> = ({
       onClose();
     } catch (error) {
       console.error("Error saving link:", error);
-      // You might want to show an error message to the user here
     }
   };
 
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalOverlay}
-        >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>
-                {editingLink ? 'Edit Link' : 'Add New Link'}
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={url}
-                onChangeText={setUrl}
-                placeholder="Type or paste URL..."
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-                autoFocus={true}
-              />
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={onClose}>
-                  <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave} disabled={!url?.length}>
-                  <Text style={[styles.buttonText, styles.saveButtonText]}>Save</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </Modal>
+    <Portal>
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={isVisible ? 0 : -1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        enablePanDownToClose
+        onClose={onClose}
+      >
+        <View style={styles.contentContainer}>
+          <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
+          <TextInput
+            style={styles.input}
+            value={url}
+            onChangeText={setUrl}
+            placeholder="Type or paste URL..."
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            autoFocus={true}
+          />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={onClose}>
+              <Text style={styles.buttonTextCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.button, styles.saveButton]} 
+              onPress={handleSave}
+              disabled={!url.length}
+            >
+              <Text style={styles.buttonTextSave}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </BottomSheet>
+    </Portal>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  contentContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 16,
   },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
-  },
-  modalTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginTop: 8,
+    marginBottom: 16,
     textAlign: 'center',
   },
   input: {
@@ -145,10 +123,11 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
-    marginBottom: 20,
     fontSize: 16,
+    marginBottom: 16,
   },
   buttonContainer: {
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -159,18 +138,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButton: {
-    backgroundColor: Platform.OS === 'ios' ? '#007AFF' : '#2196F3',
+    backgroundColor: '#007AFF',
   },
-  buttonText: {
+  buttonTextCancel: {
+    color: '#007AFF',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  cancelButtonText: {
-    color: Platform.OS === 'ios' ? '#007AFF' : '#2196F3',
-  },
-  saveButtonText: {
+  buttonTextSave: {
     color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
-export default AddEditLinkModal;
+export default AddEditLinkBottomSheet;

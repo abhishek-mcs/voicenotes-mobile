@@ -113,7 +113,6 @@ const renderLinkItem = useCallback(
         onRequestClose={() => setVisibleMenu(null)}
       >
         <MenuItem onPress={() => {
-          console.log('editing');
           setVisibleMenu(null);
           onEditLink(item);
         }}>Edit</MenuItem>
@@ -349,7 +348,7 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f5f8fb",
-    padding: 10,
+    paddingTop: 7,
     borderRadius: 8,
     marginBottom: 10,
     justifyContent: 'space-between',
