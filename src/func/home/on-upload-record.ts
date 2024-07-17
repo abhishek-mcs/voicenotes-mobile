@@ -39,9 +39,9 @@ export default async({setGenerateDummy,setUploading,setReduxRecordingList,record
             resolve('success');
           },
           onError:(e:any)=>{
-            let dump:any={isUploading:false,audio:{data:{url:file,duration:d}}}  
+            let dump:any={isUploading:false,audio:{data:{url:file,duration:d, parent_id, recorded_at}}}  
             if(e?.response?.data?.error_code=='ffmpeg_conversion_failed'){
-              dump={isUploading:false,is_audio_corrupted:true,error:e?.response?.data?.message??'Recorded audio is corrupted. Please try again',audio:{data:{url:file,duration:d}}}  
+              dump={isUploading:false,is_audio_corrupted:true,error:e?.response?.data?.message??'Recorded audio is corrupted. Please try again',audio:{data:{url:file,duration:d, parent_id, recorded_at}}}  
             }
             const filterDummy=generateDummy?.filter((g:any)=>g.audio.data.url!==file)??[]
             setGenerateDummy(!!generateDummy?[dump,...filterDummy]:[dump])

@@ -39,6 +39,8 @@ import { Foundation } from '@expo/vector-icons';
 import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
+import AddEditLinkInput from "components/NotePreview/AddEditLinkInput";
+import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
 
 export default forwardRef(({
   note,
@@ -71,6 +73,8 @@ export default forwardRef(({
   const [transcriptLoading, setTranscriptLoading] = useState(false)
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showLinkEditModal, setShowLinkEditModal] = useState(false);
+  const [editingLink, setEditingLink] = useState<{ id: string; url: string } | null>(null);
   const [attachments, setAttachments] = useState([]);
 
   const dispatch = useDispatch()
@@ -340,6 +344,7 @@ export default forwardRef(({
 
   const onExpand = async () => {
     setShowImagePicker(false)
+    setShowLinkEditModal(false)
     LayoutAnimation.configureNext({
       duration: 150,
       create: {
@@ -422,7 +427,15 @@ export default forwardRef(({
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
 
 
-            {attachments?.length> 0 &&<AttachmentViewer attachments={attachments} onAttachmentUpdate={refreshNoteAfterAttachmentChange}/>}
+            {attachments?.length> 0 &&<AttachmentViewer 
+              attachments={attachments} 
+              onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+              onEditLink={(linkItem)=>{
+                setEditingLink(linkItem)
+                setShowLinkEditModal(true)
+              }}
+              
+              />}
 
 
             {expand == index && <>
@@ -454,7 +467,10 @@ export default forwardRef(({
                               <Text style={styles.menuItemTxt}>Photos</Text>
                             </View>
                           </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
+                          <MenuItem style={styles.menuItem} onPress={() => {
+                            setShowLinkEditModal(true)
+                            closeAddMenu()
+                          }}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
                               <Text style={styles.menuItemTxt}>Link</Text>
@@ -471,7 +487,15 @@ export default forwardRef(({
                         noteId={note?.id}
                         />}
 
-{/* show link add and show link add/edit input field */}
+                      <AddEditLinkModal
+                        noteId={note?.id}
+                        onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+                        editingLink={editingLink}
+                        isVisible={showLinkEditModal}
+                        onClose={() => {
+                          setShowLinkEditModal(false)
+                          setEditingLink(null)
+                        }}/>
 
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />

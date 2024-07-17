@@ -75,7 +75,6 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
-        console.log({recorded_at});
         
         parent_id && formData.append("parent_id", parent_id);
         recorded_at && formData.append("recorded_at", recorded_at);

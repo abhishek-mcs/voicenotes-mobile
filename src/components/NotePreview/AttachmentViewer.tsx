@@ -24,7 +24,7 @@ const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 
-const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}}) => {
+const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEditLink=()=>{}}) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -113,8 +113,9 @@ const renderLinkItem = useCallback(
         onRequestClose={() => setVisibleMenu(null)}
       >
         <MenuItem onPress={() => {
+          console.log('editing');
           setVisibleMenu(null);
-          // onEditLink(item);
+          onEditLink(item);
         }}>Edit</MenuItem>
         <MenuItem onPress={() => {
           setVisibleMenu(null);

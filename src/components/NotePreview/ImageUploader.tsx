@@ -32,7 +32,6 @@ const ImageUploader = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const validateAndConvertImage = async (uri) => {
-    console.log({ uri });
     const fileExtension = uri.split(".").pop().toLowerCase();
 
     if (["jpg", "jpeg", "png"].includes(fileExtension)) {
