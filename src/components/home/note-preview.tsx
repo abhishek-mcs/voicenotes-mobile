@@ -158,8 +158,7 @@ export default forwardRef(({
     } else {
       console.warn('Retry transcript')
       setTranscriptLoading(true)
-      note.title=null
-      note.transcript= ''
+      // dispatch()
       await addTranscript.mutateAsync(note?.id, {
         onSuccess: async () => {
           setTranscriptLoading(false)
