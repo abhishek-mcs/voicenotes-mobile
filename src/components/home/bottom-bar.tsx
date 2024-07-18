@@ -7,6 +7,9 @@ import Recording from "components/common/recording";
 import RecButton from "components/common/recording/rec-button";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import Touchable from "components/common/Touchable";
+import { SvgXml } from "react-native-svg";
+import { commonSvg } from "assets/svg/commonSvg";
 
 interface Props {
   onRecord: () => void;
@@ -15,12 +18,12 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: () => void;
-  recordingParentId: string | null;
+  recordingParentNoteName: string | null;
   setRecordingParentId: Dispatch<SetStateAction<string | null>>;
 }
 
 export default ({
-  recordingParentId,
+  recordingParentNoteName,
   setRecordingParentId,
   onRecord,
   onAsk,
@@ -34,14 +37,17 @@ export default ({
     (state: RootState) => state.userDetails
   );
   const { width } = useWindowDimensions();
-  const isSmallScreen = width < 375;
+  const isSmallScreen = width < 375; // For small screend devices
 
   useEffect(() => {
     if (recEnabled) {
       const timerId = setInterval(() => {
         setDuration((prevDuration) => {
           const newDuration = prevDuration + 1000;
-          if (newDuration >= 60000 && (!token || !userDetails?.subscription_status)) {
+          if (
+            newDuration >= 60000 &&
+            (!token || !userDetails?.subscription_status)
+          ) {
             onStopRecord(newDuration);
             return 0;
           } else if (newDuration >= 1200000 && !!token) {
@@ -61,9 +67,33 @@ export default ({
 
   return (
     <View style={styles.container}>
-      {recordingParentId && (
-        <View style={styles.parentNoteIndicator}>
-          <Text style={styles.parentNoteText}>Adding as subnote</Text>
+      {recordingParentNoteName && (
+        <View style={[styles.addingContainer]}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View style={{ width: "90%" }}>
+              <Text style={styles.heading}>
+                Adding to Note "{recordingParentNoteName}"
+              </Text>
+            </View>
+            <Touchable
+              onPress={() => setRecordingParentId(null)}
+              style={{
+                width: 20,
+                height: 20,
+                alignItems: "flex-end",
+                justifyContent: "center",
+                paddingRight: 0,
+              }}
+            >
+              <SvgXml xml={commonSvg.smallClose} />
+            </Touchable>
+          </View>
         </View>
       )}
       <View style={styles.tab}>
@@ -82,7 +112,7 @@ export default ({
               onPress={onAsk}
               title={isSmallScreen ? "Ask AI" : "Ask my AI"}
               icon={home.ask}
-              style={[styles.button, styles.askButton]}
+              style={{...styles.button, marginHorizontal: 8}}
             />
             <RecButton
               onPress={onCreate}
@@ -93,7 +123,9 @@ export default ({
           </>
         ) : (
           <Recording
-            totalDuration={!!token && userDetails?.subscription_status ? "" : "/01:00"}
+            totalDuration={
+              !!token && userDetails?.subscription_status ? "" : "/01:00"
+            }
             duration={duration}
             onCancel={onCancel}
             onStopRecord={onStopRecord}
@@ -105,6 +137,30 @@ export default ({
 };
 
 const styles = StyleSheet.create({
+  addingContainer: {
+    backgroundColor: "#fff",
+    minHeight: 56,
+    borderRadius: 24,
+    position: "absolute",
+    left: 20,
+    right: 20,
+    bottom: 85,
+    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+    shadowOpacity: 0.9,
+    shadowOffset: { width: 0, height: 0.5 },
+    shadowRadius: 1.5,
+    zIndex: 1,
+    elevation: 3,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    justifyContent: "center",
+  },
+  heading: {
+    fontFamily: "Primary",
+    fontSize: 14,
+    color: "#222",
+    textAlign: "left",
+  },
   container: {
     position: "absolute",
     left: 0,
@@ -152,8 +208,5 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-  },
-  askButton: {
-    marginHorizontal: 8,
   },
 });

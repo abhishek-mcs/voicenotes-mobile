@@ -152,6 +152,7 @@ export default ()=> {
   const onStartRecord = async({repeat = false, parent_id = null}={}) => {
     if (recEnabled&&!repeat){
       console.log('Recording already started.');
+      if (parent_id) setRecordingParentId(parent_id)
       return;
     }
     AIModalRef.current?.close()
@@ -161,8 +162,6 @@ export default ()=> {
       bannerRef.current?.show()
       return
     }
-    // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
-    // soundRef.current=sound
     setRecordingParentId(parent_id)
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
@@ -287,6 +286,16 @@ export default ()=> {
     }
     setPrevOffset(currentOffset);
   };
+
+  const renderData = recordingList?.length == 1
+    ? recordingList[0] != undefined
+      ? (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
+      : []
+    : (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
+
+  const recordingParentNoteName = renderData.find(note => note?.id === recordingParentId)?.title ?? null
+
+
   if(!token)
       return <Redirect href="/auth/landingPage/" />
   return (
@@ -315,13 +324,7 @@ export default ()=> {
             ref={scrollRef}
             // bounces={false}
             style={{opacity:hideBackground?0:1,marginTop:12}}
-            data={
-              recordingList?.length == 1
-                ? recordingList[0] != undefined
-                  ? (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
-                  : []
-                : (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
-            }
+            data={renderData}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             contentContainerStyle={{ paddingBottom: 300 }}
@@ -363,7 +366,7 @@ export default ()=> {
       </View>
       </KeyboardAvoidingView>
       <BottomBar
-        recordingParentId={recordingParentId}
+        recordingParentNoteName={recordingParentNoteName}
         setRecordingParentId={setRecordingParentId}
         onAsk={onAsk}
         onCreate={onCreate}
