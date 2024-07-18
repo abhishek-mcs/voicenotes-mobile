@@ -24,7 +24,7 @@ const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 
-const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEditLink=()=>{}}) => {
+const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEditLink=(obj: object)=>{}}) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -39,13 +39,13 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEdi
     (a) => a.type === ATTACHMENT_TYPE.LINK
   );
 
-  const openLink = useCallback((url) => {
+  const openLink = useCallback((url:string) => {
     Linking.openURL(url).catch((err) =>
       console.error("An error occurred", err)
     );
   }, []);
 
-  const deleteAttachment = useCallback(async (attachmentId) => {
+  const deleteAttachment = useCallback(async (attachmentId:string) => {
     try {
       await axiosApi.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
@@ -57,7 +57,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEdi
     }
   }, [onAttachmentUpdate]);
 
-  const handleDeletePress = useCallback((attachmentId, type) => {
+  const handleDeletePress = useCallback((attachmentId:string, type:string) => {
     Alert.alert(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
@@ -113,12 +113,12 @@ const renderLinkItem = useCallback(
         onRequestClose={() => setVisibleMenu(null)}
       >
         <MenuItem onPress={() => {
-          setVisibleMenu(null);
           onEditLink(item);
+          setVisibleMenu(null);
         }}>Edit</MenuItem>
         <MenuItem onPress={() => {
-          setVisibleMenu(null);
           handleDeletePress(item.id, 'link');
+          setVisibleMenu(null);
         }}>Delete</MenuItem>
       </Menu>
     </View>
@@ -348,7 +348,6 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f5f8fb",
-    paddingTop: 7,
     borderRadius: 8,
     marginBottom: 10,
     justifyContent: 'space-between',

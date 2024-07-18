@@ -39,7 +39,6 @@ import { Foundation } from '@expo/vector-icons';
 import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
-import AddEditLinkInput from "components/NotePreview/AddEditLinkInput";
 import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
 
 export default forwardRef(({
@@ -518,16 +517,16 @@ export default forwardRef(({
                         noteId={note?.id}
                         />}
 
-                      <AddEditLinkModal
-                        noteId={note?.id}
-                        onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-                        editingLink={editingLink}
-                        isVisible={showLinkEditModal}
-                        onClose={() => {
-                          setShowLinkEditModal(false)
-                          setEditingLink(null)
-                        }}/>
-
+                    {showLinkEditModal && <AddEditLinkModal
+                      noteId={note?.id}
+                      onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+                      editingLink={editingLink}
+                      isVisible={showLinkEditModal}
+                      onClose={() => {
+                        setShowLinkEditModal(false)
+                        setEditingLink(null)
+                      }} />
+                      }
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       

@@ -112,7 +112,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="url"
-              autoFocus={true}
+              autoFocus={false}
             />
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.button} onPress={onClose}>
