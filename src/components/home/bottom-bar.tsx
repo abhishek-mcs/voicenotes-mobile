@@ -47,7 +47,6 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
       }, [recEnabled]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
     <View style={styles.tab}>
       {!recEnabled ? (
         <>
@@ -82,19 +81,16 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
         />
       )}
     </View>
-  </SafeAreaView>
 );
 };
 
 
 const styles = StyleSheet.create({
-  safeArea: {
-    position: 'absolute',
+  tab: {
+    position: "absolute",
     left: 0,
     right: 0,
-    bottom: 0,
-  },
-  tab: {
+    bottom: 30,
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderRadius: 24,
