@@ -62,9 +62,9 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
           <Text style={{fontFamily:'Primary-Semibold',color:'#000',fontSize:14}}>
             Are you sure you want to cancel this recording?
           </Text>
-          <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:'100%',marginTop:16}}>
+          <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'center',width:'100%',marginTop:16}}>
             <RecButton title="Yes, cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancel} style={{paddingHorizontal:20}}/>
-            <RecButton title="No, continue" onPress={continueRecording} style={{paddingHorizontal:20}}/>
+            <RecButton title="No, continue" onPress={continueRecording} style={{paddingHorizontal:20,marginLeft:12}}/>
           </View>
         </View>)
 }

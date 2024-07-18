@@ -16,6 +16,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang } from "redux/reducers/userDetails";
 import { setRecordingList } from "redux/reducers/recordingStates";
+import { useQueryClient } from "react-query";
+import { currentVersion } from "services/api/api-constants";
 
 export default () => {
     const router = useRouter();
@@ -24,6 +26,8 @@ export default () => {
     const settings:any=userDetails.settings
     const saveSettings=useSaveSettings()
     const dispatch=useDispatch()
+    const queryClient=useQueryClient()
+
   const onLogout = () =>{
     
     Alert.alert('',"Are you sure you want to log out?",
@@ -33,9 +37,10 @@ export default () => {
     },{
       text:"Yes",
       onPress:async()=>{
+        queryClient.clear()
         dispatch(setRecordingList([]))
         router?.back();
-        await logout.mutateAsync('')
+        await logout.mutateAsync('').catch(()=>{})
     }
     }])
   }
@@ -94,6 +99,10 @@ export default () => {
                 {title:'Share feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
                 {title:'Sign out',value:'',onPress:onLogout,style:{color:'#FF453A'},leftIcon:settingsSvg.signOut},
             ]}/>
+            {/* version */}
+            <View style={{alignSelf:'center'}}>
+              <Text style={{fontFamily:'Primary-Medium',fontSize:14,color:Colors.grey}}>Version {currentVersion}</Text>
+            </View>
         </SafeAreaView>
     );
 }
