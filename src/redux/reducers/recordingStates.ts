@@ -30,11 +30,9 @@ export const recordingStates = createSlice({
       state.recordingList = [...list]
     },
     updateTranscript: (state, action: PayloadAction<any>) => {
-      const list = state.recordingList
-      console.log(list[action.payload?.index].transcript)
-      list[action.payload?.index].transcript = action.payload?.transcript
-      console.log(list[action.payload?.index].transcript)
-      state.recordingList = [...list]
+      console.log(state.recordingList[action.payload?.index].transcript)
+      state.recordingList[action.payload?.index].transcript = action.payload?.transcript
+      console.log(state.recordingList[action.payload?.index].transcript)
     },
     deleteFromTempRecordings: (state, action: PayloadAction<any>) => {
       const selectedRecoreding = action.payload

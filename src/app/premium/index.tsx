@@ -31,6 +31,14 @@ export default (props:any) => {
 
   useEffect(()=>{
     StatusBar.setHidden(true)
+    // const load=async()=>{
+    //   try{
+    //   const firebaseID=await analytics().getAppInstanceId()
+    //   await Purchases.setFirebaseAppInstanceID(firebaseID)
+    //   // await Purchases.logIn(userDetails?.id)
+    //   }catch{}
+    // }
+    // load()
     return ()=>StatusBar.setHidden(false)
   },[])
   

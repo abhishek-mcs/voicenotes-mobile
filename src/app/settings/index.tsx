@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang } from "redux/reducers/userDetails";
 import { setRecordingList } from "redux/reducers/recordingStates";
+import { useQueryClient } from "react-query";
 
 export default () => {
     const router = useRouter();
@@ -24,6 +25,8 @@ export default () => {
     const settings:any=userDetails.settings
     const saveSettings=useSaveSettings()
     const dispatch=useDispatch()
+    const queryClient=useQueryClient()
+
   const onLogout = () =>{
     
     Alert.alert('',"Are you sure you want to log out?",
@@ -33,9 +36,10 @@ export default () => {
     },{
       text:"Yes",
       onPress:async()=>{
+        queryClient.clear()
         dispatch(setRecordingList([]))
         router?.back();
-        await logout.mutateAsync('')
+        await logout.mutateAsync('').catch(()=>{})
     }
     }])
   }

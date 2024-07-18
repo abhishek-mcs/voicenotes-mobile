@@ -1,16 +1,10 @@
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useSelector } from "react-redux";
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Recording from "components/common/recording";
 import RecButton from "components/common/recording/rec-button";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View,
-  ViewStyle,
-} from "react-native";
-import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 
@@ -39,15 +33,15 @@ export default ({
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 375;
+
   useEffect(() => {
     if (recEnabled) {
-      const timerId = setInterval(async () => {
+      const timerId = setInterval(() => {
         setDuration((prevDuration) => {
           const newDuration = prevDuration + 1000;
-          if (
-            newDuration >= 60000 &&
-            (!token || !userDetails?.subscription_status)
-          ) {
+          if (newDuration >= 60000 && (!token || !userDetails?.subscription_status)) {
             onStopRecord(newDuration);
             return 0;
           } else if (newDuration >= 1200000 && !!token) {
@@ -55,103 +49,111 @@ export default ({
             return 0;
           }
           return newDuration;
-        }); // Update duration every second
+        });
       }, 1000);
 
       return () => {
         clearInterval(timerId);
         setDuration(0);
-      }; // Cleanup the interval on component unmount
+      };
     }
-  }, [recEnabled, onStopRecord]);
+  }, [recEnabled, onStopRecord, token, userDetails?.subscription_status]);
 
   return (
-    <>
+    <View style={styles.container}>
       {recordingParentId && (
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: "#fff",
-            height: 40,
-            flex: 1,
-            borderRadius: 24,
-            position: "absolute",
-            left: 20,
-            right: 20,
-            bottom: 100,
-            alignItems: "center",
-            justifyContent: "center",
-            shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
-            shadowOffset: { width: 0, height: 0.5 },
-            borderColor: "black",
-            zIndex: 15,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-          }}
-        >
-          <Text>Adding as subnote</Text>
+        <View style={styles.parentNoteIndicator}>
+          <Text style={styles.parentNoteText}>Adding as subnote</Text>
         </View>
       )}
-      {!recEnabled ? (
-        <View style={styles.tab}>
-          <RecButton
-            onPress={() => onRecord()}
-            title="Record"
-            icon={home.record}
-            underlayColor={Colors.blackWithOpacity(0.7)}
-            bgColor={"#000"}
-            color="#fff"
-            style={{ flex: 2 }}
-          />
-          <RecButton
-            onPress={onAsk}
-            title="Ask my AI"
-            icon={home.ask}
-            style={{ paddingHorizontal: 12, marginHorizontal: 8 }}
-          />
-          <RecButton
-            onPress={onCreate}
-            title="Create"
-            icon={home.create}
-            style={{ flex: 2 }}
-          />
-        </View>
-      ) : (
-        <View style={{}}>
-          <View style={styles.tab}>
-            <Recording
-              totalDuration={
-                !!token && userDetails?.subscription_status ? "" : "/01:00"
-              }
-              duration={duration}
-              onCancel={onCancel}
-              onStopRecord={onStopRecord}
+      <View style={styles.tab}>
+        {!recEnabled ? (
+          <>
+            <RecButton
+              onPress={onRecord}
+              title="Record"
+              icon={home.record}
+              underlayColor={Colors.blackWithOpacity(0.7)}
+              bgColor="#000"
+              color="#fff"
+              style={styles.button}
             />
-          </View>
-        </View>
-      )}
-    </>
+            <RecButton
+              onPress={onAsk}
+              title={isSmallScreen ? "Ask AI" : "Ask my AI"}
+              icon={home.ask}
+              style={[styles.button, styles.askButton]}
+            />
+            <RecButton
+              onPress={onCreate}
+              title="Create"
+              icon={home.create}
+              style={styles.button}
+            />
+          </>
+        ) : (
+          <Recording
+            totalDuration={!!token && userDetails?.subscription_status ? "" : "/01:00"}
+            duration={duration}
+            onCancel={onCancel}
+            onStopRecord={onStopRecord}
+          />
+        )}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  tab: {
+  container: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 30,
+  },
+  parentNoteIndicator: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    height: 64,
+    height: 40,
     borderRadius: 24,
     position: "absolute",
     left: 20,
     right: 20,
-    bottom: 40,
+    bottom: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+    shadowOffset: { width: 0, height: 0.5 },
+    shadowOpacity: 0.9,
+    shadowRadius: 1.5,
+    elevation: 3,
+    zIndex: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  parentNoteText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  tab: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    marginHorizontal: 20,
+    marginBottom: 20,
     alignItems: "center",
     shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    zIndex: 10,
     elevation: 3,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: "3%",
+    paddingVertical: "2%",
+  },
+  button: {
+    flex: 1,
+  },
+  askButton: {
+    marginHorizontal: 8,
   },
 });
