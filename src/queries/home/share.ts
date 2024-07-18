@@ -9,7 +9,6 @@ export function useUnpublishRecording(){
     {
         onSuccess:async(error:any)=>{
             await queryClient.invalidateQueries('published-recordings')
-            await queryClient.invalidateQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log('unpublish',error?.response?.data?.message);
