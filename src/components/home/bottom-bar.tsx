@@ -1,10 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { useSelector } from "react-redux";
+import React, { Dispatch, SetStateAction, useEffect, useState,useRef } from "react";
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
-import Recording from "components/common/recording";
+import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
@@ -18,6 +18,10 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: () => void;
+  showAskMe: boolean;
+  setShowAskMe: (v:boolean)=>void;
+  onPause?:(v:any)=>void;
+  rec: any;
   recordingParentNoteName: string | null;
   setRecordingParentId: Dispatch<SetStateAction<string | null>>;
 }
@@ -31,8 +35,13 @@ export default ({
   recEnabled = false,
   onStopRecord,
   onCancel,
+  setShowAskMe,
+  showAskMe,
+  onPause=(v:any)=>{},rec=null
 }: Props) => {
   const [duration, setDuration] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerId = useRef<NodeJS.Timeout>();
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -40,8 +49,9 @@ export default ({
   const isSmallScreen = width < 375; // For small screend devices
 
   useEffect(() => {
-    if (recEnabled) {
-      const timerId = setInterval(() => {
+    if (recEnabled&&!paused) {
+      timerId.current&&clearInterval(timerId.current);
+      timerId.current = setInterval(() => {
         setDuration((prevDuration) => {
           const newDuration = prevDuration + 1000;
           if (
@@ -58,13 +68,30 @@ export default ({
         });
       }, 1000);
 
-      return () => {
-        clearInterval(timerId);
-        setDuration(0);
-      };
     }
-  }, [recEnabled, onStopRecord, token, userDetails?.subscription_status]);
+  }, [recEnabled, onStopRecord, token, userDetails?.subscription_status,paused]);
 
+  const onPauseClick = () => {
+    onPause(!paused);
+    setPaused((p)=>{
+      !p&&timerId.current&&clearInterval(timerId.current);
+      return !p;
+    });
+  }
+
+  const onDoneClick = async() => {
+    await onStopRecord(duration);
+    timerId.current&&clearInterval(timerId.current);
+    // setPaused(true);
+    setDuration(0);
+  }
+
+  const onCancelClick = async() => {
+    await onCancel();
+    timerId.current&&clearInterval(timerId.current);
+    setDuration(0);
+    // setPaused(true);
+  }
   return (
     <View style={styles.container}>
       {recordingParentNoteName && (
@@ -122,14 +149,17 @@ export default ({
             />
           </>
         ) : (
-          <Recording
-            totalDuration={
-              !!token && userDetails?.subscription_status ? "" : "/01:00"
-            }
-            duration={duration}
-            onCancel={onCancel}
-            onStopRecord={onStopRecord}
-          />
+<NoteRecorder
+        totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
+        duration={duration}
+        onCancel={onCancelClick}
+        onStopRecord={onDoneClick}
+        setShowAskMe={setShowAskMe}
+        onPause={onPauseClick}
+        showAskMe={showAskMe}
+        paused={paused}
+        setPaused={setPaused}
+        rec={rec}/>
         )}
       </View>
     </View>

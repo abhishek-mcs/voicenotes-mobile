@@ -53,9 +53,6 @@ export default forwardRef(({
   onStartRecord = (obj: {parent_id: string | null, repeat : boolean | null }) => { },
 }: any, ref) => {
   const route = useRouter()
-  const [editNote, setEditNote] = useState(note)
-  const [tag, setTag] = useState('')
-  const [isEdit, setIsEdit] = useState(false)
   const [moreOption, setMoreOption] = useState(false);
   const [createOption, setCreateOption] = useState(false);
   const [shareVisible, setShareVisible] = useState(false);
@@ -87,10 +84,8 @@ export default forwardRef(({
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
   const createAI = useCreate()
-  const getAiCreation = useGetAiCreation()
   const addTranscript = useAddTranscript()
   const unPublishRecording = useUnpublishRecording()
-  const recordingQuery = useRecordings(hashFilter == 'All' ? '' : hashFilter)
   const relatedNotes = useGetRelatedRecording(index ?? 0)
   const NetInfo = useNetInfo()
 
@@ -342,11 +337,7 @@ export default forwardRef(({
     }
   }, [note?.public_slug]);
 
-  useEffect(() => {
-    setEditNote(note); // Update editNote when the note prop changes
-  }, [note]);
-
-  const formattedDuration = (duration = 0) => new Date(duration).toISOString().substring(14, 19);
+  const formattedDuration = (duration = 0) =>0;
 
   const creationList = useMemo(() => note?.creations, [list])
 

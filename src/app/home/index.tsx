@@ -75,7 +75,7 @@ export default ()=> {
   const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [rec, setRec] = useState<Audio.Recording | any>(null);
+  const [rec, setRec] = useState<Audio.Recording|null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const AIModalRef = useRef<any>();
   const CreateModalRef = useRef<any>();
@@ -167,7 +167,11 @@ export default ()=> {
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
   };
-  const onStopRecord = useCallback(async(d:number,repeat=false ) => {
+  const onPause = async(paused:boolean) => {
+   paused? await rec?.pauseAsync().finally(()=>{console.log('paused')})
+   :await rec?.startAsync().finally(()=>{console.log('resumed')})
+  };
+  const onStopRecord = useCallback(async(d:number,repeat=false) => {
     // const file = rec.getURI()||"";
     setRecEnabled(false);
     const file = await stopRecording(rec);
@@ -374,6 +378,10 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
+        showAskMe={showAskMe}
+        setShowAskMe={setShowAskMe}
+        onPause={onPause}
+        rec={rec}
       />
     </SafeAreaView>
   );
