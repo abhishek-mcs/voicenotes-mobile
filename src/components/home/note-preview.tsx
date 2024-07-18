@@ -384,7 +384,7 @@ export default forwardRef(({
   },[expand])
 
   const onThreadNote = () => {
-    onStartRecord({ parent_id: note.id })
+    onStartRecord({ parent_id: note.id ,index})
     closeAddMenu()
   }
 
@@ -471,7 +471,7 @@ export default forwardRef(({
                           visible={showAddMenu}
                           anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
                           onRequestClose={closeAddMenu}
-                          style={styles.menu}
+                          style={isIOS?styles.menuAttachIOS:styles.menuAttachAndroid}
                           animationDuration={150}
                         >
                         {!isSubnote &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
@@ -825,6 +825,17 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 12,
     paddingBottom: 0
+  },
+  menuAttachIOS:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
+    marginTop: 40
+  },
+  menuAttachAndroid:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
   },
   menuIOS:{
     marginTop:40,

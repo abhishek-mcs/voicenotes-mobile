@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  StyleSheet,
 } from "react-native";
 import { Entypo, Foundation } from "@expo/vector-icons";
 import { ATTACHMENT_TYPE } from "types";
@@ -17,6 +18,9 @@ import { BlurView } from "expo-blur";
 import axiosApi from "services/api/axios-api";
 import { Image } from 'expo-image'; 
 import { Menu, MenuItem } from "react-native-material-menu";
+import { SvgXml } from "react-native-svg";
+import { notePreviewSVG } from "assets/svg/notePreviewSVG";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -82,7 +86,7 @@ const renderImageThumbnail = useCallback(
         />
         {item.is_uploading && (
           <BlurView intensity={50} style={styles.blurOverlay}>
-            <ActivityIndicator size="large" color="#ffffff" />
+            <CircularLoader/>
           </BlurView>
         )}
       </View>
@@ -98,7 +102,7 @@ const renderLinkItem = useCallback(
         style={styles.linkContent}
         onPress={() => openLink(item.url)}
       >
-        <Foundation name="link" size={18} color="#0071b0" />
+        <SvgXml xml={notePreviewSVG.link} />
         <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
           {item.description}
         </Text>
@@ -107,7 +111,7 @@ const renderLinkItem = useCallback(
         visible={visibleMenu === item.id}
         anchor={
           <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
-            <Entypo name="dots-three-vertical" size={18} color="#0071b0" />
+            <SvgXml xml={notePreviewSVG.more} />
           </TouchableOpacity>
         }
         onRequestClose={() => setVisibleMenu(null)}
@@ -130,11 +134,7 @@ const renderLinkItem = useCallback(
     ({ item }) => (
       <View style={styles.fullScreenImageContainer}>
         {imageLoading && (
-          <ActivityIndicator
-            size="large"
-            color="#ffffff"
-            style={styles.loader}
-          />
+          <View style={styles.loader}><CircularLoader /></View>
         )}
         {imageError ? (
           <Text style={styles.errorText}>Failed to load image</Text>
@@ -157,7 +157,7 @@ const renderLinkItem = useCallback(
             />
             {item.is_uploading && (
               <BlurView intensity={80} style={styles.fullScreenBlurOverlay}>
-                <ActivityIndicator size="large" color="#ffffff" />
+                <CircularLoader />
               </BlurView>
             )}
           </View>
@@ -227,13 +227,13 @@ const renderLinkItem = useCallback(
                 style={styles.deleteButton}
                 onPress={() => handleDeletePress(imageAttachments[selectedImageIndex].id, 'image')}
               >
-                <Foundation name="trash" size={24} color="#ff4538" />
+                <SvgXml xml={notePreviewSVG.delete}/>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setSelectedImageIndex(null)}
               >
-                <Foundation name="x" size={24} color="#ffffff" />
+                <SvgXml xml={notePreviewSVG.close}/>
               </TouchableOpacity>
             </View>
           </View>
@@ -243,7 +243,7 @@ const renderLinkItem = useCallback(
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 10,
@@ -255,7 +255,7 @@ const styles = {
     marginLeft: 10,
   },
   linkSection: {
-    marginTop: 20,
+    marginTop: 8,
   },
   thumbnailContainer: {
     position: 'relative',
@@ -273,6 +273,7 @@ const styles = {
     right: 0,
     bottom: 0,
     borderRadius: 8,
+    overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -296,6 +297,7 @@ const styles = {
   fullScreenImage: {
     width: '100%',
     height: '100%',
+    borderRadius:8,overflow:'hidden'
   },
   fullScreenBlurOverlay: {
     position: 'absolute',
@@ -305,6 +307,7 @@ const styles = {
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 8,
   },
   modalHeader: {
     position: "absolute",
@@ -321,7 +324,8 @@ const styles = {
     fontSize: 18,
   },
   closeButton: {
-    padding: 10,
+    padding: 14,
+    backgroundColor:'#222',borderRadius: 50
   },
   loader: {
     position: "absolute",
@@ -341,15 +345,18 @@ const styles = {
     alignItems: 'center',
   },
   deleteButton: {
-    padding: 10,
+    padding: 13,
     marginRight: 10,
+    backgroundColor:'#222',borderRadius: 50
   },
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5f8fb",
+    backgroundColor: "rgba(0,113,176,0.05)",
+    padding:4,
+    paddingHorizontal:8,
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 6,
     justifyContent: 'space-between',
   },
   linkContent: {
@@ -362,6 +369,6 @@ const styles = {
     color: "#0071b0",
     flex: 1,
   },
-};
+});
 
 export default AttachmentViewer;

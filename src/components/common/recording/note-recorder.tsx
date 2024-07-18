@@ -7,8 +7,7 @@ import RecButton from "./rec-button"
 import { useEffect, useState } from "react"
 import Waveform from "./waveform"
 
-export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused,rec}:any)=>{
-  const [isCanceling, setIsCanceling] = useState(false);
+export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused,isCanceling=false, setIsCanceling=(v:any)=>{}}:any)=>{
   const formattedDuration = new Date(duration).toISOString().substring(14, 19);
 
   const continueRecording = () => {

@@ -41,6 +41,7 @@ export default ({
 }: Props) => {
   const [duration, setDuration] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
@@ -94,7 +95,7 @@ export default ({
   }
   return (
     <View style={styles.container}>
-      {recordingParentNoteName && (
+      {recordingParentNoteName &&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
@@ -159,6 +160,8 @@ export default ({
         showAskMe={showAskMe}
         paused={paused}
         setPaused={setPaused}
+        isCanceling={isCanceling}
+        setIsCanceling={setIsCanceling}
         rec={rec}/>
         )}
       </View>
@@ -180,7 +183,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    zIndex: 1,
+    zIndex: 10,
     elevation: 3,
     paddingHorizontal: 20,
     paddingVertical: 16,
