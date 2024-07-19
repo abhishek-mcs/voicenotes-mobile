@@ -6,10 +6,13 @@ import { Button, View } from "react-native"
 import RecButton from "./rec-button"
 import { useEffect, useState } from "react"
 import Waveform from "./waveform"
+import { useSelector } from "react-redux"
+import { RootState } from "redux/store/store"
 
 export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{},setShowAskMe=(v:any)=>{},showAskMe=true,paused=false,setPaused,rec}:any)=>{
   const [isCanceling, setIsCanceling] = useState(false);
   const formattedDuration = new Date(duration).toISOString().substring(14, 19);
+  const {userDetails}:any= useSelector((state: RootState) => state.userDetails);
 
   const continueRecording = () => {
     setIsCanceling(false);
@@ -38,10 +41,10 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
           // </View> */}
           // {/* <Waveform recording={rec}/> */}
           <View style={{alignItems:'center',flexDirection:'row',justifyContent:'space-between',width:'100%'}}>
-          <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:20}}/>
-          <View style={[styles.row,{width:'20%'}]}>
+          <RecButton title="Cancel" bgColor="#FF45380D" underlayColor="#FF45380F" color={'#FF4538'} onPress={onCancelClick} style={{paddingHorizontal:!userDetails?.subscription_status?16:20}}/>
+          <View style={[styles.row,{width:!userDetails?.subscription_status?'auto':'20%'}]}>
               <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
-              <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
+              <Text style={[styles.tabItemText,!userDetails?.subscription_status?{fontSize:12}:{}]}>{`${formattedDuration}${totalDuration}`}</Text>
             </View>
           {onPause&&<RecButton icon={!paused?bottomSvg.pause:bottomSvg.play} title="" underlayColor="" onPress={onPause} style={{paddingHorizontal:12,marginRight:-12}}/>}
           <RecButton
@@ -51,7 +54,7 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
             bgColor={Colors.greenWithOpacity(0.2)}
             underlayColor={Colors.greenWithOpacity(0.3)}
             onPress={onStopRecord}
-            style={{paddingHorizontal:20}}
+            style={{paddingHorizontal:!userDetails?.subscription_status?16:20}}
           />
           </View>
         // </View>

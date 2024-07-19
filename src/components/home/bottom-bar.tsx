@@ -57,16 +57,16 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
       }
 
       const onDoneClick = async() => {
-        await onStopRecord(duration);
+        onStopRecord(duration);
+        setDuration(0);
         timerId.current&&clearInterval(timerId.current);
         // setPaused(true);
-        setDuration(0);
       }
 
       const onCancelClick = async() => {
-        await onCancel();
-        timerId.current&&clearInterval(timerId.current);
+        onCancel();
         setDuration(0);
+        timerId.current&&clearInterval(timerId.current);
         // setPaused(true);
       }
 
