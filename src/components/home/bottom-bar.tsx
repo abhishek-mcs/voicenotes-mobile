@@ -48,7 +48,7 @@ export default ({
   );
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
-
+  
   useEffect(() => {
     if (recEnabled&&!paused) {
       timerId.current&&clearInterval(timerId.current);
@@ -70,7 +70,7 @@ export default ({
       }, 1000);
 
     }
-  }, [recEnabled, onStopRecord, token, userDetails?.subscription_status,paused]);
+  }, [recEnabled, token, userDetails?.subscription_status,paused]);
 
   const onPauseClick = () => {
     onPause(!paused);
@@ -91,11 +91,11 @@ export default ({
     onCancel();
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
-    // setPaused(true);
+    setIsCanceling(false);
   }
   return (
     <View style={styles.container}>
-      {recordingParentNoteName &&!isCanceling&& (
+      {recordingParentNoteName&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
