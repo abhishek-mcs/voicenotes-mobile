@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Alert, Animated, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Alert, Animated, LayoutAnimation, Platform, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
@@ -33,8 +33,11 @@ import Subnote from "./subnote";
 import creationContent from "utils/constants/creation-content";
 import { useNetInfo } from "@react-native-community/netinfo";
 import LottieView from "lottie-react-native";
-import threeDotLoader from 'assets/lottie/threeDotLoader.json'
 import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
+import Toast from 'react-native-toast-message';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 
 export default forwardRef(({
   note,
@@ -359,11 +362,87 @@ export default forwardRef(({
     }
   },[expand])
 
+
+const onDownloadAudio = async () => {
+  console.log(note);
+  console.log(note.audio);
+
+  console.log("Audio URL  = ", note?.audio?.data?.url);
+  
+  let audioUrl = "";
+  if (note?.audio?.data?.url) {
+    audioUrl = note?.audio?.data?.url;
+  } else {
+    const resp = await signedURL.mutateAsync(note?.id);
+    audioUrl = resp.data?.url;
+  }
+
+  try {
+    hideMoreOption();
+    const visibilityTime = Math.max(note.transcript?.length / 500, 1) * 1500;
+    Toast.show({
+      type: 'info',
+      text1: 'Preparing',
+      text2: 'Voice note is being prepared...',
+      position: 'top',
+      visibilityTime: visibilityTime
+    });
+
+    let fileUri = audioUrl;
+    
+    if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
+      const fileName = `audio_${Date.now()}.mp3`;
+      fileUri = `${FileSystem.documentDirectory}${fileName}`;
+      const downloadResumable = FileSystem.createDownloadResumable(
+        audioUrl,
+        fileUri,
+        {},
+        downloadProgress => {
+          const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+          console.log(`Download progress: ${progress * 100}%`);
+        }
+      );
+      const { uri } = await downloadResumable.downloadAsync();
+      fileUri = uri;
+    }
+
+    if (Platform.OS === 'android') {
+      const asset = await MediaLibrary.createAssetAsync(fileUri);
+      const album = await MediaLibrary.getAlbumAsync("Download");
+      if (album === null) {
+        await MediaLibrary.createAlbumAsync("Download", asset, false);
+      } else {
+        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+      }
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Audio saved to Downloads folder',
+        position: 'top',
+        visibilityTime: 3000
+      });
+    } else if (Platform.OS === 'ios') {
+      const UTI = 'public.audio';
+      await Sharing.shareAsync(fileUri, { UTI: UTI, dialogTitle: 'Save audio file' });
+    }
+  } catch (error) {
+    console.error('Error processing file:', error);
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'Failed to process the audio file',
+      position: 'top',
+      visibilityTime: 3000
+    });
+  }
+};
+
   const EditDeleteButtons = ()=>{
   return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
     {NetInfo.isConnected && !note.is_audio_corrupted &&
       <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
     <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} isLoading={deleteLoading}/> 
+    <NoteButtons style={{}} text="Download" onPress={onDownloadAudio} icon={home.download} isLoading={deleteLoading}/> 
   </View>)
   }
 
@@ -405,7 +484,7 @@ export default forwardRef(({
                 <SvgXml xml={home.wait} style={{ marginTop: 8, marginRight: 8 }} />
                 <Text style={[styles.text, { color: Colors.grey3, fontFamily: 'Primary-Italic', width: screenWidth / 1.3 }]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
               </View>
-              <EditDeleteButtons/>
+              {expand == index && <EditDeleteButtons/>}
             </>}
 
 
@@ -511,6 +590,12 @@ export default forwardRef(({
                             <View style={[styles.row]}>
                               <SvgXml xml={home.retry} />
                               <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
+                            </View>
+                          </MenuItem>
+                          <MenuItem style={styles.menuItem} onPress={onDownloadAudio}>
+                            <View style={[styles.row]}>
+                              <SvgXml xml={home.download} />
+                              <Text style={styles.menuItemTxt}>Download Audio</Text>
                             </View>
                           </MenuItem>
                           {!!token && <MenuItem style={styles.menuItem} onPress={onDelete}>

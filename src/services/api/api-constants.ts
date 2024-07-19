@@ -77,12 +77,15 @@ const ENVURLSet: ENVURLs = {
 //     ? Environment.stage
 //     : Environment.production
 
-const currentENV = Environment.production;
+const currentENV_NAME:string = process.env.EXPO_PUBLIC_ENVIRONMENT ?? "production";
+const currentENV = ENVURLSet[currentENV_NAME];
+console.log("Current Env = ", currentENV_NAME);
 
-const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
-const API_URL = ENVURLSet[currentENV].API_URL
-const SHORTURL = ENVURLSet[currentENV].SHORT_URL
-const CDN_URL = ENVURLSet[currentENV].CDN_URL
+
+const MAIN_URL = currentENV.MAIN_URL
+const API_URL = currentENV.API_URL
+const SHORTURL = currentENV.SHORT_URL
+const CDN_URL = currentENV.CDN_URL
 
 const TWITTER_REQUEST_URL = API_URL + "/api/v1/twitter/request_token"
 const TWITTER_AUTH_URL = "https://api.twitter.com/oauth/authenticate"

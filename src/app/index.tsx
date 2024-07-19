@@ -8,6 +8,9 @@ import { useSelector } from 'react-redux';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform, UIManager } from 'react-native';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs(['Require cycle:']);
 
 export {
   ErrorBoundary,

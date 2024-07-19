@@ -161,4 +161,8 @@ deleteGrey:`<svg width="13" height="15" viewBox="0 0 13 15" fill="none" xmlns="h
   <path d="M4 6.5L2 8.5V15L5.5 14.5L8 15L10.5 14.5L13.5 15V7.5L11 6.5L7.5 7.5L4 6.5Z" fill="#274F47" fill-opacity="0.25"/>
   </svg>
   `,
+  download: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path :class="strokeClass" d="M7.79297 2.00049V10.2764" stroke="#9B9B9B" stroke-width="1.1" stroke-linecap="round"/>
+  <path :class="strokeClass" d="M4.89648 7.37982L7.79304 10.2764L11.1034 7.37982" stroke="#9B9B9B" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path :class="strokeClass" d="M2 11.1039V13.0005C2 13.5528 2.44772 14.0005 3 14.0005H12.5862C13.1385 14.0005 13.5862 13.5528 13.5862 13.0005V11.1039" stroke="#9B9B9B" stroke-width="1.1" stroke-linecap="round"/></svg>`
 };
