@@ -74,15 +74,13 @@
     "react-native-screens": "3.29.0",
     "react-native-shadow-2": "^7.0.8",
     "react-native-svg": "14.1.0",
-    "react-native-three-dots-loader": "^1.0.1",
     "react-native-uuid": "^2.0.2",
     "react-native-wagmi-charts": "^2.4.1",
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.6.4",
     "react-query": "^3.39.3",
     "react-redux": "^9.1.0",
-    "redux-persist": "^6.0.0",
-    "wavesurfer.js": "^7.7.15"
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

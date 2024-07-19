@@ -75,7 +75,7 @@ export default ()=> {
   const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [rec, setRec] = useState<Audio.Recording | any>(null);
+  const [rec, setRec] = useState<Audio.Recording|null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const AIModalRef = useRef<any>();
   const CreateModalRef = useRef<any>();
@@ -90,6 +90,7 @@ export default ()=> {
   const [isRefreshing,setRefreshing]=useState(false)
   const [uploading,setUploading]=useState(0)
   const [isOffline,setOffline]=useState(false)
+  const [threadIndex,setThreadIndex]=useState(-1)
   const [recordingParentId,setRecordingParentId]=useState<string|null>(null)
   const bannerRef=useRef<any>(null)
 
@@ -113,6 +114,9 @@ export default ()=> {
     if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
       if(hashFilter!='shared'&&records?.length>0){
         records[0]?.transcript==null&&(records[0].transcript='');
+        recordingParentId&& records[threadIndex]?.subnotes?.map((itm:any)=>{
+          if(itm?.transcript==null) itm.transcript=''
+        });
         setReduxRecordingList(records);
       }else if(hashFilter=='shared'){
         setReduxRecordingList(records);
@@ -149,7 +153,7 @@ export default ()=> {
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
-  const onStartRecord = async({repeat = false, parent_id = null}={}) => {
+  const onStartRecord = async({repeat = false, parent_id = null,index=-1}:any) => {
     if (recEnabled&&!repeat){
       console.log('Recording already started.');
       if (parent_id) setRecordingParentId(parent_id)
@@ -162,27 +166,43 @@ export default ()=> {
       bannerRef.current?.show()
       return
     }
+    setThreadIndex(index)
     setRecordingParentId(parent_id)
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
   };
-  const onStopRecord = useCallback(async(d:number,repeat=false ) => {
+  const onPause = async(paused:boolean) => {
+   paused? await rec?.pauseAsync().finally(()=>{console.log('paused')})
+   :await rec?.startAsync().finally(()=>{console.log('resumed')})
+  };
+  const onStopRecord = useCallback(async(d:number,repeat=false) => {
     // const file = rec.getURI()||"";
     setRecEnabled(false);
     const file = await stopRecording(rec);
     setRec(null);
-    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
-    const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
-    setGenerateDummy(dummyData)
-    repeat&&onStartRecord({repeat: true})
-    !repeat&&setExpandNote(0)
+    // let dummyData=generateDummy
+    // if(recordingParentId==null){
+      const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at: new Date()}}}
+      let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
+      setGenerateDummy(dummyData)
+      !repeat&&setExpandNote(0)
+    // }else{
+      // const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at: new Date()}}}
+      // const dumpData=[...recordingList]
+      // dumpData[threadIndex].subnotes=[...dumpData[threadIndex].subnotes,dump]
+      // setReduxRecordingList([...dumpData])
+    // }
+    repeat&&onStartRecord({repeat: true, parent_id:recordingParentId,index:threadIndex})
+    
 
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId, recorded_at: new Date()})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')
+    setRecordingParentId(null)
+    setThreadIndex(-1)
   },[generateDummy,rec,recEnabled,soundRef, recordingParentId]);
   
   const onUploadRetry = async(note:any) => {
@@ -300,7 +320,7 @@ export default ()=> {
       return <Redirect href="/auth/landingPage/" />
   return (
     <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
+      <KeyboardAvoidingView behavior={isIOS?"padding":null} style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:18}}>
@@ -374,6 +394,10 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
+        showAskMe={showAskMe}
+        setShowAskMe={setShowAskMe}
+        onPause={onPause}
+        rec={rec}
       />
     </SafeAreaView>
   );

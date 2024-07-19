@@ -36,12 +36,12 @@ import { DrawerLayout } from "react-native-gesture-handler";
 import { home } from "assets/svg/home";
 import { formatDate, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
-import Recording from "components/common/recording";
 import AudioPlayer from "./AudioPlayer";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { cancelRecording, onRecord, stopRecording } from "func/home/record";
 import { Audio } from "expo-av";
+import ChatRecorder from "components/common/recording/chat-recorder";
 
 type chatProps = {
   related_messages: [
@@ -427,7 +427,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             </Touchable>
             </>
             :<View style={{width:'100%',marginLeft:-12,marginTop:0,justifyContent:'center'}}>
-              <Recording
+              <ChatRecorder
                 totalDuration={'/00:20'}
                 duration={duration}
                 onCancel={onCancelRecord}

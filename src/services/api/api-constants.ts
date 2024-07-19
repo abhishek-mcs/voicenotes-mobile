@@ -1,3 +1,4 @@
+import * as Application from "expo-application"
 
 enum Environment {
   local = "local",
@@ -80,7 +81,9 @@ const ENVURLSet: ENVURLs = {
 //     ? Environment.stage
 //     : Environment.production
 
-const currentENV = Environment.stage;
+const currentENV = Environment.production;
+const ota=".0"
+const currentVersion = Application.nativeApplicationVersion+ota
 
 const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
 const API_URL = ENVURLSet[currentENV].API_URL
@@ -111,5 +114,6 @@ export {
   androidGoogleClientID,
   expoClientID,
   facebookAPPID,
-  currentENV
+  currentENV,
+  currentVersion
 }

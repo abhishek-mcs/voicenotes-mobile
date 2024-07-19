@@ -53,9 +53,6 @@ export default forwardRef(({
   onStartRecord = (obj: {parent_id: string | null, repeat : boolean | null }) => { },
 }: any, ref) => {
   const route = useRouter()
-  const [editNote, setEditNote] = useState(note)
-  const [tag, setTag] = useState('')
-  const [isEdit, setIsEdit] = useState(false)
   const [moreOption, setMoreOption] = useState(false);
   const [createOption, setCreateOption] = useState(false);
   const [shareVisible, setShareVisible] = useState(false);
@@ -87,10 +84,8 @@ export default forwardRef(({
   const addTitleRecord = useAddTitle()
   const signedURL = useSignedUrl()
   const createAI = useCreate()
-  const getAiCreation = useGetAiCreation()
   const addTranscript = useAddTranscript()
   const unPublishRecording = useUnpublishRecording()
-  const recordingQuery = useRecordings(hashFilter == 'All' ? '' : hashFilter)
   const relatedNotes = useGetRelatedRecording(index ?? 0)
   const NetInfo = useNetInfo()
 
@@ -342,11 +337,7 @@ export default forwardRef(({
     }
   }, [note?.public_slug]);
 
-  useEffect(() => {
-    setEditNote(note); // Update editNote when the note prop changes
-  }, [note]);
-
-  const formattedDuration = (duration = 0) => new Date(duration).toISOString().substring(14, 19);
+  const formattedDuration = (duration = 0) =>0;
 
   const creationList = useMemo(() => note?.creations, [list])
 
@@ -393,7 +384,7 @@ export default forwardRef(({
   },[expand])
 
   const onThreadNote = () => {
-    onStartRecord({ parent_id: note.id })
+    onStartRecord({ parent_id: note.id ,index})
     closeAddMenu()
   }
 
@@ -480,7 +471,7 @@ export default forwardRef(({
                           visible={showAddMenu}
                           anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
                           onRequestClose={closeAddMenu}
-                          style={styles.menu}
+                          style={isIOS?styles.menuAttachIOS:styles.menuAttachAndroid}
                           animationDuration={150}
                         >
                         {!isSubnote &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
@@ -834,6 +825,17 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 12,
     paddingBottom: 0
+  },
+  menuAttachIOS:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
+    marginTop: 40
+  },
+  menuAttachAndroid:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
   },
   menuIOS:{
     marginTop:40,
