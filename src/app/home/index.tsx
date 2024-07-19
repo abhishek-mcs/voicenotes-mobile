@@ -320,7 +320,7 @@ export default ()=> {
       return <Redirect href="/auth/landingPage/" />
   return (
     <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
+      <KeyboardAvoidingView behavior={isIOS?"padding":null} style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:18}}>
