@@ -181,18 +181,18 @@ export default ()=> {
     setRecEnabled(false);
     const file = await stopRecording(rec);
     setRec(null);
-    let dummyData=generateDummy
-    if(recordingParentId==null){
-      const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
-      dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
+    // let dummyData=generateDummy
+    // if(recordingParentId==null){
+      const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at: new Date()}}}
+      let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
       setGenerateDummy(dummyData)
       !repeat&&setExpandNote(0)
-    }else{
+    // }else{
       // const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at: new Date()}}}
       // const dumpData=[...recordingList]
       // dumpData[threadIndex].subnotes=[...dumpData[threadIndex].subnotes,dump]
       // setReduxRecordingList([...dumpData])
-    }
+    // }
     repeat&&onStartRecord({repeat: true, parent_id:recordingParentId,index:threadIndex})
     
 

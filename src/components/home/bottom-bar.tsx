@@ -95,7 +95,7 @@ export default ({
   }
   return (
     <View style={styles.container}>
-      {recordingParentNoteName&& (
+      {recordingParentNoteName&&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
