@@ -183,12 +183,13 @@ export default ()=> {
     setRec(null);
     // let dummyData=generateDummy
     // if(recordingParentId==null){
-      const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at: new Date()}}}
-      let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
-      setGenerateDummy(dummyData)
-      !repeat&&setExpandNote(0)
+    const recorded_at = (new Date()).toISOString()
+    const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at}}}
+    let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
+    setGenerateDummy(dummyData)
+    !repeat&&setExpandNote(0)
     // }else{
-      // const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at: new Date()}}}
+      // const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at}}}
       // const dumpData=[...recordingList]
       // dumpData[threadIndex].subnotes=[...dumpData[threadIndex].subnotes,dump]
       // setReduxRecordingList([...dumpData])
@@ -197,7 +198,7 @@ export default ()=> {
     
 
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId, recorded_at: new Date()})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId, recorded_at})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')

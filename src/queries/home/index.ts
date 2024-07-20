@@ -75,9 +75,8 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
-        
         parent_id && formData.append("parent_id", parent_id);
-        recorded_at && formData.append("recorded_at", recorded_at);
+        recorded_at && formData.append("recorded_at", new Date(recorded_at));
 
         const deviceInfo = {
             platform: Platform.OS,

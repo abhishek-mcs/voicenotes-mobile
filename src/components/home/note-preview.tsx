@@ -458,6 +458,16 @@ export default forwardRef(({
               }}
               />}
 
+            {showLinkEditModal && <AddEditLinkModal
+            noteId={note?.id}
+            onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+            editingLink={editingLink}
+            isVisible={showLinkEditModal}
+            onClose={() => {
+              setShowLinkEditModal(false)
+              setEditingLink(null)
+            }} />
+            }
 
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
@@ -508,16 +518,6 @@ export default forwardRef(({
                         noteId={note?.id}
                         />}
 
-                    {showLinkEditModal && <AddEditLinkModal
-                      noteId={note?.id}
-                      onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-                      editingLink={editingLink}
-                      isVisible={showLinkEditModal}
-                      onClose={() => {
-                        setShowLinkEditModal(false)
-                        setEditingLink(null)
-                      }} />
-                      }
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
                       

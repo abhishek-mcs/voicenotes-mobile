@@ -61,17 +61,24 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 
   const handleSave = async () => {
     if (!url) return;
+
+    let httpUrl = url
+    if (!url.startsWith('https://') && !url.startsWith('http://')) {
+      httpUrl = `http://${url}`;
+    }
+    setUrl(httpUrl)
+
     try {
       let response;
       if (editingLink) {
         response = await axiosApi.patch(`/attachment/${editingLink.id}`, {
           type: 1,
-          url: url
+          url: httpUrl
         });
       } else {
         response = await axiosApi.post(`/attachment/${noteId}`, {
           type: 1,
-          url: url
+          url: httpUrl
         });
       }
       onAttachmentUpdate();
