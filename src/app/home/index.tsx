@@ -3,6 +3,7 @@ import {
   Easing,
   FlatList,
   KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
@@ -49,9 +50,17 @@ import NetInfo from '@react-native-community/netinfo';
 import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
-import { analytics } from "../../../firebaseConfig";
+import { analytics, db } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
+import * as FileSystem from 'expo-file-system';
+import { saveVoiceNote } from "func/home/uploadAudioFb";
+import { onValue, ref, remove } from "firebase/database";
+import { RecordingStatus } from "func/firebase/recording-event-listener";
+import axiosApi from "services/api/axios-api";
+// import * as MediaLibrary from 'expo-media-library';
+
+
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -90,6 +99,7 @@ export default ()=> {
   const [isRefreshing,setRefreshing]=useState(false)
   const [uploading,setUploading]=useState(0)
   const [isOffline,setOffline]=useState(false)
+  const [finalNotesListToShow,setFinalNotesListToShow]=useState([])
   const bannerRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
@@ -109,6 +119,8 @@ export default ()=> {
   // Only dispatch if the recording list has changed
   useEffect(() => {
     const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
+
+
     if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
       if(hashFilter!='shared'&&records?.length>0){
         records[0]?.transcript==null&&(records[0].transcript='');
@@ -122,6 +134,25 @@ export default ()=> {
   const isListEmpty = recordingList?.length == 0 || null;
 
   useIAPInfo()
+  useEffect(()=>{
+  //  const finalList = recordingList?.length == 1
+  //   ? recordingList[0] != undefined
+  //     ? (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
+  //     : []
+  //   : (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
+
+  let finalList = [...tempRecordings, ...recordingList]
+  finalList = finalList.map(rec=>{
+    return {
+      ...rec,
+      is_title_failed : !rec.title,
+      is_transcript_failed: !rec.transcript,
+      show_title_loader: false,
+      show_transcript_loader: false,
+    }
+  })
+    setFinalNotesListToShow(finalList)
+  },[tempRecordings, recordingList])
 
   useEffect(()=>{
     checkRecordPermission()
@@ -167,22 +198,138 @@ export default ()=> {
     analytics().logEvent('started_recording')
   };
 
-  const onStopRecord = useCallback(async(d:number,repeat=false) => {
-    // const file = rec.getURI()||"";
+
+  const updateSingleNote = (id, props = {}) => {
+    // Create a new array to avoid mutating the original
+    const updatedList = finalNotesListToShow.map(note => {
+      if (note.recording_id === id) {
+        return { ...note, ...props, is_title_failed : !note.title, is_transcript_failed: !note.transcript  };
+      }
+      return note;
+    });
+  
+    // Check if a note was actually updated
+    const wasUpdated = updatedList.some(note => note.id === id);
+  
+    if (!wasUpdated) {
+      console.warn(`Note with id ${id} not found.`);
+      return null;
+    }
+  
+    setFinalNotesListToShow(updatedList)
+  };
+
+  const refetchSingleRecording = async (id) => {
+    console.log('refetching single recording: ', id);
+    
+    // await queryClient.invalidateQueries('single-recording')
+    const resp = await axiosApi.get(`/recordings/${id}`)
+    console.log(resp.data);
+    updateSingleNote(id , resp.data)
+  }
+
+  const onStopRecord = useCallback(async (d: number, repeat = false) => {
     setRecEnabled(false);
-    const file = await stopRecording(rec);
+    const uri: string = await stopRecording(rec);
+
+    // console.log('Recording stopped and stored at', uri);
+
+    // const fileName = `recording-${Date.now()}.m4a`;
+    // let fileUri;
+
+    // if (Platform.OS === 'ios') {
+    //   fileUri = `${FileSystem.documentDirectory}${fileName}`;
+    //   await FileSystem.moveAsync({
+    //     from: uri,
+    //     to: fileUri,
+    //   });
+    // } else {
+    //   // For Android, save to MediaLibrary
+    //   const asset = await MediaLibrary.createAssetAsync(uri);
+    //   const album = await MediaLibrary.getAlbumAsync('AudioRecorder');
+    //   if (album == null) {
+    //     await MediaLibrary.createAlbumAsync('AudioRecorder', asset, false);
+    //   } else {
+    //     await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+    //   }
+    //   fileUri = asset.uri;
+    // }
+
+    // console.log('File saved to', fileUri);
+
+
     setRec(null);
-    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
-    const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
-    setGenerateDummy(dummyData)
-    repeat&&onStartRecord(true)
-    !repeat&&setExpandNote(0)
-    scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
-    await soundRef.current?.unloadAsync()
-    !repeat&&deactivateKeepAwake()
+    const dump = { isUploading: true, audio: { data: { url: uri, duration: d } } }
+    const dummyData = !!generateDummy ? [dump, ...generateDummy] : [dump]
+    dispatch(setTempRecordings(dummyData))
+    // setGenerateDummy(dummyData)
+    repeat && onStartRecord(true)
+    !repeat && setExpandNote(0)
+    scrollRef && scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    const response = await saveVoiceNote({ audio: uri, duration: d })
+    let recordingId = response.recording.id;
+    console.log(recordingId);
+
+
+    try {
+      const firebasePath = token ? "processStatuses/recording/" : "processStatuses/guest/recording/";
+      // const statusRef = db(db, firebasePath + recordingId);
+      const statusRef = ref(db, firebasePath + recordingId);
+      console.log({ statusRef });
+
+      onValue(statusRef, async (snapshot) => {
+        console.log('inside onValue');
+
+        if (snapshot.exists()) {
+          const status = +snapshot.val();
+          console.log({ status });
+
+          await refetchSingleRecording(recordingId)
+          // console.log("Status = ", RecordingStatus[status]);
+          // await queryClient.refetchQueries(['single-recording', recordingId]);
+          // await queryClient.refetchQueries('all-recording');
+
+
+          if (status === RecordingStatus.AUDIO_UPLOADED) {
+            console.log('status:  audio uploaded');
+          }
+
+          // if (status ==  RecordingStatus.TRANSCRIPT_GENERATED) {
+          //   let data = await request.fetchSingleRecording(recordingId);
+          //   afterTranscriptGenerated(data,recordingId)
+          // }
+          else if (status == RecordingStatus.TITLE_GENERATED) {
+            console.log('status:  title generated');
+
+            const newPendingToUploadRecordings = tempRecordings.filter((note) => note.id !== recordingId);
+            console.log({tempRecordingsLength: tempRecordings.length, newPendingToUploadRecordingsLength: newPendingToUploadRecordings.length});
+            dispatch(setTempRecordings(newPendingToUploadRecordings))
+          }
+          else if (status == RecordingStatus.TRANSCRIPT_FORMATTED) {
+            console.log('status:  transcript formatted');
+            
+          }
+          if (status == RecordingStatus.TRANSCRIPT_FORMATTED || status == RecordingStatus.FORMAT_TRANSCRIPT_FAILED)
+            remove(statusRef).then(() => {
+              console.log("Process completed; Removing from firebase")
+            }).catch((error) => {
+              console.log("Remove failed: " + error.message)
+            });
+
+        } else {
+          console.log("No data available at this path.");
+        }
+      });
+    } catch (error) {
+      console.error("Error accessing Firebase Database:", error);
+    }
+
+
+    // await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file:uri,uploadRecord,d,dispatchCanRecord})
+    // await soundRef.current?.unloadAsync()
+    !repeat && deactivateKeepAwake()
     analytics().logEvent('completed_recording')
-  },[generateDummy,rec,recEnabled,soundRef]);
+  }, [generateDummy, rec, recEnabled, soundRef]);
   
   const onUploadRetry = async(note:any) => {
     return new Promise(async(resolve, reject) => {
@@ -312,13 +459,7 @@ export default ()=> {
             ref={scrollRef}
             // bounces={false}
             style={{opacity:hideBackground?0:1,marginTop:12}}
-            data={
-              recordingList?.length == 1
-                ? recordingList[0] != undefined
-                  ? (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
-                  : []
-                : (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
-            }
+            data={finalNotesListToShow}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             contentContainerStyle={{ paddingBottom: 300 }}
