@@ -462,6 +462,7 @@ const onDownloadAudio = async () => {
             <View style={styles.timeLine} />
           </View>
           <View style={{ marginLeft: 9, flex: 1, marginTop: -3 }}>
+            <Text> Status: {note?.status} </Text>
             {(!!note?.title&&note?.title?.length>0&&titleLoading==false) ?
               // <Touchable onPress={()=>{
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>

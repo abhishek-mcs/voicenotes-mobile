@@ -8,7 +8,7 @@ export interface HashState {
 
 const initialState: HashState = {
   recordingList: [],
-  tempRecordings: null,
+  tempRecordings: [],
 }
 
 export const recordingStates = createSlice({
@@ -43,10 +43,32 @@ export const recordingStates = createSlice({
       })
       state.tempRecordings = filteredTempRecordings
     },
+
+    updateRecordingDetails :(state, action: PayloadAction<any>) => {
+    return {
+      ...state,
+      recordingList: state.recordingList.map(recording =>
+        recording.id === action.payload.recordingId
+          ? { ...recording, ...action.payload.details }
+          : recording
+      )
+    }
+    },
+    updateRecordingStatus:(state, action: PayloadAction<any>) => {
+      return {
+        ...state,
+        recordingList: state.recordingList.map(recording => 
+          (recording.id === action.payload.recordingId || 
+           (recording.tempId && recording.tempId === action.payload.temporaryId))
+            ? { ...recording, status: action.payload.status }
+            : recording
+        )
+      };
+    }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setTempRecordings, setRecordingList, setRelatedNotes, updateTitle, updateTranscript, deleteFromTempRecordings } = recordingStates.actions
+export const { setTempRecordings, setRecordingList, setRelatedNotes, updateTitle, updateTranscript, deleteFromTempRecordings, updateRecordingDetails, updateRecordingStatus } = recordingStates.actions
 
 export default recordingStates.reducer

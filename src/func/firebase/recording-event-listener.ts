@@ -18,6 +18,10 @@ export const RecordingStatus = {
   FORMAT_TRANSCRIPT_FAILED: 13,
 };
 
+export const RecordingStatusString = Object.fromEntries(
+  Object.entries(RecordingStatus).map(([key, value]) => [value, key])
+);
+
 export default async ({ id = null, getCreation = async (v: any) => {} }) => {
   try {
     const firebasePath = "processStatuses/recording/";

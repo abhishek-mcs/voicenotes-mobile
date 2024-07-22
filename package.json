@@ -42,7 +42,7 @@
     "expo-haptics": "^12.8.1",
     "expo-keep-awake": "~12.8.2",
     "expo-linking": "~6.2.2",
-    "expo-media-library": "^16.0.4",
+    "expo-media-library": "~15.9.2",
     "expo-router": "~3.4.10",
     "expo-sharing": "^12.0.1",
     "expo-splash-screen": "~0.26.5",
