@@ -231,7 +231,7 @@ export default forwardRef(({
   }
   const onDelete = () => {
     hideMoreOption();
-    Alert.alert('', 'Are you sure you want to delete?', [
+    Alert.alert('', `Are you sure you want to ${note?.isUploading?'cancel':'delete'}?`, [
       {
         text: 'No',
         style: 'cancel'
@@ -239,14 +239,13 @@ export default forwardRef(({
       {
         text: 'Yes',
         onPress: async () => {
-          if (isUploadingFailed)
-            dispatch(deleteFromTempRecordings(note))
-          else {
+          if (note?.id) {
             setDeleteLoading(true)
             await deleteRecord.mutateAsync('').catch(() => {setDeleteLoading(false)})
             setDeleteLoading(false)
             onDeleteCallBack()
-          }
+          }else
+            dispatch(deleteFromTempRecordings(note))
         }
       }
     ])
@@ -359,11 +358,11 @@ export default forwardRef(({
     }
   },[expand])
 
-  const EditDeleteButtons = ()=>{
+  const EditDeleteButtons = ({retry=true})=>{
   return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
-    {NetInfo.isConnected && !note.is_audio_corrupted &&
+    {NetInfo.isConnected && !note.is_audio_corrupted &&retry&&
       <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
-    <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} isLoading={deleteLoading}/> 
+    <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text={note?.isUploading?"Cancel":"Delete"} onPress={onDelete} icon={note?.isUploading?null:home.delete} isLoading={deleteLoading}/> 
   </View>)
   }
 
@@ -398,7 +397,10 @@ export default forwardRef(({
                 <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
                 <EditDeleteButtons/>
                 </>
-                  : <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
+                  : <>
+                      <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
+                      {note?.isUploading&&expand==index&&<EditDeleteButtons retry={false}/>}
+                    </>
             }
             {isUploadingFailed && !note?.is_audio_corrupted && <>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
