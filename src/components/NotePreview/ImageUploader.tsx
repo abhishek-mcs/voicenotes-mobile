@@ -102,7 +102,7 @@ const ImageUploader = ({
     let result = await launch({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      // aspect: [4, 3],
+      aspect: [4, 3],
       quality: 1,
     });
 
