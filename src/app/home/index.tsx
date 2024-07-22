@@ -180,7 +180,6 @@ export default ()=> {
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
     repeat&&onStartRecord(true)
-    !repeat&&setExpandNote(0)
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
@@ -205,7 +204,7 @@ export default ()=> {
 
       for (let i = temp.length - 1; i >= 0; i--) {
         try {
-          await onUploadRetry(temp[i]); 
+          await onUploadRetry(temp[i]);
           temp.splice(i, 1);
           setGenerateDummy([...temp]);
           setUploading(prevUploading => prevUploading - 1);

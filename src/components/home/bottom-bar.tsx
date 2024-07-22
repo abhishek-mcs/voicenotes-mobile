@@ -38,7 +38,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
                 onStopRecord(newDuration);
                 return 0;
-              }else if(newDuration>=1200000&&!!token){
+              }else if(newDuration>=600000&&!!token){
                 onStopRecord(newDuration,true);
                 return 0
               }
@@ -46,7 +46,7 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
             }); // Update duration every second
           }, 1000);
         }
-      }, [recEnabled,paused]);
+      }, [recEnabled,paused,onStopRecord]);
       
       const onPauseClick = () => {
         onPause(!paused);
