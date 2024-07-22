@@ -58,6 +58,7 @@ struct RecordAudioView: View {
                     cardShown = false
                   }
                 } else {
+                  viewModel.recordingWhileCancel = viewModel.recording
                   viewModel.stopRecording()
                   viewModel.cancel()
                 }

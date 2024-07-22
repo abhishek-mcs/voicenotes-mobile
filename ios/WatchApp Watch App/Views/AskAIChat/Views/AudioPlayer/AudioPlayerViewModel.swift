@@ -129,6 +129,22 @@ class AudioPlayViewModel: ObservableObject {
             print(error)
         }
     }
+  
+    deinit {
+      cleanupPlayer()
+    }
+  
+    func cleanupPlayer() {
+        player?.pause()
+        
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: player?.currentItem)
+        NotificationCenter.default.removeObserver(self)
+        
+        timer?.invalidate()
+        timer = nil
+        
+//        player = nil
+    }
 }
 
 

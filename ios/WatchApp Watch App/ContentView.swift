@@ -110,10 +110,15 @@ struct ContentView: View {
       
       if viewModel.isAccessTokenValid {
         HStack(spacing: 3) {
-          askAIButton
-          
-          if !viewModel.navigationPath.contains(ScreenType.askAI(audioData: viewModel.firstAIAudio)) {
-            recordButton
+          if !viewModel.navigationPath.contains(where: {
+            if case .recordingDetails = $0 { return true }
+            return false
+          }) {
+            askAIButton
+            
+            if !viewModel.navigationPath.contains(ScreenType.askAI(audioData: viewModel.firstAIAudio)) {
+              recordButton
+            }
           }
         }
       }
@@ -129,6 +134,9 @@ struct ContentView: View {
           withAnimation {
             viewModel.showRecordView = false
           }
+        } else {
+          guard viewModel.recordAudioViewModel.recordingWhileCancel else { return }
+          viewModel.recordAudioViewModel.recordButtonTapped()
         }
       })
       DeleteView(cardShown: $viewModel.showDeleteView, aprove: { success in
