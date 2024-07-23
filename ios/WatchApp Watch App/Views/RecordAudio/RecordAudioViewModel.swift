@@ -31,6 +31,7 @@ final class RecordAudioViewModel: ObservableObject {
   
   var maxRecordingTime: TimeInterval = 60
   var subscriptionStatus = false
+  var recordingWhileCancel = false
   
   var completion: (RecordingDataModel, _ hideView: Bool) -> Void
   var cancel: () -> Void

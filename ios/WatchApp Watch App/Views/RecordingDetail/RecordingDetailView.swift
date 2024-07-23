@@ -14,10 +14,9 @@ struct RecordingDetailView: View {
   var body: some View {
     ZStack {
       ScrollView {
-        
         VStack(alignment: .leading, spacing: 3) {
           Text(viewModel.recording.title ?? "New recording")
-            .font(.SFProRounded(.bold, size: 18))
+            .font(.SFProRounded(.bold, size: 14))
             .foregroundStyle(Color("F2F2F7"))
           
           HStack {

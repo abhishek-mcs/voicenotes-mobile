@@ -193,9 +193,15 @@ final class ContentViewModel: ObservableObject {
       }
       
       // if audio is aploaded then try to delete it from local storage
-      self.deleteRecording(recording.id)
+//      self.deleteRecording(recording.id)
       
-      self.updateTranscripting(recordingId: String(model.recording.recordingId), listItemId: recording.id)
+      if let index = recordings.firstIndex(where: { $0.id == model.recording.recordingId }) {
+        withAnimation {
+          self.recordings[index].audioData = nil
+        }
+      }
+      
+      self.updateTranscripting(recordingId: model.recording.recordingId, listItemId: recording.id)
     }
     .store(in: &subscriptions)
   }

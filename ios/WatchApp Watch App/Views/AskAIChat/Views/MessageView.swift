@@ -17,6 +17,9 @@ struct MessageView: View {
       
       VStack(spacing: 3) {
         AudioPlayerView(audioVM: audioVM)
+          .onDisappear {
+            audioVM.cleanupPlayer()
+          }
         
         HStack(spacing: .zero) {
           Text(audioVM.message.messageType == .user ? audioVM.message.question ?? "empty" : audioVM.message.answer ?? "empty")

@@ -10,6 +10,7 @@ import Combine
 import UIKit
 import KeychainSwift
 import NerdzInject
+import WatchKit
 
 final class NetworkService {
     
