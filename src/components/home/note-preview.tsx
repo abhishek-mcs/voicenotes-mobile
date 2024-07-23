@@ -399,7 +399,7 @@ export default forwardRef(({
   const slug = note.public_slug || ""
   
   const refreshNoteAfterAttachmentChange =async ()=>{
-    await queryClient.refetchQueries('all-recording')
+    await queryClient.invalidateQueries('all-recording')
   }
 
   return (
