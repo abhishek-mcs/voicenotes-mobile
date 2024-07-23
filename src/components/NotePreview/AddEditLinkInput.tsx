@@ -37,6 +37,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   onClose
 }) => {
   const [url, setUrl] = React.useState('');
+  const [isSaving, setIsSaving] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const textInputRef = useRef<TextInput>(null);
   const snapPoints = useMemo(() => [ isIOS ?  '94%' : '95%'], []);
@@ -79,6 +80,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       httpUrl = `http://${url}`;
     }
     setUrl(httpUrl);
+    setIsSaving(true)
 
     try {
       if (editingLink) {
@@ -96,8 +98,12 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       onClose();
     } catch (error) {
       console.error("Error saving link:", error);
+    }finally{
+      setIsSaving(false)
     }
   };
+
+  const isSaveDisabled = useMemo(() =>!url?.length || isSaving, [url, isSaving]);
 
   return (
     <Portal>
@@ -116,8 +122,8 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
             <Touchable onPress={onClose} style={styles.headerButton} activeOpacity={0.6}>
               <Text style={styles.cancelText}>Cancel</Text>
             </Touchable>
-            <Touchable onPress={handleSave} style={styles.headerButton} activeOpacity={0.6}>
-              <Text style={styles.saveText}>Save</Text>
+            <Touchable disabled={isSaveDisabled} onPress={handleSave} style={styles.headerButton} activeOpacity={0.6}>
+              <Text style={{ ...styles.saveText,color: isSaveDisabled? Colors.grey :"#007AFF" }}>Save</Text>
             </Touchable>
           </View>
           <View style={styles.separator} />
@@ -126,8 +132,9 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
           <View style={styles.inputContainer}>
             <TextInput
               ref={textInputRef}
-              value={url}
-              onChangeText={setUrl}
+              defaultValue={url}
+              keyboardType="url"
+              onChangeText={url=>setUrl(url)}
               placeholder="Type or Paste URL"
               placeholderTextColor="#717171"
               style={styles.input}
@@ -190,7 +197,7 @@ const styles = StyleSheet.create({
   saveText: {
     fontFamily: 'Primary-Semibold',
     fontSize: 16,
-    color: '#007AFF',
+
   },
   title: {
     fontSize: 15,

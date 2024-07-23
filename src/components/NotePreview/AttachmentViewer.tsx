@@ -109,7 +109,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           visible={visibleMenu === item.id}
           anchor={
             <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
-              <SvgXml xml={notePreviewSVG.more} />
+              <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
             </TouchableOpacity>
           }
           onRequestClose={() => setVisibleMenu(null)}
@@ -345,6 +345,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+    marginRight: 8
   },
   linkText: {
     marginLeft: 10,
