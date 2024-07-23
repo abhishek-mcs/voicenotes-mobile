@@ -89,12 +89,12 @@ export default forwardRef(({
 
   useEffect(() => {
     if (triggerTypingTranscript == 0 && !note?.transcript)
-      setTriggerTypingTranscript(2)
+      setTriggerTypingTranscript(0.02)
   }, [note?.transcript])
 
   useEffect(() => {
     if (triggerTypingTitle == 0 && !note?.title)
-      setTriggerTypingTitle(2)
+      setTriggerTypingTitle(0.02)
   }, [note?.title])
 
   const hideMoreOption = () => setMoreOption(false);
@@ -295,7 +295,10 @@ export default forwardRef(({
         setAudioLoading(index);
         if (!!note?.audio?.data?.url) {
           onPlaySet(note?.audio)
-        } else {
+        } if(note.audioUrl?.length){
+          onPlaySet(note.audioUrl)
+        }else {
+          console.log('going for signedurl');
           signedURL.mutate(note?.id, {
             onSuccess: async (r) => {
               onPlaySet(r)
@@ -323,7 +326,7 @@ export default forwardRef(({
   const creationList = useMemo(() => note?.creations, [list])
 
   const isLongTranscript=!!note?.transcript&&note?.transcript?.length>520?true:false
-  let opacity = new Animated.Value(1);
+  let opacity = new Animated.Value(0.1);
 
   const onExpand = async () => {
     LayoutAnimation.configureNext({
@@ -502,21 +505,7 @@ const onDownloadAudio = async () => {
                     <>
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
-                      {
-                        // isIOS?
-                        // <MoreOptions 
-                        //   options={[
-                        //     {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
-                        //     {title:'Main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
-                        //     {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
-                        //     {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
-                        //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
-                        //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
-                        //     ]}>
-                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create}/>
-                        // </MoreOptions>
-                        // :
-                        <Menu
+                        {<Menu
                           visible={createOption}
                           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
                           onRequestClose={hideCreateOption}

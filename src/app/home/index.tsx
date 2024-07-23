@@ -71,6 +71,9 @@ const fadeOut={
   from:{opacity:1},to:{opacity:0}
 }
 
+type newNote = { id: any; audio: any; isUploading?: boolean; title?: string; transcript?: null; recorded_at?: string; status?: string; audioUrl?: string | null | undefined; }
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export default ()=> {
   const insets=useSafeAreaInsets()
   const notePreviewRef = useRef<any>();
@@ -115,31 +118,55 @@ export default ()=> {
   const setReduxRecordingList=(val:any)=>dispatch(setRecordingList(val))
   const dispatchCanRecord=(val:boolean)=>dispatch(setCanRecord(val??true))
 
-  const listenToFirebaseStatus = useCallback((recordingId: string | number, temporaryRecordingId: string) => {
-    console.log('listening to firebase');
-    const firebasePath = token ? "processStatuses/recording/" : "processStatuses/guest/recording/";
-    const statusRef = ref(db, firebasePath + recordingId);
+const listenToFirebaseStatus = useCallback((recordingId: string | number, temporaryRecordingId: string) => {
+  console.log('listening to firebase');
+  const firebasePath = token ? "processStatuses/recording/" : "processStatuses/guest/recording/";
+  const statusRef = ref(db, firebasePath + recordingId);
 
-    onValue(statusRef, async (snapshot) => {
-      if (snapshot.exists()) {
-        const status = +snapshot.val();
-        console.log("Status = ", status, RecordingStatusString[status]);
+  let isProcessOver = false
+  onValue(statusRef, async (snapshot) => {
+    if (snapshot.exists()) {
+      const status = +snapshot.val();
 
-        let updatedStatus = 'uploading';
-        if (status === RecordingStatus.AUDIO_UPLOADED) updatedStatus = 'processing';
-        else if (status === RecordingStatus.UPLOADED_FAILED) updatedStatus = 'upload_failed';
-        else if (status === RecordingStatus.FORMAT_TRANSCRIPT_FAILED) updatedStatus = 'processing_failed';
-
-        if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
-          const updatedNote = await fetchSingleRecording(recordingId);
-          dispatch(updateRecordingDetails({recordingId, data: {...updatedNote.data, status: 'processed'}}));
-          remove(statusRef);
-        }else{
-          dispatch(updateRecordingStatus({recordingId, updatedStatus, temporaryRecordingId}));
-        }
+      if (
+        status !== RecordingStatus.TRANSCRIPT_FORMATTED &&
+        status !== RecordingStatus.GENERATE_TITLE_FAILED &&
+        status !== RecordingStatus.UPLOADED_FAILED &&
+        status !== RecordingStatus.AUDIO_UPLOADED
+      ) {
+        return;
       }
-    });
-  }, [token, dispatch]);
+
+      let updatedStatus = 'uploading';
+      if (status === RecordingStatus.AUDIO_UPLOADED) {
+        updatedStatus = 'processing';
+        console.log('audio uploaded');
+        dispatch(updateRecordingDetails({ recordingId, data: { status: updatedStatus }, temporaryRecordingId }));
+      } else if (status === RecordingStatus.UPLOADED_FAILED) {
+        updatedStatus = 'upload_failed';
+        console.log('audio uploaded failed');
+        dispatch(updateRecordingDetails({ recordingId, data: { status: updatedStatus }, temporaryRecordingId }));
+      } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
+        updatedStatus = 'processing_failed';
+        console.log('title geneation failed;waiting');
+        // setTimeout(() => {
+        //   if(!isProcessOver){
+          dispatch(updateRecordingDetails({ recordingId, data: { status: updatedStatus }, temporaryRecordingId }))
+        // }}, 2000);
+      } else if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
+        isProcessOver= true
+        console.log('formatted');
+        const updatedNote = await fetchSingleRecording(recordingId);
+        dispatch(updateRecordingDetails({ recordingId, data: { ...updatedNote.data, status: 'processed' } }));
+        console.log('removing firebase listener');
+        remove(statusRef);
+      }
+      console.log("Status = ", status, RecordingStatusString[status]);
+    } else {
+      console.log('No data available');
+    }
+  });
+}, [token, dispatch]);
   
   useEffect(() => {
     if (recordingQuery.data) {
@@ -164,11 +191,38 @@ export default ()=> {
     })
   },[])
 
-  useEffect(()=>{
-    // if(!isOffline&&!!generateDummy&&generateDummy?.length>0&&uploading==0){
-    //   batchRetryUpload()
-    // }
-  },[isOffline])
+  useEffect(() => {
+    if (isOffline) return
+
+    const notesToRetry= recordingList.filter(rec => rec?.status !== 'processed')
+    console.log({ notesToRetry });
+
+    const retryUpload = async (note: newNote) => {
+      console.log('retrying upload for note: ', note.title);
+      // const response = await saveVoiceNote({ uri: note.audio.data.url, duration: note.audio.data.duration }); const recordingId = response.recording.id;
+      // listenToFirebaseStatus(recordingId, note.id);
+      uploadVoiceNote(note)
+    }
+
+
+    const retryProcessing = async (note) => {
+      console.log('retrying processing');
+      if (!note.transcript) {
+        // regenerate transcript
+        // make call to /continue enpdoing
+      }
+    }
+
+    for (const note of notesToRetry) {
+      if (note.status === 'upload_failed' || (note.status === 'uploading' && note.recorded_at < Date.now() - 5 *  1000)) {
+        retryUpload(note)
+      } else if (note.status === 'processing_failed') {
+        retryProcessing(note)
+      }
+    }
+
+
+  }, [isOffline])
 
 
  
@@ -200,7 +254,7 @@ export default ()=> {
     // soundRef.current=sound
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
-    analytics().logEvent('started_recording')
+    analytics().logEvent('started_recording') 
   };
 
 
@@ -212,20 +266,34 @@ export default ()=> {
     return resp
   }
 
+  const uploadVoiceNote = async (note:newNote ) =>{
+    const temporaryRecordingId = note.id
+    try {
+    const response = await saveVoiceNote({ audio: note.audio.data.url, duration:note.audio.data.duration });
+    const recordingId = response.recording.id;
+    listenToFirebaseStatus(recordingId, temporaryRecordingId);
+    } catch (error) {
+      console.log('Error in network upload');
+      dispatch(updateRecordingDetails({ recordingId: null, data: { status: 'upload_failed' }, temporaryRecordingId }));
+    }
+
+  }
+
   const onStopRecord = useCallback(async (duration: any, repeat = false) => {
     setRecEnabled(false);
     const uri = await stopRecording(rec);
     setRec(null);
 
     const temporaryRecordingId = Math.random().toString(36).substring(7);
-    const newTemporaryRecording = {
+    const newTemporaryRecording :newNote= {
       id: temporaryRecordingId,
       audio: { data: { url: uri, duration } },
       isUploading: true,
       title: `New Recording`,
       transcript: null,
-      recorded_at: new Date().toISOString(),
+      recorded_at: new Date().getTime(),
       status: 'uploading',
+      audioUrl: uri
     };
 
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
@@ -235,44 +303,42 @@ export default ()=> {
       scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
     }
 
-    const response = await saveVoiceNote({ audio: uri, duration });
-    const recordingId = response.recording.id;
-
-    listenToFirebaseStatus(recordingId, temporaryRecordingId);
+    // upload a new note
+    await uploadVoiceNote(newTemporaryRecording)
 
     if (!repeat) deactivateKeepAwake();
     analytics().logEvent('completed_recording');
   }, [rec, recordingList, dispatch]);
   
   const onUploadRetry = async(note:any) => {
-    return new Promise(async(resolve, reject) => {
-    const d=note?.audio?.data?.duration||0
-    const file = note?.audio?.data?.url||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
-      .then(()=>resolve('success'))
-      .catch((error)=>reject('error: '+ error))
-    })
+    // return new Promise(async(resolve, reject) => {
+    // const d=note?.audio?.data?.duration||0
+    // const file = note?.audio?.data?.url||"";
+    // await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
+    //   .then(()=>resolve('success'))
+    //   .catch((error)=>reject('error: '+ error))
+    // })
   }
 
-  const batchRetryUpload = async () => {
-    if (generateDummy && generateDummy.length > 0) {
-      const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true, error: null, is_audio_corrupted: false }));
-      setGenerateDummy([...temp]);
+  // const batchRetryUpload = async () => {
+  //   if (generateDummy && generateDummy.length > 0) {
+  //     const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true, error: null, is_audio_corrupted: false }));
+  //     setGenerateDummy([...temp]);
 
-      for (let i = temp.length - 1; i >= 0; i--) {
-        try {
-          await onUploadRetry(temp[i]); 
-          temp.splice(i, 1);
-          setGenerateDummy([...temp]);
-          setUploading(prevUploading => prevUploading - 1);
-        } catch (error) {
-          console.log(`Upload failed for item ${i}:`, error);
-          temp[i] = { ...temp[i], isUploading: false };
-          setGenerateDummy([...temp]);
-        }
-      }
-    } 
-  };  
+  //     for (let i = temp.length - 1; i >= 0; i--) {
+  //       try {
+  //         await onUploadRetry(temp[i]); 
+  //         temp.splice(i, 1);
+  //         setGenerateDummy([...temp]);
+  //         setUploading(prevUploading => prevUploading - 1);
+  //       } catch (error) {
+  //         console.log(`Upload failed for item ${i}:`, error);
+  //         temp[i] = { ...temp[i], isUploading: false };
+  //         setGenerateDummy([...temp]);
+  //       }
+  //     }
+  //   } 
+  // };  
 
   // useEffect(()=>{
   //   try{
