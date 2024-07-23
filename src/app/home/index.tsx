@@ -223,7 +223,7 @@ export default ()=> {
 
       for (let i = temp.length - 1; i >= 0; i--) {
         try {
-          await onUploadRetry(temp[i]); 
+          await onUploadRetry(temp[i]);
           temp.splice(i, 1);
           setGenerateDummy([...temp]);
           setUploading(prevUploading => prevUploading - 1);
