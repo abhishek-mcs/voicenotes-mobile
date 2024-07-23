@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,34 +6,33 @@ import {
   ActionSheetIOS,
   TouchableOpacity,
   Modal,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { sleep } from "utils/Timer";
-import { ATTACHMENT_TYPE } from "types";
+import { Attachment, ATTACHMENT_TYPE } from "types";
 import axiosApi from "services/api/axios-api";
-import axios from "axios";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
-import { useQueryClient } from "react-query";
 
-const ImageUploader = ({
-  showImagePicker = false,
-  setShowImagePicker = (x: boolean) => {},
-  setAttachments = (x: object) => {},
-  onAttachmentUpdate ,
-  noteId,
-}: {
+
+interface ImageUploaderProps {
   noteId: string;
-  showImagePicker?: boolean;
-  setShowImagePicker?: Dispatch<SetStateAction<never[]>>;
-  setAttachments: Dispatch<SetStateAction<never[]>>;
+  showImagePicker: boolean;
+  setShowImagePicker: Dispatch<SetStateAction<boolean>>;
+  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
   onAttachmentUpdate: () => Promise<void>;
+}
+
+const ImageUploader: React.FC<ImageUploaderProps> = ({
+  noteId,
+  showImagePicker,
+  setShowImagePicker,
+  setAttachments,
+  onAttachmentUpdate,
 }) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const validateAndConvertImage = async (uri) => {
-    const fileExtension = uri.split(".").pop().toLowerCase();
-
+  const validateAndConvertImage = useCallback(async (uri: string) => {
+    const fileExtension = uri.split(".").pop()?.toLowerCase();
     if (["jpg", "jpeg", "png"].includes(fileExtension)) {
       return { uri, needsConversion: false };
     } else if (["heic", "heif"].includes(fileExtension)) {
@@ -51,66 +50,9 @@ const ImageUploader = ({
         "Invalid file type. Please select a JPG, PNG, HEIC, or HEIF image."
       );
     }
-  };
+  }, []);
 
-  const handleImageSelection = async (result) => {
-    if (!result.cancelled && result?.assets?.length > 0) {
-      try {
-        const newImage = await validateAndConvertImage(result?.assets[0].uri);
-        const temporaryImageId = Math.random();
-        setAttachments((attachments) => [
-          ...attachments,
-          {
-            description: "",
-            id: temporaryImageId,
-            type: ATTACHMENT_TYPE.IMAGE,
-            url: newImage.uri,
-            is_uploading: true,
-          },
-        ]);
-        await uploadImage(newImage);
-        onAttachmentUpdate();
-        setAttachments((attachments) =>
-          attachments.filter((item) => item.id != temporaryImageId)
-        );
-        if (newImage.needsConversion) {
-          console.log("Image was converted from HEIC/HEIF to JPEG");
-        }
-      } catch (error) {
-        console.log("Error in uploading image: " + error);
-      }
-    }
-  };
-
-  const launchImagePicker = async (type) => {
-    let permission : ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse;
-    let launch;
-
-    if (type === "library") {
-      permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      launch = ImagePicker.launchImageLibraryAsync;
-    } else if (type === "camera") {
-      permission = await ImagePicker.requestCameraPermissionsAsync();
-      launch = ImagePicker.launchCameraAsync;
-    }
-
-    if (permission?.status !== "granted") {
-      console.error(`Permission to access ${type} was denied`);
-      return;
-    }
-
-    let result = await launch({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    handleImageSelection(result);
-  };
-
-  const uploadImage = async (newImage) => {
-    console.log("Uploading image");
+  const uploadImage = useCallback(async (newImage: { uri: string }) => {
     const identifier = generateRandomIdentifier();
 
     try {
@@ -118,7 +60,7 @@ const ImageUploader = ({
       formData.append("file", {
         uri: newImage.uri,
         name: "photo.jpg",
-        type: "image/jpeg", // Adjust this if you need to support other image types
+        type: "image/jpeg",
       } as any);
       formData.append("type", "2");
       formData.append("identifier", identifier);
@@ -128,26 +70,81 @@ const ImageUploader = ({
           "Content-Type": "multipart/form-data",
         },
       });
+      if(result){
+        console.log('Upload successfull');
+      }
       
-      console.log("Upload successful:", result.data);
-
     } catch (error) {
       console.error("Upload error:", error);
-      if (axios.isAxiosError(error)) {
-        setError(
-          "Failed to upload image: " +
-            (error.response?.data?.message || error.message)
+      Alert.alert(
+        "Upload Error",
+        "Failed to upload image. Please try again later."
+      );
+    }
+  }, [noteId]);
+
+  const handleImageSelection = useCallback(async (result: ImagePicker.ImagePickerResult) => {
+    if (!result.canceled && result.assets?.length > 0) {
+      try {
+        const newImage = await validateAndConvertImage(result.assets[0].uri);
+        const temporaryImageId = Math.random();
+        setAttachments((prevAttachments) => [
+          ...prevAttachments,
+          {
+            description: "",
+            id: temporaryImageId,
+            type: ATTACHMENT_TYPE.IMAGE,
+            url: newImage.uri,
+            is_uploading: true,
+          },
+        ]);
+        await uploadImage(newImage);
+        await onAttachmentUpdate();
+        setAttachments((prevAttachments) =>
+          prevAttachments.filter((item) => item.id !== temporaryImageId)
         );
-      } else {
-        setError(
-          "Failed to upload image: " +
-            (error instanceof Error ? error.message : String(error))
-        );
+        if (newImage.needsConversion) {
+          console.log("Image was converted from HEIC/HEIF to JPEG");
+        }
+      } catch (error) {
+        console.log("Error in uploading image: " + error);
+        Alert.alert("Error", "Failed to upload image. Please try again.");
       }
     }
-  };
+  }, [validateAndConvertImage, uploadImage, onAttachmentUpdate, setAttachments]);
 
-  const openImagePickerMenu = async () => {
+  const launchImagePicker = useCallback(async (type: "library" | "camera") => {
+    let permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse;
+    let launch: () => Promise<ImagePicker.ImagePickerResult>;
+
+    if (type === "library") {
+      permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      launch = () => ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    } else {
+      permission = await ImagePicker.requestCameraPermissionsAsync();
+      launch = () => ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    }
+
+    if (permission?.status !== "granted") {
+      Alert.alert("Permission Denied", `Permission to access ${type} was denied`);
+      return;
+    }
+
+    const result = await launch();
+    handleImageSelection(result);
+  }, [handleImageSelection]);
+
+  const openImagePickerMenu = useCallback(async () => {
     if (Platform.OS === "ios") {
       await sleep(300);
       ActionSheetIOS.showActionSheetWithOptions(
@@ -164,16 +161,14 @@ const ImageUploader = ({
           setShowImagePicker(false);
         }
       );
-    } else {
-      setIsModalVisible(true);
     }
-  };
+  }, [launchImagePicker, setShowImagePicker]);
 
   useEffect(() => {
     if (showImagePicker) {
       openImagePickerMenu();
     }
-  }, [showImagePicker]);
+  }, [showImagePicker, openImagePickerMenu]);
 
   if (!showImagePicker) return null;
 
@@ -182,11 +177,8 @@ const ImageUploader = ({
       {Platform.OS === "android" && (
         <Modal
           transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => {
-            setIsModalVisible(false);
-            setShowImagePicker(false);
-          }}
+          visible={showImagePicker}
+          onRequestClose={() => setShowImagePicker(false)}
         >
           <View
             style={{
@@ -195,10 +187,10 @@ const ImageUploader = ({
               backgroundColor: "rgba(0,0,0,0.5)",
             }}
           >
-            <View style={{ backgroundColor: "white", padding: 20 }}>
+            <View style={{ backgroundColor: "white", padding: 20}}>
               <TouchableOpacity
                 onPress={() => {
-                  setIsModalVisible(false);
+                  setShowImagePicker(false);
                   launchImagePicker("camera");
                 }}
               >
@@ -206,7 +198,7 @@ const ImageUploader = ({
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setIsModalVisible(false);
+                  setShowImagePicker(false);
                   launchImagePicker("library");
                 }}
               >
@@ -214,7 +206,7 @@ const ImageUploader = ({
                   Choose from Library
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+              <TouchableOpacity onPress={() => setShowImagePicker(false)}>
                 <Text style={{ fontSize: 18, padding: 10, color: "red" }}>
                   Cancel
                 </Text>

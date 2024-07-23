@@ -24,14 +24,12 @@ import CircularLoader from "components/common/loaders/circular-loader";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+// const blurhash =  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
+const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
-const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEditLink=(obj: object)=>{}}) => {
+const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [imageLoading, setImageLoading] = useState(false);
-  const [imageError, setImageError] = useState(false);
   const [visibleMenu, setVisibleMenu] = useState(null);
 
   const fullScreenListRef = useRef(null);
@@ -43,25 +41,25 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEdi
     (a) => a.type === ATTACHMENT_TYPE.LINK
   );
 
-  const openLink = useCallback((url:string) => {
+  const openLink = useCallback((url: string) => {
     Linking.openURL(url).catch((err) =>
       console.error("An error occurred", err)
     );
   }, []);
 
-  const deleteAttachment = useCallback(async (attachmentId:string) => {
+  const deleteAttachment = useCallback(async (attachmentId: string) => {
     try {
       await axiosApi.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
     } catch (error) {
       console.error("Error deleting attachment:", error);
       Alert.alert("Error", "Failed to delete the attachment. Please try again.");
-    }finally{
+    } finally {
       onAttachmentUpdate();
     }
   }, [onAttachmentUpdate]);
 
-  const handleDeletePress = useCallback((attachmentId:string, type:string) => {
+  const handleDeletePress = useCallback((attachmentId: string, type: string) => {
     Alert.alert(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
@@ -72,99 +70,83 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = ()=>{}, onEdi
     );
   }, [deleteAttachment]);
 
-const renderImageThumbnail = useCallback(
-  ({ item, index }) => (
-    <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-      <View style={styles.thumbnailContainer}>
-        <Image
-          source={{ uri: item.url }}
-          style={styles.thumbnail}
-          contentFit="cover"
-          transition={300}
-          placeholder={item.placeholderColor || blurhash}
-          cachePolicy="memory-disk"
-        />
-        {item.is_uploading && (
-          <BlurView intensity={50} style={styles.blurOverlay}>
-            <CircularLoader/>
-          </BlurView>
-        )}
-      </View>
-    </TouchableOpacity>
-  ),
-  []
-);
-
-const renderLinkItem = useCallback(
-  ({ item }) => (
-    <View style={styles.linkContainer} key={item.id?.toString()}>
-      <TouchableOpacity
-        style={styles.linkContent}
-        onPress={() => openLink(item.url)}
-      >
-        <SvgXml xml={notePreviewSVG.link} />
-        <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
-          {item.description}
-        </Text>
+  const renderImageThumbnail = useCallback(
+    ({ item, index }) => (
+      <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
+        <View style={styles.thumbnailContainer}>
+          <Image
+            source={{ uri: item.url }}
+            style={styles.thumbnail}
+            contentFit="cover"
+            transition={300}
+            placeholder={blurhash}
+            cachePolicy="memory-disk"
+          />
+          {item.is_uploading && (
+            <BlurView intensity={50} style={styles.blurOverlay}>
+              <CircularLoader color="#FFF"/>
+            </BlurView>
+          )}
+        </View>
       </TouchableOpacity>
-      <Menu
-        visible={visibleMenu === item.id}
-        anchor={
-          <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
-            <SvgXml xml={notePreviewSVG.more} />
-          </TouchableOpacity>
-        }
-        onRequestClose={() => setVisibleMenu(null)}
-      >
-        <MenuItem onPress={() => {
-          onEditLink(item);
-          setVisibleMenu(null);
-        }}>Edit</MenuItem>
-        <MenuItem onPress={() => {
-          handleDeletePress(item.id, 'link');
-          setVisibleMenu(null);
-        }}>Delete</MenuItem>
-      </Menu>
-    </View>
-  ),
-  [openLink, visibleMenu, handleDeletePress ]
-);
+    ),
+    []
+  );
+
+  const renderLinkItem = useCallback(
+    ({ item }) => (
+      <View style={styles.linkContainer} key={item.id?.toString()}>
+        <TouchableOpacity
+          style={styles.linkContent}
+          onPress={() => openLink(item.url)}
+        >
+          <SvgXml xml={notePreviewSVG.link} />
+          <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
+            {item.description}
+          </Text>
+        </TouchableOpacity>
+        <Menu
+          visible={visibleMenu === item.id}
+          anchor={
+            <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
+              <SvgXml xml={notePreviewSVG.more} />
+            </TouchableOpacity>
+          }
+          onRequestClose={() => setVisibleMenu(null)}
+        >
+          <MenuItem onPress={() => {
+            onEditLink(item);
+            setVisibleMenu(null);
+          }}>Edit</MenuItem>
+          <MenuItem onPress={() => {
+            handleDeletePress(item.id, 'link');
+            setVisibleMenu(null);
+          }}>Delete</MenuItem>
+        </Menu>
+      </View>
+    ),
+    [openLink, visibleMenu, handleDeletePress, onEditLink]
+  );
 
   const renderFullScreenImage = useCallback(
     ({ item }) => (
       <View style={styles.fullScreenImageContainer}>
-        {imageLoading && (
-          <View style={styles.loader}><CircularLoader /></View>
-        )}
-        {imageError ? (
-          <Text style={styles.errorText}>Failed to load image</Text>
-        ) : (
-          <View style={styles.fullScreenImageWrapper}>
-            <Image
-              source={{ uri: item.url }}
-              style={styles.fullScreenImage}
-              contentFit="contain"
-              onLoadStart={() => {
-                setImageLoading(true);
-                setImageError(false);
-              }}
-              onLoadEnd={() => setImageLoading(false)}
-              onError={() => {
-                setImageLoading(false);
-                setImageError(true);
-                console.log("Error loading full-screen image:", item.url);
-              }}
-            />
-            {item.is_uploading && (
-              <BlurView intensity={80} style={styles.fullScreenBlurOverlay}>
-                <CircularLoader />
-              </BlurView>
-            )}
-          </View>
+        <Image
+          source={{ uri: item.url }}
+          style={styles.fullScreenImage}
+          contentFit="contain"
+          transition={300}
+          // placeholder={blurhash}
+          cachePolicy="memory-disk"
+        />
+        {item.is_uploading && (
+          <BlurView intensity={80} style={styles.fullScreenBlurOverlay}>
+            <CircularLoader />
+          </BlurView>
         )}
       </View>
     ),
-    [imageLoading, imageError]
+    []
   );
 
   const handleFullScreenScroll = useCallback((event) => {

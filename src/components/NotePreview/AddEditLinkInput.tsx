@@ -1,12 +1,25 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, TextInput, Text, StyleSheet, Keyboard, InteractionManager } from 'react-native';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
 import axiosApi from 'services/api/axios-api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Touchable from 'components/common/Touchable';
 import Colors from 'assets/Colors';
 import { isIOS } from 'utils/common';
+
+const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
+  return (
+    <View
+      style={[
+        style,
+        {
+          backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        },
+      ]}
+    />
+  );
+};
 
 interface AddEditLinkBottomSheetProps {
   noteId: string;
@@ -26,7 +39,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   const [url, setUrl] = React.useState('');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const textInputRef = useRef<TextInput>(null);
-  const snapPoints = useMemo(() => ['90%', '99%'], []);
+  const snapPoints = useMemo(() => [ isIOS ?  '94%' : '95%'], []);
 
   useEffect(() => {
     if (isVisible) {
@@ -90,6 +103,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
     <Portal>
       <BottomSheet
         style={styles.bottomSheet}
+        backdropComponent={CustomBackdrop}
         ref={bottomSheetRef}
         index={isVisible ? 0 : -1}
         snapPoints={snapPoints}
@@ -97,10 +111,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
         enablePanDownToClose
         onClose={onClose}
       >
-        {/* <SafeAreaView style={styles.container}> */}
-          {/* {isIOS && (
-            <View style={styles.iosHandle} />
-          )} */}
+        <View style={styles.content}>
           <View style={styles.header}>
             <Touchable onPress={onClose} style={styles.headerButton} activeOpacity={0.6}>
               <Text style={styles.cancelText}>Cancel</Text>
@@ -109,6 +120,8 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
               <Text style={styles.saveText}>Save</Text>
             </Touchable>
           </View>
+          <View style={styles.separator} />
+
           <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
           <View style={styles.inputContainer}>
             <TextInput
@@ -124,7 +137,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
               autoComplete="off"
             />
           </View>
-        {/* </SafeAreaView> */}
+        </View>
       </BottomSheet>
     </Portal>
   );
@@ -134,10 +147,21 @@ const styles = StyleSheet.create({
   bottomSheet: {
     marginTop: 0,
     paddingTop: 0,
+    color: 'gray',
+    backgroundColor:'gray'
   },
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: Colors.darkWithOpacity(0.1),
+    marginTop: 8,
   },
   iosHandle: {
     height: 5,
@@ -150,12 +174,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: isIOS ? 4 : 0,
+    marginTop: 0,
     marginHorizontal: 12,
   },
   headerButton: {
-    padding: 12,
-    paddingTop: 8,
+    padding: 0,
+    paddingTop: 0,
     paddingBottom: 8,
   },
   cancelText: {
@@ -169,11 +193,11 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   title: {
-    fontSize: 16,
-    fontWeight: '400',
+    fontSize: 15,
+    fontWeight: '600',
     marginHorizontal: 24,
     marginTop: 16,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   inputContainer: {
     marginHorizontal: 24,

@@ -388,7 +388,6 @@ export default forwardRef(({
     closeAddMenu()
   }
 
-
   const EditDeleteButtons = ({retry=true})=>{
   return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
     {NetInfo.isConnected && !note.is_audio_corrupted &&retry&&
@@ -498,7 +497,7 @@ export default forwardRef(({
                             closeAddMenu()}}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <SvgXml xml={addMenu.camera} />
-                              <Text style={styles.menuItemTxt}>Photos</Text>
+                              <Text style={styles.menuItemTxt}>Photo</Text>
                             </View>
                           </MenuItem>
                           <MenuItem style={styles.menuItem} onPress={() => {
@@ -507,7 +506,7 @@ export default forwardRef(({
                           }}>
                             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                               <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
-                              <Text style={styles.menuItemTxt}>Link</Text>
+                              <Text style={[styles.menuItemTxt, {marginLeft: 14}]}>Link</Text>
                             </View>
                           </MenuItem>
                       </Menu>}
