@@ -1,8 +1,12 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Keyboard, InteractionManager } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
 import axiosApi from 'services/api/axios-api';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Touchable from 'components/common/Touchable';
+import Colors from 'assets/Colors';
+import { isIOS } from 'utils/common';
 
 interface AddEditLinkBottomSheetProps {
   noteId: string;
@@ -21,24 +25,8 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 }) => {
   const [url, setUrl] = React.useState('');
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['70%', '90%'], []);
-  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-
-  useEffect(() => {
-    const keyboardWillShowListener = Keyboard.addListener(
-      'keyboardWillShow',
-      (e) => setKeyboardHeight(e.endCoordinates.height)
-    );
-    const keyboardWillHideListener = Keyboard.addListener(
-      'keyboardWillHide',
-      () => setKeyboardHeight(0)
-    );
-
-    return () => {
-      keyboardWillShowListener.remove();
-      keyboardWillHideListener.remove();
-    };
-  }, []);
+  const textInputRef = useRef<TextInput>(null);
+  const snapPoints = useMemo(() => ['90%', '99%'], []);
 
   useEffect(() => {
     if (isVisible) {
@@ -48,35 +36,45 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       } else {
         setUrl('');
       }
+      focusTextInput();
     } else {
       bottomSheetRef.current?.close();
     }
   }, [isVisible, editingLink]);
 
+  const focusTextInput = () => {
+    InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
+        textInputRef.current?.focus();
+      }, 100);
+    });
+  };
+
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
       onClose();
+    } else if (index === 0) {
+      focusTextInput();
     }
   }, [onClose]);
 
   const handleSave = async () => {
     if (!url) return;
 
-    let httpUrl = url
+    let httpUrl = url;
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
       httpUrl = `http://${url}`;
     }
-    setUrl(httpUrl)
+    setUrl(httpUrl);
 
     try {
-      let response;
       if (editingLink) {
-        response = await axiosApi.patch(`/attachment/${editingLink.id}`, {
+        await axiosApi.patch(`/attachment/${editingLink.id}`, {
           type: 1,
           url: httpUrl
         });
       } else {
-        response = await axiosApi.post(`/attachment/${noteId}`, {
+        await axiosApi.post(`/attachment/${noteId}`, {
           type: 1,
           url: httpUrl
         });
@@ -88,15 +86,10 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
     }
   };
 
-  useEffect(() => {
-    return () => {
-      onClose();
-    };
-  }, []);
-
   return (
     <Portal>
       <BottomSheet
+        style={styles.bottomSheet}
         ref={bottomSheetRef}
         index={isVisible ? 0 : -1}
         snapPoints={snapPoints}
@@ -104,88 +97,95 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
         enablePanDownToClose
         onClose={onClose}
       >
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={keyboardHeight}
-          style={styles.keyboardAvoidingView}
-        >
-          <View style={styles.contentContainer}>
-            <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
+        {/* <SafeAreaView style={styles.container}> */}
+          {/* {isIOS && (
+            <View style={styles.iosHandle} />
+          )} */}
+          <View style={styles.header}>
+            <Touchable onPress={onClose} style={styles.headerButton} activeOpacity={0.6}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </Touchable>
+            <Touchable onPress={handleSave} style={styles.headerButton} activeOpacity={0.6}>
+              <Text style={styles.saveText}>Save</Text>
+            </Touchable>
+          </View>
+          <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
+          <View style={styles.inputContainer}>
             <TextInput
-              style={styles.input}
+              ref={textInputRef}
               value={url}
               onChangeText={setUrl}
-              placeholder="Type or paste URL..."
+              placeholder="Type or Paste URL"
+              placeholderTextColor="#717171"
+              style={styles.input}
               autoCapitalize="none"
               autoCorrect={false}
-              keyboardType="url"
-              autoFocus={false}
+              clearButtonMode="while-editing"
+              autoComplete="off"
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={onClose}>
-                <Text style={styles.buttonTextCancel}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.button, styles.saveButton]} 
-                onPress={handleSave}
-                disabled={!url.length}
-              >
-                <Text style={styles.buttonTextSave}>Save</Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        </KeyboardAvoidingView>
+        {/* </SafeAreaView> */}
       </BottomSheet>
     </Portal>
   );
 };
 
 const styles = StyleSheet.create({
-  keyboardAvoidingView: {
-    flex: 1,
+  bottomSheet: {
+    marginTop: 0,
+    paddingTop: 0,
   },
-  contentContainer: {
+  container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  iosHandle: {
+    height: 5,
+    width: 36,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(60, 60, 67, 0.3)',
+    borderRadius: 20,
     marginTop: 8,
-    marginBottom: 16,
-    textAlign: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  buttonContainer: {
-    marginTop: 20,
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: isIOS ? 4 : 0,
+    marginHorizontal: 12,
   },
-  button: {
+  headerButton: {
     padding: 12,
-    borderRadius: 8,
-    minWidth: 100,
-    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 8,
   },
-  saveButton: {
-    backgroundColor: '#007AFF',
+  cancelText: {
+    fontFamily: 'Primary',
+    fontSize: 16,
+    color: Colors.grey,
   },
-  buttonTextCancel: {
+  saveText: {
+    fontFamily: 'Primary-Semibold',
+    fontSize: 16,
     color: '#007AFF',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
-  buttonTextSave: {
-    color: '#fff',
-    fontWeight: 'bold',
+  title: {
     fontSize: 16,
+    fontWeight: '400',
+    marginHorizontal: 24,
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  inputContainer: {
+    marginHorizontal: 24,
+  },
+  input: {
+    color: '#222',
+    fontFamily: 'Primary',
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: Colors.darkWithOpacity(0.05),
   },
 });
 
