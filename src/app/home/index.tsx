@@ -32,7 +32,7 @@ import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable"
-import AskMeSomething from "components/ask-me-something";
+// import AskMeSomething from "components/ask-me-something";
 import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
@@ -383,7 +383,7 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
         <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
-       {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
+       {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
       </View>
       </KeyboardAvoidingView>
       <BottomBar
