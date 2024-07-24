@@ -113,7 +113,10 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   }, []);
 
   const {height}=useWindowDimensions()
-  const top=isIOS?height>690?84:118:115
+  
+  const top=isIOS?
+      height>690? 74: 108
+      :105
   return (
     <ReactNativeModal
       isVisible={visible}
