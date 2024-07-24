@@ -314,7 +314,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   }, [isRecording]);
 
   const {height}=useWindowDimensions()
-  const top=height>690?64:99
+  const top=height>690?54:89
   return (
     <ReactNativeModal
       isVisible={visible}
@@ -322,7 +322,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       hideModalContentWhileAnimating={true}
       animationOut={"fadeOutDown"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:94) }]}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:84) }]}
       backdropOpacity={0.05}
       avoidKeyboard
       hasBackdrop={false}
