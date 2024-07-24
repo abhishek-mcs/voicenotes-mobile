@@ -65,6 +65,7 @@ export function useSaveEditedNote(recording_id:any){
 export function useUploadRecord(){
     return useMutation('upload-audio', async(data:any) => {
         const uri = data.audio;
+        const {parent_id, recorded_at} = data
         const filetype = uri.split(".").pop();
         const filename = uri.split("/").pop();
 
@@ -74,6 +75,9 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
+        parent_id && formData.append("parent_id", parent_id);
+        // recorded_at && formData.append("recorded_at", new Date(recorded_at));
+
         const deviceInfo = {
             platform: Platform.OS,
             manufacturer: Device.manufacturer ,

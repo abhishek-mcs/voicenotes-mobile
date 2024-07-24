@@ -7,10 +7,9 @@ import { RootState } from 'redux/store/store';
 import { useSelector } from 'react-redux';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import * as WebBrowser from 'expo-web-browser';
-import { Platform, UIManager } from 'react-native';
-import { LogBox } from 'react-native';
+import { LogBox, Platform, UIManager } from 'react-native';
 
-LogBox.ignoreLogs(['Require cycle:']);
+LogBox.ignoreLogs(['Require cycle: src']);
 
 export {
   ErrorBoundary,

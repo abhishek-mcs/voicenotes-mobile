@@ -45,9 +45,10 @@ export const onRecord = async (
           staysActiveInBackground:true,
         });
 
-        const { recording: recordingObject, status } = await Audio.Recording.createAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY
-        );
+        const { recording: recordingObject, status } = await Audio.Recording.createAsync({
+          ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+          isMeteringEnabled: true,
+        });
         setRec(recordingObject);
         setRecEnabled(true);
       } else if (status.canAskAgain && status.status == "undetermined") {
@@ -84,7 +85,7 @@ export const onRecord = async (
   }
 };
 
-export const stopRecording = async (recording: Audio.Recording ) => {
+export const stopRecording = async (recording: Audio.Recording|any ) => {
   try {
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();

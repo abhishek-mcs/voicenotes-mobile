@@ -10,6 +10,7 @@ export default function Layout() {
           screenOptions={{
             headerShown: false,
             contentStyle: { padding: 0, flex: 1 },
+            animation: "none",
           }}
         >
           <Stack.Screen name="home" />

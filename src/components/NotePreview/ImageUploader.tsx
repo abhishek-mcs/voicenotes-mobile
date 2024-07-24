@@ -1,0 +1,222 @@
+import React, { Dispatch, SetStateAction, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  Platform,
+  ActionSheetIOS,
+  TouchableOpacity,
+  Modal,
+  Alert,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
+import { sleep } from "utils/Timer";
+import { Attachment, ATTACHMENT_TYPE } from "types";
+import axiosApi from "services/api/axios-api";
+import { generateRandomIdentifier } from "utils/formatBigNumber";
+
+
+interface ImageUploaderProps {
+  noteId: string;
+  showImagePicker: boolean;
+  setShowImagePicker: Dispatch<SetStateAction<boolean>>;
+  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
+  onAttachmentUpdate: () => Promise<void>;
+}
+
+const ImageUploader: React.FC<ImageUploaderProps> = ({
+  noteId,
+  showImagePicker,
+  setShowImagePicker,
+  setAttachments,
+  onAttachmentUpdate,
+}) => {
+  const validateAndConvertImage = useCallback(async (uri: string) => {
+    const fileExtension = uri.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+      return { uri, needsConversion: false };
+    } else if (["heic", "heif"].includes(fileExtension)) {
+      try {
+        const convertedImage = await ImageManipulator.manipulateAsync(uri, [], {
+          format: ImageManipulator.SaveFormat.JPEG,
+        });
+        return { uri: convertedImage.uri, needsConversion: true };
+      } catch (error) {
+        console.error("Error converting image:", error);
+        throw new Error("Failed to convert HEIC/HEIF image to JPEG");
+      }
+    } else {
+      throw new Error(
+        "Invalid file type. Please select a JPG, PNG, HEIC, or HEIF image."
+      );
+    }
+  }, []);
+
+  const uploadImage = useCallback(async (newImage: { uri: string }) => {
+    const identifier = generateRandomIdentifier();
+
+    try {
+      const formData = new FormData();
+      formData.append("file", {
+        uri: newImage.uri,
+        name: "photo.jpg",
+        type: "image/jpeg",
+      } as any);
+      formData.append("type", "2");
+      formData.append("identifier", identifier);
+
+      const result = await axiosApi.post(`/attachment/${noteId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if(result){
+        console.log('Upload successfull');
+      }
+      
+    } catch (error) {
+      console.error("Upload error:", error);
+      Alert.alert(
+        "Upload Error",
+        "Failed to upload image. Please try again later."
+      );
+    }
+  }, [noteId]);
+
+  const handleImageSelection = useCallback(async (result: ImagePicker.ImagePickerResult) => {
+    if (!result.canceled && result.assets?.length > 0) {
+      try {
+        const newImage = await validateAndConvertImage(result.assets[0].uri);
+        const temporaryImageId = Math.random();
+        setAttachments((prevAttachments) => [
+          ...prevAttachments,
+          {
+            description: "",
+            id: temporaryImageId,
+            type: ATTACHMENT_TYPE.IMAGE,
+            url: newImage.uri,
+            is_uploading: true,
+          },
+        ]);
+        await uploadImage(newImage);
+        await onAttachmentUpdate();
+        setAttachments((prevAttachments) =>
+          prevAttachments.filter((item) => item.id !== temporaryImageId)
+        );
+        if (newImage.needsConversion) {
+          console.log("Image was converted from HEIC/HEIF to JPEG");
+        }
+      } catch (error) {
+        console.log("Error in uploading image: " + error);
+        Alert.alert("Error", "Failed to upload image. Please try again.");
+      }
+    }
+  }, [validateAndConvertImage, uploadImage, onAttachmentUpdate, setAttachments]);
+
+  const launchImagePicker = useCallback(async (type: "library" | "camera") => {
+    let permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse;
+    let launch: () => Promise<ImagePicker.ImagePickerResult>;
+
+    if (type === "library") {
+      permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      launch = () => ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    } else {
+      permission = await ImagePicker.requestCameraPermissionsAsync();
+      launch = () => ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    }
+
+    if (permission?.status !== "granted") {
+      Alert.alert("Permission Denied", `Permission to access ${type} was denied`);
+      return;
+    }
+
+    const result = await launch();
+    handleImageSelection(result);
+  }, [handleImageSelection]);
+
+  const openImagePickerMenu = useCallback(async () => {
+    if (Platform.OS === "ios") {
+      await sleep(300);
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ["Cancel", "Take Photo", "Choose from Library"],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            launchImagePicker("camera");
+          } else if (buttonIndex === 2) {
+            launchImagePicker("library");
+          }
+          setShowImagePicker(false);
+        }
+      );
+    }
+  }, [launchImagePicker, setShowImagePicker]);
+
+  useEffect(() => {
+    if (showImagePicker) {
+      openImagePickerMenu();
+    }
+  }, [showImagePicker, openImagePickerMenu]);
+
+  if (!showImagePicker) return null;
+
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      {Platform.OS === "android" && (
+        <Modal
+          transparent={true}
+          visible={showImagePicker}
+          onRequestClose={() => setShowImagePicker(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "flex-end",
+              backgroundColor: "rgba(0,0,0,0.5)",
+            }}
+          >
+            <View style={{ backgroundColor: "white", padding: 20}}>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowImagePicker(false);
+                  launchImagePicker("camera");
+                }}
+              >
+                <Text style={{ fontSize: 18, padding: 10 }}>Take Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowImagePicker(false);
+                  launchImagePicker("library");
+                }}
+              >
+                <Text style={{ fontSize: 18, padding: 10 }}>
+                  Choose from Library
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowImagePicker(false)}>
+                <Text style={{ fontSize: 18, padding: 10, color: "red" }}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+    </View>
+  );
+};
+
+export default ImageUploader;
