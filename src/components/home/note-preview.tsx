@@ -101,7 +101,7 @@ export default forwardRef(({
 
   const onEdit = () =>{
     // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
-    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id,note:JSON.stringify(note)} })
+    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
 
   }
   const onGotoAddTag = () => {
