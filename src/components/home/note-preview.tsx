@@ -784,8 +784,6 @@ const NotePreview = forwardRef(
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
     };
-    console.log({expand});
-    
 
     return (
       <View>
@@ -804,9 +802,33 @@ const NotePreview = forwardRef(
               <SvgXml xml={isPlay === index ? home.pause : home.play} />
             </TouchableOpacity>
             <View style={styles.content}>
-              <Text>Status: {note?.status}</Text>
-              <ChatBubble style={styles.title} message={note?.title} />
-              <ChatBubble style={styles.text} message={note?.transcript} />
+              <View style={{ flexDirection: "row" }}>
+                <ChatBubble style={styles.title} message={note?.title} />
+
+                <Text>Status: {note?.status}</Text>
+              </View>
+
+              {!!note?.transcript && transcriptLoading && note?.title ? (
+                <AiLoader
+                  text={`Creating transcript from your voice`}
+                  style={{ marginTop: 0 }}
+                  size={14}
+                />
+              ) : (
+                !!note?.transcript && (
+                  <ChatBubble
+                    lines={expand == index ? 10000 : 4}
+                    style={styles.text}
+                    message={note?.transcript
+                      ?.replaceAll(/<br\/?>/g, "\n")
+                      ?.trimEnd()}
+                    continueGenerating={!note?.title}
+                    triggerAnimation={triggerTypingTranscript}
+                    disableGenerating={() => setTriggerTypingTranscript(0)}
+                  />
+                )
+              )}
+
 
               <TagsList note={note} />
               {attachments?.length > 0 && (
@@ -969,4 +991,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotePreview
+export default NotePreview;

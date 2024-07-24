@@ -159,6 +159,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   }, []);
 
   return (
+    <>
     <ScrollView style={styles.container}>
       {imageAttachments.length > 0 && (
         <View>
@@ -223,14 +224,15 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
             </View>
           </View>
         </View>
+
       </Modal>
     </ScrollView>
+</>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     marginTop: 10,
   },
   sectionTitle: {
