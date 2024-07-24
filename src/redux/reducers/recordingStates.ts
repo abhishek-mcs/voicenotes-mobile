@@ -57,7 +57,7 @@ export const recordingStates = createSlice({
           recording.id == action.payload.temporaryRecordingId
         ) {
           isMatchFound = true;
-          return { ...recording, ...action.payload.data, audioUrl : recording.audio.data.url };
+          return { ...recording, ...action.payload.data, id: action.payload.recordingId, audioUrl : recording.audio.data.url };
         } else return recording;
       });
       console.log({ isMatchFound });
@@ -67,24 +67,9 @@ export const recordingStates = createSlice({
         recordingList: newRecordingList,
       };
     },
-    updateRecordingStatus: (state, action: PayloadAction<any>) => {
-      // let matchFound = false;
-      // state.recordingList = state.recordingList.map((recording) => {
-      //   if (
-      //     recording.id === action.payload.recordingId ||
-      //     (recording.tempId && recording.tempId === action.payload.temporaryId)
-      //   ) {
-      //     console.log("match found");
-      //     return { ...recording, status: action.payload.status };
-      //   }
-      //   return recording;
-      // });
-      // console.log({ matchFound });
-    },
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
   setTempRecordings,
   setRecordingList,
@@ -93,7 +78,6 @@ export const {
   updateTranscript,
   deleteFromTempRecordings,
   updateRecordingDetails,
-  updateRecordingStatus,
 } = recordingStates.actions;
 
 export default recordingStates.reducer;

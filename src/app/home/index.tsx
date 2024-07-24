@@ -39,7 +39,6 @@ import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
-import onUploadRecord from "func/home/on-upload-record";
 import { Text } from "react-native";
 import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
@@ -47,8 +46,6 @@ import { home } from "assets/svg/home";
 import Animated from "react-native-reanimated";
 import {
   setRecordingList,
-  setTempRecordings,
-  updateRecordingStatus,
   updateRecordingDetails,
 } from "redux/reducers/recordingStates";
 import NetInfo from "@react-native-community/netinfo";
@@ -127,7 +124,6 @@ export default () => {
     null
   );
   const bannerRef = useRef<any>(null);
-
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
@@ -135,9 +131,6 @@ export default () => {
   const addTranscriptRecord = useAddTranscript(true);
   const queryClient = useQueryClient();
 
-  // const generateDummy=tempRecordings;
-
-  const setGenerateDummy = (val: any) => dispatch(setTempRecordings(val));
   const setReduxRecordingList = (val: any) => dispatch(setRecordingList(val));
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
@@ -222,6 +215,7 @@ export default () => {
 
   useEffect(() => {
     if (recordingQuery.data) {
+      console.log('inside recording query data');
       const records =
         recordingQuery.data.pages.flatMap((p) =>
           token ? p.data.data : p.data
@@ -255,8 +249,6 @@ export default () => {
 
     const retryUpload = async (note: newNote) => {
       console.log("retrying upload for note: ", note.title);
-      // const response = await saveVoiceNote({ uri: note.audio.data.url, duration: note.audio.data.duration }); const recordingId = response.recording.id;
-      // listenToFirebaseStatus(recordingId, note.id);
       uploadVoiceNote(note);
     };
 
@@ -340,6 +332,7 @@ export default () => {
       const response = await saveVoiceNote({
         audio: note.audio.data.url,
         duration: note.audio.data.duration,
+        parent_id: note.parent_id ?? null,
       });
       const recordingId = response.recording.id;
       listenToFirebaseStatus(recordingId, temporaryRecordingId);
@@ -462,19 +455,8 @@ export default () => {
     setPrevOffset(currentOffset);
   };
 
-  const renderData =
-    recordingList?.length == 1
-      ? recordingList[0] != undefined
-        ? !!generateDummy
-          ? [...generateDummy, ...recordingList]
-          : recordingList
-        : []
-      : !!generateDummy
-      ? [...generateDummy, ...recordingList]
-      : recordingList;
-
   const recordingParentNoteName =
-    renderData.find((note) => note?.id === recordingParentId)?.title ?? null;
+    recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
 
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (

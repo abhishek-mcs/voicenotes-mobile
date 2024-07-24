@@ -84,6 +84,8 @@ const ENVURLSet: ENVURLs = {
 const currentENV_NAME:string = process.env.EXPO_PUBLIC_ENVIRONMENT ?? "production";
 const currentENV = ENVURLSet[currentENV_NAME];
 console.log("Current Env = ", currentENV_NAME);
+const ota=".2"
+const currentVersion = Application.nativeApplicationVersion+ota
 
 
 const MAIN_URL = currentENV.MAIN_URL

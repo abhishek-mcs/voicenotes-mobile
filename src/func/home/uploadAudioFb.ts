@@ -4,7 +4,8 @@ import * as Device from "expo-device";
 import * as Application from "expo-application";
 import * as FileSystem from "expo-file-system";
 
-export const saveVoiceNote = async (data: { audio: any; duration: number }) => {
+export const saveVoiceNote = async (data: { audio: any; duration: number, parent_id: string| null }) => {
+  const {audio, duration, parent_id} = data
   const deviceInfo = {
     platform: Platform.OS,
     manufacturer: Device.manufacturer,
@@ -15,7 +16,7 @@ export const saveVoiceNote = async (data: { audio: any; duration: number }) => {
     appVersion: Application.nativeApplicationVersion,
   };
 
-  const uri = data.audio;
+  const uri = audio;
   const fileInfo = await FileSystem.getInfoAsync(uri);
   if (!fileInfo.exists) {
     throw new Error("File does not exist");
@@ -31,7 +32,11 @@ export const saveVoiceNote = async (data: { audio: any; duration: number }) => {
       name: filename,
       type: `audio/${filetype}`,
     });
-    formData.append("duration", data.duration.toString());
+    if(parent_id){
+      console.log('appending parent id: ', parent_id);
+      formData.append("parent_id", parent_id);
+    }
+    formData.append("duration", duration.toString());
     formData.append("device_info", JSON.stringify(deviceInfo));
 
     // Make the POST request using axios
