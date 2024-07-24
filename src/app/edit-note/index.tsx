@@ -35,7 +35,6 @@ import { FlatList } from "react-native";
 import { useSaveEditedNote } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
 import {
-  setRecordingList,
   updateTitle,
   updateTranscript,
 } from "redux/reducers/recordingStates";
@@ -50,7 +49,22 @@ export default () => {
     (state: RootState) => state.recordingStates
   );
 
-  const data = useMemo(() => JSON.parse(params.note), []);
+  const data = useMemo(() => {
+    let selectedRecording = {}
+    for(const rec of recordingList){
+      if(rec.id == params?.id){
+        selectedRecording = rec
+        break
+      }
+      for(const subnote of rec?.subnotes){
+        if(subnote.id === params?.id){
+          selectedRecording = subnote
+          break
+        }
+      }
+    }
+    return selectedRecording
+  }, [params?.id, recordingList]);
 
   const [editNote, setEditNote] = useState<any>(data);
   const dispatch = useDispatch();
