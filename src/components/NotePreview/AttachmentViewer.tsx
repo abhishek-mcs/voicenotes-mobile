@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,10 @@ import {
   FlatList,
   Linking,
   Dimensions,
-  ActivityIndicator,
   ScrollView,
   Alert,
   StyleSheet,
 } from "react-native";
-import { Entypo, Foundation } from "@expo/vector-icons";
-import { ATTACHMENT_TYPE } from "types";
 import { BlurView } from "expo-blur"; 
 import axiosApi from "services/api/axios-api";
 import { Image } from 'expo-image'; 
@@ -21,10 +18,9 @@ import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import { notePreviewSVG } from "assets/svg/notePreviewSVG";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { ATTACHMENT_TYPE } from "types";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
-// const blurhash =  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
@@ -33,6 +29,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const [visibleMenu, setVisibleMenu] = useState(null);
 
   const fullScreenListRef = useRef(null);
+  const thumbnailListRef = useRef(null);
 
   const imageAttachments = attachments.filter(
     (a) => a.type === ATTACHMENT_TYPE.IMAGE
@@ -40,6 +37,12 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const linkAttachments = attachments.filter(
     (a) => a.type === ATTACHMENT_TYPE.LINK
   );
+
+  useEffect(() => {
+    if (imageAttachments.some(img => img.is_uploading) && thumbnailListRef.current) {
+      thumbnailListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [imageAttachments]);
 
   const openLink = useCallback((url: string) => {
     Linking.openURL(url).catch((err) =>
@@ -136,7 +139,6 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           style={styles.fullScreenImage}
           contentFit="contain"
           transition={300}
-          // placeholder={blurhash}
           cachePolicy="memory-disk"
         />
         {item.is_uploading && (
@@ -161,6 +163,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       {imageAttachments.length > 0 && (
         <View>
           <FlatList
+            ref={thumbnailListRef}
             data={imageAttachments}
             renderItem={renderImageThumbnail}
             keyExtractor={(item) => item.id.toString()}
@@ -241,12 +244,12 @@ const styles = StyleSheet.create({
   },
   thumbnailContainer: {
     position: 'relative',
-    marginRight: 10,
+    marginRight: 2.5  ,
   },
   thumbnail: {
     width: 100,
     height: 100,
-    borderRadius: 8,
+    borderRadius: 2,
   },
   blurOverlay: {
     position: 'absolute',
@@ -254,7 +257,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 8,
+    borderRadius: 2,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
@@ -279,7 +282,8 @@ const styles = StyleSheet.create({
   fullScreenImage: {
     width: '100%',
     height: '100%',
-    borderRadius:8,overflow:'hidden'
+    borderRadius: 8,
+    overflow: 'hidden'
   },
   fullScreenBlurOverlay: {
     position: 'absolute',
@@ -307,7 +311,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 14,
-    backgroundColor:'#222',borderRadius: 50
+    backgroundColor: '#222',
+    borderRadius: 50
   },
   loader: {
     position: "absolute",
@@ -329,14 +334,15 @@ const styles = StyleSheet.create({
   deleteButton: {
     padding: 13,
     marginRight: 10,
-    backgroundColor:'#222',borderRadius: 50
+    backgroundColor: '#222',
+    borderRadius: 50
   },
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(0,113,176,0.05)",
-    padding:4,
-    paddingHorizontal:8,
+    padding: 4,
+    paddingHorizontal: 8,
     borderRadius: 8,
     marginBottom: 6,
     justifyContent: 'space-between',

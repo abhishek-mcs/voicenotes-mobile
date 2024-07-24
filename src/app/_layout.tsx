@@ -8,14 +8,10 @@ export default function Layout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { padding: 0, flex: 1 },
+          animation: 'none'
         }}
       >
-        <Stack.Screen
-          name="home"
-          options={{
-            animation: "fade",
-          }}
-        />
+        <Stack.Screen name="home"/>
         <Stack.Screen name="auth/login/loginPassword" />
         <Stack.Screen name="auth/signup/index" />
         <Stack.Screen name="RelatedNotes/index" />
