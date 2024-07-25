@@ -17,7 +17,6 @@ import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
 import {
-  useAddTitle,
   useAddTranscript,
   useCreate,
   useDeleteRecording,
@@ -47,6 +46,7 @@ import {
   deleteFromTempRecordings,
   setRecordingList,
   setTempRecordings,
+  updateRecordingDetails,
 } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
@@ -69,6 +69,7 @@ import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
 import { notePreviewSVG } from "assets/svg/notePreviewSVG";
 import RelatedNotesList from "./NotePreview/RelatedNotesList";
 import CreationsList from "./NotePreview/CreationsList";
+import axiosApi from "services/api/axios-api";
 
 const NotePreview = forwardRef(
   (
@@ -90,6 +91,7 @@ const NotePreview = forwardRef(
       setAudioLoading,
       hideIcons = false,
       onDeleteCallBack = () => {},
+      listenToFirebaseStatus,
       onStartRecord = (obj: {
         parent_id: string | null;
         repeat: boolean | null;
@@ -108,7 +110,6 @@ const NotePreview = forwardRef(
     const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
     const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
     const [createType, setCreateType] = useState("summary");
-    const [titleLoading, setTitleLoading] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [transcriptLoading, setTranscriptLoading] = useState(false);
@@ -130,7 +131,7 @@ const NotePreview = forwardRef(
 
     const queryClient = useQueryClient();
     const deleteRecord = useDeleteRecording(note?.id);
-    const addTitleRecord = useAddTitle();
+    // const addTitleRecord = useAddTitle();
     const signedURL = useSignedUrl();
     const createAI = useCreate();
     const addTranscript = useAddTranscript();
@@ -200,18 +201,54 @@ const NotePreview = forwardRef(
     };
 
     const onGenerateTitle = async () => {
-      setTitleLoading(true);
       hideMoreOption();
+      dispatch(
+        updateRecordingDetails({
+          recordingId: note.id,
+          data: { is_title_loading: true },
+        })
+      );
       // dispatch(updateTitle({title:'',index}))
-      await addTitleRecord.mutateAsync(note?.id);
-      setTitleLoading(false);
+      try {
+        console.log("making request");
+        await axiosApi.patch(`/recordings/${note.id}/title`);
+      } catch (error) {
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { error_loading_title: error },
+          })
+        );
+      } finally {
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { is_title_loading: false },
+          })
+        );
+      }
     };
 
     const onReGenerateTranscript = async () => {
       setTranscriptLoading(true);
       hideMoreOption();
-      // dispatch(updateTranscript({transcript:'',index}))
-      await addTranscript.mutateAsync(note?.id);
+      try {
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { is_transcript_loading: true },
+          })
+        );
+        console.log("making request");
+        const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
+          is_transcript_only: true,
+        });
+        console.log("repdata: ", resp.data);
+        // listenToFirebaseStatus(note.id);
+      } catch (error) {
+        console.log("error: ", error);
+      }
+
       setTranscriptLoading(false);
     };
 
@@ -552,6 +589,7 @@ const NotePreview = forwardRef(
           onPress={() => setShowAddMenu(true)}
           icon={addMenu.add}
         />
+        <NoteButtons text="More" onPress={showMoreOption} icon={home.more} />
         <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} />
         <NoteButtons text="Tag" onPress={onGotoAddTag} icon={home.hash1} />
         <NoteButtons
@@ -560,7 +598,6 @@ const NotePreview = forwardRef(
           icon={home.create}
         />
         <NoteButtons text="Share" onPress={onShareNote} icon={home.share1} />
-        <NoteButtons text="More" onPress={showMoreOption} icon={home.more} />
       </ScrollView>
     );
 
@@ -681,12 +718,11 @@ const NotePreview = forwardRef(
       );
     };
 
-
- 
-
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
     };
+
+    if(!note) return null
 
     return (
       <View>
@@ -706,33 +742,45 @@ const NotePreview = forwardRef(
             </TouchableOpacity>
             <View style={styles.content}>
               <View style={{ flexDirection: "row" }}>
-                <ChatBubble style={styles.title} message={note?.title} />
-                {/* <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.progress} />
-                <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.failedWarning} /> */}
+              {note?.is_title_loading ? (
+                <AiLoader
+                  text={`Creating title from your voice`}
+                  style={{ marginTop: 0 }}
+                  size={14}
+                />
+              ):
+                <ChatBubble style={styles.title} message={note?.title} />}
+                <SvgXml
+                  style={{ marginLeft: 4 }}
+                  xml={notePreviewSVG.progress}
+                />
+                <SvgXml
+                  style={{ marginLeft: 4 }}
+                  xml={notePreviewSVG.failedWarning}
+                />
                 <Text>Status: {note?.status}</Text>
               </View>
 
-              {!!note?.transcript && transcriptLoading && note?.title ? (
+              {note.is_transcript_loading && (
                 <AiLoader
                   text={`Creating transcript from your voice`}
                   style={{ marginTop: 0 }}
                   size={14}
                 />
-              ) : (
-                !!note?.transcript && (
-                  <ChatBubble
-                    lines={expand == index ? 10000 : 4}
-                    style={styles.text}
-                    message={note?.transcript
-                      ?.replaceAll(/<br\/?>/g, "\n")
-                      ?.trimEnd()}
-                    continueGenerating={!note?.title}
-                    triggerAnimation={triggerTypingTranscript}
-                    disableGenerating={() => setTriggerTypingTranscript(0)}
-                  />
-                )
               )}
 
+              {note?.transcript && (
+                <ChatBubble
+                  lines={expand == index ? 10000 : 4}
+                  style={styles.text}
+                  message={note?.transcript
+                    ?.replaceAll(/<br\/?>/g, "\n")
+                    ?.trimEnd()}
+                  continueGenerating={!note?.title}
+                  triggerAnimation={triggerTypingTranscript}
+                  disableGenerating={() => setTriggerTypingTranscript(0)}
+                />
+              )}
 
               <TagsList note={note} />
               {attachments?.length > 0 && (
@@ -751,8 +799,14 @@ const NotePreview = forwardRef(
                   {renderMoreMenu()}
                   {renderAddMenu()}
                   {renderCreateMenu()}
-                  <RelatedNotesList note={note}/>
-                  {token && <CreationsList note={note} createType={createType} creationLoader={creationLoader}/>}
+                  <RelatedNotesList note={note} />
+                  {token && (
+                    <CreationsList
+                      note={note}
+                      createType={createType}
+                      creationLoader={creationLoader}
+                    />
+                  )}
                 </>
               )}
 

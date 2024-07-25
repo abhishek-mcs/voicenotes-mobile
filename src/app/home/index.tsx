@@ -76,7 +76,6 @@ const fadeOut = {
   to: { opacity: 0 },
 };
 
-
 export default () => {
   const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
@@ -119,12 +118,16 @@ export default () => {
   const addTranscriptRecord = useAddTranscript(true);
   const queryClient = useQueryClient();
 
-  const setReduxRecordingList = (val: any) => dispatch(setRecordingList(val));
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
 
+  console.log({ recordingListLength: recordingList.length });
+
   const listenToFirebaseStatus = useCallback(
-    (recordingId: string | number, temporaryRecordingId: string) => {
+    (
+      recordingId: string | number,
+      temporaryRecordingId: string | null = null
+    ) => {
       console.log("listening to firebase");
       const firebasePath = token
         ? "processStatuses/recording/"
@@ -183,11 +186,16 @@ export default () => {
             dispatch(
               updateRecordingDetails({
                 recordingId,
-                data: { ...updatedNote.data, status: "processed" },
+                data: {
+                  ...updatedNote.data,
+                  status: "processed",
+                  is_transcript_loading: false,
+                },
               })
             );
             console.log("removing firebase listener");
             remove(statusRef);
+            return;
           }
           console.log("Status = ", status, RecordingStatusString[status]);
         } else {
@@ -200,7 +208,7 @@ export default () => {
 
   useEffect(() => {
     if (recordingQuery.data) {
-      console.log('inside recording query data');
+      console.log("inside recording query data");
       const records =
         recordingQuery.data.pages.flatMap((p) =>
           token ? p.data.data : p.data
@@ -208,10 +216,10 @@ export default () => {
       const modifiedRecords = records.map((rec) => ({
         ...rec,
         status: rec.status ?? "processed",
-        subnotes: rec.subnotes.map((subnote)=>({
+        subnotes: rec.subnotes.map((subnote) => ({
           ...subnote,
-          status: subnote.status ?? "processed"
-        }))
+          status: subnote.status ?? "processed",
+        })),
       }));
       dispatch(setRecordingList(modifiedRecords));
     }
@@ -356,7 +364,20 @@ export default () => {
         parent_id: recordingParentId ?? null,
       };
 
-      dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
+      if (!recordingParentId) {
+        dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
+      } else {
+        const newRecordingList = recordingList.map((recording) => {
+          if (recording.id === recordingParentId) {
+            return {
+              ...recording,
+              subnotes: [...(recording.subnotes || []), newTemporaryRecording]
+            };
+          }
+          return recording;
+        });
+        dispatch(setRecordingList(newRecordingList));
+      }
 
       if (!repeat) {
         setExpandNote(0);
@@ -373,7 +394,7 @@ export default () => {
   );
 
   const onUploadRetry = async (note: any) => {
-    console.log('in upload retry');
+    console.log("in upload retry");
   };
 
   const onCancel = async () => {
@@ -415,6 +436,7 @@ export default () => {
         expand={expandNote}
         setExpand={() => setExpandNote(index == expandNote ? -1 : index)}
         onStartRecord={onStartRecord}
+        listenToFirebaseStatus={listenToFirebaseStatus}
       />
     ),
     [isPlay, play, audioLoading, expandNote]

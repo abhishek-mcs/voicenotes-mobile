@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { Note } from "types";
 
 export interface HashState {
   recordingList: any[];
@@ -49,22 +50,36 @@ export const recordingStates = createSlice({
     },
 
     updateRecordingDetails: (state, action: PayloadAction<any>) => {
-      let isMatchFound = false;
-      console.log(action.payload);
-      const newRecordingList = state.recordingList.map((recording) => {
-        if (
-          recording.id == action.payload.recordingId ||
-          recording.id == action.payload.temporaryRecordingId
-        ) {
-          isMatchFound = true;
-          return { ...recording, ...action.payload.data, id: action.payload.recordingId, audioUrl : recording.audio.data.url };
-        } else return recording;
-      });
-      console.log({ isMatchFound });
+      const { recordingId, temporaryRecordingId, data } = action.payload;
 
+      const updateRecording = (recording: Note): Note => {
+        // Check if this is the recording we want to update
+        if (recording.id === recordingId || recording.id === temporaryRecordingId) {
+          return {
+            ...recording,
+            ...data,
+            id: recordingId,
+            audioUrl: recording.audioUrl 
+          };
+        }
+    
+        // If this recording has subnotes, check them too
+        if (recording.subnotes) {
+          const updatedSubnotes = recording.subnotes.map(updateRecording);
+          if (updatedSubnotes !== recording.subnotes) {
+            return { ...recording, subnotes: updatedSubnotes };
+          }
+        }
+    
+        // If no changes, return the original recording
+        return recording;
+      };
+    
+      const newRecordingList = state.recordingList.map(updateRecording);
+    
       return {
         ...state,
-        recordingList: newRecordingList,
+        recordingList: newRecordingList
       };
     },
   },
