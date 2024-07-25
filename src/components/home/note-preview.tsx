@@ -396,11 +396,16 @@ export default forwardRef(({
   </View>)
   }
 
-  const slug = note.public_slug || ""
   
   const refreshNoteAfterAttachmentChange =async ()=>{
     await queryClient.invalidateQueries('all-recording')
   }
+
+  if(!note) return null
+
+  const slug = note.public_slug || ""
+
+  if(note.id===undefined && note?.audio?.data?.parent_id) return null
 
   return (
     <View>
@@ -433,7 +438,7 @@ export default forwardRef(({
                 <EditDeleteButtons/>
                 </>
                   : <>
-                      <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
+                     { <AiLoader text={note?.isUploading  ? `Uploading your audio` : `!!Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />}
                       {note?.isUploading&&expand==index&&<EditDeleteButtons retry={false}/>}
                     </>
             }
@@ -749,7 +754,7 @@ export default forwardRef(({
       </Touchable>
       {note?.subnotes?.length > 0 &&
         <Subnote
-          list={note?.subnotes}
+          list={[...note?.subnotes, tempRecordings?.filter(rec=>rec.parent_id === note?.id).map(el=>({...el, isDummySubnote: true}))]}
           onUploadRetry={onUploadRetry}
           setExpand={setExpand}
           expand={expand}
