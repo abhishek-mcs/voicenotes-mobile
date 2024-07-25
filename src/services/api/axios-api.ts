@@ -78,7 +78,9 @@ export function setAuthToken(token: string | void, isGuest: boolean, netInfo: an
 
   if (typeof token === 'string') {
     console.log("set token to AppGroup");
-    setAppGroupValue('token_key', token);
+    if (isIOS) {
+      setAppGroupValue('token_key', token);
+    }
   }
 
   if (!isGuest && token) {
