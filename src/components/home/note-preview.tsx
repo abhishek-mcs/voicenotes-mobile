@@ -455,9 +455,14 @@ const NotePreview = forwardRef(
       }
     }, [note?.public_slug]);
 
-    const formattedDuration = (duration = 0) => 0;
-
-    // const creationList = useMemo(() => note?.creations, [list]);
+    const audioDuration = note?.audio?.data?.duration;
+    const formattedDuration = useMemo(
+      () =>
+        audioDuration
+          ? new Date(audioDuration).toISOString().substring(14, 19)
+          : "",
+      [audioDuration]
+    );
 
     const isLongTranscript =
       !!note?.transcript && note?.transcript?.length > 520 ? true : false;
@@ -792,7 +797,9 @@ const NotePreview = forwardRef(
     };
 
     if (!note) return null;
-    const isNoteExpanded = useMemo(() =>expand === index,[index,expand])
+    const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
+    if (isNoteExpanded) {
+    }
 
     return (
       <View>
@@ -800,7 +807,7 @@ const NotePreview = forwardRef(
           onPress={onExpand}
           style={[
             styles.container,
-           isNoteExpanded && !isSingle && styles.expandedContainer,
+            isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
           {!isSubnote && (
@@ -829,7 +836,9 @@ const NotePreview = forwardRef(
                     <View style={{ flex: 1, marginRight: 10 }}>
                       <ChatBubble message={note?.title} />
                     </View>
-                    {isNoteExpanded && <StatusIndicator status={note?.status} />}
+                    {isNoteExpanded && (
+                      <StatusIndicator status={note?.status} />
+                    )}
                   </>
                 )}
               </View>
@@ -840,6 +849,10 @@ const NotePreview = forwardRef(
                   style={{ marginTop: 0 }}
                   size={14}
                 />
+              )}
+
+              {note?.status === "uploading" && (
+                <Text style={{}}>{formattedDuration}</Text>
               )}
 
               {note?.transcript && (

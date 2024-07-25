@@ -5,7 +5,7 @@ import { capitalizeFirstLetter } from "utils/common";
 
 const StatusIndicator = ({ status }:{status:string}) => {
 
-    if(status === 'processed') return null
+    if(!status || status === 'processed') return null
 
     const getStatusIcon = () => {
       switch (status.toLowerCase().trim()) {
