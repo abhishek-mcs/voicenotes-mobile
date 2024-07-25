@@ -66,6 +66,9 @@ import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
 import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
+import { notePreviewSVG } from "assets/svg/notePreviewSVG";
+import RelatedNotesList from "./NotePreview/RelatedNotesList";
+import CreationsList from "./NotePreview/CreationsList";
 
 const NotePreview = forwardRef(
   (
@@ -105,7 +108,6 @@ const NotePreview = forwardRef(
     const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
     const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
     const [createType, setCreateType] = useState("summary");
-    const [relatedNoteLoading, setRelatedNoteLoading] = useState(false);
     const [titleLoading, setTitleLoading] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
@@ -434,9 +436,6 @@ const NotePreview = forwardRef(
         },
       });
       setExpand();
-      if (note?.related_notes?.length == 0 && !!note?.transcript) {
-        setRelatedNoteLoading(true);
-      }
     };
 
     useEffect(() => {
@@ -682,104 +681,8 @@ const NotePreview = forwardRef(
       );
     };
 
-    const renderCreations = () => {
-      if (!token) return;
 
-      return (
-        <>
-          {creationLoader && (
-            <AiLoader
-              text={creationContent[createType]}
-              style={{ marginTop: 8 }}
-              size={14}
-            />
-          )}
-
-          {note.creations?.map((itm: any, i: number) => (
-            <AiCreatedView
-              id={itm?.id}
-              type={itm?.type}
-              date={itm?.created_at}
-              content={itm?.content?.data}
-              key={i}
-            />
-          ))}
-        </>
-      );
-    };
-
-    const renderRelatedNotes = () => {
-      if (!note?.related_notes?.length) return null;
-      return (
-        note?.transcript && (
-          <View style={{ marginTop: 12 }}>
-            <Text
-              style={{
-                fontFamily: "Primary-Semibold",
-                fontSize: 12,
-                color: "#0D0D0D",
-              }}
-            >
-              Related Notes
-            </Text>
-            <View
-              style={{
-                marginTop:
-                  note?.related_notes?.length == 0 && relatedNoteLoading
-                    ? 8
-                    : 3,
-              }}
-            >
-              {note?.related_notes?.length == 0 && relatedNoteLoading ? (
-                <CircularLoader width={16} height={16} />
-              ) : (
-                note?.related_notes?.map((item: any) => {
-                  return (
-                    <Touchable
-                      onPress={() => {
-                        router.push({
-                          pathname: "/RelatedNotes/",
-                          params: { id: item?.id },
-                        });
-                      }}
-                      activeOpacity={0.6}
-                      key={item?.id}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginTop: 8,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: Colors.grey3,
-                          fontFamily: "Primary-Medium",
-                          fontSize: 12,
-                          width: screenWidth / 8,
-                        }}
-                      >
-                        {formatDate(item?.created_at, false, true)}
-                      </Text>
-                      <Text
-                        style={{
-                          color: Colors.black2,
-                          fontFamily: "Primary-Medium",
-                          fontSize: 12,
-                          width: screenWidth / 1.6,
-                        }}
-                        numberOfLines={1}
-                      >
-                        {item?.title}
-                      </Text>
-                    </Touchable>
-                  );
-                })
-              )}
-            </View>
-          </View>
-        )
-      );
-    };
+ 
 
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
@@ -804,7 +707,8 @@ const NotePreview = forwardRef(
             <View style={styles.content}>
               <View style={{ flexDirection: "row" }}>
                 <ChatBubble style={styles.title} message={note?.title} />
-
+                {/* <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.progress} />
+                <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.failedWarning} /> */}
                 <Text>Status: {note?.status}</Text>
               </View>
 
@@ -847,8 +751,8 @@ const NotePreview = forwardRef(
                   {renderMoreMenu()}
                   {renderAddMenu()}
                   {renderCreateMenu()}
-                  {renderRelatedNotes()}
-                  {renderCreations()}
+                  <RelatedNotesList note={note}/>
+                  {token && <CreationsList note={note} createType={createType} creationLoader={creationLoader}/>}
                 </>
               )}
 

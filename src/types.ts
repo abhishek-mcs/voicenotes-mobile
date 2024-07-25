@@ -11,3 +11,23 @@ export interface Attachment {
   url: string;
   is_uploading: boolean;
 }
+
+type BaseNote = {
+  id: any;
+  audio: any;
+  isUploading?: boolean;
+  title?: string;
+  transcript?: null;
+  recorded_at?: number;
+  status?: string;
+  audioUrl?: string | null | undefined;
+  parent_id?: string | null
+};
+
+export type NewNote = BaseNote;
+
+export type Note = BaseNote & {
+  related_notes: BaseNote[];
+  subnotes: Note[];
+  creations: any[];
+};

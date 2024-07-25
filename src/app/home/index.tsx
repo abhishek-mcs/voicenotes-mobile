@@ -63,7 +63,7 @@ import {
   RecordingStatusString,
 } from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
-// import * as MediaLibrary from 'expo-media-library';
+import { NewNote, Note } from "types";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const { height } = Dimensions.get("screen");
@@ -76,18 +76,6 @@ const fadeOut = {
   to: { opacity: 0 },
 };
 
-type newNote = {
-  id: any;
-  audio: any;
-  isUploading?: boolean;
-  title?: string;
-  transcript?: null;
-  recorded_at?: number;
-  status?: string;
-  audioUrl?: string | null | undefined;
-  parent_id?: string | null;
-};
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default () => {
   const insets = useSafeAreaInsets();
@@ -181,8 +169,6 @@ export default () => {
           } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
             updatedStatus = "processing_failed";
             console.log("title geneation failed;waiting");
-            // setTimeout(() => {
-            //   if(!isProcessOver){
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -190,7 +176,6 @@ export default () => {
                 temporaryRecordingId,
               })
             );
-            // }}, 2000);
           } else if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
             isProcessOver = true;
             console.log("formatted");
@@ -223,6 +208,10 @@ export default () => {
       const modifiedRecords = records.map((rec) => ({
         ...rec,
         status: rec.status ?? "processed",
+        subnotes: rec.subnotes.map((subnote)=>({
+          ...subnote,
+          status: subnote.status ?? "processed"
+        }))
       }));
       dispatch(setRecordingList(modifiedRecords));
     }
@@ -247,12 +236,12 @@ export default () => {
     );
     console.log({ notesToRetry });
 
-    const retryUpload = async (note: newNote) => {
+    const retryUpload = async (note: Note) => {
       console.log("retrying upload for note: ", note.title);
       uploadVoiceNote(note);
     };
 
-    const retryProcessing = async (note: newNote) => {
+    const retryProcessing = async (note: Note) => {
       console.log("retrying processing");
       if (!note.transcript) {
         // regenerate transcript
@@ -326,7 +315,7 @@ export default () => {
     return resp;
   };
 
-  const uploadVoiceNote = async (note: newNote) => {
+  const uploadVoiceNote = async (note: NewNote) => {
     const temporaryRecordingId = note.id;
     try {
       const response = await saveVoiceNote({
@@ -355,7 +344,7 @@ export default () => {
       setRec(null);
 
       const temporaryRecordingId = Math.random().toString(36).substring(7);
-      const newTemporaryRecording: newNote = {
+      const newTemporaryRecording: NewNote = {
         id: temporaryRecordingId,
         audio: { data: { url: uri, duration } },
         isUploading: true,
