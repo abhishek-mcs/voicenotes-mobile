@@ -210,7 +210,8 @@ export default ()=> {
     return new Promise(async(resolve, reject) => {
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
+    const recorded_at = note?.audio?.data?.recorded_at||"";
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,parent_id: recordingParentId, recorded_at,isRetry:true})
       .then(()=>resolve('success'))
       .catch((error)=>reject('error: '+ error))
     })

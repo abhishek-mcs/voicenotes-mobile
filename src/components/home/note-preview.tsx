@@ -404,9 +404,9 @@ export default forwardRef(({
   if(!note) return null
 
   const slug = note.public_slug || ""
-
-  if(note.id===undefined && note?.audio?.data?.parent_id) return null
-
+  const tempSub=tempRecordings?.filter(rec=>rec?.audio?.data.parent_id === note?.id).map(el=>({...el, isDummySubnote: true}))
+  const tempSubnotes = tempSub?.length>0?tempSub:[]
+  if(note.id===undefined && note?.audio?.data?.parent_id&&!note?.isDummySubnote) return null
   return (
     <View>
       <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container, (expand == index && !isSingle) ? { backgroundColor: '#f7f7f7', borderRadius: isSubnote ? 12 : 0, } : {}]}>
@@ -438,7 +438,7 @@ export default forwardRef(({
                 <EditDeleteButtons/>
                 </>
                   : <>
-                     { <AiLoader text={note?.isUploading  ? `Uploading your audio` : `!!Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />}
+                     { <AiLoader text={(note?.isUploading)  ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} size={isSubnote?14:16} />}
                       {note?.isUploading&&expand==index&&<EditDeleteButtons retry={false}/>}
                     </>
             }
@@ -752,9 +752,9 @@ export default forwardRef(({
           </View>
         </View>
       </Touchable>
-      {note?.subnotes?.length > 0 &&
+      {(note?.subnotes?.length>0||tempSubnotes?.length>0) &&
         <Subnote
-          list={[...note?.subnotes, tempRecordings?.filter(rec=>rec.parent_id === note?.id).map(el=>({...el, isDummySubnote: true}))]}
+          list={[...note?.subnotes, ...tempSubnotes]}
           onUploadRetry={onUploadRetry}
           setExpand={setExpand}
           expand={expand}
