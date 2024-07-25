@@ -908,8 +908,6 @@ const NotePreview = forwardRef(
 );
 
 const TagsList = ({ note, onPress }: any) => {
-  console.log(note.tags);
-
   return (
     note?.tags?.length > 0 && (
       <View style={[styles.row, { flexWrap: "wrap" }]}>
