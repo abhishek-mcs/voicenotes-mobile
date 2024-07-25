@@ -33,7 +33,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS, screenWidth } from "utils/common";
+import { capitalizeFirstLetter, isIOS, screenWidth } from "utils/common";
 import { Link, router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
@@ -70,6 +70,7 @@ import { notePreviewSVG } from "assets/svg/notePreviewSVG";
 import RelatedNotesList from "./NotePreview/RelatedNotesList";
 import CreationsList from "./NotePreview/CreationsList";
 import axiosApi from "services/api/axios-api";
+import StatusIndicator from "./NotePreview/StatusIndicator";
 
 const NotePreview = forwardRef(
   (
@@ -208,10 +209,18 @@ const NotePreview = forwardRef(
           data: { is_title_loading: true },
         })
       );
-      // dispatch(updateTitle({title:'',index}))
       try {
         console.log("making request");
-        await axiosApi.patch(`/recordings/${note.id}/title`);
+        const resp = await axiosApi.patch(`/recordings/${note.id}/title`);
+        console.log(resp);
+        console.log(resp.data);
+        console.log(resp.data.title);
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { is_title_loading: false, title: resp.data.title },
+          })
+        );
       } catch (error) {
         dispatch(
           updateRecordingDetails({
@@ -578,28 +587,88 @@ const NotePreview = forwardRef(
       closeAddMenu();
     };
 
-    const renderButtons = () => (
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.buttonContainer}
-      >
-        <NoteButtons
-          text="Add"
-          onPress={() => setShowAddMenu(true)}
-          icon={addMenu.add}
-        />
-        <NoteButtons text="More" onPress={showMoreOption} icon={home.more} />
-        <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} />
-        <NoteButtons text="Tag" onPress={onGotoAddTag} icon={home.hash1} />
-        <NoteButtons
-          text="Create"
-          onPress={showCreateOption}
-          icon={home.create}
-        />
-        <NoteButtons text="Share" onPress={onShareNote} icon={home.share1} />
-      </ScrollView>
-    );
+    const renderButtons = () => {
+      const mainButtons = [
+        {
+          text: "Add",
+          onPress: () => setShowAddMenu(true),
+          icon: addMenu.add,
+        },
+        {
+          text: "More",
+          onPress: showMoreOption,
+          icon: home.more,
+        },
+        {
+          text: "Edit",
+          onPress: onEdit,
+          icon: home.edit,
+        },
+        {
+          text: "Tag",
+          onPress: onGotoAddTag,
+          icon: home.hash1,
+        },
+        {
+          text: "Create",
+          onPress: showCreateOption,
+          icon: home.create,
+        },
+        {
+          text: "Share",
+          onPress: onShareNote,
+          icon: home.share1,
+        },
+      ];
+
+      const intermediateButtons = [
+        // when status is uploading or processing
+        {
+          text: "Download",
+          onPress: onDownloadAudio,
+          icon: home.download,
+        },
+        { text: "Delete", onPress: onDelete, icon: home.delete },
+      ];
+
+      const failedButtons = [
+        {
+          text: "Retry",
+          onPress: onUploadRetry,
+          icon: home.retry,
+        },
+        ...intermediateButtons,
+      ];
+
+      const getButtonsBasedOnStatus = (status: string) => {
+        switch (status) {
+          case "uploading":
+          case "processing":
+            return intermediateButtons;
+          case "failed":
+            return failedButtons;
+          default:
+            return mainButtons;
+        }
+      };
+
+      return (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.buttonContainer}
+        >
+          {getButtonsBasedOnStatus(note?.status).map((button, index) => (
+            <NoteButtons
+              key={index}
+              text={button.text}
+              onPress={button.onPress}
+              icon={button.icon}
+            />
+          ))}
+        </ScrollView>
+      );
+    };
 
     const renderMoreMenu = () => (
       <Menu
@@ -722,7 +791,8 @@ const NotePreview = forwardRef(
       await queryClient.invalidateQueries("all-recording");
     };
 
-    if(!note) return null
+    if (!note) return null;
+    const isNoteExpanded = useMemo(() =>expand === index,[index,expand])
 
     return (
       <View>
@@ -730,7 +800,7 @@ const NotePreview = forwardRef(
           onPress={onExpand}
           style={[
             styles.container,
-            expand === index && !isSingle && styles.expandedContainer,
+           isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
           {!isSubnote && (
@@ -741,24 +811,27 @@ const NotePreview = forwardRef(
               <SvgXml xml={isPlay === index ? home.pause : home.play} />
             </TouchableOpacity>
             <View style={styles.content}>
-              <View style={{ flexDirection: "row" }}>
-              {note?.is_title_loading ? (
-                <AiLoader
-                  text={`Creating title from your voice`}
-                  style={{ marginTop: 0 }}
-                  size={14}
-                />
-              ):
-                <ChatBubble style={styles.title} message={note?.title} />}
-                <SvgXml
-                  style={{ marginLeft: 4 }}
-                  xml={notePreviewSVG.progress}
-                />
-                <SvgXml
-                  style={{ marginLeft: 4 }}
-                  xml={notePreviewSVG.failedWarning}
-                />
-                <Text>Status: {note?.status}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                {note?.is_title_loading ? (
+                  <AiLoader
+                    text="Creating title from your voice"
+                    style={{ marginTop: 0 }}
+                    size={14}
+                  />
+                ) : (
+                  <>
+                    <View style={{ flex: 1, marginRight: 10 }}>
+                      <ChatBubble message={note?.title} />
+                    </View>
+                    {isNoteExpanded && <StatusIndicator status={note?.status} />}
+                  </>
+                )}
               </View>
 
               {note.is_transcript_loading && (

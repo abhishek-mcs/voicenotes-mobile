@@ -31,7 +31,7 @@ import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isIOS, screenHeight } from "utils/common";
+import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable";
 // import AskMeSomething from "components/ask-me-something";
 import { Redirect, router } from "expo-router";
@@ -57,7 +57,7 @@ import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import * as FileSystem from "expo-file-system";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import { onValue, ref, remove } from "firebase/database";
+import { off, onValue, ref, remove } from "firebase/database";
 import {
   RecordingStatus,
   RecordingStatusString,
@@ -120,8 +120,6 @@ export default () => {
 
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
-
-  console.log({ recordingListLength: recordingList.length });
 
   const listenToFirebaseStatus = useCallback(
     (
@@ -194,12 +192,13 @@ export default () => {
               })
             );
             console.log("removing firebase listener");
-            remove(statusRef);
+            await remove(statusRef)
+            off(statusRef)
             return;
           }
           console.log("Status = ", status, RecordingStatusString[status]);
         } else {
-          console.log("No data available");
+          console.log("Snapshot does not exist");
         }
       });
     },
@@ -316,12 +315,7 @@ export default () => {
         });
   };
 
-  const fetchSingleRecording = async (id: any) => {
-    console.log("refetching single recording: ", id);
-    const resp = await axiosApi.get(`/recordings/${id}`);
-    console.log(resp.data);
-    return resp;
-  };
+
 
   const uploadVoiceNote = async (note: NewNote) => {
     const temporaryRecordingId = note.id;
