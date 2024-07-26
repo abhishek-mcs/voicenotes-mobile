@@ -34,7 +34,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { capitalizeFirstLetter, isIOS, screenWidth, sleep } from "utils/common";
+import { isIOS, screenWidth, sleep } from "utils/common";
 import { Link, router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
@@ -92,9 +92,9 @@ const NotePreview = forwardRef(
       setPlay,
       audioLoading,
       setAudioLoading,
-      hideIcons = false,
       onDeleteCallBack = () => {},
-      listenToFirebaseStatus = () => {},
+      continueProcessing = () => {},
+      syncUpNote = () => {},
       onStartRecord = (obj: {
         parent_id: string | null;
         repeat: boolean | null;
@@ -113,9 +113,7 @@ const NotePreview = forwardRef(
     const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
     const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
     const [createType, setCreateType] = useState("summary");
-    const [uploadLoading, setUploadLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
-    const [transcriptLoading, setTranscriptLoading] = useState(false);
     const [showAddMenu, setShowAddMenu] = useState(false);
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [showLinkEditModal, setShowLinkEditModal] = useState(false);
@@ -234,62 +232,11 @@ const NotePreview = forwardRef(
     };
 
     const onReGenerateTranscript = async () => {
-      setTranscriptLoading(true);
       hideMoreOption();
       await sleep(0.5);
-      try {
-        dispatch(
-          updateRecordingDetails({
-            recordingId: note.id,
-            data: { is_transcript_loading: true },
-          })
-        );
-        console.log("making request");
-        const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
-          is_transcript_only: true,
-        });
-        console.log("repdata: ", resp.data);
-        listenToFirebaseStatus(note.id);
-      } catch (error) {
-        console.log("error in queing new transcript: ", error);
-      }
-
-      setTranscriptLoading(false);
+      continueProcessing(note, true);
     };
 
-    const onRetry = async () => {
-      if (isUploadingFailed) {
-        setUploadLoading(true);
-        await onUploadRetry(note).catch(() => {
-          const temp = [...tempRecordings];
-          temp[index] = {
-            ...temp[index],
-            isUploading: false,
-            is_audio_corrupted: false,
-            error: null,
-          };
-          dispatch(setTempRecordings([...temp]));
-        });
-        setUploadLoading(false);
-      } else {
-        console.warn("Retry transcript");
-        setTranscriptLoading(true);
-        // dispatch()
-        await addTranscript
-          .mutateAsync(note?.id, {
-            onSuccess: async () => {
-              setTranscriptLoading(false);
-              await addTitleRecord.mutateAsync(note?.id);
-            },
-            onError: () => {
-              setTranscriptLoading(false);
-            },
-          })
-          .catch(() => {
-            setTranscriptLoading(false);
-          });
-      }
-    };
 
     const togglePublish = () => {
       const wasPublic = note?.public_slug;
@@ -375,11 +322,9 @@ const NotePreview = forwardRef(
             text: "Yes",
             onPress: async () => {
               if (note?.id) {
-                setDeleteLoading(true);
-                await deleteRecord.mutateAsync("").catch(() => {
-                  setDeleteLoading(false);
+                await deleteRecord.mutateAsync("").catch((e) => {
+                  console.log("error in delete: ", e);
                 });
-                setDeleteLoading(false);
                 onDeleteCallBack();
               } else dispatch(deleteFromTempRecordings(note));
             },
@@ -398,16 +343,19 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onPlaySet = async (res: any) => {
+    const onPlaySet = async (uri) => {
+      console.log({uri});
       try {
         setIsPlay(index);
         const { sound } = await Audio.Sound.createAsync(
-          { uri: res.data?.url || "" },
+          { uri: uri|| "" },
           { shouldPlay: true, isLooping: false },
           onPlaybackStatusUpdate
         );
         setPlay(sound);
-      } catch {}
+      } catch (e){
+        console.log('error in playset: ', e);
+      }
     };
 
     const onPlay = async () => {
@@ -431,26 +379,24 @@ const NotePreview = forwardRef(
         if (isPlay != index) {
           setAudioLoading(index);
           if (!!note?.audio?.data?.url) {
-            onPlaySet(note?.audio);
-          }
-          if (note.audioUrl?.length) {
+            onPlaySet(note?.audio.data.url);
+          }else if (note.audioUrl?.length) {
             onPlaySet(note.audioUrl);
           } else {
             console.log("going for signedurl");
             signedURL.mutate(note?.id, {
               onSuccess: async (r) => {
                 try {
-                  onPlaySet(r);
-                  const signedUrl = r.data.url;
+                  const signedURL = r.data['url'];
+                  await onPlaySet(signedURL);
                   const fileName = `${FileSystem.documentDirectory}audio_${note.id}.m4a`;
-
                   const downloadResumable = FileSystem.createDownloadResumable(
-                    signedUrl,
+                    signedURL,
                     fileName
                   );
 
                   const { uri } = await downloadResumable.downloadAsync();
-
+                  console.log({uri});
                   dispatch(
                     updateRecordingDetails({
                       recordingId: note.id,
@@ -855,9 +801,12 @@ const NotePreview = forwardRef(
             <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
           )}
           <View style={styles.row}>
-            <TouchableOpacity onPress={onPlay}>
-              <SvgXml xml={isPlay === index ? home.pause : home.play} />
-            </TouchableOpacity>
+          {audioLoading == index ?
+              <CircularLoader />
+              : <Touchable onPress={onPlay}>
+                <SvgXml xml={isPlay == index ? home.pause : home.play} />
+              </Touchable>}
+              
             <View style={styles.content}>
               <View
                 style={{
@@ -878,7 +827,7 @@ const NotePreview = forwardRef(
                       <ChatBubble message={note?.title} />
                     </View>
                     {isNoteExpanded && (
-                      <StatusIndicator status={note?.status} />
+                      <StatusIndicator status={note?.status} onRetry={()=>syncUpNote(note)}/>
                     )}
                   </>
                 )}
@@ -931,12 +880,13 @@ const NotePreview = forwardRef(
                       creationLoader={creationLoader}
                     />
                   )}
+                              <Text style={styles.timestamp}>
+                {formatDateTime(note?.created_at)}
+              </Text>
                 </>
               )}
 
-              <Text style={styles.timestamp}>
-                {formatDateTime(note?.created_at)}
-              </Text>
+  
             </View>
           </View>
 

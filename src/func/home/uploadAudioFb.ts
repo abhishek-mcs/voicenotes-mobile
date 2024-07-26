@@ -4,8 +4,8 @@ import * as Device from "expo-device";
 import * as Application from "expo-application";
 import * as FileSystem from "expo-file-system";
 
-export const saveVoiceNote = async (data: { audio: any; duration: number, parent_id: string| null }) => {
-  const {audio, duration, parent_id} = data
+export const saveVoiceNote = async (data: { audio: any; duration: number, parent_id: string| null , recorded_at: number}) => {
+  const {audio, duration, parent_id, recorded_at} = data
   const deviceInfo = {
     platform: Platform.OS,
     manufacturer: Device.manufacturer,
@@ -38,6 +38,7 @@ export const saveVoiceNote = async (data: { audio: any; duration: number, parent
     }
     formData.append("duration", duration.toString());
     formData.append("device_info", JSON.stringify(deviceInfo));
+    formData.append("recorded_at", recorded_at);
 
     // Make the POST request using axios
     const response = await axiosApi.post("recordings/new", formData, {

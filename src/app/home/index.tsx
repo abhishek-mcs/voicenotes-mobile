@@ -114,9 +114,6 @@ export default () => {
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
-  const uploadRecord = useUploadRecord();
-  const addTranscriptRecord = useAddTranscript(true);
-  const queryClient = useQueryClient();
 
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
@@ -205,9 +202,9 @@ export default () => {
     [token, dispatch]
   );
 
+  // todo: fix the logic here
   useEffect(() => {
     if (recordingQuery.data) {
-      console.log("inside recording query data");
       const records =
         recordingQuery.data.pages.flatMap((p) =>
           token ? p.data.data : p.data
@@ -224,7 +221,10 @@ export default () => {
     }
   }, [recordingQuery.data, hashFilter, token, dispatch]);
 
-  const isListEmpty = useMemo(()=>recordingList?.length == 0 || null,[recordingList])
+  const isListEmpty = useMemo(
+    () => recordingList?.length == 0 || null,
+    [recordingList]
+  );
 
   useIAPInfo();
   useEffect(() => {
@@ -235,14 +235,25 @@ export default () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (isOffline) return;
+  const continueProcessing = async (note: Note, is_transcript_only = false) => {
+    try {
+      dispatch(
+        updateRecordingDetails({
+          recordingId: note.id,
+          data: { is_transcript_loading: true },
+        })
+      );
+      console.log("making request");
+      const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
+        is_transcript_only,
+      });
+      listenToFirebaseStatus(note.id);
+    } catch (error) {
+      console.log("error in queing new transcript: ", error);
+    }
+  };
 
-    const notesToRetry = recordingList.filter(
-      (rec) => rec?.status !== "processed"
-    );
-    console.log({ notesToRetry });
-
+  const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
       console.log("retrying upload for note: ", note.title);
       uploadVoiceNote(note);
@@ -251,21 +262,29 @@ export default () => {
     const retryProcessing = async (note: Note) => {
       console.log("retrying processing");
       if (!note.transcript) {
-        // regenerate transcript
-        // make call to /continue enpdoing
+        continueProcessing(note);
       }
     };
 
+    if (
+      note.status === "upload_failed" ||
+      (note.status === "uploading" && note.recorded_at < Date.now() - 5 * 1000)
+    ) {
+      retryUpload(note);
+    } else if (note.status === "processing_failed") {
+      retryProcessing(note);
+    }
+  };
+
+  useEffect(() => {
+    if (isOffline) return;
+
+    const notesToRetry = recordingList.filter(
+      (rec) => rec?.status !== "processed"
+    );
+    console.log({ notesToRetry });
     for (const note of notesToRetry) {
-      if (
-        note.status === "upload_failed" ||
-        (note.status === "uploading" &&
-          note.recorded_at < Date.now() - 5 * 1000)
-      ) {
-        retryUpload(note);
-      } else if (note.status === "processing_failed") {
-        retryProcessing(note);
-      }
+      syncUpNote(note);
     }
   }, [isOffline]);
 
@@ -317,11 +336,19 @@ export default () => {
 
   const uploadVoiceNote = async (note: NewNote) => {
     const temporaryRecordingId = note.id;
+    dispatch(
+      updateRecordingDetails({
+        recordingId: note.id,
+        data: { status: "uploading" },
+        temporaryRecordingId,
+      })
+    );
     try {
       const response = await saveVoiceNote({
         audio: note.audio.data.url,
         duration: note.audio.data.duration,
         parent_id: note.parent_id ?? null,
+        recorded_at: note.recorded_at,
       });
       const recordingId = response.recording.id;
       listenToFirebaseStatus(recordingId, temporaryRecordingId);
@@ -385,10 +412,6 @@ export default () => {
     [rec, recordingList, dispatch]
   );
 
-  const onUploadRetry = async (note: any) => {
-    console.log("in upload retry");
-  };
-
   const onCancel = async () => {
     await cancelRecording(rec, soundRef?.current);
     setRec(null);
@@ -406,12 +429,10 @@ export default () => {
       : undefined;
   }, []);
 
-  const fetchNextPage = () =>
-{
-  console.log('fetching next page');
+  const fetchNextPage = () => {
+    console.log("fetching next page");
     recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
-
-}
+  };
 
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -427,7 +448,8 @@ export default () => {
         setPlay={setPlay}
         audioLoading={audioLoading}
         setAudioLoading={setAudioLoading}
-        onUploadRetry={onUploadRetry}
+        continueProcessing={continueProcessing}
+        syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
         setExpand={() => setExpandNote(index == expandNote ? -1 : index)}
@@ -446,9 +468,6 @@ export default () => {
   const onRefresh = async () => {
     setRefreshing(true);
     await recordingQuery.refetch();
-    // if(!!generateDummy&&generateDummy?.length>0){
-    //   batchRetryUpload()
-    // }
     setRefreshing(false);
   };
 
@@ -462,10 +481,10 @@ export default () => {
     setPrevOffset(currentOffset);
   };
 
-  const recordingParentNoteName =
+  const recordingParentNoteName = useMemo(() => {
     recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
+  }, [recordingList, recordingParentId]);
 
-  
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
@@ -646,7 +665,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   wrapper: {
-    // paddingHorizontal: 18,
     paddingVertical: isIOS ? 0 : 32,
   },
   tab: {

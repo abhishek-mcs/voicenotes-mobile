@@ -1,35 +1,55 @@
 import { notePreviewSVG } from "assets/svg/notePreviewSVG";
-import { Text, View } from "react-native";
+import Touchable from "components/common/Touchable";
+import { Text } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { capitalizeFirstLetter } from "utils/common";
 
-const StatusIndicator = ({ status }:{status:string}) => {
+const StatusIndicator = ({
+  status,
+  onRetry = () => {},
+}: {
+  status: string;
+  onRetry: () => void;
+}) => {
+  if (!status || status === "processed") return null;
 
-    if(!status || status === 'processed') return null
+  const canRetry = status.toLowerCase().trim().includes("failed");
 
-    const getStatusIcon = () => {
-      switch (status.toLowerCase().trim()) {
-        case 'processing':
-        case 'uploading':
-          return <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.progress} />;
-        case 'failed':
-          return <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.failedWarning} />;
-        default:
-          return null;
-      }
-    };
-  
-    return (
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        {getStatusIcon()}
-        {status && (
-          <Text style={{ marginLeft: 4 }}>
-            {capitalizeFirstLetter(status)}...
-          </Text>
-        )}
-      </View>
-    );
-  };
-  
+  return (
+    <Touchable
+      style={{ flexDirection: "row", alignItems: "center", padding: 2 }}
+      disabled={!canRetry}
+      onPress={onRetry}
+    >
+      {getStatusIcon(status)}
+      {status && (
+        <Text style={{ marginLeft: 4 }}>{formatStatus(status)}...</Text>
+      )}
+    </Touchable>
+  );
+};
 
-export default StatusIndicator
+export default StatusIndicator;
+
+const formatStatus = (word_with_underscores = "") => {
+  const multi_word = word_with_underscores.split("_").join(" ");
+  const capitalized_word = multi_word
+    .split(" ")
+    .map((word) => capitalizeFirstLetter(word))
+    .join(" ");
+  return capitalized_word;
+};
+
+const getStatusIcon = (status: string) => {
+  switch (status.toLowerCase().trim()) {
+    case "processing":
+    case "uploading":
+      return <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.progress} />;
+    case "failed":
+      return (
+        <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.failedWarning} />
+      );
+    default:
+      return null;
+  }
+};

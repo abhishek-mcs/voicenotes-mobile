@@ -18,7 +18,7 @@ type BaseNote = {
   isUploading?: boolean;
   title?: string;
   transcript?: null;
-  recorded_at?: number;
+  recorded_at: number;
   status?: string;
   audioUrl?: string | null | undefined;
   parent_id?: string | null

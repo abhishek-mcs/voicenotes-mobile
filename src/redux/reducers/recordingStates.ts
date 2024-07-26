@@ -59,7 +59,7 @@ export const recordingStates = createSlice({
             ...recording,
             ...data,
             id: recordingId,
-            audioUrl: (data.url && data.url.startsWith('file://'))? data.url : recording.audioUrl 
+            audioUrl: (data.audioUrl && data.audioUrl.startsWith('file://'))? data.audioUrl : recording.audioUrl 
           };
         }
     
