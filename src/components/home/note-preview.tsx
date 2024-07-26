@@ -45,6 +45,7 @@ import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
 import {
   deleteFromTempRecordings,
+  deleteRecording,
   setRecordingList,
   setTempRecordings,
   updateRecordingDetails,
@@ -322,10 +323,13 @@ const NotePreview = forwardRef(
             text: "Yes",
             onPress: async () => {
               if (note?.id) {
-                await deleteRecord.mutateAsync("").catch((e) => {
-                  console.log("error in delete: ", e);
-                });
+                try {
+                const resp = await axiosApi.delete(`/recordings/${note?.id}`);
+                dispatch(deleteRecording({ id: note?.id }));
                 onDeleteCallBack();
+                } catch (error) {
+                  console.log('error in deleting: ', error);
+                }
               } else dispatch(deleteFromTempRecordings(note));
             },
           },

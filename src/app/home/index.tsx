@@ -63,7 +63,7 @@ import {
   RecordingStatusString,
 } from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
-import { NewNote, Note } from "types";
+import { NewNote, Note, Subnote } from "types";
 
 const recordSound = require("../../assets/sounds/record.wav");
 const { height } = Dimensions.get("screen");
@@ -193,7 +193,6 @@ export default () => {
             off(statusRef);
             return;
           }
-          console.log("Status = ", status, RecordingStatusString[status]);
         } else {
           console.log("Snapshot does not exist");
         }
@@ -202,7 +201,6 @@ export default () => {
     [token, dispatch]
   );
 
-  // todo: fix the logic here
   useEffect(() => {
     if (recordingQuery.data) {
       const records =
@@ -212,12 +210,18 @@ export default () => {
       const modifiedRecords = records.map((rec) => ({
         ...rec,
         status: rec.status ?? "processed",
-        subnotes: rec.subnotes.map((subnote) => ({
+        recorded_at: rec.recorded_at ?? rec.created_at,
+        subnotes: rec.subnotes.map((subnote:Subnote) => ({
           ...subnote,
           status: subnote.status ?? "processed",
+          recorded_at: rec.recorded_at ?? rec.created_at,
         })),
       }));
-      dispatch(setRecordingList(modifiedRecords));
+      // todo: handle cases when user deletes from web, but still present in local cache (use status to handle this)
+      // todo: handle cases when user completes processing of a failed note from web, but old form still present in local cache as duplicate (use recording_id + status to handle this)
+      let finalList = [...recordingList, ...modifiedRecords];
+      finalList = finalList.sort((a, b) => b.recorded_at - a.recorded_at);
+      dispatch(setRecordingList(finalList));
     }
   }, [recordingQuery.data, hashFilter, token, dispatch]);
 

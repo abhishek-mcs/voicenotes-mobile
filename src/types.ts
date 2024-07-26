@@ -31,3 +31,5 @@ export type Note = BaseNote & {
   subnotes: Note[];
   creations: any[];
 };
+
+export type Subnote = Note

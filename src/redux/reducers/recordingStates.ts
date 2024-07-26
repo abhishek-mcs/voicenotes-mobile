@@ -48,21 +48,36 @@ export const recordingStates = createSlice({
       );
       state.tempRecordings = filteredTempRecordings;
     },
+    deleteRecording: (state, action: PayloadAction<any>) => {
+      const {id: recordingId} = action.payload;
+      return {
+        ...state,
+        recordingList: state.recordingList.filter(
+          (recording: any) => recording.id !== recordingId
+        ),
+      };
+    },
 
     updateRecordingDetails: (state, action: PayloadAction<any>) => {
       const { recordingId, temporaryRecordingId, data } = action.payload;
 
       const updateRecording = (recording: Note): Note => {
         // Check if this is the recording we want to update
-        if (recording.id === recordingId || recording.id === temporaryRecordingId) {
+        if (
+          recording.id === recordingId ||
+          recording.id === temporaryRecordingId
+        ) {
           return {
             ...recording,
             ...data,
             id: recordingId,
-            audioUrl: (data.audioUrl && data.audioUrl.startsWith('file://'))? data.audioUrl : recording.audioUrl 
+            audioUrl:
+              data.audioUrl && data.audioUrl.startsWith("file://")
+                ? data.audioUrl
+                : recording.audioUrl,
           };
         }
-    
+
         // If this recording has subnotes, check them too
         if (recording.subnotes) {
           const updatedSubnotes = recording.subnotes.map(updateRecording);
@@ -70,15 +85,14 @@ export const recordingStates = createSlice({
             return { ...recording, subnotes: updatedSubnotes };
           }
         }
-    
+
         // If no changes, return the original recording
         return recording;
       };
-    
-    
+
       return {
         ...state,
-        recordingList: state.recordingList.map(updateRecording)
+        recordingList: state.recordingList.map(updateRecording),
       };
     },
   },
@@ -91,6 +105,7 @@ export const {
   updateTitle,
   updateTranscript,
   deleteFromTempRecordings,
+  deleteRecording,
   updateRecordingDetails,
 } = recordingStates.actions;
 

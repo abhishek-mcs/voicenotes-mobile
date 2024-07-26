@@ -4,8 +4,13 @@ import * as Device from "expo-device";
 import * as Application from "expo-application";
 import * as FileSystem from "expo-file-system";
 
-export const saveVoiceNote = async (data: { audio: any; duration: number, parent_id: string| null , recorded_at: number}) => {
-  const {audio, duration, parent_id, recorded_at} = data
+export const saveVoiceNote = async (data: {
+  audio: any;
+  duration: number;
+  parent_id: string | null;
+  recorded_at: number;
+}) => {
+  const { audio, duration, parent_id, recorded_at } = data;
   const deviceInfo = {
     platform: Platform.OS,
     manufacturer: Device.manufacturer,
@@ -32,13 +37,13 @@ export const saveVoiceNote = async (data: { audio: any; duration: number, parent
       name: filename,
       type: `audio/${filetype}`,
     });
-    if(parent_id){
-      console.log('appending parent id: ', parent_id);
+    if (parent_id) {
+      console.log("appending parent id: ", parent_id);
       formData.append("parent_id", parent_id);
     }
     formData.append("duration", duration.toString());
     formData.append("device_info", JSON.stringify(deviceInfo));
-    formData.append("recorded_at", recorded_at);
+    formData.append("recorded_at", recorded_at.toString());
 
     // Make the POST request using axios
     const response = await axiosApi.post("recordings/new", formData, {
