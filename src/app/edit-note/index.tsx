@@ -20,7 +20,10 @@ import { useQueryClient } from "react-query";
 import { FlatList } from "react-native";
 import { useSaveEditedNote } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
-import { setRecordingList, updateTitle,updateTranscript } from "redux/reducers/recordingStates";
+import {
+  updateTitle,
+  updateTranscript,
+} from "redux/reducers/recordingStates";
 import CircularLoader from "components/common/loaders/circular-loader";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
@@ -28,33 +31,33 @@ import { useGetSingleRecording } from "queries/home/relatedNote";
 export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
-    const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
+    const {editNoteRedux} = useSelector((state:RootState)=>state.editStates)
 
-    const data=useMemo(()=>JSON.parse(params?.note),[])
-    
-    const [editNote,setEditNote] = useState<any>(data)
-    const dispatch=useDispatch();
-    const saveEditedNote=useSaveEditedNote(editNote?.id)
-    const queryClient=useQueryClient();
-    const [isLoading,setIsLoading]=useState(false)
-    const textRef=useRef<any>(null)
-    
-  const onSaveEdit=async()=>{
-    if(editNote?.transcript?.length===0||editNote?.title?.length===0){
-      return Alert.alert('','Title and Transcript cannot be empty')
+
+  const [editNote, setEditNote] = useState<any>(editNoteRedux);
+  const dispatch = useDispatch();
+  const saveEditedNote = useSaveEditedNote(editNote?.id);
+  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const textRef = useRef<any>(null);
+
+  const onSaveEdit = async () => {
+    if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
+      return Alert.alert("", "Title and Transcript cannot be empty");
     }
     setIsLoading(true)
     const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
     const temp={...editNote};
 
-    const htmlTranscript = editNote.transcript.replaceAll(/\n/g, '<br/>');
+    const htmlTranscript = editNote?.transcript?.replaceAll(/\n/g, '<br/>');
 
     await saveEditedNote.mutateAsync(
       {title:editNote?.title,transcript: htmlTranscript ,tags:tags||[]},{
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
-          queryClient.invalidateQueries('all-recording')
+          queryClient.resetQueries('all-recording')
+          queryClient.resetQueries('single-recording')
           setIsLoading(false)
         },
         onError:(e:any)=>{

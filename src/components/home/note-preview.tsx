@@ -35,6 +35,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import LottieView from "lottie-react-native";
 import threeDotLoader from 'assets/lottie/threeDotLoader.json'
 import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
+import { setEditNote } from "redux/reducers/editStates";
 
 export default forwardRef(({
   note,
@@ -95,8 +96,9 @@ export default forwardRef(({
   const showCreateOption = () => setCreateOption(true);
 
   const onEdit = () =>{
+    dispatch(setEditNote(note))
     // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
-    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id,note:JSON.stringify(note)} })
+    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
 
   }
   const onGotoAddTag = () => {

@@ -56,7 +56,7 @@ If you need to connect to a local backend for development purposes, follow these
 
 3. Follow the [steps here](https://github.com/VoiceNotes-AI/voicenotes?tab=readme-ov-file#voicenotescom) to setup the backend server
 
-4. Run backend server as php artisan server --host 192.168.88.137 
+4. Run backend server as `php artisan serve --host 192.168.88.137`  (replace the IP with the one received earlier)
 
 ## Troubleshooting
 
