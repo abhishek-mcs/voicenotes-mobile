@@ -1,5 +1,6 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
+import {memo} from 'react'
 import Touchable from "components/common/Touchable";
 import {
   Alert,
@@ -33,7 +34,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { capitalizeFirstLetter, isIOS, screenWidth } from "utils/common";
+import { capitalizeFirstLetter, isIOS, screenWidth, sleep } from "utils/common";
 import { Link, router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
@@ -71,6 +72,7 @@ import RelatedNotesList from "./NotePreview/RelatedNotesList";
 import CreationsList from "./NotePreview/CreationsList";
 import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
+import { Note } from "types";
 
 const NotePreview = forwardRef(
   (
@@ -92,7 +94,7 @@ const NotePreview = forwardRef(
       setAudioLoading,
       hideIcons = false,
       onDeleteCallBack = () => {},
-      listenToFirebaseStatus,
+      listenToFirebaseStatus = ()=>{},
       onStartRecord = (obj: {
         parent_id: string | null;
         repeat: boolean | null;
@@ -145,11 +147,11 @@ const NotePreview = forwardRef(
 
     useEffect(() => {
       if (triggerTypingTranscript == 0 && !note?.transcript)
-        setTriggerTypingTranscript(0.02);
+        setTriggerTypingTranscript(2);
     }, [note?.transcript]);
 
     useEffect(() => {
-      if (triggerTypingTitle == 0 && !note?.title) setTriggerTypingTitle(0.02);
+      if (triggerTypingTitle == 0 && !note?.title) setTriggerTypingTitle(2);
     }, [note?.title]);
 
     useEffect(() => {
@@ -202,45 +204,40 @@ const NotePreview = forwardRef(
     };
 
     const onGenerateTitle = async () => {
-      hideMoreOption();
+      hideMoreOption()
+      await sleep(0.5);
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
           data: { is_title_loading: true },
         })
       );
+
       try {
-        console.log("making request");
         const resp = await axiosApi.patch(`/recordings/${note.id}/title`);
-        console.log(resp);
-        console.log(resp.data);
-        console.log(resp.data.title);
+        const title = resp.data?.recording?.title;
         dispatch(
           updateRecordingDetails({
             recordingId: note.id,
-            data: { is_title_loading: false, title: resp.data.title },
+            data: { is_title_loading: false, title },
           })
         );
       } catch (error) {
+        console.log("error in dispatching: ", error);
         dispatch(
           updateRecordingDetails({
             recordingId: note.id,
-            data: { error_loading_title: error },
-          })
-        );
-      } finally {
-        dispatch(
-          updateRecordingDetails({
-            recordingId: note.id,
-            data: { is_title_loading: false },
+            data: { error_loading_title: error, is_title_loading: false },
           })
         );
       }
-    };
+    }
+  
 
     const onReGenerateTranscript = async () => {
       setTranscriptLoading(true);
       hideMoreOption();
+      await sleep(0.5);
       try {
         dispatch(
           updateRecordingDetails({
@@ -253,9 +250,9 @@ const NotePreview = forwardRef(
           is_transcript_only: true,
         });
         console.log("repdata: ", resp.data);
-        // listenToFirebaseStatus(note.id);
+        listenToFirebaseStatus(note.id);
       } catch (error) {
-        console.log("error: ", error);
+        console.log("error in queing new transcript: ", error);
       }
 
       setTranscriptLoading(false);
@@ -428,6 +425,10 @@ const NotePreview = forwardRef(
         setIsPlay(-1);
         await play?.unloadAsync();
         setPlay(null);
+        console.log(note);
+        console.log("audiourl: ", note.audioUrl);
+        console.log("audiodataurl: ", note.audio?.data?.url);
+        
         if (isPlay != index) {
           setAudioLoading(index);
           if (!!note?.audio?.data?.url) {
@@ -439,7 +440,28 @@ const NotePreview = forwardRef(
             console.log("going for signedurl");
             signedURL.mutate(note?.id, {
               onSuccess: async (r) => {
-                onPlaySet(r);
+                try {
+                  onPlaySet(r);
+                  const signedUrl = r.data.url
+                  const fileName = `${FileSystem.documentDirectory}audio_${note.id}.m4a`;
+                  
+                  const downloadResumable = FileSystem.createDownloadResumable(
+                    signedUrl,
+                    fileName
+                  );
+                  
+                  const { uri } = await downloadResumable.downloadAsync();
+                  
+                  dispatch(
+                    updateRecordingDetails({
+                      recordingId: note.id,
+                      data: { audioUrl: uri },
+                    })
+                  );
+                } catch (error) {
+                  console.error("Error saving audio:", error);
+                }
+              
               },
             });
           }
@@ -855,7 +877,7 @@ const NotePreview = forwardRef(
                 <Text style={{}}>{formattedDuration}</Text>
               )}
 
-              {note?.transcript && (
+              {note?.transcript && !note.is_transcript_loading && (
                 <ChatBubble
                   lines={expand == index ? 10000 : 4}
                   style={styles.text}
@@ -1033,4 +1055,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotePreview;
+export default memo(NotePreview);

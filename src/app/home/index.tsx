@@ -192,8 +192,8 @@ export default () => {
               })
             );
             console.log("removing firebase listener");
-            await remove(statusRef)
-            off(statusRef)
+            await remove(statusRef);
+            off(statusRef);
             return;
           }
           console.log("Status = ", status, RecordingStatusString[status]);
@@ -224,7 +224,7 @@ export default () => {
     }
   }, [recordingQuery.data, hashFilter, token, dispatch]);
 
-  const isListEmpty = recordingList?.length == 0 || null;
+  const isListEmpty = useMemo(()=>recordingList?.length == 0 || null,[recordingList])
 
   useIAPInfo();
   useEffect(() => {
@@ -315,8 +315,6 @@ export default () => {
         });
   };
 
-
-
   const uploadVoiceNote = async (note: NewNote) => {
     const temporaryRecordingId = note.id;
     try {
@@ -365,7 +363,7 @@ export default () => {
           if (recording.id === recordingParentId) {
             return {
               ...recording,
-              subnotes: [...(recording.subnotes || []), newTemporaryRecording]
+              subnotes: [...(recording.subnotes || []), newTemporaryRecording],
             };
           }
           return recording;
@@ -409,7 +407,11 @@ export default () => {
   }, []);
 
   const fetchNextPage = () =>
+{
+  console.log('fetching next page');
     recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
+
+}
 
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -463,6 +465,7 @@ export default () => {
   const recordingParentNoteName =
     recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
 
+  
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
@@ -534,6 +537,7 @@ export default () => {
               onEndReachedThreshold={0.5}
               onEndReached={fetchNextPage}
               onRefresh={onRefresh}
+              initialNumToRender={3}
               refreshing={isRefreshing}
               ListFooterComponent={
                 !token && recordingQuery.isFetched ? (
