@@ -1,6 +1,6 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
-import {memo} from 'react'
+import { memo } from "react";
 import Touchable from "components/common/Touchable";
 import {
   Alert,
@@ -94,7 +94,7 @@ const NotePreview = forwardRef(
       setAudioLoading,
       hideIcons = false,
       onDeleteCallBack = () => {},
-      listenToFirebaseStatus = ()=>{},
+      listenToFirebaseStatus = () => {},
       onStartRecord = (obj: {
         parent_id: string | null;
         repeat: boolean | null;
@@ -166,7 +166,10 @@ const NotePreview = forwardRef(
 
     const onEdit = () => {
       // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
-      router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
+      router.navigate({
+        pathname: "/edit-note/",
+        params: { index, id: note?.id },
+      });
     };
     const onGotoAddTag = () => {
       hideMoreOption();
@@ -201,7 +204,7 @@ const NotePreview = forwardRef(
     };
 
     const onGenerateTitle = async () => {
-      hideMoreOption()
+      hideMoreOption();
       await sleep(0.5);
       dispatch(
         updateRecordingDetails({
@@ -228,8 +231,7 @@ const NotePreview = forwardRef(
           })
         );
       }
-    }
-  
+    };
 
     const onReGenerateTranscript = async () => {
       setTranscriptLoading(true);
@@ -425,7 +427,7 @@ const NotePreview = forwardRef(
         console.log(note);
         console.log("audiourl: ", note.audioUrl);
         console.log("audiodataurl: ", note.audio?.data?.url);
-        
+
         if (isPlay != index) {
           setAudioLoading(index);
           if (!!note?.audio?.data?.url) {
@@ -439,16 +441,16 @@ const NotePreview = forwardRef(
               onSuccess: async (r) => {
                 try {
                   onPlaySet(r);
-                  const signedUrl = r.data.url
+                  const signedUrl = r.data.url;
                   const fileName = `${FileSystem.documentDirectory}audio_${note.id}.m4a`;
-                  
+
                   const downloadResumable = FileSystem.createDownloadResumable(
                     signedUrl,
                     fileName
                   );
-                  
+
                   const { uri } = await downloadResumable.downloadAsync();
-                  
+
                   dispatch(
                     updateRecordingDetails({
                       recordingId: note.id,
@@ -458,7 +460,6 @@ const NotePreview = forwardRef(
                 } catch (error) {
                   console.error("Error saving audio:", error);
                 }
-              
               },
             });
           }
@@ -616,13 +617,10 @@ const NotePreview = forwardRef(
         {
           text: "Add",
           onPress: () => setShowAddMenu(true),
-          icon: addMenu.add,
+          type: "menu",
+          function: renderAddMenu,
         },
-        {
-          text: "More",
-          onPress: showMoreOption,
-          icon: home.more,
-        },
+
         {
           text: "Edit",
           onPress: onEdit,
@@ -635,18 +633,22 @@ const NotePreview = forwardRef(
         },
         {
           text: "Create",
-          onPress: showCreateOption,
-          icon: home.create,
+          type: 'menu',
+          function: renderCreateMenu
         },
         {
           text: "Share",
           onPress: onShareNote,
           icon: home.share1,
         },
+        {
+          text: "More",
+          type: "menu",
+          function: renderMoreMenu,
+        },
       ];
 
       const intermediateButtons = [
-        // when status is uploading or processing
         {
           text: "Download",
           onPress: onDownloadAudio,
@@ -682,14 +684,18 @@ const NotePreview = forwardRef(
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.buttonContainer}
         >
-          {getButtonsBasedOnStatus(note?.status).map((button, index) => (
-            <NoteButtons
-              key={index}
-              text={button.text}
-              onPress={button.onPress}
-              icon={button.icon}
-            />
-          ))}
+          {getButtonsBasedOnStatus(note?.status).map((button, index) =>
+            button.type === "menu" ? (
+              button.function()
+            ) : (
+              <NoteButtons
+                key={index}
+                text={button.text}
+                onPress={button.onPress}
+                icon={button.icon}
+              />
+            )
+          )}
         </ScrollView>
       );
     };
@@ -699,6 +705,14 @@ const NotePreview = forwardRef(
         visible={moreOption}
         onRequestClose={hideMoreOption}
         style={styles.menu}
+        anchor={
+          <NoteButtons
+            text="More"
+            style={hashFilter != "shared" ? {} : { marginLeft: 0 }}
+            onPress={showMoreOption}
+            icon={home.more}
+          />
+        }
       >
         <MenuItem onPress={() => onCopy(note?.transcript ?? "")}>
           <MenuItemContent icon={home.copy} text="Copy note" />
@@ -722,21 +736,28 @@ const NotePreview = forwardRef(
       <>
         <Menu
           visible={showAddMenu}
-          // anchor={}
+          anchor={
+            <NoteButtons
+              text="Add"
+              onPress={() => setShowAddMenu(true)}
+              disabled={!note?.transcript}
+              icon={addMenu.add}
+            />
+          }
           onRequestClose={closeAddMenu}
           style={isIOS ? styles.menuAttachIOS : styles.menuAttachAndroid}
           animationDuration={150}
         >
           {!isSubnote && (
-            <MenuItem style={styles.menuItem} onPress={onThreadNote}>
+            <MenuItem style={styles.menuItemContent} onPress={onThreadNote}>
               <View style={[styles.row, { width: screenWidth / 2.8 }]}>
                 <Foundation name="record" size={24} color="red" />
-                <Text style={styles.menuItemTxt}>Thread a Note</Text>
+                <Text style={styles.menuItemText}>Thread a Note</Text>
               </View>
             </MenuItem>
           )}
           <MenuItem
-            style={styles.menuItem}
+            style={styles.menuItemContent}
             onPress={() => {
               setShowImagePicker(true);
               closeAddMenu();
@@ -744,11 +765,11 @@ const NotePreview = forwardRef(
           >
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml xml={addMenu.camera} />
-              <Text style={styles.menuItemTxt}>Photo</Text>
+              <Text style={styles.menuItemText}>Photo</Text>
             </View>
           </MenuItem>
           <MenuItem
-            style={styles.menuItem}
+            style={styles.menuItemContent}
             onPress={() => {
               setShowLinkEditModal(true);
               closeAddMenu();
@@ -756,7 +777,7 @@ const NotePreview = forwardRef(
           >
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml style={{ marginLeft: 4 }} xml={addMenu.link} />
-              <Text style={[styles.menuItemTxt, { marginLeft: 14 }]}>Link</Text>
+              <Text style={[styles.menuItemText, { marginLeft: 14 }]}>Link</Text>
             </View>
           </MenuItem>
         </Menu>
@@ -769,42 +790,43 @@ const NotePreview = forwardRef(
           visible={createOption}
           onRequestClose={hideCreateOption}
           style={isIOS ? styles.menuIOS : styles.menu}
+          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
           animationDuration={150}
         >
-          <MenuItem style={styles.menuItem} onPress={() => onCreate("summary")}>
+          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("summary")}>
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml xml={CreateModalSvg.summary} />
-              <Text style={styles.menuItemTxt}>Summarize</Text>
+              <Text style={styles.menuItemText}>Summarize</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={() => onCreate("points")}>
+          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("points")}>
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml xml={CreateModalSvg.points} />
-              <Text style={styles.menuItemTxt}>Main points</Text>
+              <Text style={styles.menuItemText}>Main points</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={() => onCreate("todo")}>
+          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("todo")}>
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.todo} />
-              <Text style={styles.menuItemTxt}>To-do list</Text>
+              <Text style={styles.menuItemText}>To-do list</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={() => onCreate("blog")}>
+          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("blog")}>
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.blog} />
-              <Text style={styles.menuItemTxt}>Blog post</Text>
+              <Text style={styles.menuItemText}>Blog post</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={() => onCreate("tweet")}>
+          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("tweet")}>
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.tweet} />
-              <Text style={styles.menuItemTxt}>Tweet</Text>
+              <Text style={styles.menuItemText}>Tweet</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItem} onPress={() => onCreate("email")}>
+          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("email")}>
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.email} />
-              <Text style={styles.menuItemTxt}>Email</Text>
+              <Text style={styles.menuItemText}>Email</Text>
             </View>
           </MenuItem>
         </Menu>
@@ -901,9 +923,6 @@ const NotePreview = forwardRef(
               {expand === index && (
                 <>
                   {renderButtons()}
-                  {renderMoreMenu()}
-                  {renderAddMenu()}
-                  {renderCreateMenu()}
                   <RelatedNotesList note={note} />
                   {token && (
                     <CreationsList
@@ -971,7 +990,7 @@ const NotePreview = forwardRef(
 );
 
 const TagsList = ({ note, onPress }: any) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   return (
     note?.tags?.length > 0 && (
       <View style={[styles.row, { flexWrap: "wrap" }]}>
@@ -1038,6 +1057,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
+    justifyContent: 'flex-start'
   },
   menuItemText: {
     fontFamily: "Primary",
