@@ -104,7 +104,6 @@ export default () => {
   const [showAskMe, setShowAskMe] = useState(true);
   const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
-  const [uploading, setUploading] = useState(0);
   const [isOffline, setOffline] = useState(false);
   const [threadIndex, setThreadIndex] = useState(-1);
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
@@ -129,7 +128,6 @@ export default () => {
         : "processStatuses/guest/recording/";
       const statusRef = ref(db, firebasePath + recordingId);
 
-      let isProcessOver = false;
       onValue(statusRef, async (snapshot) => {
         if (snapshot.exists()) {
           const status = +snapshot.val();
@@ -248,7 +246,7 @@ export default () => {
         })
       );
       console.log("making request");
-      const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
+      await axiosApi.patch(`/recordings/${note.id}/continue`, {
         is_transcript_only,
       });
       listenToFirebaseStatus(note.id);
@@ -631,8 +629,6 @@ export default () => {
                   <AboutProduct disable={true} />
                 ) : null
               }
-              // automaticallyAdjustKeyboardInsets
-              // keyboardShouldPersistTaps="handled"
             />
           </View>
           <CreateModal

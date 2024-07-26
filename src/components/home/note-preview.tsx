@@ -21,9 +21,6 @@ import {
   useAddTranscript,
   useCreate,
   useDeleteRecording,
-  useGetAiCreation,
-  useRecordings,
-  useSaveEditedNote,
   useSignedUrl,
   useToggleStar,
 } from "queries/home";
@@ -74,6 +71,7 @@ import CreationsList from "./NotePreview/CreationsList";
 import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
 import { Note } from "types";
+import TagsList from "./NotePreview/TagsList";
 
 const NotePreview = forwardRef(
   (
@@ -943,26 +941,6 @@ const NotePreview = forwardRef(
   }
 );
 
-const TagsList = ({ note, onPress }: any) => {
-  const dispatch = useDispatch();
-  return (
-    note?.tags?.length > 0 && (
-      <View style={[styles.row, { flexWrap: "wrap" }]}>
-        {note?.tags?.map((tag: any, i: number) => (
-          <Text
-            key={i}
-            style={styles.tag}
-            // onPress={() => onGoToAddTag(tag)}
-            onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))}
-            suppressHighlighting
-          >
-            {"#" + tag?.name}
-          </Text>
-        ))}
-      </View>
-    )
-  );
-};
 
 const styles = StyleSheet.create({
   container: {
