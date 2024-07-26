@@ -5,7 +5,7 @@ import axiosApi from "services/api/axios-api";
 import { useGetRelatedRecording } from "./relatedNote";
 import { Platform } from "react-native";
 import * as Device from 'expo-device';
-import * as Application from 'expo-application';
+import { currentVersion } from "services/api/api-constants";
 
 
 export function useRecordings(tags?:string){
@@ -76,7 +76,6 @@ export function useUploadRecord(){
           type: `audio/${filetype}`,
         });
         parent_id && formData.append("parent_id", parent_id);
-        // recorded_at && formData.append("recorded_at", new Date(recorded_at));
 
         const deviceInfo = {
             platform: Platform.OS,
@@ -84,7 +83,7 @@ export function useUploadRecord(){
             modelName: Device.modelName ,
             deviceType: Device.deviceType === null? null: Device.DeviceType[Device.deviceType],
             osVersion: Device.osVersion,
-            appVersion:  Application.nativeApplicationVersion
+            appVersion:  currentVersion
         }
 
         formData.append("duration", data.duration.toString());

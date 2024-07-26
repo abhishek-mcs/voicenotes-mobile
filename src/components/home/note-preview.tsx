@@ -166,10 +166,7 @@ const NotePreview = forwardRef(
 
     const onEdit = () => {
       // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
-      router.navigate({
-        pathname: "/edit-note/",
-        params: { index, id: note?.id, note: JSON.stringify(note) },
-      });
+      router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
     };
     const onGotoAddTag = () => {
       hideMoreOption();
@@ -974,6 +971,7 @@ const NotePreview = forwardRef(
 );
 
 const TagsList = ({ note, onPress }: any) => {
+  const dispatch = useDispatch()
   return (
     note?.tags?.length > 0 && (
       <View style={[styles.row, { flexWrap: "wrap" }]}>
@@ -981,7 +979,8 @@ const TagsList = ({ note, onPress }: any) => {
           <Text
             key={i}
             style={styles.tag}
-            onPress={() => onPress(tag)}
+            // onPress={() => onGoToAddTag(tag)}
+            onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))}
             suppressHighlighting
           >
             {"#" + tag?.name}
