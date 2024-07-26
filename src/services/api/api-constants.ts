@@ -78,7 +78,7 @@ const ENVURLSet: ENVURLs = {
 //     : Environment.production
 
 const currentENV = Environment.production;
-const ota=".2"
+const ota=".3"
 const currentVersion = Application.nativeApplicationVersion+ota
 
 const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
