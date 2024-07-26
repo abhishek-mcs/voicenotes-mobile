@@ -31,26 +31,10 @@ import { useGetSingleRecording } from "queries/home/relatedNote";
 export default () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
-    const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
+    const {editNoteRedux} = useSelector((state:RootState)=>state.editStates)
 
-  const data = useMemo(() => {
-    let selectedRecording = {}
-    for(const rec of recordingList){
-      if(rec.id == params?.id){
-        selectedRecording = rec
-        break
-      }
-      // for(const subnote of rec?.subnotes){
-      //   if(subnote.id === params?.id){
-      //     selectedRecording = subnote
-      //     break
-      //   }
-      // }
-    }
-    return selectedRecording
-  }, [params?.id, recordingList]);
 
-  const [editNote, setEditNote] = useState<any>(data);
+  const [editNote, setEditNote] = useState<any>(editNoteRedux);
   const dispatch = useDispatch();
   const saveEditedNote = useSaveEditedNote(editNote?.id);
   const queryClient = useQueryClient();
@@ -72,7 +56,8 @@ export default () => {
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
-          queryClient.invalidateQueries('all-recording')
+          queryClient.resetQueries('all-recording')
+          queryClient.resetQueries('single-recording')
           setIsLoading(false)
         },
         onError:(e:any)=>{
