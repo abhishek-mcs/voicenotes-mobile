@@ -3,7 +3,6 @@ import {
   Easing,
   FlatList,
   KeyboardAvoidingView,
-  Platform,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
@@ -101,7 +100,6 @@ export default () => {
   const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [isOffline, setOffline] = useState(false);
-  const [threadIndex, setThreadIndex] = useState(-1);
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
     null
   );
@@ -194,6 +192,7 @@ export default () => {
     },
     [token, dispatch]
   );
+  
 
   useEffect(() => {
     if (recordingQuery.data) {
@@ -303,7 +302,6 @@ export default () => {
       bannerRef.current?.show();
       return;
     }
-    setThreadIndex(index);
     setRecordingParentId(parent_id);
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync();

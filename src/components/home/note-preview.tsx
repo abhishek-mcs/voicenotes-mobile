@@ -13,9 +13,9 @@ import {
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
+import { formatDate, formatDateTime } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
-import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
 import {
   useAddTranscript,
@@ -37,7 +37,7 @@ import {
   screenWidth,
   sleep,
 } from "utils/common";
-import { Link, router, useRouter } from "expo-router";
+import {  router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
 import { setTagsFilter } from "redux/reducers/hashSlice";
@@ -72,7 +72,6 @@ import RelatedNotesList from "./NotePreview/RelatedNotesList";
 import CreationsList from "./NotePreview/CreationsList";
 import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
-import { Note } from "types";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 
