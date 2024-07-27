@@ -321,6 +321,12 @@ const NotePreview = forwardRef(
           {
             text: "Yes",
             onPress: async () => {
+              if (note.status =='uploading'){
+                // edge case
+                // await cancelUpload(note?.id);
+                // dispatch(deleteRecording({ id: note?.id }));
+                // onDeleteCallBack();
+              }
               try {
                 await axiosApi.delete(`/recordings/${note?.id}`);
                 dispatch(deleteRecording({ id: note?.id }));
@@ -620,12 +626,14 @@ const NotePreview = forwardRef(
         {
           text: "Retry",
           onPress: onUploadRetry,
-          icon: home.retry,
+          icon: home.repeat,
         },
         ...intermediateButtons,
       ];
 
       const getButtonsBasedOnStatus = (status: string) => {
+        status = status.toLowerCase();
+        if(status.includes('failed')) status = 'failed'
         switch (status) {
           case "uploading":
           case "processing":
