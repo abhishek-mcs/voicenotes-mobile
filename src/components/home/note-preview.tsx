@@ -320,15 +320,13 @@ const NotePreview = forwardRef(
           {
             text: "Yes",
             onPress: async () => {
-              if (note?.id) {
-                try {
-                const resp = await axiosApi.delete(`/recordings/${note?.id}`);
-                dispatch(deleteRecording({ id: note?.id }));
-                onDeleteCallBack();
-                } catch (error) {
-                  console.log('error in deleting: ', error);
-                }
-              } else dispatch(deleteFromTempRecordings(note));
+              try {
+              await axiosApi.delete(`/recordings/${note?.id}`);
+              dispatch(deleteRecording({ id: note?.id }));
+              onDeleteCallBack();
+              } catch (error) {
+                console.log('error in deleting: ', error);
+              }
             },
           },
         ]
@@ -375,15 +373,14 @@ const NotePreview = forwardRef(
         await play?.unloadAsync();
         setPlay(null);
         console.log(note);
-        console.log("audiourl: ", note.audioUrl);
+        console.log("internalUrl: ", note.internalUrl);
         console.log("audiodataurl: ", note.audio?.data?.url);
 
         if (isPlay != index) {
           setAudioLoading(index);
-          if (!!note?.audio?.data?.url) {
-            onPlaySet(note?.audio.data.url);
-          }else if (note.audioUrl?.length) {
-            onPlaySet(note.audioUrl);
+          if (note?.internalUrl) {
+            console.log('has internalurl');
+            onPlaySet(note?.internalUrl);
           } else {
             console.log("going for signedurl");
             signedURL.mutate(note?.id, {
@@ -391,7 +388,7 @@ const NotePreview = forwardRef(
                 try {
                   const signedURL = r.data['url'];
                   await onPlaySet(signedURL);
-                  const fileName = `${FileSystem.documentDirectory}audio_${note.id}.m4a`;
+                  const fileName = `${FileSystem.cacheDirectory}audio_${note.id}`;
                   const downloadResumable = FileSystem.createDownloadResumable(
                     signedURL,
                     fileName
@@ -402,7 +399,7 @@ const NotePreview = forwardRef(
                   dispatch(
                     updateRecordingDetails({
                       recordingId: note.id,
-                      data: { audioUrl: uri },
+                      data: { internalUrl: uri },
                     })
                   );
                 } catch (error) {
@@ -469,16 +466,16 @@ const NotePreview = forwardRef(
     }, [expand]);
 
     const onDownloadAudio = async () => {
-      console.log(note);
-      console.log(note.audio);
-
-      console.log("Audio URL  = ", note?.audio?.data?.url);
-
       let audioUrl = "";
-      if (note?.audio?.data?.url) {
+      if(note?.internalUrl){
+        console.log("internal url = ", note?.internalUrl);
+        audioUrl = note.internalUrl
+      }else if (note?.audio?.data?.url) {
+        console.log("note audio url = ", note?.internalUrl);
         audioUrl = note?.audio?.data?.url;
       } else {
         const resp = await signedURL.mutateAsync(note?.id);
+        console.log("signed url = ", note?.internalUrl);
         audioUrl = resp.data?.url;
       }
 
@@ -497,7 +494,7 @@ const NotePreview = forwardRef(
         let fileUri = audioUrl;
 
         if (audioUrl.startsWith("http://") || audioUrl.startsWith("https://")) {
-          const fileName = `audio_${Date.now()}.mp3`;
+          const fileName = `audio_${Date.now()}`;
           fileUri = `${FileSystem.documentDirectory}${fileName}`;
           const downloadResumable = FileSystem.createDownloadResumable(
             audioUrl,

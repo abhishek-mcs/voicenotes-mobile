@@ -37,17 +37,6 @@ export const recordingStates = createSlice({
         action.payload?.transcript;
       console.log(state.recordingList[action.payload?.index].transcript);
     },
-    deleteFromTempRecordings: (state, action: PayloadAction<any>) => {
-      const selectedRecoreding = action.payload;
-      const selectedRecordingUrl = selectedRecoreding["audio"]?.data?.url;
-      const filteredTempRecordings = state.tempRecordings.filter(
-        (recording: any) => {
-          const recordingUrl = recording?.audio?.data?.url;
-          return recordingUrl !== selectedRecordingUrl;
-        }
-      );
-      state.tempRecordings = filteredTempRecordings;
-    },
     deleteRecording: (state, action: PayloadAction<any>) => {
       const {id: recordingId} = action.payload;
       return {
@@ -71,10 +60,6 @@ export const recordingStates = createSlice({
             ...recording,
             ...data,
             id: recordingId,
-            audioUrl:
-              data.audioUrl && data.audioUrl.startsWith("file://")
-                ? data.audioUrl
-                : recording.audioUrl,
           };
         }
 
@@ -104,7 +89,6 @@ export const {
   setRelatedNotes,
   updateTitle,
   updateTranscript,
-  deleteFromTempRecordings,
   deleteRecording,
   updateRecordingDetails,
 } = recordingStates.actions;

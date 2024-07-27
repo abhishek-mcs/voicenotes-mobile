@@ -76,6 +76,57 @@ const fadeOut = {
   to: { opacity: 0 },
 };
 
+
+const MAX_STORAGE_LIMIT_IN_DEICE = 50
+
+const combineRecordings = (existing:Note[], newOnes:Note[])=>{
+  let finalList: Note[] = [];
+  const existingIds = new Set(existing.map((note) => note.id));
+  for (const newOne of newOnes) {
+    if (existingIds.has(newOne.id)) {
+      const existingNote = existing.find((note) => note.id === newOne.id);
+      finalList.push({ ...existingNote, ...newOne });
+    } else {
+      finalList.push(newOne);
+    }
+  }
+  const modifiedRecords = finalList.map((rec) => ({
+    ...rec,
+    status: rec.status ?? "processed",
+    recorded_at: rec.recorded_at ?? rec.created_at,
+    subnotes: rec.subnotes.map((subnote:Subnote) => ({
+      ...subnote,
+      status: subnote.status ?? "processed",
+      recorded_at: rec.recorded_at ?? rec.created_at,
+    })),
+  }));
+
+  let sortedList = modifiedRecords.sort((a, b) => b.recorded_at - a.recorded_at);
+
+  // if (modifiedRecords.length > MAX_STORAGE_LIMIT_IN_DEICE){
+  //   let recordsToRemoveFromCache = []
+  //   for(let i = modifiedRecords.length; i > MAX_STORAGE_LIMIT_IN_DEICE; i--){
+  //     if(modifiedRecords[i - 1].status.includes('failed')) continue
+  //       recordsToRemoveFromCache.push(modifiedRecords[i - 1])
+  //   }
+  //   // remove the saved audio file from these reocords in a set time out
+
+  //     const removeAudioFileFromCache = async(path)=>{
+  //         await FileSystem.deleteAsync(path);
+  //     }
+
+  //   //  setTimeout(() => {
+  //   //   recordstoRemoveFromCache.forEach((rec)=>{
+  //   //     removeAudioFileFromCache(rec.internalUrl)
+  //       // dispatch (updatelist + remove internalurl field from modified records)
+  //   // })
+  //   //  }, 5000);
+
+  // }
+  
+  return sortedList
+}
+
 export default () => {
   const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
@@ -201,24 +252,12 @@ export default () => {
 
   useEffect(() => {
     if (recordingQuery.data) {
-      const records =
+      const serverRecords =
         recordingQuery.data.pages.flatMap((p) =>
           token ? p.data.data : p.data
         ) || [];
-      const modifiedRecords = records.map((rec) => ({
-        ...rec,
-        status: rec.status ?? "processed",
-        recorded_at: rec.recorded_at ?? rec.created_at,
-        subnotes: rec.subnotes.map((subnote:Subnote) => ({
-          ...subnote,
-          status: subnote.status ?? "processed",
-          recorded_at: rec.recorded_at ?? rec.created_at,
-        })),
-      }));
-      // todo: handle cases when user deletes from web, but still present in local cache (use status to handle this)
-      // todo: handle cases when user completes processing of a failed note from web, but old form still present in local cache as duplicate (use recording_id + status to handle this)
-      let finalList = [...recordingList, ...modifiedRecords];
-      finalList = finalList.sort((a, b) => b.recorded_at - a.recorded_at);
+      
+      let finalList = combineRecordings(recordingList, serverRecords);
       dispatch(setRecordingList(finalList));
     }
   }, [recordingQuery.data, hashFilter, token, dispatch]);
@@ -381,7 +420,7 @@ export default () => {
         transcript: null,
         recorded_at: new Date().getTime(),
         status: "uploading",
-        audioUrl: uri,
+        internalUrl: uri,
         parent_id: recordingParentId ?? null,
       };
 

@@ -20,8 +20,9 @@ type BaseNote = {
   transcript?: null;
   recorded_at: number;
   status?: string;
-  audioUrl?: string | null | undefined;
+  // audioUrl?: string | null | undefined;
   parent_id?: string | null
+  internalUrl?:string
 };
 
 export type NewNote = BaseNote;
@@ -30,6 +31,7 @@ export type Note = BaseNote & {
   related_notes: BaseNote[];
   subnotes: Note[];
   creations: any[];
+  created_at: number;
 };
 
 export type Subnote = Note
