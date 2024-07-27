@@ -1,5 +1,7 @@
 import * as Application from "expo-application"
 
+const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 50; // number of audio notes to be cached in device at any given time
+
 enum Environment {
   local = "local",
   rose = "rose",
@@ -112,5 +114,6 @@ export {
   expoClientID,
   facebookAPPID,
   currentENV,
-  currentVersion
+  currentVersion,
+  MAX_NOTES_STORAGE_LIMIT_IN_DEVICE
 }

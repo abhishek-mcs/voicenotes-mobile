@@ -31,7 +31,12 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS, screenWidth, sleep } from "utils/common";
+import {
+  checkFileExists,
+  isIOS,
+  screenWidth,
+  sleep,
+} from "utils/common";
 import { Link, router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
@@ -41,10 +46,7 @@ import { useUnpublishRecording } from "queries/home/share";
 import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
 import {
-  deleteFromTempRecordings,
   deleteRecording,
-  setRecordingList,
-  setTempRecordings,
   updateRecordingDetails,
 } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
@@ -72,6 +74,7 @@ import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
 import { Note } from "types";
 import TagsList from "./NotePreview/TagsList";
+import { generateVoiceNoteFilename } from "utils/audioUtils";
 
 const NotePreview = forwardRef(
   (
@@ -132,7 +135,7 @@ const NotePreview = forwardRef(
     const queryClient = useQueryClient();
     const deleteRecord = useDeleteRecording(note?.id);
     // const addTitleRecord = useAddTitle();
-    const signedURL = useSignedUrl();
+    const getSignedURL = useSignedUrl();
     const createAI = useCreate();
     const addTranscript = useAddTranscript();
     const unPublishRecording = useUnpublishRecording();
@@ -236,7 +239,6 @@ const NotePreview = forwardRef(
       continueProcessing(note, true);
     };
 
-
     const togglePublish = () => {
       const wasPublic = note?.public_slug;
 
@@ -321,11 +323,11 @@ const NotePreview = forwardRef(
             text: "Yes",
             onPress: async () => {
               try {
-              await axiosApi.delete(`/recordings/${note?.id}`);
-              dispatch(deleteRecording({ id: note?.id }));
-              onDeleteCallBack();
+                await axiosApi.delete(`/recordings/${note?.id}`);
+                dispatch(deleteRecording({ id: note?.id }));
+                onDeleteCallBack();
               } catch (error) {
-                console.log('error in deleting: ', error);
+                console.log("Error in deleting: ", error);
               }
             },
           },
@@ -333,28 +335,29 @@ const NotePreview = forwardRef(
       );
     };
     const onPlaybackStatusUpdate = async (status: any) => {
+      if (status.isLoaded === false) console.log("loading audio..");
+
       if (status?.isLoaded && !status?.isPlaying && status?.didJustFinish) {
-        // Audio playback has finished
         setIsPlay(-1);
-        await play?.unloadAsync();
         setPlay(null);
       } else if (status?.isPlaying) {
         setAudioLoading(-1);
       }
+      await play?.unloadAsync();
     };
 
     const onPlaySet = async (uri) => {
-      console.log({uri});
+      console.log({ uri });
       try {
         setIsPlay(index);
         const { sound } = await Audio.Sound.createAsync(
-          { uri: uri|| "" },
+          { uri: uri || "" },
           { shouldPlay: true, isLooping: false },
           onPlaybackStatusUpdate
         );
         setPlay(sound);
-      } catch (e){
-        console.log('error in playset: ', e);
+      } catch (e) {
+        console.log("error in playset: ", e);
       }
     };
 
@@ -372,30 +375,40 @@ const NotePreview = forwardRef(
         setIsPlay(-1);
         await play?.unloadAsync();
         setPlay(null);
-        console.log(note);
         console.log("internalUrl: ", note.internalUrl);
         console.log("audiodataurl: ", note.audio?.data?.url);
 
         if (isPlay != index) {
           setAudioLoading(index);
-          if (note?.internalUrl) {
-            console.log('has internalurl');
+          if (note?.internalUrl && (await checkFileExists(note?.internalUrl))) {
+            console.log("has internalurl");
             onPlaySet(note?.internalUrl);
           } else {
-            console.log("going for signedurl");
-            signedURL.mutate(note?.id, {
+            console.log("fetching signedurl");
+            getSignedURL.mutate(note?.id, {
               onSuccess: async (r) => {
                 try {
-                  const signedURL = r.data['url'];
-                  await onPlaySet(signedURL);
-                  const fileName = `${FileSystem.cacheDirectory}audio_${note.id}`;
+                  const signedUrl = r.data["url"];
+                  console.log("received signed url: ", signedUrl);
+                  onPlaySet(signedUrl);
+                  console.log('about to download audio to be cached');
+                  const fileName = `${FileSystem.cacheDirectory}AV/audio_${note.id}.mp3`;
                   const downloadResumable = FileSystem.createDownloadResumable(
-                    signedURL,
-                    fileName
+                    signedUrl,
+                    fileName,
+                    {},
+                    (downloadProgress) => {
+                      const progress =
+                        downloadProgress.totalBytesWritten /
+                        downloadProgress.totalBytesExpectedToWrite;
+                      console.log(`Download progress: ${progress * 100}%`);
+                    }
                   );
 
                   const { uri } = await downloadResumable.downloadAsync();
-                  console.log({uri});
+                  console.log("downloaded!");
+
+                  console.log({ uri });
                   dispatch(
                     updateRecordingDetails({
                       recordingId: note.id,
@@ -467,14 +480,17 @@ const NotePreview = forwardRef(
 
     const onDownloadAudio = async () => {
       let audioUrl = "";
-      if(note?.internalUrl){
+      if (note?.internalUrl && (await checkFileExists(note?.internalUrl))) {
         console.log("internal url = ", note?.internalUrl);
-        audioUrl = note.internalUrl
-      }else if (note?.audio?.data?.url) {
+        audioUrl = note.internalUrl;
+      } else if (
+        note?.audio?.data?.url &&
+        (await checkFileExists(note?.audio?.data?.url))
+      ) {
         console.log("note audio url = ", note?.internalUrl);
         audioUrl = note?.audio?.data?.url;
       } else {
-        const resp = await signedURL.mutateAsync(note?.id);
+        const resp = await getSignedURL.mutateAsync(note?.id);
         console.log("signed url = ", note?.internalUrl);
         audioUrl = resp.data?.url;
       }
@@ -491,10 +507,9 @@ const NotePreview = forwardRef(
           visibilityTime: visibilityTime,
         });
 
-        let fileUri = audioUrl;
-
+        let fileUri: string = audioUrl;
         if (audioUrl.startsWith("http://") || audioUrl.startsWith("https://")) {
-          const fileName = `audio_${Date.now()}`;
+          const fileName = generateVoiceNoteFilename(note);
           fileUri = `${FileSystem.documentDirectory}${fileName}`;
           const downloadResumable = FileSystem.createDownloadResumable(
             audioUrl,
@@ -578,8 +593,8 @@ const NotePreview = forwardRef(
         },
         {
           text: "Create",
-          type: 'menu',
-          function: renderCreateMenu
+          type: "menu",
+          function: renderCreateMenu,
         },
         {
           text: "Share",
@@ -722,7 +737,9 @@ const NotePreview = forwardRef(
           >
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml style={{ marginLeft: 4 }} xml={addMenu.link} />
-              <Text style={[styles.menuItemText, { marginLeft: 14 }]}>Link</Text>
+              <Text style={[styles.menuItemText, { marginLeft: 14 }]}>
+                Link
+              </Text>
             </View>
           </MenuItem>
         </Menu>
@@ -735,40 +752,65 @@ const NotePreview = forwardRef(
           visible={createOption}
           onRequestClose={hideCreateOption}
           style={isIOS ? styles.menuIOS : styles.menu}
-          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
+          anchor={
+            <NoteButtons
+              text="Create"
+              onPress={showCreateOption}
+              disabled={!note?.transcript}
+              icon={home.create}
+            />
+          }
           animationDuration={150}
         >
-          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("summary")}>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("summary")}
+          >
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml xml={CreateModalSvg.summary} />
               <Text style={styles.menuItemText}>Summarize</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("points")}>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("points")}
+          >
             <View style={[styles.row, { width: screenWidth / 2.8 }]}>
               <SvgXml xml={CreateModalSvg.points} />
               <Text style={styles.menuItemText}>Main points</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("todo")}>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("todo")}
+          >
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.todo} />
               <Text style={styles.menuItemText}>To-do list</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("blog")}>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("blog")}
+          >
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.blog} />
               <Text style={styles.menuItemText}>Blog post</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("tweet")}>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("tweet")}
+          >
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.tweet} />
               <Text style={styles.menuItemText}>Tweet</Text>
             </View>
           </MenuItem>
-          <MenuItem style={styles.menuItemContent} onPress={() => onCreate("email")}>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("email")}
+          >
             <View style={styles.row}>
               <SvgXml xml={CreateModalSvg.email} />
               <Text style={styles.menuItemText}>Email</Text>
@@ -800,12 +842,14 @@ const NotePreview = forwardRef(
             <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
           )}
           <View style={styles.row}>
-          {audioLoading == index ?
+            {audioLoading == index ? (
               <CircularLoader />
-              : <Touchable onPress={onPlay}>
+            ) : (
+              <Touchable onPress={onPlay}>
                 <SvgXml xml={isPlay == index ? home.pause : home.play} />
-              </Touchable>}
-              
+              </Touchable>
+            )}
+
             <View style={styles.content}>
               <View
                 style={{
@@ -826,7 +870,10 @@ const NotePreview = forwardRef(
                       <ChatBubble message={note?.title} />
                     </View>
                     {isNoteExpanded && (
-                      <StatusIndicator status={note?.status} onRetry={()=>syncUpNote(note)}/>
+                      <StatusIndicator
+                        status={note?.status}
+                        onRetry={() => syncUpNote(note)}
+                      />
                     )}
                   </>
                 )}
@@ -879,13 +926,11 @@ const NotePreview = forwardRef(
                       creationLoader={creationLoader}
                     />
                   )}
-                              <Text style={styles.timestamp}>
-                {formatDateTime(note?.created_at)}
-              </Text>
+                  <Text style={styles.timestamp}>
+                    {formatDateTime(note?.created_at)}
+                  </Text>
                 </>
               )}
-
-  
             </View>
           </View>
 
@@ -938,7 +983,6 @@ const NotePreview = forwardRef(
   }
 );
 
-
 const styles = StyleSheet.create({
   container: {
     padding: 18,
@@ -986,7 +1030,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
-    justifyContent: 'flex-start'
+    justifyContent: "flex-start",
   },
   menuItemText: {
     fontFamily: "Primary",

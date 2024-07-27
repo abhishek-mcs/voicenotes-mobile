@@ -27,7 +27,7 @@ import {
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
+import { useAddTranscript, useRecordings } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -49,23 +49,18 @@ import {
   updateRecordingDetails,
 } from "redux/reducers/recordingStates";
 import NetInfo from "@react-native-community/netinfo";
-import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics, db } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
-import * as FileSystem from "expo-file-system";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import { off, onValue, ref, remove } from "firebase/database";
-import {
-  RecordingStatus,
-  RecordingStatusString,
-} from "func/firebase/recording-event-listener";
+import {  RecordingStatus,} from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
-import { NewNote, Note, Subnote } from "types";
+import { NewNote, Note } from "types";
+import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 
-const recordSound = require("../../assets/sounds/record.wav");
 const { height } = Dimensions.get("screen");
 const fadeIn = {
   from: { opacity: 0 },
@@ -76,56 +71,6 @@ const fadeOut = {
   to: { opacity: 0 },
 };
 
-
-const MAX_STORAGE_LIMIT_IN_DEICE = 50
-
-const combineRecordings = (existing:Note[], newOnes:Note[])=>{
-  let finalList: Note[] = [];
-  const existingIds = new Set(existing.map((note) => note.id));
-  for (const newOne of newOnes) {
-    if (existingIds.has(newOne.id)) {
-      const existingNote = existing.find((note) => note.id === newOne.id);
-      finalList.push({ ...existingNote, ...newOne });
-    } else {
-      finalList.push(newOne);
-    }
-  }
-  const modifiedRecords = finalList.map((rec) => ({
-    ...rec,
-    status: rec.status ?? "processed",
-    recorded_at: rec.recorded_at ?? rec.created_at,
-    subnotes: rec.subnotes.map((subnote:Subnote) => ({
-      ...subnote,
-      status: subnote.status ?? "processed",
-      recorded_at: rec.recorded_at ?? rec.created_at,
-    })),
-  }));
-
-  let sortedList = modifiedRecords.sort((a, b) => b.recorded_at - a.recorded_at);
-
-  // if (modifiedRecords.length > MAX_STORAGE_LIMIT_IN_DEICE){
-  //   let recordsToRemoveFromCache = []
-  //   for(let i = modifiedRecords.length; i > MAX_STORAGE_LIMIT_IN_DEICE; i--){
-  //     if(modifiedRecords[i - 1].status.includes('failed')) continue
-  //       recordsToRemoveFromCache.push(modifiedRecords[i - 1])
-  //   }
-  //   // remove the saved audio file from these reocords in a set time out
-
-  //     const removeAudioFileFromCache = async(path)=>{
-  //         await FileSystem.deleteAsync(path);
-  //     }
-
-  //   //  setTimeout(() => {
-  //   //   recordstoRemoveFromCache.forEach((rec)=>{
-  //   //     removeAudioFileFromCache(rec.internalUrl)
-  //       // dispatch (updatelist + remove internalurl field from modified records)
-  //   // })
-  //   //  }, 5000);
-
-  // }
-  
-  return sortedList
-}
 
 export default () => {
   const insets = useSafeAreaInsets();
@@ -256,7 +201,7 @@ export default () => {
         recordingQuery.data.pages.flatMap((p) =>
           token ? p.data.data : p.data
         ) || [];
-      
+
       let finalList = combineRecordings(recordingList, serverRecords);
       dispatch(setRecordingList(finalList));
     }
@@ -309,7 +254,7 @@ export default () => {
 
     if (
       note.status === "upload_failed" ||
-      (note.status === "uploading" && note.recorded_at < Date.now() - 5 * 1000)
+      (note.status === "uploading" && (note.recorded_at ?? note.created_at) < Date.now() - 5 * 1000)
     ) {
       retryUpload(note);
     } else if (note.status === "processing_failed") {
@@ -393,6 +338,10 @@ export default () => {
       });
       const recordingId = response.recording.id;
       listenToFirebaseStatus(recordingId, temporaryRecordingId);
+      setTimeout(() => {
+        console.log("removing old recordings to save memory");
+        removeExtraOldAudios(recordingList, dispatch);
+      }, 2500);
     } catch (error) {
       console.log("Error in network upload");
       dispatch(
@@ -478,7 +427,7 @@ export default () => {
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
-        key={item?.title || item?.transcript}
+        key={item.id ?? item.temporaryRecordingId}
         ref={notePreviewRef}
         note={item}
         index={index}
@@ -509,6 +458,8 @@ export default () => {
   const onRefresh = async () => {
     setRefreshing(true);
     await recordingQuery.refetch();
+    // setIsPlay(-1)
+    // setPlay(null)
     setRefreshing(false);
   };
 

@@ -47,6 +47,17 @@ export const recordingStates = createSlice({
       };
     },
 
+    deleteRecordingsFromState: (state, action: PayloadAction<any>) => {
+      const recordingsToBeDeleted = action.payload;
+      const recordingIdsToBeDeleted = recordingsToBeDeleted.map((rec: any) => rec.id);
+      return {
+        ...state,
+        recordingList: state.recordingList.filter(
+          (recording: any) => !recordingIdsToBeDeleted.includes(recording.id)
+        ),
+      };
+    },
+
     updateRecordingDetails: (state, action: PayloadAction<any>) => {
       const { recordingId, temporaryRecordingId, data } = action.payload;
 
@@ -90,6 +101,7 @@ export const {
   updateTitle,
   updateTranscript,
   deleteRecording,
+  deleteRecordingsFromState,
   updateRecordingDetails,
 } = recordingStates.actions;
 
