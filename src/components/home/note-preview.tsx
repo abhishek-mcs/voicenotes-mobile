@@ -867,7 +867,7 @@ const NotePreview = forwardRef(
                 ) : (
                   <>
                     <View style={{ flex: 1, marginRight: 10 }}>
-                      <ChatBubble message={note?.title} />
+                      <ChatBubble cursorSvg={note?.status === 'uploading'?notePreviewSVG.blackCircle : notePreviewSVG.flower} showCursorAtEnd={note?.title === 'New Recording' } message={note?.title} />
                     </View>
                     {isNoteExpanded && (
                       <StatusIndicator
