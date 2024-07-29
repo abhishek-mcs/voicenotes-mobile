@@ -40,6 +40,7 @@ import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
 import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
+import { setEditNote } from "redux/reducers/editStates";
 
 export default forwardRef(({
   note,
@@ -112,6 +113,7 @@ export default forwardRef(({
   const closeAddMenu = ()=>setShowAddMenu(false)
 
   const onEdit = () =>{
+    dispatch(setEditNote(note))
     // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
     router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
 

@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import suggestionState from 'redux/reducers/suggestionState';
 import IAPStates from 'redux/reducers/IAPStates';
 import recordingStates from 'redux/reducers/recordingStates';
+import editStates from 'redux/reducers/editStates';
 
 const persistConfig = {
   key: 'root',
@@ -19,7 +20,8 @@ const rootReducer = combineReducers({
     userDetails:userDetails,
     suggestionState:suggestionState,
     IAPStates:IAPStates,
-    recordingStates:recordingStates
+    recordingStates:recordingStates,
+    editStates:editStates
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

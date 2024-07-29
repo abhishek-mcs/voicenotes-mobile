@@ -70,7 +70,7 @@ export default ({
       }, 1000);
 
     }
-  }, [recEnabled, token, userDetails?.subscription_status,paused]);
+  }, [recEnabled, token, userDetails?.subscription_status,paused,onStopRecord]);
 
   const onPauseClick = () => {
     onPause(!paused);
