@@ -5,7 +5,7 @@ import axiosApi from "services/api/axios-api";
 import { useGetRelatedRecording } from "./relatedNote";
 import { Platform } from "react-native";
 import * as Device from 'expo-device';
-import * as Application from 'expo-application';
+import { currentVersion } from "services/api/api-constants";
 
 
 export function useRecordings(tags?:string){
@@ -65,6 +65,7 @@ export function useSaveEditedNote(recording_id:any){
 export function useUploadRecord(){
     return useMutation('upload-audio', async(data:any) => {
         const uri = data.audio;
+        const {parent_id, recorded_at} = data
         const filetype = uri.split(".").pop();
         const filename = uri.split("/").pop();
 
@@ -74,13 +75,15 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
+        parent_id && formData.append("parent_id", parent_id);
+
         const deviceInfo = {
             platform: Platform.OS,
             manufacturer: Device.manufacturer ,
             modelName: Device.modelName ,
             deviceType: Device.deviceType === null? null: Device.DeviceType[Device.deviceType],
             osVersion: Device.osVersion,
-            appVersion:  Application.nativeApplicationVersion
+            appVersion:  currentVersion
         }
 
         formData.append("duration", data.duration.toString());

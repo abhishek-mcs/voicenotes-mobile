@@ -32,7 +32,7 @@ import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable"
-import AskMeSomething from "components/ask-me-something";
+// import AskMeSomething from "components/ask-me-something";
 import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from 'expo-haptics';
@@ -90,6 +90,8 @@ export default ()=> {
   const [isRefreshing,setRefreshing]=useState(false)
   const [uploading,setUploading]=useState(0)
   const [isOffline,setOffline]=useState(false)
+  const [threadIndex,setThreadIndex]=useState(-1)
+  const [recordingParentId,setRecordingParentId]=useState<string|null>(null)
   const bannerRef=useRef<any>(null)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
@@ -113,6 +115,9 @@ export default ()=> {
     if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
       if(hashFilter!='shared'&&records?.length>0){
         records[0]?.transcript==null&&(records[0].transcript='');
+        recordingParentId&& records[threadIndex]?.subnotes?.map((itm:any)=>{
+          if(itm?.transcript==null) itm.transcript=''
+        });
         setReduxRecordingList(records);
       }else if(hashFilter=='shared'){
         setReduxRecordingList(records);
@@ -149,9 +154,10 @@ export default ()=> {
     AIModalRef?.current?.close()
     CreateModalRef.current?.toggle();
   };
-  const onStartRecord = async(repeat=false) => {
+  const onStartRecord = async({repeat = false, parent_id = null,index=-1}:any) => {
     if (recEnabled&&!repeat){
       console.log('Recording already started.');
+      if (parent_id) setRecordingParentId(parent_id)
       return;
     }
     AIModalRef.current?.close()
@@ -161,8 +167,8 @@ export default ()=> {
       bannerRef.current?.show()
       return
     }
-    // const {sound}= await Audio.Sound?.createAsync(recordSound,{shouldPlay:true,isLooping:false,volume:0.1})
-    // soundRef.current=sound
+    setThreadIndex(index)
+    setRecordingParentId(parent_id)
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
@@ -176,22 +182,37 @@ export default ()=> {
     setRecEnabled(false);
     const file = await stopRecording(rec);
     setRec(null);
-    const dump={isUploading:true,audio:{data:{url:file,duration:d}}}
-    const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
+    // let dummyData=generateDummy
+    // if(recordingParentId==null){
+    const recorded_at = (new Date()).toISOString()
+    const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at}}}
+    let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
-    repeat&&onStartRecord(true)
+    !repeat&&setExpandNote(0)
+    // }else{
+      // const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at}}}
+      // const dumpData=[...recordingList]
+      // dumpData[threadIndex].subnotes=[...dumpData[threadIndex].subnotes,dump]
+      // setReduxRecordingList([...dumpData])
+    // }
+    repeat&&onStartRecord({repeat: true, parent_id:recordingParentId,index:threadIndex})
+    
+
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId, recorded_at})
     await soundRef.current?.unloadAsync()
     !repeat&&deactivateKeepAwake()
     analytics().logEvent('completed_recording')
-  },[generateDummy,rec,recEnabled,soundRef]);
+    setRecordingParentId(null)
+    setThreadIndex(-1)
+  },[generateDummy,rec,recEnabled,soundRef, recordingParentId]);
   
   const onUploadRetry = async(note:any) => {
     return new Promise(async(resolve, reject) => {
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,isRetry:true})
+    const recorded_at = note?.audio?.data?.recorded_at||"";
+    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,parent_id: recordingParentId, recorded_at,isRetry:true})
       .then(()=>resolve('success'))
       .catch((error)=>reject('error: '+ error))
     })
@@ -259,6 +280,7 @@ export default ()=> {
         hashFilter={hashFilter}
         expand={expandNote}
         setExpand={()=>setExpandNote(index==expandNote?-1:index)}
+        onStartRecord={onStartRecord}
       />
     ),
     [isPlay,play,recordingList,audioLoading,generateDummy,expandNote]
@@ -287,6 +309,16 @@ export default ()=> {
     }
     setPrevOffset(currentOffset);
   };
+
+  const renderData = recordingList?.length == 1
+    ? recordingList[0] != undefined
+      ? (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
+      : []
+    : (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
+
+  const recordingParentNoteName = renderData.find(note => note?.id === recordingParentId)?.title ?? null
+
+
   if(!token)
       return <Redirect href="/auth/landingPage/" />
   return (
@@ -315,13 +347,7 @@ export default ()=> {
             ref={scrollRef}
             // bounces={false}
             style={{opacity:hideBackground?0:1,marginTop:12}}
-            data={
-              recordingList?.length == 1
-                ? recordingList[0] != undefined
-                  ? (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
-                  : []
-                : (!!generateDummy?[...generateDummy,...recordingList]:recordingList)
-            }
+            data={renderData}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             contentContainerStyle={{ paddingBottom: 300 }}
@@ -359,10 +385,12 @@ export default ()=> {
         </View>
         <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
         <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
-       {showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>}
+       {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
       </View>
       </KeyboardAvoidingView>
       <BottomBar
+        recordingParentNoteName={recordingParentNoteName}
+        setRecordingParentId={setRecordingParentId}
         onAsk={onAsk}
         onCreate={onCreate}
         onRecord={onStartRecord}

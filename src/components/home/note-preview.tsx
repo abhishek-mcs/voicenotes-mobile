@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Alert, Animated, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Alert, Animated, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
@@ -16,7 +16,7 @@ import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS, screenWidth } from "utils/common";
-import { router, useRouter } from "expo-router";
+import { Link, router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
 import { setTagsFilter } from "redux/reducers/hashSlice";
@@ -35,6 +35,11 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import LottieView from "lottie-react-native";
 import threeDotLoader from 'assets/lottie/threeDotLoader.json'
 import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
+import { Foundation } from '@expo/vector-icons';
+import { addMenu } from "assets/svg/AddMenu";
+import AttachmentViewer from "components/NotePreview/AttachmentViewer";
+import ImageUploader from "components/NotePreview/ImageUploader";
+import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
 import { setEditNote } from "redux/reducers/editStates";
 
 export default forwardRef(({
@@ -45,7 +50,8 @@ export default forwardRef(({
   setExpand,
   isSingle = false,
   isSubnote = false,
-  list, index, isPlay, setIsPlay, play, setPlay, audioLoading, setAudioLoading, hideIcons = false, onDeleteCallBack = () => { }
+  list, index, isPlay, setIsPlay, play, setPlay, audioLoading, setAudioLoading, hideIcons = false, onDeleteCallBack = () => { },
+  onStartRecord = (obj: {parent_id: string | null, repeat : boolean | null }) => { },
 }: any, ref) => {
   const route = useRouter()
   const [moreOption, setMoreOption] = useState(false);
@@ -63,6 +69,12 @@ export default forwardRef(({
   const [uploadLoading, setUploadLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [transcriptLoading, setTranscriptLoading] = useState(false)
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showLinkEditModal, setShowLinkEditModal] = useState(false);
+  const [editingLink, setEditingLink] = useState<{ id: string; url: string } | null>(null);
+  const [attachments, setAttachments] = useState([]);
+
   const dispatch = useDispatch()
 
   const { token } = useSelector((state: RootState) => state.userDetails)
@@ -90,10 +102,15 @@ export default forwardRef(({
       setTriggerTypingTitle(2)
   }, [note?.title])
 
+  useEffect(()=>{
+    setAttachments(note?.attachments)
+  },[note?.attachments])
+
   const hideMoreOption = () => setMoreOption(false);
   const showMoreOption = () => setMoreOption(true);
   const hideCreateOption = () => setCreateOption(false);
   const showCreateOption = () => setCreateOption(true);
+  const closeAddMenu = ()=>setShowAddMenu(false)
 
   const onEdit = () =>{
     dispatch(setEditNote(note))
@@ -228,6 +245,21 @@ export default forwardRef(({
   }
   const onDelete = () => {
     hideMoreOption();
+    if (note.subnotes?.length) {
+      Alert.alert(
+        "",
+        "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
+        [
+          {
+            text: "Got It",
+            style: "cancel",
+          },
+        ]
+      );
+      return;
+    }
+
+    // Alert.alert('', 'Are you sure you want to delete?', [
     Alert.alert('', `Are you sure you want to ${note?.isUploading?'cancel':'delete'}?`, [
       {
         text: 'No',
@@ -315,6 +347,8 @@ export default forwardRef(({
   let opacity = new Animated.Value(1);
 
   const onExpand = async () => {
+    setShowImagePicker(false)
+    setShowLinkEditModal(false)
     LayoutAnimation.configureNext({
       duration: 150,
       create: {
@@ -351,6 +385,11 @@ export default forwardRef(({
     }
   },[expand])
 
+ const onThreadNote = () => {
+    onStartRecord({ parent_id: note.id ,index})
+    closeAddMenu()
+  }
+
   const EditDeleteButtons = ({retry=true})=>{
   return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
     {NetInfo.isConnected && !note.is_audio_corrupted &&retry&&
@@ -359,7 +398,17 @@ export default forwardRef(({
   </View>)
   }
 
+  
+  const refreshNoteAfterAttachmentChange =async ()=>{
+    await queryClient.invalidateQueries('all-recording')
+  }
+
+  if(!note) return null
+
   const slug = note.public_slug || ""
+  const tempSub=tempRecordings?.filter(rec=>rec?.audio?.data.parent_id === note?.id).map(el=>({...el, isDummySubnote: true}))
+  const tempSubnotes = tempSub?.length>0?tempSub:[]
+  if(note.id===undefined && note?.audio?.data?.parent_id&&!note?.isDummySubnote) return null
   return (
     <View>
       <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container, (expand == index && !isSingle) ? { backgroundColor: '#f7f7f7', borderRadius: isSubnote ? 12 : 0, } : {}]}>
@@ -391,7 +440,7 @@ export default forwardRef(({
                 <EditDeleteButtons/>
                 </>
                   : <>
-                      <AiLoader text={note?.isUploading ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} />
+                     { <AiLoader text={(note?.isUploading)  ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} size={isSubnote?14:16} />}
                       {note?.isUploading&&expand==index&&<EditDeleteButtons retry={false}/>}
                     </>
             }
@@ -407,30 +456,81 @@ export default forwardRef(({
             {((!!note?.transcript&&transcriptLoading && note?.title)) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
               : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
             <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
+
+
+            {attachments?.length> 0 &&<AttachmentViewer 
+              attachments={attachments} 
+              onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+              onEditLink={(linkItem)=>{
+                setShowLinkEditModal(true)
+                setEditingLink(linkItem)
+              }}
+              />}
+
+            {showLinkEditModal && <AddEditLinkModal
+            noteId={note?.id}
+            onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+            editingLink={editingLink}
+            isVisible={showLinkEditModal}
+            onClose={() => {
+              setShowLinkEditModal(false)
+              setEditingLink(null)
+            }} />
+            }
+
             {expand == index && <>
               {!hideIcons && note?.transcript != null && !note?.isUploading &&
                 <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, position: 'relative' }]}>
+                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, }]}>
                   {hashFilter != 'shared' &&
                     <>
+                    { <Menu
+                          visible={showAddMenu}
+                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
+                          onRequestClose={closeAddMenu}
+                          style={isIOS?styles.menuAttachIOS:styles.menuAttachAndroid}
+                          animationDuration={150}
+                        >
+                        {!isSubnote &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
+                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                              <Foundation name="record" size={24} color="red" />
+                              <Text style={styles.menuItemTxt}>Thread a Note</Text>
+                            </View>
+                          </MenuItem>}
+                          <MenuItem style={styles.menuItem} onPress={()=>{
+                            setShowImagePicker(true)
+                            closeAddMenu()}}>
+                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                              <SvgXml xml={addMenu.camera} />
+                              <Text style={styles.menuItemTxt}>Photo</Text>
+                            </View>
+                          </MenuItem>
+                          <MenuItem style={styles.menuItem} onPress={() => {
+                            setShowLinkEditModal(true)
+                            closeAddMenu()
+                          }}>
+                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                              <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
+                              <Text style={[styles.menuItemTxt, {marginLeft: 14}]}>Link</Text>
+                            </View>
+                          </MenuItem>
+                      </Menu>}
+
+
+                      {showImagePicker && <ImageUploader 
+                        showImagePicker={showImagePicker} 
+                        setShowImagePicker={setShowImagePicker} 
+                        setAttachments={setAttachments}
+                        onAttachmentUpdate = {refreshNoteAfterAttachmentChange}
+                        noteId={note?.id}
+                        />}
+
                       <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
                       <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
+                      
                       {
-                        // isIOS?
-                        // <MoreOptions 
-                        //   options={[
-                        //     {title:'Summarize',onPress:()=>onCreate('summary'),icon:CreateModalSvg.summary},
-                        //     {title:'Main points',onPress:()=>onCreate('points'),icon:CreateModalSvg.points},
-                        //     {title:'To-do list',onPress:()=>onCreate('todo'),icon:CreateModalSvg.todo},
-                        //     {title:'Blog post',onPress:()=>onCreate('blog'),icon:CreateModalSvg.blog},
-                        //     {title:'Tweet',onPress:()=>onCreate('tweet'),icon:CreateModalSvg.tweet},
-                        //     {title:'Email',onPress:()=>onCreate('email'),icon:CreateModalSvg.email}
-                        //     ]}>
-                        //   <NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create}/>
-                        // </MoreOptions>
-                        // :
                         <Menu
                           visible={createOption}
                           anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
@@ -476,7 +576,9 @@ export default forwardRef(({
                           </MenuItem>
                         </Menu>}
                       <NoteButtons icon={home.share1} text="Share" onPress={onShareNote} />
-                    </>}
+                    </>
+                    
+                    }
                   {
                  
                     <Menu
@@ -652,9 +754,9 @@ export default forwardRef(({
           </View>
         </View>
       </Touchable>
-      {note?.subnotes?.length > 0 &&
+      {(note?.subnotes?.length>0||tempSubnotes?.length>0) &&
         <Subnote
-          list={note?.subnotes}
+          list={[...note?.subnotes, ...tempSubnotes]}
           onUploadRetry={onUploadRetry}
           setExpand={setExpand}
           expand={expand}
@@ -681,6 +783,30 @@ const TagsList = ({ note, onPress }: any) =>
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 18, paddingBottom: 8, paddingTop: 14 },
+
+ 
+  attachmentContainer: {
+    marginBottom: 10,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '50%',
+    height: 50,
+  },
+  linkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 8,
+  },
+  linkText: {
+    marginLeft: 10,
+    color: '#007AFF',
+    flex: 1,
+  },
+
   row: { flexDirection: "row", alignItems: "center" },
   btw: { justifyContent: "space-between" },
   timeLine: {
@@ -708,6 +834,17 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 12,
     paddingBottom: 0
+  },
+  menuAttachIOS:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
+    marginTop: 40
+  },
+  menuAttachAndroid:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
   },
   menuIOS:{
     marginTop:40,

@@ -69,7 +69,7 @@ export default () => {
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
           <KeyboardAvoidingView behavior="padding">
           {isIOS&&<View style={{height:5,width:36,alignSelf:'center',backgroundColor:'rgba(60, 60, 67, 0.3)',borderRadius:20,marginTop:8}}/>}
-          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:16,marginHorizontal:12}}>
+          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop: isIOS?16: 28,marginHorizontal:12}}>
             <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
