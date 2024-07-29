@@ -1,5 +1,6 @@
 import { Stack } from "expo-router/stack";
 import AppProvider from "components/AppProvider";
+import 'react-native-gesture-handler';
 
 export default function Layout() {
   return (
