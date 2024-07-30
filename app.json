@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "92",
+      "buildNumber": "93",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -88,7 +88,25 @@
         "root": "./src/app"
       },
       "eas": {
-        "projectId": "d98194af-4672-49f7-976e-4b8dce4a8054"
+        "projectId": "d98194af-4672-49f7-976e-4b8dce4a8054",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "app.voicenotes.watchkitapp",
+                  "targetName": "WatchApp Watch App",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.app.voicenotes.sharedcontainer",
+                      "group.watchOS.storage"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "owner": "buymeacoffee",
