@@ -10,7 +10,17 @@ import Touchable from "../Touchable"
 import LottieView from "lottie-react-native"
 import loader from "assets/lottie/threeDotLoader.json"
 
-export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={},isLoading=false})=>{
+interface NoteButtonProps {
+    hashFilter?: string
+    onPress?: ()=>void
+    icon?: any
+    text?: string
+    disabled?: boolean
+    style?: any
+    isLoading?: boolean
+}
+
+export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={},isLoading=false}:NoteButtonProps)=>{
     return (
         <Touchable style={[styles.main,style]} onPress={onPress} activeOpacity={0.6}  disabled={disabled||isLoading}>
             {!isLoading?

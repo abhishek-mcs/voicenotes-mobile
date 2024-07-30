@@ -11,8 +11,6 @@ export default function Layout() {
   useEffect(() => {}, []);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PortalProvider>
-        <BottomSheetModalProvider>
           <Drawer
             drawerContent={(props) => <DrawerContent {...props} />}
             screenOptions={{
@@ -21,8 +19,6 @@ export default function Layout() {
               drawerStyle: { width: "60%" },
             }}
           />
-        </BottomSheetModalProvider>
-      </PortalProvider>
     </GestureHandlerRootView>
   );
 }

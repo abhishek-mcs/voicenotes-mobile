@@ -1,39 +1,49 @@
 import { Stack } from "expo-router/stack";
 import AppProvider from "components/AppProvider";
-import 'react-native-gesture-handler';
+import "react-native-gesture-handler";
+import { PortalProvider } from "@gorhom/portal";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function Layout() {
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <AppProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { padding: 0, flex: 1 },
-          animation: 'none'
-        }}
-      >
-        <Stack.Screen name="home"/>
-        <Stack.Screen name="auth/login/loginPassword" />
-        <Stack.Screen name="auth/signup/index" />
-        <Stack.Screen name="RelatedNotes/index" />
-        <Stack.Screen
-          name="settings/index"
-          options={{ presentation: "formSheet" }}
-        />
-        <Stack.Screen name="search/index" options={{ animation: "fade" }} />
-        <Stack.Screen
-          name="premium/index"
-          options={{ presentation: "formSheet" }}
-        />
-        <Stack.Screen
-          name="add-tags/index"
-          options={{ presentation: "formSheet" }}
-        />
-        <Stack.Screen
-          name="edit-note/index"
-          options={{ presentation: "fullScreenModal" }}
-        />
-      </Stack>
+      <PortalProvider>
+        <BottomSheetModalProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { padding: 0, flex: 1 },
+              animation: "none",
+            }}
+          >
+            <Stack.Screen name="home" />
+            <Stack.Screen name="auth/login/loginPassword" />
+            <Stack.Screen name="auth/signup/index" />
+            <Stack.Screen name="RelatedNotes/index" />
+            <Stack.Screen
+              name="settings/index"
+              options={{ presentation: "formSheet" }}
+            />
+            <Stack.Screen name="search/index" options={{ animation: "fade" }} />
+            <Stack.Screen
+              name="premium/index"
+              options={{ presentation: "formSheet" }}
+            />
+            <Stack.Screen
+              name="add-tags/index"
+              options={{ presentation: "formSheet" }}
+            />
+            <Stack.Screen
+              name="edit-note/index"
+              options={{ presentation: "fullScreenModal" }}
+            />
+          </Stack>
+        </BottomSheetModalProvider>
+      </PortalProvider>
     </AppProvider>
+
+    </GestureHandlerRootView>
   );
 }
