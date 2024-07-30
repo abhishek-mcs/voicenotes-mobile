@@ -75,7 +75,7 @@ export default ()=> {
   const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [rec, setRec] = useState<Audio.Recording | any>(null);
+  const [rec, setRec] = useState<Audio.Recording|null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const AIModalRef = useRef<any>();
   const CreateModalRef = useRef<any>();
@@ -166,7 +166,10 @@ export default ()=> {
     activateKeepAwakeAsync()
     analytics().logEvent('started_recording')
   };
-
+  const onPause = async(paused:boolean) => {
+   paused? await rec?.pauseAsync().finally(()=>{console.log('paused')})
+   :await rec?.startAsync().finally(()=>{console.log('resumed')})
+  };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
     // const file = rec.getURI()||"";
     setRecEnabled(false);
@@ -176,7 +179,6 @@ export default ()=> {
     const dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
     repeat&&onStartRecord(true)
-    !repeat&&setExpandNote(0)
     scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
     await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord})
     await soundRef.current?.unloadAsync()
@@ -201,7 +203,7 @@ export default ()=> {
 
       for (let i = temp.length - 1; i >= 0; i--) {
         try {
-          await onUploadRetry(temp[i]); 
+          await onUploadRetry(temp[i]);
           temp.splice(i, 1);
           setGenerateDummy([...temp]);
           setUploading(prevUploading => prevUploading - 1);
@@ -288,7 +290,7 @@ export default ()=> {
       return <Redirect href="/auth/landingPage/" />
   return (
     <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
+      <KeyboardAvoidingView behavior={isIOS?"padding":null} style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
           <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:18}}>
@@ -366,6 +368,10 @@ export default ()=> {
         onStopRecord={onStopRecord}
         recEnabled={recEnabled}
         onCancel={onCancel}
+        showAskMe={showAskMe}
+        setShowAskMe={setShowAskMe}
+        onPause={onPause}
+        rec={rec}
       />
     </SafeAreaView>
   );

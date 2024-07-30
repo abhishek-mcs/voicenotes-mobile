@@ -1,10 +1,10 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
-import Recording from "components/common/recording";
+import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
-import { useEffect, useState } from "react";
-import { StyleSheet,  useWindowDimensions, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useRef, useState } from "react";
+import { SafeAreaView, StyleSheet, Text, TouchableHighlight, useWindowDimensions, View, ViewStyle } from "react-native";
+import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
@@ -16,16 +16,23 @@ interface Props {
   onCreate: () => void;
   recEnabled: boolean;
   onCancel: ()=> void;
+  showAskMe: boolean;
+  setShowAskMe: (v:boolean)=>void;
+  onPause?:(v:any)=>void;
+  rec: any;
 }
 
-export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel }: Props) => {
+export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onCancel,setShowAskMe,showAskMe,onPause=(v:any)=>{},rec=null}: Props) => {
     const [duration, setDuration] = useState(0);
+    const [paused, setPaused] = useState(false);
     const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
+    const timerId = useRef<NodeJS.Timeout>();
     const { width } = useWindowDimensions();
     const isSmallScreen = width < 375; // Threshold for small screens like iPhone 13 mini
     useEffect(() => {
-        if (recEnabled) {
-          const timerId = setInterval(async() => {
+        if (recEnabled&&!paused) {
+            timerId.current&&clearInterval(timerId.current);
+            timerId.current = setInterval(async() => {
             setDuration(prevDuration => {
               const newDuration = prevDuration + 1000;
               if (newDuration >= 60000&&(!token||!userDetails?.subscription_status)) {
@@ -38,13 +45,30 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
               return newDuration;
             }); // Update duration every second
           }, 1000);
-
-          return () => {
-            clearInterval(timerId);
-            setDuration(0);
-          }; // Cleanup the interval on component unmount
         }
-      }, [recEnabled]);
+      }, [recEnabled,paused,onStopRecord]);
+      
+      const onPauseClick = () => {
+        onPause(!paused);
+        setPaused((p)=>{
+          !p&&timerId.current&&clearInterval(timerId.current);
+          return !p;
+        });
+      }
+
+      const onDoneClick = async() => {
+        onStopRecord(duration);
+        setDuration(0);
+        timerId.current&&clearInterval(timerId.current);
+        // setPaused(true);
+      }
+
+      const onCancelClick = async() => {
+        onCancel();
+        setDuration(0);
+        timerId.current&&clearInterval(timerId.current);
+        // setPaused(true);
+      }
 
   return (
     <View style={styles.tab}>
@@ -73,11 +97,17 @@ export default ({ onRecord, onAsk, onCreate, recEnabled = false,onStopRecord,onC
           />
         </>
       ) : (
-        <Recording
-          totalDuration={!!token && userDetails?.subscription_status ? '' : '/01:00'}
-          duration={duration}
-          onCancel={onCancel}
-          onStopRecord={onStopRecord}
+        <NoteRecorder
+        totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
+        duration={duration}
+        onCancel={onCancelClick}
+        onStopRecord={onDoneClick}
+        setShowAskMe={setShowAskMe}
+        onPause={onPauseClick}
+        showAskMe={showAskMe}
+        paused={paused}
+        setPaused={setPaused}
+        rec={rec}
         />
       )}
     </View>
@@ -90,12 +120,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 30,
+    bottom: 40,
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderRadius: 24,
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     alignItems: 'center',
     shadowColor: isIOS ? '#00000026' : 'rgba(0,0,0,0.7)',
     shadowOpacity: 0.9,

@@ -15,7 +15,7 @@ export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=fa
         <Touchable style={[styles.main,style]} onPress={onPress} activeOpacity={0.6}  disabled={disabled||isLoading}>
             {!isLoading?
             <View style={styles.row}>
-                <SvgXml xml={icon} />
+                {icon&&<SvgXml xml={icon} />}
                 <Text style={styles.text}>{text}</Text>
             </View>
             :<LottieView source={loader} style={{width:40,height:20}} autoPlay loop />}
