@@ -406,7 +406,7 @@ export default forwardRef(({
   if(!note) return null
 
   const slug = note.public_slug || ""
-  const tempSub=tempRecordings?.filter(rec=>rec?.audio?.data.parent_id === note?.id).map(el=>({...el, isDummySubnote: true}))
+  const tempSub=tempRecordings?.filter((rec:any)=>rec?.audio?.data.parent_id === note?.id).map((el:any)=>({...el, isDummySubnote: true}))
   const tempSubnotes = tempSub?.length>0?tempSub:[]
   if(note.id===undefined && note?.audio?.data?.parent_id&&!note?.isDummySubnote) return null
   return (
@@ -461,7 +461,7 @@ export default forwardRef(({
             {attachments?.length> 0 &&<AttachmentViewer 
               attachments={attachments} 
               onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-              onEditLink={(linkItem)=>{
+              onEditLink={(linkItem:any)=>{
                 setShowLinkEditModal(true)
                 setEditingLink(linkItem)
               }}
@@ -483,18 +483,18 @@ export default forwardRef(({
                 <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.row, { marginLeft: -6, paddingTop: 16, paddingBottom: 4, paddingLeft: 2, }]}>
+                contentContainerStyle={[styles.row, { paddingTop: 16, paddingBottom: 4, paddingLeft: 0,marginLeft:-3 }]}>
                   {hashFilter != 'shared' &&
                     <>
                     { <Menu
                           visible={showAddMenu}
-                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add} />}
+                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add}/>}
                           onRequestClose={closeAddMenu}
                           style={isIOS?styles.menuAttachIOS:styles.menuAttachAndroid}
                           animationDuration={150}
                         >
-                        {!isSubnote &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
-                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                        {!isSubnote&&!isSingle &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
+                            <View style={[styles.row, { }]}>
                               <Foundation name="record" size={24} color="red" />
                               <Text style={styles.menuItemTxt}>Thread a Note</Text>
                             </View>
@@ -502,7 +502,7 @@ export default forwardRef(({
                           <MenuItem style={styles.menuItem} onPress={()=>{
                             setShowImagePicker(true)
                             closeAddMenu()}}>
-                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                            <View style={[styles.row, {}]}>
                               <SvgXml xml={addMenu.camera} />
                               <Text style={styles.menuItemTxt}>Photo</Text>
                             </View>
@@ -511,7 +511,7 @@ export default forwardRef(({
                             setShowLinkEditModal(true)
                             closeAddMenu()
                           }}>
-                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                            <View style={[styles.row, { }]}>
                               <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
                               <Text style={[styles.menuItemTxt, {marginLeft: 14}]}>Link</Text>
                             </View>
@@ -539,13 +539,13 @@ export default forwardRef(({
                           animationDuration={150}
                         >
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
-                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                            <View style={[styles.row, {  }]}>
                               <SvgXml xml={CreateModalSvg.summary} />
                               <Text style={styles.menuItemTxt}>Summarize</Text>
                             </View>
                           </MenuItem>
                           <MenuItem style={styles.menuItem} onPress={() => onCreate('points')}>
-                            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                            <View style={[styles.row, {  }]}>
                               <SvgXml xml={CreateModalSvg.points} />
                               <Text style={styles.menuItemTxt}>Main points</Text>
                             </View>

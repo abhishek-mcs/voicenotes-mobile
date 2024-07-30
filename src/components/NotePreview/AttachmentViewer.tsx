@@ -33,30 +33,17 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const fullScreenListRef = useRef(null);
-  const thumbnailListRef = useRef(null);
-  const imageAttachments = attachments.filter(
-    (a) => a.type === ATTACHMENT_TYPE.IMAGE
+  const thumbnailListRef = useRef<FlatList>(null);
+  const imageAttachments:any = attachments.filter(
+    (a:any) => a.type === ATTACHMENT_TYPE.IMAGE
   );
   const linkAttachments = attachments.filter(
-    (a) => a.type === ATTACHMENT_TYPE.LINK
+    (a:any) => a.type === ATTACHMENT_TYPE.LINK
   );
-  
-  let swipeY = 0;
-
-  const handleSwipe = ({ nativeEvent }:any) => {
-    if (nativeEvent.state === State.END) {
-      if (swipeY > 100) {
-        setSelectedImageIndex(null);
-      }
-      swipeY = 0;
-    } else {
-      swipeY += nativeEvent.translationY;
-    }
-  };
 
   useEffect(() => {
-    if (imageAttachments.some(img => img.is_uploading) && thumbnailListRef.current) {
-      thumbnailListRef.current.scrollToEnd({ animated: true });
+    if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
+      thumbnailListRef?.current?.scrollToEnd({ animated: true });
     }
   }, [imageAttachments]);
 
@@ -90,7 +77,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   }, [deleteAttachment]);
 
   const renderImageThumbnail = useCallback(
-    ({ item, index }) => (
+    ({ item, index }:any) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
         <View style={styles.thumbnailContainer}>
           <Image
@@ -113,7 +100,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 
   const renderLinkItem = useCallback(
-    ({ item }) => (
+    ({ item }:any) => (
       <View style={styles.linkContainer} key={item.id?.toString()}>
         <TouchableOpacity
           style={styles.linkContent}
@@ -148,7 +135,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 
   const renderFullScreenImage = useCallback(
-    ({ item }) => (
+    ({ item }:any) => (
       <View style={styles.fullScreenImageContainer}>
         <Image
           source={{ uri: item.url }}
@@ -167,7 +154,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     []
   );
 
-  const handleFullScreenScroll = useCallback((event) => {
+  const handleFullScreenScroll = useCallback((event:any) => {
     const slideIndex = Math.round(
       event.nativeEvent.contentOffset.x / SCREEN_WIDTH
     );
@@ -182,7 +169,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     } else if (index === 0) {
     }
   }, []);
-console.log(selectedImageIndex)
+
   return (
     <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="never">
       {imageAttachments.length > 0 && (
@@ -221,7 +208,7 @@ console.log(selectedImageIndex)
             ref={fullScreenListRef}
             data={imageAttachments}
             renderItem={renderFullScreenImage}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item:any) => item?.id.toString()}
             horizontal
             pagingEnabled
             initialScrollIndex={selectedImageIndex}
@@ -242,7 +229,7 @@ console.log(selectedImageIndex)
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => handleDeletePress(imageAttachments[selectedImageIndex].id, 'image')}
+                onPress={() => selectedImageIndex&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
               >
                 <SvgXml xml={notePreviewSVG.delete}/>
               </TouchableOpacity>
@@ -269,6 +256,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex:1,
+    marginTop:10,
   },
   sectionTitle: {
     fontSize: 18,
