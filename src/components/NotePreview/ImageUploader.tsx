@@ -14,13 +14,14 @@ import { sleep } from "utils/Timer";
 import { Attachment, ATTACHMENT_TYPE } from "types";
 import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
+import { useQueryClient } from "react-query";
 
 
 interface ImageUploaderProps {
   noteId: string;
   showImagePicker: boolean;
   setShowImagePicker: Dispatch<SetStateAction<boolean>>;
-  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
+  setAttachments: (v:any)=>void;
   onAttachmentUpdate: () => Promise<void>;
 }
 
@@ -31,8 +32,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   setAttachments,
   onAttachmentUpdate,
 }) => {
+  const queryClient = useQueryClient();
   const validateAndConvertImage = useCallback(async (uri: string) => {
-    const fileExtension = uri.split(".").pop()?.toLowerCase();
+    const fileExtension:string = uri?.split(".").pop()?.toLowerCase()??'';
     if (["jpg", "jpeg", "png"].includes(fileExtension)) {
       return { uri, needsConversion: false };
     } else if (["heic", "heif"].includes(fileExtension)) {
@@ -71,6 +73,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         },
       });
       if(result){
+        queryClient.resetQueries("single-recording")
         console.log('Upload successfull');
       }
       
@@ -88,7 +91,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       try {
         const newImage = await validateAndConvertImage(result.assets[0].uri);
         const temporaryImageId = Math.random();
-        setAttachments((prevAttachments) => [
+        setAttachments((prevAttachments:any) => [
           ...prevAttachments,
           {
             description: "",
@@ -100,8 +103,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         ]);
         await uploadImage(newImage);
         await onAttachmentUpdate();
-        setAttachments((prevAttachments) =>
-          prevAttachments.filter((item) => item.id !== temporaryImageId)
+        setAttachments((prevAttachments:any) =>
+          prevAttachments.filter((item:any) => item.id !== temporaryImageId)
         );
         if (newImage.needsConversion) {
           console.log("Image was converted from HEIC/HEIF to JPEG");
@@ -114,6 +117,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   }, [validateAndConvertImage, uploadImage, onAttachmentUpdate, setAttachments]);
 
   const launchImagePicker = useCallback(async (type: "library" | "camera") => {
+    try{
     let permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse;
     let launch: () => Promise<ImagePicker.ImagePickerResult>;
 
@@ -142,6 +146,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     const result = await launch();
     handleImageSelection(result);
+  } catch (error) {
+    Alert.alert("", "Failed to access camera or library. Please try again later.");
+  }
   }, [handleImageSelection]);
 
   const openImagePickerMenu = useCallback(async () => {
