@@ -57,8 +57,8 @@ export default (props:any) => {
     router?.push('/settings/')
   }
 
-  const onUpgrade=()=>{
-    router?.push('/premium/')
+  const onUpgrade=()=>{ 
+    router.push({ pathname: `/premium/`, params: { from:"home" } });
   }
 
   return (
