@@ -61,7 +61,7 @@ export default ()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
               analytics().logEvent('sign_up_success').catch(()=>{})
-              router.push({ pathname: `/auth/signup/premium`, params: { from:"signup" } });
+              router.replace({ pathname: `/auth/signup/premium`, params: { from:"signup" } });
             // }})
           }
         },

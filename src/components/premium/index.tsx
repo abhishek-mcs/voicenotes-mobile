@@ -47,7 +47,10 @@ export default (props:any) => {
   
   const onUpgrade = async() => {
     try {
-      if(selected=='free') return router?.replace("/home/");
+      if(selected=='free') {
+        router.dismissAll();
+        return router?.replace("/home/")
+      };
       setIsLoading(true)
       await Purchases.setAttributes({'email':userDetails?.email})
       const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
@@ -109,7 +112,7 @@ export default (props:any) => {
           <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
           <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
           {from=='signup'&&<Btn type="free" price={''} selected={selected=='free'} onPress={()=>setSelected('free')} underlay="#f9f9f9" title="Continue as free"/>}
-          <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title={selected=="free"?"Continue":"Upgrade"} isLoading={isLoading}/>
+          <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title={selected=="free"?"Continue":"Upgrade now"} isLoading={isLoading}/>
         
         <Text style={[styles.footerText]}>
         This subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. If you have used a trial subscription previously, payment will be charged to your Apple ID account at the confirmation of purchase.
@@ -157,7 +160,7 @@ const styles = StyleSheet.create({
   title:{fontSize:20,fontFamily:'Primary-Semibold',color:'#222',marginBottom:20,alignSelf:'center'},
   descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:screenHeight>690?17:12},
   desc:{marginLeft:9,fontSize:14,fontFamily:'Primary-Regular',color:'#222',lineHeight:22,marginTop:-4},
-  border:{borderWidth:1,borderColor:'rgba(229, 229, 229, 0.9)'},
+  border:{borderWidth:2,borderColor:'rgba(229, 229, 229, 0.9)'},
   btnFilled:{height:56,width:'100%',backgroundColor:'#0E3934',justifyContent:'center',marginVertical:screenHeight>690?20:14,borderWidth:0},
   btn:{minHeight:48,width:'100%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:16,backgroundColor:'#fff',borderRadius:8},
   btnContent:{marginTop:4,flexDirection:'row',alignItems:'center'},
