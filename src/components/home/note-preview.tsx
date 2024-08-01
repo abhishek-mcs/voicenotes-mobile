@@ -838,8 +838,9 @@ const NotePreview = forwardRef(
 
     return (
       <View>
-        <TouchableOpacity
+        <Touchable
           onPress={onExpand}
+          activeOpacity={1}
           style={[
             styles.container,
             isNoteExpanded && !isSingle && styles.expandedContainer,
@@ -897,7 +898,9 @@ const NotePreview = forwardRef(
               {note?.status === "uploading" && (
                 <Text style={{}}>{formattedDuration}</Text>
               )}
-
+              <View style={{flexDirection:'row'}}>
+              <View style={styles.timeLine}/>
+              <View>
               {note?.transcript && !note.is_transcript_loading && (
                 <ChatBubble
                   lines={expand == index ? 10000 : 4}
@@ -938,6 +941,8 @@ const NotePreview = forwardRef(
                   </Text>
                 </>
               )}
+              </View>
+              </View>
             </View>
           </View>
 
@@ -963,7 +968,7 @@ const NotePreview = forwardRef(
               noteId={note?.id}
             />
           )}
-        </TouchableOpacity>
+        </Touchable>
 
         <PublishedModal
           slug={note?.public_slug || ""}
@@ -1051,6 +1056,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     alignSelf: "flex-end",
     marginTop: 8,
+  },
+  timeLine: {
+    width: 1,
+    backgroundColor: Colors.primaryWithOpacity(0.1),
+    marginTop: 8,
+    // flex: 1,
   },
 });
 
