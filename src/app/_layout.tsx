@@ -21,6 +21,7 @@ export default function Layout() {
             <Stack.Screen name="home" />
             <Stack.Screen name="auth/login/loginPassword" />
             <Stack.Screen name="auth/signup/index" />
+            <Stack.Screen name="auth/signup/premium"/>
             <Stack.Screen name="RelatedNotes/index" />
             <Stack.Screen
               name="settings/index"

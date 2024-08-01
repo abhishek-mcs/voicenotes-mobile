@@ -413,7 +413,7 @@ export default forwardRef(({
     <View>
       <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container, (expand == index && !isSingle) ? { backgroundColor: '#f7f7f7', borderRadius: isSubnote ? 12 : 0, } : {}]}>
         {!isSubnote && (index == 0 || (index != 0 && !isSameDay(note?.created_at, list[index - 1]?.created_at))) &&
-          <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
+          <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>}
         <View style={{ flexDirection: "row" }}>
           <View style={[{ alignItems: 'flex-start' }]}>
             {audioLoading == index ?
@@ -735,7 +735,7 @@ export default forwardRef(({
                       : note?.related_notes?.map((item: any) => {
                         return (
                           <Touchable onPress={() => { router.push({ pathname: "/RelatedNotes/", params: { id: item?.id } }); }} activeOpacity={0.6} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                            <Text style={{ color: Colors.grey3, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 8 }}>{formatDate(item?.created_at, false, true)}</Text>
+                            <Text style={{ color: Colors.grey3, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 8 }}>{formatDate(item?.recorded_at, false, true)}</Text>
                             <Text style={{ color: Colors.black2, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 1.6 }} numberOfLines={1}>{item?.title}</Text>
                           </Touchable>
                         )
@@ -748,7 +748,7 @@ export default forwardRef(({
                 <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i} />
               ))}
               <View style={{ flex: 1, alignItems: 'flex-end', marginTop: 8 }}>
-                <Text style={{ color: Colors.grey3, fontFamily: 'Primary', fontSize: 10 }}>{formatDateTime(note?.created_at)}</Text>
+                <Text style={{ color: Colors.grey3, fontFamily: 'Primary', fontSize: 10 }}>{formatDateTime(note?.recorded_at)}</Text>
               </View>
             </>}
           </View>
