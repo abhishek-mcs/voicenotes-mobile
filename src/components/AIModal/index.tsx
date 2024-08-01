@@ -28,7 +28,7 @@ import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
 import chatLoader from "assets/lottie/chatLoader.json";
-import { isIOS, screenHeight, screenWidth } from "utils/common";
+import { isAndroid, isIOS, screenHeight, screenWidth } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
@@ -90,6 +90,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const [audioLoader,setAudioLoader]=useState(false);
   const soundRef = useRef<any>(null);
+  const textInputRef = useRef<TextInput>(null);
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -116,8 +117,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
     );
-    const keyboardHide = Keyboard.addListener("keyboardWillHide", () =>
+    const keyboardHide = Keyboard.addListener("keyboardWillHide", () =>{
       setKeyboardShown(false)
+      isAndroid&&textInputRef?.current?.blur();
+    }
     );
     return () => {
       keyboardShown.remove();
@@ -403,6 +406,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
           <View style={styles.inputContainer}>
             {!isRecording?<>
             <TextInput
+              ref={textInputRef}
               onTouchStart={e=>e?.stopPropagation()}
               onFocus={()=>scrollToEnd()}
               style={styles.input}

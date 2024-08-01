@@ -74,6 +74,7 @@ import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
+import { setEditNote } from "redux/reducers/editStates";
 
 const NotePreview = forwardRef(
   (
@@ -164,6 +165,7 @@ const NotePreview = forwardRef(
     const closeAddMenu = () => setShowAddMenu(false);
 
     const onEdit = () => {
+      dispatch(setEditNote(note))
       // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
       router.navigate({
         pathname: "/edit-note/",
@@ -351,7 +353,7 @@ const NotePreview = forwardRef(
       await play?.unloadAsync();
     };
 
-    const onPlaySet = async (uri) => {
+    const onPlaySet = async (uri:any) => {
       console.log({ uri });
       try {
         setIsPlay(index);
@@ -410,7 +412,7 @@ const NotePreview = forwardRef(
                     }
                   );
 
-                  const { uri } = await downloadResumable.downloadAsync();
+                  const { uri }:any = await downloadResumable.downloadAsync();
                   console.log("downloaded!");
 
                   console.log({ uri });
@@ -527,7 +529,7 @@ const NotePreview = forwardRef(
               console.log(`Download progress: ${progress * 100}%`);
             }
           );
-          const { uri } = await downloadResumable.downloadAsync();
+          const { uri }:any = await downloadResumable.downloadAsync();
           fileUri = uri;
         }
 
@@ -565,7 +567,7 @@ const NotePreview = forwardRef(
       }
     };
 
-    const MenuItemContent = ({ icon, text }) => (
+    const MenuItemContent = ({ icon, text }:any) => (
       <View style={styles.menuItemContent}>
         <SvgXml xml={icon} />
         <Text style={styles.menuItemText}>{text}</Text>
@@ -651,7 +653,7 @@ const NotePreview = forwardRef(
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.buttonContainer}
         >
-          {getButtonsBasedOnStatus(note?.status).map((button, index) =>
+          {getButtonsBasedOnStatus(note?.status).map((button:any, index) =>
             button.type === "menu" ? (
               button.function()
             ) : (
@@ -988,6 +990,7 @@ const NotePreview = forwardRef(
             setExpand={setExpand}
             expand={expand}
             hashFilter={hashFilter}
+            onUploadRetry={onUploadRetry}
           />
         )}
       </View>

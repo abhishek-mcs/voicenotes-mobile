@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Touchable from 'components/common/Touchable';
 import Colors from 'assets/Colors';
 import { isIOS } from 'utils/common';
+import { useQueryClient } from 'react-query';
 
 const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
   return (
@@ -36,6 +37,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   isVisible,
   onClose
 }) => {
+  const queryClient = useQueryClient();
   const [url, setUrl] = React.useState('');
   const [isSaving, setIsSaving] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -96,6 +98,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       }
       onAttachmentUpdate();
       onClose();
+      queryClient.resetQueries('single-recording');
     } catch (error) {
       console.error("Error saving link:", error);
     }finally{

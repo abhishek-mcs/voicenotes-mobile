@@ -61,7 +61,7 @@ export default ({
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 600000 && !!token) {
+          } else if (newDuration >= 1200000 && !!token) {
             onStopRecord(newDuration, true);
             return 0;
           }
@@ -70,7 +70,7 @@ export default ({
       }, 1000);
 
     }
-  }, [recEnabled, token, userDetails?.subscription_status,paused]);
+  }, [recEnabled, token, userDetails?.subscription_status,paused,onStopRecord]);
 
   const onPauseClick = () => {
     onPause(!paused);

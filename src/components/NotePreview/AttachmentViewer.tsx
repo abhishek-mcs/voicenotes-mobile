@@ -19,6 +19,9 @@ import { SvgXml } from "react-native-svg";
 import { notePreviewSVG } from "assets/svg/notePreviewSVG";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { ATTACHMENT_TYPE } from "types";
+import { Portal } from "@gorhom/portal";
+import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import { screenHeight } from "utils/common";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -27,20 +30,20 @@ const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const fullScreenListRef = useRef(null);
-  const thumbnailListRef = useRef(null);
-
-  const imageAttachments = attachments.filter(
-    (a) => a.type === ATTACHMENT_TYPE.IMAGE
+  const thumbnailListRef = useRef<FlatList>(null);
+  const imageAttachments:any = attachments.filter(
+    (a:any) => a.type === ATTACHMENT_TYPE.IMAGE
   );
   const linkAttachments = attachments.filter(
-    (a) => a.type === ATTACHMENT_TYPE.LINK
+    (a:any) => a.type === ATTACHMENT_TYPE.LINK
   );
 
   useEffect(() => {
-    if (imageAttachments.some(img => img.is_uploading) && thumbnailListRef.current) {
-      thumbnailListRef.current.scrollToEnd({ animated: true });
+    if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
+      thumbnailListRef?.current?.scrollToEnd({ animated: true });
     }
   }, [imageAttachments]);
 
@@ -74,7 +77,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   }, [deleteAttachment]);
 
   const renderImageThumbnail = useCallback(
-    ({ item, index }) => (
+    ({ item, index }:any) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
         <View style={styles.thumbnailContainer}>
           <Image
@@ -97,7 +100,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 
   const renderLinkItem = useCallback(
-    ({ item }) => (
+    ({ item }:any) => (
       <View style={styles.linkContainer} key={item.id?.toString()}>
         <TouchableOpacity
           style={styles.linkContent}
@@ -132,7 +135,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 
   const renderFullScreenImage = useCallback(
-    ({ item }) => (
+    ({ item }:any) => (
       <View style={styles.fullScreenImageContainer}>
         <Image
           source={{ uri: item.url }}
@@ -151,16 +154,24 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     []
   );
 
-  const handleFullScreenScroll = useCallback((event) => {
+  const handleFullScreenScroll = useCallback((event:any) => {
     const slideIndex = Math.round(
       event.nativeEvent.contentOffset.x / SCREEN_WIDTH
     );
-    setSelectedImageIndex(slideIndex);
+    // setSelectedImageIndex(slideIndex);
+  }, []);
+
+  const onClose=()=>{setSelectedImageIndex(null)}
+
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      onClose();
+    } else if (index === 0) {
+    }
   }, []);
 
   return (
-    <>
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="never">
       {imageAttachments.length > 0 && (
         <View>
           <FlatList
@@ -180,17 +191,24 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         </View>
       )}
 
-      <Modal
-        visible={selectedImageIndex !== null}
-        transparent={true}
-        onRequestClose={() => setSelectedImageIndex(null)}
+      <Portal>
+      <BottomSheet
+        style={styles.bottomSheet}
+        ref={bottomSheetRef}
+        handleComponent={null}
+        backgroundComponent={(props: BottomSheetBackdropProps) => <View/>}
+        index={selectedImageIndex !== null ? 0:-1}
+        snapPoints={[screenHeight]}
+        onChange={handleSheetChanges}
+        enablePanDownToClose
+        onClose={onClose}
       >
         <View style={styles.modalContainer}>
           <FlatList
             ref={fullScreenListRef}
             data={imageAttachments}
             renderItem={renderFullScreenImage}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item:any) => item?.id.toString()}
             horizontal
             pagingEnabled
             initialScrollIndex={selectedImageIndex}
@@ -211,29 +229,35 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => handleDeletePress(imageAttachments[selectedImageIndex].id, 'image')}
+                onPress={() => selectedImageIndex&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
               >
                 <SvgXml xml={notePreviewSVG.delete}/>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() => setSelectedImageIndex(null)}
+                onPress={() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}}
               >
                 <SvgXml xml={notePreviewSVG.close}/>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-
-      </Modal>
+      </BottomSheet>
+      </Portal>
     </ScrollView>
 </>
   );
 };
 
 const styles = StyleSheet.create({
+  bottomSheet: {
+    flex:1,
+    // height:screenHeight,
+    backgroundColor:'rgba(0,0,0,0.7)'
+  },
   container: {
-    marginTop: 10,
+    flex:1,
+    marginTop:10,
   },
   sectionTitle: {
     fontSize: 18,

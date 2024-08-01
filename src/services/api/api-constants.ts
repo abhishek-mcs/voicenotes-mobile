@@ -83,9 +83,7 @@ const ENVURLSet: ENVURLs = {
 //     ? Environment.stage
 //     : Environment.production
 
-const currentENV_NAME:string = process.env.EXPO_PUBLIC_ENVIRONMENT ?? "production";
-const currentENV = ENVURLSet[currentENV_NAME];
-console.log("Current Env = ", currentENV_NAME);
+const currentENV = ENVURLSet.production;
 const ota=".2"
 const currentVersion = Application.nativeApplicationVersion+ota
 
