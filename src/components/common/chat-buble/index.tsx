@@ -17,13 +17,13 @@ const ChatBubble = ({
 }: {
   delay?: number;
   message: string;
-  style: TextStyle;
-  triggerAnimation: number;
-  disableGenerating: () => void;
+  style?: TextStyle;
+  triggerAnimation?: number;
+  disableGenerating?: () => void;
   continueGenerating?: boolean;
   showCursorAtEnd ?:boolean;
   lines?: number;
-  cursorSvg: string;
+  cursorSvg?: string;
 }) => {
   const [displayedMessage, setDisplayedMessage]: any = useState("");
   const containsHTML = (str: string) => {

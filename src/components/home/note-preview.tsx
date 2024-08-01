@@ -921,7 +921,7 @@ const NotePreview = forwardRef(
                 <AttachmentViewer
                   attachments={attachments}
                   onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-                  onEditLink={(linkItem) => {
+                  onEditLink={(linkItem:any) => {
                     setShowLinkEditModal(true);
                     setEditingLink(linkItem);
                   }}
@@ -1065,6 +1065,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryWithOpacity(0.1),
     marginTop: 8,
     // flex: 1,
+  },
+  menuAttachIOS:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
+    marginTop: 40
+  },
+  menuAttachAndroid:{
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop:6,
+  },
+  menuIOS:{
+    marginTop:40,
+    borderRadius: 12,
+    paddingBottom: 0
   },
 });
 
