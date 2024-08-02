@@ -17,6 +17,7 @@ import { useQueryClient } from "react-query"
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates"
 import { analytics } from "../../../firebaseConfig"
 import { commonSvg } from "assets/svg/commonSvg"
+import { AppEventsLogger } from "react-native-fbsdk-next"
 
 const premium = require('../../assets/images/premium.png')
 
@@ -58,10 +59,31 @@ export default (props:any) => {
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
         // Unlock that great "pro" content
         dispatch(setTempIsIAPPurchased(true))
+        try {
+          analytics()
+            .logEvent(
+              selected == "monthly"
+                ? "monthly_subscription_success"
+                : "lifetime_purchase_success"
+            )
+            AppEventsLogger.logPurchase(
+              selected == "monthly"
+                ? pack[1]?.product?.price || 10
+                : pack[0]?.product?.price || 50,
+              pack[1]?.product?.currencyCode || "USD",
+              {
+                fb_currency:
+                  selected == "monthly"
+                    ? pack[1]?.product?.priceString || "$10.00"
+                    : pack[0]?.product?.priceString || "$50.00",
+                _eventName:
+                  selected == "monthly" ? "Monthly Subscription" : "Lifetime",
+              }
+            );
+        } catch {}
         router?.back();
         router?.back();
         await queryClient.invalidateQueries('user-data');
-        analytics().logEvent(selected=='monthly'?'monthly_subscription_success':'lifetime_purchase_success').catch(e=>{})
       }
     } catch (e:any) {
       if (!e.userCancelled) {

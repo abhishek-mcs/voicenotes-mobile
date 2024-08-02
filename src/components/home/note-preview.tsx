@@ -413,7 +413,7 @@ export default forwardRef(({
     <View>
       <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container, (expand == index && !isSingle) ? { backgroundColor: '#f7f7f7', borderRadius: isSubnote ? 12 : 0, } : {}]}>
         {!isSubnote && (index == 0 || (index != 0 && !isSameDay(note?.created_at, list[index - 1]?.created_at))) &&
-          <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>}
+          <Text style={styles.date}>{formatDate(note?.created_at)}</Text>}
         <View style={{ flexDirection: "row" }}>
           <View style={[{ alignItems: 'flex-start' }]}>
             {audioLoading == index ?
@@ -423,7 +423,7 @@ export default forwardRef(({
               </Touchable>}
             <View style={styles.timeLine} />
           </View>
-          <View style={{ marginLeft: 9, flex: 1, marginTop: -3 }}>
+          <View style={{ marginLeft: 8, flex: 1, marginTop: -3 }}>
             {(!!note?.title&&note?.title?.length>0&&titleLoading==false) ?
               // <Touchable onPress={()=>{
               //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
@@ -483,7 +483,7 @@ export default forwardRef(({
                 <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.row, { paddingTop: 16, paddingBottom: 4, paddingLeft: 0,marginLeft:-3 }]}>
+                contentContainerStyle={[styles.row, { paddingTop: 16, paddingBottom: 4, paddingLeft: 1 }]}>
                   {hashFilter != 'shared' &&
                     <>
                     { <Menu
@@ -533,7 +533,7 @@ export default forwardRef(({
                       {
                         <Menu
                           visible={createOption}
-                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} />}
+                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} style={{paddingHorizontal:6}}/>}
                           onRequestClose={hideCreateOption}
                           style={isIOS?styles.menuIOS:styles.menu}
                           animationDuration={150}
@@ -575,7 +575,7 @@ export default forwardRef(({
                             </View>
                           </MenuItem>
                         </Menu>}
-                      <NoteButtons icon={home.share1} text="Share" onPress={onShareNote} />
+                      {/* <NoteButtons icon={home.share1} text="Share" onPress={onShareNote} /> */}
                     </>
                     
                     }
@@ -592,10 +592,16 @@ export default forwardRef(({
                     >
                       {hashFilter != 'shared' ?
                         <>
-                          <MenuItem style={styles.menuItem} onPress={() => onCopy(note?.transcript ?? '')}>
+                          <MenuItem style={[styles.menuItem,{paddingTop:4}]} onPress={() => onCopy(note?.transcript ?? '')}>
                             <View style={styles.row}>
                               <SvgXml xml={home.copy} />
                               <Text style={styles.menuItemTxt}>Copy note</Text>
+                            </View>
+                          </MenuItem>
+                          <MenuItem style={styles.menuItem} onPress={onShareNote}>
+                            <View style={[styles.row]}>
+                              <SvgXml xml={home.share1} />
+                              <Text style={styles.menuItemTxt}>Get shareable link</Text>
                             </View>
                           </MenuItem>
                           <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
@@ -735,7 +741,7 @@ export default forwardRef(({
                       : note?.related_notes?.map((item: any) => {
                         return (
                           <Touchable onPress={() => { router.push({ pathname: "/RelatedNotes/", params: { id: item?.id } }); }} activeOpacity={0.6} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                            <Text style={{ color: Colors.grey3, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 8 }}>{formatDate(item?.recorded_at, false, true)}</Text>
+                            <Text style={{ color: Colors.grey3, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 8 }}>{formatDate(item?.created_at, false, true)}</Text>
                             <Text style={{ color: Colors.black2, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 1.6 }} numberOfLines={1}>{item?.title}</Text>
                           </Touchable>
                         )
@@ -748,7 +754,7 @@ export default forwardRef(({
                 <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.created_at} content={itm?.content?.data} key={i} />
               ))}
               <View style={{ flex: 1, alignItems: 'flex-end', marginTop: 8 }}>
-                <Text style={{ color: Colors.grey3, fontFamily: 'Primary', fontSize: 10 }}>{formatDateTime(note?.recorded_at)}</Text>
+                <Text style={{ color: Colors.grey3, fontFamily: 'Primary', fontSize: 10 }}>{formatDateTime(note?.created_at)}</Text>
               </View>
             </>}
           </View>
@@ -782,7 +788,7 @@ const TagsList = ({ note, onPress }: any) =>
   ) : null;
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 18, paddingBottom: 8, paddingTop: 14 },
+  container: { paddingHorizontal: 12, paddingBottom: 8, paddingTop: 14 },
 
  
   attachmentContainer: {

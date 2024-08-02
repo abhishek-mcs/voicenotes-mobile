@@ -326,7 +326,7 @@ export default ()=> {
       <KeyboardAvoidingView behavior={isIOS?"padding":null} style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
       <View style={{ flex: 1}}>
         <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
-          <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:18}}>
+          <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:12}}>
           <Header isLogged={!!token} isOffline={isOffline}/>
           <BannerAlert
             ref={bannerRef}
