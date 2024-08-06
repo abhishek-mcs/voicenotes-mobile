@@ -185,7 +185,7 @@ export default ()=> {
     // let dummyData=generateDummy
     // if(recordingParentId==null){
     const recorded_at = (new Date()).toISOString()
-    const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at}}}
+    const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId||null, recorded_at}}}
     let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
     setGenerateDummy(dummyData)
     !repeat&&setExpandNote(0)
