@@ -88,7 +88,7 @@ export function useUploadRecord(){
 
         formData.append("duration", data.duration.toString());
         formData.append("device_info",JSON.stringify(deviceInfo));
-        // formData.append("recorded_at", data.recorded_at.toString());
+        formData.append("recorded_at", data?.recorded_at?.toString());
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })
