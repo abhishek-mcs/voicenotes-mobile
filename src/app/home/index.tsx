@@ -52,6 +52,7 @@ import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
+import * as FileSystem from 'expo-file-system';
 
 const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
@@ -211,9 +212,15 @@ export default ()=> {
     const d=note?.audio?.data?.duration||0
     const file = note?.audio?.data?.url||"";
     const recorded_at = note?.audio?.data?.recorded_at||"";
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,parent_id: recordingParentId, recorded_at,isRetry:true})
-      .then(()=>resolve('success'))
-      .catch((error)=>reject('error: '+ error))
+    FileSystem.getInfoAsync(file).then(async(tmp) => {
+      if(tmp.exists){
+        await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,parent_id: recordingParentId, recorded_at,isRetry:true})
+          .then(()=>resolve('success'))
+          .catch((error)=>reject('error: '+ error))
+        }else{
+          reject('error: file not found')
+        }
+      })
     })
   }
 
@@ -224,10 +231,15 @@ export default ()=> {
 
       for (let i = temp.length - 1; i >= 0; i--) {
         try {
-          await onUploadRetry(temp[i]);
-          temp.splice(i, 1);
-          setGenerateDummy([...temp]);
-          setUploading(prevUploading => prevUploading - 1);
+          FileSystem.getInfoAsync(temp[i]?.audio?.data?.url).then(async(tmp) => {
+            if(tmp.exists){
+              await onUploadRetry(temp[i]);
+            }
+            temp.splice(i, 1);
+            setGenerateDummy([...temp]);
+            setUploading(prevUploading => prevUploading - 1);
+            setGenerateDummy([...temp]);
+          })
         } catch (error) {
           console.log(`Upload failed for item ${i}:`, error);
           temp[i] = { ...temp[i], isUploading: false };
@@ -259,7 +271,7 @@ export default ()=> {
     }:undefined
   },[])
   
-  const fetchNextPage=() =>recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
+  const fetchNextPage=() =>recordingList?.length>6&&recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
 
   const renderItem = useCallback(
     ({ item, index }: any) => (

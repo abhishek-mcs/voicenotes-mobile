@@ -315,7 +315,6 @@ export function useAskSomething(){
 }
 
 export function useAskAIHistory(tags?:string){
-    const logout =useLogout()
     return useInfiniteQuery(['ask-ai-history'],async ({pageParam=1})=>{
         return await axiosApi.get('/ai-chat-thread');
     },{

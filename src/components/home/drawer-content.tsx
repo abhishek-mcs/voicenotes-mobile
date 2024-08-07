@@ -11,7 +11,6 @@ import { setHashTags,setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { useRouter } from "expo-router";
 import { isIOS, screenHeight } from "utils/common";
-import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
@@ -27,7 +26,6 @@ export default (props:any) => {
   const [showMenu,setShowMenu]=useState(false)
 
   const getTags=useGetTags()
-  const logout=useLogout()
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
 

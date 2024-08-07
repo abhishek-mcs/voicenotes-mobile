@@ -2,6 +2,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
+import { setTempRecordings } from "redux/reducers/recordingStates";
 import { setToken } from "redux/reducers/userDetails";
 import { RootState } from "redux/store/store";
 import { API_URL } from "services/api/api-constants";
@@ -53,13 +54,14 @@ export function useLogout(){
     const dispatch=useDispatch()
     const queryClient=useQueryClient()
     const route = useRouter()
-    const logout=()=>{
-        setAuthToken(guestToken,true)
-        queryClient.resetQueries('all-recording')
-        queryClient.resetQueries('user-data')
-        queryClient.resetQueries('all-tags')
-        dispatch(setToken(''))
-        route.replace("/auth/landingPage/")
+    const logout=async()=>{
+        try{
+            setAuthToken(guestToken,true)
+            queryClient.clear()
+            dispatch(setToken(''))
+            dispatch(setTempRecordings(null))
+            route.replace("/auth/landingPage/")
+        }catch{}
     }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);
@@ -67,7 +69,7 @@ export function useLogout(){
     {
         onSuccess:logout,
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('error logout',error?.response?.data?.message);
             if(error?.response?.data?.message?.includes('Unauthenticated')){
                 logout()
             }
