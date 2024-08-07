@@ -131,7 +131,7 @@ export default (props:any) => {
             <Text style={styles.desc}>Smartest AI models (GPT-4o, Claude Opus)</Text>
           </View>
         <ScrollView style={styles.subContainer} showsVerticalScrollIndicator={false}>
-          <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/>
+          {/* <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer"/> */}
           <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly"/>
           {from=='signup'&&<Btn type="free" price={''} selected={selected=='free'} onPress={()=>setSelected('free')} underlay="#f9f9f9" title="Continue as free"/>}
           <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.primaryWithOpacity(0.8)} title={selected=="free"?"Continue":"Upgrade now"} isLoading={isLoading}/>
