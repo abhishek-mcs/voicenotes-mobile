@@ -406,7 +406,7 @@ export default forwardRef(({
   if(!note) return null
 
   const slug = note.public_slug || ""
-  const tempSub=tempRecordings?.filter((rec:any)=>rec?.audio?.data.parent_id === note?.id).map((el:any)=>({...el, isDummySubnote: true}))
+  const tempSub=tempRecordings?.filter((rec:any)=>(rec?.audio?.data.parent_id &&  (rec?.audio?.data.parent_id === note?.id))).map((el:any)=>({...el, isDummySubnote: true}))
   const tempSubnotes = tempSub?.length>0?tempSub:[]
   if(note.id===undefined && note?.audio?.data?.parent_id&&!note?.isDummySubnote) return null
   return (
