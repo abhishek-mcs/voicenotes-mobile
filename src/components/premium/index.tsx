@@ -26,7 +26,7 @@ export default (props:any) => {
   const {from="home"}=useLocalSearchParams();
   console.log(from)
   const [isLoading,setIsLoading]=useState(false)
-  const [selected, setSelected] = useState('believer')
+  const [selected, setSelected] = useState('monthly')
   const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
   const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
   const pack=IAPOfferings?.availablePackages||[]
