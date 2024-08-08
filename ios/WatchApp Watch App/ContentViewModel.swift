@@ -192,9 +192,6 @@ final class ContentViewModel: ObservableObject {
         }
       }
       
-      // if audio is aploaded then try to delete it from local storage
-//      self.deleteRecording(recording.id)
-      
       if let index = recordings.firstIndex(where: { $0.id == model.recording.recordingId }) {
         withAnimation {
           self.recordings[index].audioData = nil
@@ -247,6 +244,7 @@ final class ContentViewModel: ObservableObject {
         print("Success update recording title")
         var recording = recording
         recording.title = model.recording.title
+        recording.transcript = formatText(text: model.recording.transcript ?? "")
         if let index = recordings.firstIndex(where: { $0.id == listItemId }) {
           withAnimation {
             self.recordings[index] = recording
@@ -541,5 +539,11 @@ final class ContentViewModel: ObservableObject {
     let subscriptionStatus = userDataModel?.subscriptionStatus ?? false
     aiRecordingViewModel.maxRecordingTime = subscriptionStatus ? 20 * 60 : 60
     aiRecordingViewModel.recordButtonTapped()
+  }
+  
+  private func formatText(text: String) -> String {
+    return text.replacingOccurrences(of: "<br>", with: "\n", options: .regularExpression)
+               .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+               .replacingOccurrences(of: "&nbsp;", with: "\n")
   }
 }
