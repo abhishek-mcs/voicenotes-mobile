@@ -900,8 +900,6 @@ const NotePreview = forwardRef(
               {note?.status === "uploading" && (
                 <Text style={{}}>{formattedDuration}</Text>
               )}
-              <View style={{flexDirection:'row'}}>
-              <View style={styles.timeLine}/>
               <View>
               {note?.transcript && !note.is_transcript_loading && (
                 <ChatBubble
@@ -943,7 +941,6 @@ const NotePreview = forwardRef(
                   </Text>
                 </>
               )}
-              </View>
               </View>
             </View>
           </View>
@@ -1063,7 +1060,7 @@ const styles = StyleSheet.create({
   },
   timeLine: {
     width: 1,
-    backgroundColor: Colors.primaryWithOpacity(0.1),
+    backgroundColor: Colors.primaryWithOpacity(1),
     marginTop: 8,
     // flex: 1,
   },
