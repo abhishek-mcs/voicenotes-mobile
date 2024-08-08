@@ -245,7 +245,6 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       </BottomSheet>
       </Portal>
     </ScrollView>
-</>
   );
 };
 

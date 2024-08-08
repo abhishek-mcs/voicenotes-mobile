@@ -544,7 +544,7 @@ export default () => {
               showsVerticalScrollIndicator={false}
               keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
               renderItem={renderItem}
-              onEndReachedThreshold={0.5}
+              onEndReachedThreshold={0.8}
               onEndReached={fetchNextPage}
               onRefresh={onRefresh}
               initialNumToRender={3}

@@ -8,9 +8,9 @@ export const saveVoiceNote = async (data: {
   audio: any;
   duration: number;
   parent_id: string | null;
-  recorded_at: number;
+  recorded_at: number| undefined;
 }) => {
-  const { audio, duration, parent_id, recorded_at } = data;
+  const { audio, duration, parent_id, recorded_at=Date.now() } = data;
   const deviceInfo = {
     platform: Platform.OS,
     manufacturer: Device.manufacturer,
@@ -31,7 +31,7 @@ export const saveVoiceNote = async (data: {
   const filename = uri.split("/").pop();
 
   try {
-    const formData = new FormData();
+    const formData:any = new FormData();
     formData.append("audio", {
       uri: uri,
       name: filename,
