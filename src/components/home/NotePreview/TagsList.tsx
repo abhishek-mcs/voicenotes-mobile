@@ -10,8 +10,8 @@ const TagsList = ({ note, onPress }: any) => {
     note?.tags?.length > 0 && (
       <View style={{ flexWrap: "wrap", flexDirection: "row" }}>
         {note?.tags?.map((tag: any, i: number) => (
-          <Touchable onPress={() => dispatch(setTagsFilter(tag?.name))}>
-            <Text key={i} style={styles.tag} suppressHighlighting>
+          <Touchable key={i} onPress={() => dispatch(setTagsFilter(tag?.name))}>
+            <Text style={styles.tag} suppressHighlighting>
               {"#" + tag?.name}
             </Text>
           </Touchable>

@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate, formatDateTime } from "utils/format-date";
+import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
@@ -848,7 +848,7 @@ const NotePreview = forwardRef(
             isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
-          {!isSubnote && (
+          {!isSubnote && (index == 0 || (index != 0 && !isSameDay(note?.created_at, list[index - 1]?.created_at))) && (
             <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
           )}
           <View style={styles.row}>
@@ -877,7 +877,7 @@ const NotePreview = forwardRef(
                 ) : (
                   <>
                     <View style={{ flex: 1, marginRight: 10 }}>
-                      <ChatBubble cursorSvg={note?.status === 'uploading'?notePreviewSVG.blackCircle : notePreviewSVG.flower} showCursorAtEnd={note?.title === 'New Recording' } message={note?.title} />
+                      <ChatBubble style={styles.title} cursorSvg={note?.status === 'uploading'?notePreviewSVG.blackCircle : notePreviewSVG.flower} showCursorAtEnd={note?.title === 'New Recording' } message={note?.title} />
                     </View>
                     {isNoteExpanded && (
                       <StatusIndicator
@@ -1025,6 +1025,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#222",
     lineHeight: 24,
+    marginTop:-3
   },
   text: {
     fontFamily: "Primary",
