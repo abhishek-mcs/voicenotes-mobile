@@ -83,15 +83,15 @@ const ENVURLSet: ENVURLs = {
 //     ? Environment.stage
 //     : Environment.production
 
-const currentENV = ENVURLSet.production;
-const ota=".2"
+const currentENV = Environment.production;
+const ota=".0"
 const currentVersion = Application.nativeApplicationVersion+ota
 
 
-const MAIN_URL = currentENV.MAIN_URL
-const API_URL = currentENV.API_URL
-const SHORTURL = currentENV.SHORT_URL
-const CDN_URL = currentENV.CDN_URL
+const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
+const API_URL = ENVURLSet[currentENV].API_URL
+const SHORTURL = ENVURLSet[currentENV].SHORT_URL
+const CDN_URL = ENVURLSet[currentENV].CDN_URL
 
 
 const iosGoogleClientID =

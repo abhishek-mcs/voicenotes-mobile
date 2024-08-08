@@ -5996,6 +5996,11 @@ expo-system-ui@~2.9.4:
     "@react-native/normalize-color" "^2.0.0"
     debug "^4.3.2"
 
+expo-tracking-transparency@~3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/expo-tracking-transparency/-/expo-tracking-transparency-3.3.0.tgz#1ac5294b9553b36a2ad6aeb4894a96aa93fde46b"
+  integrity sha512-aFeDm1Y/4N8CigCdDKQPCIzCMAHDIAhdpb8PopuH1Lz7jtq+K+D2OgAUJsgyI6pyKO/MqcXMsa0s/JkIzi593Q==
+
 expo-updates-interface@~0.15.1:
   version "0.15.3"
   resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-0.15.3.tgz#cdee536dea0a8692833a4d074005bf9c6bbbdd99"
@@ -9449,6 +9454,11 @@ react-native-context-menu-view@^1.16.0:
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.16.0.tgz#50e376ce30bc9b9aa07c0a5b66f1280befcf98f8"
   integrity sha512-zqeOAizM7MVV9o6h/quS0REQikBq3J4BkIRLFygY6RiCjr6rwuzSGkif7JRCHpAQQumSKlLqYl4N2h3AdoIHVg==
+
+react-native-fbsdk-next@^13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-fbsdk-next/-/react-native-fbsdk-next-13.0.0.tgz#d44d29352c2677626479dcd333b7a1671f04a1dc"
+  integrity sha512-Bfe2xFbtBPyX3aCgxb+NBGH9pLvb0NnlUnALkmkIU2++imdJN+aUpXRpMGyGm+OqApAEcELNBytYh9W3anR58g==
 
 react-native-gesture-handler@~2.14.0:
   version "2.14.1"

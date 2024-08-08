@@ -70,6 +70,7 @@ const fadeOut = {
   to: { opacity: 0 },
 };
 
+const KeyboardAvoidView:any = KeyboardAvoidingView;
 
 export default () => {
   const insets = useSafeAreaInsets();
@@ -167,7 +168,7 @@ export default () => {
               })
             );
           } else if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
-            isProcessOver = true;
+            const isProcessOver = true;
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             dispatch(
@@ -472,7 +473,7 @@ export default () => {
   };
 
   const recordingParentNoteName = useMemo(() => {
-    recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
+    return recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
   }, [recordingList, recordingParentId]);
 
   if (!token) return <Redirect href="/auth/landingPage/" />;
@@ -480,10 +481,10 @@ export default () => {
     <SafeAreaView
       style={[styles.container, hideBackground ? styles.hideBg : {}]}
     >
-      <KeyboardAvoidingView
+      <KeyboardAvoidView
         behavior={isIOS ? "padding" : null}
         style={{ flex: 1 }}
-        onTouchStart={(e) => {
+        onTouchStart={(e:any) => {
           setHideSearch(true);
         }}
       >
@@ -628,7 +629,7 @@ export default () => {
           <AIModal ref={AIModalRef} setHideBg={setHideBg} />
           {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoidView>
       <BottomBar
         recordingParentNoteName={recordingParentNoteName}
         setRecordingParentId={setRecordingParentId}

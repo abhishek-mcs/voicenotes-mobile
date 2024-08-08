@@ -6,7 +6,6 @@ import {
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
-import { useLogout } from "queries/auth";
 import {
   SafeAreaView,
   Text,
