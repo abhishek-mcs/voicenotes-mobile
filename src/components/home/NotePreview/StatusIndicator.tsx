@@ -13,7 +13,7 @@ const StatusIndicator = ({
 }) => {
   if (!status || status === "processed") return null;
 
-  const canRetry = status.toLowerCase().trim().includes("failed");
+  const canRetry = status?.toLowerCase()?.trim()?.includes("failed");
 
   return (
     <Touchable
@@ -41,7 +41,7 @@ const formatStatus = (word_with_underscores = "") => {
 };
 
 const getStatusIcon = (status: string) => {
-  switch (status.toLowerCase().trim()) {
+  switch (status?.toLowerCase()?.trim()) {
     case "processing":
     case "uploading":
       return <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.progress} />;

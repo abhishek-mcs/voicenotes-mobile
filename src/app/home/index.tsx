@@ -491,7 +491,7 @@ export default () => {
             <View
               style={{
                 backgroundColor: hideBackground ? "transparent" : "#fff",
-                paddingHorizontal: 18,
+                paddingHorizontal: 12,
               }}
             >
               <Header isLogged={!!token} isOffline={isOffline} />

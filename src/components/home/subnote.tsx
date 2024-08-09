@@ -30,7 +30,7 @@ export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
 
     return (
         <FlatList
-        style={{paddingHorizontal:20}}
+        style={{paddingHorizontal:18}}
         data={list}
         scrollEnabled={false}
         keyExtractor={(itm, i):any => `${itm?.id + "-" + i?.toString()}`}

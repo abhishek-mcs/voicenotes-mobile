@@ -58,7 +58,7 @@ const RelatedNotesList = ({note}:{note: Note}) => {
                           width: screenWidth / 8,
                         }}
                       >
-                        {formatDate(item?.created_at, false, true)}
+                        {formatDate(item?.recorded_at, false, true)}
                       </Text>
                       <Text
                         style={{

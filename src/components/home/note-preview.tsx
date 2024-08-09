@@ -604,11 +604,6 @@ const NotePreview = forwardRef(
           function: renderCreateMenu,
         },
         {
-          text: "Share",
-          onPress: onShareNote,
-          icon: home.share1,
-        },
-        {
           text: "More",
           type: "menu",
           function: renderMoreMenu,
@@ -634,8 +629,8 @@ const NotePreview = forwardRef(
       ];
 
       const getButtonsBasedOnStatus = (status: string) => {
-        status = status.toLowerCase();
-        if(status.includes('failed')) status = 'failed'
+        status = status?.toLowerCase();
+        if(status?.includes('failed')) status = 'failed'
         switch (status) {
           case "uploading":
           case "processing":
@@ -685,6 +680,9 @@ const NotePreview = forwardRef(
       >
         <MenuItem onPress={() => onCopy(note?.transcript ?? "")}>
           <MenuItemContent icon={home.copy} text="Copy note" />
+        </MenuItem>
+        <MenuItem onPress={onShareNote}>
+          <MenuItemContent icon={home.share1} text="Get shareable link" />
         </MenuItem>
         <MenuItem onPress={onGenerateTitle}>
           <MenuItemContent icon={home.generate} text="Regenerate title" />
@@ -848,18 +846,23 @@ const NotePreview = forwardRef(
             isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
-          {!isSubnote && (index == 0 || (index != 0 && !isSameDay(note?.created_at, list[index - 1]?.created_at))) && (
-            <Text style={styles.date}>{formatDate(note?.created_at)}</Text>
-          )}
-          <View style={styles.row}>
-            {audioLoading == index ? (
-              <CircularLoader />
-            ) : (
-              <Touchable onPress={onPlay}>
-                <SvgXml xml={isPlay == index ? home.pause : home.play} />
-              </Touchable>
+          {!isSubnote &&
+            (index == 0 ||
+              (index != 0 &&
+                !isSameDay(note?.recorded_at, list[index - 1]?.recorded_at))) && (
+              <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>
             )}
-
+          <View style={styles.row}>
+            <View>
+              {audioLoading == index ? (
+                <CircularLoader />
+              ) : (
+                <Touchable onPress={onPlay}>
+                  <SvgXml xml={isPlay == index ? home.pause : home.play} />
+                </Touchable>
+              )}
+              <View style={styles.timeLine}/>
+            </View>
             <View style={styles.content}>
               <View
                 style={{
@@ -877,7 +880,16 @@ const NotePreview = forwardRef(
                 ) : (
                   <>
                     <View style={{ flex: 1, marginRight: 10 }}>
-                      <ChatBubble style={styles.title} cursorSvg={note?.status === 'uploading'?notePreviewSVG.blackCircle : notePreviewSVG.flower} showCursorAtEnd={note?.title === 'New Recording' } message={note?.title} />
+                      <ChatBubble
+                        style={styles.title}
+                        cursorSvg={
+                          note?.status === "uploading"
+                            ? notePreviewSVG.blackCircle
+                            : notePreviewSVG.flower
+                        }
+                        showCursorAtEnd={note?.title === "New Recording"}
+                        message={note?.title}
+                      />
                     </View>
                     {isNoteExpanded && (
                       <StatusIndicator
@@ -901,46 +913,46 @@ const NotePreview = forwardRef(
                 <Text style={{}}>{formattedDuration}</Text>
               )}
               <View>
-              {note?.transcript && !note.is_transcript_loading && (
-                <ChatBubble
-                  lines={expand == index ? 10000 : 4}
-                  style={styles.text}
-                  message={note?.transcript
-                    ?.replaceAll(/<br\/?>/g, "\n")
-                    ?.trimEnd()}
-                  continueGenerating={!note?.title}
-                  triggerAnimation={triggerTypingTranscript}
-                  disableGenerating={() => setTriggerTypingTranscript(0)}
-                />
-              )}
+                {note?.transcript && !note.is_transcript_loading && (
+                  <ChatBubble
+                    lines={expand == index ? 10000 : 4}
+                    style={styles.text}
+                    message={note?.transcript
+                      ?.replaceAll(/<br\/?>/g, "\n")
+                      ?.trimEnd()}
+                    continueGenerating={!note?.title}
+                    triggerAnimation={triggerTypingTranscript}
+                    disableGenerating={() => setTriggerTypingTranscript(0)}
+                  />
+                )}
 
-              <TagsList note={note} />
-              {attachments?.length > 0 && (
-                <AttachmentViewer
-                  attachments={attachments}
-                  onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-                  onEditLink={(linkItem:any) => {
-                    setShowLinkEditModal(true);
-                    setEditingLink(linkItem);
-                  }}
-                />
-              )}
-              {expand === index && (
-                <>
-                  {renderButtons()}
-                  <RelatedNotesList note={note} />
-                  {token && (
-                    <CreationsList
-                      note={note}
-                      createType={createType}
-                      creationLoader={creationLoader}
-                    />
-                  )}
-                  <Text style={styles.timestamp}>
-                    {formatDateTime(note?.created_at)}
-                  </Text>
-                </>
-              )}
+                <TagsList note={note} />
+                {attachments?.length > 0 && (
+                  <AttachmentViewer
+                    attachments={attachments}
+                    onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+                    onEditLink={(linkItem: any) => {
+                      setShowLinkEditModal(true);
+                      setEditingLink(linkItem);
+                    }}
+                  />
+                )}
+                {expand === index && (
+                  <>
+                    {renderButtons()}
+                    <RelatedNotesList note={note} />
+                    {token && (
+                      <CreationsList
+                        note={note}
+                        createType={createType}
+                        creationLoader={creationLoader}
+                      />
+                    )}
+                    <Text style={styles.timestamp}>
+                      {formatDateTime(note?.recorded_at)}
+                    </Text>
+                  </>
+                )}
               </View>
             </View>
           </View>
@@ -997,7 +1009,7 @@ const NotePreview = forwardRef(
 
 const styles = StyleSheet.create({
   container: {
-    padding: 18,
+    padding: 12,
     paddingBottom: 8,
   },
   expandedContainer: {
@@ -1060,9 +1072,10 @@ const styles = StyleSheet.create({
   },
   timeLine: {
     width: 1,
-    backgroundColor: Colors.primaryWithOpacity(1),
+    backgroundColor: Colors.primaryWithOpacity(0.1),
     marginTop: 8,
-    // flex: 1,
+    flex: 1,
+    alignSelf: "center",
   },
   menuAttachIOS:{
     borderRadius: 12,
