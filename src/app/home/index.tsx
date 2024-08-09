@@ -37,7 +37,6 @@ import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
-import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import { Text } from "react-native";
 import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
@@ -215,7 +214,6 @@ export default () => {
   useIAPInfo();
   useEffect(() => {
     checkRecordPermission();
-    dispatch(setTempIsIAPPurchased(false));
     NetInfo.addEventListener((state) => {
       setOffline(!state.isConnected);
     });

@@ -81,8 +81,13 @@ export default (props:any) => {
               }
             );
         } catch {}
-        router?.back();
-        router?.back();
+        if(from=="home"){
+          router?.back();
+          router?.back();
+        }else{
+          router.dismissAll()
+          router?.replace("/home/")
+        }
         await queryClient.invalidateQueries('user-data');
       }
     } catch (e:any) {
