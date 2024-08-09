@@ -567,10 +567,10 @@ const NotePreview = forwardRef(
       }
     };
 
-    const MenuItemContent = ({ icon, text }:any) => (
-      <View style={styles.menuItemContent}>
-        <SvgXml xml={icon} />
-        <Text style={styles.menuItemText}>{text}</Text>
+    const MenuItemContent = ({ icon=null, text, style={},textStyle={} }:any) => (
+      <View style={[styles.menuItemContent,style]}>
+        {icon&&<SvgXml xml={icon} style={styles.menuItemIcon}/>}
+        <Text style={[styles.menuItemText,textStyle]}>{text}</Text>
       </View>
     );
 
@@ -580,7 +580,14 @@ const NotePreview = forwardRef(
     };
 
     const renderButtons = () => {
-      const mainButtons = [
+      const mainButtons = hashFilter == "shared" ?
+      [
+        {
+          text: "More",
+          type: "menu",
+          function: renderMoreSharedMenu,
+        },
+      ]:[
         {
           text: "Add",
           onPress: () => setShowAddMenu(true),
@@ -699,6 +706,29 @@ const NotePreview = forwardRef(
       </Menu>
     );
 
+    const renderMoreSharedMenu = () => (
+      <Menu
+        visible={moreOption}
+        onRequestClose={hideMoreOption}
+        style={styles.menuShared}
+        anchor={
+          <NoteButtons
+            text="More"
+            style={{ marginLeft: 0 }}
+            onPress={showMoreOption}
+            icon={home.more}
+          />
+        }
+      >
+        <MenuItem onPress={() => onCopy(note?.transcript ?? "")} pressColor="transparent">
+          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#000'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
+        </MenuItem>
+        <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
+          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#0d0d0d0d'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#222'}]} />
+        </MenuItem>
+      </Menu>
+    );
+
     const renderAddMenu = () => (
       <>
         <Menu
@@ -765,6 +795,7 @@ const NotePreview = forwardRef(
               onPress={showCreateOption}
               disabled={!note?.transcript}
               icon={home.create}
+              style={{paddingHorizontal: 6}}
             />
           }
           animationDuration={150}
@@ -1034,7 +1065,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#222",
     lineHeight: 24,
-    marginTop:-3
+    marginTop: -3,
   },
   text: {
     fontFamily: "Primary",
@@ -1051,17 +1082,40 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 12,
   },
+  menuShared: {
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical:12,
+    height:118,
+    width:160
+  },
   menuItemContent: {
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
     justifyContent: "flex-start",
   },
+  menuItemContentSharedStyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0d0d0d0d",
+    borderRadius: 16,
+    // padding: 12,
+    width:136,
+    justifyContent: "center",
+  },
+  menuItemContentSharedTextStyle: {
+    color: "#fff",
+    fontFamily: "Primary-Medium",
+    fontSize: 14,
+  },
+  menuItemIcon: {
+    marginRight: 8,
+  },
   menuItemText: {
     fontFamily: "Primary",
     fontSize: 14,
     color: "#222",
-    marginLeft: 12,
   },
   timestamp: {
     color: Colors.grey3,
@@ -1077,21 +1131,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: "center",
   },
-  menuAttachIOS:{
+  menuAttachIOS: {
     borderRadius: 12,
     paddingBottom: 0,
-    paddingTop:6,
-    marginTop: 40
+    paddingTop: 6,
+    marginTop: 40,
   },
-  menuAttachAndroid:{
+  menuAttachAndroid: {
     borderRadius: 12,
     paddingBottom: 0,
-    paddingTop:6,
+    paddingTop: 6,
   },
-  menuIOS:{
-    marginTop:40,
+  menuIOS: {
+    marginTop: 40,
     borderRadius: 12,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
 });
 
