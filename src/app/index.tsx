@@ -10,6 +10,8 @@ import * as WebBrowser from 'expo-web-browser';
 import { LogBox, Platform, UIManager } from 'react-native';
 
 LogBox.ignoreLogs(['Require cycle: src']);
+LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new']);
+LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new one before the first began:'])
 
 export {
   ErrorBoundary,

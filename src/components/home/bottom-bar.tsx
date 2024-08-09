@@ -12,7 +12,7 @@ import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 
 interface Props {
-  onRecord: () => void;
+  onRecord: (v:any) => void;
   onStopRecord: (d: number, r?: boolean) => void;
   onAsk: () => void;
   onCreate: () => void;

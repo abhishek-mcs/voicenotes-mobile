@@ -26,256 +26,406 @@ import {
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useAddTranscript, useRecordings, useUploadRecord } from "queries/home";
+import { useAddTranscript, useRecordings } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isIOS, screenHeight } from "utils/common";
-import * as Animatable from "react-native-animatable"
+import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
+import * as Animatable from "react-native-animatable";
 // import AskMeSomething from "components/ask-me-something";
 import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
-import * as Haptics from 'expo-haptics';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import onUploadRecord from "func/home/on-upload-record";
+import * as Haptics from "expo-haptics";
+import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { Text } from "react-native";
 import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import Animated from "react-native-reanimated";
-import { setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
-import NetInfo from '@react-native-community/netinfo';
-import { LayoutAnimation } from "react-native";
+import {
+  setRecordingList,
+  updateRecordingDetails,
+} from "redux/reducers/recordingStates";
+import NetInfo from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
-import { analytics } from "../../../firebaseConfig";
+import { analytics, db } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { saveVoiceNote } from "func/home/uploadAudioFb";
+import { off, onValue, ref, remove } from "firebase/database";
+import {  RecordingStatus,} from "func/firebase/recording-event-listener";
+import axiosApi from "services/api/axios-api";
+import { NewNote, Note } from "types";
+import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
-import * as FileSystem from 'expo-file-system';
 
-const {height}=Dimensions.get('screen')
-const fadeIn={
-  from:{opacity:0},to:{opacity:1}
-}
-const fadeOut={
-  from:{opacity:1},to:{opacity:0}
-}
+const { height } = Dimensions.get("screen");
+const fadeIn = {
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+};
+const fadeOut = {
+  from: { opacity: 1 },
+  to: { opacity: 0 },
+};
 
-export default ()=> {
-  const insets=useSafeAreaInsets()
+const KeyboardAvoidView:any = KeyboardAvoidingView;
+
+export default () => {
+  const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
-  const {hashFilter} = useSelector((state: RootState) => state.hash);
+  const { hashFilter } = useSelector((state: RootState) => state.hash);
   const token = useSelector((state: RootState) => state.userDetails.token);
-  const {canRecord} = useSelector((state: RootState) => state.userDetails);
-  const [expandNote,setExpandNote] = useState(-1)
+  const { canRecord } = useSelector((state: RootState) => state.userDetails);
+  const [expandNote, setExpandNote] = useState(-1);
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
-  const {tempRecordings,recordingList} = useSelector((state: RootState) => state.recordingStates);
+  const { recordingList } = useSelector(
+    (state: RootState) => state.recordingStates
+  );
   const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
-  const [rec, setRec] = useState<Audio.Recording|null>(null);
+  const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const AIModalRef = useRef<any>();
   const CreateModalRef = useRef<any>();
-  const [isPlay,setIsPlay] = useState(-1)
-  const [play,setPlay] = useState<Audio.Sound|null>()
+  const [isPlay, setIsPlay] = useState(-1);
+  const [play, setPlay] = useState<Audio.Sound | null>();
   const [audioLoading, setAudioLoading] = useState(-1);
   const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
-  const [hideSearch,setHideSearch]=useState(true)
-  const [showAskMe,setShowAskMe]=useState(true)
-  const [hideBackground,setHideBg]=useState(false)
-  const [isRefreshing,setRefreshing]=useState(false)
-  const [uploading,setUploading]=useState(0)
-  const [isOffline,setOffline]=useState(false)
-  const [threadIndex,setThreadIndex]=useState(-1)
-  const [recordingParentId,setRecordingParentId]=useState<string|null>(null)
-  const bannerRef=useRef<any>(null)
-
+  const [hideSearch, setHideSearch] = useState(true);
+  const [showAskMe, setShowAskMe] = useState(true);
+  const [hideBackground, setHideBg] = useState(false);
+  const [isRefreshing, setRefreshing] = useState(false);
+  const [isOffline, setOffline] = useState(false);
+  const [recordingParentId, setRecordingParentId] = useState<string | null>(
+    null
+  );
+  const bannerRef = useRef<any>(null);
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
-  
-  const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
-  const uploadRecord = useUploadRecord()
-  const addTranscriptRecord = useAddTranscript(true)
-  const queryClient = useQueryClient();
+  const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
-  const generateDummy=tempRecordings;
+  const dispatchCanRecord = (val: boolean) =>
+    dispatch(setCanRecord(val ?? true));
+
+  const listenToFirebaseStatus = useCallback(
+    (
+      recordingId: string | number,
+      temporaryRecordingId: string | null = null
+    ) => {
+      console.log("listening to firebase");
+      const firebasePath = token
+        ? "processStatuses/recording/"
+        : "processStatuses/guest/recording/";
+      const statusRef = ref(db, firebasePath + recordingId);
+
+      onValue(statusRef, async (snapshot) => {
+        if (snapshot.exists()) {
+          const status = +snapshot.val();
+
+          if (
+            status !== RecordingStatus.TRANSCRIPT_FORMATTED &&
+            status !== RecordingStatus.GENERATE_TITLE_FAILED &&
+            status !== RecordingStatus.UPLOADED_FAILED &&
+            status !== RecordingStatus.AUDIO_UPLOADED
+          ) {
+            return;
+          }
+
+          let updatedStatus = "uploading";
+          if (status === RecordingStatus.AUDIO_UPLOADED) {
+            updatedStatus = "processing";
+            console.log("audio uploaded");
+            dispatch(
+              updateRecordingDetails({
+                recordingId,
+                data: { status: updatedStatus },
+                temporaryRecordingId,
+              })
+            );
+          } else if (status === RecordingStatus.UPLOADED_FAILED) {
+            updatedStatus = "upload_failed";
+            console.log("audio uploaded failed");
+            dispatch(
+              updateRecordingDetails({
+                recordingId,
+                data: { status: updatedStatus },
+                temporaryRecordingId,
+              })
+            );
+          } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
+            updatedStatus = "processing_failed";
+            console.log("title geneation failed;waiting");
+            dispatch(
+              updateRecordingDetails({
+                recordingId,
+                data: { status: updatedStatus },
+                temporaryRecordingId,
+              })
+            );
+          } else if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
+            const isProcessOver = true;
+            console.log("formatted");
+            const updatedNote = await fetchSingleRecording(recordingId);
+            dispatch(
+              updateRecordingDetails({
+                recordingId,
+                data: {
+                  ...updatedNote.data,
+                  status: "processed",
+                  is_transcript_loading: false,
+                },
+              })
+            );
+            console.log("removing firebase listener");
+            await remove(statusRef);
+            off(statusRef);
+            return;
+          }
+        } else {
+          console.log("Snapshot does not exist");
+        }
+      });
+    },
+    [token, dispatch]
+  );
   
-  const setGenerateDummy=(val:any)=>dispatch(setTempRecordings(val))
-  const setReduxRecordingList=(val:any)=>dispatch(setRecordingList(val))
-  
-  const dispatchCanRecord=(val:boolean)=>dispatch(setCanRecord(val??true))
-  
-  // Only dispatch if the recording list has changed
+
   useEffect(() => {
-    const records=recordingQuery?.data?.pages?.flatMap((p: any) =>!!token?(p?.data?.data) :(p?.data)) || []
-    if (JSON.stringify(recordingList) != JSON.stringify(records)&&records?.length>=0) {
-      if(hashFilter!='shared'&&records?.length>0){
-        records[0]?.transcript==null&&(records[0].transcript='');
-        recordingParentId&& records[threadIndex]?.subnotes?.map((itm:any)=>{
-          if(itm?.transcript==null) itm.transcript=''
-        });
-        setReduxRecordingList(records);
-      }else if(hashFilter=='shared'){
-        setReduxRecordingList(records);
+    if (recordingQuery.data) {
+      const serverRecords =
+        recordingQuery.data.pages.flatMap((p) =>
+          token ? p.data.data : p.data
+        ) || [];
+
+      let finalList = combineRecordings(recordingList, serverRecords);
+      dispatch(setRecordingList(finalList));
+    }
+  }, [recordingQuery.data, hashFilter, token, dispatch]);
+
+  const isListEmpty = useMemo(
+    () => recordingList?.length == 0 || null,
+    [recordingList]
+  );
+
+  useIAPInfo();
+  useEffect(() => {
+    checkRecordPermission();
+    NetInfo.addEventListener((state) => {
+      setOffline(!state.isConnected);
+    });
+  }, []);
+
+  const continueProcessing = async (note: Note, is_transcript_only = false) => {
+    try {
+      dispatch(
+        updateRecordingDetails({
+          recordingId: note.id,
+          data: { is_transcript_loading: true },
+        })
+      );
+      console.log("making request");
+      await axiosApi.patch(`/recordings/${note.id}/continue`, {
+        is_transcript_only,
+      });
+      listenToFirebaseStatus(note.id);
+    } catch (error) {
+      console.log("error in queing new transcript: ", error);
+    }
+  };
+
+  const syncUpNote = async (note: Note) => {
+    const retryUpload = async (note: Note) => {
+      console.log("retrying upload for note: ", note.title);
+      uploadVoiceNote(note);
+    };
+
+    const retryProcessing = async (note: Note) => {
+      console.log("retrying processing");
+      if (!note.transcript) {
+        continueProcessing(note);
       }
+    };
+
+    if (
+      note.status === "upload_failed" ||
+      (note.status === "uploading" && (note.recorded_at ?? note.created_at) < Date.now() - 5 * 1000)
+    ) {
+      retryUpload(note);
+    } else if (note.status === "processing_failed") {
+      retryProcessing(note);
     }
-  }, [recordingQuery,hashFilter]);
-  
-  const isListEmpty = recordingList?.length == 0 || null;
+  };
 
-  useIAPInfo()
+  useEffect(() => {
+    if (isOffline) return;
 
-  useEffect(()=>{
-    checkRecordPermission()
-    NetInfo.addEventListener(state => {
-      setOffline(!state.isConnected)
-    })
-  },[])
-
-  useEffect(()=>{
-    if(!isOffline&&!!generateDummy&&generateDummy?.length>0&&uploading==0){
-      batchRetryUpload()
+    const notesToRetry = recordingList.filter(
+      (rec) => rec?.status !== "processed"
+    );
+    console.log({ notesToRetry });
+    for (const note of notesToRetry) {
+      syncUpNote(note);
     }
-  },[isOffline])
-  // setupAudioRec(rec)
+  }, [isOffline]);
 
   const onAsk = () => {
-    CreateModalRef.current?.close()
+    CreateModalRef.current?.close();
     AIModalRef.current?.toggle();
-    AIModalRef.current?.getNewSugg()
+    AIModalRef.current?.getNewSugg();
   };
   const onCreate = () => {
     CreateModalRef.current?.onReset();
-    AIModalRef?.current?.close()
+    AIModalRef?.current?.close();
     CreateModalRef.current?.toggle();
   };
-  const onStartRecord = async({repeat = false, parent_id = null,index=-1}:any) => {
-    if (recEnabled&&!repeat){
-      console.log('Recording already started.');
-      if (parent_id) setRecordingParentId(parent_id)
+  const onStartRecord = async ({
+    repeat = false,
+    parent_id = null,
+    index = -1,
+  }: any) => {
+    if (recEnabled && !repeat) {
+      console.log("Recording already started.");
+      if (parent_id) setRecordingParentId(parent_id);
       return;
     }
-    AIModalRef.current?.close()
-    CreateModalRef.current?.close()
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-    if(!canRecord){
-      bannerRef.current?.show()
-      return
+    AIModalRef.current?.close();
+    CreateModalRef.current?.close();
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => {}
+    );
+    if (!canRecord) {
+      bannerRef.current?.show();
+      return;
     }
-    setThreadIndex(index)
-    setRecordingParentId(parent_id)
+    setRecordingParentId(parent_id);
     onRecord(setRec, setRecEnabled);
-    activateKeepAwakeAsync()
-    analytics().logEvent('started_recording')
+    activateKeepAwakeAsync();
+    analytics().logEvent("started_recording");
   };
-  const onPause = async(paused:boolean) => {
-   paused? await rec?.pauseAsync().finally(()=>{console.log('paused')})
-   :await rec?.startAsync().finally(()=>{console.log('resumed')})
-  };
-  const onStopRecord = useCallback(async(d:number,repeat=false) => {
-    // const file = rec.getURI()||"";
-    setRecEnabled(false);
-    const file = await stopRecording(rec);
-    setRec(null);
-    // let dummyData=generateDummy
-    // if(recordingParentId==null){
-    const recorded_at = (new Date()).toISOString()
-    const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId||null, recorded_at}}}
-    let dummyData=!!generateDummy?[dump,...generateDummy]:[dump]
-    setGenerateDummy(dummyData)
-    !repeat&&setExpandNote(0)
-    // }else{
-      // const dump={isUploading:true,audio:{data:{url:file,duration:d, parent_id: recordingParentId, recorded_at}}}
-      // const dumpData=[...recordingList]
-      // dumpData[threadIndex].subnotes=[...dumpData[threadIndex].subnotes,dump]
-      // setReduxRecordingList([...dumpData])
-    // }
-    repeat&&onStartRecord({repeat: true, parent_id:recordingParentId,index:threadIndex})
-    
 
-    scrollRef&&scrollRef.current?.scrollToOffset({animated: true, offset: 0});
-    await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy:dummyData,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord, parent_id: recordingParentId, recorded_at})
-    await soundRef.current?.unloadAsync()
-    !repeat&&deactivateKeepAwake()
-    analytics().logEvent('completed_recording')
-    setRecordingParentId(null)
-    setThreadIndex(-1)
-  },[generateDummy,rec,recEnabled,soundRef, recordingParentId]);
-  
-  const onUploadRetry = async(note:any) => {
-    return new Promise(async(resolve, reject) => {
-    const d=note?.audio?.data?.duration||0
-    const file = note?.audio?.data?.url||"";
-    const recorded_at = note?.audio?.data?.recorded_at||"";
-    FileSystem.getInfoAsync(file).then(async(tmp) => {
-      if(tmp.exists){
-        await onUploadRecord({setGenerateDummy,setUploading,setReduxRecordingList,recordingList,generateDummy,queryClient,scrollRef,addTranscriptRecord,file,uploadRecord,d,dispatchCanRecord,parent_id: recordingParentId, recorded_at,isRetry:true})
-          .then(()=>resolve('success'))
-          .catch((error)=>reject('error: '+ error))
-        }else{
-          reject('error: file not found')
-        }
+  const onPause = async (paused: boolean) => {
+    paused
+      ? await rec?.pauseAsync().finally(() => {
+          console.log("paused");
+        })
+      : await rec?.startAsync().finally(() => {
+          console.log("resumed");
+        });
+  };
+
+  const uploadVoiceNote = async (note: NewNote) => {
+    const temporaryRecordingId = note.id;
+    dispatch(
+      updateRecordingDetails({
+        recordingId: note.id,
+        data: { status: "uploading" },
+        temporaryRecordingId,
       })
-    })
-  }
+    );
+    try {
+      const response = await saveVoiceNote({
+        audio: note.audio.data.url,
+        duration: note.audio.data.duration,
+        parent_id: note.parent_id ?? null,
+        recorded_at: note.recorded_at,
+      });
+      const recordingId = response.recording.id;
+      listenToFirebaseStatus(recordingId, temporaryRecordingId);
+      setTimeout(() => {
+        console.log("removing old recordings to save memory");
+        removeExtraOldAudios(recordingList, dispatch);
+      }, 2500);
+    } catch (error) {
+      console.log("Error in network upload");
+      dispatch(
+        updateRecordingDetails({
+          recordingId: null,
+          data: { status: "upload_failed" },
+          temporaryRecordingId,
+        })
+      );
+    }
+  };
 
-  const batchRetryUpload = async () => {
-    if (generateDummy && generateDummy.length > 0) {
-      const temp = generateDummy.map((item:any) => ({ ...item, isUploading: true, error: null, is_audio_corrupted: false }));
-      setGenerateDummy([...temp]);
+  const onStopRecord = useCallback(
+    async (duration: any, repeat = false) => {
+      setRecEnabled(false);
+      const uri = await stopRecording(rec);
+      setRec(null);
 
-      for (let i = temp.length - 1; i >= 0; i--) {
-        try {
-          FileSystem.getInfoAsync(temp[i]?.audio?.data?.url).then(async(tmp) => {
-            if(tmp.exists){
-              await onUploadRetry(temp[i]);
-            }
-            temp.splice(i, 1);
-            setGenerateDummy([...temp]);
-            setUploading(prevUploading => prevUploading - 1);
-            setGenerateDummy([...temp]);
-          })
-        } catch (error) {
-          console.log(`Upload failed for item ${i}:`, error);
-          temp[i] = { ...temp[i], isUploading: false };
-          setGenerateDummy([...temp]);
-        }
+      const temporaryRecordingId = Math.random().toString(36).substring(7);
+      const newTemporaryRecording: NewNote = {
+        id: temporaryRecordingId,
+        audio: { data: { url: uri, duration } },
+        isUploading: true,
+        title: `New Recording`,
+        transcript: null,
+        recorded_at: new Date().getTime(),
+        status: "uploading",
+        internalUrl: uri,
+        parent_id: recordingParentId ?? null,
+      };
+
+      if (!recordingParentId) {
+        dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
+      } else {
+        const newRecordingList = recordingList.map((recording) => {
+          if (recording.id === recordingParentId) {
+            return {
+              ...recording,
+              subnotes: [...(recording.subnotes || []), newTemporaryRecording],
+            };
+          }
+          return recording;
+        });
+        dispatch(setRecordingList(newRecordingList));
       }
-    } 
-  };  
 
-  useEffect(()=>{
-    try{
-      if(recordingQuery?.data&&!generateDummy&&recordingQuery?.data?.pages[0]?.data[0]?.transcript==null)
-        recordingQuery.data.pages[0].data.data[0].transcript=''
-    }catch{ }
-  },[generateDummy])
+      if (!repeat) {
+        setExpandNote(0);
+        scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
+      }
 
-  const onCancel = async() => {
-    await cancelRecording(rec,soundRef?.current);
+      // upload a new note
+      await uploadVoiceNote(newTemporaryRecording);
+
+      if (!repeat) deactivateKeepAwake();
+      analytics().logEvent("completed_recording");
+    },
+    [rec, recordingList, dispatch]
+  );
+
+  const onCancel = async () => {
+    await cancelRecording(rec, soundRef?.current);
     setRec(null);
     setRecEnabled(false);
-    analytics().logEvent('cancelled_recording')
+    analytics().logEvent("cancelled_recording");
   };
 
   useEffect(() => {
-    return rec?()=>{
-      cancelRecording(rec,soundRef.current);
-      setRec(null);
-      setRecEnabled(false);
-    }:undefined
-  },[])
-  
-  const fetchNextPage=() =>recordingList?.length>6&&recordingQuery.hasNextPage&&recordingQuery.fetchNextPage()
+    return rec
+      ? () => {
+          cancelRecording(rec, soundRef.current);
+          setRec(null);
+          setRecEnabled(false);
+        }
+      : undefined;
+  }, []);
+
+  const fetchNextPage = () => {
+    console.log("fetching next page");
+    recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
+  };
 
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
-        key={item?.title||item?.transcript}
+        key={item.id ?? item.temporaryRecordingId}
         ref={notePreviewRef}
         note={item}
         index={index}
@@ -286,33 +436,34 @@ export default ()=> {
         setPlay={setPlay}
         audioLoading={audioLoading}
         setAudioLoading={setAudioLoading}
-        onUploadRetry={onUploadRetry}
+        continueProcessing={continueProcessing}
+        syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
-        setExpand={()=>setExpandNote(index==expandNote?-1:index)}
+        setExpand={() => setExpandNote(index == expandNote ? -1 : index)}
         onStartRecord={onStartRecord}
+        listenToFirebaseStatus={listenToFirebaseStatus}
       />
     ),
-    [isPlay,play,recordingList,audioLoading,generateDummy,expandNote]
+    [isPlay, play, audioLoading, expandNote]
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useLayoutAnim([recordingList,generateDummy,isSearchVisible])
+  useLayoutAnim([recordingList, isSearchVisible]);
 
-  const onRefresh=async()=>{
+  const onRefresh = async () => {
     setRefreshing(true);
-    await recordingQuery.refetch()
-    if(!!generateDummy&&generateDummy?.length>0){
-      batchRetryUpload()
-    }
-    setRefreshing(false)
-  }
+    await recordingQuery.refetch();
+    // setIsPlay(-1)
+    // setPlay(null)
+    setRefreshing(false);
+  };
 
-  const handleScroll = (event:any) => {
+  const handleScroll = (event: any) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    if (currentOffset >prevOffset && currentOffset > 0) {
+    if (currentOffset > prevOffset && currentOffset > 0) {
       setIsSearchVisible(false);
     } else if (currentOffset < prevOffset && currentOffset > 10) {
       setIsSearchVisible(true);
@@ -320,84 +471,164 @@ export default ()=> {
     setPrevOffset(currentOffset);
   };
 
-  const renderData = recordingList?.length == 1
-    ? recordingList[0] != undefined
-      ? (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
-      : []
-    : (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
+  const recordingParentNoteName = useMemo(() => {
+    return recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
+  }, [recordingList, recordingParentId]);
 
-  const recordingParentNoteName = renderData.find(note => note?.id === recordingParentId)?.title ?? null
-
-
-  if(!token)
-      return <Redirect href="/auth/landingPage/" />
+  if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
-    <SafeAreaView style={[styles.container,hideBackground?styles.hideBg:{}]}>
-      <KeyboardAvoidingView behavior={isIOS?"padding":null} style={{flex:1}} onTouchStart={e=>{setHideSearch(true);}}>
-      <View style={{ flex: 1}}>
-        <View style={[styles.wrapper,hideBackground?styles.hideBg:{}]}>
-          <View style={{backgroundColor:hideBackground?'transparent':'#fff',paddingHorizontal:12}}>
-          <Header isLogged={!!token} isOffline={isOffline}/>
-          <BannerAlert
-            ref={bannerRef}
-            snackHeight={52}
-            onAction={()=>bannerRef?.current?.close()}
-            actionText="Close"
-            message="Your daily recording limit has been exceeded. Please try again later."
-          />
-          {!isListEmpty&&!!token &&hashFilter!='shared'&& (
-            <Animated.View style={{opacity:hideBackground?0:1,marginTop:isIOS?0:10}} onTouchEnd={()=>!hideBackground&&router.push('/search/')} onTouchStart={(e)=>{e?.stopPropagation();setHideSearch(false)}}>
-              <Animatable.View style={{zIndex:1}} animation={isSearchVisible?fadeIn:fadeOut} duration={40} easing={Easing.ease} useNativeDriver={true}>
-                <SearchBar style={{opacity:1}} hideView={hideSearch} setHide={setHideSearch} isSearchVisible={isSearchVisible}/>
-              </Animatable.View>
-            </Animated.View>
-          )}
-          </View>
-          <FlatList
-            ref={scrollRef}
-            // bounces={false}
-            style={{opacity:hideBackground?0:1,marginTop:12}}
-            data={renderData}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            contentContainerStyle={{ paddingBottom: 300 }}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
-            renderItem={renderItem}
-            onEndReachedThreshold={0.5}
-            onEndReached={fetchNextPage}
-            onRefresh={onRefresh}
-            refreshing={isRefreshing}
-            ListFooterComponent={
-              (!token&&recordingQuery.isFetched)? (
-                <AboutProduct disable={false} />
-              ) : recordingQuery?.isRefetching?
-              <View style={{alignItems:'center',justifyContent:'center',marginTop:20}}>
-                <CircularLoader/>
-              </View>:null
-            }
-            ListEmptyComponent={() => hashFilter=='shared'?
-            <View style={{flexDirection:'row',alignItems:'center',backgroundColor:Colors.darkWithOpacity(0.05),paddingHorizontal:24,paddingVertical:12,borderRadius:12,marginTop:20}}>
-              <SvgXml xml={home.share} />
-              <View style={{marginLeft:16,backgroundColor:'transparent'}}>
-                <Text style={{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:4}}>You haven't shared any notes yet.</Text>
-                <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1)}}>To share a note, just tap ‘... More’ in the notes settings and select ‘Share’</Text>
-              </View>
+    <SafeAreaView
+      style={[styles.container, hideBackground ? styles.hideBg : {}]}
+    >
+      <KeyboardAvoidView
+        behavior={isIOS ? "padding" : null}
+        style={{ flex: 1 }}
+        onTouchStart={(e:any) => {
+          setHideSearch(true);
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <View style={[styles.wrapper, hideBackground ? styles.hideBg : {}]}>
+            <View
+              style={{
+                backgroundColor: hideBackground ? "transparent" : "#fff",
+                paddingHorizontal: 12,
+              }}
+            >
+              <Header isLogged={!!token} isOffline={isOffline} />
+              <BannerAlert
+                ref={bannerRef}
+                snackHeight={52}
+                onAction={() => bannerRef?.current?.close()}
+                actionText="Close"
+                message="Your daily recording limit has been exceeded. Please try again later."
+              />
+              {!isListEmpty && !!token && hashFilter != "shared" && (
+                <Animated.View
+                  style={{
+                    opacity: hideBackground ? 0 : 1,
+                    marginTop: isIOS ? 0 : 10,
+                  }}
+                  onTouchEnd={() => !hideBackground && router.push("/search/")}
+                  onTouchStart={(e) => {
+                    e?.stopPropagation();
+                    setHideSearch(false);
+                  }}
+                >
+                  <Animatable.View
+                    style={{ zIndex: 1 }}
+                    animation={isSearchVisible ? fadeIn : fadeOut}
+                    duration={40}
+                    easing={Easing.ease}
+                    useNativeDriver={true}
+                  >
+                    <SearchBar
+                      style={{ opacity: 1 }}
+                      hideView={hideSearch}
+                      setHide={setHideSearch}
+                      isSearchVisible={isSearchVisible}
+                    />
+                  </Animatable.View>
+                </Animated.View>
+              )}
             </View>
-              :(recordingList?.length==0&&recordingQuery.isLoading)?(
-              <View style={{flex:1,height:height-(insets.top+200),justifyContent:'center',alignItems:'center'}}>
-                <ActivityIndicator size={"small"} color={"#000"}/>
-              </View>
-            ):(recordingList?.length==0&&!!token)?<AboutProduct disable={true} />:null}
-            // automaticallyAdjustKeyboardInsets
-            // keyboardShouldPersistTaps="handled"
+            <FlatList
+              ref={scrollRef}
+              // bounces={false}
+              style={{ opacity: hideBackground ? 0 : 1, marginTop: 12 }}
+              data={recordingList}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              contentContainerStyle={{ paddingBottom: 300 }}
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
+              renderItem={renderItem}
+              onEndReachedThreshold={0.8}
+              onEndReached={fetchNextPage}
+              onRefresh={onRefresh}
+              initialNumToRender={3}
+              refreshing={isRefreshing}
+              ListFooterComponent={
+                !token && recordingQuery.isFetched ? (
+                  <AboutProduct disable={false} />
+                ) : recordingQuery?.isRefetching ? (
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: 20,
+                    }}
+                  >
+                    <CircularLoader />
+                  </View>
+                ) : null
+              }
+              ListEmptyComponent={() =>
+                hashFilter == "shared" ? (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: Colors.darkWithOpacity(0.05),
+                      paddingHorizontal: 24,
+                      paddingVertical: 12,
+                      borderRadius: 12,
+                      marginTop: 20,
+                    }}
+                  >
+                    <SvgXml xml={home.share} />
+                    <View
+                      style={{ marginLeft: 16, backgroundColor: "transparent" }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Primary-Medium",
+                          fontSize: 14,
+                          color: Colors.darkWithOpacity(1),
+                          marginBottom: 4,
+                        }}
+                      >
+                        You haven't shared any notes yet.
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Primary",
+                          fontSize: 12,
+                          color: Colors.darkWithOpacity(1),
+                        }}
+                      >
+                        To share a note, just tap ‘... More’ in the notes
+                        settings and select ‘Share’
+                      </Text>
+                    </View>
+                  </View>
+                ) : recordingList?.length == 0 && recordingQuery.isLoading ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      height: height - (insets.top + 200),
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <ActivityIndicator size={"small"} color={"#000"} />
+                  </View>
+                ) : recordingList?.length == 0 && !!token ? (
+                  <AboutProduct disable={true} />
+                ) : null
+              }
+            />
+          </View>
+          <CreateModal
+            ref={CreateModalRef}
+            recordingList={recordingList}
+            fetchNextPage={fetchNextPage}
+            setHideBg={setHideBg}
           />
+          <AIModal ref={AIModalRef} setHideBg={setHideBg} />
+          {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
         </View>
-        <CreateModal ref={CreateModalRef} recordingList={recordingList} fetchNextPage={fetchNextPage} setHideBg={setHideBg}/>
-        <AIModal ref={AIModalRef} setHideBg={setHideBg}/>
-       {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
-      </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoidView>
       <BottomBar
         recordingParentNoteName={recordingParentNoteName}
         setRecordingParentId={setRecordingParentId}
@@ -414,7 +645,7 @@ export default ()=> {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -422,8 +653,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   wrapper: {
-    // paddingHorizontal: 18,
-    paddingVertical:isIOS?0:32
+    paddingVertical: isIOS ? 0 : 32,
   },
   tab: {
     flexDirection: "row",
@@ -460,5 +690,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: "700",
   },
-  hideBg:{backgroundColor:'#F4F6F6'}
+  hideBg: { backgroundColor: "#F4F6F6" },
 });

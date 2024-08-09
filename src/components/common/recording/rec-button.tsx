@@ -4,7 +4,7 @@ import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
 
  export default ({
-    onPress = () => {},
+    onPress = (v:any) => {},
     icon,
     title = "Ask",
     bgColor = "#2222220D",
@@ -25,7 +25,7 @@ import { isIOS } from "utils/common";
   );
 
 interface BtnProps{
-    onPress: () => void,
+    onPress: (v:any) => void,
     icon?: string,
     title: string,
     bgColor?: string,

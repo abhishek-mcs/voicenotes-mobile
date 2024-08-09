@@ -1,5 +1,7 @@
 import * as Application from "expo-application"
 
+const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 50; // number of audio notes to be cached in device at any given time
+
 enum Environment {
   local = "local",
   rose = "rose",
@@ -85,14 +87,12 @@ const currentENV = Environment.production;
 const ota=".0"
 const currentVersion = Application.nativeApplicationVersion+ota
 
+
 const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
 const API_URL = ENVURLSet[currentENV].API_URL
 const SHORTURL = ENVURLSet[currentENV].SHORT_URL
 const CDN_URL = ENVURLSet[currentENV].CDN_URL
 
-const TWITTER_REQUEST_URL = API_URL + "/api/v1/twitter/request_token"
-const TWITTER_AUTH_URL = "https://api.twitter.com/oauth/authenticate"
-const ELASTIC_SEARCH_URL = "https://elastic.buymeacoffee.com/api/as/v1/engines/coffee/search.json"
 
 const iosGoogleClientID =
   "364915655162-rv9t4rijv08090u74g8qor6lfnolg9lr.apps.googleusercontent.com"
@@ -107,13 +107,11 @@ export {
   API_URL,
   SHORTURL,
   CDN_URL,
-  TWITTER_AUTH_URL,
-  TWITTER_REQUEST_URL,
-  ELASTIC_SEARCH_URL,
   iosGoogleClientID,
   androidGoogleClientID,
   expoClientID,
   facebookAPPID,
   currentENV,
-  currentVersion
+  currentVersion,
+  MAX_NOTES_STORAGE_LIMIT_IN_DEVICE
 }

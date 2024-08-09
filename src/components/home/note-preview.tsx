@@ -1,30 +1,54 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
+import { memo } from "react";
 import Touchable from "components/common/Touchable";
-import { Alert, Animated, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Animated,
+  LayoutAnimation,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
-import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
-import { useAddTitle, useAddTranscript, useCreate, useDeleteRecording, useGetAiCreation, useRecordings, useSaveEditedNote, useSignedUrl, useToggleStar } from "queries/home";
+import {
+  useAddTranscript,
+  useCreate,
+  useDeleteRecording,
+  useSignedUrl,
+  useToggleStar,
+} from "queries/home";
 import { useQueryClient } from "react-query";
 import { setStringAsync } from "expo-clipboard";
-import ChatBuble from "components/common/chat-buble";
+import ChatBubble from "components/common/chat-buble";
 import CircularLoader from "components/common/loaders/circular-loader";
 import AiLoader from "components/common/loaders/ai-loader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS, screenWidth } from "utils/common";
-import { Link, router, useRouter } from "expo-router";
+import {
+  checkFileExists,
+  isIOS,
+  screenWidth,
+  sleep,
+} from "utils/common";
+import {  router, useRouter } from "expo-router";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import AiCreatedView from "./ai-created-view";
 import { setTagsFilter } from "redux/reducers/hashSlice";
 import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
-import * as wb from 'expo-web-browser';
+import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
-import { deleteFromTempRecordings, setRecordingList, setTempRecordings } from "redux/reducers/recordingStates";
+import {
+  deleteRecording,
+  updateRecordingDetails,
+} from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
@@ -33,869 +57,1096 @@ import Subnote from "./subnote";
 import creationContent from "utils/constants/creation-content";
 import { useNetInfo } from "@react-native-community/netinfo";
 import LottieView from "lottie-react-native";
-import threeDotLoader from 'assets/lottie/threeDotLoader.json'
-import threeDotLoader2 from 'assets/lottie/threeDotLoader2.json'
-import { Foundation } from '@expo/vector-icons';
+import threeDotLoader2 from "assets/lottie/threeDotLoader2.json";
+import Toast from "react-native-toast-message";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
+import { Foundation } from "@expo/vector-icons";
 import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
 import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
+import { notePreviewSVG } from "assets/svg/notePreviewSVG";
+import RelatedNotesList from "./NotePreview/RelatedNotesList";
+import CreationsList from "./NotePreview/CreationsList";
+import axiosApi from "services/api/axios-api";
+import StatusIndicator from "./NotePreview/StatusIndicator";
+import TagsList from "./NotePreview/TagsList";
+import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
 
-export default forwardRef(({
-  note,
-  onUploadRetry,
-  hashFilter,
-  expand,
-  setExpand,
-  isSingle = false,
-  isSubnote = false,
-  list, index, isPlay, setIsPlay, play, setPlay, audioLoading, setAudioLoading, hideIcons = false, onDeleteCallBack = () => { },
-  onStartRecord = (obj: {parent_id: string | null, repeat : boolean | null }) => { },
-}: any, ref) => {
-  const route = useRouter()
-  const [moreOption, setMoreOption] = useState(false);
-  const [createOption, setCreateOption] = useState(false);
-  const [shareVisible, setShareVisible] = useState(false);
-  const [isPublished, setIsPublished] = useState(note?.is_published ?? false);
-  const [publishLoading, setPublishLoading] = useState(false);
-  const [isNoteJustMadePrivate, setIsNoteJustMadePrivate] = useState(false);
-  const [creationLoader, setCreationLoader] = useState(false);
-  const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
-  const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
-  const [createType, setCreateType] = useState('summary')
-  const [relatedNoteLoading, setRelatedNoteLoading] = useState(false)
-  const [titleLoading, setTitleLoading] = useState(false)
-  const [uploadLoading, setUploadLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [transcriptLoading, setTranscriptLoading] = useState(false)
-  const [showAddMenu, setShowAddMenu] = useState(false);
-  const [showImagePicker, setShowImagePicker] = useState(false);
-  const [showLinkEditModal, setShowLinkEditModal] = useState(false);
-  const [editingLink, setEditingLink] = useState<{ id: string; url: string } | null>(null);
-  const [attachments, setAttachments] = useState([]);
+const NotePreview = forwardRef(
+  (
+    {
+      note,
+      onUploadRetry,
+      hashFilter,
+      expand,
+      setExpand,
+      isSingle = false,
+      isSubnote = false,
+      list,
+      index,
+      isPlay,
+      setIsPlay,
+      play,
+      setPlay,
+      audioLoading,
+      setAudioLoading,
+      onDeleteCallBack = () => {},
+      continueProcessing = () => {},
+      syncUpNote = () => {},
+      onStartRecord = (obj: {
+        parent_id: string | null;
+        repeat: boolean | null;
+      }) => {},
+    }: any,
+    ref
+  ) => {
+    const route = useRouter();
+    const [moreOption, setMoreOption] = useState(false);
+    const [createOption, setCreateOption] = useState(false);
+    const [shareVisible, setShareVisible] = useState(false);
+    const [isPublished, setIsPublished] = useState(note?.is_published ?? false);
+    const [publishLoading, setPublishLoading] = useState(false);
+    const [isNoteJustMadePrivate, setIsNoteJustMadePrivate] = useState(false);
+    const [creationLoader, setCreationLoader] = useState(false);
+    const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
+    const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
+    const [createType, setCreateType] = useState("summary");
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [showAddMenu, setShowAddMenu] = useState(false);
+    const [showImagePicker, setShowImagePicker] = useState(false);
+    const [showLinkEditModal, setShowLinkEditModal] = useState(false);
+    const [editingLink, setEditingLink] = useState<{
+      id: string;
+      url: string;
+    } | null>(null);
+    const [attachments, setAttachments] = useState([]);
 
-  const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
-  const { token } = useSelector((state: RootState) => state.userDetails)
-  const { tempRecordings } = useSelector((state: RootState) => state.recordingStates);
+    const { token } = useSelector((state: RootState) => state.userDetails);
+    const { tempRecordings } = useSelector(
+      (state: RootState) => state.recordingStates
+    );
 
-  const queryClient = useQueryClient();
-  const deleteRecord = useDeleteRecording(note?.id)
-  const addTitleRecord = useAddTitle()
-  const signedURL = useSignedUrl()
-  const createAI = useCreate()
-  const addTranscript = useAddTranscript()
-  const unPublishRecording = useUnpublishRecording()
-  const relatedNotes = useGetRelatedRecording(index ?? 0)
-  const NetInfo = useNetInfo()
+    const queryClient = useQueryClient();
+    const deleteRecord = useDeleteRecording(note?.id);
+    // const addTitleRecord = useAddTitle();
+    const getSignedURL = useSignedUrl();
+    const createAI = useCreate();
+    const addTranscript = useAddTranscript();
+    const unPublishRecording = useUnpublishRecording();
+    const relatedNotes = useGetRelatedRecording(index ?? 0);
+    const NetInfo = useNetInfo();
 
-  const isUploadingFailed = (!!note?.audio?.data?.url && note.isUploading == false)
+    const isUploadingFailed =
+      !!note?.audio?.data?.url && note.isUploading == false;
 
-  useEffect(() => {
-    if (triggerTypingTranscript == 0 && !note?.transcript)
-      setTriggerTypingTranscript(2)
-  }, [note?.transcript])
+    useEffect(() => {
+      if (triggerTypingTranscript == 0 && !note?.transcript)
+        setTriggerTypingTranscript(2);
+    }, [note?.transcript]);
 
-  useEffect(() => {
-    if (triggerTypingTitle == 0 && !note?.title)
-      setTriggerTypingTitle(2)
-  }, [note?.title])
+    useEffect(() => {
+      if (triggerTypingTitle == 0 && !note?.title) setTriggerTypingTitle(2);
+    }, [note?.title]);
 
-  useEffect(()=>{
-    setAttachments(note?.attachments)
-  },[note?.attachments])
+    useEffect(() => {
+      setAttachments(note?.attachments);
+    }, [note?.attachments]);
 
-  const hideMoreOption = () => setMoreOption(false);
-  const showMoreOption = () => setMoreOption(true);
-  const hideCreateOption = () => setCreateOption(false);
-  const showCreateOption = () => setCreateOption(true);
-  const closeAddMenu = ()=>setShowAddMenu(false)
+    const hideMoreOption = () => setMoreOption(false);
+    const showMoreOption = () => setMoreOption(true);
+    const hideCreateOption = () => setCreateOption(false);
+    const showCreateOption = () => setCreateOption(true);
+    const closeAddMenu = () => setShowAddMenu(false);
 
-  const onEdit = () =>{
-    dispatch(setEditNote(note))
-    // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
-    router.navigate({ pathname: '/edit-note/', params: { index, id: note?.id} })
+    const onEdit = () => {
+      dispatch(setEditNote(note))
+      // router.navigate({ pathname: '/edit-note/', params: { note:JSON.stringify(note) ,index} })
+      router.navigate({
+        pathname: "/edit-note/",
+        params: { index, id: note?.id },
+      });
+    };
+    const onGotoAddTag = () => {
+      hideMoreOption();
+      setTimeout(() => {
+        const tags = note?.tags?.flatMap((tag: any) => tag?.name);
+        route.push({
+          pathname: "/add-tags/",
+          params: { tagsArray: JSON.stringify(tags), recording_id: note?.id },
+        });
+      }, 500);
+    };
 
-  }
-  const onGotoAddTag = () => {
-    hideMoreOption()
-    setTimeout(() => {
-      const tags = note?.tags?.flatMap((tag: any) => tag?.name)
-      route.push({ pathname: "/add-tags/", params: { tagsArray: JSON.stringify(tags), recording_id: note?.id } })
-    }, 500);
-  }
+    const getCreation = async (id: number) => {
+      await queryClient.refetchQueries("all-recording");
+      isSingle && (await queryClient.resetQueries("single-recording"));
+      setCreationLoader(false);
+    };
 
-  const getCreation = async (id: number) => {
-    await queryClient.refetchQueries('all-recording')
-    isSingle && await queryClient.resetQueries('single-recording')
-    setCreationLoader(false)
-  }
-
-  const onCreate = async (type = 'summary') => {
-    setCreateType(type)
-    setCreationLoader(true)
-    hideCreateOption()
-    await createAI.mutateAsync({ recording_id: note?.id, type }, {
-      onSuccess: async (r) => {
-        await listenAiCreate({ id: r?.data?.id, getCreation })
-      },
-      onError: () => setCreationLoader(false)
-    })
-  }
-
-  const onGenerateTitle = async () => {
-    setTitleLoading(true)
-    hideMoreOption();
-    // dispatch(updateTitle({title:'',index}))
-    await addTitleRecord.mutateAsync(note?.id)
-    setTitleLoading(false)
-  }
-
-  const onReGenerateTranscript = async () => {
-    setTranscriptLoading(true)
-    hideMoreOption();
-    // dispatch(updateTranscript({transcript:'',index}))
-    await addTranscript.mutateAsync(note?.id)
-    setTranscriptLoading(false)
-  }
-
-  const onRetry = async () => {
-    if (isUploadingFailed) {
-      setUploadLoading(true)
-      await onUploadRetry(note).catch(() => {
-        const temp = [...tempRecordings]
-        temp[index] = { ...temp[index], isUploading: false, is_audio_corrupted: false, error: null}
-        dispatch(setTempRecordings([...temp]))
-      })
-      setUploadLoading(false)
-    } else {
-      console.warn('Retry transcript')
-      setTranscriptLoading(true)
-      // dispatch()
-      await addTranscript.mutateAsync(note?.id, {
-        onSuccess: async () => {
-          setTranscriptLoading(false)
-          await addTitleRecord.mutateAsync(note?.id)
-        },
-        onError: () => {
-          setTranscriptLoading(false)
-        }
-      }).catch(() => {
-        setTranscriptLoading(false)
-      })
-    }
-  }
-  
-  const togglePublish = () => {
-    const wasPublic = note?.public_slug;
-
-    try {
-      setPublishLoading(true);
-      moreOption && hideMoreOption();
-      unPublishRecording.mutate(
-        { id: note?.id },
+    const onCreate = async (type = "summary") => {
+      setCreateType(type);
+      setCreationLoader(true);
+      hideCreateOption();
+      await createAI.mutateAsync(
+        { recording_id: note?.id, type },
         {
           onSuccess: async (r) => {
-            try {
-              setShareVisible(false)
-              setTimeout(() => {
-                if (wasPublic) {
-                  setIsNoteJustMadePrivate(true);
-                } else {
-                  setIsNoteJustMadePrivate(false);
-                }
-                setIsPublished((t:any)=>!t)
-              }, 50);
-              await queryClient.invalidateQueries('all-recording')
-            } catch (e) {
-              console.info("error in toggle publish", e);
-            } finally {
-              setPublishLoading(false);
-              setTimeout(() => {
-                setShareVisible(true)
-              }, 50);
-            }
+            await listenAiCreate({ id: r?.data?.id, getCreation });
           },
+          onError: () => setCreationLoader(false),
         }
       );
-    } catch (e) {
-      console.log(e);
-    }
-  };
+    };
 
-  const onPrivateOk = () => {
-    setShareVisible(false);
-    setTimeout(() => {
-      setIsNoteJustMadePrivate(false)
-    }, 50);
-  }
+    const onGenerateTitle = async () => {
+      hideMoreOption();
+      await sleep(0.5);
+      dispatch(
+        updateRecordingDetails({
+          recordingId: note.id,
+          data: { is_title_loading: true },
+        })
+      );
 
-  const onShareNote = () => {
-    hideMoreOption();
-    setTimeout(() => {
-      setShareVisible(true)
-    }, 500);
-  }
+      try {
+        const resp = await axiosApi.patch(`/recordings/${note.id}/title`);
+        const title = resp.data?.recording?.title;
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { is_title_loading: false, title },
+          })
+        );
+      } catch (error) {
+        console.log("error in dispatching: ", error);
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { error_loading_title: error, is_title_loading: false },
+          })
+        );
+      }
+    };
 
-  const onCopy = async (content = '') => {
-    hideMoreOption();
-    await setStringAsync(content);
-    setShareVisible(false)
-  }
-  const onDelete = () => {
-    hideMoreOption();
-    if (note.subnotes?.length) {
+    const onReGenerateTranscript = async () => {
+      hideMoreOption();
+      await sleep(0.5);
+      continueProcessing(note, true);
+    };
+
+    const togglePublish = () => {
+      const wasPublic = note?.public_slug;
+
+      try {
+        setPublishLoading(true);
+        moreOption && hideMoreOption();
+        unPublishRecording.mutate(
+          { id: note?.id },
+          {
+            onSuccess: async (r) => {
+              try {
+                setShareVisible(false);
+                setTimeout(() => {
+                  if (wasPublic) {
+                    setIsNoteJustMadePrivate(true);
+                  } else {
+                    setIsNoteJustMadePrivate(false);
+                  }
+                  setIsPublished((t: any) => !t);
+                }, 50);
+                await queryClient.invalidateQueries("all-recording");
+              } catch (e) {
+                console.info("error in toggle publish", e);
+              } finally {
+                setPublishLoading(false);
+                setTimeout(() => {
+                  setShareVisible(true);
+                }, 50);
+              }
+            },
+          }
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    const onPrivateOk = () => {
+      setShareVisible(false);
+      setTimeout(() => {
+        setIsNoteJustMadePrivate(false);
+      }, 50);
+    };
+
+    const onShareNote = () => {
+      hideMoreOption();
+      setTimeout(() => {
+        setShareVisible(true);
+      }, 500);
+    };
+
+    const onCopy = async (content = "") => {
+      hideMoreOption();
+      await setStringAsync(content);
+      setShareVisible(false);
+    };
+    const onDelete = () => {
+      hideMoreOption();
+      if (note.subnotes?.length) {
+        Alert.alert(
+          "",
+          "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
+          [
+            {
+              text: "Got It",
+              style: "cancel",
+            },
+          ]
+        );
+        return;
+      }
+
       Alert.alert(
         "",
-        "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
+        `Are you sure you want to ${note?.isUploading ? "cancel" : "delete"}?`,
         [
           {
-            text: "Got It",
+            text: "No",
             style: "cancel",
+          },
+          {
+            text: "Yes",
+            onPress: async () => {
+              if (note.status =='uploading'){
+                // edge case
+                // await cancelUpload(note?.id);
+                // dispatch(deleteRecording({ id: note?.id }));
+                // onDeleteCallBack();
+              }
+              try {
+                await axiosApi.delete(`/recordings/${note?.id}`);
+                dispatch(deleteRecording({ id: note?.id }));
+                onDeleteCallBack();
+              } catch (error) {
+                console.log("Error in deleting: ", error);
+              }
+            },
           },
         ]
       );
-      return;
-    }
+    };
+    const onPlaybackStatusUpdate = async (status: any) => {
+      if (status.isLoaded === false) console.log("loading audio..");
 
-    // Alert.alert('', 'Are you sure you want to delete?', [
-    Alert.alert('', `Are you sure you want to ${note?.isUploading?'cancel':'delete'}?`, [
-      {
-        text: 'No',
-        style: 'cancel'
-      },
-      {
-        text: 'Yes',
-        onPress: async () => {
-          if (note?.id) {
-            setDeleteLoading(true)
-            await deleteRecord.mutateAsync('').catch(() => {setDeleteLoading(false)})
-            setDeleteLoading(false)
-            onDeleteCallBack()
-          }else
-            dispatch(deleteFromTempRecordings(note))
-        }
+      if (status?.isLoaded && !status?.isPlaying && status?.didJustFinish) {
+        setIsPlay(-1);
+        setPlay(null);
+      } else if (status?.isPlaying) {
+        setAudioLoading(-1);
       }
-    ])
-  }
-  const onPlaybackStatusUpdate = async (status: any) => {
-    if (status?.isLoaded && !status?.isPlaying && status?.didJustFinish) {
-      // Audio playback has finished
-      setIsPlay(-1)
       await play?.unloadAsync();
-      setPlay(null);
-    } else if (status?.isPlaying) {
-      setAudioLoading(-1);
-    }
-  };
+    };
 
-  const onPlaySet = async (res: any) => {
-    try {
-      setIsPlay(index);
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: res.data?.url || "" },
-        { shouldPlay: true, isLooping: false },
-        onPlaybackStatusUpdate,
-      );
-      setPlay(sound);
-    } catch { }
-  }
-
-  const onPlay = async () => {
-    try {
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        interruptionModeIOS: 2,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        interruptionModeAndroid: 2,
-        playThroughEarpieceAndroid: false,
-        staysActiveInBackground: true,
-      });
-      setIsPlay(-1)
-      await play?.unloadAsync()
-      setPlay(null)
-      if (isPlay != index) {
-        setAudioLoading(index);
-        if (!!note?.audio?.data?.url) {
-          onPlaySet(note?.audio)
-        } else {
-          signedURL.mutate(note?.id, {
-            onSuccess: async (r) => {
-              onPlaySet(r)
-            }
-          })
-        }
+    const onPlaySet = async (uri:any) => {
+      console.log({ uri });
+      try {
+        setIsPlay(index);
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: uri || "" },
+          { shouldPlay: true, isLooping: false },
+          onPlaybackStatusUpdate
+        );
+        setPlay(sound);
+      } catch (e) {
+        console.log("error in playset: ", e);
       }
-    } catch (error) {
-      console.error('Error playing audio:', error);
-    }
-  }
+    };
 
-  useEffect(() => {
-    if (!note?.public_slug) {
-      setIsPublished(false)
-    }
-  }, [note?.public_slug]);
+    const onPlay = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          interruptionModeIOS: 2,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          interruptionModeAndroid: 2,
+          playThroughEarpieceAndroid: false,
+          staysActiveInBackground: true,
+        });
+        setIsPlay(-1);
+        await play?.unloadAsync();
+        setPlay(null);
+        console.log("internalUrl: ", note.internalUrl);
+        console.log("audiodataurl: ", note.audio?.data?.url);
 
-  const formattedDuration = (duration = 0) =>0;
-
-  const creationList = useMemo(() => note?.creations, [list])
-
-  const isLongTranscript=!!note?.transcript&&note?.transcript?.length>520?true:false
-  let opacity = new Animated.Value(1);
-
-  const onExpand = async () => {
-    setShowImagePicker(false)
-    setShowLinkEditModal(false)
-    LayoutAnimation.configureNext({
-      duration: 150,
-      create: {
-        type: LayoutAnimation.Types.linear,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.linear,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      delete: {
-        type: LayoutAnimation.Types.linear,
-        property: LayoutAnimation.Properties.opacity,
-      },
-    });
-    setExpand();
-    if (note?.related_notes?.length == 0 && !!note?.transcript) {
-      setRelatedNoteLoading(true)
-      await relatedNotes.mutateAsync(note?.id)
-      setTimeout(() => {
-        setRelatedNoteLoading(false)
-      }, 3000);
-    }
-  }
-
-  useEffect(()=>{
-    if(expand>-1&&isLongTranscript){
-      opacity.setValue(0)
-      Animated.timing(opacity,{
-        duration:270,
-        toValue:1,
-        useNativeDriver:true
-      }).start()
-    }
-  },[expand])
-
- const onThreadNote = () => {
-    onStartRecord({ parent_id: note.id ,index})
-    closeAddMenu()
-  }
-
-  const EditDeleteButtons = ({retry=true})=>{
-  return  (<View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
-    {NetInfo.isConnected && !note.is_audio_corrupted &&retry&&
-      <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
-    <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text={note?.isUploading?"Cancel":"Delete"} onPress={onDelete} icon={note?.isUploading?null:home.delete} isLoading={deleteLoading}/> 
-  </View>)
-  }
-
-  
-  const refreshNoteAfterAttachmentChange =async ()=>{
-    await queryClient.invalidateQueries('all-recording')
-  }
-
-  if(!note) return null
-
-  const slug = note.public_slug || ""
-  const tempSub=tempRecordings?.filter((rec:any)=>(rec?.audio?.data.parent_id &&  (rec?.audio?.data.parent_id === note?.id))).map((el:any)=>({...el, isDummySubnote: true}))
-  const tempSubnotes = tempSub?.length>0?tempSub:[]
-  if(note.id===undefined && note?.audio?.data?.parent_id&&!note?.isDummySubnote) return null
-  return (
-    <View>
-      <Touchable onPress={onExpand} activeOpacity={1} style={[styles.container, (expand == index && !isSingle) ? { backgroundColor: '#f7f7f7', borderRadius: isSubnote ? 12 : 0, } : {}]}>
-        {!isSubnote && (index == 0 || (index != 0 && !isSameDay(note?.recorded_at, list[index - 1]?.recorded_at))) &&
-          <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>}
-        <View style={{ flexDirection: "row" }}>
-          <View style={[{ alignItems: 'flex-start' }]}>
-            {audioLoading == index ?
-              <CircularLoader />
-              : <Touchable onPress={onPlay}>
-                <SvgXml xml={isPlay == index ? home.pause : home.play} />
-              </Touchable>}
-            <View style={styles.timeLine} />
-          </View>
-          <View style={{ marginLeft: 8, flex: 1, marginTop: -3 }}>
-            {(!!note?.title&&note?.title?.length>0&&titleLoading==false) ?
-              // <Touchable onPress={()=>{
-              //   router.push({pathname:"/RelatedNotes/",params:{id:note?.id}});}}>
-              <ChatBuble style={styles.title} message={note?.title} triggerAnimation={triggerTypingTitle} disableGenerating={() => setTriggerTypingTitle(0)} />
-              // </Touchable>
-              : isUploadingFailed ? note?.is_audio_corrupted?
-              <>
-               <Text style={[styles.title, { color: '#ff4538' }]}>{note?.error||''}</Text>
-               <EditDeleteButtons/>
-              </>
-                :<Text style={styles.title}>{`New recording (${formattedDuration(note?.audio?.data?.duration)})`}</Text>
-                : note?.transcript === null ? <>
-                <Text style={[styles.title, { color: '#ff4538' }]}>There was an error generating your transcript.{note?.transcript}</Text>
-                <EditDeleteButtons/>
-                </>
-                  : <>
-                     { <AiLoader text={(note?.isUploading)  ? `Uploading your audio` : `Creating ${!note?.transcript ? 'transcript' : 'title'} from your voice`} style={{ marginTop: -5 }} size={isSubnote?14:16} />}
-                      {note?.isUploading&&expand==index&&<EditDeleteButtons retry={false}/>}
-                    </>
-            }
-            {isUploadingFailed && !note?.is_audio_corrupted && <>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                <SvgXml xml={home.wait} style={{ marginTop: 8, marginRight: 8 }} />
-                <Text style={[styles.text, { color: Colors.grey3, fontFamily: 'Primary-Italic', width: screenWidth / 1.3 }]} numberOfLines={2}>{`Synced and transcribed when you’re back online.`}</Text>
-              </View>
-              <EditDeleteButtons/>
-            </>}
-
-
-            {((!!note?.transcript&&transcriptLoading && note?.title)) ? <AiLoader text={`Creating transcript from your voice`} style={{ marginTop: 0 }} size={14} />
-              : !!note?.transcript && <ChatBuble lines={expand == index ? 10000 : 4} style={styles.text} message={note?.transcript?.replaceAll(/<br\/?>/g, '\n')?.trimEnd()} continueGenerating={!note?.title} triggerAnimation={triggerTypingTranscript} disableGenerating={() => setTriggerTypingTranscript(0)} />}
-            <Animated.View style={{flex:1,opacity:expand==index?opacity:1}}><TagsList note={note} onPress={(tag: any) => dispatch(setTagsFilter(tag?.name))} /></Animated.View>
-
-
-            {attachments?.length> 0 &&<AttachmentViewer 
-              attachments={attachments} 
-              onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-              onEditLink={(linkItem:any)=>{
-                setShowLinkEditModal(true)
-                setEditingLink(linkItem)
-              }}
-              />}
-
-            {showLinkEditModal && <AddEditLinkModal
-            noteId={note?.id}
-            onAttachmentUpdate={refreshNoteAfterAttachmentChange}
-            editingLink={editingLink}
-            isVisible={showLinkEditModal}
-            onClose={() => {
-              setShowLinkEditModal(false)
-              setEditingLink(null)
-            }} />
-            }
-
-            {expand == index && <>
-              {!hideIcons && note?.transcript != null && !note?.isUploading &&
-                <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.row, { paddingTop: 16, paddingBottom: 4, paddingLeft: 1 }]}>
-                  {hashFilter != 'shared' &&
-                    <>
-                    { <Menu
-                          visible={showAddMenu}
-                          anchor={<NoteButtons text="Add" onPress={()=>setShowAddMenu(true)} disabled={!note?.transcript} icon={addMenu.add}/>}
-                          onRequestClose={closeAddMenu}
-                          style={isIOS?styles.menuAttachIOS:styles.menuAttachAndroid}
-                          animationDuration={150}
-                        >
-                        {!isSubnote&&!isSingle &&  <MenuItem style={styles.menuItem} onPress={onThreadNote}>
-                            <View style={[styles.row, { }]}>
-                              <Foundation name="record" size={24} color="red" />
-                              <Text style={styles.menuItemTxt}>Thread a Note</Text>
-                            </View>
-                          </MenuItem>}
-                          <MenuItem style={styles.menuItem} onPress={()=>{
-                            setShowImagePicker(true)
-                            closeAddMenu()}}>
-                            <View style={[styles.row, {}]}>
-                              <SvgXml xml={addMenu.camera} />
-                              <Text style={styles.menuItemTxt}>Photo</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => {
-                            setShowLinkEditModal(true)
-                            closeAddMenu()
-                          }}>
-                            <View style={[styles.row, { }]}>
-                              <SvgXml style={{marginLeft: 4}} xml={addMenu.link} />
-                              <Text style={[styles.menuItemTxt, {marginLeft: 14}]}>Link</Text>
-                            </View>
-                          </MenuItem>
-                      </Menu>}
-
-
-                      {showImagePicker && <ImageUploader 
-                        showImagePicker={showImagePicker} 
-                        setShowImagePicker={setShowImagePicker} 
-                        setAttachments={setAttachments}
-                        onAttachmentUpdate = {refreshNoteAfterAttachmentChange}
-                        noteId={note?.id}
-                        />}
-
-                      <NoteButtons text="Edit" onPress={onEdit} icon={home.edit} disabled={!note?.transcript} />
-                      <NoteButtons icon={home.hash1} text="Tag" onPress={onGotoAddTag} />
-                      
-                      {
-                        <Menu
-                          visible={createOption}
-                          anchor={<NoteButtons text="Create" onPress={showCreateOption} disabled={!note?.transcript} icon={home.create} style={{paddingHorizontal:6}}/>}
-                          onRequestClose={hideCreateOption}
-                          style={isIOS?styles.menuIOS:styles.menu}
-                          animationDuration={150}
-                        >
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('summary')}>
-                            <View style={[styles.row, {  }]}>
-                              <SvgXml xml={CreateModalSvg.summary} />
-                              <Text style={styles.menuItemTxt}>Summarize</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('points')}>
-                            <View style={[styles.row, {  }]}>
-                              <SvgXml xml={CreateModalSvg.points} />
-                              <Text style={styles.menuItemTxt}>Main points</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('todo')}>
-                            <View style={styles.row}>
-                              <SvgXml xml={CreateModalSvg.todo} />
-                              <Text style={styles.menuItemTxt}>To-do list</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('blog')}>
-                            <View style={styles.row}>
-                              <SvgXml xml={CreateModalSvg.blog} />
-                              <Text style={styles.menuItemTxt}>Blog post</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('tweet')}>
-                            <View style={styles.row}>
-                              <SvgXml xml={CreateModalSvg.tweet} />
-                              <Text style={styles.menuItemTxt}>Tweet</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={() => onCreate('email')}>
-                            <View style={styles.row}>
-                              <SvgXml xml={CreateModalSvg.email} />
-                              <Text style={styles.menuItemTxt}>Email</Text>
-                            </View>
-                          </MenuItem>
-                        </Menu>}
-                      {/* <NoteButtons icon={home.share1} text="Share" onPress={onShareNote} /> */}
-                    </>
-                    
+        if (isPlay != index) {
+          setAudioLoading(index);
+          if (note?.internalUrl && (await checkFileExists(note?.internalUrl))) {
+            console.log("has internalurl");
+            onPlaySet(note?.internalUrl);
+          } else {
+            console.log("fetching signedurl");
+            getSignedURL.mutate(note?.id, {
+              onSuccess: async (r) => {
+                try {
+                  const signedUrl = r.data["url"];
+                  console.log("received signed url: ", signedUrl);
+                  onPlaySet(signedUrl);
+                  console.log('about to download audio to be cached');
+                  const fileName = `${FileSystem.cacheDirectory}AV/audio_${note.id}.mp3`;
+                  const downloadResumable = FileSystem.createDownloadResumable(
+                    signedUrl,
+                    fileName,
+                    {},
+                    (downloadProgress) => {
+                      const progress =
+                        downloadProgress.totalBytesWritten /
+                        downloadProgress.totalBytesExpectedToWrite;
+                      console.log(`Download progress: ${progress * 100}%`);
                     }
-                  {
-                 
-                    <Menu
-                      visible={moreOption}
-                      anchor={
-                        <NoteButtons text="More" style={hashFilter != 'shared' ? {} : { marginLeft: 0 }} onPress={showMoreOption} icon={home.more} />
-                      }
-                      onRequestClose={hideMoreOption}
-                      style={isIOS?styles.menuIOS:styles.menu}
-                      animationDuration={150}
-                    >
-                      {hashFilter != 'shared' ?
-                        <>
-                          <MenuItem style={[styles.menuItem,{paddingTop:4}]} onPress={() => onCopy(note?.transcript ?? '')}>
-                            <View style={styles.row}>
-                              <SvgXml xml={home.copy} />
-                              <Text style={styles.menuItemTxt}>Copy note</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={onShareNote}>
-                            <View style={[styles.row]}>
-                              <SvgXml xml={home.share1} />
-                              <Text style={styles.menuItemTxt}>Get shareable link</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={onGenerateTitle}>
-                            <View style={[styles.row]}>
-                              <SvgXml xml={home.generate} />
-                              <Text style={styles.menuItemTxt}>Regenerate title</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem style={styles.menuItem} onPress={onReGenerateTranscript}>
-                            <View style={[styles.row]}>
-                              <SvgXml xml={home.retry} />
-                              <Text style={styles.menuItemTxt}>Regenerate transcript</Text>
-                            </View>
-                          </MenuItem>
-                          {!!token && <MenuItem style={styles.menuItem} onPress={onDelete}>
-                            <View style={styles.row}>
-                              <SvgXml xml={home.deleteGrey} style={{marginLeft: 2}} />
-                              <Text style={styles.menuItemTxt}>Delete</Text>
-                            </View>
-                          </MenuItem>}
-                        </>
-                        :
-                        <>
-                          <MenuItem style={[styles.menuItem, { paddingLeft: 0 }]} onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)}>
-                            <Text style={styles.menuItemTxt}>Copy link</Text>
-                          </MenuItem>
-                          <MenuItem style={[styles.menuItem, { paddingLeft: 0 }]} onPress={togglePublish}>
-                            <Text style={styles.menuItemTxt}>Unpublish</Text>
-                          </MenuItem>
-                        </>
-                        }
-                    </Menu>}
-                </ScrollView>}
-              {isIOS ? <Menu
-                visible={shareVisible}
-                anchor={null}
-                onRequestClose={() => setShareVisible(false)}
-                animationDuration={1}
-                style={{ borderRadius: 12, width: isPublished ? screenWidth / 1.2 : 'auto' }}
-              >
-                <MenuItem style={{ padding: 16, width: '100%', height: '100%' }} disabled={true} >
-                  {isNoteJustMadePrivate?
-                    <View style={{ width: screenWidth / 1.2 }}>
-                        <View style={[styles.row]}>
-                          <SvgXml xml={CreateModalSvg.plane} />
-                          <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2, marginLeft: 8, width: screenWidth / 1.2 }}>
-                            Your note is now private
-                          </Text>
-                        </View>
-                        <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
-                          <Touchable activeOpacity={0.5} onPress={onPrivateOk} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16 }}>
-                            <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12, marginLeft: 4 }}>Ok</Text>
-                          </Touchable>
-                        </View>
-                      </View>
-                      :isPublished?
-                      <View style={{ width: screenWidth / 1.2 }}>
-                        <View style={[styles.row]}>
-                          <SvgXml xml={CreateModalSvg.unlock} />
-                          <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2, marginLeft: 8, width: screenWidth / 1.2 }}>
-                            Your shareable link is ready
-                          </Text>
-                        </View>
-                        <Text onPress={() => wb.openBrowserAsync(MAIN_URL + '/s/' + note?.public_slug)} suppressHighlighting style={{ fontSize: 14, fontFamily: 'Primary', color: Colors.primary, textDecorationLine: 'underline', marginTop: 4, width: screenWidth / 1.2 }}>
-                          {MAIN_URL + '/s/' + note?.public_slug}
-                        </Text>
-                        <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
-                          <Touchable activeOpacity={0.5} onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, width: 100, alignItems: 'center' }}>
-                            <View style={styles.row}>
-                              <SvgXml xml={CreateModalSvg.publishCopy} />
-                              <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12, marginLeft: 4 }}>{'Copy link'}</Text>
-                            </View>
-                          </Touchable>
-                          <Touchable activeOpacity={0.5} onPress={togglePublish} style={{ backgroundColor: Colors.darkWithOpacity(0.05), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, marginLeft: 12, width: 100, alignItems: 'center' }}>
-                            {/* {publishLoading ? */}
-                              {/* <LottieView source={threeDotLoader} autoPlay={publishLoading} loop={publishLoading} style={{ width: 30, height: 15 }} /> */}
-                               <Text style={{ color: Colors.darkWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12 }}>Unpublish</Text>
-                            {/* } */}
-                          </Touchable>
-                        </View>
-                      </View>
-                  :<View>
-                      <Text style={{ fontSize: 14, fontFamily: 'Primary-Semibold', color: Colors.darkWithOpacity(1), lineHeight: 19.2 }}>
-                        Are you sure you want to share this note?
-                      </Text>
-                      <View style={{ marginVertical: 12, flexDirection: 'row', alignItems: 'center' }}>
-                        <Touchable disabled={publishLoading} activeOpacity={0.5} onPress={togglePublish} style={{ backgroundColor: Colors.darkWithOpacity(1), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, width: 60, alignItems: 'center' }}>
-                          {publishLoading ?
-                            <LottieView source={threeDotLoader2} autoPlay loop style={{ width: 30, height: 15 }} />
-                            : <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12 }}>Yes</Text>}
-                        </Touchable>
-                        <Touchable activeOpacity={0.5} onPress={() => { setShareVisible(false); setPublishLoading(false) }} style={{ backgroundColor: Colors.darkWithOpacity(0.05), alignSelf: 'flex-start', borderRadius: 12, padding: 12, paddingHorizontal: 16, marginLeft: 12, width: 60, alignItems: 'center' }}>
-                          <Text style={{ color: Colors.darkWithOpacity(1), fontFamily: 'Primary-Semibold', fontSize: 12 }}>No</Text>
-                        </Touchable>
-                      </View>
-                      <View style={[styles.row, { alignItems: 'flex-start' }]}>
-                        <SvgXml xml={CreateModalSvg.info} style={{ marginTop: 1 }} />
-                        <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey, lineHeight: 16 }}>
-                          {` Anyone with the link will have access to this voice note.`}
-                        </Text>
-                      </View>
-                    </View>
-                  }
-                </MenuItem>
-              </Menu>
-                : 
-                
-                
-                <PublishedModal 
-                  slug={slug} 
-                  visible={shareVisible} 
-                  isPublished={isPublished} 
-                  onPressCancel={() => setShareVisible(false)} 
-                  onPressDone={togglePublish} 
-                  isLoading={publishLoading}
-                  isNoteJustMadePrivate ={isNoteJustMadePrivate}
-                  setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
-                  hideModal={() => setShareVisible(false)} 
-                />
+                  );
+
+                  const { uri }:any = await downloadResumable.downloadAsync();
+                  console.log("downloaded!");
+
+                  console.log({ uri });
+                  dispatch(
+                    updateRecordingDetails({
+                      recordingId: note.id,
+                      data: { internalUrl: uri },
+                    })
+                  );
+                } catch (error) {
+                  console.error("Error saving audio:", error);
                 }
+              },
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error playing audio:", error);
+      }
+    };
 
-              {/* {((note?.transcript == null && note?.isUploading == undefined) || isUploadingFailed) &&
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
-                  {NetInfo.isConnected && !note.is_audio_corrupted &&
-                    <NoteButtons text="Retry" onPress={onRetry} icon={home.retryUpload} isLoading={uploadLoading||transcriptLoading} />}
-                  <NoteButtons style={note.is_audio_corrupted ? {marginLeft: -4}:{}} text="Delete" onPress={onDelete} icon={home.delete} /> 
-                </View>} */}
-              {/* related notes */}
-              {(!!note?.transcript && (note?.related_notes?.length > 0 || relatedNoteLoading)) &&
-                <View style={{ marginTop: 12 }}>
-                  <Text style={{ fontFamily: 'Primary-Semibold', fontSize: 12, color: '#0D0D0D' }}>
-                    Related Notes
-                  </Text>
-                  <View style={{ marginTop: (note?.related_notes?.length == 0 && relatedNoteLoading) ? 8 : 3 }}>
-                    {(note?.related_notes?.length == 0 && relatedNoteLoading) ?
-                      <CircularLoader width={16} height={16} />
-                      : note?.related_notes?.map((item: any) => {
-                        return (
-                          <Touchable onPress={() => { router.push({ pathname: "/RelatedNotes/", params: { id: item?.id } }); }} activeOpacity={0.6} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                            <Text style={{ color: Colors.grey3, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 8 }}>{formatDate(item?.recorded_at, false, true)}</Text>
-                            <Text style={{ color: Colors.black2, fontFamily: 'Primary-Medium', fontSize: 12, width: screenWidth / 1.6 }} numberOfLines={1}>{item?.title}</Text>
-                          </Touchable>
-                        )
-                      })
-                    }
-                  </View>
-                </View>}
-              {!!token && creationLoader && <AiLoader text={creationContent[createType]} style={{ marginTop: 8 }} size={14} />}
-              {!!token && creationList?.map((itm: any, i: number) => (
-                <AiCreatedView id={itm?.id} type={itm?.type} date={itm?.recorded_at} content={itm?.content?.data} key={i} />
-              ))}
-              <View style={{ flex: 1, alignItems: 'flex-end', marginTop: 8 }}>
-                <Text style={{ color: Colors.grey3, fontFamily: 'Primary', fontSize: 10 }}>{formatDateTime(note?.recorded_at)}</Text>
+    useEffect(() => {
+      if (!note?.public_slug) {
+        setIsPublished(false);
+      }
+    }, [note?.public_slug]);
+
+    const audioDuration = note?.audio?.data?.duration;
+    const formattedDuration = useMemo(
+      () =>
+        audioDuration
+          ? new Date(audioDuration).toISOString().substring(14, 19)
+          : "",
+      [audioDuration]
+    );
+
+    const isLongTranscript =
+      !!note?.transcript && note?.transcript?.length > 520 ? true : false;
+    let opacity = new Animated.Value(0.1);
+
+    const onExpand = async () => {
+      setShowImagePicker(false);
+      setShowLinkEditModal(false);
+      LayoutAnimation.configureNext({
+        duration: 150,
+        create: {
+          type: LayoutAnimation.Types.linear,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        update: {
+          type: LayoutAnimation.Types.linear,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        delete: {
+          type: LayoutAnimation.Types.linear,
+          property: LayoutAnimation.Properties.opacity,
+        },
+      });
+      setExpand();
+    };
+
+    useEffect(() => {
+      if (expand > -1 && isLongTranscript) {
+        opacity.setValue(0);
+        Animated.timing(opacity, {
+          duration: 270,
+          toValue: 1,
+          useNativeDriver: true,
+        }).start();
+      }
+    }, [expand]);
+
+    const onDownloadAudio = async () => {
+      let audioUrl = "";
+      if (note?.internalUrl && (await checkFileExists(note?.internalUrl))) {
+        console.log("internal url = ", note?.internalUrl);
+        audioUrl = note.internalUrl;
+      } else if (
+        note?.audio?.data?.url &&
+        (await checkFileExists(note?.audio?.data?.url))
+      ) {
+        console.log("note audio url = ", note?.internalUrl);
+        audioUrl = note?.audio?.data?.url;
+      } else {
+        const resp = await getSignedURL.mutateAsync(note?.id);
+        console.log("signed url = ", note?.internalUrl);
+        audioUrl = resp.data?.url;
+      }
+
+      try {
+        hideMoreOption();
+        const visibilityTime =
+          Math.max(note.transcript?.length / 500, 1) * 1500;
+        Toast.show({
+          type: "info",
+          text1: "Preparing",
+          text2: "Voice note is being prepared...",
+          position: "top",
+          visibilityTime: visibilityTime,
+        });
+
+        let fileUri: string = audioUrl;
+        if (audioUrl.startsWith("http://") || audioUrl.startsWith("https://")) {
+          const fileName = generateVoiceNoteFilename(note);
+          fileUri = `${FileSystem.documentDirectory}${fileName}`;
+          const downloadResumable = FileSystem.createDownloadResumable(
+            audioUrl,
+            fileUri,
+            {},
+            (downloadProgress) => {
+              const progress =
+                downloadProgress.totalBytesWritten /
+                downloadProgress.totalBytesExpectedToWrite;
+              console.log(`Download progress: ${progress * 100}%`);
+            }
+          );
+          const { uri }:any = await downloadResumable.downloadAsync();
+          fileUri = uri;
+        }
+
+        if (Platform.OS === "android") {
+          const asset = await MediaLibrary.createAssetAsync(fileUri);
+          const album = await MediaLibrary.getAlbumAsync("Download");
+          if (album === null) {
+            await MediaLibrary.createAlbumAsync("Download", asset, false);
+          } else {
+            await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+          }
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "Audio saved to Downloads folder",
+            position: "top",
+            visibilityTime: 3000,
+          });
+        } else if (Platform.OS === "ios") {
+          const UTI = "public.audio";
+          await Sharing.shareAsync(fileUri, {
+            UTI: UTI,
+            dialogTitle: "Save audio file",
+          });
+        }
+      } catch (error) {
+        console.error("Error processing file:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to process the audio file",
+          position: "top",
+          visibilityTime: 3000,
+        });
+      }
+    };
+
+    const MenuItemContent = ({ icon=null, text, style={},textStyle={} }:any) => (
+      <View style={[styles.menuItemContent,style]}>
+        {icon&&<SvgXml xml={icon} style={styles.menuItemIcon}/>}
+        <Text style={[styles.menuItemText,textStyle]}>{text}</Text>
+      </View>
+    );
+
+    const onThreadNote = () => {
+      onStartRecord({ parent_id: note.id, index });
+      closeAddMenu();
+    };
+
+    const renderButtons = () => {
+      const mainButtons = hashFilter == "shared" ?
+      [
+        {
+          text: "More",
+          type: "menu",
+          function: renderMoreSharedMenu,
+        },
+      ]:[
+        {
+          text: "Add",
+          onPress: () => setShowAddMenu(true),
+          type: "menu",
+          function: renderAddMenu,
+        },
+
+        {
+          text: "Edit",
+          onPress: onEdit,
+          icon: home.edit,
+        },
+        {
+          text: "Tag",
+          onPress: onGotoAddTag,
+          icon: home.hash1,
+        },
+        {
+          text: "Create",
+          type: "menu",
+          function: renderCreateMenu,
+        },
+        {
+          text: "More",
+          type: "menu",
+          function: renderMoreMenu,
+        },
+      ];
+
+      const intermediateButtons = [
+        {
+          text: "Download",
+          onPress: onDownloadAudio,
+          icon: home.download,
+        },
+        { text: "Delete", onPress: onDelete, icon: home.delete },
+      ];
+
+      const failedButtons = [
+        {
+          text: "Retry",
+          onPress: onUploadRetry,
+          icon: home.repeat,
+        },
+        ...intermediateButtons,
+      ];
+
+      const getButtonsBasedOnStatus = (status: string) => {
+        status = status?.toLowerCase();
+        if(status?.includes('failed')) status = 'failed'
+        switch (status) {
+          case "uploading":
+          case "processing":
+            return intermediateButtons;
+          case "failed":
+            return failedButtons;
+          default:
+            return mainButtons;
+        }
+      };
+
+      return (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.buttonContainer}
+        >
+          {getButtonsBasedOnStatus(note?.status).map((button:any, index) =>
+            button.type === "menu" ? (
+              button.function()
+            ) : (
+              <NoteButtons
+                key={index}
+                text={button.text}
+                onPress={button.onPress}
+                icon={button.icon}
+              />
+            )
+          )}
+        </ScrollView>
+      );
+    };
+
+    const renderMoreMenu = () => (
+      <Menu
+        visible={moreOption}
+        onRequestClose={hideMoreOption}
+        style={styles.menu}
+        anchor={
+          <NoteButtons
+            text="More"
+            style={hashFilter != "shared" ? {} : { marginLeft: 0 }}
+            onPress={showMoreOption}
+            icon={home.more}
+          />
+        }
+      >
+        <MenuItem onPress={() => onCopy(note?.transcript ?? "")}>
+          <MenuItemContent icon={home.copy} text="Copy note" />
+        </MenuItem>
+        <MenuItem onPress={onShareNote}>
+          <MenuItemContent icon={home.share1} text="Get shareable link" />
+        </MenuItem>
+        <MenuItem onPress={onGenerateTitle}>
+          <MenuItemContent icon={home.generate} text="Regenerate title" />
+        </MenuItem>
+        <MenuItem onPress={onReGenerateTranscript}>
+          <MenuItemContent icon={home.retry} text="Regenerate transcript" />
+        </MenuItem>
+        <MenuItem onPress={onDownloadAudio}>
+          <MenuItemContent icon={home.download} text="Download Audio" />
+        </MenuItem>
+        <MenuItem onPress={onDelete}>
+          <MenuItemContent icon={home.deleteGrey} text="Delete" />
+        </MenuItem>
+      </Menu>
+    );
+
+    const renderMoreSharedMenu = () => (
+      <Menu
+        visible={moreOption}
+        onRequestClose={hideMoreOption}
+        style={styles.menuShared}
+        anchor={
+          <NoteButtons
+            text="More"
+            style={{ marginLeft: 0 }}
+            onPress={showMoreOption}
+            icon={home.more}
+          />
+        }
+      >
+        <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
+          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#000'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
+        </MenuItem>
+        <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
+          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#0d0d0d0d'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#222'}]} />
+        </MenuItem>
+      </Menu>
+    );
+
+    const renderAddMenu = () => (
+      <>
+        <Menu
+          visible={showAddMenu}
+          anchor={
+            <NoteButtons
+              text="Add"
+              onPress={() => setShowAddMenu(true)}
+              disabled={!note?.transcript}
+              icon={addMenu.add}
+            />
+          }
+          onRequestClose={closeAddMenu}
+          style={isIOS ? styles.menuAttachIOS : styles.menuAttachAndroid}
+          animationDuration={150}
+        >
+          {!isSubnote && (
+            <MenuItem style={styles.menuItemContent} onPress={onThreadNote}>
+              <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+                <Foundation name="record" size={24} color="red" />
+                <Text style={styles.menuItemText}>Thread a Note</Text>
               </View>
-            </>}
+            </MenuItem>
+          )}
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => {
+              setShowImagePicker(true);
+              closeAddMenu();
+            }}
+          >
+            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+              <SvgXml xml={addMenu.camera} />
+              <Text style={styles.menuItemText}>Photo</Text>
+            </View>
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => {
+              setShowLinkEditModal(true);
+              closeAddMenu();
+            }}
+          >
+            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+              <SvgXml style={{ marginLeft: 4 }} xml={addMenu.link} />
+              <Text style={[styles.menuItemText, { marginLeft: 14 }]}>
+                Link
+              </Text>
+            </View>
+          </MenuItem>
+        </Menu>
+      </>
+    );
+
+    const renderCreateMenu = () => {
+      return (
+        <Menu
+          visible={createOption}
+          onRequestClose={hideCreateOption}
+          style={isIOS ? styles.menuIOS : styles.menu}
+          anchor={
+            <NoteButtons
+              text="Create"
+              onPress={showCreateOption}
+              disabled={!note?.transcript}
+              icon={home.create}
+              style={{paddingHorizontal: 6}}
+            />
+          }
+          animationDuration={150}
+        >
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("summary")}
+          >
+            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+              <SvgXml xml={CreateModalSvg.summary} />
+              <Text style={styles.menuItemText}>Summarize</Text>
+            </View>
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("points")}
+          >
+            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+              <SvgXml xml={CreateModalSvg.points} />
+              <Text style={styles.menuItemText}>Main points</Text>
+            </View>
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("todo")}
+          >
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.todo} />
+              <Text style={styles.menuItemText}>To-do list</Text>
+            </View>
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("blog")}
+          >
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.blog} />
+              <Text style={styles.menuItemText}>Blog post</Text>
+            </View>
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("tweet")}
+          >
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.tweet} />
+              <Text style={styles.menuItemText}>Tweet</Text>
+            </View>
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItemContent}
+            onPress={() => onCreate("email")}
+          >
+            <View style={styles.row}>
+              <SvgXml xml={CreateModalSvg.email} />
+              <Text style={styles.menuItemText}>Email</Text>
+            </View>
+          </MenuItem>
+        </Menu>
+      );
+    };
+
+    const refreshNoteAfterAttachmentChange = async () => {
+      await queryClient.invalidateQueries("all-recording");
+    };
+
+    if (!note) return null;
+    const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
+    if (isNoteExpanded) {
+    }
+
+    return (
+      <View>
+        <Touchable
+          onPress={onExpand}
+          activeOpacity={1}
+          style={[
+            styles.container,
+            isNoteExpanded && !isSingle && styles.expandedContainer,
+          ]}
+        >
+          {!isSubnote &&
+            (index == 0 ||
+              (index != 0 &&
+                !isSameDay(note?.recorded_at, list[index - 1]?.recorded_at))) && (
+              <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>
+            )}
+          <View style={styles.row}>
+            <View>
+              {audioLoading == index ? (
+                <CircularLoader />
+              ) : (
+                <Touchable onPress={onPlay}>
+                  <SvgXml xml={isPlay == index ? home.pause : home.play} />
+                </Touchable>
+              )}
+              <View style={styles.timeLine}/>
+            </View>
+            <View style={styles.content}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                {note?.is_title_loading ? (
+                  <AiLoader
+                    text="Creating title from your voice"
+                    style={{ marginTop: 0 }}
+                    size={14}
+                  />
+                ) : (
+                  <>
+                    <View style={{ flex: 1, marginRight: 10 }}>
+                      <ChatBubble
+                        style={styles.title}
+                        cursorSvg={
+                          note?.status === "uploading"
+                            ? notePreviewSVG.blackCircle
+                            : notePreviewSVG.flower
+                        }
+                        showCursorAtEnd={note?.title === "New Recording"}
+                        message={note?.title}
+                      />
+                    </View>
+                    {isNoteExpanded && (
+                      <StatusIndicator
+                        status={note?.status}
+                        onRetry={() => syncUpNote(note)}
+                      />
+                    )}
+                  </>
+                )}
+              </View>
+
+              {note.is_transcript_loading && (
+                <AiLoader
+                  text={`Creating transcript from your voice`}
+                  style={{ marginTop: 0 }}
+                  size={14}
+                />
+              )}
+
+              {note?.status === "uploading" && (
+                <Text style={{}}>{formattedDuration}</Text>
+              )}
+              <View>
+                {note?.transcript && !note.is_transcript_loading && (
+                  <ChatBubble
+                    lines={expand == index ? 10000 : 4}
+                    style={styles.text}
+                    message={note?.transcript
+                      ?.replaceAll(/<br\/?>/g, "\n")
+                      ?.trimEnd()}
+                    continueGenerating={!note?.title}
+                    triggerAnimation={triggerTypingTranscript}
+                    disableGenerating={() => setTriggerTypingTranscript(0)}
+                  />
+                )}
+
+                <TagsList note={note} />
+                {attachments?.length > 0 && (
+                  <AttachmentViewer
+                    attachments={attachments}
+                    onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+                    onEditLink={(linkItem: any) => {
+                      setShowLinkEditModal(true);
+                      setEditingLink(linkItem);
+                    }}
+                  />
+                )}
+                {expand === index && (
+                  <>
+                    {renderButtons()}
+                    <RelatedNotesList note={note} />
+                    {token && (
+                      <CreationsList
+                        note={note}
+                        createType={createType}
+                        creationLoader={creationLoader}
+                      />
+                    )}
+                    <Text style={styles.timestamp}>
+                      {formatDateTime(note?.recorded_at)}
+                    </Text>
+                  </>
+                )}
+              </View>
+            </View>
           </View>
-        </View>
-      </Touchable>
-      {(note?.subnotes?.length>0||tempSubnotes?.length>0) &&
-        <Subnote
-          list={[...note?.subnotes, ...tempSubnotes]}
-          onUploadRetry={onUploadRetry}
-          setExpand={setExpand}
-          expand={expand}
-          hashFilter={hashFilter}
-        />}
-    </View>
-  );
-});
 
+          {showLinkEditModal && (
+            <AddEditLinkModal
+              noteId={note?.id}
+              onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+              editingLink={editingLink}
+              isVisible={showLinkEditModal}
+              onClose={() => {
+                setShowLinkEditModal(false);
+                setEditingLink(null);
+              }}
+            />
+          )}
 
-const TagsList = ({ note, onPress }: any) =>
-  note?.tags?.length > 0 ? (
-    <View style={[styles.row, { flexWrap: 'wrap' }]}>
-      {note?.tags?.map((tag: any, i: number) =>
-        <Text
-          key={i}
-          style={styles.tag}
-          onPress={() => onPress(tag)}
-          suppressHighlighting>
-          {'#' + tag?.name}
-        </Text>)}
-    </View>
-  ) : null;
+          {showImagePicker && (
+            <ImageUploader
+              showImagePicker={showImagePicker}
+              setShowImagePicker={setShowImagePicker}
+              setAttachments={setAttachments}
+              onAttachmentUpdate={refreshNoteAfterAttachmentChange}
+              noteId={note?.id}
+            />
+          )}
+        </Touchable>
+
+        <PublishedModal
+          slug={note?.public_slug || ""}
+          visible={shareVisible}
+          isPublished={isPublished}
+          onPressCancel={() => setShareVisible(false)}
+          onPressDone={togglePublish}
+          isLoading={publishLoading}
+          isNoteJustMadePrivate={isNoteJustMadePrivate}
+          setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
+          hideModal={() => setShareVisible(false)}
+        />
+
+        {note?.subnotes?.length > 0 && (
+          <Subnote
+            list={note?.subnotes}
+            setExpand={setExpand}
+            expand={expand}
+            hashFilter={hashFilter}
+            onUploadRetry={onUploadRetry}
+          />
+        )}
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 12, paddingBottom: 8, paddingTop: 14 },
-
- 
-  attachmentContainer: {
-    marginBottom: 10,
-    borderRadius: 8,
-    overflow: 'hidden',
+  container: {
+    padding: 12,
+    paddingBottom: 8,
   },
-  image: {
-    width: '50%',
-    height: 50,
+  expandedContainer: {
+    backgroundColor: "#f7f7f7",
+    borderRadius: 12,
   },
-  linkContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 8,
+  row: {
+    flexDirection: "row",
   },
-  linkText: {
-    marginLeft: 10,
-    color: '#007AFF',
+  content: {
+    marginLeft: 9,
     flex: 1,
   },
-
-  row: { flexDirection: "row", alignItems: "center" },
-  btw: { justifyContent: "space-between" },
-  timeLine: {
-    width: 1,
-    backgroundColor: Colors.primaryWithOpacity(0.1),
-    marginTop: 8,
-    flex: 1,
-    alignSelf: 'center'
+  date: {
+    color: Colors.grey,
+    fontFamily: "Primary",
+    fontSize: 14,
+    marginBottom: 8,
   },
   title: {
-    fontWeight: "500",
     fontFamily: "Primary-Medium",
     fontSize: 16,
     color: "#222",
     lineHeight: 24,
+    marginTop: -3,
   },
   text: {
     fontFamily: "Primary",
     fontSize: 14,
     color: "rgba(34, 34, 34, 0.9)",
-    lineHeight: isIOS ? 23 : 22,
+    lineHeight: 22,
     marginTop: 4,
-    marginLeft: 0
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    marginTop: 16,
+    paddingBottom: 4,
   },
   menu: {
     borderRadius: 12,
-    paddingBottom: 0
   },
-  menuAttachIOS:{
-    borderRadius: 12,
-    paddingBottom: 0,
-    paddingTop:6,
-    marginTop: 40
+  menuShared: {
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical:12,
+    height:118,
+    width:160
   },
-  menuAttachAndroid:{
-    borderRadius: 12,
-    paddingBottom: 0,
-    paddingTop:6,
-  },
-  menuIOS:{
-    marginTop:40,
-    borderRadius: 12,
-    paddingBottom: 0
-  },
-  menuPress: {
-    height: 25,
-    width: 35,
+  menuItemContent: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 4
+    padding: 12,
+    justifyContent: "flex-start",
   },
-  menuItem: { paddingLeft: isIOS ? 20 : 0, borderRadius: 12, overflow: "hidden", width: '100%', padding: 0, marginVertical: -6 },
-  menuItemTxt: {
+  menuItemContentSharedStyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0d0d0d0d",
+    borderRadius: 16,
+    // padding: 12,
+    width:136,
+    justifyContent: "center",
+  },
+  menuItemContentSharedTextStyle: {
+    color: "#fff",
+    fontFamily: "Primary-Medium",
+    fontSize: 14,
+  },
+  menuItemIcon: {
+    marginRight: 8,
+  },
+  menuItemText: {
     fontFamily: "Primary",
     fontSize: 14,
     color: "#222",
-    lineHeight: 24,
-    marginLeft: 12,
   },
-  tagInput: { color: Colors.darkWithOpacity(0.9), fontFamily: "Primary", flex: 1 },
-  tag: {
-    fontSize: 14,
-    lineHeight: 19,
-    fontFamily: 'Primary',
-    color: '#717171',
-    marginTop: 4,
-    marginRight: 4,
-    marginLeft: 0
-  },
-  date: {
-    color: Colors.grey,
+  timestamp: {
+    color: Colors.grey3,
     fontFamily: "Primary",
-    fontSize: isIOS ? 14 : 12,
-    marginBottom: 8,
+    fontSize: 10,
+    alignSelf: "flex-end",
+    marginTop: 8,
   },
-  tagWrap: {
+  timeLine: {
+    width: 1,
     backgroundColor: Colors.primaryWithOpacity(0.1),
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginRight: 8,
-    marginBottom: 8,
-    borderRadius: 8
+    marginTop: 8,
+    flex: 1,
+    alignSelf: "center",
   },
-  retry: { paddingHorizontal: 16, height: 36, flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.darkWithOpacity(0.05), alignSelf: 'flex-start', marginTop: 0, borderRadius: 30 },
-  retryTxt: { marginLeft: 2, fontFamily: 'Primary', fontSize: 12, color: '#222', marginTop: -2 }
+  menuAttachIOS: {
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop: 6,
+    marginTop: 40,
+  },
+  menuAttachAndroid: {
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop: 6,
+  },
+  menuIOS: {
+    marginTop: 40,
+    borderRadius: 12,
+    paddingBottom: 0,
+  },
 });
+
+export default memo(NotePreview);
