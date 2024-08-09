@@ -71,6 +71,7 @@ export default () => {
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')
             queryClient.resetQueries('user-data')
+            router.dismissAll();
             router.replace("/home/");
             analytics().logEvent('sign_in_success').catch(()=>{})
           }

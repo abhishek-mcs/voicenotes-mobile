@@ -9,12 +9,14 @@ enum Environment {
   stagev2 = "stagev2",
   production = "production",
 }
+
 interface URLSETProps {
   MAIN_URL: string
   API_URL: string
   SHORT_URL: string
   CDN_URL: string
 }
+
 interface ENVURLs {
   local: URLSETProps
   rose: URLSETProps
@@ -25,10 +27,12 @@ interface ENVURLs {
   production: URLSETProps
 }
 
+
 const ENVURLSet: ENVURLs = {
   local: {
-    MAIN_URL: "https://bmc.test",
-    API_URL: "https://app.bmc.test",
+    MAIN_URL: "https://voicenotes.test",
+    // API_URL: "http://192.168.88.137:8000/api",
+    API_URL: "http://192.168.88.137:8000",
     SHORT_URL: "bmc.test",
     CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
@@ -78,7 +82,7 @@ const ENVURLSet: ENVURLs = {
 //     : Environment.production
 
 const currentENV = Environment.production;
-const ota=".3"
+const ota=".4"
 const currentVersion = Application.nativeApplicationVersion+ota
 
 const MAIN_URL = ENVURLSet[currentENV].MAIN_URL

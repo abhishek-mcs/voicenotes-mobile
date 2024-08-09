@@ -1,14 +1,28 @@
 import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
-import { useGlobalSearchParams, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  useGlobalSearchParams,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
 import { useLogout } from "queries/auth";
-import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollView, KeyboardAvoidingView, InteractionManager } from "react-native";
+import {
+  SafeAreaView,
+  Text,
+  TouchableHighlight,
+  View,
+  Alert,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  InteractionManager,
+} from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {languages} from "utils/constants/languages";
+import { languages } from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
 import { isIOS } from "utils/common";
@@ -45,9 +59,9 @@ export default () => {
     if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
       return Alert.alert("", "Title and Transcript cannot be empty");
     }
-    setIsLoading(true)
-    const tags=editNote?.tags?.flatMap((tag:any)=>tag?.name)
-    const temp={...editNote};
+    setIsLoading(true);
+    const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);
+    const temp = { ...editNote };
 
     const htmlTranscript = editNote?.transcript?.replaceAll(/\n/g, '<br/>');
 
@@ -60,68 +74,113 @@ export default () => {
           queryClient.resetQueries('single-recording')
           setIsLoading(false)
         },
-        onError:(e:any)=>{
-          setEditNote(temp)
-          setIsLoading(false)
-        }
-      })
-    router?.back()
-  }
-  const onCancelEdit=()=> {
-    router?.back()
-  }
-
-  useEffect(()=>{
-    InteractionManager.runAfterInteractions(()=>{
-      textRef.current&&textRef.current?.focus()
-    })
-  },[])
-
-    return (
-        <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-          {/* <KeyboardAvoidingView behavior={"padding"} > */}
-          <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:16,marginHorizontal:12, paddingTop: isIOS?0: 16}}>
-            <Touchable onPress={onCancelEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
-              <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
-            </Touchable>
-            {isLoading?
-            <View style={{alignSelf:'flex-end'}} >
-             <ThreeDotLoader/>
-            </View>
-            :<Touchable onPress={onSaveEdit} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
-              <Text style={{fontFamily:'Primary-Semibold',fontSize:16,color:'#007AFF'}}>Save</Text>
-            </Touchable>}
-          </View>
-          <View style={styles.editContainer}>
-    <TextInput 
-      style={styles.titleInput}
-      autoComplete="off"
-      autoCorrect={false}
-      selectTextOnFocus={false}
-      value={editNote?.title}
-      onChangeText={txt=>setEditNote((n:any)=>{return {...n,title:txt}})} />
-    <ScrollView showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets>
-    <TextInput
-      ref={textRef}
-      style={styles.textInput}
-      multiline
-      autoComplete="off"
-      autoCorrect={false}
-      scrollEnabled={false}
-      selectTextOnFocus={false}
-      value={editNote?.transcript?.replaceAll(/<br\/?>/g, '\n')} 
-      onChangeText={txt=>setEditNote((n:any)=>{return {...n,transcript:txt}})} />
-      </ScrollView>
-  </View>
-          {/* </KeyboardAvoidingView> */}
-        </SafeAreaView>
+        onError: (e: any) => {
+          setEditNote(temp);
+          setIsLoading(false);
+        },
+      }
     );
-}
+    router?.back();
+  };
+  const onCancelEdit = () => {
+    router?.back();
+  };
 
-const styles=StyleSheet.create({
-  editContainer:{
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      textRef.current && textRef.current?.focus();
+    });
+  }, []);
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      {/* <KeyboardAvoidingView behavior={"padding"} > */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: 16,
+          marginHorizontal: 12,
+          paddingTop: isIOS ? 0 : 16,
+        }}
+      >
+        <Touchable
+          onPress={onCancelEdit}
+          style={{ padding: 12, alignSelf: "flex-end" }}
+          activeOpacity={0.6}
+        >
+          <Text
+            style={{ fontFamily: "Primary", fontSize: 16, color: Colors.grey }}
+          >
+            Cancel
+          </Text>
+        </Touchable>
+        {isLoading ? (
+          <View style={{ alignSelf: "flex-end" }}>
+            <ThreeDotLoader />
+          </View>
+        ) : (
+          <Touchable
+            onPress={onSaveEdit}
+            style={{ padding: 12, alignSelf: "flex-end" }}
+            activeOpacity={0.6}
+          >
+            <Text
+              style={{
+                fontFamily: "Primary-Semibold",
+                fontSize: 16,
+                color: "#007AFF",
+              }}
+            >
+              Save
+            </Text>
+          </Touchable>
+        )}
+      </View>
+      <View style={styles.editContainer}>
+        <TextInput
+          style={styles.titleInput}
+          autoComplete="off"
+          autoCorrect={false}
+          selectTextOnFocus={false}
+          value={editNote?.title}
+          onChangeText={(txt) =>
+            setEditNote((n: any) => {
+              return { ...n, title: txt };
+            })
+          }
+        />
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets
+          contentContainerStyle={{ paddingBottom: "50%" }}
+        >
+          <TextInput
+            ref={textRef}
+            style={styles.textInput}
+            multiline
+            autoComplete="off"
+            autoCorrect={false}
+            scrollEnabled={false}
+            selectTextOnFocus={false}
+            value={editNote?.transcript?.replaceAll(/<br\/?>/g, "\n")}
+            onChangeText={(txt) =>
+              setEditNote((n: any) => {
+                return { ...n, transcript: txt };
+              })
+            }
+          />
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  editContainer: {
     marginTop: 6,
-    marginHorizontal:12,
+    marginHorizontal: 12,
   },
   row: { flexDirection: "row", alignItems: "center" },
   titleInput: {
@@ -130,19 +189,19 @@ const styles=StyleSheet.create({
     fontSize: 16,
     lineHeight: 28,
     fontWeight: "500",
-    color:Colors.darkWithOpacity(1),
+    color: Colors.darkWithOpacity(1),
     marginBottom: 6,
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingBottom:0,
+    paddingBottom: 0,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,
     lineHeight: 24,
     fontWeight: "400",
     textAlignVertical: "top",
-    textAlign:'left',
-    color:Colors.darkWithOpacity(0.9)
+    textAlign: "left",
+    color: Colors.darkWithOpacity(0.9),
   },
-})
+});
