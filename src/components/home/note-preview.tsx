@@ -720,7 +720,7 @@ const NotePreview = forwardRef(
           />
         }
       >
-        <MenuItem onPress={() => onCopy(note?.transcript ?? "")} pressColor="transparent">
+        <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
           <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#000'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
         </MenuItem>
         <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
