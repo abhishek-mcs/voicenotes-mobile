@@ -50,8 +50,8 @@ export default ({
   const isSmallScreen = width < 375; // For small screend devices
   
   useEffect(() => {
+    timerId.current&&clearInterval(timerId.current);
     if (recEnabled&&!paused) {
-      timerId.current&&clearInterval(timerId.current);
       timerId.current = setInterval(() => {
         setDuration((prevDuration) => {
           const newDuration = prevDuration + 1000;
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
     borderRadius: 24,
-    marginHorizontal: 20,
+    marginHorizontal: 16,
     marginBottom: 20,
     alignItems: "center",
     shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.31",
+    "version": "1.5.36",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "voicenotes",
@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "95",
+      "buildNumber": "97",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -40,7 +40,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 81,
+      "versionCode": 98,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -74,6 +74,25 @@
           "ios": {
             "useFrameworks": "static"
           }
+        }
+      ],
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "2337501396452912",
+          "clientToken": "d38b23ab25341dd925bf9b4501e9b2ed",
+          "displayName": "Voicenotes",
+          "scheme": "fb2337501396452912",
+          "advertiserIDCollectionEnabled": true,
+          "autoLogAppEventsEnabled": true,
+          "isAutoInitEnabled": true,
+          "iosUserTrackingPermission": "Voicenotes require event tracking to improve app performance and enhance your user experience."
+        }
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Voicenotes require event tracking to improve app performance and enhance your user experience."
         }
       ],
       "expo-apple-authentication"

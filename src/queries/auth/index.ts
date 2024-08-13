@@ -3,6 +3,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
+import { setTempRecordings } from "redux/reducers/recordingStates";
 import { setToken } from "redux/reducers/userDetails";
 import { RootState } from "redux/store/store";
 import { API_URL } from "services/api/api-constants";
@@ -57,10 +58,9 @@ export function useLogout(){
     const netInfo=useNetInfo()
     const logout=()=>{
         setAuthToken(guestToken,true,netInfo)
-        queryClient.resetQueries('all-recording')
-        queryClient.resetQueries('user-data')
-        queryClient.resetQueries('all-tags')
+        queryClient.clear()
         dispatch(setToken(''))
+        dispatch(setTempRecordings(null))
         route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
@@ -69,7 +69,7 @@ export function useLogout(){
     {
         onSuccess:logout,
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('error logout',error?.response?.data?.message);
             if(error?.response?.data?.message?.includes('Unauthenticated')){
                 logout()
             }

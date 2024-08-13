@@ -10,7 +10,7 @@ export default function Layout() {
 
   useEffect(() => {}, []);
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    // <GestureHandlerRootView style={{ flex: 1 }}>
           <Drawer
             drawerContent={(props) => <DrawerContent {...props} />}
             screenOptions={{
@@ -19,6 +19,6 @@ export default function Layout() {
               drawerStyle: { width: "60%" },
             }}
           />
-    </GestureHandlerRootView>
+    // </GestureHandlerRootView>
   );
 }
