@@ -279,7 +279,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     const tempChats = chats;
     tempChats?.related_messages.push({ question:"Typing", answer: "", question_url:file });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    uploadRecord.mutate({audio:file,duration,id:chats?.id},{
+    uploadRecord.mutate({audio:file,duration:d,id:chats?.id},{
       onSuccess:(data)=>{
         const mes=data?.data?.related_messages
         const id=mes[mes.length-1]?.id
@@ -314,7 +314,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         setDuration(0);
       }; // Cleanup the interval on component unmount
     }
-  }, [isRecording]);
+  }, [isRecording,rec]);
 
   const {height}=useWindowDimensions()
   const top=height>690?54:89
