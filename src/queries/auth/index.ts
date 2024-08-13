@@ -57,13 +57,11 @@ export function useLogout(){
     const route = useRouter()
     const netInfo=useNetInfo()
     const logout=()=>{
-        try{
-            setAuthToken(guestToken,true,netInfo)
-            queryClient.clear()
-            dispatch(setTempRecordings([]))
-            dispatch(setToken(''))
-            route.replace("/auth/landingPage/")
-        }catch(e){}
+        setAuthToken(guestToken,true,netInfo)
+        queryClient.clear()
+        dispatch(setToken(''))
+        dispatch(setTempRecordings(null))
+        route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);
