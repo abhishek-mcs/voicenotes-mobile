@@ -40,7 +40,7 @@ export default () => {
         if(q=='')
           setTags([{name:'starred'},...tagsList.current]||[])
         else{
-          const temp=tagsList.current?.filter((f:any)=>f?.name?.toLowerCase().includes(q.toLowerCase()))||[]
+          const temp=tagsList.current?.filter((f:any)=>f?.name?.toLowerCase().includes(q?.toLowerCase()))||[]
           setTags(temp)
         }
     },[tagsList.current])
