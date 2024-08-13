@@ -139,7 +139,6 @@ const NotePreview = forwardRef(
     const createAI = useCreate();
     const addTranscript = useAddTranscript();
     const unPublishRecording = useUnpublishRecording();
-    const relatedNotes = useGetRelatedRecording(index ?? 0);
     const NetInfo = useNetInfo();
 
     const isUploadingFailed =
@@ -747,7 +746,7 @@ const NotePreview = forwardRef(
         >
           {!isSubnote && (
             <MenuItem style={styles.menuItemContent} onPress={onThreadNote}>
-              <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+              <View style={[styles.row, { width: screenWidth / 2.8,alignItems:'center',gap:8 }]}>
                 <Foundation name="record" size={24} color="red" />
                 <Text style={styles.menuItemText}>Thread a Note</Text>
               </View>
@@ -760,7 +759,7 @@ const NotePreview = forwardRef(
               closeAddMenu();
             }}
           >
-            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+            <View style={[styles.row, { width: screenWidth / 2.8,alignItems:'center',gap:8 }]}>
               <SvgXml xml={addMenu.camera} />
               <Text style={styles.menuItemText}>Photo</Text>
             </View>
@@ -772,9 +771,9 @@ const NotePreview = forwardRef(
               closeAddMenu();
             }}
           >
-            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+            <View style={[styles.row, { width: screenWidth / 2.8,alignItems:'center',gap:10 }]}>
               <SvgXml style={{ marginLeft: 4 }} xml={addMenu.link} />
-              <Text style={[styles.menuItemText, { marginLeft: 14 }]}>
+              <Text style={[styles.menuItemText, { }]}>
                 Link
               </Text>
             </View>

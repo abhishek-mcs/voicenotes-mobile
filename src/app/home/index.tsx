@@ -59,6 +59,7 @@ import axiosApi from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
+import { useGetRelatedRecording } from "queries/home/relatedNote";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -104,6 +105,8 @@ export default () => {
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
     null
   );
+  const relatedNotes = useGetRelatedRecording();
+
   const bannerRef = useRef<any>(null);
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
@@ -171,6 +174,7 @@ export default () => {
             const isProcessOver = true;
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
+            console.log('recording id',updatedNote?.data)
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -184,6 +188,8 @@ export default () => {
             console.log("removing firebase listener");
             await remove(statusRef);
             off(statusRef);
+            await relatedNotes.mutateAsync(recordingId)
+            !updatedNote.data?.parent_id&&setExpandNote(0);
             return;
           }
         } else {
@@ -354,6 +360,7 @@ export default () => {
 
   const onStopRecord = useCallback(
     async (duration: any, repeat = false) => {
+      setExpandNote(-1)
       setRecEnabled(false);
       const uri = await stopRecording(rec);
       setRec(null);
@@ -387,7 +394,6 @@ export default () => {
       }
 
       if (!repeat) {
-        setExpandNote(0);
         scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
       }
 
@@ -451,7 +457,7 @@ export default () => {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useLayoutAnim([recordingList, isSearchVisible]);
+  useLayoutAnim([isSearchVisible]);
 
   const onRefresh = async () => {
     setRefreshing(true);
