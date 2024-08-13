@@ -21,10 +21,9 @@ export function useGetRelatedRecording(index?:number){
         return axiosApi.get(`/recordings/${id}/related`)
     },
     {
-        onSuccess:(data:any)=>{
-            // const relatedNotes = data?.data??[]
+        onSuccess:async(data:any)=>{
             // dispatch(setRelatedNotes({related_notes:relatedNotes,index}));
-            queryClient.invalidateQueries('all-recording')
+            await queryClient.resetQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
