@@ -1,54 +1,58 @@
 import Colors from "assets/Colors"
 import { commonSvg } from "assets/svg/commonSvg"
+import CircularLoader from "components/common/loaders/circular-loader"
 import Touchable from "components/common/Touchable"
 import NotePreview from "components/home/note-preview"
 import { Audio } from "expo-av"
-import { useGlobalSearchParams, useRouter } from "expo-router"
+import { useRouter } from "expo-router"
 import useLayoutAnim from "hooks/anim/useLayoutAnim"
-import { useGetRelatedRecording, useGetSingleRecording } from "queries/home/relatedNote"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { ActivityIndicator, FlatList, SafeAreaView, ScrollView, Text, View } from "react-native"
+import { useGetSingleRecording } from "queries/home/relatedNote"
+import { useEffect, useRef, useState } from "react"
+import { SafeAreaView, ScrollView, Text, View } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { useQueryClient } from "react-query"
-import { isIOS } from "utils/common"
+import { useSelector } from "react-redux"
+import { RootState } from "redux/store/store"
+import { isIOS, screenHeight } from "utils/common"
 
-export default ()=>{
+export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcessing=(v:any)=>{},syncUpNote=(v:any)=>{}})=>{
     const router=useRouter()
     const notePreviewRef = useRef<any>();
     const [isPlay,setIsPlay] = useState(-1)
     const [expand,setExpand] = useState(0)
     const [play,setPlay] = useState<Audio.Sound|null>()
     const [audioLoading,setAudioLoading] = useState(-1)
-    const notePreviewRef2 = useRef<any>();
-    const [isPlay2,setIsPlay2] = useState(-1)
-    const [play2,setPlay2] = useState<Audio.Sound|null>()
-    const [audioLoading2,setAudioLoading2] = useState(-1)
-    const {id}:{id:number}=useGlobalSearchParams<any>()
+    const [note,setNote] = useState<any>(null)
+    const {tempRecordingData} = useSelector((state:RootState)=>state.recordingStates)
+    // const {id}:{id:number}=useGlobalSearchParams<any>()
     
-    const getIndividualNote = useGetSingleRecording(id)
+    const getIndividualNote = useGetSingleRecording()
     const queryClient = useQueryClient()
-    const note = getIndividualNote.data?.data
 
     useEffect(()=>{
-        // return ()=>{
-            queryClient.resetQueries('single-recording')
+        if(id&&!tempRecordingData.status){
+            getIndividualNote.mutate(id,{
+                onSuccess:(data:any)=>{
+                            setNote(data?.data)
+                }
+            })
             queryClient.resetQueries('related-recording')
-        // }
-    },[])
+        }
+    },[id,tempRecordingData])
 
     useLayoutAnim([expand])
     return (
         <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:32}}>
             <View>
-                <Touchable onPress={()=>router.back()} style={{flexDirection:'row',alignItems:'center',padding:12}}>
+                <Touchable onPress={onBack} style={{flexDirection:'row',alignItems:'center',padding:12}}>
                     <SvgXml xml={commonSvg.back} height={21}/>
                     <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.darkWithOpacity(1)}}>Back</Text>
                 </Touchable>
                 <ScrollView contentContainerStyle={{paddingBottom:100}} showsVerticalScrollIndicator={false}>
-                    {getIndividualNote.isFetched&&
+                    {getIndividualNote.isSuccess?
                     <NotePreview
                       ref={notePreviewRef}
-                      note={note}
+                      note={{...note,subnotes:!!tempRecordingData.status?[...note.subnotes,tempRecordingData]:note.subnotes}}
                       index={0}
                       list={[note]}
                       isPlay={isPlay}
@@ -57,12 +61,18 @@ export default ()=>{
                       setPlay={setPlay}
                       audioLoading={audioLoading}
                       setAudioLoading={setAudioLoading}
-                      onDeleteCallBack={()=>{router.back()}}
+                      onDeleteCallBack={onBack}
                       expand={expand}
                     //   setExpand={()=>setExpand(expand==0?-1:0)}
                       setExpand={()=>{}}
                       isSingle={true}
-                    />}
+                      onStartRecord={onStartRecord}
+                      continueProcessing={continueProcessing}
+                      syncUpNote={syncUpNote}
+                    />
+                :<View style={{flex:1,height:screenHeight-300,alignItems:'center',justifyContent:'center'}}>
+                    <CircularLoader width={20} height={20} />
+                </View>}
                 </ScrollView>
             </View>
         </SafeAreaView>

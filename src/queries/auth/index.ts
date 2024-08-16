@@ -3,7 +3,6 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { setTempRecordings } from "redux/reducers/recordingStates";
 import { setToken } from "redux/reducers/userDetails";
 import { RootState } from "redux/store/store";
 import { API_URL } from "services/api/api-constants";
@@ -60,7 +59,6 @@ export function useLogout(){
         setAuthToken(guestToken,true,netInfo)
         queryClient.clear()
         dispatch(setToken(''))
-        dispatch(setTempRecordings(null))
         route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
