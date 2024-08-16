@@ -9,6 +9,8 @@ import { useRouter } from "expo-router";
 import CircularLoader from "components/common/loaders/circular-loader";
 import Animated from "react-native-reanimated";
 import { isIOS, screenWidth } from "utils/common";
+import { useDispatch } from "react-redux";
+import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 
 const {debounce}=require("lodash")
 
@@ -23,6 +25,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
     const setSearchHistory=useSetSearchHistory()
     const deleteSearchHistory=useDeleteSearchHistory()
     const getSearchData=useSearch(searchQuery);
+    const dispatch=useDispatch()
 
     const searchData=getSearchData.data?.data||[]
 
@@ -48,7 +51,9 @@ export default ({setHide=(v:boolean)=>{}})=>{
     const goto=(rec_id:any)=>{
       Keyboard.dismiss();
       setSearchHistory.mutate(rec_id)
-      router.push({pathname:"/RelatedNotes/",params:{id:rec_id}})
+      // router.push({pathname:"/RelatedNotes/",params:{id:rec_id}})
+      dispatch(setRelatedNoteId(rec_id))
+      router.back()
       clearSearch()
     }
     useEffect(()=>{

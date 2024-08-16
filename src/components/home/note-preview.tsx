@@ -75,6 +75,7 @@ import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
+import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 
 const NotePreview = forwardRef(
   (
@@ -124,6 +125,10 @@ const NotePreview = forwardRef(
       url: string;
     } | null>(null);
     const [attachments, setAttachments] = useState([]);
+
+    const { recordingList } = useSelector(
+      (state: RootState) => state.recordingStates
+    );
 
     const dispatch = useDispatch();
 
@@ -439,7 +444,7 @@ const NotePreview = forwardRef(
       }
     }, [note?.public_slug]);
 
-    const audioDuration = note?.audio?.data?.duration;
+    const audioDuration = note?.audio?.data?.duration||note?.duration;
     const formattedDuration = useMemo(
       () =>
         audioDuration
@@ -803,7 +808,7 @@ const NotePreview = forwardRef(
             style={styles.menuItemContent}
             onPress={() => onCreate("summary")}
           >
-            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+            <View style={[styles.row, { width: screenWidth / 2.8, alignItems:'center',gap:8 }]}>
               <SvgXml xml={CreateModalSvg.summary} />
               <Text style={styles.menuItemText}>Summarize</Text>
             </View>
@@ -812,7 +817,7 @@ const NotePreview = forwardRef(
             style={styles.menuItemContent}
             onPress={() => onCreate("points")}
           >
-            <View style={[styles.row, { width: screenWidth / 2.8 }]}>
+            <View style={[styles.row, { width: screenWidth / 2.8, alignItems:'center',gap:8 }]}>
               <SvgXml xml={CreateModalSvg.points} />
               <Text style={styles.menuItemText}>Main points</Text>
             </View>
@@ -821,7 +826,7 @@ const NotePreview = forwardRef(
             style={styles.menuItemContent}
             onPress={() => onCreate("todo")}
           >
-            <View style={styles.row}>
+            <View style={[styles.row,{alignItems:'center',gap:8}]}>
               <SvgXml xml={CreateModalSvg.todo} />
               <Text style={styles.menuItemText}>To-do list</Text>
             </View>
@@ -830,7 +835,7 @@ const NotePreview = forwardRef(
             style={styles.menuItemContent}
             onPress={() => onCreate("blog")}
           >
-            <View style={styles.row}>
+            <View style={[styles.row,{alignItems:'center',gap:8}]}>
               <SvgXml xml={CreateModalSvg.blog} />
               <Text style={styles.menuItemText}>Blog post</Text>
             </View>
@@ -839,7 +844,7 @@ const NotePreview = forwardRef(
             style={styles.menuItemContent}
             onPress={() => onCreate("tweet")}
           >
-            <View style={styles.row}>
+            <View style={[styles.row,{alignItems:'center',gap:8}]}>
               <SvgXml xml={CreateModalSvg.tweet} />
               <Text style={styles.menuItemText}>Tweet</Text>
             </View>
@@ -848,7 +853,7 @@ const NotePreview = forwardRef(
             style={styles.menuItemContent}
             onPress={() => onCreate("email")}
           >
-            <View style={styles.row}>
+            <View style={[styles.row,{alignItems:'center',gap:8}]}>
               <SvgXml xml={CreateModalSvg.email} />
               <Text style={styles.menuItemText}>Email</Text>
             </View>
@@ -879,7 +884,10 @@ const NotePreview = forwardRef(
           {!isSubnote &&
             (index == 0 ||
               (index != 0 &&
-                !isSameDay(note?.recorded_at, list[index - 1]?.recorded_at))) && (
+                !isSameDay(
+                  note?.recorded_at,
+                  recordingList[index - 1]?.recorded_at
+                ))) && (
               <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>
             )}
           <View style={styles.row}>
@@ -891,7 +899,7 @@ const NotePreview = forwardRef(
                   <SvgXml xml={isPlay == index ? home.pause : home.play} />
                 </Touchable>
               )}
-              <View style={styles.timeLine}/>
+              <View style={styles.timeLine} />
             </View>
             <View style={styles.content}>
               <View
@@ -901,10 +909,10 @@ const NotePreview = forwardRef(
                   justifyContent: "space-between",
                 }}
               >
-                {note?.is_title_loading ? (
+                {(note?.is_title_loading) ? (
                   <AiLoader
                     text="Creating title from your voice"
-                    style={{ marginTop: 0 }}
+                    style={{ marginTop: -7 }}
                     size={14}
                   />
                 ) : (
@@ -939,7 +947,7 @@ const NotePreview = forwardRef(
                 />
               )}
 
-              {note?.status === "uploading" && (
+              {note?.status != "processed" && (
                 <Text style={{}}>{formattedDuration}</Text>
               )}
               <View>
@@ -970,7 +978,13 @@ const NotePreview = forwardRef(
                 {expand === index && (
                   <>
                     {renderButtons()}
-                    <RelatedNotesList note={note} />
+                    <RelatedNotesList
+                      note={note}
+                      onPress={(id: any) => {
+                        // setRelatedNoteId(null);
+                        dispatch(setRelatedNoteId(id));
+                      }}
+                    />
                     {token && (
                       <CreationsList
                         note={note}
@@ -1084,9 +1098,9 @@ const styles = StyleSheet.create({
   menuShared: {
     borderRadius: 16,
     paddingHorizontal: 12,
-    paddingVertical:12,
-    height:118,
-    width:160
+    paddingVertical: 12,
+    height: 118,
+    width: 160,
   },
   menuItemContent: {
     flexDirection: "row",
@@ -1100,7 +1114,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0d0d0d0d",
     borderRadius: 16,
     // padding: 12,
-    width:136,
+    width: 136,
     justifyContent: "center",
   },
   menuItemContentSharedTextStyle: {
@@ -1145,6 +1159,14 @@ const styles = StyleSheet.create({
     marginTop: 40,
     borderRadius: 12,
     paddingBottom: 0,
+  },
+  relatedNoteModal: {
+    flex: 1,
+    backgroundColor: "#fff",
+    width: "100%",
+    height: "100%",
+    margin: 0,
+    zIndex:10,
   },
 });
 

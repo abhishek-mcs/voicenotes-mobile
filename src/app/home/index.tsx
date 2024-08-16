@@ -44,7 +44,9 @@ import { home } from "assets/svg/home";
 import Animated from "react-native-reanimated";
 import {
   setRecordingList,
+  setTempRecordingData,
   updateRecordingDetails,
+  updateTempRecordingData,
 } from "redux/reducers/recordingStates";
 import NetInfo from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
@@ -53,12 +55,15 @@ import { analytics, db } from "../../../firebaseConfig";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import { off, onValue, ref, remove } from "firebase/database";
+import { off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
+import CustomModal from "components/common/custom-modal";
+import RelatedNotes from "app/RelatedNotes";
+import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -82,7 +87,7 @@ export default () => {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
-  const { recordingList } = useSelector(
+  const { recordingList,tempRecordingData } = useSelector(
     (state: RootState) => state.recordingStates
   );
   const createGuestUser = useGuestToken();
@@ -104,6 +109,7 @@ export default () => {
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
     null
   );
+  const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const relatedNotes = useGetRelatedRecording();
 
   const bannerRef = useRef<any>(null);
@@ -149,6 +155,7 @@ export default () => {
                 temporaryRecordingId,
               })
             );
+            dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.UPLOADED_FAILED) {
             updatedStatus = "upload_failed";
             console.log("audio uploaded failed");
@@ -159,6 +166,7 @@ export default () => {
                 temporaryRecordingId,
               })
             );
+            dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
             updatedStatus = "processing_failed";
             console.log("title geneation failed;waiting");
@@ -169,8 +177,10 @@ export default () => {
                 temporaryRecordingId,
               })
             );
+            dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
             const isProcessOver = true;
+            updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log('recording id',updatedNote?.data)
@@ -179,11 +189,13 @@ export default () => {
                 recordingId,
                 data: {
                   ...updatedNote.data,
-                  status: "processed",
+                  status: updatedStatus,
                   is_transcript_loading: false,
                 },
               })
             );
+            dispatch(updateTempRecordingData(updatedStatus));
+            dispatchCanRecord(updatedNote.data?.can_record_more);
             console.log("removing firebase listener");
             await remove(statusRef);
             off(statusRef);
@@ -198,7 +210,6 @@ export default () => {
     },
     [token, dispatch]
   );
-  
 
   useEffect(() => {
     if (recordingQuery.data) {
@@ -380,6 +391,7 @@ export default () => {
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
+        dispatch(setTempRecordingData(newTemporaryRecording))
         const newRecordingList = recordingList.map((recording) => {
           if (recording.id === recordingParentId) {
             return {
@@ -648,6 +660,16 @@ export default () => {
         onPause={onPause}
         rec={rec}
       />
+        {/* related notes single page */}
+        <CustomModal visible={!!relatedNoteId}>
+          <RelatedNotes
+            id={relatedNoteId}
+            onBack={() => dispatch(setRelatedNoteId(null))}
+            onStartRecord={onStartRecord}
+            continueProcessing={continueProcessing}
+            syncUpNote={syncUpNote}
+          />
+        </CustomModal>
     </SafeAreaView>
   );
 };

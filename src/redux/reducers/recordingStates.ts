@@ -5,11 +5,13 @@ import { Note } from "types";
 export interface HashState {
   recordingList: any[];
   tempRecordings: any;
+  tempRecordingData:any;
 }
 
 const initialState: HashState = {
   recordingList: [],
   tempRecordings: [],
+  tempRecordingData:{},
 };
 
 export const recordingStates = createSlice({
@@ -21,6 +23,9 @@ export const recordingStates = createSlice({
     },
     setTempRecordings: (state, action: PayloadAction<any>) => {
       state.tempRecordings = action.payload;
+    },
+    setTempRecordingData: (state, action: PayloadAction<any>) => {
+      state.tempRecordingData = action.payload;
     },
     setRelatedNotes: (state, action: PayloadAction<any>) => {
       state.recordingList[action.payload?.index].related_notes =
@@ -57,7 +62,12 @@ export const recordingStates = createSlice({
         ),
       };
     },
-
+    updateTempRecordingData: (state, action: PayloadAction<any>) => {
+      if( action.payload === 'processed')
+        state.tempRecordingData=[]
+      else
+        state.tempRecordingData.status= action.payload??'upload_failed'
+    },
     updateRecordingDetails: (state, action: PayloadAction<any>) => {
       const { recordingId, temporaryRecordingId, data } = action.payload;
 
@@ -96,6 +106,7 @@ export const recordingStates = createSlice({
 
 export const {
   setTempRecordings,
+  setTempRecordingData,
   setRecordingList,
   setRelatedNotes,
   updateTitle,
@@ -103,6 +114,7 @@ export const {
   deleteRecording,
   deleteRecordingsFromState,
   updateRecordingDetails,
+  updateTempRecordingData,
 } = recordingStates.actions;
 
 export default recordingStates.reducer;

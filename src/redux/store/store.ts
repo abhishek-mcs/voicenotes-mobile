@@ -8,6 +8,7 @@ import suggestionState from 'redux/reducers/suggestionState';
 import IAPStates from 'redux/reducers/IAPStates';
 import recordingStates from 'redux/reducers/recordingStates';
 import editStates from 'redux/reducers/editStates';
+import relatedNoteStates from 'redux/reducers/relatedNoteStates';
 
 const persistConfig = {
   key: 'root',
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
     suggestionState:suggestionState,
     IAPStates:IAPStates,
     recordingStates:recordingStates,
-    editStates:editStates
+    editStates:editStates,
+    relatedNoteStates:relatedNoteStates
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

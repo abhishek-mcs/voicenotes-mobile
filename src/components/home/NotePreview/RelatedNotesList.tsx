@@ -8,7 +8,7 @@ import { Note } from 'types';
 import { screenWidth } from 'utils/common';
 import { formatDate } from 'utils/format-date';
 
-const RelatedNotesList = ({note}:{note: Note}) => {
+const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:any)=>void}) => {
       if (!note?.related_notes?.length) return null;
       return (
         note?.transcript && (
@@ -37,10 +37,11 @@ const RelatedNotesList = ({note}:{note: Note}) => {
                   return (
                     <Touchable
                       onPress={() => {
-                        router.push({
-                          pathname: "/RelatedNotes/",
-                          params: { id: item?.id },
-                        });
+                        onPress(item?.id);
+                        // router.push({
+                        //   pathname: "/RelatedNotes/",
+                        //   params: { id: item?.id },
+                        // });
                       }}
                       activeOpacity={0.6}
                       key={item?.id}
