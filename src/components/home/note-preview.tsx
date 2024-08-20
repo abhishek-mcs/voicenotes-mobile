@@ -947,7 +947,7 @@ const NotePreview = forwardRef(
                 />
               )}
 
-              {note?.status != "processed" && (
+              {(note?.status == "uploading"||note?.status=="processing") && (
                 <Text style={{}}>{formattedDuration}</Text>
               )}
               <View>

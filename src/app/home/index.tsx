@@ -388,10 +388,10 @@ export default () => {
         parent_id: recordingParentId ?? null,
       };
 
+      dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
-        dispatch(setTempRecordingData(newTemporaryRecording))
         const newRecordingList = recordingList.map((recording) => {
           if (recording.id === recordingParentId) {
             return {
