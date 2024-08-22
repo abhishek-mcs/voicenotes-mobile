@@ -537,7 +537,6 @@ final class ContentViewModel: ObservableObject {
   func askAIButton() {
     showAIRecordView = true
     let subscriptionStatus = userDataModel?.subscriptionStatus ?? false
-    aiRecordingViewModel.maxRecordingTime = subscriptionStatus ? 20 * 60 : 60
     aiRecordingViewModel.recordButtonTapped()
   }
   

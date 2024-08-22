@@ -29,7 +29,7 @@ final class AIRecordingViewModel: ObservableObject {
   private var speed: Double = 1.0
   private var getUserInfo = false
   
-  var maxRecordingTime: TimeInterval = 60
+  var maxRecordingTime: TimeInterval = 20
   var completion: (RecordingDataModel, _ hideView: Bool) -> Void
   
   init(completion: @escaping (RecordingDataModel, Bool) -> Void) {
