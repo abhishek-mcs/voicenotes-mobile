@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Easing } from 'react-native';
 import { Audio } from 'expo-av';
 import Svg, { Rect } from 'react-native-svg';
 import { RecordingStatus } from 'expo-av/build/Audio';
+import Animated, { Easing, FadeInRight, ReduceMotion, SlideInRight, useAnimatedStyle, useSharedValue, withTiming, ZoomIn } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import { screenWidth } from 'utils/common';
 
 interface Props {
   recording: Audio.Recording | null;
@@ -10,62 +12,41 @@ interface Props {
 
 const Waveform: React.FC<Props> = ({ recording }) => {
   const [meteringValues, setMeteringValues] = useState<number[]>([]);
-  const animatedHeights = useRef<Animated.Value[]>([]).current;
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const containerWidth = 300; // Adjust this value based on your desired width
-  const translateX = useRef<Animated.Value[]>([]).current;
+  const [temp, setTemp] = useState([0,]);
 
-  const width = 6;
-  const spacing = 5;
-  const baseHeight = 50; // Base height for the waveform (center line)
+  const tempRef = useRef({ temp: [0,], isPlaying: false })
+  const width = useSharedValue(10);
 
-  const updateAnimatedHeights = (newValues: number[]) => {
-    newValues.forEach((value, index) => {
-      if (!animatedHeights[index]) {
-        animatedHeights[index] = new Animated.Value(0);
-      }
-      if (!translateX[index]) {
-        translateX[index] = new Animated.Value(0);
-      }
-      const height = Math.abs((value + 65)>5?(value + 65):6);
-      const x=index * (width + spacing)
-      // console.log('x',x)
-      Animated.timing(animatedHeights[index], {
-        toValue: height,
-        duration: 300,
-        easing: Easing.linear,
-        useNativeDriver: false,
-      }).start();
-
-    // Animated.timing(translateX[index], {
-    //   toValue: x,
-    //   duration: 1000,
-    //   easing: Easing.linear,
-    //   useNativeDriver: false,
-    // }).start();
-    });
+  const linear = Easing.linear
+  const customEasing = (value: number) => {
+    'worklet'
+    // Perform calculations here
+    return value; // Ensure a number is returned
   };
+
+  const style = useAnimatedStyle(() => {
+    return {
+      transform:[{translateX: withTiming(width.value, {
+        duration: 100,
+        easing: customEasing,
+        reduceMotion: ReduceMotion.Never
+      }, () => {
+
+      }),}]
+
+    };
+  });
 
   useEffect(() => {
     if (recording) {
       const prepareRecording = async () => {
-        recording.setOnRecordingStatusUpdate((status: RecordingStatus) => {
+        recording?.setOnRecordingStatusUpdate((status: RecordingStatus) => {
           if (status.isRecording && status.metering !== undefined) {
-            setMeteringValues((prevValues: any) => {
-              const newValues = [...prevValues, status.metering];
-              if (newValues.length > 100) newValues.shift(); // Keep only the latest 100 values
-              updateAnimatedHeights(newValues);
-
-              // Animate the scroll
-              // Animated.timing(scrollX, {
-              //   toValue: -(newValues.length * (width + spacing) - containerWidth),
-              //   duration: 300,
-              //   easing: Easing.linear,
-              //   useNativeDriver: false,
-              // }).start();
-
-              return newValues;
-            });
+            console.log(status.metering)
+            let temp1 = [...tempRef.current.temp, (status.metering + 37) * 1.2]
+            tempRef.current.temp = temp1
+            setTemp(temp1)
+            width.value = (width.value) % (screenWidth-200)
           }
         });
       };
@@ -74,48 +55,19 @@ const Waveform: React.FC<Props> = ({ recording }) => {
     }
   }, [recording]);
 
-
-  const renderWaveform = () => {
-
-    return meteringValues.map((value, index) => {
-      const animatedHeight = animatedHeights[index] || new Animated.Value(0);
-      const x = translateX[index] || new Animated.Value(0);
-      return (
-        <AnimatedRect
-          key={index}
-          x={index*(width+spacing)}
-          y={animatedHeight.interpolate({
-            inputRange: [0, 100],
-            outputRange: [baseHeight, baseHeight - 100],
-            extrapolate: 'clamp',
-          })}
-          width={width}
-        //   transform={[{ translateX: scrollX }]}
-          height={animatedHeight.interpolate({
-            inputRange: [0, 100],
-            outputRange: [0, 200],
-            extrapolate: 'clamp',
-          })}
-          fill="#0D0D0D"
-          rx={2}
-          ry={2}
-        />
-      );
-    });
-  };
-
   return (
-    <View style={styles.container}>
-      {/* <Animated.View style={{ transform: [{ translateX }], flex: 1 }}> */}
-        <Svg height="70%" width={'100%'} viewBox={`0 0 ${(meteringValues.length * (6 + 5))} 100`}>
-          {renderWaveform()}
-        </Svg>
-      {/* </Animated.View> */}
+    <View style={{height:25,width:screenWidth-200,overflow:'hidden'}}>
+    <Animated.View style={{ backgroundColor: 'transparent', height: 25,width:screenWidth-200, display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }}>
+    <Animated.View entering={FadeInRight} style={[{ display: 'flex', flexDirection: 'row', overflow: 'hidden', backgroundColor: 'transparent', gap: 1, alignItems: 'center' }, style]}>
+      {temp.map(t => {
+        return <Animated.View entering={ZoomIn} style={{ height: t>25?25:t > 10 ? t : 1.15, borderWidth:2, borderRadius: 200, borderColor: '#222', }} />
+      })}
+    </Animated.View>
+    </Animated.View>
     </View>
   );
 };
 
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
 const styles = StyleSheet.create({
   container: {

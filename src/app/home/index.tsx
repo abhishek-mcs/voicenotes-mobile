@@ -145,6 +145,7 @@ export default () => {
           }
 
           let updatedStatus = "uploading";
+          console.log("status: ", status);
           if (status === RecordingStatus.AUDIO_UPLOADED) {
             updatedStatus = "processing";
             console.log("audio uploaded");
@@ -291,8 +292,9 @@ export default () => {
 
   const onAsk = () => {
     CreateModalRef.current?.close();
-    AIModalRef.current?.toggle();
-    AIModalRef.current?.getNewSugg();
+    // AIModalRef.current?.toggle();
+    // AIModalRef.current?.getNewSugg();
+    router.push("/ask-my-ai/");
   };
   const onCreate = () => {
     CreateModalRef.current?.onReset();
@@ -642,7 +644,7 @@ export default () => {
             fetchNextPage={fetchNextPage}
             setHideBg={setHideBg}
           />
-          <AIModal ref={AIModalRef} setHideBg={setHideBg} />
+          {/* <AIModal ref={AIModalRef} setHideBg={setHideBg} /> */}
           {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
         </View>
       </KeyboardAvoidView>

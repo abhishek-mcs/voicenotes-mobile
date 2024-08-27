@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, StyleSheet, Dimensions, Button, Text, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
 import { color, Slider } from '@rneui/base';
@@ -7,13 +7,14 @@ import { SvgXml } from 'react-native-svg';
 import { playerSvg } from 'assets/svg/playerSvg';
 import { useSignedUrlForChat } from 'queries/home';
 import CircularLoader from 'components/common/loaders/circular-loader';
+import { formatTime } from 'utils/Timer';
 
 const { width } = Dimensions.get('window');
 
 export default ({isAI=false,url=''}) => {
   const [sound, setSound] = useState<Audio.SoundObject|any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(100);
+  const [duration, setDuration] = useState(0);
   const [status, setStatus] = useState<any>('');
   const [position, setPosition] = useState(0);
   const signedURL=useSignedUrlForChat()
@@ -92,7 +93,7 @@ export default ({isAI=false,url=''}) => {
       await sound.playAsync();
     }
   };
-
+  const formattedDuration=useMemo(()=>new Date(duration).toISOString().substring(14, 19),[duration])
   return (
     <View style={styles.container}>
         {sound==null?
@@ -113,6 +114,7 @@ export default ({isAI=false,url=''}) => {
           minimumTrackTintColor={isAI?'white':Colors.primary}
           maximumTrackTintColor={isAI?Colors.whiteWithOpacity(0.5):Colors.primaryWithOpacity(0.1)}
         />
+        <Text style={{color:Colors.grey,fontFamily:'Primary-Medium',fontSize:12}}>{formattedDuration}</Text>
       </View>
     </View>
   );
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     marginLeft:12
   },
   slider: {
-    width:'92%'
+    width:'68%',marginRight:12
   },
   thumb:{ backgroundColor: Colors.primary,width: 12, height: 12, borderRadius: 10}
 });
