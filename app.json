@@ -2,7 +2,7 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.36",
+    "version": "1.5.38",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "voicenotes",
