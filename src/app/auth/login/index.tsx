@@ -30,7 +30,9 @@ export default ()=> {
     // Must run after animations for keyboard to automatically open
     InteractionManager.runAfterInteractions(() => {
       if (inputRef?.current) {
-        inputRef.current.focus()
+        setTimeout(() => {
+          inputRef.current?.focus()
+        }, 1500);
       }
     })
   }, [inputRef])
@@ -50,7 +52,8 @@ export default ()=> {
             if (response.data?.exists) {
               router?.push("/auth/login/loginPassword")
             }else{
-              setEmailError("There is no account with the given email address.")
+              router.push("/auth/signup/")
+              // setEmailError("There is no account with the given email address.")
             }
           },
           onError: (error:any) => {

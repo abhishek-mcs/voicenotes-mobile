@@ -28,7 +28,7 @@ import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
 import chatLoader from "assets/lottie/chatLoader.json";
-import { isIOS, screenHeight, screenWidth } from "utils/common";
+import { isAndroid, isIOS, screenHeight, screenWidth } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
@@ -36,12 +36,12 @@ import { DrawerLayout } from "react-native-gesture-handler";
 import { home } from "assets/svg/home";
 import { formatDate, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
-import Recording from "components/common/recording";
 import AudioPlayer from "./AudioPlayer";
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { cancelRecording, onRecord, stopRecording } from "func/home/record";
 import { Audio } from "expo-av";
+import ChatRecorder from "components/common/recording/chat-recorder";
 
 type chatProps = {
   related_messages: [
@@ -90,6 +90,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const [audioLoader,setAudioLoader]=useState(false);
   const soundRef = useRef<any>(null);
+  const textInputRef = useRef<TextInput>(null);
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -116,8 +117,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
     );
-    const keyboardHide = Keyboard.addListener("keyboardWillHide", () =>
+    const keyboardHide = Keyboard.addListener("keyboardWillHide", () =>{
       setKeyboardShown(false)
+      isAndroid&&textInputRef?.current?.blur();
+    }
     );
     return () => {
       keyboardShown.remove();
@@ -276,7 +279,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     const tempChats = chats;
     tempChats?.related_messages.push({ question:"Typing", answer: "", question_url:file });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    uploadRecord.mutate({audio:file,duration,id:chats?.id},{
+    uploadRecord.mutate({audio:file,duration:d,id:chats?.id},{
       onSuccess:(data)=>{
         const mes=data?.data?.related_messages
         const id=mes[mes.length-1]?.id
@@ -311,10 +314,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         setDuration(0);
       }; // Cleanup the interval on component unmount
     }
-  }, [isRecording]);
+  }, [isRecording,rec]);
 
   const {height}=useWindowDimensions()
-  const top=height>690?64:99
+  const top=height>690?54:89
   return (
     <ReactNativeModal
       isVisible={visible}
@@ -322,7 +325,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       hideModalContentWhileAnimating={true}
       animationOut={"fadeOutDown"}
       // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:94) }]}
+      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:84) }]}
       backdropOpacity={0.05}
       avoidKeyboard
       hasBackdrop={false}
@@ -403,6 +406,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
           <View style={styles.inputContainer}>
             {!isRecording?<>
             <TextInput
+              ref={textInputRef}
               onTouchStart={e=>e?.stopPropagation()}
               onFocus={()=>scrollToEnd()}
               style={styles.input}
@@ -427,7 +431,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             </Touchable>
             </>
             :<View style={{width:'100%',marginLeft:-12,marginTop:0,justifyContent:'center'}}>
-              <Recording
+              <ChatRecorder
                 totalDuration={'/00:20'}
                 duration={duration}
                 onCancel={onCancelRecord}
@@ -560,9 +564,10 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     flexWrap: "wrap",
     width: "80%",
-    lineHeight: 24,
-    paddingTop:isIOS?13:16,
-    paddingBottom:16
+    // lineHeight: 24,
+    paddingTop:16,
+    paddingBottom:16,
+    minHeight:24
   },
   inputContainer: {
     minHeight: 60,

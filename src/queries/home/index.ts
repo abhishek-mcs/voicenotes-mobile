@@ -2,6 +2,11 @@ import axios from "axios";
 import { useLogout } from "queries/auth";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
 import axiosApi from "services/api/axios-api";
+import { useGetRelatedRecording } from "./relatedNote";
+import { Platform } from "react-native";
+import * as Device from 'expo-device';
+import { currentVersion } from "services/api/api-constants";
+
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -60,6 +65,7 @@ export function useSaveEditedNote(recording_id:any){
 export function useUploadRecord(){
     return useMutation('upload-audio', async(data:any) => {
         const uri = data.audio;
+        const {parent_id, recorded_at} = data
         const filetype = uri.split(".").pop();
         const filename = uri.split("/").pop();
 
@@ -69,14 +75,31 @@ export function useUploadRecord(){
           name: filename,
           type: `audio/${filetype}`,
         });
+        parent_id && formData.append("parent_id", parent_id);
+
+        const deviceInfo = {
+            platform: Platform.OS,
+            manufacturer: Device.manufacturer ,
+            modelName: Device.modelName ,
+            deviceType: Device.deviceType === null? null: Device.DeviceType[Device.deviceType],
+            osVersion: Device.osVersion,
+            appVersion:  currentVersion
+        }
+
         formData.append("duration", data.duration.toString());
+        formData.append("device_info",JSON.stringify(deviceInfo));
+        formData.append("recorded_at", data?.recorded_at?.toString());
         return axiosApi.post(`/recordings`,formData,{
             headers: {"Content-Type": "multipart/form-data"}
         })
     },
     {
         onError:(error:any)=>{
-            console.log('upload audio api',error?.response?.data?.message);
+            if(error?.response?.data?.error_code==="ffmpeg_conversion_failed"){
+                console.log("Corrupted audio");
+            }else{
+                console.error('Error in upload audio api: ', error);
+            }
         }
     })
 }
@@ -164,21 +187,34 @@ export function useGetAiCreation(){
     })
 }
 
-export function useAddTranscript(doGenerateTitle=false){
+export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setReduxRecordingList:any=()=>{}){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()
+    const addRelatedNotes=useGetRelatedRecording()
     let rec_id:number;
     return useMutation('add-transcript',(recording_id:number) => {
+        if (!recording_id) {
+            throw new Error("recording_id is required");
+        }
         doGenerateTitle&&(rec_id=recording_id)
         return axiosApi.patch(`/recordings/${recording_id}/transcript`)
     },
     {
         onSuccess:async()=>{
-            await queryC.invalidateQueries('all-recording')
-            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id)
+            await queryC.resetQueries(['all-recording'])
+            doGenerateTitle&&!!rec_id&&addTitle.mutate(rec_id,{
+                onError:(error:any)=>{
+                    const index=recordingList?.findIndex((r:any)=>r.id==rec_id)
+                    recordingList[index].title=null;
+                    setReduxRecordingList([...recordingList])
+                }
+            })
+            doGenerateTitle&&!!rec_id&&addRelatedNotes.mutate(rec_id)
         },
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log("add-transcript: ", error);
+            
+            console.log('add-transcript',error?.response?.data?.message);
         }
     })
 }
@@ -190,11 +226,11 @@ export function useAddTitle(){
     },
     {
         onSuccess:async()=>{
-            await queryClient.invalidateQueries('all-recording');
-            await queryClient.invalidateQueries('streaks');
+            await queryClient.resetQueries(['all-recording']);
+            await queryClient.resetQueries('streaks');
         },
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('add-title',error?.response?.data?.message);
         }
     })
 }
@@ -213,12 +249,12 @@ export function useGetTags(){
 export function useGetUserData(token:any){
    
     return useQuery('user-data',(p?:any)=> {
-        if(!!token)
+    if(!!token)
         return axiosApi.get(`/auth/me`)
     },
     {
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('auth me',error?.response?.data?.message);
         }
     })
 }
@@ -279,7 +315,6 @@ export function useAskSomething(){
 }
 
 export function useAskAIHistory(tags?:string){
-    const logout =useLogout()
     return useInfiniteQuery(['ask-ai-history'],async ({pageParam=1})=>{
         return await axiosApi.get('/ai-chat-thread');
     },{

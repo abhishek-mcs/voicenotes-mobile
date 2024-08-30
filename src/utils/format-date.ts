@@ -1,8 +1,17 @@
-export const formatDate = (date = Date.now()) => {
+export const formatDate = (date = Date.now(),dateFirst=true,short=false) => {
   const dateToFormat = new Date(date);
   const day = dateToFormat.toLocaleDateString("en-US", { day: "2-digit" });
-  const month = dateToFormat.toLocaleDateString("en-US", { month: "long" });
-  return `${day} ${month}`;
+  const month = dateToFormat.toLocaleDateString("en-US", { month:short?"short": "long" });
+  return dateFirst?`${day} ${month}`:`${month} ${day}`;
+};
+
+export const formatDateTime = (date = Date.now()) => {
+  const dateToFormat = new Date(date);
+  const time = dateToFormat.toLocaleTimeString("en-US", { timeStyle: 'short' });
+  const day = dateToFormat.toLocaleDateString("en-US", { day: "2-digit" });
+  const month = dateToFormat.toLocaleDateString("en-US", { month:"short" });
+  const year = dateToFormat.toLocaleDateString("en-US", { year:'numeric' });
+  return `${time} \u00B7 ${month} ${day}, ${year}`;
 };
 
 export function getLastSixMonths() {

@@ -11,7 +11,6 @@ import { setHashTags,setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { useRouter } from "expo-router";
 import { isIOS, screenHeight } from "utils/common";
-import { useLogout } from "queries/auth";
 import { commonSvg } from "assets/svg/commonSvg";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
@@ -27,12 +26,11 @@ export default (props:any) => {
   const [showMenu,setShowMenu]=useState(false)
 
   const getTags=useGetTags()
-  const logout=useLogout()
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
 
   useEffect(() => {
-    if(data?.data?.data){
+    if(!!token&&data?.data?.data){
       dispatch(setUserDetail(data?.data?.data))
       data?.data?.data?.settings?.language&& dispatch(setLang(languages[data?.data?.data?.settings?.language]))
       dispatch(setCanRecord(data?.data?.data?.can_record_more??true))
@@ -57,12 +55,13 @@ export default (props:any) => {
     router?.push('/settings/')
   }
 
-  const onUpgrade=()=>{
-    router?.push('/premium/')
+  const onUpgrade=()=>{ 
+    router.push({ pathname: `/premium/`, params: { from:"home" } });
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      <SvgXml xml={commonSvg.logo} style={{marginBottom:16}}/>
       <FlatList
         style={{marginBottom:20}}
         showsVerticalScrollIndicator={false}

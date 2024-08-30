@@ -14,15 +14,15 @@ export function useSearch(q:string){
 
 export function useSetSearchHistory(){
     const queryClient = useQueryClient()
-    return useMutation('set-search-history',(p:any) => {
-        return axiosApi.post(`/search-history`,{keyword:p})
+    return useMutation('set-search-history',(id:any) => {
+        return axiosApi.post(`/search-history`,{uuid:id})
     },
     {
         onSuccess:()=>{
-            queryClient.invalidateQueries('search-history')
+            queryClient.resetQueries('search-history')
         },
         onError:(error:any)=>{
-            console.log('reg-search',error?.response?.data?.message);
+            console.log('set-search-history',error?.response?.data?.message);
         }
     })
 }
@@ -33,7 +33,7 @@ export function useSearchHistory(){
     },
     {
         onError:(error:any)=>{
-            console.log('reg-search',error?.response?.data?.message);
+            console.log('search-history',error?.response?.data?.message);
         }
     })
 }
