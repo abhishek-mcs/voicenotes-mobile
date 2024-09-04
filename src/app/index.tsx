@@ -33,6 +33,8 @@ export default function App() {
     "Primary": require('../assets/fonts/Inter-Regular.ttf'),
     "Primary-Semibold": require('../assets/fonts/Inter-SemiBold.ttf'),
     "Primary-Italic": require('../assets/fonts/Inter-Italic.ttf'),
+    "Secondary": require('../assets/fonts/InstrumentSerif-Regular.ttf'),
+    "Secondary-Italic": require('../assets/fonts/InstrumentSerif-Italic.ttf'),
     ...FontAwesome.font,
   });
   
