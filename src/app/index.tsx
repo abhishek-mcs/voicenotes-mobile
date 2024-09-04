@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import * as WebBrowser from 'expo-web-browser';
 import { LogBox, Platform, UIManager } from 'react-native';
+import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 
 LogBox.ignoreLogs(['Require cycle: src']);
 
@@ -52,6 +53,7 @@ export default function App() {
   }, [error]);
   
   useIAPSetup()
+  useFBEventTracking()
 
   if (!fontsLoaded) {
     return null;
