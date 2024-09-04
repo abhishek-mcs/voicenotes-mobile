@@ -46,11 +46,15 @@ export default (props:any) => {
     return ()=>StatusBar.setHidden(false)
   },[])
   
+  const freeUser=()=>{
+    router.dismissAll();
+    return router?.replace("/home/")
+  }
+
   const onUpgrade = async() => {
     try {
       if(selected=='free') {
-        router.dismissAll();
-        return router?.replace("/home/")
+        freeUser()
       };
       setIsLoading(true)
       await Purchases.setAttributes({'email':userDetails?.email})
@@ -124,7 +128,7 @@ export default (props:any) => {
         <View style={{height:150,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
           <SvgXml xml={iapSvg.usersCount}/>
     {/* {from=="home"&& */}
-         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:65}]} onPress={()=>router?.back()}>
+         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:65}]} onPress={()=>from=="home"?router?.back():freeUser()}>
            <SvgXml xml={iapSvg.close}/>
          </Touchable>
         </View>
@@ -249,8 +253,8 @@ const styles = StyleSheet.create({
   btnContent:{marginBottom:5,flexDirection:'row',alignItems:'center'},
   btnText:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2},
   offer:{color:'#FF4538', fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
-  btnPrice:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2},
-  btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4},
+  btnPrice:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2,textAlign:'right'},
+  btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4,textAlign:'right'},
   footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
   footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',bottom:40,paddingVertical:10},
 })

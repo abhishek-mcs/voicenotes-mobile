@@ -10,6 +10,10 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "splash": {
+      "image": "./src/assets/images/splash.png",
+      "backgroundColor": "#fff"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",

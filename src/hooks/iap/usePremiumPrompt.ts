@@ -6,9 +6,15 @@ import { InteractionManager } from 'react-native';
 const usePremiumPrompt=(isBeliever: boolean,isLoggedIn:boolean) => {
   const [lastPremiumShown, setLastPremiumShown] = useState<number | null>(null);
 
-  const showPremiumOnAppOpen = useCallback(() => {
+  const showPremiumOnAppOpen = useCallback(async() => {
     if (isLoggedIn && !isBeliever) {
-      router.navigate("/premium/");
+      const isFirstOpen = await AsyncStorage.getItem('isFirstOpenAfterSignup');
+      if (isFirstOpen === null) {
+        // First open after signup, set the flag and don't show prompt
+        await AsyncStorage.setItem('isFirstOpenAfterSignup', 'false');
+      } else {
+        router.navigate("/premium/");
+      }
     }
   }, [isLoggedIn, isBeliever]);
 
