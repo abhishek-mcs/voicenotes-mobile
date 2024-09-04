@@ -57,6 +57,7 @@ const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
+import Premium from "components/premium";
 
 const {height}=Dimensions.get('screen')
 const fadeIn={
@@ -336,7 +337,7 @@ export default ()=> {
 
   const recordingParentNoteName = renderData.find(note => note?.id === recordingParentId)?.title ?? null
 
-
+return <Premium/>
   if(!token)
       return <Redirect href="/auth/landingPage/" />
   return (

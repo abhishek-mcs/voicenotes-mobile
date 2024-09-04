@@ -88,7 +88,7 @@ android {
         applicationId 'com.app.voicenotes'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 109
+        versionCode 116
         versionName "1.5.39"
 
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())

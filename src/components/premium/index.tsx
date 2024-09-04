@@ -120,13 +120,14 @@ export default (props:any) => {
 
   return (
     <View style={styles.main}>
-      <ImageBackground source={premiumBg} style={{zIndex:10,height:150,width:'100%',overflow:'hidden',justifyContent:'flex-end',paddingLeft:32}}>
-        <SvgXml xml={iapSvg.usersCount}/>
-      </ImageBackground>
+      <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
+        <View style={{height:150,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
+          <SvgXml xml={iapSvg.usersCount}/>
     {/* {from=="home"&& */}
-    <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:65}]} onPress={()=>router?.back()}>
-      <SvgXml xml={iapSvg.close}/>
-    </Touchable>
+         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:65}]} onPress={()=>router?.back()}>
+           <SvgXml xml={iapSvg.close}/>
+         </Touchable>
+        </View>
       <View style={styles.container}>
         {/* <Image source={premium} style={styles.img} resizeMode="contain"/> */}
           <Text style={styles.title}>Unlock the power of your voice</Text>
@@ -173,6 +174,7 @@ export default (props:any) => {
           </Touchable>
         </View> */}
       </View>
+      </ImageBackground>
     </View>
   )
 }

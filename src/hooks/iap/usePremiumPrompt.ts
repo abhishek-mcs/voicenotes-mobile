@@ -31,7 +31,7 @@ const usePremiumPrompt=(isBeliever: boolean,isLoggedIn:boolean) => {
   const checkAndShowPremium = useCallback(() => {
     if (isBeliever) return;
     const currentTime = Date.now();
-    if (!lastPremiumShown || currentTime - lastPremiumShown > 10000) {
+    if (!lastPremiumShown || currentTime - lastPremiumShown > 600000) {
       showPremiumPage();
     }
   }, [isBeliever, lastPremiumShown, showPremiumPage]);
