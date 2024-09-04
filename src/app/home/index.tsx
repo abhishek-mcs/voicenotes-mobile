@@ -337,7 +337,6 @@ export default ()=> {
 
   const recordingParentNoteName = renderData.find(note => note?.id === recordingParentId)?.title ?? null
 
-return <Premium/>
   if(!token)
       return <Redirect href="/auth/landingPage/" />
   return (
