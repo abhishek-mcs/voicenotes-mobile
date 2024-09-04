@@ -1,3 +1,5 @@
+import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
+
 const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
 const primary = '#274f47';
@@ -24,8 +26,10 @@ export default {
   greyWithOpacity: (opacity:number) => `rgba(130, 130, 130, ${opacity})`,
   grey2WithOpacity: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
   greenWithOpacity: (opacity:number) => `rgba(88, 169, 66, ${opacity})`,
+  green3WithOpacity:(opacity:number) => `rgba(14, 57, 52, ${opacity})`,
   grey:'#9b9b9b',
   green:'#58a942',
+  green2:'#499035',
   lightGrey:'#f9f9f9',
   grey3:'#717171',
   brownWithOpacity: (opacity:number) => `rgba(214,162,67,${opacity})`,
