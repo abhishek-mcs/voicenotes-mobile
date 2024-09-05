@@ -10,7 +10,7 @@ import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import { screenHeight, screenWidth } from "utils/common"
+import { isIOS, screenHeight, screenWidth } from "utils/common"
 import * as webBrowser from 'expo-web-browser'
 import * as Updates from 'expo-updates';
 import { useQueryClient } from "react-query"
@@ -125,10 +125,10 @@ export default (props:any) => {
   return (
     <View style={styles.main}>
       <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
-        <View style={{height:150,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
+        <View style={{height:isIOS?150:110,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
           <SvgXml xml={iapSvg.usersCount}/>
     {/* {from=="home"&& */}
-         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:65}]} onPress={()=>from=="home"?router?.back():freeUser()}>
+         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:isIOS?65:20}]} onPress={()=>from=="home"?router?.back():freeUser()}>
            <SvgXml xml={iapSvg.close}/>
          </Touchable>
         </View>

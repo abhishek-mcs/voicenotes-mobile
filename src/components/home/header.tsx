@@ -53,7 +53,7 @@ export default ({isLogged=true,isOffline}:any) => {
         {!isBeliever&&
         <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.green3WithOpacity(0.1),paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8,marginTop:-6}}>
           <SvgXml xml={iapSvg.thunder} />
-          <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6}}>Upgrade</Text>
+          <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
         <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>

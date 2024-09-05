@@ -41,12 +41,10 @@ export default function App() {
   });
   
   useEffect(() => {
-    StatusBar.setHidden(true)
     WebBrowser.warmUpAsync();
     // InteractionManager.runAfterInteractions(()=>{
       setTimeout(async() => {
         await SplashScreen.hideAsync()
-        StatusBar.setHidden(false)
         setIsLoading(false)
       }, 2000);
     // })
