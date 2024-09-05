@@ -8,10 +8,10 @@ const usePremiumPrompt=(isBeliever: boolean,isLoggedIn:boolean) => {
 
   const showPremiumOnAppOpen = useCallback(async() => {
     if (isLoggedIn && !isBeliever) {
-      const isFirstOpen = await AsyncStorage.getItem('isFirstOpenAfterSignup');
+      const isFirstOpen = await AsyncStorage.getItem('isLoggedIn');
       if (isFirstOpen === null) {
         // First open after signup, set the flag and don't show prompt
-        await AsyncStorage.setItem('isFirstOpenAfterSignup', 'false');
+        await AsyncStorage.setItem('isLoggedIn', 'false');
       } else {
         router.navigate("/premium/");
       }
