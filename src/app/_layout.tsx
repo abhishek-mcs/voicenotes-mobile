@@ -30,6 +30,10 @@ export default function Layout() {
                 options={{ presentation: "formSheet" }}
               />
               <Stack.Screen
+                name="ask-my-ai/index"
+                options={{ presentation: "formSheet" }}
+              />
+              <Stack.Screen
                 name="search/index"
                 options={{ animation: "fade" }}
               />
