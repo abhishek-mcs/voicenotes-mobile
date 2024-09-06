@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
 import Colors from 'assets/Colors';
@@ -6,8 +6,8 @@ import { SvgXml } from 'react-native-svg';
 import { playerSvg } from 'assets/svg/playerSvg';
 import { useSignedUrlForChat } from 'queries/home';
 import CircularLoader from 'components/common/loaders/circular-loader';
-import Waveform from 'components/common/recording/waveform';
-
+import { Waveform, type IWaveformRef } from '@simform_solutions/react-native-audio-waveform';
+import { screenWidth } from 'utils/common';
 
 export default ({isAI=false,url=''}) => {
   const [sound, setSound] = useState<Audio.SoundObject|any>(null);
@@ -16,6 +16,8 @@ export default ({isAI=false,url=''}) => {
   const [status, setStatus] = useState<any>('');
   const [position, setPosition] = useState(0);
   const signedURL=useSignedUrlForChat()
+  const waveformRef=useRef<IWaveformRef>(null)
+  const [source,setUrl]=useState('')
 
   useEffect(() => {
     const loadSound = async () => {
@@ -23,6 +25,7 @@ export default ({isAI=false,url=''}) => {
      signedURL.mutate(url,{
         onSuccess:async(data:any)=>{
           const uri=data?.request?.responseURL
+          setUrl(uri)
           if (uri) {
           const { sound } = await Audio.Sound.createAsync(
             { uri },
@@ -95,18 +98,52 @@ export default ({isAI=false,url=''}) => {
   const formattedDuration=useMemo(()=>new Date(duration).toISOString().substring(14, 19),[duration])
   return (
     <View style={styles.container}>
-        {sound==null?
-        <CircularLoader width={24} height={24} color={!isAI?'white':Colors.primary}/>
-        :<Pressable onPress={handlePlayPause}>
-            <SvgXml xml={!isPlaying?playerSvg.play?.replace("color",isAI?Colors.whiteWithOpacity(1):Colors.primary):playerSvg.pause?.replace("color",isAI?Colors.whiteWithOpacity(1):Colors.primary)} />
-        </Pressable>}
+      {sound == null ? (
+        <CircularLoader
+          width={24}
+          height={24}
+          color={!isAI ? "white" : Colors.primary}
+        />
+      ) : (
+        <Pressable onPress={handlePlayPause}>
+          <SvgXml
+            xml={
+              !isPlaying
+                ? playerSvg.play?.replace(
+                    "color",
+                    isAI ? Colors.whiteWithOpacity(1) : Colors.primary
+                  )
+                : playerSvg.pause?.replace(
+                    "color",
+                    isAI ? Colors.whiteWithOpacity(1) : Colors.primary
+                  )
+            }
+          />
+        </Pressable>
+      )}
       <View style={styles.sliderContainer}>
-      <View style={styles.waveformContainer}>
-        {/* {chartData.length > 0 && ( */}
-          <Waveform isAI={isAI}/>
-        {/* )} */}
-      </View>
-        <Text style={{color:Colors.grey,fontFamily:'Primary-Medium',fontSize:12}}>{formattedDuration}</Text>
+        <Waveform
+          mode="static"
+          ref={waveformRef}
+          path={'https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav'}
+          candleSpace={2}
+          candleWidth={4}
+          candleHeightScale={4}
+          waveColor='#0d0d0d'
+          scrubColor="#0d0d0d"
+          containerStyle={{width:100,flex:1,height:25,backgroundColor:'blue'}}
+          onPlayerStateChange={(playerState) => console.log(playerState)}
+          onPanStateChange={(isMoving) => console.log(isMoving)}
+        />
+        <Text
+          style={{
+            color: Colors.grey,
+            fontFamily: "Primary-Medium",
+            fontSize: 12,
+          }}
+        >
+          {formattedDuration}
+        </Text>
       </View>
     </View>
   );
