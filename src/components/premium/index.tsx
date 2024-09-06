@@ -34,7 +34,6 @@ export default (props:any) => {
   const queryClient=useQueryClient()
 
   useEffect(()=>{
-    StatusBar.setHidden(true)
     // const load=async()=>{
     //   try{
     //   const firebaseID=await analytics().getAppInstanceId()
@@ -43,7 +42,6 @@ export default (props:any) => {
     //   }catch{}
     // }
     // load()
-    return ()=>StatusBar.setHidden(false)
   },[])
   
   const freeUser=()=>{
@@ -125,10 +123,10 @@ export default (props:any) => {
   return (
     <View style={styles.main}>
       <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
-        <View style={{height:isIOS?150:110,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
+        <View style={{height:isIOS?150:130,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
           <SvgXml xml={iapSvg.usersCount}/>
     {/* {from=="home"&& */}
-         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:isIOS?65:20}]} onPress={()=>from=="home"?router?.back():freeUser()}>
+         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:isIOS?65:45}]} onPress={()=>from=="home"?router?.back():freeUser()}>
            <SvgXml xml={iapSvg.close}/>
          </Touchable>
         </View>
