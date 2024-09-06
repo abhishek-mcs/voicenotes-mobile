@@ -7,13 +7,13 @@ import { StyleSheet, View } from 'react-native';
 import { screenWidth } from 'utils/common';
 
 interface Props {
-  recording: Audio.Recording | null;
+  recording?: Audio.Recording | null;
+  isAI?:boolean
 }
 
-const Waveform: React.FC<Props> = ({ recording }) => {
-  const [meteringValues, setMeteringValues] = useState<number[]>([]);
-  const [temp, setTemp] = useState([0,]);
-
+const Waveform: React.FC<Props> = ({ recording,isAI=false}) => {
+  // const [meteringValues, setMeteringValues] = useState<number[]>([]);
+  const [temp, setTemp] = useState([0]);
   const tempRef = useRef({ temp: [0,], isPlaying: false })
   const width = useSharedValue(10);
 
@@ -37,6 +37,10 @@ const Waveform: React.FC<Props> = ({ recording }) => {
     };
   });
 
+  const generateDummyWaveformData = () => {
+    return Array.from({ length: 30 }, (_, i) => (  Math.floor(Math.random() * 25) + 1 ));
+  };
+
   useEffect(() => {
     if (recording) {
       const prepareRecording = async () => {
@@ -52,12 +56,14 @@ const Waveform: React.FC<Props> = ({ recording }) => {
       };
 
       prepareRecording();
+    }else{
+      setTemp(generateDummyWaveformData())
     }
   }, [recording]);
 
   return (
     <View style={{height:25,width:screenWidth-200,overflow:'hidden'}}>
-    <Animated.View style={{ backgroundColor: 'transparent', height: 25,width:screenWidth-200, display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }}>
+    <Animated.View style={{ backgroundColor: 'transparent', height: 25,width:screenWidth-200, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
     <Animated.View entering={FadeInRight} style={[{ display: 'flex', flexDirection: 'row', overflow: 'hidden', backgroundColor: 'transparent', gap: 1, alignItems: 'center' }, style]}>
       {temp.map(t => {
         return <Animated.View entering={ZoomIn} style={{ height: t>25?25:t > 10 ? t : 1.15, borderWidth:2, borderRadius: 200, borderColor: '#222', }} />

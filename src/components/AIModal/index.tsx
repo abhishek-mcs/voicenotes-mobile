@@ -559,7 +559,7 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{},{paddingHorizontal:16,marginBottom:13}]}>
     {text=='Typing'?
     <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
-    :<View style={[styles.audioChat,{backgroundColor:isAI?Colors.primary:Colors.whiteWithOpacity(1)}]}>
+    :<View style={[styles.audioChat,{backgroundColor:isAI?Colors.whiteWithOpacity(1):Colors.whiteWithOpacity(0.5)}]}>
       <AudioPlayer isAI={isAI} url={url}/>
       <Text style={{color:isAI?Colors.whiteWithOpacity(0.5):Colors.grey,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
     </View>}
