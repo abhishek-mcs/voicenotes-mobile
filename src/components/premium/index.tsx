@@ -135,7 +135,7 @@ export default (props:any) => {
           <Text style={styles.title}>Unlock the power of your voice</Text>
           <View style={styles.descView}>
             <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-            <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, emails).</Text>
+            <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
           </View>
           <View style={styles.descView}>
           <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
@@ -143,7 +143,7 @@ export default (props:any) => {
           </View>
           <View style={styles.descView}>
           <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-            <Text style={styles.desc}>Unlimited, secure cloud storage of your voice notes on mobile, watch, and web.</Text>
+            <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
           </View>
           <View style={[styles.descView]}>
           <SvgXml xml={iapSvg.done} style={{marginTop:3}}/>
