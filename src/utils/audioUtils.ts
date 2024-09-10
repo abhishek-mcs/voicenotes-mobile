@@ -7,15 +7,25 @@ import { MAX_NOTES_STORAGE_LIMIT_IN_DEVICE } from "services/api/api-constants";
 export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
   let finalList: Note[] = [];
   const existingIds = new Set(existing.map((note) => note.id));
-  for (const newOne of newOnes) {
+  const offlineList:any = existing.filter((note) => note.status?.includes("failed")||note.status=="uploading");
+  for (let newOne of newOnes) {
     if (existingIds.has(newOne.id)) {
       const existingNote = existing.find((note) => note.id === newOne.id);
+      //for subnotes
+      const offlineSubnoteList:any = existingNote?.subnotes?.filter((note) => note.status?.includes("failed")||note.status=="uploading")??[];
+      const newSubnoteIds = new Set(newOne.subnotes.map(subnote => subnote.id));// Only add offline subnotes that aren't already in newOne.subnotes
+      const uniqueOfflineSubnotes = offlineSubnoteList.filter(
+        (subnote:any) => !newSubnoteIds.has(subnote.id)
+      );
+      newOne.subnotes=[...newOne.subnotes,...uniqueOfflineSubnotes].sort(
+        (a:any, b:any) =>a.recorded_at - b.recorded_at 
+      );
       finalList.push({ ...existingNote, ...newOne });
     } else {
       finalList.push(newOne);
     }
   }
-  const modifiedRecords = finalList.map((rec) => ({
+  let modifiedRecords = finalList.map((rec) => ({
     ...rec,
     status: rec.status ?? "processed",
     recorded_at: rec.recorded_at ?? rec.created_at,
@@ -29,6 +39,8 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
   let sortedList = modifiedRecords.sort(
     (a, b) => b.recorded_at - a.recorded_at
   );
+  if(offlineList.length>0)
+    sortedList=[...offlineList,...sortedList];
   return sortedList;
 };
 
@@ -87,7 +99,7 @@ export function generateVoiceNoteFilename(note:Note) {
     // Use note id (if available) to ensure uniqueness
     const uniqueId = note.id ? `_${note.id}` : '';
   
-    return `VoiceNote_${formattedDate}${uniqueId}.mp3`;
+    return `Voicenotes_${formattedDate}${uniqueId}.mp3`;
   }
   
   

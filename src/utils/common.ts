@@ -16,6 +16,7 @@ export const isIOSSmall = isIOS && screenHeight < 690;
 
 export const fetchSingleRecording = async (id: any) => {
   console.log("refetching single recording: ", id);
+  await axiosApi.get(`/recordings/${id}/related`).catch((error) => {});
   const resp = await axiosApi.get(`/recordings/${id}`);
   return resp;
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextStyle } from "react-native";
-import { screenWidth } from "utils/common";
+import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
+import Colors from "assets/Colors";
 
 const ChatBubble = ({
   delay = 30,
@@ -13,7 +14,9 @@ const ChatBubble = ({
   disableGenerating = () => {},
   continueGenerating = true,
   showCursorAtEnd = false,
-  cursorSvg = ''
+  cursorSvg = '',
+  status = "",
+  showStatus = false,
 }: {
   delay?: number;
   message: string;
@@ -24,6 +27,8 @@ const ChatBubble = ({
   showCursorAtEnd ?:boolean;
   lines?: number;
   cursorSvg?: string;
+  status?: string;
+  showStatus?: boolean;
 }) => {
   const [displayedMessage, setDisplayedMessage]: any = useState("");
   const containsHTML = (str: string) => {
@@ -63,11 +68,22 @@ const ChatBubble = ({
   }
 
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
       <Text style={[style, {}]} numberOfLines={lines}>
         {displayedMessage}
       </Text>
-      {showCursorAtEnd && <PulsatingCircle svg={cursorSvg} />}
+      {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
+      {showCursorAtEnd&&showStatus && (
+        <Text
+          style={{
+            color: Colors.grey3,
+            fontFamily: "Primary",
+            fontSize: 12,
+            lineHeight: 20,
+            marginLeft: 4,
+          }}
+        >{status=="processing"?"Transcribing":status=="uploading"?"Uploading":""}</Text>
+      )}
     </View>
   );
 };

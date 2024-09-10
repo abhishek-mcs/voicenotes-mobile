@@ -17,6 +17,7 @@ export const RecordingStatus = {
   FORMAT_TRANSCRIPT_STARTED: 12,
   TRANSCRIPT_FORMATTED: 13,
   FORMAT_TRANSCRIPT_FAILED: 14,
+  PROCESS_COMPLETED:15
 };
 
 export const RecordingStatusString = Object.fromEntries(

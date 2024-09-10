@@ -47,6 +47,8 @@ import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
+  setTriggerTypingTitle,
+  setTriggerTypingTranscript,
   updateRecordingDetails,
 } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
@@ -102,6 +104,7 @@ const NotePreview = forwardRef(
         parent_id: string | null;
         repeat: boolean | null;
       }) => {},
+      isOffline = false,
     }: any,
     ref
   ) => {
@@ -113,20 +116,19 @@ const NotePreview = forwardRef(
     const [publishLoading, setPublishLoading] = useState(false);
     const [isNoteJustMadePrivate, setIsNoteJustMadePrivate] = useState(false);
     const [creationLoader, setCreationLoader] = useState(false);
-    const [triggerTypingTitle, setTriggerTypingTitle] = useState(0);
-    const [triggerTypingTranscript, setTriggerTypingTranscript] = useState(0);
     const [createType, setCreateType] = useState("summary");
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [showAddMenu, setShowAddMenu] = useState(false);
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [showLinkEditModal, setShowLinkEditModal] = useState(false);
+    const [retryLoader, setRetryLoader] = useState(false);
     const [editingLink, setEditingLink] = useState<{
       id: string;
       url: string;
     } | null>(null);
     const [attachments, setAttachments] = useState([]);
 
-    const { recordingList } = useSelector(
+    const { recordingList,triggerTypingTitle,triggerTypingTranscript } = useSelector(
       (state: RootState) => state.recordingStates
     );
 
@@ -148,15 +150,6 @@ const NotePreview = forwardRef(
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
-
-    useEffect(() => {
-      if (triggerTypingTranscript == 0 && !note?.transcript)
-        setTriggerTypingTranscript(2);
-    }, [note?.transcript]);
-
-    useEffect(() => {
-      if (triggerTypingTitle == 0 && !note?.title) setTriggerTypingTitle(2);
-    }, [note?.title]);
 
     useEffect(() => {
       setAttachments(note?.attachments);
@@ -300,7 +293,7 @@ const NotePreview = forwardRef(
       await setStringAsync(content);
       setShareVisible(false);
     };
-    const onDelete = () => {
+    const onDelete = (isCache=false) => {
       hideMoreOption();
       if (note.subnotes?.length) {
         Alert.alert(
@@ -318,7 +311,7 @@ const NotePreview = forwardRef(
 
       Alert.alert(
         "",
-        `Are you sure you want to ${note?.isUploading ? "cancel" : "delete"}?`,
+        `Are you sure you want to delete?`,
         [
           {
             text: "No",
@@ -327,18 +320,23 @@ const NotePreview = forwardRef(
           {
             text: "Yes",
             onPress: async () => {
-              if (note.status =='uploading'){
+              if (
+                note.status == "uploading" ||
+                note.status == "upload_failed" ||
+                isCache
+              ) {
                 // edge case
                 // await cancelUpload(note?.id);
-                // dispatch(deleteRecording({ id: note?.id }));
-                // onDeleteCallBack();
-              }
-              try {
-                await axiosApi.delete(`/recordings/${note?.id}`);
                 dispatch(deleteRecording({ id: note?.id }));
-                onDeleteCallBack();
-              } catch (error) {
-                console.log("Error in deleting: ", error);
+                // onDeleteCallBack();
+              } else {
+                try {
+                  await axiosApi.delete(`/recordings/${note?.id}`);
+                  dispatch(deleteRecording({ id: note?.id }));
+                  onDeleteCallBack();
+                } catch (error) {
+                  console.log("Error in deleting: ", error);
+                }
               }
             },
           },
@@ -627,14 +625,21 @@ const NotePreview = forwardRef(
           onPress: onDownloadAudio,
           icon: home.download,
         },
-        { text: "Delete", onPress: onDelete, icon: home.delete },
+        { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete },
       ];
 
-      const failedButtons = [
+      const failedButtons = isOffline?
+      [...intermediateButtons]
+      :[
         {
           text: "Retry",
-          onPress: onUploadRetry,
+          onPress: async ()=>{
+            setRetryLoader(true);
+            await syncUpNote(note).catch(()=>{})
+            // setRetryLoader(false);
+          },
           icon: home.repeat,
+          isLoading: retryLoader,
         },
         ...intermediateButtons,
       ];
@@ -661,13 +666,16 @@ const NotePreview = forwardRef(
         >
           {getButtonsBasedOnStatus(note?.status).map((button:any, index) =>
             button.type === "menu" ? (
-              button.function()
+              <View key={index}>
+              {button.function()}
+              </View>
             ) : (
               <NoteButtons
-                key={index}
+                key={index+Math.random()}
                 text={button.text}
                 onPress={button.onPress}
                 icon={button.icon}
+                isLoading={button.isLoading??false}
               />
             )
           )}
@@ -704,7 +712,7 @@ const NotePreview = forwardRef(
         <MenuItem onPress={onDownloadAudio}>
           <MenuItemContent icon={home.download} text="Download Audio" />
         </MenuItem>
-        <MenuItem onPress={onDelete}>
+        <MenuItem onPress={()=>onDelete()}>
           <MenuItemContent icon={home.deleteGrey} text="Delete" />
         </MenuItem>
       </Menu>
@@ -920,13 +928,17 @@ const NotePreview = forwardRef(
                     <View style={{ flex: 1, marginRight: 10 }}>
                       <ChatBubble
                         style={styles.title}
+                        status={note?.status}
+                        showStatus={!isNoteExpanded}
                         cursorSvg={
-                          note?.status === "uploading"
-                            ? notePreviewSVG.blackCircle
-                            : notePreviewSVG.flower
+                          note?.status == "processing"
+                            ?notePreviewSVG.flower
+                            :note?.status == "uploading"? notePreviewSVG.blackCircle:""
                         }
-                        showCursorAtEnd={note?.title === "New Recording"}
-                        message={note?.title}
+                        showCursorAtEnd={note?.title === "New Recording"||!note?.title}
+                        message={note?.title??"New Recording"}
+                        triggerAnimation={triggerTypingTitle==2&&index==0?2:0}
+                        disableGenerating={() => dispatch(setTriggerTypingTitle(0))}
                       />
                     </View>
                     {isNoteExpanded && (
@@ -947,8 +959,27 @@ const NotePreview = forwardRef(
                 />
               )}
 
-              {note?.status != "processed" && (
-                <Text style={{}}>{formattedDuration}</Text>
+              {(note?.status == "uploading" ||
+                note?.status == "processing"||note?.status?.includes("failed")) && (
+                <View style={[styles.row,{justifyContent:'space-between',marginTop:2}]}>
+                  <Text
+                  style={{
+                    color: Colors.black2,
+                    fontSize: 14,
+                    fontFamily: "Primary",
+                    lineHeight: 20,
+                  }}
+                >
+                  {formattedDuration}
+                </Text>
+                <Text
+                  style={{
+                    color: Colors.grey3,
+                    fontSize: 13,
+                    fontFamily: "Primary",
+                    lineHeight: 20,
+                  }}>{formatDateTime(note?.recorded_at)}</Text>
+                </View>
               )}
               <View>
                 {note?.transcript && !note.is_transcript_loading && (
@@ -958,9 +989,9 @@ const NotePreview = forwardRef(
                     message={note?.transcript
                       ?.replaceAll(/<br\/?>/g, "\n")
                       ?.trimEnd()}
-                    continueGenerating={!note?.title}
-                    triggerAnimation={triggerTypingTranscript}
-                    disableGenerating={() => setTriggerTypingTranscript(0)}
+                    continueGenerating={triggerTypingTitle==2&&index==0}
+                    triggerAnimation={triggerTypingTranscript==2&&index==0?2:0}
+                    disableGenerating={() => dispatch(setTriggerTypingTranscript(0))}
                   />
                 )}
 
@@ -1044,6 +1075,7 @@ const NotePreview = forwardRef(
             expand={expand}
             hashFilter={hashFilter}
             onUploadRetry={onUploadRetry}
+            syncUpNote={syncUpNote}
           />
         )}
       </View>

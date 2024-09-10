@@ -100,8 +100,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 
   const renderLinkItem = useCallback(
-    ({ item }:any) => (
-      <View style={styles.linkContainer} key={item.id?.toString()}>
+    ({ item,index }:any) => (
+      <View style={styles.linkContainer} key={item.id?.toString()+index}>
         <TouchableOpacity
           style={styles.linkContent}
           onPress={() => openLink(item.url)}
@@ -187,7 +187,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
 
       {linkAttachments.length > 0 && (
         <View style={styles.linkSection}>
-          {linkAttachments.map((item) => renderLinkItem({ item }))}
+          {linkAttachments.map((item,index) => renderLinkItem({ item,index }))}
         </View>
       )}
 

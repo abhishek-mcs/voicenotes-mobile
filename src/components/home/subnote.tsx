@@ -9,9 +9,10 @@ interface Props {
     onUploadRetry:()=>void
     expand:any
     setExpand:(val:any)=>void
-    hashFilter:string
+    hashFilter:string,
+    syncUpNote:()=>void
 }
-export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
+export default ({list=[],onUploadRetry,expand,setExpand,hashFilter='',syncUpNote}:Props)=>{
     const [expandNote,setExpandNote]=useState(-1)
     const [isPlay,setIsPlay]=useState(-1)
     const [audioLoading,setAudioLoading]=useState(-1)
@@ -50,6 +51,7 @@ export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
                 isSubnote={true}
                 setExpand={()=>onExpand(index)}
                 hashFilter={hashFilter}
+                syncUpNote={syncUpNote}
                 />
         )}
       />

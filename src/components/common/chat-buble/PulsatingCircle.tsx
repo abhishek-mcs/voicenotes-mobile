@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, Easing, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-const PulsatingSVG = ({ svg = '', size = 12 }) => {
+const PulsatingSVG = ({ svg = '', size = 12,status="" }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -10,32 +10,40 @@ const PulsatingSVG = ({ svg = '', size = 12 }) => {
     const pulse = Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 1.2,
-        duration: 1500,
+        duration: 200,
         useNativeDriver: true,
+        easing: Easing.ease,
       }),
       Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 1500,
+        toValue: 0.6,
+        duration: 400,
         useNativeDriver: true,
+        easing: Easing.ease,
       }),
-    ]);
+      Animated.timing(scaleAnim, {
+        toValue: 0.8,
+        duration: 400,
+        useNativeDriver: true,
+        easing: Easing.ease,
+      }),
+    ])
 
     const rotate = Animated.timing(rotateAnim, {
       toValue: 1,
-      duration: 6000,
+      duration: 2500,
       useNativeDriver: true,
     });
 
     Animated.parallel([
-      Animated.loop(pulse),
-      Animated.loop(rotate),
+      status!="processing"?Animated.loop(pulse)
+      :Animated.loop(rotate),
     ]).start();
 
     return () => {
-      scaleAnim.stopAnimation();
+      status=="processing"&&scaleAnim.stopAnimation();
       rotateAnim.stopAnimation();
     };
-  }, []);
+  }, [status]);
 
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
