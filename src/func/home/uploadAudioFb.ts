@@ -52,7 +52,7 @@ export const saveVoiceNote = async (data: {
       },
     });
 
-    console.log("Upload successful:", response.data);
+    console.log("Upload successful:");
     return response.data;
   } catch (error) {
     console.warn("Error uploading file:", error);

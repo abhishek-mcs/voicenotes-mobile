@@ -6,18 +6,28 @@ export interface HashState {
   recordingList: any[];
   tempRecordings: any;
   tempRecordingData:any;
+  triggerTypingTitle:0|1|2;
+  triggerTypingTranscript:0|1|2;
 }
 
 const initialState: HashState = {
   recordingList: [],
   tempRecordings: [],
   tempRecordingData:{},
+  triggerTypingTitle:0,
+  triggerTypingTranscript:0
 };
 
 export const recordingStates = createSlice({
   name: "recordingStates",
   initialState,
   reducers: {
+    setTriggerTypingTitle: (state, action: PayloadAction<any>) => {
+      state.triggerTypingTitle = action.payload;
+    },
+    setTriggerTypingTranscript: (state, action: PayloadAction<any>) => {
+      state.triggerTypingTranscript = action.payload;
+    },
     setRecordingList: (state, action: PayloadAction<object[]>) => {
       state.recordingList = action.payload;
     },
@@ -42,16 +52,23 @@ export const recordingStates = createSlice({
         action.payload?.transcript;
       console.log(state.recordingList[action.payload?.index].transcript);
     },
-    deleteRecording: (state, action: PayloadAction<any>) => {
-      const {id: recordingId} = action.payload;
-      return {
-        ...state,
-        recordingList: state.recordingList.filter(
-          (recording: any) => recording.id !== recordingId
-        ),
+    deleteRecording: (state, action: PayloadAction<{ id: string }>) => {
+      const { id: recordingId } = action.payload;
+    
+      const filterRecordings = (recordings: Note[]): Note[] => {
+        return recordings.filter(recording => {
+          if (recording.id === recordingId) {
+            return false; // Remove this recording
+          }
+          if (recording.subnotes) {
+            recording.subnotes = filterRecordings(recording.subnotes);
+          }
+          return true;
+        });
       };
+    
+      state.recordingList = filterRecordings(state.recordingList);
     },
-
     deleteRecordingsFromState: (state, action: PayloadAction<any>) => {
       const recordingsToBeDeleted = action.payload;
       const recordingIdsToBeDeleted = recordingsToBeDeleted.map((rec: any) => rec.id);
@@ -115,6 +132,8 @@ export const {
   deleteRecordingsFromState,
   updateRecordingDetails,
   updateTempRecordingData,
+  setTriggerTypingTitle,
+  setTriggerTypingTranscript
 } = recordingStates.actions;
 
 export default recordingStates.reducer;

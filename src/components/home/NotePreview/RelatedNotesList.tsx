@@ -33,7 +33,7 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
               {note?.related_notes?.length == 0  ? (
                 <CircularLoader width={16} height={16} />
               ) : (
-                note?.related_notes?.map((item: any) => {
+                note?.related_notes?.map((item: any,v:number) => {
                   return (
                     <Touchable
                       onPress={() => {
@@ -44,7 +44,7 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
                         // });
                       }}
                       activeOpacity={0.6}
-                      key={item?.id}
+                      key={item?.id+v}
                       style={{
                         flexDirection: "row",
                         alignItems: "center",

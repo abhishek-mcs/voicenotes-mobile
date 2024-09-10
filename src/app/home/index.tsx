@@ -45,6 +45,8 @@ import Animated from "react-native-reanimated";
 import {
   setRecordingList,
   setTempRecordingData,
+  setTriggerTypingTitle,
+  setTriggerTypingTranscript,
   updateRecordingDetails,
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
@@ -60,7 +62,6 @@ import {  RecordingStatus,} from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
-import { useGetRelatedRecording } from "queries/home/relatedNote";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
@@ -106,12 +107,12 @@ export default () => {
   const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [isOffline, setOffline] = useState(false);
+  const [splitCount, setSplitCount] = useState(0);
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
     null
   );
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
-  const relatedNotes = useGetRelatedRecording();
-
+  const queryClient = useQueryClient();
   const bannerRef = useRef<any>(null);
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
 
@@ -125,7 +126,7 @@ export default () => {
       recordingId: string | number,
       temporaryRecordingId: string | null = null
     ) => {
-      console.log("listening to firebase");
+      // console.log("listening to firebase");
       const firebasePath = token
         ? "processStatuses/recording/"
         : "processStatuses/guest/recording/";
@@ -135,17 +136,16 @@ export default () => {
         if (snapshot.exists()) {
           const status = +snapshot.val();
 
-          if (
-            status !== RecordingStatus.TRANSCRIPT_FORMATTED &&
-            status !== RecordingStatus.GENERATE_TITLE_FAILED &&
-            status !== RecordingStatus.UPLOADED_FAILED &&
-            status !== RecordingStatus.AUDIO_UPLOADED
-          ) {
-            return;
-          }
-
+          // if (
+          //   status !== RecordingStatus.TRANSCRIPT_FORMATTED &&
+          //   status !== RecordingStatus.GENERATE_TITLE_FAILED &&
+          //   status !== RecordingStatus.UPLOADED_FAILED &&
+          //   status !== RecordingStatus.AUDIO_UPLOADED
+          // ) {
+          //   return;
+          // }
           let updatedStatus = "uploading";
-          if (status === RecordingStatus.AUDIO_UPLOADED) {
+          if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
             console.log("audio uploaded");
             dispatch(
@@ -178,12 +178,25 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.TRANSCRIPT_FORMATTED) {
+          } else if (status === RecordingStatus.GENERATE_TRANSCRIPT_FAILED) {
+            updatedStatus = "processing_failed";
+            console.log("transcript geneation failed;waiting");
+            dispatch(
+              updateRecordingDetails({
+                recordingId,
+                data: { status: updatedStatus },
+                temporaryRecordingId,
+              })
+            );
+            dispatch(updateTempRecordingData(updatedStatus));
+          } else if (status === RecordingStatus.PROCESS_COMPLETED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
-            console.log('recording id',updatedNote?.data)
+            dispatch(setTriggerTypingTranscript(2))
+            dispatch(setTriggerTypingTitle(2))
+            console.log("updated note: ",updatedNote.data.title)
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -199,7 +212,6 @@ export default () => {
             console.log("removing firebase listener");
             await remove(statusRef);
             off(statusRef);
-            await relatedNotes.mutateAsync(recordingId)
             !updatedNote.data?.parent_id&&setExpandNote(0);
             return;
           }
@@ -256,8 +268,8 @@ export default () => {
 
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
-      console.log("retrying upload for note: ", note.title);
-      uploadVoiceNote(note);
+      console.log("retrying upload for note: ");
+      await uploadVoiceNote(note).catch(()=>{});
     };
 
     const retryProcessing = async (note: Note) => {
@@ -279,14 +291,28 @@ export default () => {
 
   useEffect(() => {
     if (isOffline) return;
-
-    const notesToRetry = recordingList.filter(
-      (rec) => rec?.status !== "processed"
-    );
-    console.log({ notesToRetry });
-    for (const note of notesToRetry) {
-      syncUpNote(note);
-    }
+  
+    const syncRecordingAndSubnotes = async (recording: Note) => {
+      if (recording.status !== "processed") {
+        await syncUpNote(recording);
+      }
+      
+      if (recording.subnotes && Array.isArray(recording.subnotes)) {
+        for (const subnote of recording.subnotes) {
+          if (subnote.status !== "processed") {
+            await syncUpNote(subnote); // Pass true to indicate it's a subnote
+          }
+        }
+      }
+    };
+  
+    const syncAllRecordings = async () => {
+      for (const recording of recordingList) {
+        await syncRecordingAndSubnotes(recording);
+      }
+    };
+  
+    syncAllRecordings();
   }, [isOffline]);
 
   const onAsk = () => {
@@ -304,6 +330,9 @@ export default () => {
     parent_id = null,
     index = -1,
   }: any) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => {}
+    );
     if (recEnabled && !repeat) {
       console.log("Recording already started.");
       if (parent_id) setRecordingParentId(parent_id);
@@ -311,9 +340,6 @@ export default () => {
     }
     AIModalRef.current?.close();
     CreateModalRef.current?.close();
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-      () => {}
-    );
     if (!canRecord) {
       bannerRef.current?.show();
       return;
@@ -336,31 +362,43 @@ export default () => {
 
   const uploadVoiceNote = async (note: NewNote) => {
     const temporaryRecordingId = note.id;
+
     dispatch(
       updateRecordingDetails({
         recordingId: note.id,
-        data: { status: "uploading" },
+        data: { status:isOffline?"upload_failed": "uploading" },
         temporaryRecordingId,
       })
     );
     try {
+      // let parent_id = note.parent_id;
+      // if(note?.isSubnote&&!note?.parent_id){
+      //   parent_id=recordingList.find((rec)=>rec.temp_id==note.temp_parent_id)?.id??null;
+      //   console.log('parent_id: ',parent_id)
+      // }
       const response = await saveVoiceNote({
         audio: note.audio.data.url,
         duration: note.audio.data.duration,
-        parent_id: note.parent_id ?? null,
+        parent_id: note?.parent_id ??null,
         recorded_at: note.recorded_at,
       });
       const recordingId = response.recording.id;
+      // if(response.recording?.parent_id){
+      //   setRecordingParentId(recordingId)
+      // }else{
+      //   setRecordingParentId(null)
+      // }
       listenToFirebaseStatus(recordingId, temporaryRecordingId);
       setTimeout(() => {
         console.log("removing old recordings to save memory");
         removeExtraOldAudios(recordingList, dispatch);
       }, 2500);
+      await queryClient.resetQueries('streaks');
     } catch (error) {
       console.log("Error in network upload");
       dispatch(
         updateRecordingDetails({
-          recordingId: null,
+          recordingId: note.id,
           data: { status: "upload_failed" },
           temporaryRecordingId,
         })
@@ -370,6 +408,9 @@ export default () => {
 
   const onStopRecord = useCallback(
     async (duration: any, repeat = false) => {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+        () => {}
+      );
       setExpandNote(-1)
       setRecEnabled(false);
       const uri = await stopRecording(rec);
@@ -386,6 +427,9 @@ export default () => {
         status: "uploading",
         internalUrl: uri,
         parent_id: recordingParentId ?? null,
+        // isSubnote:splitCount>0,
+        // temp_id:temporaryRecordingId,
+        // temp_parent_id:recordingList[0]?.id??null
       };
 
       dispatch(setTempRecordingData(newTemporaryRecording))
@@ -407,14 +451,17 @@ export default () => {
       if (!repeat) {
         scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
       }
-
+      if(repeat) {
+        // setSplitCount(splitCount+1);
+        onStartRecord({repeat:true,parent_id:recordingParentId??null});
+      }
       // upload a new note
       await uploadVoiceNote(newTemporaryRecording);
 
       if (!repeat) deactivateKeepAwake();
       analytics().logEvent("completed_recording");
     },
-    [rec, recordingList, dispatch]
+    [rec, recordingList, dispatch,recordingParentId,splitCount]
   );
 
   const onCancel = async () => {
@@ -435,8 +482,10 @@ export default () => {
   }, []);
 
   const fetchNextPage = () => {
-    console.log("fetching next page");
-    recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
+    if(recordingList?.length>10){
+      recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
+      console.log("fetching next page");
+    }
   };
 
   const renderItem = useCallback(
@@ -460,9 +509,10 @@ export default () => {
         setExpand={() => setExpandNote(index == expandNote ? -1 : index)}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
+        isOffline={isOffline}
       />
     ),
-    [isPlay, play, audioLoading, expandNote]
+    [isPlay, play, audioLoading, expandNote,isOffline]
   );
 
   const [isSearchVisible, setIsSearchVisible] = useState(true);
@@ -560,7 +610,7 @@ export default () => {
               showsVerticalScrollIndicator={false}
               keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
               renderItem={renderItem}
-              onEndReachedThreshold={0.8}
+              onEndReachedThreshold={0.2}
               onEndReached={fetchNextPage}
               onRefresh={onRefresh}
               initialNumToRender={3}

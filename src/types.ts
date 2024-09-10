@@ -22,6 +22,9 @@ type BaseNote = {
   status: string;
   parent_id?: string | null
   internalUrl?:string
+  isSubnote?:boolean
+  temp_id?:string
+  temp_parent_id?:string |null
 };
 
 export type NewNote = BaseNote;
