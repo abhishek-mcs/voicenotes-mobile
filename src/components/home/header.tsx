@@ -34,7 +34,7 @@ export default ({isLogged=true,isOffline}:any) => {
   }
   const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
   return (
-    <View style={{marginTop:isIOS?12:0,height: streakVisible?'auto':30,marginBottom:isBeliever?0:8}} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{marginTop:12,height: streakVisible?'auto':30,marginBottom:isBeliever?0:8}} onTouchStart={()=>Keyboard.dismiss()}>
       <View style={styles.container}>
        <View style={{flexDirection:'row',alignSelf:'center'}}>
        {token&&
