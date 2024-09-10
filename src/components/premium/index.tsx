@@ -151,8 +151,8 @@ export default (props:any) => {
             <SvgXml xml={iapSvg.techCrunch} style={{marginLeft:4}}/>
           </View>
         <ScrollView style={styles.subContainer} showsVerticalScrollIndicator={false}>
-          <Btn type="monthly" price={pack[1]?.product?.priceString||'$10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
-          <Btn type="believer" price={pack[0]?.product?.priceString||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>
+          <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
+          <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>
           {/* {from=='signup'&&<Btn type="free" price={''} selected={selected=='free'} onPress={()=>setSelected('free')} underlay="#f9f9f9" title="Continue as free"/>} */}
           <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
         
