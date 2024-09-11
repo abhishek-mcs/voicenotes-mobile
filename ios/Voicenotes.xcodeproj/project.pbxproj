@@ -15,6 +15,20 @@
 		53D762A597CDA2C7E47478F4 /* Pods_Voicenotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82B5DC2C19D609DCC2C11290 /* Pods_Voicenotes.framework */; };
 		843325F22C38052E00C3DA6A /* AppGroupModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843325F12C38052E00C3DA6A /* AppGroupModule.swift */; };
 		843325F42C38057400C3DA6A /* AppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 843325F32C38057400C3DA6A /* AppGroupModule.m */; };
+		84B6538E2C907F2F00E1BADE /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B6538D2C907F2F00E1BADE /* WidgetKit.framework */; };
+		84B653902C907F2F00E1BADE /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B6538F2C907F2F00E1BADE /* SwiftUI.framework */; };
+		84B653932C907F2F00E1BADE /* iOSWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B653922C907F2F00E1BADE /* iOSWidgetBundle.swift */; };
+		84B653972C907F2F00E1BADE /* iOSWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B653962C907F2F00E1BADE /* iOSWidget.swift */; };
+		84B6539B2C907F3000E1BADE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B6539A2C907F3000E1BADE /* Assets.xcassets */; };
+		84B6539F2C907F3000E1BADE /* iOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		84B653A42C9094DF00E1BADE /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6D12C2EA10D00D2F468 /* Extensions.swift */; };
+		84B653A52C90951A00E1BADE /* SF-Pro-Rounded-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6EE2C2EA10D00D2F468 /* SF-Pro-Rounded-Regular.ttf */; };
+		84B653A62C90951A00E1BADE /* SF-Pro-Rounded-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6ED2C2EA10D00D2F468 /* SF-Pro-Rounded-Medium.ttf */; };
+		84B653A72C90951A00E1BADE /* SF-Pro-Rounded-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6EF2C2EA10D00D2F468 /* SF-Pro-Rounded-Semibold.ttf */; };
+		84B653A82C90951A00E1BADE /* SF-Pro-Rounded-Heavy.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6EB2C2EA10D00D2F468 /* SF-Pro-Rounded-Heavy.ttf */; };
+		84B653A92C90951A00E1BADE /* SF-Pro-Rounded-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6EA2C2EA10D00D2F468 /* SF-Pro-Rounded-Bold.ttf */; };
+		84B653AA2C90951A00E1BADE /* SF-Pro-Rounded-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C61BC6EC2C2EA10D00D2F468 /* SF-Pro-Rounded-Light.ttf */; };
+		84B653AB2C90956400E1BADE /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61BC6D12C2EA10D00D2F468 /* Extensions.swift */; };
 		84FBBF632C32E79E005524CE /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF622C32E79E005524CE /* Service.swift */; };
 		84FBBF662C32E86E005524CE /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF652C32E86E005524CE /* MessageView.swift */; };
 		84FBBF682C32E87B005524CE /* MessageBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBBF672C32E87B005524CE /* MessageBarView.swift */; };
@@ -82,6 +96,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		84B6539D2C907F3000E1BADE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 84B6538B2C907F2F00E1BADE;
+			remoteInfo = iOSWidgetExtension;
+		};
 		C61BC6A72C2EA07000D2F468 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -92,6 +113,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		84B653A02C907F3000E1BADE /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				84B6539F2C907F3000E1BADE /* iOSWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C61BC6AA2C2EA07100D2F468 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -119,6 +151,13 @@
 		843325F02C3801CA00C3DA6A /* WatchApp Watch App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WatchApp Watch App.entitlements"; sourceTree = "<group>"; };
 		843325F12C38052E00C3DA6A /* AppGroupModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupModule.swift; sourceTree = "<group>"; };
 		843325F32C38057400C3DA6A /* AppGroupModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppGroupModule.m; sourceTree = "<group>"; };
+		84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = iOSWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		84B6538D2C907F2F00E1BADE /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		84B6538F2C907F2F00E1BADE /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		84B653922C907F2F00E1BADE /* iOSWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSWidgetBundle.swift; sourceTree = "<group>"; };
+		84B653962C907F2F00E1BADE /* iOSWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSWidget.swift; sourceTree = "<group>"; };
+		84B6539A2C907F3000E1BADE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		84B6539C2C907F3000E1BADE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		84FBBF622C32E79E005524CE /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		84FBBF652C32E86E005524CE /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		84FBBF672C32E87B005524CE /* MessageBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBarView.swift; sourceTree = "<group>"; };
@@ -195,6 +234,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		84B653892C907F2F00E1BADE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84B653902C907F2F00E1BADE /* SwiftUI.framework in Frameworks */,
+				84B6538E2C907F2F00E1BADE /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C61BC6992C2EA06F00D2F468 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,6 +280,8 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				82B5DC2C19D609DCC2C11290 /* Pods_Voicenotes.framework */,
+				84B6538D2C907F2F00E1BADE /* WidgetKit.framework */,
+				84B6538F2C907F2F00E1BADE /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -249,6 +299,7 @@
 				13B07FAE1A68108700A75B9A /* Voicenotes */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				C61BC69D2C2EA06F00D2F468 /* WatchApp Watch App */,
+				84B653912C907F2F00E1BADE /* iOSWidget */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
@@ -264,8 +315,20 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* Voicenotes.app */,
 				C61BC69C2C2EA06F00D2F468 /* WatchApp Watch App.app */,
+				84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		84B653912C907F2F00E1BADE /* iOSWidget */ = {
+			isa = PBXGroup;
+			children = (
+				84B653922C907F2F00E1BADE /* iOSWidgetBundle.swift */,
+				84B653962C907F2F00E1BADE /* iOSWidget.swift */,
+				84B6539A2C907F3000E1BADE /* Assets.xcassets */,
+				84B6539C2C907F3000E1BADE /* Info.plist */,
+			);
+			path = iOSWidget;
 			sourceTree = "<group>";
 		};
 		84FBBF642C32E852005524CE /* Views */ = {
@@ -545,16 +608,35 @@
 				D38487D77359B269DCDD6CF6 /* [CP] Embed Pods Frameworks */,
 				12D51AC9710575DE43683950 /* [CP-User] [RNFB] Core Configuration */,
 				C61BC6AA2C2EA07100D2F468 /* Embed Watch Content */,
+				84B653A02C907F3000E1BADE /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				C61BC6A82C2EA07000D2F468 /* PBXTargetDependency */,
+				84B6539E2C907F3000E1BADE /* PBXTargetDependency */,
 			);
 			name = Voicenotes;
 			productName = Voicenotes;
 			productReference = 13B07F961A680F5B00A75B9A /* Voicenotes.app */;
 			productType = "com.apple.product-type.application";
+		};
+		84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84B653A32C907F3000E1BADE /* Build configuration list for PBXNativeTarget "iOSWidgetExtension" */;
+			buildPhases = (
+				84B653882C907F2F00E1BADE /* Sources */,
+				84B653892C907F2F00E1BADE /* Frameworks */,
+				84B6538A2C907F2F00E1BADE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iOSWidgetExtension;
+			productName = iOSWidgetExtension;
+			productReference = 84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		C61BC69B2C2EA06F00D2F468 /* WatchApp Watch App */ = {
 			isa = PBXNativeTarget;
@@ -590,6 +672,9 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
 					};
+					84B6538B2C907F2F00E1BADE = {
+						CreatedOnToolsVersion = 15.3;
+					};
 					C61BC69B2C2EA06F00D2F468 = {
 						CreatedOnToolsVersion = 15.3;
 					};
@@ -615,6 +700,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* Voicenotes */,
 				C61BC69B2C2EA06F00D2F468 /* WatchApp Watch App */,
+				84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -628,6 +714,20 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				E2842E235E804D9D9C0C9E3B /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84B6538A2C907F2F00E1BADE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84B6539B2C907F3000E1BADE /* Assets.xcassets in Resources */,
+				84B653A52C90951A00E1BADE /* SF-Pro-Rounded-Regular.ttf in Resources */,
+				84B653A62C90951A00E1BADE /* SF-Pro-Rounded-Medium.ttf in Resources */,
+				84B653A72C90951A00E1BADE /* SF-Pro-Rounded-Semibold.ttf in Resources */,
+				84B653A82C90951A00E1BADE /* SF-Pro-Rounded-Heavy.ttf in Resources */,
+				84B653A92C90951A00E1BADE /* SF-Pro-Rounded-Bold.ttf in Resources */,
+				84B653AA2C90951A00E1BADE /* SF-Pro-Rounded-Light.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -815,6 +915,17 @@
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
 				1296D65B9FDA474C82C066F4 /* noop-file.swift in Sources */,
+				84B653AB2C90956400E1BADE /* Extensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84B653882C907F2F00E1BADE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84B653972C907F2F00E1BADE /* iOSWidget.swift in Sources */,
+				84B653A42C9094DF00E1BADE /* Extensions.swift in Sources */,
+				84B653932C907F2F00E1BADE /* iOSWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -875,6 +986,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		84B6539E2C907F3000E1BADE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */;
+			targetProxy = 84B6539D2C907F3000E1BADE /* PBXContainerItemProxy */;
+		};
 		C61BC6A82C2EA07000D2F468 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C61BC69B2C2EA06F00D2F468 /* WatchApp Watch App */;
@@ -1022,10 +1138,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1093,14 +1206,98 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		84B653A12C907F3000E1BADE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = H675MS8CG7;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iOSWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iOSWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.voicenotes.iOSWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		84B653A22C907F3000E1BADE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = H675MS8CG7;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iOSWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iOSWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.voicenotes.iOSWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1222,6 +1419,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84B653A32C907F3000E1BADE /* Build configuration list for PBXNativeTarget "iOSWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84B653A12C907F3000E1BADE /* Debug */,
+				84B653A22C907F3000E1BADE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
