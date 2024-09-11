@@ -37,7 +37,7 @@ const formatStatus = (word_with_underscores = "") => {
     .split(" ")
     .map((word) => capitalizeFirstLetter(word))
     .join(" ");
-  return capitalized_word;
+  return capitalized_word=="Upload Failed"?"Waiting for network":capitalized_word;
 };
 
 const getStatusIcon = (status: string) => {

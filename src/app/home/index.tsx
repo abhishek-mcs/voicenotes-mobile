@@ -204,8 +204,6 @@ export default () => {
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
-            dispatch(setTriggerTypingTranscript(recordingId))
-            dispatch(setTriggerTypingTitle(recordingId))
             console.log("updated note: ",updatedNote.data.title)
             dispatch(
               updateRecordingDetails({
@@ -223,6 +221,8 @@ export default () => {
             await remove(statusRef);
             off(statusRef);
             !updatedNote.data?.parent_id&&setExpandNote(0);
+            dispatch(setTriggerTypingTranscript(recordingId))
+            dispatch(setTriggerTypingTitle(recordingId))
             return;
           }
         } else {
@@ -529,7 +529,7 @@ export default () => {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useLayoutAnim([isSearchVisible]);
+  useLayoutAnim([isSearchVisible,expandNote]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -642,7 +642,7 @@ export default () => {
                 ) : null
               }
               ListEmptyComponent={() =>
-                hashFilter == "shared" ? (
+                (hashFilter == "shared" ||hashFilter == "starred")? (
                   <View
                     style={{
                       flexDirection: "row",
@@ -654,7 +654,7 @@ export default () => {
                       marginTop: 20,
                     }}
                   >
-                    <SvgXml xml={home.share} />
+                    <SvgXml xml={hashFilter == "shared"?home.share:home?.emptyStarred} />
                     <View
                       style={{ marginLeft: 16, backgroundColor: "transparent" }}
                     >
@@ -666,17 +666,18 @@ export default () => {
                           marginBottom: 4,
                         }}
                       >
-                        You haven't shared any notes yet.
+                        You haven't {hashFilter == "shared"?'shared':"starred"} any notes yet.
                       </Text>
                       <Text
                         style={{
                           fontFamily: "Primary",
                           fontSize: 12,
                           color: Colors.darkWithOpacity(1),
+                          width:"70%"
                         }}
                       >
-                        To share a note, just tap ‘... More’ in the notes
-                        settings and select ‘Share’
+                        {hashFilter == "shared"?"To share a note, expand the note, just tap ‘... More’ in the notes settings and select Share"
+                        :`To star a note, expand the note, choose the ‘#Tag’ option and select ‘*starred’.`}
                       </Text>
                     </View>
                   </View>

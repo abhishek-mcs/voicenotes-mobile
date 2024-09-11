@@ -84,10 +84,14 @@ export default () => {
             </Touchable>
             <Grouped 
             title="ACCOUNT"
-            items={[
+            items={!userDetails?.subscription_plan?[
                 {title:'Name',value:userDetails?.name||''},
                 {title:'Email',value:userDetails?.email||''},
-            ]}/>
+            ]:[
+              {title:'Name',value:userDetails?.name||''},
+              {title:'Email',value:userDetails?.email||''},
+              {title:'Your plan',value:userDetails?.subscription_plan||''},
+          ]}/>
             {Grouped({
             title:"APP",
             items:[
