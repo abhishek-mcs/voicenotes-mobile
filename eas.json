@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 7.6.0"
+    "version": ">= 7.6.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -32,14 +33,14 @@
       "android": {
         "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
         "track": "internal",
-        "changesNotSentForReview" : false
+        "changesNotSentForReview": false
       }
     },
     "staging": {
       "android": {
         "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
         "track": "internal",
-        "changesNotSentForReview" : false
+        "changesNotSentForReview": false
       }
     }
   }

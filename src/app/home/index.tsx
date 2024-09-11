@@ -54,8 +54,6 @@ import NetInfo from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics, db } from "../../../firebaseConfig";
-import useLayoutAnim from "hooks/anim/useLayoutAnim";
-import CircularLoader from "components/common/loaders/circular-loader";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import { off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
@@ -66,6 +64,13 @@ import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import * as FileSystem from 'expo-file-system';
+
+// const recordSound = require("../../assets/sounds/record.wav");
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
+import CircularLoader from "components/common/loaders/circular-loader";
+import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -82,10 +87,11 @@ const KeyboardAvoidView:any = KeyboardAvoidingView;
 export default () => {
   const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
-  const { hashFilter } = useSelector((state: RootState) => state.hash);
-  const token = useSelector((state: RootState) => state.userDetails.token);
-  const { canRecord } = useSelector((state: RootState) => state.userDetails);
-  const [expandNote, setExpandNote] = useState(-1);
+  const {hashFilter} = useSelector((state: RootState) => state.hash);
+  const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
+  const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
+  const {canRecord} = useSelector((state: RootState) => state.userDetails);
+  const [expandNote,setExpandNote] = useState(-1)
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
@@ -114,7 +120,10 @@ export default () => {
   );
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const queryClient = useQueryClient();
-  const bannerRef = useRef<any>(null);
+  const bannerRef=useRef<any>(null)
+  const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
+  const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
+
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
@@ -412,6 +421,7 @@ export default () => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
         () => {}
       );
+      checkAndShowPremium()
       setExpandNote(-1)
       setRecEnabled(false);
       const uri = await stopRecording(rec);

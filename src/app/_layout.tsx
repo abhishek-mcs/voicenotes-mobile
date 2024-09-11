@@ -35,7 +35,7 @@ export default function Layout() {
               />
               <Stack.Screen
                 name="premium/index"
-                options={{ presentation: "formSheet" }}
+                options={{ presentation: "fullScreenModal" }}
               />
               <Stack.Screen
                 name="add-tags/index"

@@ -1,6 +1,6 @@
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 import { useEffect, useRef, useState } from "react";
-import { Animated } from "react-native";
+import { Animated, InteractionManager } from "react-native";
 import { Settings } from "react-native-fbsdk-next";
 
 const useFBEventTracking = () => {
@@ -17,7 +17,9 @@ const useFBEventTracking = () => {
   };
 
   useEffect(()=>{
-    trackingPermission()
+    InteractionManager.runAfterInteractions(()=>{
+      trackingPermission()
+    })
   },[])
 };
 

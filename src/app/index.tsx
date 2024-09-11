@@ -1,17 +1,18 @@
-import { useEffect} from 'react';
+import { useEffect, useState} from 'react';
 import { useFonts } from 'expo-font';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Home from './home';
-import { Redirect } from 'expo-router';
+import { Redirect, SplashScreen } from 'expo-router';
 import { RootState } from 'redux/store/store';
 import { useSelector } from 'react-redux';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import * as WebBrowser from 'expo-web-browser';
-import { LogBox, Platform, UIManager } from 'react-native';
+import { InteractionManager, LogBox, Platform, StatusBar, UIManager } from 'react-native';
 
 LogBox.ignoreLogs(['Require cycle: src']);
 LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new']);
 LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new one before the first began:'])
+SplashScreen.preventAutoHideAsync();
 
 export {
   ErrorBoundary,
@@ -29,18 +30,26 @@ if (Platform.OS === 'android') {
 
 export default function App() {
   const {token} = useSelector((state: RootState) => state.userDetails);
+  const [isLoading,setIsLoading]=useState(true)
   const [fontsLoaded,error] = useFonts({
     "Primary-Bold": require('../assets/fonts/Inter-Bold.ttf'),
     "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
     "Primary": require('../assets/fonts/Inter-Regular.ttf'),
     "Primary-Semibold": require('../assets/fonts/Inter-SemiBold.ttf'),
     "Primary-Italic": require('../assets/fonts/Inter-Italic.ttf'),
+    "Secondary": require('../assets/fonts/InstrumentSerif-Regular.ttf'),
+    "Secondary-Italic": require('../assets/fonts/InstrumentSerif-Italic.ttf'),
     ...FontAwesome.font,
   });
   
   useEffect(() => {
     WebBrowser.warmUpAsync();
-
+    // InteractionManager.runAfterInteractions(()=>{
+      setTimeout(async() => {
+        await SplashScreen.hideAsync()
+        setIsLoading(false)
+      }, 2000);
+    // })
     return () => {
       WebBrowser.coolDownAsync();
     };
@@ -53,7 +62,7 @@ export default function App() {
   
   useIAPSetup()
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded||isLoading) {
     return null;
   }
   if (token) {

@@ -70,7 +70,7 @@ export default (props:any) => {
         renderItem={({ item }) =><Btn item={item} hashFilter={hashFilter} onPress={()=>handleTagPress(item)}/>}
         keyExtractor={(item, index) => index.toString()}
       />
-      {(userDetails?.subscription_status||isTempIAPPurchased)?
+      {/* {(userDetails?.subscription_status||isTempIAPPurchased)?
       null
       :<TouchableHighlight onPress={onUpgrade} style={styles.upgrade} underlayColor={Colors.primaryWithOpacity(0.1)}>
         <>
@@ -80,7 +80,7 @@ export default (props:any) => {
           <Text style={styles.upgradeText}>Record longer, GPT-4o and more</Text>
         </View>
         </>
-      </TouchableHighlight>}
+      </TouchableHighlight>} */}
      {!!token&& 
      <Touchable onPress={openSettings} style={[styles.row,styles.btn,{justifyContent:'space-between',paddingLeft:6,paddingRight:4,marginLeft:-6,height:40}]} activeOpacity={0.6}>
         <><View style={styles.row}>
