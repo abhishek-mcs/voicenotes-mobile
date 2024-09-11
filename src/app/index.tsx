@@ -10,7 +10,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { InteractionManager, LogBox, Platform, StatusBar, UIManager } from 'react-native';
 
 LogBox.ignoreLogs(['Require cycle: src']);
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 export {
   ErrorBoundary,
@@ -28,7 +28,7 @@ if (Platform.OS === 'android') {
 
 export default function App() {
   const {token} = useSelector((state: RootState) => state.userDetails);
-  const [isLoading,setIsLoading]=useState(true)
+  // const [isLoading,setIsLoading]=useState(true)
   const [fontsLoaded,error] = useFonts({
     "Primary-Bold": require('../assets/fonts/Inter-Bold.ttf'),
     "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
@@ -43,10 +43,10 @@ export default function App() {
   useEffect(() => {
     WebBrowser.warmUpAsync();
     // InteractionManager.runAfterInteractions(()=>{
-      setTimeout(async() => {
-        await SplashScreen.hideAsync()
-        setIsLoading(false)
-      }, 2000);
+      // setTimeout(async() => {
+      //   await SplashScreen.hideAsync()
+      //   setIsLoading(false)
+      // }, 2000);
     // })
     return () => {
       WebBrowser.coolDownAsync();
@@ -60,7 +60,7 @@ export default function App() {
   
   useIAPSetup()
 
-  if (!fontsLoaded||isLoading) {
+  if (!fontsLoaded) {
     return null;
   }
   if (token) {
