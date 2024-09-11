@@ -15,6 +15,7 @@ import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
+import { setRecordingList } from "redux/reducers/recordingStates"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -56,6 +57,7 @@ export default ()=>{
           const token = response.data?.authorisation?.token;
           const userData = response.data?.user
           if (token) {
+            dispatch(setRecordingList([]))
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             setAuthToken(response.data?.authorisation?.token,false,netInfo);
