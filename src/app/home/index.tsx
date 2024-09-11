@@ -204,8 +204,8 @@ export default () => {
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
-            dispatch(setTriggerTypingTranscript(2))
-            dispatch(setTriggerTypingTitle(2))
+            dispatch(setTriggerTypingTranscript(recordingId))
+            dispatch(setTriggerTypingTitle(recordingId))
             console.log("updated note: ",updatedNote.data.title)
             dispatch(
               updateRecordingDetails({

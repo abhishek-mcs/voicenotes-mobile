@@ -6,16 +6,16 @@ export interface HashState {
   recordingList: any[];
   tempRecordings: any;
   tempRecordingData:any;
-  triggerTypingTitle:0|1|2;
-  triggerTypingTranscript:0|1|2;
+  triggerTypingTitle:any;
+  triggerTypingTranscript:any;
 }
 
 const initialState: HashState = {
   recordingList: [],
   tempRecordings: [],
   tempRecordingData:{},
-  triggerTypingTitle:0,
-  triggerTypingTranscript:0
+  triggerTypingTitle:null,
+  triggerTypingTranscript:null
 };
 
 export const recordingStates = createSlice({

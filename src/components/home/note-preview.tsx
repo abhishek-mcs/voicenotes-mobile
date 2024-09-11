@@ -937,8 +937,8 @@ const NotePreview = forwardRef(
                         }
                         showCursorAtEnd={note?.title === "New Recording"||!note?.title}
                         message={note?.title??"New Recording"}
-                        triggerAnimation={triggerTypingTitle==2&&index==0?2:0}
-                        disableGenerating={() => dispatch(setTriggerTypingTitle(0))}
+                        triggerAnimation={triggerTypingTitle==note?.id?2:0}
+                        disableGenerating={() => dispatch(setTriggerTypingTitle(null))}
                       />
                     </View>
                     {isNoteExpanded && (
@@ -989,9 +989,9 @@ const NotePreview = forwardRef(
                     message={note?.transcript
                       ?.replaceAll(/<br\/?>/g, "\n")
                       ?.trimEnd()}
-                    continueGenerating={triggerTypingTitle==2&&index==0}
-                    triggerAnimation={triggerTypingTranscript==2&&index==0?2:0}
-                    disableGenerating={() => dispatch(setTriggerTypingTranscript(0))}
+                    continueGenerating={triggerTypingTitle==note?.id}
+                    triggerAnimation={triggerTypingTranscript==note?.id?2:0}
+                    disableGenerating={() => dispatch(setTriggerTypingTranscript(null))}
                   />
                 )}
 
