@@ -21,7 +21,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.5.40</string>
+    <string>1.5.41</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -47,7 +47,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>114</string>
+    <string>115</string>
     <key>FacebookAdvertiserIDCollectionEnabled</key>
     <true/>
     <key>FacebookAppID</key>
@@ -82,6 +82,8 @@
     <string>Allow $(PRODUCT_NAME) to access your camera</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>To enhance your experience, Voicenotes requires access to your microphone. This enables seamless recording of audio notes, which are then automatically transcribed into text.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to save photos</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Voicenotes requires photo access so that you can upload images as attachments in your notes</string>
     <key>NSPrivacyAccessedAPICategoryDiskSpace</key>
@@ -94,6 +96,7 @@
     <string>This app requires access to user defaults for storing user preferences and settings securely on the device. AsyncStorage, a commonly used data persistence mechanism in React Native, utilizes user defaults to save and retrieve user-specific data such as preferences, settings, and user-generated content. Access to user defaults ensures a seamless and personalized user experience by preserving user preferences across app sessions.</string>
     <key>NSUserActivityTypes</key>
     <array>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
