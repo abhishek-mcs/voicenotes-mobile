@@ -1,3 +1,4 @@
+import React from "react";
 import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
@@ -87,12 +88,15 @@ export default () => {
             items={[
                 {title:'Name',value:userDetails?.name||''},
                 {title:'Email',value:userDetails?.email||''},
+                {title:'About',value:userDetails?.about||''}
             ]}/>
-            {Grouped({
-            title:"APP",
-            items:[
-                {title:'Language',isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang}
-            ]})}
+            <Grouped
+              title="APP"
+              items={[
+                {title: 'Language', isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang},
+                {title:'Names to remember',value:'',onPress:onDelete,rightIcon:settingsSvg.arrow}
+              ]} 
+            />
             <Grouped 
             title="MORE"
             items={[
