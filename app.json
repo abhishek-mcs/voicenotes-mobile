@@ -11,8 +11,11 @@
       "**/*"
     ],
     "splash": {
-      "image": "./src/assets/images/splash.png",
-      "backgroundColor": "#fff"
+      "ios": {
+        "image": "./src/assets/images/splash.png",
+        "backgroundColor": "#E03A3C",
+        "resizeMode": "cover"
+      }
     },
     "ios": {
       "supportsTablet": false,
@@ -44,7 +47,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 136,
+      "versionCode": 137,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
