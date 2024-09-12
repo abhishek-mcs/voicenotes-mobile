@@ -1,4 +1,3 @@
-import React from "react";
 import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
@@ -8,8 +7,8 @@ import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollV
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
-import { useEffect, useState } from "react";
-import {languages} from "utils/constants/languages";
+import { ReactElement, useEffect, useState } from "react";
+import { languages } from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
 import { isIOS } from "utils/common";
@@ -20,15 +19,21 @@ import { useQueryClient } from "react-query";
 import { currentVersion } from "services/api/api-constants";
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Name from "components/settings/name";
+import About from "components/settings/about";
+import Email from "components/settings/email";
+import Names from "components/settings/names";
 
 export default () => {
-    const router = useRouter();
-    const logout=useLogout()
-    const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
-    const settings:any=userDetails.settings
-    const saveSettings=useSaveSettings()
-    const dispatch=useDispatch()
-    const queryClient=useQueryClient()
+  const router = useRouter();
+  const logout=useLogout()
+  const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
+  const settings:any=userDetails.settings
+  const saveSettings=useSaveSettings()
+  const dispatch=useDispatch()
+  const queryClient=useQueryClient()
+
+  const [input, setInput] = useState<ReactElement | null>(null)
 
   const onLogout = () =>{
     
@@ -69,6 +74,22 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
+
+  const selectName = () => {
+    setInput(<Name onClose={() => setInput(null)} />)
+  }
+
+  const selectAbout = () => {
+    setInput(<About onClose={() => setInput(null)} />)
+  }
+
+  const selectEmail = () => {
+    setInput(<Email onClose={() => setInput(null)} />)
+  }
+
+  const selectNames = () => {
+    setInput(<Names onClose={() => setInput(null)} />)
+  }
   
   useEffect(() => {
     if(!!userDetails?.settings?.language){
@@ -80,34 +101,36 @@ export default () => {
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
-            <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
-                <SvgXml xml={settingsSvg.close}  />
-            </Touchable>
-            <Grouped 
-            title="ACCOUNT"
-            items={[
-                {title:'Name',value:userDetails?.name||''},
-                {title:'Email',value:userDetails?.email||''},
-                {title:'About',value:userDetails?.about||''}
-            ]}/>
-            <Grouped
-              title="APP"
+            {input || <View style={{ flex: 1 }}>
+              <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
+                  <SvgXml xml={settingsSvg.close}  />
+              </Touchable>
+              <Grouped 
+              title="ACCOUNT"
               items={[
-                {title: 'Language', isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang},
-                {title:'Names to remember',value:'',onPress:onDelete,rightIcon:settingsSvg.arrow}
-              ]} 
-            />
-            <Grouped 
-            title="MORE"
-            items={[
-                {title:'Delete account',value:'',onPress:onDelete,rightIcon:settingsSvg.arrow},
-                {title:'Share feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
-                {title:'Sign out',value:'',onPress:onLogout,style:{color:'#FF453A'},leftIcon:settingsSvg.signOut},
-            ]}/>
-            {/* version */}
-            <View style={{alignSelf:'center'}}>
-              <Text style={{fontFamily:'Primary-Medium',fontSize:14,color:Colors.grey}}>Version {currentVersion}</Text>
-            </View>
+                  {title:'Name', onPress: selectName, value:userDetails?.name||''},
+                  {title:'Email',onPress: selectEmail, value:userDetails?.email||''},
+                  {title:'About', onPress: selectAbout, value:userDetails?.about||''}
+              ]}/>
+              <Grouped
+                title="APP"
+                items={[
+                  {title: 'Language', isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang},
+                  {title:'Names to remember',value:'', onPress: selectNames, rightIcon:settingsSvg.arrow}
+                ]} 
+              />
+              <Grouped 
+              title="MORE"
+              items={[
+                  {title:'Delete account',value:'',onPress:onDelete,rightIcon:settingsSvg.arrow},
+                  {title:'Share feedback',value:'',onPress:feedback,rightIcon:settingsSvg.arrow},
+                  {title:'Sign out',value:'',onPress:onLogout,style:{color:'#FF453A'},leftIcon:settingsSvg.signOut},
+              ]}/>
+              {/* version */}
+              <View style={{alignSelf:'center'}}>
+                <Text style={{fontFamily:'Primary-Medium',fontSize:14,color:Colors.grey}}>Version {currentVersion}</Text>
+              </View>
+            </View>}
         </SafeAreaView>
     );
 }
