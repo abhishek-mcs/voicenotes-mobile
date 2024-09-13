@@ -5,50 +5,61 @@
 //  Created by Andriy Hrytsyshyn on 9/13/24.
 //
 
-import Foundation
 import ClockKit
 
+final class ComplicationController: NSObject, CLKComplicationDataSource {
 
-class ComplicationController: NSObject, CLKComplicationDataSource {
-  func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
-    handler([.forward, .backward])
+  // This method contains important information about your complication.
+  func complicationDescriptors() async -> [CLKComplicationDescriptor] {
+    [
+      CLKComplicationDescriptor(
+        identifier: "watch-complication", // This id should be unique and stable.
+        displayName: "My Complication",
+        supportedFamilies: [.graphicCircular, .graphicCorner])
+    ]
   }
   
-  func getTimelineStartDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-    handler(nil)
-  }
-  
-  func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-    handler(nil)
-  }
-  
-  func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
-    handler(.showOnLockScreen)
-  }
-  
-  func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
-    let template = createTemplate(for: complication)
-    let entry = CLKComplicationTimelineEntry(date: Date(), complicationTemplate: template)
-    handler(entry)
-  }
-  
-  func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
-    handler(nil)
-  }
-  
-  func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
-    let template = createTemplate(for: complication)
-    handler(template)
-  }
-  
-  private func createTemplate(for complication: CLKComplication) -> CLKComplicationTemplate {
+  // This method is for creating a complication sample. It defines how it will look in Complication Picker Mode.
+  func localizableSampleTemplate(for complication: CLKComplication) async -> CLKComplicationTemplate? {
+    guard let fullColorImage = UIImage(named: "complication_icon") else { return nil }
+    let fullColorImageProvider = CLKFullColorImageProvider(fullColorImage: fullColorImage)
+
     switch complication.family {
-    case .circularSmall:
-      let imageProvider = CLKImageProvider(onePieceImage: UIImage(named: "appIcon")!)
-      let imageTemplate = CLKComplicationTemplateCircularSmallSimpleImage(imageProvider: imageProvider)
-      return imageTemplate
+    case .graphicCircular:
+      let template = CLKComplicationTemplateGraphicCircularImage(imageProvider: fullColorImageProvider)
+      return template
+
+    case .graphicCorner:
+      let template = CLKComplicationTemplateGraphicCornerCircularImage(imageProvider: fullColorImageProvider)
+      return template
+
     default:
-      fatalError("Complication family not supported")
+      return nil
     }
   }
+
+  // This method is for creating an actual live complication.
+  func currentTimelineEntry(for complication: CLKComplication) async -> CLKComplicationTimelineEntry? {
+    guard
+      let fullColorImage = UIImage(named: "complication_icon"),
+      let tintColorImage = UIImage(named: "complication_icon_tinted")
+    else { return nil }
+    
+    let tintColorImageProvider = CLKImageProvider(onePieceImage: tintColorImage)
+    let fullColorImageProvider = CLKFullColorImageProvider(fullColorImage: fullColorImage, tintedImageProvider: tintColorImageProvider)
+
+    switch complication.family {
+    case .graphicCircular:
+      let template = CLKComplicationTemplateGraphicCircularImage(imageProvider: fullColorImageProvider)
+      return CLKComplicationTimelineEntry(date: .now, complicationTemplate: template)
+
+    case .graphicCorner:
+      let template = CLKComplicationTemplateGraphicCornerCircularImage(imageProvider: fullColorImageProvider)
+      return CLKComplicationTimelineEntry(date: .now, complicationTemplate: template)
+
+    default:
+      return nil
+    }
+  }
+
 }
