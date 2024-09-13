@@ -68,6 +68,7 @@ import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
+import * as Linking from 'expo-linking';
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -220,12 +221,16 @@ export default () => {
   useEffect(() => {
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
       console.log("React Native: Recording started");
-      onStartRecord({});
+      setTimeout(() => {
+        onStartRecord({repeat: false, parent_id: recordingParentId});
+      }, 500)
     });
 
     const askAISubscription = actionEmitter.addListener('askAI', () => {
       console.log("React Native: AI asked");
-      onAsk();
+      setTimeout(() => {
+        onAsk();
+      }, 500)
     });
 
     const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
@@ -295,11 +300,15 @@ export default () => {
     switch (type) {
       case 'askAI':
         console.log('Performing action for Ask AI');
-        onAsk();
+        setTimeout(() => {
+          onAsk();
+        }, 500)
         break;
       case 'record':
         console.log('Performing action for Recording');
-        onStartRecord({});
+        setTimeout(() => {
+          onStartRecord({repeat: false, parent_id: recordingParentId});
+        }, 500)
         break;
       case 'search':
         console.log('Performing action for Search');
@@ -309,6 +318,35 @@ export default () => {
         console.log('No matching shortcut action');
     }
   };
+
+  useEffect(() => {
+    const handleDeepLink = (event: { url: any; }) => {
+      console.log("event: ", event.url);
+
+      if (event.url === "voicenotes://ask") {
+        console.log("depp link type: ask ai");
+        setTimeout(() => {
+          onAsk();
+        }, 500)
+      }
+      if (event.url === "voicenotes://record") {
+        console.log("depp link type: record");
+        setTimeout(() => {
+          onStartRecord({repeat: false, parent_id: recordingParentId});
+        }, 500)
+      }
+    };
+
+    // Add event listener for deep linking
+    Linking.addEventListener('url', handleDeepLink);
+
+    // Handle if the app was opened via a deep link initially
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (recordingQuery.data) {

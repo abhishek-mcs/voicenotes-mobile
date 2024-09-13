@@ -14,6 +14,7 @@
 		53D762A597CDA2C7E47478F4 /* Pods_Voicenotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82B5DC2C19D609DCC2C11290 /* Pods_Voicenotes.framework */; };
 		843325F22C38052E00C3DA6A /* AppGroupModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843325F12C38052E00C3DA6A /* AppGroupModule.swift */; };
 		843325F42C38057400C3DA6A /* AppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 843325F32C38057400C3DA6A /* AppGroupModule.m */; };
+		843E6C032C9416770040C728 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843E6C022C9416770040C728 /* ComplicationController.swift */; };
 		84B6538E2C907F2F00E1BADE /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B6538D2C907F2F00E1BADE /* WidgetKit.framework */; };
 		84B653902C907F2F00E1BADE /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B6538F2C907F2F00E1BADE /* SwiftUI.framework */; };
 		84B653932C907F2F00E1BADE /* iOSWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B653922C907F2F00E1BADE /* iOSWidgetBundle.swift */; };
@@ -153,6 +154,7 @@
 		843325F02C3801CA00C3DA6A /* WatchApp Watch App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WatchApp Watch App.entitlements"; sourceTree = "<group>"; };
 		843325F12C38052E00C3DA6A /* AppGroupModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupModule.swift; sourceTree = "<group>"; };
 		843325F32C38057400C3DA6A /* AppGroupModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppGroupModule.m; sourceTree = "<group>"; };
+		843E6C022C9416770040C728 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = iOSWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B6538D2C907F2F00E1BADE /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		84B6538F2C907F2F00E1BADE /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -389,6 +391,7 @@
 				C61BC69E2C2EA06F00D2F468 /* WatchAppApp.swift */,
 				C61BC6A02C2EA06F00D2F468 /* ContentView.swift */,
 				C61BC6AE2C2EA10D00D2F468 /* ContentViewModel.swift */,
+				843E6C022C9416770040C728 /* ComplicationController.swift */,
 				C61BC6B02C2EA10D00D2F468 /* Model */,
 				C61BC6E82C2EA10D00D2F468 /* Views */,
 				C61BC6D42C2EA10D00D2F468 /* Common */,
@@ -978,6 +981,7 @@
 				C61BC7002C2EA10E00D2F468 /* RecordingSuggestionModel.swift in Sources */,
 				C61BC7182C2EA10E00D2F468 /* RecordAudioView.swift in Sources */,
 				C61BC70D2C2EA10E00D2F468 /* MicrophoneMonitor.swift in Sources */,
+				843E6C032C9416770040C728 /* ComplicationController.swift in Sources */,
 				C61BC6F52C2EA10E00D2F468 /* CodaleService.swift in Sources */,
 				84FBBF662C32E86E005524CE /* MessageView.swift in Sources */,
 				C61BC71B2C2EA10E00D2F468 /* RecordingDetailViewModel.swift in Sources */,
@@ -1154,10 +1158,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1225,10 +1226,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1350,6 +1348,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WatchApp-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Voicenotes;
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To enhance your experience, Voicenotes requires access to your microphone. This enables seamless recording of audio notes, which are then automatically transcribed into text.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.voicenotes;
@@ -1402,6 +1401,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WatchApp-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Voicenotes;
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To enhance your experience, Voicenotes requires access to your microphone. This enables seamless recording of audio notes, which are then automatically transcribed into text.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.voicenotes;
