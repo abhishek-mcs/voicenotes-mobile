@@ -1,132 +1,0 @@
-%PDF-1.7
-
-1 0 obj
-  << /Length 2 0 R >>
-stream
-1.001465 0 0.187012 -0.164062 0.814453 1.220703 d1
-
-endstream
-endobj
-
-2 0 obj
-  51
-endobj
-
-3 0 obj
-  [ 1.001465 ]
-endobj
-
-4 0 obj
-  << /Length 5 0 R >>
-stream
-/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/CIDSystemInfo
-<< /Registry (FigmaPDF)
-   /Ordering (FigmaPDF)
-   /Supplement 0
->> def
-/CMapName /A-B-C def
-/CMapType 2 def
-1 begincodespacerange
-<00> <FF>
-endcodespacerange
-1 beginbfchar
-<00> <DBC1DFDC>
-endbfchar
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-end
-endstream
-endobj
-
-5 0 obj
-  336
-endobj
-
-6 0 obj
-  << /Subtype /Type3
-     /CharProcs << /C0 1 0 R >>
-     /Encoding << /Type /Encoding
-                  /Differences [ 0 /C0 ]
-               >>
-     /Widths 3 0 R
-     /FontBBox [ 0.000000 0.000000 0.000000 0.000000 ]
-     /FontMatrix [ 1.000000 0.000000 0.000000 1.000000 0.000000 0.000000 ]
-     /Type /Font
-     /ToUnicode 4 0 R
-     /FirstChar 0
-     /LastChar 0
-     /Resources << >>
-  >>
-endobj
-
-7 0 obj
-  << /Font << /F1 6 0 R >> >>
-endobj
-
-8 0 obj
-  << /Filter /FlateDecode
-     /Length 9 0 R
-  >>
-stream
-x¥”;Ô@„óşB°½óğ3=^°YwÉ>	Äï§z¼S=d8ÙÙÏÓUÕ=¶¯oÿÜ?xo¾ÈÕÿm/òK’Æz…Ø®xï2é0–”Ç5Íi™Ç°^ú÷âe{–¨Ã„1óbÅ‡üuUêB­CMã”±×!-‘g¬J’.kÄş°	YtŠùí\5›ut(Qk-Ò2Š³Mrn%NwÉƒ.wÕ+ÚtŒy IÊä$ôİÆáœmÿœãnóÅ¶-§ÿ!9éjú„iº„°uLÈ™è£ŠÀ¼ƒµ•VA§³ÚNP7É‹–³uOãÁòît—µuépa5]1Î†gªÁ|w³³?p„h³Á:Åm$k=9L6]ë1w	p…<¶8›ÔÚÀ
-=÷t:¬)Îí™í¼ÉPÍ‘8İ%­í%t
-6Ü5İ§g¦‚
-h:õì®è=º7ª='i}(‹š'R“Çè²Î“åstq“ÖO
-ˆpŒUÄ|:X%ê¾»ZVK`^t%BéÚŞ0B<¹Q¡Ë!P{'›EÅ!#áPkŒ®DˆÂ|„6¬'y–Oÿ÷e~¸IÉm‹¸èïÕì@í};äú>¹ÁíI¾†Wß°|¾‡ÛGywCº?áŠ<e
-endstream
-endobj
-
-9 0 obj
-  506
-endobj
-
-10 0 obj
-  << /Annots []
-     /Type /Page
-     /MediaBox [ 0.000000 0.000000 20.078125 33.078125 ]
-     /Resources 7 0 R
-     /Contents 8 0 R
-     /Parent 11 0 R
-  >>
-endobj
-
-11 0 obj
-  << /Kids [ 10 0 R ]
-     /Count 1
-     /Type /Pages
-  >>
-endobj
-
-12 0 obj
-  << /Pages 11 0 R
-     /Type /Catalog
-  >>
-endobj
-
-xref
-0 13
-0000000000 65535 f
-0000000010 00000 n
-0000000117 00000 n
-0000000138 00000 n
-0000000169 00000 n
-0000000561 00000 n
-0000000583 00000 n
-0000000995 00000 n
-0000001041 00000 n
-0000001631 00000 n
-0000001653 00000 n
-0000001828 00000 n
-0000001904 00000 n
-trailer
-<< /ID [ (some) (id) ]
-   /Root 12 0 R
-   /Size 13
->>
-startxref
-1965
-%%EOF

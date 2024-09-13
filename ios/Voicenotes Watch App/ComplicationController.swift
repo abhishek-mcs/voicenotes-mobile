@@ -21,7 +21,7 @@ final class ComplicationController: NSObject, CLKComplicationDataSource {
   
   // This method is for creating a complication sample. It defines how it will look in Complication Picker Mode.
   func localizableSampleTemplate(for complication: CLKComplication) async -> CLKComplicationTemplate? {
-    guard let fullColorImage = UIImage(named: "complication_icon") else { return nil }
+    guard let fullColorImage = UIImage(named: "AppIcon") else { return nil }
     let fullColorImageProvider = CLKFullColorImageProvider(fullColorImage: fullColorImage)
 
     switch complication.family {
@@ -41,8 +41,8 @@ final class ComplicationController: NSObject, CLKComplicationDataSource {
   // This method is for creating an actual live complication.
   func currentTimelineEntry(for complication: CLKComplication) async -> CLKComplicationTimelineEntry? {
     guard
-      let fullColorImage = UIImage(named: "complication_icon"),
-      let tintColorImage = UIImage(named: "complication_icon_tinted")
+      let fullColorImage = UIImage(named: "AppIcon"),
+      let tintColorImage = UIImage(named: "AppIcon")
     else { return nil }
     
     let tintColorImageProvider = CLKImageProvider(onePieceImage: tintColorImage)
