@@ -323,17 +323,27 @@ export default () => {
     const handleDeepLink = (event: { url: any; }) => {
       console.log("event: ", event.url);
 
-      if (event.url === "voicenotes://ask") {
-        console.log("depp link type: ask ai");
-        setTimeout(() => {
-          onAsk();
-        }, 500)
-      }
-      if (event.url === "voicenotes://record") {
-        console.log("depp link type: record");
-        setTimeout(() => {
-          onStartRecord({repeat: false, parent_id: recordingParentId});
-        }, 500)
+      switch (event.url) {
+        case 'voicenotes://ask':
+          console.log('Performing action for Ask AI');
+          setTimeout(() => {
+            onAsk();
+          }, 500)
+          break;
+        case 'voicenotes://record':
+          console.log('Performing action for Recording');
+          setTimeout(() => {
+            onStartRecord({repeat: false, parent_id: recordingParentId});
+          }, 500)
+          break;
+        case 'voicenotes://search':
+          console.log('Performing action for Search');
+          setTimeout(() => {
+            router.push("/search/");
+          }, 500)
+          break;
+        default:
+          console.log('No matching shortcut action');
       }
     };
 

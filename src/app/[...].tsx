@@ -1,3 +1,4 @@
+// app/[...].tsx
 import React from 'react';
 
 export default function CatchAllRoute(): JSX.Element | null {
