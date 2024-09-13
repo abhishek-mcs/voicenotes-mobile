@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  DeviceEventEmitter,
   Easing,
   FlatList,
   KeyboardAvoidingView,
@@ -65,6 +66,8 @@ import { useGetRelatedRecording } from "queries/home/relatedNote";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import { NativeEventEmitter, NativeModules } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -79,6 +82,8 @@ const fadeOut = {
 const KeyboardAvoidView:any = KeyboardAvoidingView;
 
 export default () => {
+  const { ActionModule } = NativeModules;
+  const actionEmitter = new NativeEventEmitter(ActionModule);
   const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
   const { hashFilter } = useSelector((state: RootState) => state.hash);
@@ -211,6 +216,99 @@ export default () => {
     },
     [token, dispatch]
   );
+
+  useEffect(() => {
+    const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
+      console.log("React Native: Recording started");
+      onStartRecord({});
+    });
+
+    const askAISubscription = actionEmitter.addListener('askAI', () => {
+      console.log("React Native: AI asked");
+      onAsk();
+    });
+
+    const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
+      console.log("React Native: Search Note started");
+      router.push("/search/");
+    });
+
+    return () => {
+      startRecordSubscription.remove();
+      askAISubscription.remove();
+      searchNoteSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+   
+    QuickActions.setShortcutItems([
+      {
+        type: 'record',
+        title: 'Record',
+        icon: 'waveform.badge.plus',
+        userInfo: {
+          url: 'myapp://shortcut1', // Optional, only for Android
+        },
+      },
+      
+      {
+        type: 'askAI',
+        title: 'Ask AI',
+        icon: 'message.badge.waveform.fill',
+        userInfo: {
+          url: 'myapp://shortcut1', // Optional, only for Android
+        },
+      },
+      {
+        type: 'search',
+        title: 'Search',
+        icon: 'waveform.badge.magnifyingglass',
+        userInfo: {
+          url: 'myapp://shortcut1', // Optional, only for Android
+        },
+      },
+    ]);
+  
+    QuickActions.popInitialAction()
+      .then((item) => {
+        if (item) {
+          handleShortcutAction(item.type);
+        }
+      })
+      .catch(err => {
+        console.error('Error processing initial action: ', err);
+      });
+  
+      DeviceEventEmitter.addListener("quickActionShortcut", data => {
+        handleShortcutAction(data.type);
+      });
+      
+      return () => {
+        QuickActions.clearShortcutItems();
+        DeviceEventEmitter.removeAllListeners();
+      };
+
+  }, []);
+
+  const handleShortcutAction = (type: string) => {
+    switch (type) {
+      case 'askAI':
+        console.log('Performing action for Ask AI');
+        onAsk();
+        break;
+      case 'record':
+        console.log('Performing action for Recording');
+        onStartRecord({});
+        break;
+      case 'search':
+        console.log('Performing action for Search');
+        router.push("/search/");
+        break;
+      default:
+        console.log('No matching shortcut action');
+    }
+  };
 
   useEffect(() => {
     if (recordingQuery.data) {
