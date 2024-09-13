@@ -7,7 +7,15 @@ import { MAX_NOTES_STORAGE_LIMIT_IN_DEVICE } from "services/api/api-constants";
 export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
   let finalList: Note[] = [];
   const existingIds = new Set(existing.map((note) => note.id));
-  const offlineList:any = existing.filter((note) => note.status?.includes("failed")||note.status=="uploading");
+  const offlineList:any = existing.filter((note) => note.status?.includes("failed")||note.status=="uploading").reduce((acc: any[], current) => {
+    const x = acc.find(item => item.id === current.id);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
+  
   for (let newOne of newOnes) {
     if (existingIds.has(newOne.id)) {
       const existingNote = existing.find((note) => note.id === newOne.id);
@@ -40,7 +48,14 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
     (a, b) => b.recorded_at - a.recorded_at
   );
   if(offlineList.length>0)
-    sortedList=[...offlineList,...sortedList];
+    sortedList=[...offlineList,...sortedList].reduce((acc: any[], current) => {
+      const x = acc.find(item => item.id === current.id);
+      if (!x) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    }, []);
   return sortedList;
 };
 

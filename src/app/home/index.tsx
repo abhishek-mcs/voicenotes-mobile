@@ -205,6 +205,8 @@ export default () => {
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
+            dispatch(setTriggerTypingTranscript(recordingId))
+            dispatch(setTriggerTypingTitle(recordingId))
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -220,9 +222,9 @@ export default () => {
             console.log("removing firebase listener");
             await remove(statusRef);
             off(statusRef);
-            !updatedNote.data?.parent_id&&setExpandNote(0);
-            dispatch(setTriggerTypingTranscript(recordingId))
-            dispatch(setTriggerTypingTitle(recordingId))
+            setTimeout(() => {
+              !updatedNote.data?.parent_id&&setExpandNote(0);
+            }, 600);
             return;
           }
         } else {
@@ -260,10 +262,11 @@ export default () => {
 
   const continueProcessing = async (note: Note, is_transcript_only = false) => {
     try {
+      const isProcessFailed=(note?.title=="New Recording"||!note?.title)&&!note?.transcript
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
-          data: { is_transcript_loading: true },
+          data: isProcessFailed?{status:"processing",is_transcript_loading:false}:{ is_transcript_loading: true },
         })
       );
       console.log("making request");
@@ -493,10 +496,10 @@ export default () => {
   }, []);
 
   const fetchNextPage = () => {
-    if(recordingList?.length>10){
+    // if(recordingList?.length>10){
       recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
       console.log("fetching next page");
-    }
+    // }
   };
 
   const renderItem = useCallback(
@@ -529,7 +532,7 @@ export default () => {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [prevOffset, setPrevOffset] = useState(0);
 
-  useLayoutAnim([isSearchVisible,expandNote]);
+  useLayoutAnim([isSearchVisible]);
 
   const onRefresh = async () => {
     setRefreshing(true);
