@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker'
 import { useState } from "react"
 import { uploadDP } from "queries/auth"
 import ImageBackground from "components/common/ImageBackground"
+import CircularLoader from "components/common/loaders/circular-loader"
 
 type Props = {
     url: string,
@@ -11,6 +12,7 @@ type Props = {
 const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     const [image, setImage] = useState(url)
+    const [working, setWorking] = useState(false)
 
     const pickImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -28,21 +30,25 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
         });
 
         if(!result.canceled) {
+            setWorking(true)
             let newURI = await uploadDP(result.assets[0].uri);
             setImage(newURI);
-            onChange(newURI)
+            onChange(newURI);
+            setWorking(false)
         }
     }
 
     return <View style={styles.root}>
         <View style={styles.container}>
-            <ImageBackground
+            {working ?
+                <CircularLoader />
+             : <ImageBackground
                 uri={image}
                 style={styles.image}
                 imageStyle={{ borderRadius: 100 }}
             >
                 <Pressable style={styles.button} onPress={pickImage} />
-            </ImageBackground>
+            </ImageBackground>}
         </View>
     </View>
 }

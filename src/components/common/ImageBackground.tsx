@@ -17,6 +17,7 @@ const ImageBackground: React.FC<Props> = ({ uri, children, style, imageStyle, re
                 source={{ uri }}
                 style={[StyleSheet.absoluteFill, imageStyle]}
                 contentFit={resizeMode}
+                priority={'high'}
             />
             {children}
         </View>
