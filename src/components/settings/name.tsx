@@ -25,7 +25,8 @@ const Component: React.FC<ComponentProps> = ({ name, onValueChange }) => {
   };
 
 type Props = {
-    onClose: () => void
+    onClose: () => void,
+    onSubmit: (name: string) => void
 }
 const Name: React.FC<Props> = (props) => {
 
@@ -40,7 +41,7 @@ const Name: React.FC<Props> = (props) => {
       <Input
         component={<Component name={name} onValueChange={handleValueChange} />}
         onCancel={props.onClose}
-        onSubmit={props.onClose}
+        onSubmit={() => props.onSubmit(name)}
       />
     );
 };

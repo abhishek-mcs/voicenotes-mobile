@@ -5,6 +5,8 @@ import { useState, useCallback } from "react"
 import { home } from "assets/svg/home"
 import RecButton from "components/common/recording/rec-button";
 import { SvgXml } from "react-native-svg"
+import { RootState } from "redux/store/store"
+import { useSelector } from "react-redux"
 
 const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ name, onClose }) => {
     return (
@@ -19,12 +21,13 @@ const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ nam
   
 interface ComponentProps {
     value: string;
+    defaults?: string[];
     onValueChange: (value: string) => void;
     onNamesChange: (names: string[]) => void;
 }
   
-const Component: React.FC<ComponentProps> = ({ value, onValueChange, onNamesChange }) => {
-    const [names, setNames] = useState<string[]>([]);
+const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, onNamesChange }) => {
+    const [names, setNames] = useState<string[]>(defaults || []);
   
     const addName = useCallback(() => {
       if (value.trim()) {
@@ -70,11 +73,14 @@ const Component: React.FC<ComponentProps> = ({ value, onValueChange, onNamesChan
 
 type Props = {
     onClose: () => void
+    onSubmit: (names: string[]) => void
 }
   
 const Names: React.FC<Props> = (props) => {
+
+    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
     const [name, setName] = useState('');
-    const [namesList, setNamesList] = useState<string[]>([]);
+    const [namesList, setNamesList] = useState<string[]>(userDetails.settings?.remember_words || []);
   
     const handleValueChange = useCallback((value: string) => {
       setName(value);
@@ -89,13 +95,14 @@ const Names: React.FC<Props> = (props) => {
         component={
           <Component 
             value={name} 
+            defaults={userDetails.settings?.remember_words || []}
             onValueChange={handleValueChange} 
             onNamesChange={handleNamesChange}
           />
         }
         onCancel={props.onClose}
         onSubmit={() => {
-          // You can do something with namesList here before closing
+          props.onSubmit(namesList)
           props.onClose();
         }}
       />

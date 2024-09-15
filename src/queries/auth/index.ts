@@ -1,6 +1,7 @@
 import { useNetInfo } from "@react-native-community/netinfo";
 import axios from "axios";
 import { useRouter } from "expo-router";
+import { Alert } from "react-native";
 import { useMutation, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { setTempRecordings } from "redux/reducers/recordingStates";
@@ -83,4 +84,38 @@ export function useCheckEmail(){
     return useMutation("check_email", (p?:any)=>{
         return axios.post(API_URL+"/api/auth/check-email",p)
     })
+}
+
+export async function uploadDP(file: string) {
+    const formData = new FormData();
+    const filename = file.split('/').pop();
+
+    if(!filename) {
+        Alert.alert('Unknown file', "VoiceNotes couldn't infer the filename of this photo. Please select another one.")
+        return
+    }
+
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : `image`;
+
+    formData.append('image', {
+        uri: file,
+        name: filename,
+        type,
+    } as any);
+
+    const response = await axiosApi.post('/profile/profile_picture/', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    if(!response.data.photo_url) throw new Error(`Unexpected response from API! Full response was ${response.data}`)
+    
+    return response.data.photo_url
+}
+
+export async function changePassword(oldPasswd: string, newPasswd: string) {
+    // TODO: implement function
+    // call /auth/change-password and return response
 }

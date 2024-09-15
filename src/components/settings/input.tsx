@@ -5,7 +5,7 @@ import Colors from "assets/Colors";
 type Props = {
     submitLabel?: string,
     cancelLabel?: string,
-    onSubmit: () => void,
+    onSubmit?: () => void,
     onCancel: () => void,
     component: React.ReactElement
 }
@@ -24,14 +24,14 @@ const Input: React.FC<Props> = (props) => {
                 </View>
                 <View style={{ flex: 3 }} />
                 <View style={styles.action} >
-                    <RecButton
+                    {props.onSubmit && <RecButton
                         title={props.submitLabel || "Save"}
                         underlayColor={Colors.blackWithOpacity(0.7)}
                         bgColor="#000"
                         color="#fff"
                         style={{ flex: 1, paddingHorizontal: 15 }}
                         onPress={props.onSubmit}
-                    />
+                    />}
                 </View>
             </View>
             <View style={styles.content}>{props.component}</View>

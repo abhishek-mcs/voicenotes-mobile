@@ -14,15 +14,18 @@ import { useSaveSettings } from "queries/settings";
 import { isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { setLang } from "redux/reducers/userDetails";
+import { setLang, setUserDetail } from "redux/reducers/userDetails";
 import { useQueryClient } from "react-query";
 import { currentVersion } from "services/api/api-constants";
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
+import { Language } from "types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Name from "components/settings/name";
 import About from "components/settings/about";
 import Email from "components/settings/email";
 import Names from "components/settings/names";
+import Password from "components/settings/password";
+import ProfilePic from "components/settings/profilepic";
 
 export default () => {
   const router = useRouter();
@@ -75,20 +78,54 @@ export default () => {
     })
   }
 
-  const selectName = () => {
-    setInput(<Name onClose={() => setInput(null)} />)
+  const getLanguageCode = (languageName: string): Language | undefined =>
+    Object.entries(languages).find(([_, value]) => value === languageName)?.[0] as Language | undefined;
+
+  const onSelectName = () => {
+    setInput(<Name onSubmit={name => {
+      dispatch(setUserDetail({ ... userDetails, name}))
+      saveSettings.mutate({
+        language: getLanguageCode(lang) || '',
+        about:settings?.about,
+        remember_words:settings?.remember_words||[],
+        name,
+        fix_punctuation:settings?.fix_punctuation,
+      })
+    }} onClose={() => setInput(null)} />)
   }
 
-  const selectAbout = () => {
-    setInput(<About onClose={() => setInput(null)} />)
+  const onSelectAbout = () => {
+    setInput(<About onSubmit={about => {
+      dispatch(setUserDetail({ ... userDetails, about}))
+      saveSettings.mutate({
+        language: getLanguageCode(lang) || '',
+        about,
+        remember_words:settings?.remember_words||[],
+        name: userDetails?.name,
+        fix_punctuation:settings?.fix_punctuation,
+      })
+    }} onClose={() => setInput(null)} />)
   }
 
-  const selectEmail = () => {
+  const onSelectEmail = () => {
     setInput(<Email onClose={() => setInput(null)} />)
   }
 
-  const selectNames = () => {
-    setInput(<Names onClose={() => setInput(null)} />)
+  const onSelectNames = () => {
+    setInput(<Names onSubmit={remember_words => {
+      dispatch(setUserDetail({ ... userDetails, remember_words}))
+      saveSettings.mutate({
+        language: getLanguageCode(lang) || '',
+        about: settings?.about,
+        remember_words,
+        name: userDetails?.name,
+        fix_punctuation:settings?.fix_punctuation,
+      })
+    }} onClose={() => setInput(null)} />)
+  }
+
+  const onSelectPasswd = () => {
+    setInput(<Password onClose={() => setInput(null)} />)
   }
   
   useEffect(() => {
@@ -105,18 +142,25 @@ export default () => {
               <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
                   <SvgXml xml={settingsSvg.close}  />
               </Touchable>
+              <ProfilePic 
+                url={userDetails?.photo_url || ""}
+                onChange={photo_url => {
+                  dispatch(setUserDetail({ ...userDetails, photo_url }))
+                }}
+              />
               <Grouped 
               title="ACCOUNT"
               items={[
-                  {title:'Name', onPress: selectName, value:userDetails?.name||''},
-                  {title:'Email',onPress: selectEmail, value:userDetails?.email||''},
-                  {title:'About', onPress: selectAbout, value:userDetails?.about||''}
+                  {title:'Name', onPress: onSelectName, value:userDetails?.name||''},
+                  {title:'Email',onPress: onSelectEmail, value:userDetails?.email||''},
+                  {title:'About', onPress: onSelectAbout, value:userDetails?.about||''},
+                  {title:'Change password', onPress: onSelectPasswd, value:'', rightIcon:settingsSvg.arrow}
               ]}/>
               <Grouped
                 title="APP"
                 items={[
                   {title: 'Language', isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang},
-                  {title:'Names to remember',value:'', onPress: selectNames, rightIcon:settingsSvg.arrow}
+                  {title:'Names to remember',value:'', onPress: onSelectNames, rightIcon:settingsSvg.arrow}
                 ]} 
               />
               <Grouped 

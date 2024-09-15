@@ -17,7 +17,8 @@ const TextField: React.FC<Props> = (props) => {
         style={{
             backgroundColor: "rgba(0,0,0,0.1)",
             width: props.multiline ? width / 1.3 :  width / 2,
-            paddingVertical: 15,
+            paddingTop: 15, // paddingVertical doesn't work with multiline
+            paddingBottom: 15, // see https://github.com/facebook/react-native/issues/21720#issuecomment-515286499
             paddingHorizontal: 20,
             borderRadius: 10,
             fontSize: 15,

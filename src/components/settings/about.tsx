@@ -2,6 +2,8 @@ import { StyleSheet, Text, View } from "react-native"
 import Input from "./input"
 import TextField from "./textfield"
 import { useState, useCallback } from "react"
+import { RootState } from "redux/store/store";
+import { useSelector } from "react-redux";
 
 interface ComponentProps {
     value: string;
@@ -23,10 +25,13 @@ const Component: React.FC<ComponentProps> = ({ value, onValueChange }) => {
   };
 
 type Props = {
-    onClose: () => void
+    onClose: () => void,
+    onSubmit: (about: string) => void
 }
 const About: React.FC<Props> = (props) => {
-    const [about, setAbout] = useState('');
+
+    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
+    const [about, setAbout] = useState(userDetails.settings?.about || '');
   
     const handleValueChange = useCallback((value: string) => {
       setAbout(value);
@@ -36,7 +41,7 @@ const About: React.FC<Props> = (props) => {
       <Input
         component={<Component value={about} onValueChange={handleValueChange} />}
         onCancel={props.onClose}
-        onSubmit={props.onClose}
+        onSubmit={() => props.onSubmit(about)}
       />
     );
 };
