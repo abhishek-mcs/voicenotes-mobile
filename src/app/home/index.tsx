@@ -251,26 +251,26 @@ export default () => {
       {
         type: 'record',
         title: 'Record',
-        icon: 'waveform.badge.plus',
+        icon: 'record_shortcut',
         userInfo: {
-          url: 'myapp://shortcut1', // Optional, only for Android
+          url: 'voicenotes://record', // Optional, only for Android
         },
       },
       
       {
         type: 'askAI',
         title: 'Ask AI',
-        icon: 'message.badge.waveform.fill',
+        icon: 'ask_shortcut',
         userInfo: {
-          url: 'myapp://shortcut1', // Optional, only for Android
+          url: 'voicenotes://ask', // Optional, only for Android
         },
       },
       {
         type: 'search',
         title: 'Search',
-        icon: 'waveform.badge.magnifyingglass',
+        icon: 'search_shortcut',
         userInfo: {
-          url: 'myapp://shortcut1', // Optional, only for Android
+          url: 'voicenotes://search', // Optional, only for Android
         },
       },
     ]);

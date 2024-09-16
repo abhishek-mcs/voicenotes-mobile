@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/btn_layout"
+    android:padding="15dp"
+    android:theme="@style/Theme.VoiceNotesWidget.AppWidgetWholeContainer">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/button_search"
+        android:text="@string/search_notes"
+        android:textSize="16sp"
+        style="@style/Widget.VoiceNotesWidget.AppWidget.InnerView"
+        android:textAlignment="textStart"
+        android:paddingStart="15dp"
+        android:drawablePadding="12dp"
+        android:theme="@style/Theme.VoiceNotesWidget.AppWidgetSearch"
+        android:background="@drawable/app_widget_search_background"
+        android:queryHint="Search notes" />
+
+</LinearLayout>
