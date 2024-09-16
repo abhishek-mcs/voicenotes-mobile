@@ -11,6 +11,7 @@ import Animated from "react-native-reanimated";
 import { isIOS, screenWidth } from "utils/common";
 import { useDispatch } from "react-redux";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 
 const {debounce}=require("lodash")
 
@@ -74,40 +75,30 @@ export default ({setHide=(v:boolean)=>{}})=>{
     return (
         <SafeAreaView>
           <View style={{flexDirection:'row',marginTop:isIOS?10:50,alignItems:'center',marginBottom:4}}>
-            <Animated.View style={[styles.box]} sharedTransitionTag="sharedTag">
-              <SvgXml xml={commonSvg.search} style={[{paddingHorizontal:8}]} />
-              <View style={{flex:1}} >
-                <TextInput
-                  onFocus={() => {setIsFocused(true);}}
-                  onBlur={() => setIsFocused(false)}
-                  textAlignVertical="center"
-                  value={searchText}
-                  returnKeyType={"search"}
-                  autoFocus={false}
-                  onChangeText={onSearch}
-                  placeholder={"Search"}
-                  placeholderTextColor={'#828282'}
-                  style={[{color:'#222',fontFamily:'Primary',fontSize:16,marginLeft:8}]}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="off"
-                  ref={ref}
-                />
-              </View>
-              {searchText?.length>0 && (
-                <Pressable
-                  onPress={(e) => {
-                    e?.stopPropagation();
+                <SearchBarIOS
+                  onClear={()=>{
                     setSearchQuery("")
                     setSearchText("")
+                    setSearchText("")
                   }}
-                  style={{marginLeft:8,padding:10,marginRight:-10}}
-                >
-                  <SvgXml xml={commonSvg.searchClose}/>
-                </Pressable>
-              )}
-            </Animated.View>
-            <Text onPress={()=>router.back()} suppressHighlighting={true} style={{color:'#155CE5',fontFamily:'Primary',fontSize:14,padding:10}}>Cancel</Text>
+                  clearIcon={<SvgXml xml={commonSvg.smallClose} />}
+                  searchIcon={<SvgXml xml={commonSvg.search} />}
+                  onCancel={()=>router.back()}
+                  // onSubmitEditing={()=>onSearch(searchText)}
+                  onFocus={()=>setIsFocused(true)}
+                  onBlur={()=>setIsFocused(false)}
+                  onChangeText={onSearch}
+                  autoCapitalize={"none"}
+                  autoFocus={true}
+                  placeholder="Search"
+                  placeholderTextColor={Colors.grey}
+                  contextMenuHidden={true}
+                  autoComplete="off"
+                  autoCorrect={false}
+                  value={searchText}
+                  containerStyle={{backgroundColor:'transparent'}}
+                  inputContainerStyle={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,height:40}}
+                />
           </View>
                   <ScrollView 
                     showsVerticalScrollIndicator={false} 

@@ -26,14 +26,14 @@ import {
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useRecordings } from "queries/home";
+import { useGetTags, useRecordings } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable";
 // import AskMeSomething from "components/ask-me-something";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useNavigation } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
@@ -71,6 +71,8 @@ const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
+import TagButtons from "components/home/tag-buttons";
+import { setHashTags } from "redux/reducers/hashSlice";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -124,12 +126,23 @@ export default () => {
   const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
 
+  const getTags=useGetTags()
+
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
+
+
+  useEffect(() => {
+    if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
+      const tags=(getTags?.data?.data?.flatMap((t:any)=>t?.name)??[])
+      .filter((name: string) => name !== 'starred') ?? [];;
+      dispatch(setHashTags(tags))
+    }
+  }, [getTags?.data?.data]);
 
   const listenToFirebaseStatus = useCallback(
     (
@@ -613,6 +626,7 @@ export default () => {
                 </Animated.View>
               )}
             </View>
+            <TagButtons hashFilter={hashFilter}/>
             <FlatList
               ref={scrollRef}
               // bounces={false}

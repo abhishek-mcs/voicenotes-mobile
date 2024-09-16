@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate, formatDateTime, isSameDay } from "utils/format-date";
+import { formatDate, formatDateAndTimeNew, formatDateTime, isSameDay } from "utils/format-date";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
@@ -78,6 +78,7 @@ import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import MoreOptions from "components/common/more-options";
 
 const NotePreview = forwardRef(
   (
@@ -589,35 +590,7 @@ const NotePreview = forwardRef(
           type: "menu",
           function: renderMoreSharedMenu,
         },
-      ]:[
-        {
-          text: "Add",
-          onPress: () => setShowAddMenu(true),
-          type: "menu",
-          function: renderAddMenu,
-        },
-
-        {
-          text: "Edit",
-          onPress: onEdit,
-          icon: home.edit,
-        },
-        {
-          text: "Tag",
-          onPress: onGotoAddTag,
-          icon: home.hash1,
-        },
-        {
-          text: "Create",
-          type: "menu",
-          function: renderCreateMenu,
-        },
-        {
-          text: "More",
-          type: "menu",
-          function: renderMoreMenu,
-        },
-      ];
+      ]:[];
 
       const intermediateButtons = [
         {
@@ -657,14 +630,14 @@ const NotePreview = forwardRef(
             return mainButtons;
         }
       };
-
+    if(note?.status=='processing'||note?.status=='uploading'||note?.status?.includes('failed'))
       return (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.buttonContainer}
         >
-          {getButtonsBasedOnStatus(note?.status).map((button:any, index) =>
+          {getButtonsBasedOnStatus(note?.status)?.map((button:any, index) =>
             button.type === "menu" ? (
               <View key={index}>
               {button.function()}
@@ -682,41 +655,6 @@ const NotePreview = forwardRef(
         </ScrollView>
       );
     };
-
-    const renderMoreMenu = () => (
-      <Menu
-        visible={moreOption}
-        onRequestClose={hideMoreOption}
-        style={styles.menu}
-        anchor={
-          <NoteButtons
-            text="More"
-            style={hashFilter != "shared" ? {} : { marginLeft: 0 }}
-            onPress={showMoreOption}
-            icon={home.more}
-          />
-        }
-      >
-        <MenuItem onPress={() => onCopy(note?.transcript ?? "")}>
-          <MenuItemContent icon={home.copy} text="Copy note" />
-        </MenuItem>
-        <MenuItem onPress={onShareNote}>
-          <MenuItemContent icon={home.share1} text="Get shareable link" />
-        </MenuItem>
-        <MenuItem onPress={onGenerateTitle}>
-          <MenuItemContent icon={home.generate} text="Regenerate title" />
-        </MenuItem>
-        <MenuItem onPress={onReGenerateTranscript}>
-          <MenuItemContent icon={home.retry} text="Regenerate transcript" />
-        </MenuItem>
-        <MenuItem onPress={onDownloadAudio}>
-          <MenuItemContent icon={home.download} text="Download Audio" />
-        </MenuItem>
-        <MenuItem onPress={()=>onDelete()}>
-          <MenuItemContent icon={home.deleteGrey} text="Delete" />
-        </MenuItem>
-      </Menu>
-    );
 
     const renderMoreSharedMenu = () => (
       <Menu
@@ -741,134 +679,112 @@ const NotePreview = forwardRef(
       </Menu>
     );
 
-    const renderAddMenu = () => (
-      <>
-        <Menu
-          visible={showAddMenu}
-          anchor={
-            <NoteButtons
-              text="Add"
-              onPress={() => setShowAddMenu(true)}
-              disabled={!note?.transcript}
-              icon={addMenu.add}
-            />
-          }
-          onRequestClose={closeAddMenu}
-          style={isIOS ? styles.menuAttachIOS : styles.menuAttachAndroid}
-          animationDuration={150}
-        >
-          {!isSubnote && (
-            <MenuItem style={styles.menuItemContent} onPress={onThreadNote}>
-              <View style={[styles.row, { width: screenWidth / 2.8,alignItems:'center',gap:8 }]}>
-                <Foundation name="record" size={24} color="red" />
-                <Text style={styles.menuItemText}>Thread a Note</Text>
-              </View>
-            </MenuItem>
-          )}
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => {
-              setShowImagePicker(true);
-              closeAddMenu();
-            }}
-          >
-            <View style={[styles.row, { width: screenWidth / 2.8,alignItems:'center',gap:8 }]}>
-              <SvgXml xml={addMenu.camera} />
-              <Text style={styles.menuItemText}>Photo</Text>
-            </View>
-          </MenuItem>
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => {
-              setShowLinkEditModal(true);
-              closeAddMenu();
-            }}
-          >
-            <View style={[styles.row, { width: screenWidth / 2.8,alignItems:'center',gap:10 }]}>
-              <SvgXml style={{ marginLeft: 4 }} xml={addMenu.link} />
-              <Text style={[styles.menuItemText, { }]}>
-                Link
-              </Text>
-            </View>
-          </MenuItem>
-        </Menu>
-      </>
-    );
+    const openImagePicker = () => {
+      setShowImagePicker(true);
+      closeAddMenu();
+    }
 
-    const renderCreateMenu = () => {
-      return (
-        <Menu
-          visible={createOption}
-          onRequestClose={hideCreateOption}
-          style={isIOS ? styles.menuIOS : styles.menu}
-          anchor={
-            <NoteButtons
-              text="Create"
-              onPress={showCreateOption}
-              disabled={!note?.transcript}
-              icon={home.create}
-              style={{paddingHorizontal: 6}}
-            />
+    const openLinkEditModal = () => {
+      setShowLinkEditModal(true);
+      closeAddMenu();
+    }
+
+    const options = [
+      {
+        title:"Copy note",
+        systemIcon:'doc.text',
+        onPress:()=>onCopy(note?.transcript ?? "")
+      },
+      {
+        title:"Add subnote",
+        systemIcon:'mic',
+        onPress:onThreadNote
+      },
+      {
+        title:"Attach",
+        systemIcon:'photo.on.rectangle',
+        actions:[
+          {
+            title:"Photo",
+            onPress:openImagePicker
+          },
+          {
+            title:"Link",
+            onPress:openLinkEditModal
           }
-          animationDuration={150}
-        >
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => onCreate("summary")}
-          >
-            <View style={[styles.row, { width: screenWidth / 2.8, alignItems:'center',gap:8 }]}>
-              <SvgXml xml={CreateModalSvg.summary} />
-              <Text style={styles.menuItemText}>Summarize</Text>
-            </View>
-          </MenuItem>
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => onCreate("points")}
-          >
-            <View style={[styles.row, { width: screenWidth / 2.8, alignItems:'center',gap:8 }]}>
-              <SvgXml xml={CreateModalSvg.points} />
-              <Text style={styles.menuItemText}>Main points</Text>
-            </View>
-          </MenuItem>
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => onCreate("todo")}
-          >
-            <View style={[styles.row,{alignItems:'center',gap:8}]}>
-              <SvgXml xml={CreateModalSvg.todo} />
-              <Text style={styles.menuItemText}>To-do list</Text>
-            </View>
-          </MenuItem>
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => onCreate("blog")}
-          >
-            <View style={[styles.row,{alignItems:'center',gap:8}]}>
-              <SvgXml xml={CreateModalSvg.blog} />
-              <Text style={styles.menuItemText}>Blog post</Text>
-            </View>
-          </MenuItem>
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => onCreate("tweet")}
-          >
-            <View style={[styles.row,{alignItems:'center',gap:8}]}>
-              <SvgXml xml={CreateModalSvg.tweet} />
-              <Text style={styles.menuItemText}>Tweet</Text>
-            </View>
-          </MenuItem>
-          <MenuItem
-            style={styles.menuItemContent}
-            onPress={() => onCreate("email")}
-          >
-            <View style={[styles.row,{alignItems:'center',gap:8}]}>
-              <SvgXml xml={CreateModalSvg.email} />
-              <Text style={styles.menuItemText}>Email</Text>
-            </View>
-          </MenuItem>
-        </Menu>
-      );
-    };
+        ]
+      },
+      {
+        title:"Tag",
+        systemIcon:'number',
+        onPress:onGotoAddTag
+      },
+      {
+        title:"Share",
+        systemIcon:'square.and.arrow.up',
+        onPress:onShareNote
+      },
+      {
+        title:"Create",
+        systemIcon:'pencil.and.outline',
+        actions:[
+          {
+            title:"Summarize",
+            onPress:()=>onCreate("summary")
+          },
+          {
+            title:"Main points",
+            onPress:()=> onCreate("points")
+          },
+          {
+            title:"To-do list",
+            onPress:()=> onCreate("todo")
+          },
+          {
+            title:"Blog post",
+            onPress:()=>onCreate("blog")
+          },
+          {
+            title:"Tweet",
+            onPress:()=>onCreate("tweet")
+          },
+          {
+            title:"Email",
+            onPress:()=>onCreate("email")
+          }
+        ],
+      },
+      {
+        title:"Regenerate",
+        systemIcon:'arrow.clockwise',
+        actions:[
+          {
+            title:"Regenerate title",
+            onPress:onGenerateTitle
+          },
+          {
+            title:"Regenerate transcript",
+            onPress:onReGenerateTranscript
+          }
+        ]
+      },
+      {
+        title:"Download audio",
+        systemIcon:"arrow.down.circle",
+        onPress:onDownloadAudio
+      },
+      {
+        title:"Edit",
+        systemIcon:'square.and.pencil',
+        onPress:onEdit
+      },
+      {
+        title:"Delete",
+        destructive:true,
+        systemIcon:'trash',
+        onPress:()=>onDelete()
+      }
+    ]
 
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
@@ -889,17 +805,19 @@ const NotePreview = forwardRef(
             isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
-          {!isSubnote &&
+          {/* {!isSubnote &&
             (index == 0 ||
               (index != 0 &&
                 !isSameDay(
                   note?.recorded_at,
                   recordingList[index - 1]?.recorded_at
-                ))) && (
-              <Text style={styles.date}>{formatDate(note?.recorded_at)}</Text>
-            )}
+                ))) && ( */}
+          <Text style={styles.date}>
+            {formatDateAndTimeNew(note?.recorded_at)}
+          </Text>
+          {/* )} */}
           <View style={styles.row}>
-            <View>
+            {/* <View>
               {audioLoading == index ? (
                 <CircularLoader />
               ) : (
@@ -908,7 +826,7 @@ const NotePreview = forwardRef(
                 </Touchable>
               )}
               <View style={styles.timeLine} />
-            </View>
+            </View> */}
             <View style={styles.content}>
               <View
                 style={{
@@ -917,7 +835,7 @@ const NotePreview = forwardRef(
                   justifyContent: "space-between",
                 }}
               >
-                {(note?.is_title_loading) ? (
+                {note?.is_title_loading ? (
                   <AiLoader
                     text="Creating title from your voice"
                     style={{ marginTop: -7 }}
@@ -932,13 +850,21 @@ const NotePreview = forwardRef(
                         showStatus={!isNoteExpanded}
                         cursorSvg={
                           note?.status == "processing"
-                            ?notePreviewSVG.flower
-                            :note?.status == "uploading"? notePreviewSVG.blackCircle:""
+                            ? notePreviewSVG.flower
+                            : note?.status == "uploading"
+                            ? notePreviewSVG.blackCircle
+                            : ""
                         }
-                        showCursorAtEnd={note?.title === "New Recording"||!note?.title}
-                        message={note?.title??"New Recording"}
-                        triggerAnimation={triggerTypingTitle==note?.id?2:0}
-                        disableGenerating={() => dispatch(setTriggerTypingTitle(null))}
+                        showCursorAtEnd={
+                          note?.title === "New Recording" || !note?.title
+                        }
+                        message={note?.title?.trimEnd() ?? "New Recording"}
+                        triggerAnimation={
+                          triggerTypingTitle == note?.id ? 2 : 0
+                        }
+                        disableGenerating={() =>
+                          dispatch(setTriggerTypingTitle(null))
+                        }
                       />
                     </View>
                     {isNoteExpanded && (
@@ -960,25 +886,34 @@ const NotePreview = forwardRef(
               )}
 
               {(note?.status == "uploading" ||
-                note?.status == "processing"||note?.status?.includes("failed")) && (
-                <View style={[styles.row,{justifyContent:'space-between',marginTop:2}]}>
-                  <Text
-                  style={{
-                    color: Colors.black2,
-                    fontSize: 14,
-                    fontFamily: "Primary",
-                    lineHeight: 20,
-                  }}
+                note?.status == "processing" ||
+                note?.status?.includes("failed")) && (
+                <View
+                  style={[
+                    styles.row,
+                    { justifyContent: "space-between", marginTop: 2 },
+                  ]}
                 >
-                  {formattedDuration}
-                </Text>
-                <Text
-                  style={{
-                    color: Colors.grey3,
-                    fontSize: 13,
-                    fontFamily: "Primary",
-                    lineHeight: 20,
-                  }}>{formatDateTime(note?.recorded_at)}</Text>
+                  <Text
+                    style={{
+                      color: Colors.black2,
+                      fontSize: 14,
+                      fontFamily: "Primary",
+                      lineHeight: 20,
+                    }}
+                  >
+                    {formattedDuration}
+                  </Text>
+                  <Text
+                    style={{
+                      color: Colors.grey3,
+                      fontSize: 13,
+                      fontFamily: "Primary",
+                      lineHeight: 20,
+                    }}
+                  >
+                    {formatDateTime(note?.recorded_at)}
+                  </Text>
                 </View>
               )}
               <View>
@@ -989,9 +924,13 @@ const NotePreview = forwardRef(
                     message={note?.transcript
                       ?.replaceAll(/<br\/?>/g, "\n")
                       ?.trimEnd()}
-                    continueGenerating={triggerTypingTitle==note?.id}
-                    triggerAnimation={triggerTypingTranscript==note?.id?2:0}
-                    disableGenerating={() => dispatch(setTriggerTypingTranscript(null))}
+                    continueGenerating={triggerTypingTitle == note?.id}
+                    triggerAnimation={
+                      triggerTypingTranscript == note?.id ? 2 : 0
+                    }
+                    disableGenerating={() =>
+                      dispatch(setTriggerTypingTranscript(null))
+                    }
                   />
                 )}
 
@@ -1006,8 +945,20 @@ const NotePreview = forwardRef(
                     }}
                   />
                 )}
-                {expand === index && (
-                  <>
+                <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
+                <Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.grey2WithOpacity(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                  {audioLoading==index?
+                  <CircularLoader strokeWidth={3} width={15} height={15}/>
+                  :<SvgXml xml={isPlay == index ? home.pause : home.play} />}
+                  <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
+                </Touchable>
+                <MoreOptions options={options} style={{height:29,paddingHorizontal:12,marginRight:-12,justifyContent:"center",alignItems:'center'}}>
+                  <SvgXml xml={home.moreNew}/>
+                </MoreOptions>
+                </View>
+
+                {expand === index && !isSubnote && (
+                  <View style={{marginBottom:8}}>
                     {renderButtons()}
                     <RelatedNotesList
                       note={note}
@@ -1023,10 +974,10 @@ const NotePreview = forwardRef(
                         creationLoader={creationLoader}
                       />
                     )}
-                    <Text style={styles.timestamp}>
+                    {/* <Text style={styles.timestamp}>
                       {formatDateTime(note?.recorded_at)}
-                    </Text>
-                  </>
+                    </Text> */}
+                  </View>
                 )}
               </View>
             </View>
@@ -1085,38 +1036,40 @@ const NotePreview = forwardRef(
 
 const styles = StyleSheet.create({
   container: {
-    padding: 12,
+    padding: 11,
+    paddingHorizontal:17,
     paddingBottom: 8,
+    borderBottomWidth:0.5,
+    borderColor:Colors.grey4WithOpacity(86.67)
   },
   expandedContainer: {
-    backgroundColor: "#f7f7f7",
-    borderRadius: 12,
+    // backgroundColor: "#f7f7f7",
+    // borderRadius: 12,
   },
   row: {
     flexDirection: "row",
   },
   content: {
-    marginLeft: 9,
+    // marginLeft: 9,
     flex: 1,
   },
   date: {
-    color: Colors.grey,
-    fontFamily: "Primary",
-    fontSize: 14,
-    marginBottom: 8,
+    color: Colors.grey5WithOpacity(0.6),
+    fontFamily: "Primary-Medium",
+    fontSize: 12,
+    marginBottom: 6,
   },
   title: {
-    fontFamily: "Primary-Medium",
+    fontFamily: "Primary-Semibold",
     fontSize: 16,
-    color: "#222",
-    lineHeight: 24,
-    marginTop: -3,
+    color: Colors.blackWithOpacity(1),
+    lineHeight: 19.09
   },
   text: {
     fontFamily: "Primary",
-    fontSize: 14,
-    color: "rgba(34, 34, 34, 0.9)",
-    lineHeight: 22,
+    fontSize: 15,
+    color: Colors.grey2WithOpacity(0.5),
+    lineHeight: 23,
     marginTop: 4,
   },
   buttonContainer: {

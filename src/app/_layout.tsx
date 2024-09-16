@@ -19,7 +19,7 @@ export default function Layout() {
                 contentStyle: { padding: 0, flex: 1 }
               }}
             >
-              <Stack.Screen name="home" options={{animation:"none"}}/>
+              <Stack.Screen name="home/index" options={{animation:"none"}}/>
               <Stack.Screen name="auth/landingPage/index" options={{animation:"none"}}/>
               <Stack.Screen name="auth/login/loginPassword" />
               <Stack.Screen name="auth/signup/index" />

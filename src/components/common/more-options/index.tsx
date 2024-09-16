@@ -1,8 +1,9 @@
 import { StyleSheet, } from 'react-native';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
+import Touchable from '../Touchable';
 
-export default forwardRef(({options=[],children}:any,ref) => {
+export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(true);
   useImperativeHandle(ref, () => {
     return {
@@ -11,12 +12,20 @@ export default forwardRef(({options=[],children}:any,ref) => {
     }
 },[visible]);
   return (
+    <Touchable>
         <ContextMenu
           actions={options}
+          style={style}
           onPress={(e) => {
             options?.map((item:any) => {
-              if(item?.title==e?.nativeEvent?.name){
-                item?.onPress?.();
+              if(item?.actions){
+                item?.actions?.map((action:any)=>{
+                  if(action?.title==e?.nativeEvent?.name){
+                    action?.onPress?.();
+                  }
+                })
+              }else if(item?.title==e?.nativeEvent?.name){
+                item?.onPress?.(e?.nativeEvent?.index);
               }
             });
           }}
@@ -24,6 +33,7 @@ export default forwardRef(({options=[],children}:any,ref) => {
         >
           {children}
         </ContextMenu>
+        </Touchable>
       );
 });
 
