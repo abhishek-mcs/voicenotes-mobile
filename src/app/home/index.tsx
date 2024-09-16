@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Animated,
   Easing,
   FlatList,
   KeyboardAvoidingView,
@@ -15,7 +16,7 @@ import NotePreview from "components/home/note-preview";
 import AboutProduct from "components/home/about-product";
 import AIModal from "components/AIModal";
 import CreateModal from "components/CreateModal";
-import SearchBar from "components/common/search-bar";
+import SearchBar, { heightIn, heightOut } from "components/common/search-bar";
 import { Audio } from "expo-av";
 import BottomBar from "components/home/bottom-bar";
 import {
@@ -41,7 +42,6 @@ import { Text } from "react-native";
 import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
-import Animated from "react-native-reanimated";
 import {
   setRecordingList,
   setTempRecordingData,
@@ -564,6 +564,38 @@ export default () => {
     }
     setPrevOffset(currentOffset);
   };
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const headerHeight = 120; // Adjust based on your header's full height
+  const searchBarHeight = 30; // Adjust based on your search bar height
+
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, headerHeight],
+    outputRange: [0, -headerHeight],
+    extrapolate: 'clamp',
+  });
+
+  const searchBarOpacity = scrollY.interpolate({
+    inputRange: [0, searchBarHeight/2],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+  const searchBarHeightAnimated = scrollY.interpolate({
+    inputRange: [0, searchBarHeight],
+    outputRange: [searchBarHeight, 0],
+    extrapolate: 'clamp',
+  });
+
+  const titleScale = scrollY.interpolate({
+    inputRange: [0, headerHeight / 2],
+    outputRange: [1, 0.8],
+    extrapolate: 'clamp',
+  });
+
+  const titleTranslateY = scrollY.interpolate({
+    inputRange: [0, headerHeight],
+    outputRange: [0, -headerHeight / 3],
+    extrapolate: 'clamp',
+  });
 
   const recordingParentNoteName = useMemo(() => {
     return recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
@@ -583,13 +615,15 @@ export default () => {
       >
         <View style={{ flex: 1 }}>
           <View style={[styles.wrapper, hideBackground ? styles.hideBg : {}]}>
-            <View
+            <Animated.View
               style={{
                 backgroundColor: hideBackground ? "transparent" : "#fff",
                 paddingHorizontal: 12,
               }}
             >
-              <Header isLogged={!!token} isOffline={isOffline} />
+              <Animated.View style={{}}>
+                <Header isLogged={!!token} isOffline={isOffline} />
+              </Animated.View>
               <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}
@@ -609,12 +643,8 @@ export default () => {
                     setHideSearch(false);
                   }}
                 >
-                  <Animatable.View
-                    style={{ zIndex: 1 }}
-                    animation={isSearchVisible ? fadeIn : fadeOut}
-                    duration={40}
-                    easing={Easing.ease}
-                    useNativeDriver={true}
+                  <Animated.View
+                    style={[{ zIndex: 1 },{ height: searchBarHeightAnimated,transform: [{scaleY:searchBarOpacity}] }]}
                   >
                     <SearchBar
                       style={{ opacity: 1 }}
@@ -622,17 +652,20 @@ export default () => {
                       setHide={setHideSearch}
                       isSearchVisible={isSearchVisible}
                     />
-                  </Animatable.View>
+                  </Animated.View>
                 </Animated.View>
               )}
-            </View>
-            <TagButtons hashFilter={hashFilter}/>
-            <FlatList
+            </Animated.View>
+            <Animated.FlatList
               ref={scrollRef}
+              ListHeaderComponent={()=><TagButtons hashFilter={hashFilter}/>}
               // bounces={false}
               style={{ opacity: hideBackground ? 0 : 1, marginTop: 12 }}
               data={recordingList}
-              onScroll={handleScroll}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: false}
+              )}
               scrollEventThrottle={16}
               contentContainerStyle={{ paddingBottom: 300 }}
               showsVerticalScrollIndicator={false}

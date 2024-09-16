@@ -15,24 +15,28 @@ import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 const {debounce}=require("lodash")
 
 const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
-const heightIn = {
+export const heightIn = {
   from: {
     height: 0,
-    borderColor:Colors.darkWithOpacity(0)
+    borderColor:Colors.darkWithOpacity(0),
+    opacity:0
   },
   to: {
     height: 40,
-    borderColor:Colors.darkWithOpacity(0.1)
+    borderColor:Colors.darkWithOpacity(0.1),
+    opacity:1
   },
 };
-const heightOut = {
+export const heightOut = {
   from: {
     height: 40,
-    borderColor:Colors.darkWithOpacity(0.1)
+    borderColor:Colors.darkWithOpacity(0.1),
+    opacity:1
   },
   to: {
     height: 0,
-    borderColor:Colors.darkWithOpacity(0)
+    borderColor:Colors.darkWithOpacity(0),
+    opacity:0
   },
 };
 const fadeIn={
