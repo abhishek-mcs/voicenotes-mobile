@@ -1,27 +1,47 @@
 import Colors from "assets/Colors";
 import Touchable from "components/common/Touchable";
+import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { Text, View } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setTagsFilter } from "redux/reducers/hashSlice";
+import { RootState } from "redux/store/store";
+import { capitalizeFirstLetter } from "utils/common";
 
-export default function TagButtons({hashFilter=""}) {
+export const TagButton = ({title="",style={},onPress=()=>{}})=> {
     const dispatch = useDispatch()
+    const {hashFilter} = useSelector((state:RootState)=>state.hash)
 
     const setTag = (tag:string) => {
        dispatch(setTagsFilter(tag))
     }
+
+    const onClickTag=()=>{
+      setTag(title);
+      onPress();
+    }
+
+    return (
+        <Touchable style={styles.tagButton} onPress={onClickTag}>
+            <Text style={[styles.tagButtonText, style, hashFilter === title ? styles.activeTag:{}]}>{title==""?"All":capitalizeFirstLetter(title)}</Text>
+        </Touchable>
+        )
+}
+
+export const ShowMoreTagsButton = ({title="Show More",onPress=()=>{}})=> {
+    return (
+        <Touchable style={styles.tagButton} onPress={onPress}>
+            <Text style={[styles.tagButtonText,{color:Colors.grey3}]}>{title}</Text>
+        </Touchable>
+        )
+}
+
+export default function TagButtons({hashFilter=""}) {
   return (
     <View style={styles.tagButtonsContainer}>
-      <Touchable style={styles.tagButton} onPress={() => setTag("")}>
-        <Text style={[styles.tagButtonText, hashFilter === "" ? styles.activeTag:{}]}>All</Text>
-      </Touchable>
-      <Touchable style={styles.tagButton} onPress={() => setTag("shared")}>
-        <Text style={[styles.tagButtonText, hashFilter === "shared" ? styles.activeTag:{}]}>Shared</Text>
-      </Touchable>
-      <Touchable style={styles.tagButton} onPress={() => setTag("starred")}>
-        <Text style={[styles.tagButtonText, hashFilter === "starred" ? styles.activeTag:{}]}>Starred</Text>
-      </Touchable>
+      <TagButton title="" style={{color:Colors.grey3}}/>
+      <TagButton title="shared" style={{color:Colors.grey3}}/>
+      <TagButton title="starred" style={{color:Colors.grey3}}/>
     </View>
   );
 }
@@ -44,7 +64,7 @@ const styles = StyleSheet.create({
   tagButtonText: {
     fontSize: 14,
     fontFamily: "Primary-Medium",
-    color: Colors.grey3,
+    color: Colors.black2,
   },
   activeTag: {
     color: Colors.black2,

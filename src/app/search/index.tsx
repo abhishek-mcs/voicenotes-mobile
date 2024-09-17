@@ -9,9 +9,11 @@ import { useRouter } from "expo-router";
 import CircularLoader from "components/common/loaders/circular-loader";
 import Animated from "react-native-reanimated";
 import { isIOS, screenWidth } from "utils/common";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
+import { RootState } from "redux/store/store";
+import { ShowMoreTagsButton, TagButton } from "components/home/tag-buttons";
 
 const {debounce}=require("lodash")
 
@@ -19,8 +21,10 @@ export default ({setHide=(v:boolean)=>{}})=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [visibleTags, setVisibleTags] = useState(6);
     const router = useRouter()
     const ref=useRef<TextInput>(null)
+    const {hashTags}=useSelector((state:RootState)=>state?.hash)
 
     const searchHistoryData=useSearchHistory()
     const setSearchHistory=useSetSearchHistory()
@@ -72,6 +76,14 @@ export default ({setHide=(v:boolean)=>{}})=>{
       deleteSearchHistory.mutate(id)
     }
 
+    const filteredHashTags = hashTags.filter((tag) =>
+      tag.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    const showMoreTags = () => {
+      setVisibleTags((prev) => Math.min(prev + 6, filteredHashTags.length));
+    };
+
     return (
         <SafeAreaView>
           <View style={{flexDirection:'row',marginTop:isIOS?10:50,alignItems:'center',marginBottom:4}}>
@@ -106,11 +118,23 @@ export default ({setHide=(v:boolean)=>{}})=>{
                     contentContainerStyle={{paddingBottom:100}}
                     keyboardShouldPersistTaps="handled">
                     {((getSearchData?.isFetched&&searchData.length==0)||searchText=='')&&
+                    (searchText.length>0&&searchData?.length==0)&&
                     <Text style={[styles.recent,{paddingTop:12}]}>
-                      {(searchHistoryList?.length>0&&searchText=='')?'Recent searches':searchText==''?'Try searching notes, keywords, or tags.':(searchText.length>0&&searchData?.length==0)?'No results found.':''}
+                      {'No results found.'}
                     </Text>}
+                    {filteredHashTags?.length>0&&
+                    <View style={{paddingVertical:0}}>
+                      <Text style={styles.recent}>Tags</Text>
+                      <View style={{flexDirection:'row',flexWrap:'wrap',marginTop:8,rowGap:8,paddingHorizontal:20}}>
+                      {filteredHashTags?.slice(0, visibleTags)?.map((itm:any,i:number)=><TagButton key={i} title={itm} onPress={()=>{router?.back()}}/>)}
+                      {visibleTags < filteredHashTags.length && (
+                        <ShowMoreTagsButton onPress={showMoreTags} />
+                      )}
+                      </View>
+                    </View>}
                     {(searchText==''&&searchHistoryList?.length!=0)?
-                    (<View style={{paddingBottom:12}}>
+                    (<View style={{paddingVertical:12}}>
+                      <Text style={styles.recent}>Recent</Text>
                       {searchHistoryList?.map((itm:any,i:number)=>
                       <TouchableHighlight 
                         onPress={(e)=>goto(itm?.recording_id)}
@@ -188,10 +212,9 @@ const styles=StyleSheet.create({
       paddingHorizontal:20
     },
     recent:{
-      fontFamily:'Primary',
+      fontFamily:'Primary-Medium',
       color:Colors.grey,
-      fontSize:16,
-      marginBottom:8,
+      fontSize:12,
       paddingHorizontal:20
     },
     recentText:{

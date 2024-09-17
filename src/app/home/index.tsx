@@ -631,7 +631,7 @@ export default () => {
                 actionText="Close"
                 message="Your daily recording limit has been exceeded. Please try again later."
               />
-              {!isListEmpty && !!token && hashFilter != "shared" && (
+              { !!token && (
                 <Animated.View
                   style={{
                     opacity: hideBackground ? 0 : 1,
@@ -656,7 +656,17 @@ export default () => {
                 </Animated.View>
               )}
             </Animated.View>
-            <Animated.FlatList
+            {recordingList?.length == 0 && (recordingQuery.isFetching||recordingQuery?.isLoading||recordingQuery?.isRefetching) ? (
+                  <View
+                    style={{
+                      height: height-250,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <CircularLoader strokeWidth={3} />
+                  </View>)
+              :<Animated.FlatList
               ref={scrollRef}
               ListHeaderComponent={()=><TagButtons hashFilter={hashFilter}/>}
               // bounces={false}
@@ -731,7 +741,7 @@ export default () => {
                       </Text>
                     </View>
                   </View>
-                ) : recordingList?.length == 0 && recordingQuery.isLoading ? (
+                ) : recordingList?.length == 0 && recordingQuery.isFetching ? (
                   <View
                     style={{
                       flex: 1,
@@ -746,7 +756,7 @@ export default () => {
                   <AboutProduct disable={true} />
                 ) : null
               }
-            />
+            />}
           </View>
           <CreateModal
             ref={CreateModalRef}
