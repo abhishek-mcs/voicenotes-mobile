@@ -138,16 +138,16 @@ export default ({
             />
             <RecButton
               onPress={onAsk}
-              title={isSmallScreen ? "Ask AI" : "Ask my AI"}
+              title={"Ask"}
               icon={home.ask}
-              style={{...styles.button, marginHorizontal: 8}}
+              style={{...styles.button}}
             />
-            <RecButton
+            {/* <RecButton
               onPress={onCreate}
               title="Create"
               icon={home.create}
               style={styles.button}
-            />
+            /> */}
           </>
         ) : (
 <NoteRecorder
@@ -229,17 +229,20 @@ const styles = StyleSheet.create({
   tab: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    borderRadius: 24,
-    marginHorizontal: 16,
+    borderRadius: 100,
+    marginHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",
-    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
-    shadowOpacity: 0.9,
+    justifyContent:'space-between',
+    shadowColor:"#000000",
+    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    elevation: 3,
+    elevation: 4,
     paddingHorizontal: "3%",
     paddingVertical: "2%",
+    height:74,
+    gap:14
   },
   button: {
     flex: 1,
