@@ -3,9 +3,12 @@ import Header from "./header"
 import TextField from "./textfield"
 import { useState, useCallback } from "react"
 import { RootState } from "redux/store/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import RecButton from "components/common/recording/rec-button";
 import Colors from "assets/Colors";
+import { useSaveSettings } from "queries/settings";
+import { setUserDetail } from "redux/reducers/userDetails";
+import { getLanguageCode } from "utils/common";
 
 interface ComponentProps {
     value: string;
@@ -36,23 +39,48 @@ const Component: React.FC<ComponentProps> = ({ value, onValueChange, onSubmit })
 
 type Props = {
     onClose: () => void,
-    onSubmit: (about: string) => void
 }
 const About: React.FC<Props> = (props) => {
 
-    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
+    const { userDetails, lang }:any = useSelector((state: RootState) => state.userDetails);
+    const dispatch = useDispatch()
+    const saveSettings = useSaveSettings()
+    
     const [about, setAbout] = useState(userDetails.settings?.about || '');
-  
-    const handleValueChange = useCallback((value: string) => {
-      setAbout(value);
-    }, []);
+
+    const handleSubmit = () => {
+      const settings = userDetails.settings
+      dispatch(setUserDetail({ ... userDetails, about}))
+      saveSettings.mutate({
+        language: getLanguageCode(lang) || '',
+        about,
+        remember_words:settings?.remember_words||[],
+        name: userDetails?.name,
+        fix_punctuation:settings?.fix_punctuation,
+      })
+    }
   
     return (
       <Header
         onCancel={props.onClose}
         label="About"
       >
-        <Component value={about} onValueChange={handleValueChange} onSubmit={() => props.onSubmit(about)} />
+        <View style={styles.root}>
+          <Text style={styles.description}>What would you like your AI to know about you?</Text>
+          <TextField
+            value={about}
+            onValueChange={value => setAbout(value)}
+            multiline
+          />
+          <RecButton
+            title="Save"
+            onPress={handleSubmit}
+            underlayColor={Colors.blackWithOpacity(0.7)}
+            style={{ paddingHorizontal: 15 }}
+            bgColor="#000"
+            color="#fff"
+          />
+        </View>
       </Header>
     );
 };

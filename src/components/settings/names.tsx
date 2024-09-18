@@ -6,7 +6,10 @@ import { home } from "assets/svg/home"
 import RecButton from "components/common/recording/rec-button";
 import { SvgXml } from "react-native-svg"
 import { RootState } from "redux/store/store"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import { useSaveSettings } from "queries/settings"
+import { setUserDetail } from "redux/reducers/userDetails"
+import { getLanguageCode } from "utils/common"
 
 const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ name, onClose }) => {
     return (
@@ -18,91 +21,75 @@ const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ nam
       </View>
     );
 };
-  
-interface ComponentProps {
-    value: string;
-    defaults?: string[];
-    onValueChange: (value: string) => void;
-    onNamesChange: (names: string[]) => void;
-    onSubmit: () => void
-}
-  
-const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, onNamesChange, onSubmit }) => {
-    const [names, setNames] = useState<string[]>(defaults || []);
-  
-    const addName = useCallback(() => {
-      if (value.trim()) {
-        const updatedNames = [...names, value.trim()];
-        setNames(updatedNames);
-        onNamesChange(updatedNames);
-        onValueChange(''); // Clear the input field
-      }
-      onSubmit();
-    }, [value, names, onNamesChange, onValueChange]);
-  
-    const removeName = useCallback((nameToRemove: string) => {
-      const updatedNames = names.filter(name => name !== nameToRemove);
-      setNames(updatedNames);
-      onNamesChange(updatedNames);
-    }, [names, onNamesChange]);
-  
-    return (
-      <View style={styles.root}>
-        <Text style={styles.description}>Add words that are unique to you to avoid misspellings during transcription.</Text>
-        <View style={styles.controls}>
-          <TextField
-            value={value}
-            onValueChange={onValueChange}
-            placeholder="Enter the name"
-          />
-          <RecButton
-            onPress={addName}
-            title="Add"
-            bgColor="#000"
-            color="#fff"
-            style={{ paddingHorizontal: 20 }}
-          />
-        </View>
-        <View style={styles.names}>
-          {names.map((name, index) => (
-            <Name key={`${name}-${index}`} name={name} onClose={removeName} />
-          ))}
-        </View>
-      </View>
-    );
-};
 
 type Props = {
     onClose: () => void
-    onSubmit: (names: string[]) => void
 }
   
 const Names: React.FC<Props> = (props) => {
 
-    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
+    const { userDetails, lang }:any = useSelector((state: RootState) => state.userDetails);
+    const dispatch = useDispatch()
+    const saveSettings = useSaveSettings()
+
     const [name, setName] = useState('');
     const [namesList, setNamesList] = useState<string[]>(userDetails.settings?.remember_words || []);
+
+    const updateNames = () => {
+      const settings = userDetails.settings;
+
+      dispatch(setUserDetail({ ... userDetails, remember_words: namesList}))
+      saveSettings.mutate({
+        language: getLanguageCode(lang) || '',
+        about: settings?.about,
+        remember_words: namesList,
+        name: userDetails?.name,
+        fix_punctuation:settings?.fix_punctuation,
+      })
+    }
   
-    const handleValueChange = useCallback((value: string) => {
-      setName(value);
-    }, []);
+    const addName = () => {
+      if (name.trim()) {
+        const updatedNames = [...namesList, name.trim()];
+        setNamesList(updatedNames);
+        setName(''); // Clear the input field
+      }
+      updateNames();
+    }
   
-    const handleNamesChange = useCallback((names: string[]) => {
-      setNamesList(names);
-    }, []);
+    const removeName = (nameToRemove: string) => {
+      const updatedNames = namesList.filter(name => name !== nameToRemove);
+      setNamesList(updatedNames);
+      updateNames();
+    }
   
     return (
       <Header
         onCancel={props.onClose}
         label="Names to remember"
       >
-        <Component 
-            value={name} 
-            defaults={userDetails.settings?.remember_words || []}
-            onValueChange={handleValueChange} 
-            onNamesChange={handleNamesChange}
-            onSubmit={() => props.onSubmit(namesList)}
-          />
+        <View style={styles.root}>
+          <Text style={styles.description}>Add words that are unique to you to avoid misspellings during transcription.</Text>
+          <View style={styles.controls}>
+            <TextField
+              value={name}
+              onValueChange={text => setName(text)}
+              placeholder="Enter the name"
+            />
+            <RecButton
+              onPress={addName}
+              title="Add"
+              bgColor="#000"
+              color="#fff"
+              style={{ paddingHorizontal: 20 }}
+            />
+          </View>
+          <View style={styles.names}>
+            {namesList.map((name, index) => (
+              <Name key={`${name}-${index}`} name={name} onClose={removeName} />
+            ))}
+          </View>
+        </View>
       </Header>
     );
 };

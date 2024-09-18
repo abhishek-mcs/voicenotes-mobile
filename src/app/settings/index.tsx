@@ -15,7 +15,6 @@ import { isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang, setUserDetail } from "redux/reducers/userDetails";
-import { useQueryClient } from "react-query";
 import { currentVersion } from "services/api/api-constants";
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 import { Language } from "types";
@@ -34,9 +33,8 @@ export default () => {
   const settings:any=userDetails.settings
   const saveSettings=useSaveSettings()
   const dispatch=useDispatch()
-  const queryClient=useQueryClient()
 
-  const [input, setInput] = useState<ReactElement | null>(null)
+  const [screen, showScreen] = useState<ReactElement | null>(null)
 
   const onLogout = () =>{
     
@@ -82,50 +80,23 @@ export default () => {
     Object.entries(languages).find(([_, value]) => value === languageName)?.[0] as Language | undefined;
 
   const onSelectName = () => {
-    setInput(<Name onSubmit={name => {
-      dispatch(setUserDetail({ ... userDetails, name}))
-      saveSettings.mutate({
-        language: getLanguageCode(lang) || '',
-        about:settings?.about,
-        remember_words:settings?.remember_words||[],
-        name,
-        fix_punctuation:settings?.fix_punctuation,
-      })
-    }} onClose={() => setInput(null)} />)
+    showScreen(<Name onClose={() => showScreen(null)} />)
   }
 
   const onSelectAbout = () => {
-    setInput(<About onSubmit={about => {
-      dispatch(setUserDetail({ ... userDetails, about}))
-      saveSettings.mutate({
-        language: getLanguageCode(lang) || '',
-        about,
-        remember_words:settings?.remember_words||[],
-        name: userDetails?.name,
-        fix_punctuation:settings?.fix_punctuation,
-      })
-    }} onClose={() => setInput(null)} />)
+    showScreen(<About onClose={() => showScreen(null)} />)
   }
 
   const onSelectEmail = () => {
-    setInput(<Email onClose={() => setInput(null)} />)
+    showScreen(<Email onClose={() => showScreen(null)} />)
   }
 
   const onSelectNames = () => {
-    setInput(<Names onSubmit={remember_words => {
-      dispatch(setUserDetail({ ... userDetails, remember_words}))
-      saveSettings.mutate({
-        language: getLanguageCode(lang) || '',
-        about: settings?.about,
-        remember_words,
-        name: userDetails?.name,
-        fix_punctuation:settings?.fix_punctuation,
-      })
-    }} onClose={() => setInput(null)} />)
+    showScreen(<Names onClose={() => showScreen(null)} />)
   }
 
   const onSelectPasswd = () => {
-    setInput(<Password onClose={() => setInput(null)} />)
+    showScreen(<Password onClose={() => showScreen(null)} />)
   }
   
   useEffect(() => {
@@ -138,7 +109,7 @@ export default () => {
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
-            {input || <View style={{ flex: 1 }}>
+            {screen || <View style={{ flex: 1 }}>
               <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
                   <SvgXml xml={settingsSvg.close}  />
               </Touchable>
