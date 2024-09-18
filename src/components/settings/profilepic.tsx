@@ -46,7 +46,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
                 imageStyle={{ borderRadius: 100 }}
             >
                 {working ?
-                    <CircularLoader />
+                    <CircularLoader color="#bfbfbf" />
                 : <Pressable style={styles.button} onPress={pickImage} />}
             </ImageBackground>
         </View>
