@@ -19,14 +19,12 @@ import { MAIN_URL } from "services/api/api-constants";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
 
-export default ({isLogged=true,isOffline}:any) => {
+export default ({isLogged=true,isOffline,streaksRef,streaks}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
-  const [streakVisible,setStreakVisible]=useState(false)
 
   const dispatch=useDispatch()
-  const streaks=useStreak(token)
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
 
@@ -41,7 +39,7 @@ export default ({isLogged=true,isOffline}:any) => {
   const toggleStreaks = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setStreakVisible(!streakVisible);
+    streaksRef.current?.toggle()
   };
   const openDrawer=()=>{
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
@@ -52,7 +50,7 @@ export default ({isLogged=true,isOffline}:any) => {
   
   return (
     <View>
-    <View style={{marginTop:isBeliever?0:12,height: streakVisible?'auto':30,marginBottom:8}} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{marginTop:isBeliever?0:12,marginBottom:8}} onTouchStart={()=>Keyboard.dismiss()}>
       <View style={styles.container}>
         {/* drawer button */}
        <View style={{flexDirection:'row',alignSelf:'center'}}>
@@ -106,8 +104,6 @@ export default ({isLogged=true,isOffline}:any) => {
           </View>}
         </View>
       </View>
-        {/* streak modal */}
-        <Streaks data={streaks?.data?.data||[]} visible={streakVisible}/>
     </View>
     <Text style={{fontFamily:'Primary-Semibold',fontSize:36,color:'#0D0D0D',marginBottom:11}}>Voicenotes</Text>
     </View>

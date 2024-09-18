@@ -27,12 +27,11 @@ import {
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
 import useGuestCreate from "hooks/auth/useGuestCreate";
-import { useGetTags, useRecordings } from "queries/home";
+import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
-import * as Animatable from "react-native-animatable";
 // import AskMeSomething from "components/ask-me-something";
 import { Redirect, router, useNavigation } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
@@ -73,6 +72,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 import TagButtons from "components/home/tag-buttons";
 import { setHashTags } from "redux/reducers/hashSlice";
+import Streaks from "components/streaks";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -125,6 +125,8 @@ export default () => {
   const bannerRef=useRef<any>(null)
   const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
+  const streaksRef=useRef(null)
+  const streaks=useStreak(token)
 
   const getTags=useGetTags()
 
@@ -565,14 +567,7 @@ export default () => {
     setPrevOffset(currentOffset);
   };
   const scrollY = useRef(new Animated.Value(0)).current;
-  const headerHeight = 120; // Adjust based on your header's full height
   const searchBarHeight = 30; // Adjust based on your search bar height
-
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, headerHeight],
-    outputRange: [0, -headerHeight],
-    extrapolate: 'clamp',
-  });
 
   const searchBarOpacity = scrollY.interpolate({
     inputRange: [0, searchBarHeight/2],
@@ -582,18 +577,6 @@ export default () => {
   const searchBarHeightAnimated = scrollY.interpolate({
     inputRange: [0, searchBarHeight],
     outputRange: [searchBarHeight, 0],
-    extrapolate: 'clamp',
-  });
-
-  const titleScale = scrollY.interpolate({
-    inputRange: [0, headerHeight / 2],
-    outputRange: [1, 0.8],
-    extrapolate: 'clamp',
-  });
-
-  const titleTranslateY = scrollY.interpolate({
-    inputRange: [0, headerHeight],
-    outputRange: [0, -headerHeight / 3],
     extrapolate: 'clamp',
   });
 
@@ -621,9 +604,7 @@ export default () => {
                 paddingHorizontal: 12,
               }}
             >
-              <Animated.View style={{}}>
-                <Header isLogged={!!token} isOffline={isOffline} />
-              </Animated.View>
+              <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} />
               <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}
@@ -765,6 +746,9 @@ export default () => {
             setHideBg={setHideBg}
           />
           <AIModal ref={AIModalRef} setHideBg={setHideBg} />
+
+        {/* streak modal */}
+        <Streaks data={streaks?.data?.data||[]} ref={streaksRef}/>
           {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
         </View>
       </KeyboardAvoidView>

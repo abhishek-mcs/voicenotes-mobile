@@ -152,7 +152,9 @@ export default ({setHide=(v:boolean)=>{}})=>{
                       </TouchableHighlight>)}
                     </View>)
                     :searchText.length>0&&searchData?.length>0?
-                    searchData.map((itm:any,i:number)=>
+                    <View>
+                      <Text style={[styles.recent,{marginTop:12}]}>{searchData?.length>1?`${searchData?.length} Results`:'1 Result'}</Text>
+                    {searchData.map((itm:any,i:number)=>
                     <TouchableHighlight onPress={()=>goto(itm?.recording_id)} style={styles.result} underlayColor={Colors.greyWithOpacity(0.1)} key={i}>
                       <View style={{overflow:'hidden'}}>
                       <View style={{flexDirection:'row',alignItems:'center'}}>
@@ -160,7 +162,8 @@ export default ({setHide=(v:boolean)=>{}})=>{
                         <Text style={styles.title}>{itm?.title}</Text>
                       </View>
                       <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()?.replaceAll(/<br\/?>/g, '\n')}</Text></View>
-                    </TouchableHighlight>)
+                    </TouchableHighlight>)}
+                    </View>
                   :((getSearchData.isFetched&&searchData?.length==0)||(searchText==''&&searchHistoryList?.length==0))?
                   null
                   :<View style={[styles.result,{alignItems:'center',marginTop:40}]}>
