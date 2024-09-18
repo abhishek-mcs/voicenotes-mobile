@@ -1,5 +1,5 @@
 import { Alert, StyleSheet, Text, View } from "react-native"
-import Input from "./input"
+import Header from "./header"
 import TextField from "./textfield"
 import { useState, useCallback } from "react"
 import { useSelector } from "react-redux";
@@ -74,22 +74,21 @@ const Password: React.FC<Props> = (props) => {
     }
   
     return (
-      <Input
-        component={
-            <Component
-              isPasswdSet={userDetails.is_password_set}
-              old={old}
-              onOldChange={handleOldChange}
-              defaulT={defaulT}
-              onDefaultChange={handleDefaultChange}
-              confirm={confirm}
-              onConfirmChange={handleConfirmChange}
-              onSubmit={handleSubmit} 
-            />
-        }
+      <Header
         label="Change password"
         onCancel={props.onClose}
-      />
+      >
+        <Component
+          isPasswdSet={userDetails.is_password_set}
+          old={old}
+          onOldChange={handleOldChange}
+          defaulT={defaulT}
+          onDefaultChange={handleDefaultChange}
+          confirm={confirm}
+          onConfirmChange={handleConfirmChange}
+          onSubmit={handleSubmit} 
+        />
+      </Header>
     );
 };
 

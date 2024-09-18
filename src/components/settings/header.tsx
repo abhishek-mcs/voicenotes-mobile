@@ -1,21 +1,24 @@
 import { StyleSheet, View, Text, Pressable } from "react-native";
-import RecButton from "components/common/recording/rec-button";
-import Colors from "assets/Colors";
 import { commonSvg } from "assets/svg/commonSvg";
 import { SvgXml } from "react-native-svg";
 
 type Props = {
     onCancel: () => void,
     label?: string,
-    component: React.ReactElement
+    children?: React.ReactElement
 }
 
-const Input: React.FC<Props> = (props) => {
+const Header: React.FC<Props> = (props) => {
     return (
         <View style={styles.root}>
             <View style={styles.header}>
                 <Pressable onPress={props.onCancel} style={styles.action} >
-                    <SvgXml xml={commonSvg.back} />
+                    <SvgXml height={18} width={18} xml={commonSvg.back} />
+                    <Text style={{
+                        fontFamily: 'Primary-Medium',
+                        fontSize: 16,
+                        textAlign: 'center'
+                    }}>Back</Text>
                 </Pressable>
                 <View style={styles.heading} >
                     <Text style={{
@@ -26,7 +29,7 @@ const Input: React.FC<Props> = (props) => {
                 </View>
                 <View style={styles.action} />
             </View>
-            <View style={styles.content}>{props.component}</View>
+            <View style={styles.content}>{props.children}</View>
         </View>
     )
 }
@@ -46,7 +49,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     heading: {
-        flex: 5,
+        flex: 4,
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -56,6 +59,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 0,
+        flexDirection: 'row'
     },
     content: {
         flex: 12,
@@ -65,4 +69,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Input;
+export default Header;

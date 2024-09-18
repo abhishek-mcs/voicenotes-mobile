@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native"
-import Input from "./input"
+import Header from "./header"
 import TextField from "./textfield"
 import { useState, useCallback } from "react"
 import { useSelector } from "react-redux"
@@ -48,11 +48,12 @@ const Name: React.FC<Props> = (props) => {
     }, []);
   
     return (
-      <Input
-        component={<Component name={name} onValueChange={handleValueChange} onSubmit={() => props.onSubmit(name)} />}
+      <Header
         onCancel={props.onClose}
         label="Display name"
-      />
+      >
+        <Component name={name} onValueChange={handleValueChange} onSubmit={() => props.onSubmit(name)} />
+      </Header>
     );
 };
 

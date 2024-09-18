@@ -1,5 +1,5 @@
 import { Alert, StyleSheet, Text, View } from "react-native"
-import Input from "./input"
+import Header from "./header"
 import TextField from "./textfield"
 import { useState, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -80,18 +80,17 @@ const Email: React.FC<Props> = (props) => {
     const handleOTPChange = useCallback((value: string) => { setOTP(value); }, [])
 
     return (
-      <Input
-        component={
-          <EmailInput
-            isOTP={showOTP} 
-            value={email} 
-            email={userDetails?.email || ''} onValueChange={showOTP ? handleOTPChange : handleEmailChange} 
-            onSubmit={showOTP ? handleOTPSubmit : handleEmailSubmit} 
-          />
-        }
+      <Header
         label="Change Email"
         onCancel={props.onClose}
-      />
+      >
+        <EmailInput
+          isOTP={showOTP} 
+          value={email} 
+          email={userDetails?.email || ''} onValueChange={showOTP ? handleOTPChange : handleEmailChange} 
+          onSubmit={showOTP ? handleOTPSubmit : handleEmailSubmit} 
+        />
+      </Header>
     );
 };
 

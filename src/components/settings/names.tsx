@@ -1,5 +1,5 @@
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native"
-import Input from "./input"
+import Header from "./header"
 import TextField from "./textfield"
 import { useState, useCallback } from "react"
 import { home } from "assets/svg/home"
@@ -92,19 +92,18 @@ const Names: React.FC<Props> = (props) => {
     }, []);
   
     return (
-      <Input
-        component={
-          <Component 
+      <Header
+        onCancel={props.onClose}
+        label="Names to remember"
+      >
+        <Component 
             value={name} 
             defaults={userDetails.settings?.remember_words || []}
             onValueChange={handleValueChange} 
             onNamesChange={handleNamesChange}
             onSubmit={() => props.onSubmit(namesList)}
           />
-        }
-        onCancel={props.onClose}
-        label="Names to remember"
-      />
+      </Header>
     );
 };
 
