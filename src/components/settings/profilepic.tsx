@@ -40,15 +40,15 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     return <View style={styles.root}>
         <View style={styles.container}>
-            {working ?
-                <CircularLoader />
-             : <ImageBackground
+        <ImageBackground
                 uri={image}
                 style={styles.image}
                 imageStyle={{ borderRadius: 100 }}
             >
-                <Pressable style={styles.button} onPress={pickImage} />
-            </ImageBackground>}
+                {working ?
+                    <CircularLoader />
+                : <Pressable style={styles.button} onPress={pickImage} />}
+            </ImageBackground>
         </View>
     </View>
 }
@@ -72,9 +72,13 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     button: {
-        flex: 1
+        flex: 1,
+        width: '100%',
+        height: '100%',
     }
 })
 
