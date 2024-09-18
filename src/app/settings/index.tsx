@@ -17,7 +17,6 @@ import { RootState } from "redux/store/store";
 import { setLang, setUserDetail } from "redux/reducers/userDetails";
 import { currentVersion } from "services/api/api-constants";
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
-import { Language } from "types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Name from "components/settings/name";
 import About from "components/settings/about";
@@ -75,9 +74,6 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
-
-  const getLanguageCode = (languageName: string): Language | undefined =>
-    Object.entries(languages).find(([_, value]) => value === languageName)?.[0] as Language | undefined;
 
   const onSelectName = () => {
     showScreen(<Name onClose={() => showScreen(null)} />)

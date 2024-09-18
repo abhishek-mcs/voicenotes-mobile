@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
-import axiosApi, { setAuthToken } from "services/api/axios-api";
+import axiosApi from "services/api/axios-api";
 import { SettingsPayload } from "types";
 
 export function useSaveSettings() {
