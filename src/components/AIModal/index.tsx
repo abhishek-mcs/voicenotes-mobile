@@ -3,6 +3,7 @@ import {
   FlatList,
   Image,
   Keyboard,
+  KeyboardAvoidingView,
   Pressable,
   StyleSheet,
   Text,
@@ -14,6 +15,7 @@ import {
 import { SvgXml } from "react-native-svg";
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -24,7 +26,7 @@ import ReactNativeModal from "react-native-modal";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
 import { useAskAI,useAskAIHistory, useDeleteAskHistory, useGetAskChat, useUploadChatRecord, useVoiceChatResponse } from "queries/home";
 import Touchable from "components/common/Touchable";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
 import chatLoader from "assets/lottie/chatLoader.json";
@@ -42,11 +44,14 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { cancelRecording, onRecord, stopRecording } from "func/home/record";
 import { Audio } from "expo-av";
 import ChatRecorder from "components/common/recording/chat-recorder";
+import { SafeAreaView } from "react-native";
+import { router } from "expo-router";
+import { setStringAsync } from "expo-clipboard";
+import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 
+type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
-  related_messages: [
-    { id?:number,question: string; answer: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
-  ];
+  related_messages: chatItemProps[];
   user_id?: number;
   id?: number;
 };
@@ -63,15 +68,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const initChat: chatProps = {
     id: 0,
     user_id: 0,
-    related_messages: [
-      {
-        question: "",
-        answer: `Hi${token?(' '+userDetails?.name):''}, I am your personal AI.`,
-        answer2: "What would you like to ask about your notes?",
-        question_url:"",
-        answer_url:"",
-      },
-    ],
+    related_messages: [],
   };
 
   const [visible, setVisible] = useState(false);
@@ -122,39 +119,40 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       isAndroid&&textInputRef?.current?.blur();
     }
     );
+    getNewSugg()
     return () => {
       keyboardShown.remove();
       keyboardHide.remove();
     };
   }, []);
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        open() {
-          setVisible(true);
-          setHideBg(true)
-        },
-        close() {
-          onClose()
-        },
-        toggle(){
-          setVisible(!visible)
-          setHideBg(!visible)
-        },
-        getNewSugg(){
-          !visible&&getNewSugg()
-        },
-      };
-    },
-    [visible]
-  );
+  // useImperativeHandle(
+  //   ref,
+  //   () => {
+  //     return {
+  //       open() {
+  //         setVisible(true);
+  //         setHideBg(true)
+  //       },
+  //       close() {
+  //         onClose()
+  //       },
+  //       toggle(){
+  //         setVisible(!visible)
+  //         setHideBg(!visible)
+  //       },
+  //       getNewSugg(){
+  //         !visible&&getNewSugg()
+  //       },
+  //     };
+  //   },
+  //   [visible]
+  // );
 
-  const scrollToEnd = () => 
+  const scrollToEnd = useCallback(() => 
     setTimeout(() => {
       scrollRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    }, 600),[scrollRef])
 
   const onClose = () => {
     onCancelRecord()
@@ -164,6 +162,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       setChats(initChat);
       setChatStarted(false);
     }, 300);
+    router.back()
   };
 
   const onDrawer = () => {
@@ -175,12 +174,12 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     if(!!token){
       setChats({
         ...res?.data,
-        related_messages: [...initChat.related_messages, ...res?.data?.related_messages],
+        related_messages: [ ...res?.data?.related_messages],
       })
     }else{
-      const temp:chatProps=chats;
-      temp.related_messages[temp.related_messages?.length-1].answer=res?.data.answer;
-      setChats({...temp,related_messages: [...temp.related_messages]});
+      // const temp:chatProps=chats;
+      // temp.related_messages[temp?.related_messages?.length-1].answer=res?.data.answer;
+      // setChats({...temp,related_messages: [...temp?.related_messages]});
     }
     scrollToEnd();
   }
@@ -188,17 +187,21 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const onSend = (question: string) => {
     !chatStarted&&setChatStarted(true)
     const tempChats = chats;
-    tempChats?.related_messages.push({ question, answer: "Typing" });
+    tempChats?.related_messages?.push({ question, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
     const data = chats?.id != 0 ? { question, id: chats.id } : { question };
     setInput("");
     scrollToEnd();
-    askAI.mutate(data, {
-      onSuccess: onSuccessSendChat,
-      onError:()=>{
-        tempChats?.related_messages.pop();
-      }
-    });
+    setTimeout(() => {
+      tempChats.related_messages[tempChats?.related_messages?.length-1].answer="Typing"
+      setChats({...tempChats})
+      askAI.mutate(data, {
+        onSuccess: onSuccessSendChat,
+        onError:()=>{
+          tempChats?.related_messages?.pop();
+        }
+      });
+    }, 1000);
   };
 
   const onHistoryPress = async(id:any) => {
@@ -208,7 +211,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     setChatStarted(true);
    await getChat.mutateAsync({id},{
     onSuccess:(res)=>{
-      setChats({...res?.data,related_messages:[...initChat?.related_messages,...res?.data?.related_messages||[]]})
+      setChats({...res?.data,related_messages:[...res?.data?.related_messages||[]]})
     }
    })
    setChatLoader(false)
@@ -277,7 +280,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     setRec(null);
     !chatStarted&&setChatStarted(true)
     const tempChats = chats;
-    tempChats?.related_messages.push({ question:"Typing", answer: "", question_url:file });
+    tempChats?.related_messages?.push({ question:"Typing", answer: "", question_url:file });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
     uploadRecord.mutate({audio:file,duration:d,id:chats?.id},{
       onSuccess:(data)=>{
@@ -316,185 +319,285 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     }
   }, [isRecording,rec]);
 
-  const {height}=useWindowDimensions()
-  const top=height>690?54:89
   return (
-    <ReactNativeModal
-      isVisible={visible}
-      animationIn={"fadeInUp"}
-      hideModalContentWhileAnimating={true}
-      animationOut={"fadeOutDown"}
-      // onBackdropPress={onClose}
-      style={[styles.modalContainer, { bottom: keyboardShown ? 0 :(isIOS? top:84) }]}
-      backdropOpacity={0.05}
-      avoidKeyboard
-      hasBackdrop={false}
-      coverScreen={false}
-    >
-      <View style={styles.modal}>
+    <SafeAreaView style={[styles.modalContainer]}>
+      <View style={{ flex: 1, backgroundColor: "#fff" }}>
         <View style={[styles.header1]}>
-          <View style={{flexDirection:'row',alignItems:'center'}}>
-          {chatStarted&&<Touchable onPress={onNewChat} style={{ padding: 4, marginLeft: 12 }}>
-            <SvgXml xml={AIModalSVG.newChat} />
-          </Touchable>}
-          <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
-            <SvgXml xml={AIModalSVG.close} />
-          </Touchable>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", width: "25%" ,justifyContent:'flex-end'}}
+          >
+            {chatStarted && (
+              <Touchable
+                onPress={onNewChat}
+                style={{ padding: 4, marginLeft: 12 }}
+              >
+                <SvgXml xml={AIModalSVG.newChat} />
+              </Touchable>
+            )}
+            <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
+              <SvgXml xml={AIModalSVG.close} />
+            </Touchable>
           </View>
-          <Touchable onPress={onDrawer} style={{ padding: 4, flexDirection:'row',alignItems:'center' }}>
+          <Text style={styles.headerText}>Ask AI</Text>
+          <Touchable
+            onPress={onDrawer}
+            style={{
+              padding: 4,
+              flexDirection: "row",
+              alignItems: "center",
+              width: "25%",
+            }}
+          >
             <SvgXml xml={AIModalSVG.history} />
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
           </Touchable>
         </View>
-        {!chatLoader?
-        <FlatList
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          justifyContent: chatStarted ? "flex-end" : "flex-start",
-        }}
-        data={chats?.related_messages || []}
-        keyExtractor={(item, index) => `${item?.id}-${index}`}
-        renderItem={({ item,index }) => (
-          <View>
-              {!!item?.question && 
-              <ChatItem 
-              text={item?.question} 
-              isAI={false} 
-              photo={userDetails?.photo_url}
-              url={item?.question_url}/>}
-              {!!item?.answer&&
-              <ChatItem
-                text={item?.answer}
-                text2={item?.answer2 || undefined}
-                isAI={true}
-                url={item?.answer_url}
-                photo={userDetails?.photo_url}
-              />}
-            </View>
-        )}
-        contentInset={{ bottom: 16 }}
-        contentInsetAdjustmentBehavior="always"
-        keyboardShouldPersistTaps="handled"
-        ListFooterComponent={()=>!chatStarted ?
-          getSuggestions.data?.data?.length>0 &&(
-            <View style={styles.suggestContainer}>
-              <View style={[styles.row, { marginBottom: 4 }]}>
-                <SvgXml xml={AIModalSVG.suggestion} />
-                <Text style={styles.suggest}>Suggestions</Text>
-                <Touchable onPress={getNewSugg} style={{padding:12}}>  
-                  <SvgXml xml={AIModalSVG.refresh} />
-                </Touchable>
-              </View>
-              {suggLoaded?
-              getSuggestions.data?.data?.map((suggestion: any) => (
-                <Btns
-                  onPress={() => onSend(suggestion)}
-                  txt={suggestion}
-                  key={suggestion}
-                />
-              )):<View style={{marginTop:32,alignItems:'center'}}>
-                <CircularLoader width={25} height={25} strokeWidth={3}/>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={isIOS ? "padding" : "height"}
+          keyboardVerticalOffset={isIOS ? 64 : 0} // Adjust based on header height
+        >
+          {!chatLoader ? (
+            <FlatList
+              ref={scrollRef}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                justifyContent: chatStarted ? "flex-end" : "flex-start",paddingVertical:16
+              }}
+              data={chats?.related_messages || []}
+              keyExtractor={(item, index) => `${item?.id}-${index}`}
+              renderItem={({ item, index }) => (
+                <View>
+                  {!!item?.question && (
+                    <ChatItem
+                      text={item?.question}
+                      isAI={false}
+                      photo={userDetails?.photo_url}
+                      url={item?.question_url}
+                    />
+                  )}
+                  {!!item?.answer && (
+                    <ChatItem
+                      text={item?.answer}
+                      text2={item?.answer2 || undefined}
+                      isAI={true}
+                      url={item?.answer_url}
+                      photo={userDetails?.photo_url}
+                      sources={item?.source}
+                    />
+                  )}
                 </View>
+              )}
+              contentInset={{ bottom: 16 }}
+              contentInsetAdjustmentBehavior="always"
+              keyboardShouldPersistTaps="handled"
+              ListEmptyComponent={() => (
+                <View style={{ marginLeft: 20 }}>
+                  <SvgXml
+                    xml={AIModalSVG.askAILogo}
+                    style={{ marginVertical: 16 }}
+                  />
+                  <Text
+                    style={[
+                      styles.headerText,
+                      { fontSize: 18, width: "auto", textAlign: "left" },
+                    ]}
+                  >
+                    Ask about your notes.
+                  </Text>
+                </View>
+              )}
+              ListFooterComponent={() =>
+                !chatStarted
+                  ? getSuggestions.data?.data?.length > 0 && (
+                      <View style={styles.suggestContainer}>
+                        <View style={[styles.row, { marginBottom: 4 }]}>
+                          <Text style={styles.suggest}>Suggestions</Text>
+                          <Touchable
+                            onPress={getNewSugg}
+                            style={styles.refresh}
+                          >
+                            <SvgXml
+                              xml={AIModalSVG.refresh}
+                              style={{ marginBottom: 2 }}
+                            />
+                          </Touchable>
+                        </View>
+                        {suggLoaded ? (
+                          getSuggestions.data?.data?.map((suggestion: any) => (
+                            <Btns
+                              onPress={() => onSend(suggestion)}
+                              txt={suggestion}
+                              key={suggestion}
+                            />
+                          ))
+                        ) : (
+                          <View style={{ marginTop: 32, alignItems: "center" }}>
+                            <CircularLoader
+                              width={25}
+                              height={25}
+                              strokeWidth={3}
+                            />
+                          </View>
+                        )}
+                      </View>
+                    )
+                  : null
               }
-            </View>
-          ):null}
-        />:<View style={{marginTop:-50,alignItems:'center'}}>
-        <CircularLoader width={25} height={25} strokeWidth={3}/>
-        </View>}
-        <View>
-          <View style={styles.inputContainer}>
-            {!isRecording?<>
-            <TextInput
-              ref={textInputRef}
-              onTouchStart={e=>e?.stopPropagation()}
-              onFocus={()=>scrollToEnd()}
-              style={styles.input}
-              scrollEnabled={false}
-              placeholder="Ask anything about your notes..."
-              placeholderTextColor={Colors.grey}
-              multiline
-              value={input}
-              enablesReturnKeyAutomatically={true} 
-              returnKeyType="send"
-              autoCorrect={false}
-              autoFocus={false}
-              autoCapitalize="none"
-              onChangeText={(text) => setInput(text)}
-              onSubmitEditing={() => onSend(input)}
             />
-            <Touchable
-              style={styles.send}
-              onPress={() => !!input?onSend(input):onRecordStart()}
+          ) : (
+            <View style={{ flex:1,justifyContent:'center', alignItems: "center" }}>
+              <CircularLoader width={25} height={25} strokeWidth={3} />
+            </View>
+          )}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                keyboardShown ? { minHeight: 97 } : {},
+              ]}
             >
-              <SvgXml xml={!!input?AIModalSVG.send:AIModalSVG.record} />
-            </Touchable>
-            </>
-            :<View style={{width:'100%',marginLeft:-12,marginTop:0,justifyContent:'center'}}>
-              <ChatRecorder
-                totalDuration={'/00:20'}
-                duration={duration}
-                onCancel={onCancelRecord}
-                onStopRecord={onStopRecord}
-              />
-            </View>}
+              {!isRecording ? (
+                <>
+                  <TextInput
+                    ref={textInputRef}
+                    onTouchStart={(e) => e?.stopPropagation()}
+                    onFocus={() => scrollToEnd()}
+                    style={styles.input}
+                    scrollEnabled={false}
+                    placeholder="Ask a question..."
+                    placeholderTextColor={Colors.grey}
+                    multiline
+                    value={input}
+                    enablesReturnKeyAutomatically={true}
+                    returnKeyType="send"
+                    autoCorrect={false}
+                    autoFocus={false}
+                    autoCapitalize="none"
+                    onChangeText={(text) => setInput(text)}
+                    onSubmitEditing={() => onSend(input)}
+                  />
+                  <Touchable
+                    style={styles.send}
+                    onPress={() => (!!input ? onSend(input) : onRecordStart())}
+                  >
+                    <SvgXml
+                      xml={!!input ? AIModalSVG.send : AIModalSVG.record}
+                    />
+                  </Touchable>
+                </>
+              ) : (
+                <View
+                  style={{
+                    width: "100%",
+                    marginLeft: -12,
+                    marginTop: 0,
+                    justifyContent: "center",
+                    height:97
+                  }}
+                >
+                  <ChatRecorder
+                    totalDuration={"/00:20"}
+                    duration={duration}
+                    onCancel={onCancelRecord}
+                    onStopRecord={onStopRecord}
+                    recording={rec}
+                  />
+                </View>
+              )}
+            </View>
           </View>
-        </View>
-        <View style={{position:'absolute',flex:1,zIndex:drawerIndex,top:0,width:'100%',height:'100%'}}>
-        <DrawerLayout
-          ref={drawerRef}
-          drawerWidth={200}
-          drawerPosition={'left'}
-          drawerType="front"
-          drawerBackgroundColor="#fff"
-          overlayColor="transparent"
-          renderNavigationView={renderDrawer}
-          contentContainerStyle={{flex:1}}
-          onDrawerClose={()=>setDrawerIndex(-10)}
-          drawerContainerStyle={styles.drawer}
-          />
-        </View>
+          <View
+            style={{
+              position: "absolute",
+              flex: 1,
+              zIndex: drawerIndex,
+              top: 0,
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <DrawerLayout
+              ref={drawerRef}
+              drawerWidth={200}
+              drawerPosition={"left"}
+              drawerType="front"
+              drawerBackgroundColor="#fff"
+              overlayColor="transparent"
+              renderNavigationView={renderDrawer}
+              contentContainerStyle={{ flex: 1 }}
+              onDrawerClose={() => setDrawerIndex(-10)}
+              drawerContainerStyle={styles.drawer}
+            />
+          </View>
+        </KeyboardAvoidingView>
       </View>
-    </ReactNativeModal>
+    </SafeAreaView>
   );
 });
 
-const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='' }) => {
+const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=[] }) => {
   const [expand,setExpand]=useState(false)
+  const [copy,setCopy]=useState('Copy')
+  const dispatch=useDispatch()
+
+  const onCopy = async()=>{
+      setCopy('Copied')
+      await setStringAsync(text||'');
+      setTimeout(() => {
+          setCopy('Copy')
+      }, 1000);
+  }
+
+  const goToSource=(id:string)=>{
+    dispatch(setRelatedNoteId(id))
+    router?.back()
+  }
+
   if(!!url){
   return (
-  <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{}]}>
+  <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{},{paddingHorizontal:16,marginBottom:13}]}>
     {text=='Typing'?
-    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,marginLeft:!isAI?0:30,marginRight:!isAI?30:0,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
-    :<View style={{backgroundColor:isAI?Colors.primary:Colors.darkWithOpacity(0.05),padding:16,borderRadius:12,width:'85%'}}>
+    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
+    :<View style={[styles.audioChat,{backgroundColor:isAI?Colors.primary:Colors.whiteWithOpacity(0.5)}]}>
       <AudioPlayer isAI={isAI} url={url}/>
       <Text style={{color:isAI?Colors.whiteWithOpacity(0.5):Colors.grey,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
     </View>}
-    <View style={[styles.aiIcon,{width:20,height:20,marginTop:10,borderRadius:100,borderWidth:isAI?1:0}]}>
-        {!isAI&&!!photo? 
-        <Image source={{uri:photo}} style={{width:20,height:20,borderRadius:100}}/>
-        :<SvgXml xml={isAI ? AIModalSVG.aiSmall : AIModalSVG.youSmall} style={{borderRadius:100}}/>}
-      </View>
   </Pressable>
 )}
 else{
 return (
-  <View style={styles.convoContentContainer}>
-    <View style={{ flexDirection: "row" }}>
-      <View style={styles.aiIcon}>
-        {!isAI&&!!photo? 
-        <Image source={{uri:photo}} style={{width:30,height:30,borderRadius:9}}/>
-        :<SvgXml xml={isAI ? AIModalSVG.ai : AIModalSVG.you} />}
-      </View>
-      <Text style={styles.ai}>{isAI ? "AI" : "You"}</Text>
-    </View>
-    <View style={styles.aiChat}>
-      <Text style={[styles.text]}>
+  <View style={[styles.convoContentContainer,{alignSelf:isAI?'flex-start':'flex-end'}]}>
+    <View style={[styles.aiChat,isAI?styles.aiChatStyle:styles.userChatStyle,(text=="Typing"||text=='Searching')?{paddingVertical:8}:{}]}>
+      <Text style={[styles.text,{position:"relative"}]}>
         {text}
-        {text=="Typing"&&<LottieView source={typing} autoPlay loop style={styles.lottie}/>}
+        {(text=="Typing"||text=='Searching')&&<View><LottieView source={typing} speed={0.8} autoPlay loop style={styles.lottie}/></View>}
       </Text>
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
+
+   {!isAI? <View style={{position:'absolute',bottom:-8,right:-8}}>
+      <View style={{backgroundColor:Colors.grey2WithOpacity(0.05),width:10,height:10,borderRadius:7}}/>
+      <View style={{backgroundColor:Colors.grey2WithOpacity(0.05),width:6,height:6,borderRadius:4,marginLeft:8}}/>
+    </View>:
+    sources?.length>0?<View style={{marginBottom:12}}>
+      <View style={[styles.row,{paddingVertical:12}]}>
+        <Text style={[styles.text,{color:Colors.grey}]}>Sources</Text>
+        <View style={{flex:1,height:1,backgroundColor:Colors.grey2WithOpacity(0.1),marginLeft:8}}/>
+      </View>
+      <View>
+        {sources.map((source:any,index:number)=>(
+          <Touchable key={index} onPress={()=>goToSource(source?.id)} style={[styles.row,{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8}]}>
+            <SvgXml xml={AIModalSVG.source} style={{marginRight:8,marginTop:6}}/>
+            <Text style={[styles.text,{flexWrap:'wrap',width:'90%'}]}>{source?.title}</Text>
+          </Touchable>
+        ))}
+      </View>
+    </View>:null}
     </View>
+   {isAI&&text!="Searching"&&text!="Typing"&&<Touchable onPress={onCopy} style={[styles.aiChat,styles.aiChatStyle,styles.row,{alignSelf:'flex-start',paddingVertical:4}]}>
+      <SvgXml xml={AIModalSVG.copy} style={{marginRight:4}}/>
+      <Text style={[styles.text]}>{copy}</Text>
+    </Touchable>}
   </View>
 )}}
 
@@ -509,9 +612,9 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 );
 
 const styles = StyleSheet.create({
-  modalContainer: { justifyContent: "flex-end", bottom: 40 },
+  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey },
   modal: {
-    height:isIOS? screenHeight>690?'88%':'80%':'75%',
+    height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
     justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 24,
@@ -521,7 +624,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1.5,
     zIndex: 10,
     elevation: 2,
-    overflow:'hidden'
+    overflow: "hidden",
   },
   title: {
     fontSize: 24,
@@ -539,15 +642,19 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   btn: {
-    borderWidth: 1,
-    borderColor: Colors.darkWithOpacity(0.1),
-    borderRadius: 8,
+    borderRadius: 12,
     marginTop: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
     alignSelf: "flex-start",
+    shadowColor: "#000000",
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { width: 0, height: 0.5 },
+    elevation: 2,
+    backgroundColor:'#fff'
   },
-  btnTxt: { fontSize: 14, fontFamily: "Primary", lineHeight: 20 },
+  btnTxt: { fontSize: 14, fontFamily: "Primary-Medium", lineHeight: 20,color:Colors.black2 },
   subTitle: {
     fontSize: 12,
     fontFamily: "Primary",
@@ -565,9 +672,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     width: "80%",
     // lineHeight: 24,
-    paddingTop:16,
-    paddingBottom:16,
-    minHeight:24
+    paddingTop: 16,
+    paddingBottom: 16,
+    minHeight: 24,
+    backgroundColor: Colors.lightGrey,
   },
   inputContainer: {
     minHeight: 60,
@@ -577,13 +685,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    backgroundColor: Colors.lightGrey,
   },
   send: {
-    paddingVertical:16,
+    paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    width: 72,
+    paddingHorizontal: 12,
+    alignSelf:'flex-end'
   },
   convoBar: {
     paddingVertical: 24,
@@ -598,7 +707,7 @@ const styles = StyleSheet.create({
     color: Colors.darkWithOpacity(1),
     fontFamily: "Primary",
   },
-  convoContentContainer: { paddingBottom: 16, paddingHorizontal: 16 },
+  convoContentContainer: {justifyContent:'center',maxWidth:'90%'},
   ai: {
     fontSize: 14,
     color: Colors.grey,
@@ -609,13 +718,13 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     color: Colors.darkWithOpacity(1),
-    fontFamily: "Primary",
-    lineHeight: 24,
+    fontFamily: "Primary-Medium",
+    lineHeight: 20,
   },
   suggest: {
     fontFamily: "Primary-Medium",
-    fontSize: 12,
-    color: Colors.darkWithOpacity(1),
+    fontSize: 14,
+    color: Colors.grey,
     marginLeft: 6,
   },
   aiIcon: {
@@ -627,30 +736,84 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  suggestContainer: { marginBottom: 24, marginHorizontal: 16,marginTop:screenHeight>690?150:50 },
-  aiChat: { marginLeft: 45, marginTop: -8 },
+  suggestContainer: { marginBottom: 24, marginHorizontal: 16, marginTop: 20 },
+  aiChat: { marginLeft: 28,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
+  aiChatStyle:{
+    backgroundColor:Colors.whiteWithOpacity(1),
+    shadowColor: "#000000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 0.5 },
+    shadowRadius: 1.5,
+    zIndex: 10,
+    elevation: 2,
+    paddingVertical:12,paddingHorizontal:12
+  },
+  userChatStyle:{
+    backgroundColor:Colors.grey2WithOpacity(0.05)
+  },
   header1: {
-    height: 57,
-    paddingHorizontal: 20,
+    height: 53,
+    paddingHorizontal: 16,
     flexDirection: "row-reverse",
     alignItems: "center",
-    justifyContent:'space-between',
+    justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: Colors.darkWithOpacity(0.1),
-    marginBottom: 16,
+    borderBottomColor: Colors.darkWithOpacity(0.1)
   },
-  header2: { marginBottom:0, borderBottomWidth: 0 },
-  lottie:{width:15,height:10,alignSelf:'flex-end'},
-  drawer:{
-  shadowColor: "#00000026",
-  shadowOpacity: 0.9,
-  shadowOffset: { width: 0, height: 0.75 },
-  shadowRadius: 1.5,
-  zIndex: 10,
-  elevation: 2,
-},
-historyText:{fontFamily:'Primary',fontSize:14,color:'#222',maxWidth:'80%'},
-history:{paddingVertical:20},
-date:{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(0.5),marginTop:16,marginBottom:12,paddingHorizontal:20},
-selectHistory:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:4,marginBottom:8,paddingHorizontal:20}
+  header2: { marginBottom: 0, borderBottomWidth: 0 },
+  lottie: { width:40,height:20,marginBottom:-6,marginLeft:-14},
+  drawer: {
+    shadowColor: "#00000026",
+    shadowOpacity: 0.9,
+    shadowOffset: { width: 0, height: 0.75 },
+    shadowRadius: 1.5,
+    zIndex: 10,
+    elevation: 2,
+  },
+  refresh: {
+    width: 25,
+    height: 24,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 7,
+    backgroundColor: "#fff",
+    shadowColor: "#000000",
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { width: 0, height: 0.5 },
+    elevation: 2,
+  },
+  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color: "#000",width:'50%',textAlign:'center' },
+  historyText: {
+    fontFamily: "Primary",
+    fontSize: 14,
+    color: "#222",
+    maxWidth: "80%",
+  },
+  history: { paddingVertical: 20 },
+  date: {
+    fontFamily: "Primary",
+    fontSize: 12,
+    color: Colors.darkWithOpacity(0.5),
+    marginTop: 16,
+    marginBottom: 12,
+    paddingHorizontal: 20,
+  },
+  selectHistory: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 4,
+    marginBottom: 8,
+    paddingHorizontal: 20,
+  },
+  audioChat:{
+    padding:12,borderRadius:12,width:'85%',
+    shadowColor: "#000000",
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { width: 0, height: 0.5 },
+    elevation: 2,
+  }
 });

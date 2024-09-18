@@ -2,7 +2,7 @@ import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors
 
 const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
-const primary = '#274f47';
+const primary = 'rgba(14, 57, 52, 1)';
 export default {
   light: {
     text: '#000',

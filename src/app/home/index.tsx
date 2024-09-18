@@ -345,8 +345,9 @@ export default () => {
 
   const onAsk = () => {
     CreateModalRef.current?.close();
-    AIModalRef.current?.toggle();
-    AIModalRef.current?.getNewSugg();
+    // AIModalRef.current?.toggle();
+    // AIModalRef.current?.getNewSugg();
+    router.push("/ask-my-ai/");
   };
   const onCreate = () => {
     CreateModalRef.current?.onReset();
@@ -745,7 +746,7 @@ export default () => {
             fetchNextPage={fetchNextPage}
             setHideBg={setHideBg}
           />
-          <AIModal ref={AIModalRef} setHideBg={setHideBg} />
+          {/* <AIModal ref={AIModalRef} setHideBg={setHideBg} /> */}
 
         {/* streak modal */}
         <Streaks data={streaks?.data?.data||[]} ref={streaksRef}/>
