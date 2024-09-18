@@ -23,7 +23,7 @@ export function useSaveSettings() {
 
 export async function changeEmail(email: string, otp?: string) {
   try {
-      const response = await axiosApi.patch('/settings/email/change', {
+      const response = await axiosApi.patch(otp ? '/settings/email/update' : '/settings/email/change', {
           email,
           otp: otp || "",
           password: ""
