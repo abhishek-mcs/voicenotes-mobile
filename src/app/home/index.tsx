@@ -604,7 +604,7 @@ export default () => {
                 paddingHorizontal: 12,
               }}
             >
-              <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} />
+              <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} scrollY={scrollY}/>
               <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}

@@ -124,7 +124,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
       animationOutTiming={150}
       hideModalContentWhileAnimating={true}
       onBackdropPress={onClose}
-      style={{ justifyContent: "flex-start" ,position:'relative'}}
+      style={{ justifyContent: "flex-start" ,position:'relative',top:10}}
       backdropOpacity={0}
       avoidKeyboard
       hasBackdrop={true}
