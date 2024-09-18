@@ -1,7 +1,7 @@
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { home } from "assets/svg/home"
 import RecButton from "components/common/recording/rec-button";
 import { SvgXml } from "react-native-svg"
@@ -35,14 +35,15 @@ const Names: React.FC<Props> = (props) => {
     const [name, setName] = useState('');
     const [namesList, setNamesList] = useState<string[]>(userDetails.settings?.remember_words || []);
 
-    const updateNames = () => {
+    const updateNames = (names: string[]) => {
       const settings = userDetails.settings;
 
-      dispatch(setUserDetail({ ... userDetails, remember_words: namesList}))
+      setNamesList(names)
+      dispatch(setUserDetail({ ... userDetails, remember_words: names}))
       saveSettings.mutate({
         language: getLanguageCode(lang) || '',
         about: settings?.about,
-        remember_words: namesList,
+        remember_words: names,
         name: userDetails?.name,
         fix_punctuation:settings?.fix_punctuation,
       })
@@ -51,16 +52,14 @@ const Names: React.FC<Props> = (props) => {
     const addName = () => {
       if (name.trim()) {
         const updatedNames = [...namesList, name.trim()];
-        setNamesList(updatedNames);
+        updateNames(updatedNames);
         setName(''); // Clear the input field
       }
-      updateNames();
     }
   
     const removeName = (nameToRemove: string) => {
       const updatedNames = namesList.filter(name => name !== nameToRemove);
-      setNamesList(updatedNames);
-      updateNames();
+      updateNames(updatedNames);
     }
   
     return (
