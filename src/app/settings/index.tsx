@@ -11,7 +11,7 @@ import { ReactElement, useEffect, useState } from "react";
 import { languages } from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
-import { isIOS } from "utils/common";
+import { isIOS, screenWidth } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang, setUserDetail } from "redux/reducers/userDetails";
@@ -107,7 +107,7 @@ export default () => {
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
             {screen || <View style={{ flex: 1 }}>
               <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
-                  <SvgXml xml={settingsSvg.close}  />
+                  <SvgXml xml={settingsSvg.close} width={24} height={24}  />
               </Touchable>
               <ProfilePic 
                 url={userDetails?.photo_url || ""}
@@ -118,9 +118,9 @@ export default () => {
               <Grouped 
               title="ACCOUNT"
               items={[
-                  {title:'Name', onPress: onSelectName, value:userDetails?.name||''},
-                  {title:'Email',onPress: onSelectEmail, value:userDetails?.email||''},
-                  {title:'About', onPress: onSelectAbout, value:userDetails?.about||''},
+                  {title:'Name', onPress: onSelectName, value:userDetails?.name||'', rightIcon:settingsSvg.arrow},
+                  {title:'About', onPress: onSelectAbout, value:userDetails?.about||'', rightIcon:settingsSvg.arrow},
+                  {title:'Email',onPress: onSelectEmail, value:userDetails?.email||'', rightIcon:settingsSvg.arrow},
                   {title:'Change password', onPress: onSelectPasswd, value:'', rightIcon:settingsSvg.arrow}
               ]}/>
               <Grouped
@@ -188,10 +188,11 @@ const Grouped=({title,items}:{title:string,items:any})=>{
           )}
             </ScrollView>
         </Menu>
-        :!!item?.rightIcon?
-        <SvgXml xml={item?.rightIcon}  />
-        :<Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>}
-        </>
+        :
+          item?.value && <Text style={[styles.rightTxt, {width: item?.value ? '80%' : screenWidth/2}]} numberOfLines={1}>{item?.value}</Text>
+        }
+        {item?.rightIcon && <SvgXml xml={item?.rightIcon}  />}
+      </>
     </TouchableHighlight>
     {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:1,backgroundColor:'rgba(221, 221, 221, 0.87)',width:'100%'}}/></View>}
     </View>)}
@@ -204,7 +205,6 @@ const styles=StyleSheet.create({
     fontFamily:'Primary-Medium',
     fontSize:14,
     color:Colors.grey,
-    width:ScreenWidth/2,
-    textAlign:'right'
+    textAlign:'right',
   }
 })
