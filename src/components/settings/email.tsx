@@ -86,7 +86,7 @@ const Email: React.FC<Props> = (props) => {
       >
         <EmailInput
           isOTP={showOTP} 
-          value={email} 
+          value={showOTP ? otp : email} 
           email={userDetails?.email || ''} onValueChange={showOTP ? handleOTPChange : handleEmailChange} 
           onSubmit={showOTP ? handleOTPSubmit : handleEmailSubmit} 
         />
