@@ -5,6 +5,8 @@ import { useState, useCallback } from "react"
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { changePassword } from "queries/auth";
+import RecButton from "components/common/recording/rec-button";
+import Colors from "assets/Colors";
 
 interface ComponentProps {
     isPasswdSet: boolean,
@@ -14,12 +16,12 @@ interface ComponentProps {
     onDefaultChange: (value: string) => void;
     confirm: string;
     onConfirmChange: (value: string) => void;
+    onSubmit: () => void
 }
 
 const Component: React.FC<ComponentProps> = (props) => {
     return (
       <View style={styles.root}>
-        <Text style={styles.heading}>Change password</Text>
         <Text style={styles.description}>Please choose a strong password to secure your VoiceNotes account</Text>
         {props.isPasswdSet && <TextField
           value={props.old}
@@ -35,6 +37,14 @@ const Component: React.FC<ComponentProps> = (props) => {
           value={props.confirm}
           onValueChange={props.onConfirmChange}
           placeholder="Confirm password"
+        />
+        <RecButton
+          title="Change"
+          onPress={props.onSubmit}
+          underlayColor={Colors.blackWithOpacity(0.7)}
+          style={{ paddingHorizontal: 15 }}
+          bgColor="#000"
+          color="#fff"
         />
       </View>
     );
@@ -73,11 +83,12 @@ const Password: React.FC<Props> = (props) => {
               defaulT={defaulT}
               onDefaultChange={handleDefaultChange}
               confirm={confirm}
-              onConfirmChange={handleConfirmChange} 
+              onConfirmChange={handleConfirmChange}
+              onSubmit={handleSubmit} 
             />
         }
+        label="Change password"
         onCancel={props.onClose}
-        onSubmit={handleSubmit}
       />
     );
 };
@@ -89,11 +100,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
-    },
-    heading: {
-        fontFamily: 'Primary-Bold',
-        fontSize: 20,
-        textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

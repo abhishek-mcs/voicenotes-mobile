@@ -89,6 +89,7 @@ const Email: React.FC<Props> = (props) => {
             onSubmit={showOTP ? handleOTPSubmit : handleEmailSubmit} 
           />
         }
+        label="Change Email"
         onCancel={props.onClose}
       />
     );
@@ -101,11 +102,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
-    },
-    heading: {
-        fontFamily: 'Primary-Bold',
-        fontSize: 20,
-        textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

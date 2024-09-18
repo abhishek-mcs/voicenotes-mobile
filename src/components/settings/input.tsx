@@ -1,12 +1,12 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text, Pressable } from "react-native";
 import RecButton from "components/common/recording/rec-button";
 import Colors from "assets/Colors";
+import { commonSvg } from "assets/svg/commonSvg";
+import { SvgXml } from "react-native-svg";
 
 type Props = {
-    submitLabel?: string,
-    cancelLabel?: string,
-    onSubmit?: () => void,
     onCancel: () => void,
+    label?: string,
     component: React.ReactElement
 }
 
@@ -14,25 +14,17 @@ const Input: React.FC<Props> = (props) => {
     return (
         <View style={styles.root}>
             <View style={styles.header}>
-                <View style={styles.action} >
-                    <RecButton
-                        title={props.cancelLabel || "Cancel"}
-                        underlayColor={Colors.blackWithOpacity(0.7)}
-                        style={{ flex: 1, paddingHorizontal: 10 }}
-                        onPress={props.onCancel}
-                    />
+                <Pressable onPress={props.onCancel} style={styles.action} >
+                    <SvgXml xml={commonSvg.back} />
+                </Pressable>
+                <View style={styles.heading} >
+                    <Text style={{
+                        fontFamily: 'Primary-Bold',
+                        fontSize: 20,
+                        textAlign: 'center'
+                    }}>{props.label || ''}</Text>
                 </View>
-                <View style={{ flex: 3 }} />
-                <View style={styles.action} >
-                    {props.onSubmit && <RecButton
-                        title={props.submitLabel || "Save"}
-                        underlayColor={Colors.blackWithOpacity(0.7)}
-                        bgColor="#000"
-                        color="#fff"
-                        style={{ flex: 1, paddingHorizontal: 15 }}
-                        onPress={props.onSubmit}
-                    />}
-                </View>
+                <View style={styles.action} />
             </View>
             <View style={styles.content}>{props.component}</View>
         </View>
@@ -52,6 +44,11 @@ const styles = StyleSheet.create({
         padding: 5,
         flexDirection: 'row',
         justifyContent: 'center'
+    },
+    heading: {
+        flex: 5,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     action: {
         flex: 1,

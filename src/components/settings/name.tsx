@@ -4,21 +4,31 @@ import TextField from "./textfield"
 import { useState, useCallback } from "react"
 import { useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
+import RecButton from "components/common/recording/rec-button"
+import Colors from "assets/Colors"
 
 interface ComponentProps {
     name: string;
     onValueChange: (value: string) => void;
+    onSubmit: () => void
 }
 
-const Component: React.FC<ComponentProps> = ({ name, onValueChange }) => {
+const Component: React.FC<ComponentProps> = ({ name, onValueChange, onSubmit }) => {
     return (
       <View style={styles.root}>
-        <Text style={styles.heading}>Display name</Text>
         <Text style={styles.description}>Your display name is what appears in your VoiceNotes account</Text>
         <TextField
           value={name}
           onValueChange={onValueChange}
           placeholder="Name"
+        />
+        <RecButton
+          title="Save"
+          onPress={onSubmit}
+          underlayColor={Colors.blackWithOpacity(0.7)}
+          style={{ paddingHorizontal: 15 }}
+          bgColor="#000"
+          color="#fff"
         />
       </View>
     );
@@ -39,9 +49,9 @@ const Name: React.FC<Props> = (props) => {
   
     return (
       <Input
-        component={<Component name={name} onValueChange={handleValueChange} />}
+        component={<Component name={name} onValueChange={handleValueChange} onSubmit={() => props.onSubmit(name)} />}
         onCancel={props.onClose}
-        onSubmit={() => props.onSubmit(name)}
+        label="Display name"
       />
     );
 };
@@ -53,11 +63,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
-    },
-    heading: {
-        fontFamily: 'Primary-Bold',
-        fontSize: 20,
-        textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

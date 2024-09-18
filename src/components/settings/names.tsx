@@ -24,9 +24,10 @@ interface ComponentProps {
     defaults?: string[];
     onValueChange: (value: string) => void;
     onNamesChange: (names: string[]) => void;
+    onSubmit: () => void
 }
   
-const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, onNamesChange }) => {
+const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, onNamesChange, onSubmit }) => {
     const [names, setNames] = useState<string[]>(defaults || []);
   
     const addName = useCallback(() => {
@@ -36,6 +37,7 @@ const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, o
         onNamesChange(updatedNames);
         onValueChange(''); // Clear the input field
       }
+      onSubmit();
     }, [value, names, onNamesChange, onValueChange]);
   
     const removeName = useCallback((nameToRemove: string) => {
@@ -46,7 +48,6 @@ const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, o
   
     return (
       <View style={styles.root}>
-        <Text style={styles.heading}>Names to remember</Text>
         <Text style={styles.description}>Add words that are unique to you to avoid misspellings during transcription.</Text>
         <View style={styles.controls}>
           <TextField
@@ -56,7 +57,7 @@ const Component: React.FC<ComponentProps> = ({ value, defaults, onValueChange, o
           />
           <RecButton
             onPress={addName}
-            title="Done"
+            title="Add"
             bgColor="#000"
             color="#fff"
             style={{ paddingHorizontal: 20 }}
@@ -98,13 +99,11 @@ const Names: React.FC<Props> = (props) => {
             defaults={userDetails.settings?.remember_words || []}
             onValueChange={handleValueChange} 
             onNamesChange={handleNamesChange}
+            onSubmit={() => props.onSubmit(namesList)}
           />
         }
         onCancel={props.onClose}
-        onSubmit={() => {
-          props.onSubmit(namesList)
-          props.onClose();
-        }}
+        label="Names to remember"
       />
     );
 };
@@ -117,11 +116,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
-    },
-    heading: {
-        fontFamily: 'Primary-Bold',
-        fontSize: 20,
-        textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",
