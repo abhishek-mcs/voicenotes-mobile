@@ -115,7 +115,26 @@ export async function uploadDP(file: string) {
     return response.data.photo_url
 }
 
-export async function changePassword(oldPasswd: string, newPasswd: string) {
-    // TODO: implement function
-    // call /auth/change-password and return response
+export async function changePassword(newPasswd: string, confirmPasswd: string, firstTime: boolean, oldPasswd?: string) {
+    const payload: {
+      confirm_password: string;
+      new_password: string;
+      old_password?: string;
+      first_time: boolean;
+    } = {
+      confirm_password: confirmPasswd,
+      new_password: newPasswd,
+      first_time: firstTime,
+    };
+  
+    if (oldPasswd !== undefined) {
+      payload.old_password = oldPasswd;
+    }
+
+    try {
+      const response = await axiosApi.post('/auth/change-password', payload);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
 }
