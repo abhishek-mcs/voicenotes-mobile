@@ -1,0 +1,92 @@
+import { settingsSvg } from "assets/svg/settingsSvg"
+import { useRouter } from "expo-router"
+import { SafeAreaView, StyleSheet, View, Text, Pressable } from "react-native"
+import { SvgXml } from "react-native-svg"
+import { isIOS } from "utils/common"
+import { iapSvg } from "assets/svg/iapSvg"
+import { commonSvg } from "assets/svg/commonSvg"
+import Touchable from "components/common/Touchable";
+import { useSelector } from "react-redux"
+import { RootState } from "redux/store/store"
+
+export default () => {
+    const router = useRouter()
+    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
+    
+    return <SafeAreaView style={styles.root}>
+        <View style={styles.close}>
+            <Touchable onPress={() => router.back()} style={{padding:12, alignSelf:'flex-end', marginRight: 2}} activeOpacity={0.6}>
+                <SvgXml xml={settingsSvg.close} width={30} height={30} />
+            </Touchable>
+        </View>
+        <View style={styles.header}>
+            <Text style={styles.heading}>Your plan</Text>
+        </View>
+        <View style={styles.content}>
+            <View style={styles.chip}>
+                <View style={styles.chipLabel}>
+                    <Text style={styles.plan}>{userDetails.subscription_status ? userDetails.subscription_plan : "Free"}</Text>
+                </View>
+                {userDetails.subscription_status && <View style={[styles.chipLabel, { justifyContent: 'flex-end' }]}>
+                    <SvgXml xml={commonSvg.activeTick} />
+                    <Text style={{ color: '#499035', fontFamily: 'Primary-Medium' }}>Active</Text>
+                </View>}
+            </View>
+            {userDetails.subscription_plan !== "Believer" && <Pressable onPress={() => router.push('/premium/')} style={styles.action}>
+                <SvgXml xml={iapSvg.lightning} />
+                <Text style={{ color: '#4285F4', fontFamily: 'Primary-Bold' }} >Upgrade for lifetime</Text>
+            </Pressable>}
+        </View>
+    </SafeAreaView>
+}
+
+const styles = StyleSheet.create({
+    root: { 
+        flex: 1,
+        backgroundColor: '#F2F2F7',
+        paddingTop: isIOS ? 0 : 40 
+    },
+    close: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        width: '100%'
+    },
+    header: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+    },
+    heading: {
+        fontFamily: 'Primary-Bold',
+        fontSize: 20,
+    },
+    content: {
+        flex: 11,
+        alignItems: 'center',
+        paddingHorizontal: 25
+    },
+    chip: {
+        width: '100%',
+        height: 60,
+        borderRadius: 10,
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        marginBottom: 10
+    },
+    chipLabel: {
+        flex: 1,
+        alignItems: 'center',
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        gap: 5
+    },
+    plan: {
+        fontFamily: "Primary-Medium",
+        fontSize: 15,
+    },
+    action: {
+        width: '100%',
+        flexDirection: 'row',
+        gap: 5
+    }
+})
