@@ -16,12 +16,12 @@ interface ComponentProps {
     onDefaultChange: (value: string) => void;
     confirm: string;
     onConfirmChange: (value: string) => void;
-    onSubmit: () => void
 }
 
 const Component: React.FC<ComponentProps> = (props) => {
     return (
       <View style={styles.root}>
+        <Text style={styles.heading}>Change password</Text>
         <Text style={styles.description}>Please choose a strong password to secure your VoiceNotes account</Text>
         {props.isPasswdSet && <TextField
           value={props.old}
@@ -37,14 +37,6 @@ const Component: React.FC<ComponentProps> = (props) => {
           value={props.confirm}
           onValueChange={props.onConfirmChange}
           placeholder="Confirm password"
-        />
-        <RecButton
-          title="Change"
-          onPress={props.onSubmit}
-          underlayColor={Colors.blackWithOpacity(0.7)}
-          style={{ paddingHorizontal: 15 }}
-          bgColor="#000"
-          color="#fff"
         />
       </View>
     );
@@ -77,6 +69,7 @@ const Password: React.FC<Props> = (props) => {
       <Header
         label="Change password"
         onCancel={props.onClose}
+        onSubmit={handleSubmit}
       >
         <Component
           isPasswdSet={userDetails.is_password_set}
@@ -86,7 +79,6 @@ const Password: React.FC<Props> = (props) => {
           onDefaultChange={handleDefaultChange}
           confirm={confirm}
           onConfirmChange={handleConfirmChange}
-          onSubmit={handleSubmit} 
         />
       </Header>
     );
@@ -99,6 +91,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
+    },
+    heading: {
+      fontFamily: 'Primary-Bold',
+      fontSize: 20,
+      textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

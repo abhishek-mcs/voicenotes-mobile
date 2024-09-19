@@ -36,22 +36,16 @@ const Name: React.FC<Props> = (props) => {
     return (
       <Header
         onCancel={props.onClose}
+        onSubmit={handleSubmit}
         label="Display name"
       >
         <View style={styles.root}>
+          <Text style={styles.heading}>Display Name</Text>
           <Text style={styles.description}>Your display name is what appears in your VoiceNotes account</Text>
           <TextField
             value={name}
             onValueChange={value => setName(value)}
             placeholder="Name"
-          />
-          <RecButton
-            title="Save"
-            onPress={handleSubmit}
-            underlayColor={Colors.blackWithOpacity(0.7)}
-            style={{ paddingHorizontal: 15 }}
-            bgColor="#000"
-            color="#fff"
           />
         </View>
       </Header>
@@ -65,6 +59,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
+    },
+    heading: {
+      fontFamily: 'Primary-Bold',
+      fontSize: 20,
+      textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

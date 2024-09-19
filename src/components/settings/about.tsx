@@ -63,22 +63,16 @@ const About: React.FC<Props> = (props) => {
     return (
       <Header
         onCancel={props.onClose}
+        onSubmit={handleSubmit}
         label="About"
       >
         <View style={styles.root}>
+          <Text style={styles.heading}>About</Text>
           <Text style={styles.description}>What would you like your AI to know about you?</Text>
           <TextField
             value={about}
             onValueChange={value => setAbout(value)}
             multiline
-          />
-          <RecButton
-            title="Save"
-            onPress={handleSubmit}
-            underlayColor={Colors.blackWithOpacity(0.7)}
-            style={{ paddingHorizontal: 15 }}
-            bgColor="#000"
-            color="#fff"
           />
         </View>
       </Header>
@@ -92,6 +86,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
+    },
+    heading: {
+      fontFamily: 'Primary-Bold',
+      fontSize: 20,
+      textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

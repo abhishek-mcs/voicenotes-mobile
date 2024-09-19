@@ -20,6 +20,7 @@ interface ComponentProps {
 const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP }) => {
   return (
     <View style={styles.root}>
+      <Text style={styles.heading}>Email</Text>
       <Text style={styles.description}>
         {isOTP ?
           "Enter the OTP you just received in this email address."
@@ -101,6 +102,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
+    },
+    heading: {
+      fontFamily: 'Primary-Bold',
+      fontSize: 20,
+      textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

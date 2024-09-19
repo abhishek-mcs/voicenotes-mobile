@@ -35,15 +35,14 @@ const Names: React.FC<Props> = (props) => {
     const [name, setName] = useState('');
     const [namesList, setNamesList] = useState<string[]>(userDetails.settings?.remember_words || []);
 
-    const updateNames = (names: string[]) => {
+    const updateNames = () => {
       const settings = userDetails.settings;
 
-      setNamesList(names)
-      dispatch(setUserDetail({ ... userDetails, remember_words: names}))
+      dispatch(setUserDetail({ ... userDetails, remember_words: namesList}))
       saveSettings.mutate({
         language: getLanguageCode(lang) || '',
         about: settings?.about,
-        remember_words: names,
+        remember_words: namesList,
         name: userDetails?.name,
         fix_punctuation:settings?.fix_punctuation,
       })
@@ -52,22 +51,24 @@ const Names: React.FC<Props> = (props) => {
     const addName = () => {
       if (name.trim()) {
         const updatedNames = [...namesList, name.trim()];
-        updateNames(updatedNames);
+        setNamesList(updatedNames)
         setName(''); // Clear the input field
       }
     }
   
     const removeName = (nameToRemove: string) => {
       const updatedNames = namesList.filter(name => name !== nameToRemove);
-      updateNames(updatedNames);
+      setNamesList(updatedNames)
     }
   
     return (
       <Header
         onCancel={props.onClose}
+        onSubmit={updateNames}
         label="Names to remember"
       >
         <View style={styles.root}>
+          <Text style={styles.heading}>Names to remember</Text>
           <Text style={styles.description}>Add words that are unique to you to avoid misspellings during transcription.</Text>
           <View style={styles.controls}>
             <TextField
@@ -101,6 +102,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50,
         paddingVertical: 60,
         gap: 10
+    },
+    heading: {
+      fontFamily: 'Primary-Bold',
+      fontSize: 20,
+      textAlign: 'center'
     },
     description: {
         fontFamily: "Primary",

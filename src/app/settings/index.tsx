@@ -106,8 +106,8 @@ export default () => {
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
             {screen || <View style={{ flex: 1 }}>
-              <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
-                  <SvgXml xml={settingsSvg.close} width={24} height={24}  />
+              <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end', marginRight: 2}} activeOpacity={0.6}>
+                  <SvgXml xml={settingsSvg.close} width={30} height={30}  />
               </Touchable>
               <ProfilePic 
                 url={userDetails?.photo_url || ""}
