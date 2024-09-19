@@ -15,23 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C61BC69B2C2EA06F00D2F468"
-               BuildableName = "WatchApp Watch App.app"
-               BlueprintName = "WatchApp Watch App"
-               ReferencedContainer = "container:Voicenotes.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "Voicenotes.app"
-               BlueprintName = "Voicenotes"
+               BlueprintIdentifier = "844941172C9471320040B22F"
+               BuildableName = "Voicenotes Watch App.app"
+               BlueprintName = "Voicenotes Watch App"
                ReferencedContainer = "container:Voicenotes.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -58,9 +44,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C61BC69B2C2EA06F00D2F468"
-            BuildableName = "WatchApp Watch App.app"
-            BlueprintName = "WatchApp Watch App"
+            BlueprintIdentifier = "844941172C9471320040B22F"
+            BuildableName = "Voicenotes Watch App.app"
+            BlueprintName = "Voicenotes Watch App"
             ReferencedContainer = "container:Voicenotes.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -75,9 +61,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C61BC69B2C2EA06F00D2F468"
-            BuildableName = "WatchApp Watch App.app"
-            BlueprintName = "WatchApp Watch App"
+            BlueprintIdentifier = "844941172C9471320040B22F"
+            BuildableName = "Voicenotes Watch App.app"
+            BlueprintName = "Voicenotes Watch App"
             ReferencedContainer = "container:Voicenotes.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

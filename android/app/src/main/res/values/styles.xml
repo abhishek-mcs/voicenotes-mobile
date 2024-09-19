@@ -14,4 +14,9 @@
   <style name="Theme.App.SplashScreen" parent="AppTheme">
     <item name="android:windowBackground">@drawable/splashscreen</item>
   </style>
+  <style name="Widget.VoiceNotesWidget.AppWidget.Container" parent="android:Widget">
+    <item name="android:id">@android:id/background</item>
+    <item name="android:background">?android:attr/colorBackground</item>
+  </style>
+  <style name="Widget.VoiceNotesWidget.AppWidget.InnerView" parent="android:Widget"/>
 </resources>

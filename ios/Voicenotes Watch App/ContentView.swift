@@ -123,9 +123,9 @@ struct ContentView: View {
         }
       }
       
-      RecordAudioView(viewModel: viewModel.initRecordAudioViewModel(), 
+      RecordAudioView(viewModel: viewModel.initRecordAudioViewModel(),
                       cardShown: $viewModel.showRecordView)
-      AIRecordingView(viewModel: viewModel.initAIRecordingViewModel(), 
+      AIRecordingView(viewModel: viewModel.initAIRecordingViewModel(),
                       cardShown: $viewModel.showAIRecordView)
       
       CancelView(cardShown: $viewModel.showCancelView, aprove: { success in

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.41",
+    "version": "1.5.42",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "117",
+      "buildNumber": "118",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -47,7 +47,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 137,
+      "versionCode": 138,
       "googleServicesFile": "./google-services.json"
     },
     "web": {

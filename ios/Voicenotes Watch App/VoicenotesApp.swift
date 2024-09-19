@@ -1,8 +1,8 @@
 //
-//  WatchAppApp.swift
-//  WatchApp Watch App
+//  VoicenotesApp.swift
+//  Voicenotes Watch App
 //
-//  Created by Andriy Hrytsyshyn on 6/6/24.
+//  Created by Andriy Hrytsyshyn on 9/13/24.
 //
 
 import SwiftUI
@@ -31,3 +31,4 @@ struct WatchApp_Watch_AppApp: App {
         NerdzInject.shared.registerObject(AIChatRepository(networkService: networkService))
     }
 }
+

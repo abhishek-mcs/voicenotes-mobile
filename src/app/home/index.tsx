@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Animated,
+  DeviceEventEmitter,
   Easing,
   FlatList,
   KeyboardAvoidingView,
@@ -64,15 +65,17 @@ import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import * as FileSystem from 'expo-file-system';
-
-// const recordSound = require("../../assets/sounds/record.wav");
-const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 import TagButtons from "components/home/tag-buttons";
 import { setHashTags } from "redux/reducers/hashSlice";
 import Streaks from "components/streaks";
+import { NativeEventEmitter, NativeModules } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
+import * as Linking from 'expo-linking';
+
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -87,6 +90,8 @@ const fadeOut = {
 const KeyboardAvoidView:any = KeyboardAvoidingView;
 
 export default () => {
+  const { ActionModule } = NativeModules;
+  const actionEmitter = new NativeEventEmitter(ActionModule);
   const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
   const {hashFilter} = useSelector((state: RootState) => state.hash);
@@ -249,6 +254,146 @@ export default () => {
     },
     [token, dispatch]
   );
+
+  useEffect(() => {
+    const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
+      console.log("React Native: Recording started");
+      setTimeout(() => {
+        onStartRecord({repeat: false, parent_id: recordingParentId});
+      }, 500)
+    });
+
+    const askAISubscription = actionEmitter.addListener('askAI', () => {
+      console.log("React Native: AI asked");
+      setTimeout(() => {
+        onAsk();
+      }, 500)
+    });
+
+    const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
+      console.log("React Native: Search Note started");
+      router.push("/search/");
+    });
+
+    return () => {
+      startRecordSubscription.remove();
+      askAISubscription.remove();
+      searchNoteSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+   
+    QuickActions.setShortcutItems([
+      {
+        type: 'record',
+        title: 'Record',
+        icon: 'record_shortcut',
+        userInfo: {
+          url: 'voicenotes://record', // Optional, only for Android
+        },
+      },
+      
+      {
+        type: 'askAI',
+        title: 'Ask AI',
+        icon: 'ask_shortcut',
+        userInfo: {
+          url: 'voicenotes://ask', // Optional, only for Android
+        },
+      },
+      {
+        type: 'search',
+        title: 'Search',
+        icon: 'search_shortcut',
+        userInfo: {
+          url: 'voicenotes://search', // Optional, only for Android
+        },
+      },
+    ]);
+  
+    QuickActions.popInitialAction()
+      .then((item) => {
+        if (item) {
+          handleShortcutAction(item.type);
+        }
+      })
+      .catch(err => {
+        console.error('Error processing initial action: ', err);
+      });
+  
+      DeviceEventEmitter.addListener("quickActionShortcut", data => {
+        handleShortcutAction(data.type);
+      });
+      
+      return () => {
+        QuickActions.clearShortcutItems();
+        DeviceEventEmitter.removeAllListeners();
+      };
+
+  }, []);
+
+  const handleShortcutAction = (type: string) => {
+    switch (type) {
+      case 'askAI':
+        console.log('Performing action for Ask AI');
+        setTimeout(() => {
+          onAsk();
+        }, 500)
+        break;
+      case 'record':
+        console.log('Performing action for Recording');
+        setTimeout(() => {
+          onStartRecord({repeat: false, parent_id: recordingParentId});
+        }, 500)
+        break;
+      case 'search':
+        console.log('Performing action for Search');
+        router.push("/search/");
+        break;
+      default:
+        console.log('No matching shortcut action');
+    }
+  };
+
+  useEffect(() => {
+    const handleDeepLink = (event: { url: any; }) => {
+      console.log("event: ", event.url);
+
+      switch (event.url) {
+        case 'voicenotes://ask':
+          console.log('Performing action for Ask AI');
+          setTimeout(() => {
+            onAsk();
+          }, 500)
+          break;
+        case 'voicenotes://record':
+          console.log('Performing action for Recording');
+          setTimeout(() => {
+            onStartRecord({repeat: false, parent_id: recordingParentId});
+          }, 500)
+          break;
+        case 'voicenotes://search':
+          console.log('Performing action for Search');
+          setTimeout(() => {
+            router.push("/search/");
+          }, 500)
+          break;
+        default:
+          console.log('No matching shortcut action');
+      }
+    };
+
+    // Add event listener for deep linking
+    Linking.addEventListener('url', handleDeepLink);
+
+    // Handle if the app was opened via a deep link initially
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (recordingQuery.data) {
