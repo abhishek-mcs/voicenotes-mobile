@@ -6,7 +6,6 @@ import { useLogout } from "queries/auth";
 import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollView } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
-import { ScreenWidth } from "@rneui/base";
 import { ReactElement, useEffect, useState } from "react";
 import { languages } from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
@@ -76,26 +75,6 @@ export default () => {
       fix_punctuation:settings?.fix_punctuation,
     })
   }
-
-  const onSelectName = () => {
-    showScreen(<Name onClose={() => showScreen(null)} />)
-  }
-
-  const onSelectAbout = () => {
-    showScreen(<About onClose={() => showScreen(null)} />)
-  }
-
-  const onSelectEmail = () => {
-    showScreen(<Email onClose={() => showScreen(null)} />)
-  }
-
-  const onSelectNames = () => {
-    showScreen(<Names onClose={() => showScreen(null)} />)
-  }
-
-  const onSelectPasswd = () => {
-    showScreen(<Password onClose={() => showScreen(null)} />)
-  }
   
   useEffect(() => {
     if(!!userDetails?.settings?.language){
@@ -129,16 +108,16 @@ export default () => {
               <Grouped 
               title="ACCOUNT"
               items={[
-                  {title:'Name', onPress: onSelectName, value:userDetails?.name||'', rightIcon:settingsSvg.arrow},
-                  {title:'About', onPress: onSelectAbout, value:userDetails?.about||'', rightIcon:settingsSvg.arrow},
-                  {title:'Email',onPress: onSelectEmail, value:userDetails?.email||'', rightIcon:settingsSvg.arrow},
-                  {title:'Change password', onPress: onSelectPasswd, value:'', rightIcon:settingsSvg.arrow}
+                  {title:'Name', onPress: () => showScreen(<Name onClose={() => showScreen(null)} />), value:userDetails?.name||'', rightIcon:settingsSvg.arrow},
+                  {title:'About', onPress: () => showScreen(<About onClose={() => showScreen(null)} />), value:userDetails?.about||'', rightIcon:settingsSvg.arrow},
+                  {title:'Email',onPress: () => showScreen(<Email onClose={() => showScreen(null)} />), value:userDetails?.email||'', rightIcon:settingsSvg.arrow},
+                  {title:'Change password', onPress: () => showScreen(<Password onClose={() => showScreen(null)} />), value:'', rightIcon:settingsSvg.arrow}
               ]}/>
               <Grouped
                 title="APP"
                 items={[
                   {title: 'Language', isMenu:true,data:Object.entries(languages),value:lang,onPressMenu:onSelectLang},
-                  {title:'Names to remember',value:'', onPress: onSelectNames, rightIcon:settingsSvg.arrow}
+                  {title:'Names to remember',value:'', onPress: showScreen(<Names onClose={() => showScreen(null)} />), rightIcon:settingsSvg.arrow}
                 ]} 
               />
               <Grouped 
