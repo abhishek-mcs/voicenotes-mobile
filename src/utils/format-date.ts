@@ -1,6 +1,6 @@
 import { format, isToday, isYesterday } from 'date-fns';
 
-export function formatDateAndTimeNew(date: Date | number): string {
+export const formatDateAndTimeNew=(date: Date | number)=>{
   const inputDate = new Date(date);
   
   if (isToday(inputDate)) {

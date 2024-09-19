@@ -785,6 +785,24 @@ const NotePreview = forwardRef(
         onPress:()=>onDelete()
       }
     ]
+    // :[
+    //   {
+    //     title:"Retry",
+    //     systemIcon:'arrow.clockwise',
+    //     onPress:async()=>await syncUpNote(note).catch(()=>{})
+    //   },
+    //   {
+    //     title:"Download",
+    //     systemIcon:'arrow.down.circle',
+    //     onPress:()=>onCopy(note?.transcript ?? "")
+    //   },
+    //   {
+    //     title:"Delete",
+    //     destructive:true,
+    //     systemIcon:'trash',
+    //     onPress:()=>onDelete(true)
+    //   }
+    // ]
 
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
@@ -952,9 +970,10 @@ const NotePreview = forwardRef(
                   :<SvgXml xml={isPlay == index ? home.pause : home.play} />}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Touchable>
-                <MoreOptions options={options} style={{height:29,paddingHorizontal:12,marginRight:-12,justifyContent:"center",alignItems:'center'}}>
+                {note?.status=="processed"&&
+                  <MoreOptions options={options} style={{height:29,paddingHorizontal:12,marginRight:-12,justifyContent:"center",alignItems:'center'}}>
                   <SvgXml xml={home.moreNew}/>
-                </MoreOptions>
+                </MoreOptions>}
                 </View>
 
                 {expand === index && !isSubnote && (
@@ -1074,7 +1093,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    marginTop: 16,
+    marginTop: 8,
     paddingBottom: 4,
   },
   menu: {
