@@ -48,6 +48,9 @@ import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import { setStringAsync } from "expo-clipboard";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import CreateModal from "components/CreateModal";
+import Swiper from 'react-native-swiper'
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -83,11 +86,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [chatLoader,setChatLoader]=useState(false);
   const [duration,setDuration]=useState(0);
   const [isRecording,setIsRecording]=useState(false);
+  const [selectedIndex,setSelectedIndex]=useState(0);
   const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);
   const [audioLoader,setAudioLoader]=useState(false);
   const soundRef = useRef<any>(null);
   const textInputRef = useRef<TextInput>(null);
+  const swiperRef = useRef<Swiper>(null)
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -319,14 +324,26 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     }
   }, [isRecording,rec]);
 
+  const handleSegmentChange = (index: number) => {
+    setSelectedIndex(index);
+    setTimeout(() => {
+      swiperRef.current?.scrollTo(index, true);
+    }, 0);
+  };
+
   return (
-    <SafeAreaView style={[styles.modalContainer]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)}]}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
         <View style={[styles.header1]}>
           <View
-            style={{ flexDirection: "row", alignItems: "center", width: "25%" ,justifyContent:'flex-end'}}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              width: "25%",
+              justifyContent: "flex-end",
+            }}
           >
-            {chatStarted && (
+            {chatStarted &&selectedIndex==0&& (
               <Touchable
                 onPress={onNewChat}
                 style={{ padding: 4, marginLeft: 12 }}
@@ -338,8 +355,14 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               <SvgXml xml={AIModalSVG.close} />
             </Touchable>
           </View>
-          <Text style={styles.headerText}>Ask AI</Text>
-          <Touchable
+          {/* <Text style={styles.headerText}>Ask AI</Text> */}
+          <SegmentedControl
+            values={["Ask", "Create"]}
+            selectedIndex={selectedIndex}
+            style={{width:132,height:32}}
+            onChange={(event) => handleSegmentChange(event.nativeEvent.selectedSegmentIndex)}
+          />
+          {selectedIndex==0?<Touchable
             onPress={onDrawer}
             style={{
               padding: 4,
@@ -350,8 +373,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
           >
             <SvgXml xml={AIModalSVG.history} />
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
-          </Touchable>
+          </Touchable>:<View style={{width: "25%"}}/>}
         </View>
+        <Swiper ref={swiperRef} showsPagination={false} showsButtons={false} loop={false} onIndexChanged={(i)=>{setSelectedIndex(i)}} >
+        <View style={{flex:1}}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={isIOS ? "padding" : "height"}
@@ -362,7 +387,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                justifyContent: chatStarted ? "flex-end" : "flex-start",paddingVertical:16
+                justifyContent: chatStarted ? "flex-end" : "flex-start",
+                paddingVertical: 16,
               }}
               data={chats?.related_messages || []}
               keyExtractor={(item, index) => `${item?.id}-${index}`}
@@ -446,7 +472,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               }
             />
           ) : (
-            <View style={{ flex:1,justifyContent:'center', alignItems: "center" }}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
@@ -493,7 +525,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     marginLeft: -12,
                     marginTop: 0,
                     justifyContent: "center",
-                    height:97
+                    height: 97,
                   }}
                 >
                   <ChatRecorder
@@ -531,6 +563,11 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             />
           </View>
         </KeyboardAvoidingView>
+        </View>
+        <View style={{flex:1}}>
+        <CreateModal/>
+        </View>
+        </Swiper>
       </View>
     </SafeAreaView>
   );

@@ -99,7 +99,7 @@ export default ({
             title=""
             underlayColor=""
             onPress={onPause}
-            style={{ paddingHorizontal: 12, marginRight: -12 }}
+            style={{ paddingHorizontal: 12, marginRight: -12,borderRadius:16,height:40 }}
           />
         )}
         <RecButton

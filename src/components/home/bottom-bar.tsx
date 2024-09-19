@@ -124,7 +124,7 @@ export default ({
           </View>
         </View>
       )}
-      <View style={styles.tab}>
+      <View style={[styles.tab,isCanceling?styles.alert:{}]}>
         {!recEnabled ? (
           <>
             <RecButton
@@ -241,8 +241,12 @@ const styles = StyleSheet.create({
     elevation: 4,
     paddingHorizontal: "3%",
     paddingVertical: "2%",
-    height:74,
+    // height:74,
     gap:14
+  },
+  alert:{
+    height:'auto',
+    borderRadius:16
   },
   button: {
     flex: 1,

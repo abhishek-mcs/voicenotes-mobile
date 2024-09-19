@@ -6,7 +6,7 @@ import { screenHeight } from "utils/common"
 import { SvgXml } from "react-native-svg"
 import { CreateModalSvg } from "assets/svg/CreateModal"
 
-export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
+export default ({recordingList,fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
     return (
         <View style={{flex:1,height:'auto',marginTop:10}}>
@@ -30,7 +30,7 @@ export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{},s
             )}
             ListEmptyComponent={()=><View style={itemContainer}><Text style={titleStyle}>You don't have any notes to create with.</Text></View>}
             onEndReachedThreshold={50}
-            onEndReached={()=>fetchNextPage()}
+            onEndReached={()=>{}}
             />
         </View>
     )

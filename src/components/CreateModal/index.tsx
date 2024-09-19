@@ -1,4 +1,4 @@
-import { FlatList, Keyboard, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
@@ -16,10 +16,11 @@ import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import listenAiCreate from "func/firebase/listen-ai-create";
 
-export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
+export default forwardRef(({fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
-  const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("note");
+  const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("records");
   const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom'>("summary");
+  const {recordingList} = useSelector((state:RootState)=>state.recordingStates)
   const [result, setResult] = useState({id:recordingList[0]?.id||null,result:null})
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [title, setTitle] = useState("");
@@ -117,26 +118,13 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   const top=isIOS?
       height>690? 74: 108
       :105
-  return (
-    <ReactNativeModal
-      isVisible={visible}
-      animationIn={"fadeInUp"}
-      animationOut={"fadeOutDown"}
-      onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',marginBottom:keyboardShown?10:top}}
-      backdropOpacity={0}
-      hasBackdrop={true}
-      coverScreen={false}
-      // onTouchStart={(e)=>e?.stopPropagation()}
-      swipeDirection={"down"}
-      propagateSwipe={true}
-      onSwipeComplete={onClose}
-    > 
+
+  return ( 
       <View style={[styles.modal,styles[preview]]}>
-          <View style={styles.drag}/>
+          {/* <View style={styles.drag}/> */}
         {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
         {(preview === 'suggestions'||preview === 'records') ?
-        <View style={{height:keyboardShown?screenHeight/2.1:screenHeight/1.4}} onTouchStart={(e)=>e?.stopPropagation()}>
+        <View style={{height:keyboardShown?screenHeight/2.1:screenHeight/1.2}} onTouchStart={(e)=>e?.stopPropagation()}>
           <FlatList
           data={[1]}
           scrollIndicatorInsets={{top:20,bottom:20}}
@@ -159,25 +147,26 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
         <Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }
       </View>
-    </ReactNativeModal>
   );
 });
 
 const styles = StyleSheet.create({
   modal: {
     // justifyContent: "center",
+    flex:1,
+    height:'100%',
     backgroundColor: "#fff",
     borderRadius: 20,
     paddingBottom:0,
-    paddingTop:24,
-    paddingHorizontal:24,
-    shadowColor:"#00000026",
-		shadowOpacity: 0.9,
-		shadowOffset: { width: 0, height:0.5 },
-		shadowRadius: 1.5,
-    zIndex:10,
-		elevation: 2,
-    height:screenHeight/1.4
+    paddingTop:0,
+    paddingHorizontal:0,
+    // shadowColor:"#00000026",
+		// shadowOpacity: 0.9,
+		// shadowOffset: { width: 0, height:0.5 },
+		// shadowRadius: 1.5,
+    // zIndex:10,
+		// elevation: 2,
+    // height:screenHeight/1.4
   },
   heading:{
       fontSize:16,
@@ -186,7 +175,7 @@ const styles = StyleSheet.create({
       paddingHorizontal:0,
       marginTop:12
   },
-  suggestions:{height:'auto',paddingTop:16,paddingHorizontal:0},
+  suggestions:{height:'auto',paddingTop:0,paddingHorizontal:0},
   records:{},
   note:{paddingHorizontal:0,paddingTop:16},
   loader:{justifyContent:'flex-start',paddingTop:16,paddingLeft:28},
@@ -196,8 +185,8 @@ const styles = StyleSheet.create({
 });
 
 export interface createModalProps{
-  recordingList:any[],
-  fetchNextPage:()=>void,
+  recordingList?:any[],
+  fetchNextPage?:()=>void,
   onSelect?:(id:number,v:string)=>void
   title?:string
   setHideBg?:(v:boolean)=>void
