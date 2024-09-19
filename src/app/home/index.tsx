@@ -650,7 +650,7 @@ export default () => {
                   </View>)
               :<Animated.FlatList
               ref={scrollRef}
-              ListHeaderComponent={()=><TagButtons hashFilter={hashFilter}/>}
+              ListHeaderComponent={()=>recordingList?.length>0?<TagButtons hashFilter={hashFilter}/>:null}
               // bounces={false}
               style={{ opacity: hideBackground ? 0 : 1, marginTop: 12 }}
               data={recordingList}

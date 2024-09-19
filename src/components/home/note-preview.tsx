@@ -612,7 +612,7 @@ const NotePreview = forwardRef(
             // setRetryLoader(false);
           },
           icon: home.repeat,
-          isLoading: retryLoader,
+          isLoading: !note?.status?.includes('failed'),
         },
         ...intermediateButtons,
       ];
