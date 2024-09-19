@@ -16,7 +16,7 @@ struct iOSWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
       iOSWidgetEntryView(entry: entry)
-        .containerBackground(.fill.tertiary, for: .widget)
+        .containerBackground(.windowBackground, for: .widget)
     }
     .supportedFamilies([.systemSmall, .systemMedium])
     .configurationDisplayName("Voicenote widgets")
@@ -70,7 +70,7 @@ struct iOSWidgetEntryView: View {
           askButton
         }
       }
-      default: Text("Not implemented!")
+    default: Text("Not implemented!")
     }
   }
   
@@ -83,10 +83,12 @@ struct iOSWidgetEntryView: View {
         HStack(spacing: 5) {
           Spacer(minLength: .zero)
           Image("cloud")
+            .resizable()
+            .frame(width: 20, height: 20)
           Text("Ask")
             .font(.custom("SF Pro Rounded Semibold", size: 16))
             .multilineTextAlignment(.center)
-            .foregroundStyle(.black)
+            .foregroundStyle(Color("askAIText"))
           Spacer(minLength: .zero)
         }
         Spacer(minLength: .zero)
@@ -116,7 +118,7 @@ struct iOSWidgetEntryView: View {
           Text("Record")
             .font(.custom("SF Pro Rounded Semibold", size: 16))
             .multilineTextAlignment(.center)
-            .foregroundStyle(Color("recordText"))
+            .foregroundStyle(Color.white)
           Spacer(minLength: .zero)
         }
         Spacer(minLength: .zero)
@@ -140,7 +142,7 @@ struct iOSWidgetEntryView: View {
           Text("Search notes")
             .font(.custom("SF Pro Rounded Medium", size: 18))
             .multilineTextAlignment(.center)
-            .foregroundStyle(Color.black)
+            .foregroundStyle(Color("searchText"))
           Spacer(minLength: .zero)
         }
         Spacer(minLength: .zero)
