@@ -1,9 +1,9 @@
 <resources>
-    <color name="grey_default_container">#2a2a2a</color>
-    <color name="ask_btn">#494949</color>
-    <color name="record_btn">#808080</color>
-    <color name="search_btn">#494949</color>
-    <color name="record_text">#D9D9D9</color>
-    <color name="search_ask_text">#d9d9d9</color>
-    <color name="container_color">#2A2A2A</color>
+  <color name="grey_default_container">#2a2a2a</color>
+  <color name="ask_btn">#494949</color>
+  <color name="record_btn">#808080</color>
+  <color name="search_btn">#494949</color>
+  <color name="record_text">#D9D9D9</color>
+  <color name="search_ask_text">#d9d9d9</color>
+  <color name="container_color">#2A2A2A</color>
 </resources>
