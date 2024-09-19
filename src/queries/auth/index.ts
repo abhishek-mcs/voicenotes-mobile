@@ -1,6 +1,7 @@
 import { useNetInfo } from "@react-native-community/netinfo";
 import axios from "axios";
 import { useRouter } from "expo-router";
+import { Alert } from "react-native";
 import { useMutation, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { setToken } from "redux/reducers/userDetails";
@@ -79,4 +80,57 @@ export function useCheckEmail(){
     return useMutation("check_email", (p?:any)=>{
         return axios.post(API_URL+"/api/auth/check-email",p)
     })
+}
+
+export async function uploadDP(file: string) {
+    const formData = new FormData();
+    const filename = file.split('/').pop();
+
+    if(!filename) {
+        Alert.alert('Unknown file', "VoiceNotes couldn't infer the filename of this photo. Please select another one.")
+        return
+    }
+
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : `image`;
+
+    formData.append('image', {
+        uri: file,
+        name: filename,
+        type,
+    } as any);
+
+    const response = await axiosApi.post('/profile/profile_picture/', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    if(!response.data.photo_url) throw new Error(`Unexpected response from API! Full response was ${response.data}`)
+    
+    return response.data.photo_url
+}
+
+export async function changePassword(newPasswd: string, confirmPasswd: string, firstTime: boolean, oldPasswd?: string) {
+    const payload: {
+      confirm_password: string;
+      new_password: string;
+      old_password?: string;
+      first_time: boolean;
+    } = {
+      confirm_password: confirmPasswd,
+      new_password: newPasswd,
+      first_time: firstTime,
+    };
+  
+    if (oldPasswd !== undefined) {
+      payload.old_password = oldPasswd;
+    }
+
+    try {
+      const response = await axiosApi.post('/auth/change-password', payload);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
 }

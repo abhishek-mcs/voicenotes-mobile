@@ -2,6 +2,8 @@ import { Dimensions } from "react-native";
 import { Platform } from "react-native";
 import axiosApi from "services/api/axios-api";
 import * as FileSystem from 'expo-file-system';
+import { Language } from "types";
+import { languages } from "./constants/languages";
 
 
 export function capitalizeFirstLetter(string: string) {
@@ -74,3 +76,5 @@ export async function checkFileExists(filePath: string) {
 }
 
 
+export const getLanguageCode = (languageName: string): Language | undefined =>
+    Object.entries(languages).find(([_, value]) => value === languageName)?.[0] as Language | undefined;
