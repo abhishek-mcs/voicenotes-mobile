@@ -1,6 +1,4 @@
-import { StyleSheet, View, Text, Pressable } from "react-native";
-import { commonSvg } from "assets/svg/commonSvg";
-import { SvgXml } from "react-native-svg";
+import { StyleSheet, View } from "react-native";
 import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
 
@@ -20,7 +18,7 @@ const Header: React.FC<Props> = (props) => {
                 <View style={styles.action} >
                     <RecButton
                         title={props.cancelLabel || "Cancel"}
-                        underlayColor={Colors.blackWithOpacity(0.7)}
+                        underlayColor={Colors.blackWithOpacity(0.2)}
                         style={{ flex: 1, paddingHorizontal: 10 }}
                         onPress={props.onCancel}
                     />
