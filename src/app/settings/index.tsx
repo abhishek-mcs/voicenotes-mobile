@@ -1,7 +1,7 @@
 import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { useLogout } from "queries/auth";
 import { SafeAreaView, Text, TouchableHighlight, View,Alert, StyleSheet, ScrollView } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -27,6 +27,8 @@ import ProfilePic from "components/settings/profilepic";
 
 export default () => {
   const router = useRouter();
+  const navigation = useNavigation()
+
   const logout=useLogout()
   const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
   const settings:any=userDetails.settings
@@ -102,6 +104,15 @@ export default () => {
       dispatch(setLang(languages['']))
     }
   },[userDetails?.settings])
+
+  useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+        e.preventDefault();
+        
+        if(screen !== null) showScreen(null)
+        else navigation.dispatch(e.data.action);
+    });
+  }, [])
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'#F2F2F7',paddingTop:isIOS?0:40}}>
