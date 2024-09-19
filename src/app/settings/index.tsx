@@ -15,9 +15,9 @@ import { isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setLang } from "redux/reducers/userDetails";
-import { setRecordingList } from "redux/reducers/recordingStates";
 import { useQueryClient } from "react-query";
 import { currentVersion } from "services/api/api-constants";
+import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 
 export default () => {
     const router = useRouter();
@@ -37,8 +37,7 @@ export default () => {
     },{
       text:"Yes",
       onPress:async()=>{
-        queryClient.clear()
-        dispatch(setRecordingList([]))
+        dispatch(setTempIsIAPPurchased(false))
         router?.back();
         await logout.mutateAsync('').catch(()=>{})
     }

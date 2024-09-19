@@ -35,11 +35,11 @@ export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=fa
 
 const styles = StyleSheet.create({
     main:{
-        height:32,justifyContent:'center',
-        paddingHorizontal:10,
-        borderRadius:12,
+        height:34,justifyContent:'center',
+        paddingHorizontal:9,
+        borderRadius:10,
         backgroundColor:Colors.whiteWithOpacity(1),
-        marginHorizontal:4,
+        marginRight:6,
         shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,1)',
         shadowOffset:{width:0,height:1},
         shadowOpacity:0.15,
@@ -48,5 +48,5 @@ const styles = StyleSheet.create({
         elevation:2,
     },
     row:{flexDirection:'row',alignItems:'center',justifyContent:'center'},
-    text:{marginLeft:6,fontSize:14,color:'#0D0D0D',fontFamily:'Primary-Medium'}
+    text:{marginLeft:4,fontSize:13,color:'#0D0D0D',fontFamily:'Primary-Medium'}
 })
