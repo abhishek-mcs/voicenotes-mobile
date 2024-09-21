@@ -594,6 +594,7 @@ export default () => {
       const temporaryRecordingId = Math.random().toString(36).substring(7);
       const newTemporaryRecording: NewNote = {
         id: temporaryRecordingId,
+        temp_id:temporaryRecordingId,
         audio: { data: { url: uri, duration } },
         isUploading: true,
         title: `New Recording`,
@@ -697,7 +698,7 @@ export default () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await recordingQuery.refetch();
+    await recordingQuery.refetch().catch(()=>{});
     // setIsPlay(-1)
     // setPlay(null)
     setRefreshing(false);

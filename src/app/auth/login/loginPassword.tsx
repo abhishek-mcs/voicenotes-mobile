@@ -27,6 +27,7 @@ import GoogleAuthButton from "components/auth/google-auth-button";
 import { analytics } from "../../../../firebaseConfig";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { setRecordingList } from "redux/reducers/recordingStates";
+import appsFlyer from "react-native-appsflyer";
 
 export default () => {
   const router = useRouter();
@@ -78,6 +79,7 @@ export default () => {
             router.dismissAll();
             router.replace("/home/");
             analytics().logEvent('sign_in_success').catch(()=>{})
+            appsFlyer.logEvent('af_login',{value:'af_success'})
           }
         },
         onError: (error: any) => {

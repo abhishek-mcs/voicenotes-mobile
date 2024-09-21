@@ -21,6 +21,7 @@ import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import useFBEventTracking from "hooks/fbsdk/useFBEventTracking"
 import { StatusBar } from "react-native"
+import appsFlyer from "react-native-appsflyer"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -32,8 +33,6 @@ export default () => {
   const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
-
-  useFBEventTracking()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
@@ -47,6 +46,7 @@ export default () => {
         queryClient.resetQueries('user-data')
         router.replace("/home/");
         analytics().logEvent('social_sign_in_success').catch(e=>{})
+        appsFlyer.logEvent('social_login',{value:'success'})
       }
     }
   }
@@ -60,6 +60,7 @@ const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuth
 const loginGoogle=signInWithGoogle()
 const signInGoogle=(token:any,params:any)=>{
   analytics().logEvent('google_sign_in_clicked').catch(e=>{})
+  appsFlyer.logEvent('google_sign_in_clicked',{value:'google_sign_in_initiate'})
   const {code,state,prompt,authuser,scope}=params
   loginGoogle.mutate({
     access_token:token,
@@ -109,6 +110,7 @@ const signInGoogle=(token:any,params:any)=>{
       if (credential.email) dispatch(setEmail(credential.email))
       signInAppleAPI(credential?.identityToken)
       analytics().logEvent('apple_sign_in_clicked').catch(e=>{})
+      appsFlyer.logEvent('apple_sign_in_clicked',{value:'apple_login_initiate'})
       // signed in
     } catch (e:any) {
       if (e?.code === "ERR_CANCELED") {

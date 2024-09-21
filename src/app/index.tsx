@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import * as WebBrowser from 'expo-web-browser';
 import { InteractionManager, LogBox, Platform, StatusBar, UIManager } from 'react-native';
+import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 
 LogBox.ignoreLogs(['Require cycle: src']);
 LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new']);
@@ -42,6 +43,8 @@ export default function App() {
     ...FontAwesome.font,
   });
   
+  useFBEventTracking()
+
   useEffect(() => {
     WebBrowser.warmUpAsync();
     // InteractionManager.runAfterInteractions(()=>{

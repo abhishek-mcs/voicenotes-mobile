@@ -10,13 +10,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    // "splash": {
-    //   "ios": {
-    //     "image": "./src/assets/images/splash.png",
-    //     "backgroundColor": "#E03A3C",
-    //     "resizeMode": "cover"
-    //   }
-    // },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
@@ -102,7 +95,8 @@
           "userTrackingPermission": "Voicenotes require event tracking to improve app performance and enhance your user experience."
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      ["react-native-appsflyer",{}]
     ],
     "experiments": {
       "typedRoutes": true,

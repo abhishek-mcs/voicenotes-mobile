@@ -13,6 +13,7 @@ import { commonSvg } from "assets/svg/commonSvg"
 import { isIOS } from "utils/common"
 import { useCheckEmail } from "queries/auth"
 import { analytics } from "../../../../firebaseConfig"
+import appsFlyer from "react-native-appsflyer"
 
 
 export default ()=> {
@@ -107,6 +108,7 @@ export default ()=> {
             suppressHighlighting={true}
               onPress={() => {
                 analytics().logEvent('sign_up_redirected').catch(e=>{})
+                appsFlyer.logEvent('signup_redirected',{value:'signup_redirected'})
                 router.push("/auth/signup/")
               }}
               style={{color:'red',fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}

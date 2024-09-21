@@ -7,7 +7,7 @@ import { MAX_NOTES_STORAGE_LIMIT_IN_DEVICE } from "services/api/api-constants";
 export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
   let finalList: Note[] = [];
   const existingIds = new Set(existing.map((note) => note.id));
-  const offlineList:any = existing.filter((note) => note.status?.includes("failed")||note.status=="uploading").reduce((acc: any[], current) => {
+  let offlineList:any = existing.filter((note) => note.status?.includes("failed")||note.status=="uploading").reduce((acc: any[], current) => {
     const x = acc.find(item => item.id === current.id);
     if (!x) {
       return acc.concat([current]);
@@ -47,15 +47,43 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
   let sortedList = modifiedRecords.sort(
     (a, b) => b.recorded_at - a.recorded_at
   );
-  if(offlineList.length>0)
-    sortedList=[...offlineList,...sortedList].reduce((acc: any[], current) => {
-      const x = acc.find(item => item.id === current.id);
-      if (!x) {
-        return acc.concat([current]);
+
+  if(offlineList.length>0){
+    offlineList=offlineList.sort(
+      (a:any, b:any) => b.recorded_at - a.recorded_at
+    );
+    sortedList = [...offlineList, ...sortedList].reduce((acc: any[], current) => {
+      if (current.temp_id) {
+        // This is an offline item
+        const existingTempIndex = acc.findIndex(item => item.temp_id === current.temp_id);
+        if (existingTempIndex === -1) {
+          // If not found, add it to the accumulator
+          // If not found by temp_id, check by id
+          const existingIdIndex = acc.findIndex(item => item.id === current.id);
+          if (existingIdIndex === -1) {
+            // If not found by id either, add it to the accumulator
+            return [...acc, current];
+          } else {
+            // If found by id, keep the existing item (which would be from offlineList)
+            return acc;
+          }
+        } else {
+          // If found, keep the existing item (which would be from offlineList)
+          return acc;
+        }
       } else {
-        return acc;
+        // This is a regular item from sortedList
+        const existingIndex = acc.findIndex(item => item.id === current.id);
+        if (existingIndex === -1) {
+          // If not found in offline items, add it
+          return [...acc, current];
+        } else {
+          // If found, keep the offline version
+          return acc;
+        }
       }
     }, []);
+  }
   return sortedList;
 };
 

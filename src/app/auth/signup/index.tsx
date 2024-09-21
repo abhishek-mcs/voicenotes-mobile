@@ -22,6 +22,7 @@ import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
 import { analytics } from "../../../../firebaseConfig";
+import appsFlyer from "react-native-appsflyer";
 
 export default () => {
   const router = useRouter();
@@ -53,6 +54,7 @@ export default () => {
         onSuccess: async (response: any, _variables: any, _context: any) => {
           analytics().logEvent('sign_up_initiated').catch(e=>{})
             router.push({pathname:"/auth/signup/otp-screen",params:{email:emailText,password:passwordText,name:name}});
+            appsFlyer.logEvent('signup_initiated',{value:'success'})
         },
         onError: (error: any) => {
           console.log(error)

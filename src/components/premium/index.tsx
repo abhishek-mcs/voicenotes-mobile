@@ -19,6 +19,7 @@ import { analytics } from "../../../firebaseConfig"
 import { commonSvg } from "assets/svg/commonSvg"
 import { AppEventsLogger } from "react-native-fbsdk-next"
 import { ImageBackground } from "expo-image"
+import appsFlyer from "react-native-appsflyer"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
@@ -68,6 +69,9 @@ export default (props:any) => {
                 ? "monthly_subscription_success"
                 : "lifetime_purchase_success"
             )
+            appsFlyer.logEvent(selected == "monthly"
+              ? "monthly_subscription_success"
+              : "lifetime_purchase_success",{value:selected == "monthly"?pack[1]?.product?.priceString??"$10":pack[0]?.product?.priceString??"$50"})
             AppEventsLogger.logPurchase(
               selected == "monthly"
                 ? pack[1]?.product?.price || 10

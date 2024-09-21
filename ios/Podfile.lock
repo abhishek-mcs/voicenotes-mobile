@@ -1,4 +1,7 @@
 PODS:
+  - AppsFlyerFramework (6.15.1):
+    - AppsFlyerFramework/Main (= 6.15.1)
+  - AppsFlyerFramework/Main (6.15.1)
   - boost (1.83.0)
   - DoubleConversion (1.1.6)
   - EASClient (0.11.2):
@@ -1177,6 +1180,9 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
+  - react-native-appsflyer (6.15.1):
+    - AppsFlyerFramework (= 6.15.1)
+    - React
   - react-native-audio-waveform (2.0.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1498,6 +1504,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
   - "react-native-audio-waveform (from `../node_modules/@simform_solutions/react-native-audio-waveform`)"
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
@@ -1541,6 +1548,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AppsFlyerFramework
     - FBAEMKit
     - FBSDKCoreKit
     - FBSDKCoreKit_Basics
@@ -1703,6 +1711,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-appsflyer:
+    :path: "../node_modules/react-native-appsflyer"
   react-native-audio-waveform:
     :path: "../node_modules/@simform_solutions/react-native-audio-waveform"
   react-native-context-menu-view:
@@ -1785,6 +1795,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  AppsFlyerFramework: 375c63ff47da664031d2723947867caf0205058c
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   EASClient: a42ee8bf36c93b3128352faf2ae49405ab4f80bd
@@ -1873,6 +1884,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: d81d930c1b7f4db284e1d721fe7fdc99230ca108
+  react-native-appsflyer: 84e6e37fe91b8ec22875bd10a50fb8baf9434567
   react-native-audio-waveform: 30d8dc7d9d4ed0436c85e6ccc22360d82f4d37cb
   react-native-context-menu-view: 30915369a9b5887904c571b616653acf3f1c8edb
   react-native-fbsdk-next: 84746ea062dc3b1a422154d7674ba4c5836b6d82
@@ -1921,6 +1933,6 @@ SPEC CHECKSUMS:
   sqlite3: f163dbbb7aa3339ad8fc622782c2d9d7b72f7e9c
   Yoga: 805bf71192903b20fc14babe48080582fee65a80
 
-PODFILE CHECKSUM: 8dfdc05f380dbf29061c5faeaf5d6a4897d6323c
+PODFILE CHECKSUM: 9ec409c464f779f9633012b410a9583cabb1e64d
 
 COCOAPODS: 1.15.2
