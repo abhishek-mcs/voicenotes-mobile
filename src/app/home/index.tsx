@@ -787,16 +787,17 @@ export default () => {
             {recordingList?.length == 0 && (recordingQuery.isFetching||recordingQuery?.isLoading||recordingQuery?.isRefetching) ? (
                   <View
                     style={{
-                      height: height-250,
+                      height: height-500,
                       justifyContent: "center",
                       alignItems: "center",
+                      marginTop:100
                     }}
                   >
                     <CircularLoader strokeWidth={3} />
                   </View>)
               :<Animated.FlatList
               ref={scrollRef}
-              ListHeaderComponent={()=>recordingList?.length>0?<TagButtons hashFilter={hashFilter}/>:null}
+              ListHeaderComponent={()=><TagButtons hashFilter={hashFilter}/>}
               // bounces={false}
               style={{ opacity: hideBackground ? 0 : 1, marginTop: 12 }}
               data={recordingList}
@@ -838,7 +839,7 @@ export default () => {
                       backgroundColor: Colors.darkWithOpacity(0.05),
                       paddingHorizontal: 24,
                       paddingVertical: 12,
-                      borderRadius: 12,
+                      // borderRadius: 12,
                       marginTop: 20,
                     }}
                   >
@@ -886,12 +887,12 @@ export default () => {
               }
             />}
           </View>
-          <CreateModal
+          {/* <CreateModal
             ref={CreateModalRef}
             recordingList={recordingList}
             fetchNextPage={fetchNextPage}
             setHideBg={setHideBg}
-          />
+          /> */}
           {/* <AIModal ref={AIModalRef} setHideBg={setHideBg} /> */}
 
         {/* streak modal */}
