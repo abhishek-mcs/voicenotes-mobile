@@ -219,7 +219,7 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
