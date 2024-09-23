@@ -45,6 +45,14 @@ export default function Layout() {
                 name="edit-note/index"
                 options={{ presentation: "fullScreenModal" }}
               />
+              <Stack.Screen
+                name="ask/index"
+                options={{ animation: "none" }}
+              />
+              <Stack.Screen
+                name="record/index"
+                options={{ animation: "none" }}
+              />
             </Stack>
           </AppProvider>
         </BottomSheetModalProvider>

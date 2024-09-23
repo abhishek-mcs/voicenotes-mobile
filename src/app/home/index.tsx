@@ -34,7 +34,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
 import * as Animatable from "react-native-animatable";
 // import AskMeSomething from "components/ask-me-something";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
@@ -69,6 +69,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
+import { useLocalSearchParams } from "expo-router";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -118,6 +119,8 @@ export default () => {
   );
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const relatedNotes = useGetRelatedRecording();
+  const { action } = useLocalSearchParams();
+  // const action = useMemo(() => params?.action, [params?.action]);
 
   const bannerRef = useRef<any>(null);
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
@@ -320,43 +323,50 @@ export default () => {
   };
 
   useEffect(() => {
-    const handleDeepLink = (event: { url: any; }) => {
-      console.log("event: ", event.url);
-
-      switch (event.url) {
-        case 'voicenotes://ask':
-          console.log('Performing action for Ask AI');
+    console.log(action);
+    const actionName = (action || '').split('-')[0]
+      switch (actionName) {
+        case 'ask':
+          if (recEnabled) break; 
           setTimeout(() => {
             onAsk();
-          }, 500)
+          }, 500);
           break;
-        case 'voicenotes://record':
-          console.log('Performing action for Recording');
+        case 'record':
+          if (recEnabled) break; 
           setTimeout(() => {
             onStartRecord({repeat: false, parent_id: recordingParentId});
           }, 500)
           break;
-        case 'voicenotes://search':
-          console.log('Performing action for Search');
-          setTimeout(() => {
-            router.push("/search/");
-          }, 500)
-          break;
-        default:
-          console.log('No matching shortcut action');
       }
-    };
 
-    // Add event listener for deep linking
-    Linking.addEventListener('url', handleDeepLink);
+    // const handleDeepLink = (event: { url: any; }) => {
+    //   console.log("event: ", event.url);
 
-    // Handle if the app was opened via a deep link initially
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        handleDeepLink({ url });
-      }
-    });
-  }, []);
+    //   switch (event.url) {
+    //     case 'voicenotes://ask':
+    //       console.log('Performing action for Ask AI');
+    //       setTimeout(() => {
+    //         onAsk();
+    //       }, 500)
+    //       break;
+    //     case 'voicenotes://record':
+    //       console.log('Performing action for Recording');
+    //       setTimeout(() => {
+    //         onStartRecord({repeat: false, parent_id: recordingParentId});
+    //       }, 500)
+    //       break;
+    //     case 'voicenotes://search':
+    //       console.log('Performing action for Search');
+    //       setTimeout(() => {
+    //         router.push("/search/");
+    //       }, 500)
+    //       break;
+    //     default:
+    //       console.log('No matching shortcut action');
+    //   }
+    // };
+  }, [action]);
 
   useEffect(() => {
     if (recordingQuery.data) {
@@ -438,7 +448,7 @@ export default () => {
 
   const onAsk = () => {
     CreateModalRef.current?.close();
-    AIModalRef.current?.toggle();
+    AIModalRef.current?.open();
     AIModalRef.current?.getNewSugg();
   };
   const onCreate = () => {
