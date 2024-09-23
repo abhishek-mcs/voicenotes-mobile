@@ -53,16 +53,11 @@ class VoiceNotesWidget : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.voice_notes_widget)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            setColorsForWidgets(views, context)
-        }
         setupWidgetButtons(context, views)
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun createRemoteViews(context: Context, size: SizeF): RemoteViews {
-        Log.d("RomaTag", "width : ${size.width}")
-        Log.d("RomaTag", "height : ${size.height}")
         val layoutId = when {
             size.width >= 350f && size.height >= 210f -> R.layout.voice_notes_widget
             size.width >= 280f && size.height >= 210f -> R.layout.voice_notes_widget_medium
