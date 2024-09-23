@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
+import { isIOS } from "utils/common";
 
 type Props = {
     onCancel: () => void,
@@ -55,12 +56,12 @@ const styles = StyleSheet.create({
     },
     action: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         paddingVertical: 10,
-        paddingHorizontal: 5,
+        paddingHorizontal: 10,
     },
     content: {
-        flex: 12,
+        flex: isIOS ? 10 : 8,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center'
