@@ -103,6 +103,13 @@
 			remoteGlobalIDString = 84B6538B2C907F2F00E1BADE;
 			remoteInfo = iOSWidgetExtension;
 		};
+		C65E76992CA1458B006DDBEA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 844941172C9471320040B22F;
+			remoteInfo = "Voicenotes Watch App";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -619,6 +626,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				C65E769A2CA1458B006DDBEA /* PBXTargetDependency */,
 				84B6539E2C907F3000E1BADE /* PBXTargetDependency */,
 			);
 			name = Voicenotes;
@@ -1037,6 +1045,11 @@
 			target = 84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */;
 			targetProxy = 84B6539D2C907F3000E1BADE /* PBXContainerItemProxy */;
 		};
+		C65E769A2CA1458B006DDBEA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 844941172C9471320040B22F /* Voicenotes Watch App */;
+			targetProxy = C65E76992CA1458B006DDBEA /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1179,10 +1192,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1250,10 +1260,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

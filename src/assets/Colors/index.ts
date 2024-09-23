@@ -27,6 +27,7 @@ export default {
   grey2WithOpacity: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
   greenWithOpacity: (opacity:number) => `rgba(88, 169, 66, ${opacity})`,
   green3WithOpacity:(opacity:number) => `rgba(14, 57, 52, ${opacity})`,
+  green4WithOpacity: (opacity:number) => `rgba(110, 217, 64, ${opacity})`,
   grey4WithOpacity:(opacity:number) => `rgba(221, 221, 221, ${opacity})`,
   grey5WithOpacity:(opacity:number) => `rgba(rgba(60, 60, 67, ${opacity})`,
   grey:'#9b9b9b',

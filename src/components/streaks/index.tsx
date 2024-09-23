@@ -46,11 +46,11 @@ export default forwardRef(({ data = null }: Props, ref) => {
   const containerRef = useRef<View>(null);
 
   const getOpacity = (count: number) => {
-    if (count === 0) return Colors.primaryWithOpacity(0.1);
-    if (count === 1) return Colors.primaryWithOpacity(0.25);
-    if (count === 2) return Colors.primaryWithOpacity(0.5);
-    if (count === 3) return Colors.primaryWithOpacity(0.75);
-    return Colors.primaryWithOpacity(1);
+    if (count === 0) return Colors.green4WithOpacity(0.1);
+    if (count === 1) return Colors.green4WithOpacity(0.25);
+    if (count === 2) return Colors.green4WithOpacity(0.5);
+    if (count === 3) return Colors.green4WithOpacity(0.75);
+    return Colors.green4WithOpacity(1);
   };
 
   const showTooltip = (item: any, event: any) => {
@@ -118,21 +118,21 @@ export default forwardRef(({ data = null }: Props, ref) => {
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"fadeInDown"}
-      animationOut={"fadeOut"}
-      animationInTiming={140}
-      animationOutTiming={150}
+      animationIn={"zoomInUp"}
+      animationOut={"zoomOutUp"}
+      animationInTiming={130}
+      animationOutTiming={100}
       hideModalContentWhileAnimating={true}
       onBackdropPress={onClose}
-      style={{ justifyContent: "flex-start" ,position:'relative',top:10}}
+      style={{ justifyContent: "flex-start" ,position:'relative',top:-6}}
       backdropOpacity={0}
       avoidKeyboard
       hasBackdrop={true}
       coverScreen={false}
       // onTouchStart={(e)=>{console.log(e?.nativeEvent.pageX,'hello')}}
     ><View style={{position:'relative'}}>
-     <View style={[styles.shadow,{width:10,height:10,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:12,right:60}]}/>
-     <View style={[styles.shadow,{width:20,height:20,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:25,right:65}]}/>
+     {/* <View style={[styles.shadow,{width:10,height:10,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:12,right:60}]}/>
+     <View style={[styles.shadow,{width:20,height:20,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:25,right:65}]}/> */}
         <View ref={containerRef} style={[styles.modal, styles.shadow]} onTouchStart={()=>{hideTooltip()}}>
           <Text
             style={{
@@ -140,12 +140,15 @@ export default forwardRef(({ data = null }: Props, ref) => {
               fontFamily: "Primary",
               color: "#222",
               marginBottom: 12,
+              textAlign:'left',
+              width:'100%',
+              marginLeft:18.5
             }}
           >
             You rank {data?.rank} out of {data?.total_users} note-takers
           </Text>
-          <View>
-            <View style={{ flexDirection: "row" }}>
+          <View style={{width:'97%',alignItems:'center'}}>
+            <View style={{ flexDirection: "row",justifyContent:'flex-start',width:'102%',marginLeft:18.5,marginBottom:4 }}>
               {previousMonths?.map((itm: any, i: number) => (
                 <Text
                   key={i}
@@ -153,7 +156,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
                     fontSize: 10,
                     color: Colors.grey,
                     fontFamily: "Primary",
-                    marginRight: 29,
+                    marginRight: 31,
                   }}
                 >
                   {itm}
@@ -164,7 +167,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
               {data?.weeks?.map((c: any, cIndex: number) => (
                 <View key={cIndex+Math?.random()} style={{marginRight:2}}>
                   {c?.map((itm:any, rIndex:number) => (
-                    <View onTouchStart={(e)=>showTooltip(itm,e)} style={{backgroundColor:getOpacity(itm?.recordings_count),width:11,height:11,borderRadius:2,marginBottom:2}} key={rIndex}/>
+                    <View onTouchStart={(e)=>showTooltip(itm,e)} style={{backgroundColor:getOpacity(itm?.recordings_count),width:12,height:12,borderRadius:2,marginBottom:2}} key={rIndex}/>
                   ))}
                 </View>
               ))}
@@ -184,22 +187,22 @@ const styles = StyleSheet.create({
   modal: {
     backgroundColor: "#fff",
     borderRadius: 20,
-    paddingVertical: 20,
+    paddingVertical: 10,
     justifyContent: "center",
     alignItems: "center",
-    width: "100%",
+    width: "105%",
     alignSelf: "center",
     zIndex: 10000,
     top: 35,
     position:'relative'
   },
   shadow: {
-    shadowColor: "#000000",
-    shadowOpacity: 0.3,
+    shadowColor:"#000000",
+    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
-    shadowRadius: 1,
+    shadowRadius: 1.5,
+    elevation: 4,
     zIndex: 10,
-    elevation: 5,
     marginBottom: 16,
   },
   heading: {
