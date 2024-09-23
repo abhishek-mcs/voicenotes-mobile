@@ -291,7 +291,7 @@ const NotePreview = forwardRef(
 
     const onCopy = async (content = "") => {
       hideMoreOption();
-      await setStringAsync(content);
+      await setStringAsync(content.replace(/<br\s*\/?>/gi, '\n').replace(/<\/?[^>]+(>|$)/g, ""));
       setShareVisible(false);
     };
     const onDelete = (isCache=false) => {
