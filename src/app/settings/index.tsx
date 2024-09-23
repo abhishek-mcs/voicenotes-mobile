@@ -261,7 +261,8 @@ export default () => {
             {title:'Name', onPress: () => showScreen('name'), value:userDetails?.name||'', rightIcon:settingsSvg.arrow},
             {title:'About', onPress: () => showScreen('about'), value:userDetails?.about||'', rightIcon:settingsSvg.arrow},
             {title:'Email', onPress: () => showScreen('email'), value:userDetails?.email||'', rightIcon:settingsSvg.arrow},
-            {title:'Change password', onPress: () => showScreen('password'), value:'', rightIcon:settingsSvg.arrow}
+            {title:'Change password', onPress: () => showScreen('password'), value:'', rightIcon:settingsSvg.arrow},
+            {title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan || '', rightIcon:settingsSvg.arrow}
           ]}
         />
         <Grouped

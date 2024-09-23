@@ -19,18 +19,17 @@ const Header: React.FC<Props> = (props) => {
                     <RecButton
                         title={props.cancelLabel || "Cancel"}
                         underlayColor={Colors.blackWithOpacity(0.2)}
-                        style={{ flex: 1, paddingHorizontal: 10 }}
+                        style={{ width: '40%', paddingHorizontal: 10 }}
                         onPress={props.onCancel}
                     />
                 </View>
-                <View style={{ flex: 3 }} />
-                <View style={styles.action} >
+                <View style={[styles.action, { alignItems: 'flex-end' }]} >
                     {props.onSubmit && <RecButton
                         title={props.submitLabel || "Save"}
                         underlayColor={Colors.blackWithOpacity(0.7)}
                         bgColor="#000"
                         color="#fff"
-                        style={{ flex: 1, paddingHorizontal: 15 }}
+                        style={{ width: '40%', paddingHorizontal: 15 }}
                         onPress={props.onSubmit}
                     />}
                 </View>
@@ -57,7 +56,6 @@ const styles = StyleSheet.create({
     action: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 5,
     },

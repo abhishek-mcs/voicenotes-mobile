@@ -49,6 +49,10 @@ export default function Layout() {
                 name="edit-note/index"
                 options={{ presentation: "fullScreenModal" }}
               />
+              <Stack.Screen
+                name="plan/index"
+                options={{ presentation: "formSheet" }}
+              />
             </Stack>
           </AppProvider>
         </BottomSheetModalProvider>
