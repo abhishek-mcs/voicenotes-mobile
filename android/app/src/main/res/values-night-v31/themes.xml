@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.VoiceNotesWidget.AppWidgetWholeContainer" parent="@android:style/Theme.DeviceDefault.DayNight">
         <item name="appWidgetRadius">30dp</item>
         <item name="appWidgetInnerRadius">@android:dimen/system_app_widget_inner_radius</item>
@@ -7,21 +8,22 @@
     </style>
 
     <style name="Theme.VoiceNotesWidget.AppWidgetRecord" parent="@android:style/Theme.DeviceDefault.DayNight">
-        <item name="android:drawableStart">@drawable/record_ic_black</item>
-        <item name="android:backgroundTint">@color/record_btn</item>
-        <item name="android:textColor">@color/record_text</item>
+        <item name="android:drawableStart">@drawable/record_ic</item>
+        <item name="android:backgroundTint">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
         <item name="appWidgetInnerRadius">?attr/appWidgetRadius</item>
     </style>
     <style name="Theme.VoiceNotesWidget.AppWidgetAsk" parent="@android:style/Theme.DeviceDefault.DayNight">
-        <item name="android:drawableStart">@drawable/ask_ic_grey</item>
-        <item name="android:backgroundTint">@color/ask_btn</item>
-        <item name="android:textColor">@color/search_ask_text</item>
+        <item name="android:drawableStart">@drawable/ask_ic_black</item>
+        <item name="android:backgroundTint">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
         <item name="appWidgetInnerRadius">?attr/appWidgetRadius</item>
     </style>
     <style name="Theme.VoiceNotesWidget.AppWidgetSearch" parent="@android:style/Theme.DeviceDefault.DayNight">
-        <item name="android:drawableStart">@drawable/search_grey</item>
+        <item name="android:drawableStart">@drawable/search_ic</item>
+        <item name="android:backgroundTint">?attr/colorPrimaryInverse</item>
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+        <item name="android:drawableTint">?attr/colorOnSecondaryContainer</item>
         <item name="appWidgetInnerRadius">?attr/appWidgetRadius</item>
-        <item name="android:backgroundTint">@color/search_btn</item>
-        <item name="android:textColor">@color/search_ask_text</item>
     </style>
 </resources>
