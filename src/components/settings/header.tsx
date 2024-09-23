@@ -1,7 +1,6 @@
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
-import { isIOS } from "utils/common";
 
 type Props = {
     onCancel: () => void,
@@ -22,7 +21,7 @@ const Header: React.FC<Props> = (props) => {
                     <RecButton
                         title={props.cancelLabel || "Cancel"}
                         underlayColor={Colors.blackWithOpacity(0.2)}
-                        style={{ width: '40%', paddingHorizontal: 10 }}
+                        style={{ width: 'auto',alignSelf:'flex-start', paddingHorizontal: 16,height:40}}
                         onPress={props.onCancel}
                     />
                 </View>
@@ -32,7 +31,7 @@ const Header: React.FC<Props> = (props) => {
                         underlayColor={Colors.blackWithOpacity(0.7)}
                         bgColor="#000"
                         color="#fff"
-                        style={{ width: '40%', paddingHorizontal: 15 }}
+                        style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                         onPress={props.onSubmit}
                     />}
                 </View>
