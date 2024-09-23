@@ -46,6 +46,8 @@ const Names: React.FC<Props> = (props) => {
         name: userDetails?.name,
         fix_punctuation:settings?.fix_punctuation,
       })
+
+      props.onClose()
     }
   
     const addName = () => {
