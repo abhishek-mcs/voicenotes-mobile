@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
 import { isIOS } from "utils/common";
@@ -13,8 +13,10 @@ type Props = {
 }
 
 const Header: React.FC<Props> = (props) => {
+    const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
     return (
-        <View style={styles.root}>
+        <View style={[styles.root, { paddingTop: statusBarHeight }]}>
             <View style={styles.header}>
                 <View style={styles.action} >
                     <RecButton
@@ -61,7 +63,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     content: {
-        flex: isIOS ? 10 : 8,
+        flex: 10,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center'
