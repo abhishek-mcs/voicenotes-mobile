@@ -715,6 +715,7 @@ export default () => {
   };
   const scrollY = useRef(new Animated.Value(0)).current;
   const searchBarHeight = 30; // Adjust based on your search bar height
+  const headerHeight=50;
 
   const searchBarOpacity = scrollY.interpolate({
     inputRange: [0, searchBarHeight/2],
@@ -726,6 +727,11 @@ export default () => {
     outputRange: [searchBarHeight, 0],
     extrapolate: 'clamp',
   });
+  const borderColor = scrollY.interpolate({
+    inputRange: [0, headerHeight],
+    outputRange: [Colors.grey2WithOpacity(0),Colors.grey2WithOpacity(0.3)],
+    extrapolate: 'clamp',
+  })
 
   const recordingParentNoteName = useMemo(() => {
     return recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
@@ -749,6 +755,10 @@ export default () => {
               style={{
                 backgroundColor: hideBackground ? "transparent" : "#fff",
                 paddingHorizontal: 12,
+                paddingBottom:12,
+                borderBottomWidth:0.3,
+                borderBottomColor:borderColor,
+                zIndex:10
               }}
             >
               <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} scrollY={scrollY} hideBgColor={hideBackground}/>
@@ -799,7 +809,7 @@ export default () => {
               ref={scrollRef}
               ListHeaderComponent={()=><TagButtons hashFilter={hashFilter}/>}
               // bounces={false}
-              style={{ opacity: hideBackground ? 0 : 1, marginTop: 12 }}
+              style={{ opacity: hideBackground ? 0 : 1 }}
               data={recordingList}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
