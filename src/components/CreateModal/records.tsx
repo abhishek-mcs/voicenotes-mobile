@@ -8,11 +8,12 @@ import { CreateModalSvg } from "assets/svg/CreateModal"
 
 export default ({recordingList,fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
+    const filteredRecordingList = recordingList.filter(item => (item.transcript && item.title))
     return (
         <View style={{flex:1,height:'auto',marginTop:10}}>
             <Text style={heading}><Text style={{color:Colors.grey}}>2.  </Text>Select the note</Text>
             <FlatList 
-            data={recordingList}
+            data={filteredRecordingList}
             contentContainerStyle={list}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item:any,i)=>`${item?.id}-${i}`}

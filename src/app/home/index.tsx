@@ -751,7 +751,7 @@ export default () => {
                 paddingHorizontal: 12,
               }}
             >
-              <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} scrollY={scrollY}/>
+              <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} scrollY={scrollY} hideBgColor={hideBackground}/>
               <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}
@@ -887,12 +887,12 @@ export default () => {
               }
             />}
           </View>
-          {/* <CreateModal
+          <CreateModal
             ref={CreateModalRef}
             recordingList={recordingList}
             fetchNextPage={fetchNextPage}
             setHideBg={setHideBg}
-          /> */}
+          />
           {/* <AIModal ref={AIModalRef} setHideBg={setHideBg} /> */}
 
         {/* streak modal */}

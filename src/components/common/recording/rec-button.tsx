@@ -18,7 +18,7 @@ import { isIOS } from "utils/common";
       underlayColor={underlayColor}
     >
       <>
-        {!!icon&&<SvgXml xml={icon} style={[!!title?{marginRight:isIOS?4:6,marginBottom:2}:{}]}/>}
+        {!!icon&&<SvgXml xml={icon} style={[!!title?{marginRight:isIOS?4:6}:{}]}/>}
         {!!title&&<Text style={[tabItemText, { color }]}>{title}</Text>}
       </>
     </TouchableHighlight>
@@ -38,7 +38,7 @@ interface BtnProps{
 
 const {tabItem,tabItemText} = StyleSheet.create({
     tabItem: {
-      height: 50,
+      height: 44,
       borderRadius: 100,
       flexDirection: "row",
       alignItems: "center",
@@ -48,7 +48,7 @@ const {tabItem,tabItemText} = StyleSheet.create({
     },
     tabItemText: {
       fontFamily: "Primary-Semibold",
-      fontSize: 16,
+      fontSize: 14,
       color: "#000",
       fontWeight: "700",
       lineHeight:17

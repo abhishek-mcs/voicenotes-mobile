@@ -142,12 +142,12 @@ export default ({
               icon={home.ask}
               style={{...styles.button}}
             />
-            {/* <RecButton
+            <RecButton
               onPress={onCreate}
               title="Create"
               icon={home.create}
               style={styles.button}
-            /> */}
+            />
           </>
         ) : (
 <NoteRecorder
@@ -239,10 +239,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
     elevation: 4,
-    paddingHorizontal: "3%",
+    paddingHorizontal: "2%",
     paddingVertical: "2%",
     // height:74,
-    gap:14
+    gap:8
   },
   alert:{
     height:'auto',

@@ -2,6 +2,7 @@ import Colors from "assets/Colors";
 import {
   FlatList,
   Image,
+  InteractionManager,
   Keyboard,
   KeyboardAvoidingView,
   Pressable,
@@ -116,6 +117,9 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   }
   
   useEffect(() => {
+    InteractionManager.runAfterInteractions(()=>{
+      textInputRef?.current&&textInputRef?.current?.focus();
+    })
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
     );
@@ -355,13 +359,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               <SvgXml xml={AIModalSVG.close} />
             </Touchable>
           </View>
-          {/* <Text style={styles.headerText}>Ask AI</Text> */}
-          <SegmentedControl
+          <Text style={styles.headerText}>Ask AI</Text>
+          {/* <SegmentedControl
             values={["Ask", "Create"]}
             selectedIndex={selectedIndex}
             style={{width:132,height:32}}
             onChange={(event) => handleSegmentChange(event.nativeEvent.selectedSegmentIndex)}
-          />
+          /> */}
           {selectedIndex==0?<Touchable
             onPress={onDrawer}
             style={{
@@ -375,8 +379,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
           </Touchable>:<View style={{width: "25%"}}/>}
         </View>
-        <Swiper ref={swiperRef} showsPagination={false} showsButtons={false} loop={false} onIndexChanged={(i)=>{setSelectedIndex(i)}} >
-        <View style={{flex:1}}>
+        {/* <Swiper ref={swiperRef} showsPagination={false} showsButtons={false} loop={false} onIndexChanged={(i)=>{setSelectedIndex(i)}} > */}
+        {/* <View style={{flex:1}}> */}
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={isIOS ? "padding" : "height"}
@@ -563,11 +567,11 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
             />
           </View>
         </KeyboardAvoidingView>
-        </View>
-        <View style={{flex:1}}>
+        {/* </View> */}
+        {/* <View style={{flex:1}}>
         <CreateModal/>
         </View>
-        </Swiper>
+        </Swiper> */}
       </View>
     </SafeAreaView>
   );

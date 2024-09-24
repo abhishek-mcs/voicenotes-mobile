@@ -19,7 +19,7 @@ import { MAIN_URL } from "services/api/api-constants";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
 
-export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY}:any) => {
+export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
@@ -125,7 +125,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY}:any) => {
         </View>
       </View>
     </View>
-    <Animated.Text style={{fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:'#0D0D0D',transform:[{translateY:titleTranslateY}]}}>
+    <Animated.Text style={{fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':'#0D0D0D',transform:[{translateY:titleTranslateY}]}}>
       Voicenotes
     </Animated.Text>
     </Animated.View>
