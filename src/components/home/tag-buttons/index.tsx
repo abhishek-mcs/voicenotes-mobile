@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 17,
   },
   tagButton: {
-    height:27,
+    height:32,
     paddingHorizontal: 12,
     backgroundColor: Colors.blackWithOpacity(0.05),
     borderRadius: 56,

@@ -821,6 +821,7 @@ const NotePreview = forwardRef(
           activeOpacity={1}
           style={[
             styles.container,
+            isSubnote?{paddingRight:0}:{},
             isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >

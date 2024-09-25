@@ -18,18 +18,8 @@
     <item name="android:id">@android:id/background</item>
     <item name="android:background">?android:attr/colorBackground</item>
   </style>
-
-  <style name="Widget.VoiceNotesWidget.AppWidget.InnerView" parent="android:Widget">
-
-  </style>
-
+  <style name="Widget.VoiceNotesWidget.AppWidget.InnerView" parent="android:Widget"/>
   <style name="MyWidgetTheme" parent="Theme.Material3.DynamicColors.DayNight">
-    <!-- Override default colorBackground attribute with custom color. -->
     <item name="android:colorBackground">@color/container_color</item>
-
   </style>
-
-
-
-
 </resources>
