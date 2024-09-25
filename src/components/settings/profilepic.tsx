@@ -4,6 +4,8 @@ import { useState } from "react"
 import { uploadDP } from "queries/auth"
 import ImageBackground from "components/common/ImageBackground"
 import CircularLoader from "components/common/loaders/circular-loader"
+import { SvgXml } from "react-native-svg"
+import { commonSvg } from "assets/svg/commonSvg"
 
 type Props = {
     url: string,
@@ -40,7 +42,9 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     return <View style={styles.root}>
         <View style={styles.container}>
-        <ImageBackground
+        {!image?
+        <SvgXml xml={commonSvg.profileIcon} width={width/3.5} height={width/3.5}/>
+        :<ImageBackground
                 uri={image}
                 style={styles.image}
                 imageStyle={{ borderRadius: 100 }}
@@ -48,7 +52,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
                 {working ?
                     <CircularLoader color="#bfbfbf" />
                 : <Pressable style={styles.button} onPress={pickImage} />}
-            </ImageBackground>
+            </ImageBackground>}
         </View>
     </View>
 }
@@ -67,7 +71,8 @@ const styles = StyleSheet.create({
         borderRadius: width/3.5,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: "rgba(0,0,0,0.1)"
+        backgroundColor: "rgba(0,0,0,0.1)",
+        overflow:'hidden'
     },
     image: {
         width: '100%',

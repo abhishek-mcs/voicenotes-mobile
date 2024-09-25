@@ -321,12 +321,13 @@ const Grouped=({title,items}:{title:string,items:any})=>{
     <View style={{marginHorizontal:16,borderRadius:12,backgroundColor:'#fff',overflow:'hidden'}}>
     {items?.map((item:any,index:number)=>
     <View key={index}>
-    <TouchableHighlight onPress={item?.isMenu?onShowMenu:item?.onPress} underlayColor={Colors.greyWithOpacity(0.12)} style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',overflow:'hidden',padding:16,paddingBottom:index!=items?.length-1?12:16}}>
-        <>
-        <View style={{flexDirection:'row'}}>
+    <TouchableHighlight onPress={item?.isMenu?onShowMenu:item?.onPress} underlayColor={Colors.greyWithOpacity(0.12)} style={{overflow:'hidden',padding:16,paddingBottom:index!=items?.length-1?12:16}}>
+        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+        <View style={{flexDirection:'row',flex:1}}>
         {!!item?.leftIcon&&<SvgXml xml={item?.leftIcon}  style={{marginRight:9}}/>}
         <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:'#000'},item?.style??{}]}>{item.title}</Text>
         </View>
+        <View style={{flexDirection:'row',gap:4,alignSelf:'flex-end',alignItems:"center",justifyContent:'flex-end'}}>
         {item?.isMenu?
         <Menu visible={showMenu}
         onRequestClose={onHideMenu}
@@ -354,10 +355,11 @@ const Grouped=({title,items}:{title:string,items:any})=>{
             </ScrollView>
         </Menu>
         :
-          item?.value && <Text style={[styles.rightTxt, {width: item?.value ? '80%' : screenWidth/2}]} numberOfLines={1}>{item?.value}</Text>
+          item?.value && <Text style={[styles.rightTxt, {width: item?.value ? '75%' : screenWidth/2}]} numberOfLines={1}>{item?.value}</Text>
         }
-        {item?.rightIcon && <SvgXml xml={item?.rightIcon}  />}
-      </>
+        {item?.rightIcon && <SvgXml xml={item?.rightIcon} />}
+        </View>
+      </View>
     </TouchableHighlight>
     {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:1,backgroundColor:'rgba(221, 221, 221, 0.87)',width:'100%'}}/></View>}
     </View>)}
@@ -370,6 +372,6 @@ const styles=StyleSheet.create({
     fontFamily:'Primary-Medium',
     fontSize:14,
     color:Colors.grey,
-    textAlign:'right',
+    textAlign:'right'
   }
 })

@@ -16,7 +16,7 @@ const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ nam
       <View style={styles.name}>
         <Text style={styles.label}>{name}</Text>
         <Pressable style={styles.icon} onPress={() => onClose(name)}>
-          <SvgXml xml={home.close} />
+          <SvgXml xml={home.smallClose} />
         </Pressable>
       </View>
     );
@@ -135,7 +135,8 @@ const styles = StyleSheet.create({
     },
     name: {
         backgroundColor: "#2222220D",
-        padding: 10,
+        paddingHorizontal: 14,
+        paddingVertical:8,
         maxHeight: 40,
         borderRadius: 20,
         flexDirection: 'row',
