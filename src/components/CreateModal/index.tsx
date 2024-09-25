@@ -120,7 +120,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"fadeInUp"}
+      animationIn={"slideInDown"}
       animationOut={"fadeOutDown"}
       onBackdropPress={onClose}
       style={{justifyContent:'flex-end',marginBottom:keyboardShown?10:top}}

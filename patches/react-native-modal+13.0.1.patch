@@ -1,0 +1,16 @@
+diff --git a/node_modules/react-native-modal/dist/utils.js b/node_modules/react-native-modal/dist/utils.js
+index 2868f79..f4f0998 100644
+--- a/node_modules/react-native-modal/dist/utils.js
++++ b/node_modules/react-native-modal/dist/utils.js
+@@ -19,9 +19,11 @@ export const initializeAnimations = () => {
+ export const makeSlideTranslation = (translationType, fromValue, toValue) => ({
+     from: {
+         [translationType]: fromValue,
++        ['scale']:0
+     },
+     to: {
+         [translationType]: toValue,
++        ['scale']:1
+     },
+ });
+ // User can define custom react-native-animatable animations, see PR #72

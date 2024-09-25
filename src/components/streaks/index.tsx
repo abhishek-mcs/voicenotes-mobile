@@ -118,13 +118,13 @@ export default forwardRef(({ data = null }: Props, ref) => {
   return (
     <ReactNativeModal
       isVisible={visible}
-      animationIn={"zoomInUp"}
-      animationOut={"zoomOutUp"}
-      animationInTiming={130}
-      animationOutTiming={100}
+      animationIn={"slideInDown"}
+      animationOut={"slideOutUp"}
+      animationInTiming={150}
+      animationOutTiming={120}
       hideModalContentWhileAnimating={true}
       onBackdropPress={onClose}
-      style={{ justifyContent: "flex-start" ,position:'relative',top:-6}}
+      style={{ justifyContent: "flex-start" ,position:'relative',marginTop:45}}
       backdropOpacity={0}
       avoidKeyboard
       hasBackdrop={true}
@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     width: "105%",
     alignSelf: "center",
     zIndex: 10000,
-    top: 35,
     position:'relative'
   },
   shadow: {

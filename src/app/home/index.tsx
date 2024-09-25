@@ -717,7 +717,7 @@ export default () => {
   const searchBarHeight = 30; // Adjust based on your search bar height
   const headerHeight=50;
 
-  const searchBarOpacity = scrollY.interpolate({
+  const searchBarScale = scrollY.interpolate({
     inputRange: [0, searchBarHeight/2],
     outputRange: [1, 0],
     extrapolate: 'clamp',
@@ -757,8 +757,7 @@ export default () => {
                 paddingHorizontal: 12,
                 paddingBottom:12,
                 borderBottomWidth:0.3,
-                borderBottomColor:borderColor,
-                zIndex:10
+                borderBottomColor:borderColor
               }}
             >
               <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} scrollY={scrollY} hideBgColor={hideBackground}/>
@@ -782,9 +781,10 @@ export default () => {
                   }}
                 >
                   <Animated.View
-                    style={[{ zIndex: 1 },{ height: searchBarHeightAnimated,transform: [{scaleY:searchBarOpacity}] }]}
+                    style={[{ zIndex: 1 },{ height: searchBarHeightAnimated,transform: [{scaleY:searchBarScale}] }]}
                   >
                     <SearchBar
+                      scrollY={scrollY}
                       style={{ opacity: 1 }}
                       hideView={hideSearch}
                       setHide={setHideSearch}

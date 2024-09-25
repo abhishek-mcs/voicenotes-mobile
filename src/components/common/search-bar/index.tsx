@@ -15,6 +15,7 @@ import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 const {debounce}=require("lodash")
 
 const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
+const AnimSearchBarIOS = Animatable.createAnimatableComponent(SearchBarIOS);
 export const heightIn = {
   from: {
     height: 0,
@@ -46,7 +47,7 @@ const fadeOut={
   from:{opacity:1},to:{opacity:0}
 }
 
-export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,style={}})=>{
+export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,style={},scrollY}:any)=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -83,17 +84,23 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     //   router.push({pathname:"/RelatedNotes/",params:{id}})
     //   clearSearch()
     // }
+    
+    const searchBarOpacity = scrollY.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1,0],
+      extrapolate: 'clamp',
+    });
     return (
         <Animatable.View style={[styles.container,style]} duration={150} animation={isSearchVisible?heightIn:heightOut}>
             
-            <SearchBarIOS
+            <AnimSearchBarIOS
                   onClear={()=>{
                     setSearchQuery("")
                     setSearchText("")
                     setSearchText("")
                   }}
                   clearIcon={<SvgXml xml={commonSvg.smallClose} />}
-                  searchIcon={<SvgXml xml={commonSvg.search} />}
+                  searchIcon={<SvgXml xml={commonSvg.search}/>}
                   onCancel={()=>router.back()}
                   // onSubmitEditing={()=>onSearch(searchText)}
                   onFocus={()=>setIsFocused(true)}
@@ -108,9 +115,9 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                   autoCorrect={false}
                   value={searchText}
                   disabled={true}
-                  containerStyle={{backgroundColor:'transparent'}}
+                  containerStyle={styles.inputContainerStyle}
                   showCancel={false}
-                  inputContainerStyle={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,height:40}}
+                  inputContainerStyle={[{opacity:searchBarOpacity,backgroundColor:'transparent'}]}
                 />
           </Animatable.View>
     )
@@ -121,8 +128,13 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         marginTop:0,
-        marginHorizontal:0,
+        marginHorizontal:4,
         marginBottom:0,zIndex:1
+    },
+    inputContainerStyle:{
+      backgroundColor:Colors.darkWithOpacity(0.05),
+      borderRadius:12,
+      height:40
     },
     box:{
         flex:1,

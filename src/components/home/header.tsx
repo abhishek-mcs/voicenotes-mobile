@@ -45,12 +45,16 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     router?.openDrawer()
   }
+  const openSettings=()=>{
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    route.navigate("/settings/")
+  }
 
-  const headerHeight=105
+  const headerHeight=90
   const minHeaderHeight=40
   const titleFontSize=36
   const titleMinFontSize=16
-  const translateY=42
+  const translateY=44
   const headerHeightAnimate = scrollY?.interpolate({
     inputRange: [0, headerHeight],
     outputRange: [headerHeight, minHeaderHeight],
@@ -97,7 +101,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
         </Touchable>
-        <Touchable style={{padding:8,marginTop:1}} onPress={()=>route.navigate("/settings/")}>
+        <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
           {!!photo_url?
           <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30}}/>
           :<SvgXml xml={commonSvg.profileIcon}/>}
@@ -125,7 +129,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         </View>
       </View>
     </View>
-    <Animated.Text style={{fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':'#0D0D0D',transform:[{translateY:titleTranslateY}]}}>
+    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':'#0D0D0D',transform:[{translateY:titleTranslateY}]}}>
       Voicenotes
     </Animated.Text>
     </Animated.View>
@@ -139,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: isIOS ? 0 : 10,
-    marginBottom:8
+    marginBottom:8,height:40
   },
   drawer: {
     alignSelf: "flex-start",
@@ -150,5 +154,5 @@ const styles = StyleSheet.create({
     marginLeft: -16,
     marginTop: -24,
   },
-  streak:{padding:12,alignItems:'center',marginTop:2}
+  streak:{padding:12,alignItems:'center',width:38,height:38,justifyContent:'center'}
 });
