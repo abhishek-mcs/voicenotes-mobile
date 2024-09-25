@@ -1,14 +1,16 @@
 import Colors from "assets/Colors";
+import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { Text, View } from "react-native";
+import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 import { setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { capitalizeFirstLetter } from "utils/common";
 
-export const TagButton = ({title="",style={},onPress=()=>{}})=> {
+export const TagButton = ({title="",style={},onPress=()=>{},icon=''})=> {
     const dispatch = useDispatch()
     const {hashFilter} = useSelector((state:RootState)=>state.hash)
 
@@ -17,13 +19,18 @@ export const TagButton = ({title="",style={},onPress=()=>{}})=> {
     }
 
     const onClickTag=()=>{
-      setTag(title);
-      onPress();
+      if(!!icon){
+        onPress()
+      }else{
+        setTag(title);
+        onPress();
+      }
     }
 
     return (
         <Touchable style={styles.tagButton} onPress={onClickTag}>
             <Text style={[styles.tagButtonText, style, hashFilter === title ? styles.activeTag:{}]}>{title==""?"All":capitalizeFirstLetter(title)}</Text>
+            {!!icon&&<SvgXml xml={icon}/>}
         </Touchable>
         )
 }
@@ -60,6 +67,9 @@ const styles = StyleSheet.create({
     marginRight: 5,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection:'row',
+    alignSelf:'flex-start',
+    gap:6
   },
   tagButtonText: {
     fontSize: 14,

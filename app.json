@@ -40,7 +40,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 138,
+      "versionCode": 139,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -96,7 +96,10 @@
         }
       ],
       "expo-apple-authentication",
-      ["react-native-appsflyer",{}]
+      [
+        "react-native-appsflyer",
+        {}
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -68,8 +68,8 @@ import * as FileSystem from 'expo-file-system';
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
-import TagButtons from "components/home/tag-buttons";
-import { setHashTags } from "redux/reducers/hashSlice";
+import TagButtons, { TagButton } from "components/home/tag-buttons";
+import { setHashTags, setTagsFilter } from "redux/reducers/hashSlice";
 import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
@@ -737,6 +737,8 @@ export default () => {
     return recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
   }, [recordingList, recordingParentId]);
 
+  const isDefaultHash=hashFilter==""||hashFilter=="starred"||hashFilter=="shared"||hashFilter=="All"
+
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
@@ -745,7 +747,7 @@ export default () => {
       <KeyboardAvoidView
         behavior={isIOS ? "padding" : null}
         style={{ flex: 1 }}
-        onTouchStart={(e:any) => {
+        onTouchStart={(e: any) => {
           setHideSearch(true);
         }}
       >
@@ -755,12 +757,19 @@ export default () => {
               style={{
                 backgroundColor: hideBackground ? "transparent" : "#fff",
                 paddingHorizontal: 12,
-                paddingBottom:12,
-                borderBottomWidth:0.3,
-                borderBottomColor:borderColor
+                paddingBottom: 12,
+                borderBottomWidth: 0.3,
+                borderBottomColor: borderColor,
               }}
             >
-              <Header isLogged={!!token} isOffline={isOffline} streaks={streaks} streaksRef={streaksRef} scrollY={scrollY} hideBgColor={hideBackground}/>
+              <Header
+                isLogged={!!token}
+                isOffline={isOffline}
+                streaks={streaks}
+                streaksRef={streaksRef}
+                scrollY={scrollY}
+                hideBgColor={hideBackground}
+              />
               <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}
@@ -768,7 +777,7 @@ export default () => {
                 actionText="Close"
                 message="Your daily recording limit has been exceeded. Please try again later."
               />
-              { !!token && (
+              {!!token && (
                 <Animated.View
                   style={{
                     opacity: hideBackground ? 0 : 1,
@@ -781,7 +790,13 @@ export default () => {
                   }}
                 >
                   <Animated.View
-                    style={[{ zIndex: 1 },{ height: searchBarHeightAnimated,transform: [{scaleY:searchBarScale}] }]}
+                    style={[
+                      { zIndex: 1 },
+                      {
+                        height: searchBarHeightAnimated,
+                        transform: [{ scaleY: searchBarScale }],
+                      },
+                    ]}
                   >
                     <SearchBar
                       scrollY={scrollY}
@@ -794,108 +809,138 @@ export default () => {
                 </Animated.View>
               )}
             </Animated.View>
-            {recordingList?.length == 0 && (recordingQuery.isFetching||recordingQuery?.isLoading||recordingQuery?.isRefetching) ? (
-                  <View
-                    style={{
-                      height: height-500,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginTop:100
-                    }}
-                  >
-                    <CircularLoader strokeWidth={3} />
-                  </View>)
-              :<Animated.FlatList
-              ref={scrollRef}
-              ListHeaderComponent={()=><TagButtons hashFilter={hashFilter}/>}
-              // bounces={false}
-              style={{ opacity: hideBackground ? 0 : 1 }}
-              data={recordingList}
-              onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                { useNativeDriver: false}
-              )}
-              scrollEventThrottle={16}
-              contentContainerStyle={{ paddingBottom: 300 }}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
-              renderItem={renderItem}
-              onEndReachedThreshold={0.2}
-              onEndReached={fetchNextPage}
-              onRefresh={onRefresh}
-              initialNumToRender={3}
-              refreshing={isRefreshing}
-              ListFooterComponent={
-                !token && recordingQuery.isFetched ? (
-                  <AboutProduct disable={false} />
-                ) : recordingQuery?.isRefetching ? (
-                  <View
-                    style={{
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginTop: 20,
-                    }}
-                  >
-                    <CircularLoader />
-                  </View>
-                ) : null
-              }
-              ListEmptyComponent={() =>
-                (hashFilter == "shared" ||hashFilter == "starred")? (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      backgroundColor: Colors.darkWithOpacity(0.05),
-                      paddingHorizontal: 24,
-                      paddingVertical: 12,
-                      // borderRadius: 12,
-                      marginTop: 20,
-                    }}
-                  >
-                    <SvgXml xml={hashFilter == "shared"?home.share:home?.emptyStarred} />
-                    <View
-                      style={{ marginLeft: 16, backgroundColor: "transparent" }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: "Primary-Medium",
-                          fontSize: 14,
-                          color: Colors.darkWithOpacity(1),
-                          marginBottom: 4,
-                        }}
-                      >
-                        You haven't {hashFilter == "shared"?'shared':"starred"} any notes yet.
-                      </Text>
-                      <Text
-                        style={{
-                          fontFamily: "Primary",
-                          fontSize: 12,
-                          color: Colors.darkWithOpacity(1),
-                          width:"70%"
-                        }}
-                      >
-                        {hashFilter == "shared"?"To share a note, expand the note, just tap ‘... More’ in the notes settings and select Share"
-                        :`To star a note, expand the note, choose the ‘#Tag’ option and select ‘*starred’.`}
-                      </Text>
+            {(recordingList?.length == 0 ||!isDefaultHash)&&
+            (recordingQuery.isFetching ||
+              recordingQuery?.isLoading ||
+              recordingQuery?.isRefetching) ? (
+              <View
+                style={{
+                  height: height - 500,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 100,
+                }}
+              >
+                <CircularLoader strokeWidth={3} />
+              </View>
+            ) : (
+              <Animated.FlatList
+                ref={scrollRef}
+                ListHeaderComponent={() =>
+                  isDefaultHash ? (
+                    <TagButtons hashFilter={hashFilter} />
+                  ) : (
+                    <View style={{marginHorizontal:17,marginTop:8}}>
+                    <TagButton
+                      title={hashFilter}
+                      onPress={() => dispatch(setTagsFilter(""))}
+                      icon={home.smallClose}
+                    />
                     </View>
-                  </View>
-                ) : recordingList?.length == 0 && recordingQuery.isFetching ? (
-                  <View
-                    style={{
-                      flex: 1,
-                      height: height - (insets.top + 200),
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <ActivityIndicator size={"small"} color={"#000"} />
-                  </View>
-                ) : recordingList?.length == 0 && !!token ? (
-                  <AboutProduct disable={true} />
-                ) : null
-              }
-            />}
+                  )
+                }
+                // bounces={false}
+                style={{ opacity: hideBackground ? 0 : 1 }}
+                data={recordingList}
+                onScroll={Animated.event(
+                  [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                  { useNativeDriver: false }
+                )}
+                scrollEventThrottle={16}
+                contentContainerStyle={{ paddingBottom: 300 }}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
+                renderItem={renderItem}
+                onEndReachedThreshold={0.2}
+                onEndReached={fetchNextPage}
+                onRefresh={onRefresh}
+                initialNumToRender={3}
+                refreshing={isRefreshing}
+                ListFooterComponent={
+                  !token && recordingQuery.isFetched ? (
+                    <AboutProduct disable={false} />
+                  ) : recordingQuery?.isRefetching ? (
+                    <View
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: 20,
+                      }}
+                    >
+                      <CircularLoader />
+                    </View>
+                  ) : null
+                }
+                ListEmptyComponent={() =>
+                  hashFilter == "shared" || hashFilter == "starred" ? (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        backgroundColor: Colors.darkWithOpacity(0.05),
+                        paddingHorizontal: 24,
+                        paddingVertical: 12,
+                        // borderRadius: 12,
+                        marginTop: 20,
+                      }}
+                    >
+                      <SvgXml
+                        xml={
+                          hashFilter == "shared"
+                            ? home.share
+                            : home?.emptyStarred
+                        }
+                      />
+                      <View
+                        style={{
+                          marginLeft: 16,
+                          backgroundColor: "transparent",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: "Primary-Medium",
+                            fontSize: 14,
+                            color: Colors.darkWithOpacity(1),
+                            marginBottom: 4,
+                          }}
+                        >
+                          You haven't{" "}
+                          {hashFilter == "shared" ? "shared" : "starred"} any
+                          notes yet.
+                        </Text>
+                        <Text
+                          style={{
+                            fontFamily: "Primary",
+                            fontSize: 12,
+                            color: Colors.darkWithOpacity(1),
+                            width: "70%",
+                          }}
+                        >
+                          {hashFilter == "shared"
+                            ? "To share a note, expand the note, just tap ‘... More’ in the notes settings and select Share"
+                            : `To star a note, expand the note, choose the ‘#Tag’ option and select ‘*starred’.`}
+                        </Text>
+                      </View>
+                    </View>
+                  ) : recordingList?.length == 0 &&
+                    recordingQuery.isFetching ? (
+                    <View
+                      style={{
+                        flex: 1,
+                        height: height - (insets.top + 200),
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <ActivityIndicator size={"small"} color={"#000"} />
+                    </View>
+                  ) : recordingList?.length == 0 && !!token ? (
+                    <AboutProduct disable={true} />
+                  ) : null
+                }
+              />
+            )}
           </View>
           <CreateModal
             ref={CreateModalRef}
@@ -905,8 +950,8 @@ export default () => {
           />
           {/* <AIModal ref={AIModalRef} setHideBg={setHideBg} /> */}
 
-        {/* streak modal */}
-        <Streaks data={streaks?.data?.data||[]} ref={streaksRef}/>
+          {/* streak modal */}
+          <Streaks data={streaks?.data?.data || []} ref={streaksRef} />
           {/* {!recEnabled &&  showAskMe&& <AskMeSomething onClose={()=>setShowAskMe(false)}/>} */}
         </View>
       </KeyboardAvoidView>
@@ -924,16 +969,16 @@ export default () => {
         onPause={onPause}
         rec={rec}
       />
-        {/* related notes single page */}
-        <CustomModal visible={!!relatedNoteId}>
-          <RelatedNotes
-            id={relatedNoteId}
-            onBack={() => dispatch(setRelatedNoteId(null))}
-            onStartRecord={onStartRecord}
-            continueProcessing={continueProcessing}
-            syncUpNote={syncUpNote}
-          />
-        </CustomModal>
+      {/* related notes single page */}
+      <CustomModal visible={!!relatedNoteId}>
+        <RelatedNotes
+          id={relatedNoteId}
+          onBack={() => dispatch(setRelatedNoteId(null))}
+          onStartRecord={onStartRecord}
+          continueProcessing={continueProcessing}
+          syncUpNote={syncUpNote}
+        />
+      </CustomModal>
     </SafeAreaView>
   );
 };
