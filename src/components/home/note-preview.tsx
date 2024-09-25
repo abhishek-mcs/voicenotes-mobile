@@ -814,7 +814,8 @@ const NotePreview = forwardRef(
     }
 
     return (
-      <View>
+      <View style={[{borderColor:Colors.grey4WithOpacity(86.67),borderBottomWidth:0.5},isSubnote?{borderBottomWidth:0}:{paddingBottom:8}]}>
+      <View style={{borderLeftWidth:0.5,borderColor:Colors.grey4WithOpacity(86.67)}}>
         <Touchable
           onPress={onExpand}
           activeOpacity={1}
@@ -846,7 +847,7 @@ const NotePreview = forwardRef(
               <View style={styles.timeLine} />
             </View> */}
             <View style={styles.content}>
-              <View
+              {!isSubnote&&<View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
@@ -893,7 +894,7 @@ const NotePreview = forwardRef(
                     )}
                   </>
                 )}
-              </View>
+              </View>}
 
               {note.is_transcript_loading && (
                 <AiLoader
@@ -970,13 +971,13 @@ const NotePreview = forwardRef(
                   :<SvgXml xml={isPlay == index ? home.pause : home.play} />}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Touchable>
-                {note?.status=="processed"&&
+                {(note?.status=="processed"||isSingle)&&
                   <MoreOptions options={options} style={{height:29,paddingHorizontal:12,marginRight:-12,justifyContent:"center",alignItems:'center'}}>
                   <SvgXml xml={home.moreNew}/>
                 </MoreOptions>}
                 </View>
 
-                {expand === index && !isSubnote && (
+                {expand === index && (
                   <View style={{marginBottom:8}}>
                     {renderButtons()}
                     <RelatedNotesList
@@ -1049,17 +1050,15 @@ const NotePreview = forwardRef(
           />
         )}
       </View>
+    </View>
     );
   }
 );
 
 const styles = StyleSheet.create({
   container: {
-    padding: 11,
-    paddingHorizontal:17,
-    paddingBottom: 8,
-    borderBottomWidth:0.5,
-    borderColor:Colors.grey4WithOpacity(86.67)
+    paddingTop: 11,
+    paddingHorizontal:17
   },
   expandedContainer: {
     // backgroundColor: "#f7f7f7",
@@ -1095,6 +1094,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 8,
     paddingBottom: 4,
+    marginLeft:-3,
+    paddingLeft:4
   },
   menu: {
     borderRadius: 12,
