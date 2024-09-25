@@ -739,6 +739,11 @@ export default () => {
 
   const isDefaultHash=hashFilter==""||hashFilter=="starred"||hashFilter=="shared"||hashFilter=="All"
 
+  const isRecordListLoading=(recordingList?.length == 0 ||!isDefaultHash)&&
+  (recordingQuery.isFetching ||
+    recordingQuery?.isLoading ||
+    recordingQuery?.isRefetching)
+
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
@@ -809,22 +814,7 @@ export default () => {
                 </Animated.View>
               )}
             </Animated.View>
-            {(recordingList?.length == 0 ||!isDefaultHash)&&
-            (recordingQuery.isFetching ||
-              recordingQuery?.isLoading ||
-              recordingQuery?.isRefetching) ? (
-              <View
-                style={{
-                  height: height - 500,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginTop: 100,
-                }}
-              >
-                <CircularLoader strokeWidth={3} />
-              </View>
-            ) : (
-              <Animated.FlatList
+            <Animated.FlatList
                 ref={scrollRef}
                 ListHeaderComponent={() =>
                   isDefaultHash ? (
@@ -841,7 +831,7 @@ export default () => {
                 }
                 // bounces={false}
                 style={{ opacity: hideBackground ? 0 : 1 }}
-                data={recordingList}
+                data={isRecordListLoading?[]:recordingList}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
@@ -859,7 +849,7 @@ export default () => {
                 ListFooterComponent={
                   !token && recordingQuery.isFetched ? (
                     <AboutProduct disable={false} />
-                  ) : recordingQuery?.isRefetching ? (
+                  ) : recordingQuery?.isRefetching&&!isRecordListLoading ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -923,24 +913,22 @@ export default () => {
                         </Text>
                       </View>
                     </View>
-                  ) : recordingList?.length == 0 &&
-                    recordingQuery.isFetching ? (
-                    <View
+                  ) : isRecordListLoading ? (
+                      <View
                       style={{
-                        flex: 1,
-                        height: height - (insets.top + 200),
+                        height: height - 500,
                         justifyContent: "center",
                         alignItems: "center",
+                        marginTop: 50
                       }}
                     >
-                      <ActivityIndicator size={"small"} color={"#000"} />
+                      <CircularLoader strokeWidth={3} />
                     </View>
                   ) : recordingList?.length == 0 && !!token ? (
                     <AboutProduct disable={true} />
                   ) : null
                 }
               />
-            )}
           </View>
           <CreateModal
             ref={CreateModalRef}
