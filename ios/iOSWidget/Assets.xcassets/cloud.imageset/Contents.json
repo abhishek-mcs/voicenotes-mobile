@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Frame 9487.pdf",
+      "filename" : "Frame 1000008050.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "Frame 1000008049.pdf",
       "idiom" : "universal"
     }
   ],

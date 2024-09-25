@@ -3,6 +3,16 @@
     {
       "filename" : "Frame 1000008054.pdf",
       "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "Frame 1000008056.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {

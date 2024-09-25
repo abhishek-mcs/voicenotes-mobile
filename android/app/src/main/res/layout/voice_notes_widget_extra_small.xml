@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:id="@+id/btn_layout"
     android:padding="15dp"
-    android:theme="@style/Theme.VoiceNotesWidget.AppWidgetWholeContainer">
+    android:background="@drawable/app_widget_background"
+    android:theme="@style/MyWidgetTheme">
 
     <Button
         android:layout_width="match_parent"

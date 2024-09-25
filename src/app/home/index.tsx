@@ -34,7 +34,7 @@ import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
 // import AskMeSomething from "components/ask-me-something";
-import { Redirect, router, useNavigation } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
@@ -74,6 +74,8 @@ import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
+import { useLocalSearchParams } from "expo-router";
+import { useGetRelatedRecording } from "queries/home/relatedNote";
 
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
@@ -134,6 +136,9 @@ export default () => {
   const streaks=useStreak(token)
 
   const getTags=useGetTags()
+  const relatedNotes = useGetRelatedRecording();
+  const { action }:any = useLocalSearchParams();
+  // const action = useMemo(() => params?.action, [params?.action]);
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
@@ -357,43 +362,50 @@ export default () => {
   };
 
   useEffect(() => {
-    const handleDeepLink = (event: { url: any; }) => {
-      console.log("event: ", event.url);
-
-      switch (event.url) {
-        case 'voicenotes://ask':
-          console.log('Performing action for Ask AI');
+    console.log(action);
+    const actionName = (action || '')?.split('-')[0]
+      switch (actionName) {
+        case 'ask':
+          if (recEnabled) break; 
           setTimeout(() => {
             onAsk();
-          }, 500)
+          }, 500);
           break;
-        case 'voicenotes://record':
-          console.log('Performing action for Recording');
+        case 'record':
+          if (recEnabled) break; 
           setTimeout(() => {
             onStartRecord({repeat: false, parent_id: recordingParentId});
           }, 500)
           break;
-        case 'voicenotes://search':
-          console.log('Performing action for Search');
-          setTimeout(() => {
-            router.push("/search/");
-          }, 500)
-          break;
-        default:
-          console.log('No matching shortcut action');
       }
-    };
 
-    // Add event listener for deep linking
-    Linking.addEventListener('url', handleDeepLink);
+    // const handleDeepLink = (event: { url: any; }) => {
+    //   console.log("event: ", event.url);
 
-    // Handle if the app was opened via a deep link initially
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        handleDeepLink({ url });
-      }
-    });
-  }, []);
+    //   switch (event.url) {
+    //     case 'voicenotes://ask':
+    //       console.log('Performing action for Ask AI');
+    //       setTimeout(() => {
+    //         onAsk();
+    //       }, 500)
+    //       break;
+    //     case 'voicenotes://record':
+    //       console.log('Performing action for Recording');
+    //       setTimeout(() => {
+    //         onStartRecord({repeat: false, parent_id: recordingParentId});
+    //       }, 500)
+    //       break;
+    //     case 'voicenotes://search':
+    //       console.log('Performing action for Search');
+    //       setTimeout(() => {
+    //         router.push("/search/");
+    //       }, 500)
+    //       break;
+    //     default:
+    //       console.log('No matching shortcut action');
+    //   }
+    // };
+  }, [action]);
 
   useEffect(() => {
     if (recordingQuery.data) {

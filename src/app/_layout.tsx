@@ -53,6 +53,14 @@ export default function Layout() {
                 name="plan/index"
                 options={{ presentation: "formSheet" }}
               />
+              <Stack.Screen
+                name="ask/index"
+                options={{ animation: "none" }}
+              />
+              <Stack.Screen
+                name="record/index"
+                options={{ animation: "none" }}
+              />
             </Stack>
           </AppProvider>
         </BottomSheetModalProvider>
