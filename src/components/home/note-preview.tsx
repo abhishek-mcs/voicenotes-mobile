@@ -147,6 +147,7 @@ const NotePreview = forwardRef(
     const createAI = useCreate();
     const addTranscript = useAddTranscript();
     const unPublishRecording = useUnpublishRecording();
+    const relatedNotes = useGetRelatedRecording();
     const NetInfo = useNetInfo();
 
     const isUploadingFailed =
@@ -188,6 +189,7 @@ const NotePreview = forwardRef(
     };
 
     const onCreate = async (type = "summary") => {
+      setExpand(index)
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
@@ -475,6 +477,8 @@ const NotePreview = forwardRef(
         },
       });
       setExpand();
+      if(!note?.related_notes||note?.related_notes?.length==0)
+        relatedNotes.mutate(note?.id)
     };
 
     useEffect(() => {

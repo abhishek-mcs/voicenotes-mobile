@@ -75,7 +75,6 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
-import { useGetRelatedRecording } from "queries/home/relatedNote";
 
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
@@ -136,7 +135,6 @@ export default () => {
   const streaks=useStreak(token)
 
   const getTags=useGetTags()
-  const relatedNotes = useGetRelatedRecording();
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
 
@@ -677,7 +675,7 @@ export default () => {
         syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
-        setExpand={() => setExpandNote(index == expandNote ? -1 : index)}
+        setExpand={(v:any) =>v?setExpandNote(v): setExpandNote(index == expandNote ? -1 : index)}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
