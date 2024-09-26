@@ -377,34 +377,11 @@ export default () => {
             onStartRecord({repeat: false, parent_id: recordingParentId});
           }, 500)
           break;
+        case 'searchDeeplink':
+          if (recEnabled) break; 
+          router.push("/search/")
+          break;
       }
-
-    // const handleDeepLink = (event: { url: any; }) => {
-    //   console.log("event: ", event.url);
-
-    //   switch (event.url) {
-    //     case 'voicenotes://ask':
-    //       console.log('Performing action for Ask AI');
-    //       setTimeout(() => {
-    //         onAsk();
-    //       }, 500)
-    //       break;
-    //     case 'voicenotes://record':
-    //       console.log('Performing action for Recording');
-    //       setTimeout(() => {
-    //         onStartRecord({repeat: false, parent_id: recordingParentId});
-    //       }, 500)
-    //       break;
-    //     case 'voicenotes://search':
-    //       console.log('Performing action for Search');
-    //       setTimeout(() => {
-    //         router.push("/search/");
-    //       }, 500)
-    //       break;
-    //     default:
-    //       console.log('No matching shortcut action');
-    //   }
-    // };
   }, [action]);
 
   useEffect(() => {

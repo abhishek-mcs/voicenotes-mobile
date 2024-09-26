@@ -133,7 +133,7 @@ struct iOSWidgetEntryView: View {
   // MARK: Search Button
   
   var searchButton: some View {
-    Link(destination: URL(string: "voicenotes://search")!) {
+    Link(destination: URL(string: "voicenotes://searchDeeplink")!) {
       VStack(spacing: .zero) {
         Spacer(minLength: .zero)
         HStack(spacing: 5) {

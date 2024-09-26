@@ -5,8 +5,23 @@ import { PortalProvider } from "@gorhom/portal";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
+import { useFonts } from "expo-font";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function Layout() {
+  const [fontsLoaded,error] = useFonts({
+    "Primary-Bold": require('../assets/fonts/Inter-Bold.ttf'),
+    "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
+    "Primary": require('../assets/fonts/Inter-Regular.ttf'),
+    "Primary-Semibold": require('../assets/fonts/Inter-SemiBold.ttf'),
+    "Primary-Italic": require('../assets/fonts/Inter-Italic.ttf'),
+    "Secondary": require('../assets/fonts/InstrumentSerif-Regular.ttf'),
+    "Secondary-Italic": require('../assets/fonts/InstrumentSerif-Italic.ttf'),
+    ...FontAwesome.font,
+  });
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <>
     <GestureHandlerRootView style={{ flex: 1 }}>

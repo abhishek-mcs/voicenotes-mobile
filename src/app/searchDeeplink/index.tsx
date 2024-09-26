@@ -7,8 +7,8 @@ export default () => {
         router.navigate({
             pathname: '/home/',
             params: {
-              action: `ask-${Date.now()}`
+              action: `searchDeeplink-${Date.now()}`
             }
-          })
+        })
     });
 }
