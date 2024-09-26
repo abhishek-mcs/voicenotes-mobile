@@ -3,7 +3,7 @@ import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useNavigation, useRouter } from "expo-router";
 import { useLogout } from "queries/auth";
-import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler } from "react-native";
+import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -87,6 +87,7 @@ const useAnimatedScreens = () => {
       return;
     }
   
+    Keyboard.dismiss();
     setIsAnimating(true);
     const animation = getAnimation(activeScreen);
   
