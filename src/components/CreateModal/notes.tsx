@@ -43,7 +43,7 @@ export default (
             keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
             showsVerticalScrollIndicator={false}
             renderItem={()=>
-                (type=="summary"||type=="tweet"||type=="custom")?
+                (type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?
                 <Text onPress={()=>{}} suppressHighlighting style={text}>{result}</Text>
                 :(type=="points"||type=="todo")?
                 result?.map((itm:string,i:number)=>

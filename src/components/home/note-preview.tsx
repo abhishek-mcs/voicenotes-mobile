@@ -751,13 +751,22 @@ const NotePreview = forwardRef(
           {
             title:"Email",
             onPress:()=>onCreate("email")
+          },
+          {
+            title:"Cleanup",
+            onPress:()=>onCreate("tidy")
           }
         ],
       },
       {
         title:"Regenerate",
         systemIcon:'arrow.clockwise',
-        actions:[
+        actions:isSubnote?[
+          {
+            title:"Regenerate transcript",
+            onPress:onReGenerateTranscript
+          }
+        ]:[
           {
             title:"Regenerate title",
             onPress:onGenerateTitle

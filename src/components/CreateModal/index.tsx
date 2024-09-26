@@ -19,7 +19,7 @@ import listenAiCreate from "func/firebase/listen-ai-create";
 export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("note");
-  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom'>("summary");
+  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom' | 'tidy'>("summary");
   const [result, setResult] = useState({id:recordingList[0]?.id||null,result:null})
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [title, setTitle] = useState("");
@@ -154,7 +154,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
             <SvgXml xml={CreateModalSvg.create} />
           </Touchable>}
         </View>
-        :preview=="loader"? <AiLoader text={noteType=="custom"?'AI is writing based on your custom instructions':`AI is writing your ${noteType}`}/>
+        :preview=="loader"? <AiLoader text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
         :
         <Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }
