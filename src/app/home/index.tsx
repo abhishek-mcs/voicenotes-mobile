@@ -500,13 +500,19 @@ export default () => {
     syncAllRecordings();
   }, [isOffline]);
 
-  const onAsk = () => {
+  const onAsk = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => {}
+    );
     CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
     router.push("/ask-my-ai/");
   };
-  const onCreate = () => {
+  const onCreate = async() => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => {}
+    );
     CreateModalRef.current?.onReset();
     AIModalRef?.current?.close();
     CreateModalRef.current?.toggle();
