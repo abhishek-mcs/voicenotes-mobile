@@ -12,6 +12,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		53D762A597CDA2C7E47478F4 /* Pods_Voicenotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82B5DC2C19D609DCC2C11290 /* Pods_Voicenotes.framework */; };
+		841F720C2CA5896200A5908F /* Voicenotes Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 844941182C9471320040B22F /* Voicenotes Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		843325F22C38052E00C3DA6A /* AppGroupModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843325F12C38052E00C3DA6A /* AppGroupModule.swift */; };
 		843325F42C38057400C3DA6A /* AppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 843325F32C38057400C3DA6A /* AppGroupModule.m */; };
 		8449411B2C9471320040B22F /* VoicenotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8449411A2C9471320040B22F /* VoicenotesApp.swift */; };
@@ -96,19 +97,26 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		841F720A2CA5895600A5908F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 844941172C9471320040B22F;
+			remoteInfo = "Voicenotes Watch App";
+		};
+		841F720D2CA5896200A5908F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 844941172C9471320040B22F;
+			remoteInfo = "Voicenotes Watch App";
+		};
 		84B6539D2C907F3000E1BADE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 84B6538B2C907F2F00E1BADE;
 			remoteInfo = iOSWidgetExtension;
-		};
-		C65E76992CA1458B006DDBEA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 844941172C9471320040B22F;
-			remoteInfo = "Voicenotes Watch App";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -130,6 +138,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
+				841F720C2CA5896200A5908F /* Voicenotes Watch App.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -626,8 +635,9 @@
 			buildRules = (
 			);
 			dependencies = (
-				C65E769A2CA1458B006DDBEA /* PBXTargetDependency */,
+				841F720B2CA5895600A5908F /* PBXTargetDependency */,
 				84B6539E2C907F3000E1BADE /* PBXTargetDependency */,
+				841F720E2CA5896200A5908F /* PBXTargetDependency */,
 			);
 			name = Voicenotes;
 			productName = Voicenotes;
@@ -1040,15 +1050,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		841F720B2CA5895600A5908F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 844941172C9471320040B22F /* Voicenotes Watch App */;
+			targetProxy = 841F720A2CA5895600A5908F /* PBXContainerItemProxy */;
+		};
+		841F720E2CA5896200A5908F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 844941172C9471320040B22F /* Voicenotes Watch App */;
+			targetProxy = 841F720D2CA5896200A5908F /* PBXContainerItemProxy */;
+		};
 		84B6539E2C907F3000E1BADE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */;
 			targetProxy = 84B6539D2C907F3000E1BADE /* PBXContainerItemProxy */;
-		};
-		C65E769A2CA1458B006DDBEA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 844941172C9471320040B22F /* Voicenotes Watch App */;
-			targetProxy = C65E76992CA1458B006DDBEA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1192,10 +1207,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1263,10 +1275,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
