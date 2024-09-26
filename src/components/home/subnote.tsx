@@ -22,11 +22,11 @@ export default ({list=[],onUploadRetry,expand,setExpand,hashFilter='',syncUpNote
 
     const onExpand=(index:number)=>{
         setExpandNote(index==expandNote?-1:index)
-        expand!=-1&&setExpand(-1)
+        // expand!=-1&&setExpand(-1)
     }
 
     useEffect(()=>{
-        expand!=-1&&expandNote!=-1&&setExpandNote(-1)
+        // expand!=-1&&expandNote!=-1&&setExpandNote(-1)
     },[expand])
 
     return (

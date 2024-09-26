@@ -940,7 +940,7 @@ const NotePreview = forwardRef(
                 {note?.transcript && !note.is_transcript_loading && (
                   <ChatBubble
                     lines={expand == index ? 10000 : 4}
-                    style={styles.text}
+                    style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     message={note?.transcript
                       ?.replaceAll(/<br\/?>/g, "\n")
                       ?.trimEnd()}
@@ -1040,7 +1040,7 @@ const NotePreview = forwardRef(
           hideModal={() => setShareVisible(false)}
         />
 
-        {note?.subnotes?.length > 0 && (
+        {note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote
             list={note?.subnotes}
             setExpand={setExpand}
