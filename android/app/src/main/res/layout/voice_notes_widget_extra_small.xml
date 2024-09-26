@@ -21,6 +21,8 @@
         android:drawablePadding="12dp"
         android:theme="@style/Theme.VoiceNotesWidget.AppWidgetSearch"
         android:background="@drawable/app_widget_search_background"
-        android:queryHint="Search notes" />
+        android:queryHint="Search notes"
+        android:maxLines="1"
+        android:ellipsize="end"/>
 
 </LinearLayout>

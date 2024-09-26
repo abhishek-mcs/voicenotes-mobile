@@ -18,6 +18,8 @@
         android:textAlignment="textStart"
         android:padding="15dp"
         android:drawablePadding="12dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:theme="@style/Theme.VoiceNotesWidget.AppWidgetSearch"
         android:background="@drawable/app_widget_search_background"
         android:queryHint="Search notes" />
@@ -42,6 +44,8 @@
             android:text="@string/record"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:theme="@style/Theme.VoiceNotesWidget.AppWidgetRecord" />
 
         <LinearLayout
@@ -60,6 +64,8 @@
             android:text="@string/ask"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:theme="@style/Theme.VoiceNotesWidget.AppWidgetAsk" />
 
     </LinearLayout>
