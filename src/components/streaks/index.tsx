@@ -120,7 +120,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
       isVisible={visible}
       animationIn={"slideInDown"}
       animationOut={"slideOutUp"}
-      animationInTiming={150}
+      animationInTiming={120}
       animationOutTiming={120}
       hideModalContentWhileAnimating={true}
       onBackdropPress={onClose}

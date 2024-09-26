@@ -98,7 +98,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
           <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
         {/* streak indicator */}
-        <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
+        <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
         </Touchable>
         <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>

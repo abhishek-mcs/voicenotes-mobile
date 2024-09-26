@@ -10,6 +10,7 @@ import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
+import { Shadow } from 'react-native-shadow-2';
 
 interface Props {
   onRecord: (v:any) => void;
@@ -96,7 +97,7 @@ export default ({
   return (
     <View style={styles.container}>
       {recordingParentNoteName&&!isCanceling&& (
-        <View style={[styles.addingContainer]}>
+        <Shadow distance={15} startColor={'#00000026'} endColor={'#0000000A'} offset={[0, 2]} style={[styles.addingContainer]}>
           <View
             style={{
               flexDirection: "row",
@@ -122,7 +123,7 @@ export default ({
               <SvgXml xml={commonSvg.smallClose} />
             </Touchable>
           </View>
-        </View>
+        </Shadow>
       )}
       <View style={[styles.tab,isCanceling?styles.alert:{}]}>
         {!recEnabled ? (
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
   tab: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    borderRadius: 100,
+    borderRadius: 24,
     marginHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",

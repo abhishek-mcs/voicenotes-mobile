@@ -39,7 +39,7 @@ interface BtnProps{
 const {tabItem,tabItemText} = StyleSheet.create({
     tabItem: {
       height: 44,
-      borderRadius: 100,
+      borderRadius: 16,
       flexDirection: "row",
       alignItems: "center",
       justifyContent:'center',
