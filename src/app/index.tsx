@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import * as WebBrowser from 'expo-web-browser';
 import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 import { LogBox, Platform, UIManager } from 'react-native';
+import useIAPSetup from 'hooks/iap/useIAPSetup';
 
 LogBox.ignoreLogs(['Require cycle: src']);
 LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new']);
@@ -30,7 +31,7 @@ export default function App() {
   // const [isLoading,setIsLoading]=useState(true)
   
   useFBEventTracking()
-
+  useIAPSetup()
   useEffect(() => {
     WebBrowser.warmUpAsync();
     // InteractionManager.runAfterInteractions(()=>{
