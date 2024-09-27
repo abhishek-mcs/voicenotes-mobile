@@ -14,6 +14,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 import { RootState } from "redux/store/store";
 import { ShowMoreTagsButton, TagButton } from "components/home/tag-buttons";
+import Touchable from "components/common/Touchable";
 
 const {debounce}=require("lodash")
 
@@ -84,17 +85,20 @@ export default ({setHide=(v:boolean)=>{}})=>{
       setVisibleTags((prev) => Math.min(prev + 6, filteredHashTags.length));
     };
 
+    const onClear = () =>{
+      setSearchQuery("")
+      setSearchText("")
+      setSearchText("")
+    }
+
     return (
         <SafeAreaView>
           <View style={{flexDirection:'row',marginTop:isIOS?10:50,alignItems:'center',marginBottom:4}}>
                 <SearchBarIOS
-                  onClear={()=>{
-                    setSearchQuery("")
-                    setSearchText("")
-                    setSearchText("")
-                  }}
-                  clearIcon={<SvgXml xml={commonSvg.smallClose} />}
+                  onClear={onClear}
+                  clearButtonMode="while-editing"
                   searchIcon={<SvgXml xml={commonSvg.search} />}
+                  clearIcon={<View style={{width:0,height:0}}/>}
                   onCancel={()=>router.back()}
                   // onSubmitEditing={()=>onSearch(searchText)}
                   onFocus={()=>setIsFocused(true)}
