@@ -83,13 +83,13 @@ const useAnimatedScreens = () => {
     if (isAnimating) {
       return;
     }
-    if (!activeScreen) {
-      return;
-    }
   
     Keyboard.dismiss();
     setIsAnimating(true);
-    const animation = getAnimation(activeScreen);
+    // if (!activeScreen) {
+    //   return;
+    // }
+    const animation = getAnimation(activeScreen??'');
   
     Animated.spring(animation, {
       toValue: SCREEN_WIDTH,
@@ -328,7 +328,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         {!!item?.leftIcon&&<SvgXml xml={item?.leftIcon}  style={{marginRight:9}}/>}
         <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:'#000'},item?.style??{}]}>{item.title}</Text>
         </View>
-        <View style={{flexDirection:'row',gap:4,alignSelf:'flex-end',alignItems:"center",justifyContent:'flex-end'}}>
+        <View style={{flexDirection:'row',gap:4,alignSelf:'center',alignItems:"center",justifyContent:'flex-end'}}>
         {item?.isMenu?
         <Menu visible={showMenu}
         onRequestClose={onHideMenu}
