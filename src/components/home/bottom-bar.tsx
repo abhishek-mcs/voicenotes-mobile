@@ -97,7 +97,7 @@ export default ({
   return (
     <View style={styles.container}>
       {recordingParentNoteName&&!isCanceling&& (
-        <Shadow distance={15} startColor={'#00000026'} endColor={'#0000000A'} offset={[0, 2]} style={[styles.addingContainer]}>
+        <View style={[styles.addingContainer]}>
           <View
             style={{
               flexDirection: "row",
@@ -123,7 +123,7 @@ export default ({
               <SvgXml xml={commonSvg.smallClose} />
             </Touchable>
           </View>
-        </Shadow>
+        </View>
       )}
       <View style={[styles.tab,isCanceling?styles.alert:{}]}>
         {!recEnabled ? (
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent:'space-between',
     shadowColor:"#000000",
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
     elevation: 4,

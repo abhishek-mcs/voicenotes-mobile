@@ -52,6 +52,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import CreateModal from "components/CreateModal";
 import Swiper from 'react-native-swiper'
+import Header from "./header";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -338,47 +339,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   return (
     <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)}]}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
-        <View style={[styles.header1]}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: "25%",
-              justifyContent: "flex-end",
-            }}
-          >
-            {chatStarted &&selectedIndex==0&& (
-              <Touchable
-                onPress={onNewChat}
-                style={{ padding: 4, marginLeft: 12 }}
-              >
-                <SvgXml xml={AIModalSVG.newChat} />
-              </Touchable>
-            )}
-            <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
-              <SvgXml xml={AIModalSVG.close} />
-            </Touchable>
-          </View>
-          <Text style={styles.headerText}>Ask AI</Text>
-          {/* <SegmentedControl
-            values={["Ask", "Create"]}
-            selectedIndex={selectedIndex}
-            style={{width:132,height:32}}
-            onChange={(event) => handleSegmentChange(event.nativeEvent.selectedSegmentIndex)}
-          /> */}
-          {selectedIndex==0?<Touchable
-            onPress={onDrawer}
-            style={{
-              padding: 4,
-              flexDirection: "row",
-              alignItems: "center",
-              width: "25%",
-            }}
-          >
-            <SvgXml xml={AIModalSVG.history} />
-            {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
-          </Touchable>:<View style={{width: "25%"}}/>}
-        </View>
+        <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
         {/* <Swiper ref={swiperRef} showsPagination={false} showsButtons={false} loop={false} onIndexChanged={(i)=>{setSelectedIndex(i)}} > */}
         {/* <View style={{flex:1}}> */}
         <KeyboardAvoidingView
@@ -791,15 +752,6 @@ const styles = StyleSheet.create({
   },
   userChatStyle:{
     backgroundColor:Colors.grey2WithOpacity(0.05)
-  },
-  header1: {
-    height: 53,
-    paddingHorizontal: 16,
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.darkWithOpacity(0.1)
   },
   header2: { marginBottom: 0, borderBottomWidth: 0 },
   lottie: { width:40,height:20,marginBottom:-6,marginLeft:-14},

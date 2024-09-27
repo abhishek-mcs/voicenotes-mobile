@@ -7,7 +7,7 @@ export interface HashState {
 }
 
 const initialState: HashState = {
-  hashFilter:'All',
+  hashFilter:'',
   hashTags: [],
 }
 

@@ -6,7 +6,7 @@ import { screenHeight } from "utils/common"
 import { SvgXml } from "react-native-svg"
 import { CreateModalSvg } from "assets/svg/CreateModal"
 
-export default ({recordingList,fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
+export default ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
     const filteredRecordingList = recordingList.filter(item => (item.transcript && item.title))
     return (
@@ -30,8 +30,8 @@ export default ({recordingList,fetchNextPage=()=>{},onSelect=(id:number,v:string
                 </TouchableHighlight>
             )}
             ListEmptyComponent={()=><View style={itemContainer}><Text style={titleStyle}>You don't have any notes to create with.</Text></View>}
-            onEndReachedThreshold={50}
-            onEndReached={()=>{}}
+            onEndReachedThreshold={0.2}
+            onEndReached={fetchNextPage}
             />
         </View>
     )

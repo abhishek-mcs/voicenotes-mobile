@@ -49,6 +49,10 @@ export default function Layout() {
                 options={{ presentation: "formSheet" }}
               />
               <Stack.Screen
+                name="create/index"
+                options={{ presentation: "formSheet" }}
+              />
+              <Stack.Screen
                 name="search/index"
                 options={{ animation: "fade" }}
               />

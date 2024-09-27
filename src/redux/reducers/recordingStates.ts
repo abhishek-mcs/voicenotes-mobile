@@ -4,6 +4,7 @@ import { Note } from "types";
 
 export interface HashState {
   recordingList: any[];
+  recordingCreateList: any[];
   tempRecordings: any;
   tempRecordingData:any;
   triggerTypingTitle:any;
@@ -12,6 +13,7 @@ export interface HashState {
 
 const initialState: HashState = {
   recordingList: [],
+  recordingCreateList: [],
   tempRecordings: [],
   tempRecordingData:{},
   triggerTypingTitle:null,
@@ -30,6 +32,9 @@ export const recordingStates = createSlice({
     },
     setRecordingList: (state, action: PayloadAction<object[]>) => {
       state.recordingList = action.payload;
+    },
+    setCreateRecordingList: (state, action: PayloadAction<object[]>) => {
+      state.recordingCreateList = action.payload;
     },
     setTempRecordings: (state, action: PayloadAction<any>) => {
       state.tempRecordings = action.payload;
@@ -133,7 +138,8 @@ export const {
   updateRecordingDetails,
   updateTempRecordingData,
   setTriggerTypingTitle,
-  setTriggerTypingTranscript
+  setTriggerTypingTranscript,
+  setCreateRecordingList
 } = recordingStates.actions;
 
 export default recordingStates.reducer;

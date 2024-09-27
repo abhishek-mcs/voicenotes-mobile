@@ -43,6 +43,7 @@ import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import {
+  setCreateRecordingList,
   setRecordingList,
   setTempRecordingData,
   setTriggerTypingTitle,
@@ -394,11 +395,6 @@ export default () => {
     }
   }, [recordingQuery.data, hashFilter, token, dispatch]);
 
-  const isListEmpty = useMemo(
-    () => recordingList?.length == 0 || null,
-    [recordingList]
-  );
-
   useIAPInfo();
   useEffect(() => {
     checkRecordPermission();
@@ -479,7 +475,7 @@ export default () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    CreateModalRef.current?.close();
+    // CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
     router.push("/ask-my-ai/");
@@ -488,9 +484,10 @@ export default () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    CreateModalRef.current?.onReset();
-    AIModalRef?.current?.close();
-    CreateModalRef.current?.toggle();
+    router.push('/create/')
+    // CreateModalRef.current?.onReset();
+    // AIModalRef?.current?.close();
+    // CreateModalRef.current?.toggle();
   };
   const onStartRecord = async ({
     repeat = false,
@@ -506,7 +503,7 @@ export default () => {
       return;
     }
     AIModalRef.current?.close();
-    CreateModalRef.current?.close();
+    // CreateModalRef.current?.close();
     if (!canRecord) {
       bannerRef.current?.show();
       return;
@@ -657,6 +654,12 @@ export default () => {
     // }
   };
 
+  useEffect(()=>{
+    if(hashFilter==""){
+      dispatch(setCreateRecordingList(recordingList))
+    }
+  },[recordingList,hashFilter])
+
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
@@ -732,7 +735,8 @@ export default () => {
 
   const isDefaultHash=hashFilter==""||hashFilter=="starred"||hashFilter=="shared"||hashFilter=="All"
 
-  const isRecordListLoading=(recordingList?.length == 0 ||!isDefaultHash)&&
+  const filteredRecordingList=hashFilter==""?recordingList:recordingList?.filter(item => item.status === "processed");
+  const isRecordListLoading=(filteredRecordingList?.length == 0 ||!isDefaultHash)&&
   (recordingQuery.isFetching ||
     recordingQuery?.isLoading ||
     recordingQuery?.isRefetching)
@@ -824,7 +828,7 @@ export default () => {
                 }
                 // bounces={false}
                 style={{ opacity: hideBackground ? 0 : 1 }}
-                data={isRecordListLoading?[]:recordingList}
+                data={isRecordListLoading?[]:filteredRecordingList}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
@@ -917,18 +921,18 @@ export default () => {
                     >
                       <CircularLoader strokeWidth={3} />
                     </View>
-                  ) : recordingList?.length == 0 && !!token ? (
+                  ) : filteredRecordingList?.length == 0 && !!token ? (
                     <AboutProduct disable={true} />
                   ) : null
                 }
               />
           </View>
-          <CreateModal
+          {/* <CreateModal
             ref={CreateModalRef}
             recordingList={recordingList}
             fetchNextPage={fetchNextPage}
             setHideBg={setHideBg}
-          />
+          /> */}
           {/* <AIModal ref={AIModalRef} setHideBg={setHideBg} /> */}
 
           {/* streak modal */}
