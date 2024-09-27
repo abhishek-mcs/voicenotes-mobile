@@ -18,6 +18,7 @@ import { transform } from "@babel/core";
 import ReactNativeModal from "react-native-modal";
 import { Rect, Svg } from "react-native-svg";
 import { Tooltip } from "@rneui/base";
+import { Shadow } from "react-native-shadow-2";
 
 // Enable LayoutAnimation
 if (isAndroid) {
@@ -197,9 +198,9 @@ const styles = StyleSheet.create({
   },
   shadow: {
     shadowColor:"#000000",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0.5 },
-    shadowRadius: 1.5,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius:40,
     elevation: 4,
     zIndex: 10,
     marginBottom: 16,
