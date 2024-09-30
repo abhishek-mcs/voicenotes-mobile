@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1530"
+   LastUpgradeVersion = "1600"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -18,6 +18,20 @@
                BlueprintIdentifier = "844941172C9471320040B22F"
                BuildableName = "Voicenotes Watch App.app"
                BlueprintName = "Voicenotes Watch App"
+               ReferencedContainer = "container:Voicenotes.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+               BuildableName = "Voicenotes.app"
+               BlueprintName = "Voicenotes"
                ReferencedContainer = "container:Voicenotes.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
