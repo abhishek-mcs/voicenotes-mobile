@@ -82,7 +82,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
     );
 
     const showMoreTags = () => {
-      setVisibleTags((prev) => Math.min(prev + 6, filteredHashTags.length));
+      setVisibleTags(filteredHashTags.length);
     };
 
     const onClear = () =>{

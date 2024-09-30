@@ -246,6 +246,28 @@ export function useGetTags(){
     })
 }
 
+export function usePinTag(id:any){
+    return useMutation('pin-tag',(p?:any)=> {
+        return axiosApi.patch(`/tags/${id}/pin`,p)
+    },
+    {
+        onError:(error:any)=>{
+            console.log('pin/unpin tag',error?.response?.data?.message);
+        }
+    })
+}
+
+export function usePinTagDelete(id:any){
+    return useMutation('pin-tag-delete',(p?:any)=> {
+        return axiosApi.delete(`/tags/${id}`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log('pin delete',error?.response?.data?.message);
+        }
+    })
+}
+
 export function useGetUserData(token:any){
    
     return useQuery('user-data',(p?:any)=> {

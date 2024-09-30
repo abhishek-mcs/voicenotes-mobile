@@ -69,8 +69,8 @@ import * as FileSystem from 'expo-file-system';
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
-import TagButtons, { TagButton } from "components/home/tag-buttons";
-import { setHashTags, setTagsFilter } from "redux/reducers/hashSlice";
+import TagButtons, { SingleTagButton, TagButton } from "components/home/tag-buttons";
+import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData, setTagsFilter } from "redux/reducers/hashSlice";
 import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
@@ -96,7 +96,7 @@ export default () => {
   const actionEmitter = new NativeEventEmitter(ActionModule);
   const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
-  const {hashFilter} = useSelector((state: RootState) => state.hash);
+  const {hashFilter,pinnedTags,pinnedTagsData,hashTagsData} = useSelector((state: RootState) => state.hash);
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
@@ -149,9 +149,14 @@ export default () => {
 
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
-      const tags=(getTags?.data?.data?.flatMap((t:any)=>t?.name)??[])
-      .filter((name: string) => name !== 'starred') ?? [];;
-      dispatch(setHashTags(tags))
+      const tags=(getTags?.data?.data?.filter((t: any) => t?.name !== 'starred') ?? [])
+      dispatch(setHashTagsData(tags))
+      const tagNames=tags.flatMap((t:any)=>t?.name)??[];
+      dispatch(setHashTags(tagNames))
+      const pTagsData=(tags.filter((t:any)=>t?.is_pinned==1)??[]);
+      dispatch(setPinnedTagsData(pTagsData))
+      const pTags=pTagsData.flatMap((t:any)=>t?.name)??[]
+      dispatch(setPinnedTags(pTags))
     }
   }, [getTags?.data?.data]);
 
@@ -733,7 +738,7 @@ export default () => {
     return recordingList.find((note) => note?.id === recordingParentId)?.title ?? null;
   }, [recordingList, recordingParentId]);
 
-  const isDefaultHash=hashFilter==""||hashFilter=="starred"||hashFilter=="shared"||hashFilter=="All"
+  const isDefaultHash=hashFilter==""||hashFilter=="starred"||hashFilter=="shared"||hashFilter=="All"||pinnedTags?.includes(hashFilter)
 
   const filteredRecordingList=hashFilter==""?recordingList:recordingList?.filter(item => item.status === "processed");
   const isRecordListLoading=(filteredRecordingList?.length == 0 ||!isDefaultHash)&&
@@ -815,15 +820,9 @@ export default () => {
                 ref={scrollRef}
                 ListHeaderComponent={() =>
                   isDefaultHash ? (
-                    <TagButtons hashFilter={hashFilter} />
+                    <TagButtons hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData}/>
                   ) : (
-                    <View style={{marginHorizontal:17,marginTop:8}}>
-                    <TagButton
-                      title={hashFilter}
-                      onPress={() => dispatch(setTagsFilter(""))}
-                      icon={home.smallClose}
-                    />
-                    </View>
+                    <SingleTagButton hashFilter={hashFilter} tagsData={hashTagsData}/>
                   )
                 }
                 // bounces={false}
