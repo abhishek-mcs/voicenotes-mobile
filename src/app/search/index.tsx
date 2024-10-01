@@ -107,7 +107,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                   autoCapitalize={"none"}
                   autoFocus={true}
                   placeholder="Search"
-                  placeholderTextColor={Colors.grey}
+                  placeholderTextColor={Colors.grey6}
                   contextMenuHidden={true}
                   autoComplete="off"
                   autoCorrect={false}
