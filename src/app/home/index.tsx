@@ -170,7 +170,7 @@ export default () => {
         ? "processStatuses/recording/"
         : "processStatuses/guest/recording/";
       const statusRef = ref(db, firebasePath + recordingId);
-
+      console.log('listen to firebase')
       onValue(statusRef, async (snapshot) => {
         if (snapshot.exists()) {
           const status = +snapshot.val();
@@ -208,7 +208,7 @@ export default () => {
             dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
             updatedStatus = "processing_failed";
-            console.log("title geneation failed;waiting");
+            console.log("title geneation failed;waiting",recordingId);
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -219,7 +219,7 @@ export default () => {
             dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.GENERATE_TRANSCRIPT_FAILED) {
             updatedStatus = "processing_failed";
-            console.log("transcript geneation failed;waiting");
+            console.log("transcript geneation failed;waiting",recordingId);
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -234,8 +234,8 @@ export default () => {
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
-            dispatch(setTriggerTypingTranscript(recordingId))
-            dispatch(setTriggerTypingTitle(recordingId))
+            RecordingStatus.TRANSCRIPT_FORMATTED&&dispatch(setTriggerTypingTranscript(recordingId))
+            status===RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -250,7 +250,7 @@ export default () => {
             dispatchCanRecord(updatedNote.data?.can_record_more);
             console.log("removing firebase listener");
             await remove(statusRef);
-            off(statusRef);
+            status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
             setTimeout(() => {
               !updatedNote.data?.parent_id&&setExpandNote(0);
             }, 600);
@@ -439,13 +439,16 @@ export default () => {
         continueProcessing(note);
       }
     };
+    console.log('retry',note.status)
 
     if (
       note.status === "upload_failed" ||
       (note.status === "uploading" && (note.recorded_at ?? note.created_at) < Date.now() - 5 * 1000)
     ) {
+      console.log('retry uploading')
       retryUpload(note);
-    } else if (note.status === "processing_failed") {
+    } else if (note.status === "processing_failed"||note.status === "process_failed") {
+      console.log('retry processing')
       retryProcessing(note);
     }
   };
@@ -550,6 +553,7 @@ export default () => {
         duration: note.audio.data.duration,
         parent_id: note?.parent_id ??null,
         recorded_at: note.recorded_at,
+        temp_id:note.temp_id,
       });
       const recordingId = response.recording.id;
       // if(response.recording?.parent_id){
