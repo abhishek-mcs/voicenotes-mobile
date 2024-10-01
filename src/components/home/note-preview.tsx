@@ -584,6 +584,7 @@ const NotePreview = forwardRef(
     const onThreadNote = () => {
       onStartRecord({ parent_id: note.id, index });
       closeAddMenu();
+      expand!=index&&setExpand(index)
     };
 
     const renderButtons = () => {
@@ -861,7 +862,7 @@ const NotePreview = forwardRef(
               <View style={styles.timeLine} />
             </View> */}
             <View style={styles.content}>
-              {!isSubnote&&<View
+              {(!isSubnote||note?.status!='processed')&&<View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",

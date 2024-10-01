@@ -581,7 +581,7 @@ export default () => {
         () => {}
       );
       checkAndShowPremium()
-      setExpandNote(-1)
+      !recordingParentId&&setExpandNote(-1)
       setRecEnabled(false);
       const uri = await stopRecording(rec);
       setRec(null);
@@ -619,7 +619,7 @@ export default () => {
         dispatch(setRecordingList(newRecordingList));
       }
 
-      if (!repeat) {
+      if (!repeat&&!recordingParentId) {
         scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
       }
       if(repeat) {
