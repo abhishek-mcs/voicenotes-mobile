@@ -53,8 +53,8 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   const headerHeight=90
   const minHeaderHeight=40
   const titleFontSize=36
-  const titleMinFontSize=16
-  const translateY=44
+  const titleMinFontSize=24
+  const translateY=48
   const headerHeightAnimate = scrollY?.interpolate({
     inputRange: [0, headerHeight],
     outputRange: [headerHeight, minHeaderHeight],
