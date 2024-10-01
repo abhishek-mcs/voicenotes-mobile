@@ -69,7 +69,7 @@ import * as FileSystem from 'expo-file-system';
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
-import TagButtons, { SingleTagButton, TagButton } from "components/home/tag-buttons";
+import TagButtons from "components/home/tag-buttons";
 import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData, setTagsFilter } from "redux/reducers/hashSlice";
 import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
@@ -228,7 +228,7 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_FORMATTED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
@@ -819,11 +819,7 @@ export default () => {
             <Animated.FlatList
                 ref={scrollRef}
                 ListHeaderComponent={() =>
-                  isDefaultHash ? (
-                    <TagButtons hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData}/>
-                  ) : (
-                    <SingleTagButton hashFilter={hashFilter} tagsData={hashTagsData}/>
-                  )
+                  <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
                 }
                 // bounces={false}
                 style={{ opacity: hideBackground ? 0 : 1 }}

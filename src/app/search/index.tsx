@@ -130,7 +130,7 @@ export default ({setHide=(v:boolean)=>{}})=>{
                     <View style={{paddingVertical:0}}>
                       <Text style={styles.recent}>Tags</Text>
                       <View style={{flexDirection:'row',flexWrap:'wrap',marginTop:8,rowGap:8,paddingHorizontal:20}}>
-                      {filteredHashTags?.slice(0, visibleTags)?.map((itm:any,i:number)=><TagButton key={i} title={itm} onPress={()=>{router?.back()}}/>)}
+                      {filteredHashTags?.slice(0, visibleTags)?.map((itm:any,i:number)=><TagButton key={i} title={itm} from="search" onPress={()=>{router?.back()}}/>)}
                       {visibleTags < filteredHashTags.length && (
                         <ShowMoreTagsButton onPress={showMoreTags} />
                       )}

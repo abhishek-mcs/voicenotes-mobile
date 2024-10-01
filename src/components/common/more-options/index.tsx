@@ -2,6 +2,7 @@ import { StyleSheet, } from 'react-native';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import Touchable from '../Touchable';
+import * as Haptics from "expo-haptics";
 
 export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(true);
@@ -11,8 +12,13 @@ export default forwardRef(({options=[],children,style={}}:any,ref) => {
       hide(){setVisible(false)}
     }
 },[visible]);
+
+const onPress=async()=>
+  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+    () => {}
+  );
   return (
-    <Touchable>
+    <Touchable activeOpacity={1} onPress={onPress}>
         <ContextMenu
           actions={options}
           style={style}
