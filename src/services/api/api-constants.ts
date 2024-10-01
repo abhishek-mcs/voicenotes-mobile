@@ -4,11 +4,8 @@ const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 50; // number of audio notes to be cac
 
 enum Environment {
   local = "local",
-  rose = "rose",
-  rose2 = "rose2",
+  dev = "dev",
   stage = "stage",
-  xd3 = "xd3",
-  stagev2 = "stagev2",
   production = "production",
 }
 
@@ -21,11 +18,8 @@ interface URLSETProps {
 
 interface ENVURLs {
   local: URLSETProps
-  rose: URLSETProps
-  rose2: URLSETProps
-  xd3: URLSETProps
+  dev: URLSETProps
   stage: URLSETProps,
-  stagev2 : URLSETProps,
   production: URLSETProps
 }
 
@@ -38,29 +32,11 @@ const ENVURLSet: ENVURLs = {
     SHORT_URL: "bmc.test",
     CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
-  rose: {
-    MAIN_URL: "https://dev-v2.buymeacoffee.com",
-    API_URL: "https://xd2.buymeacoffee.com",
-    SHORT_URL: "dev-v2.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
-  },
-  rose2: {
-    MAIN_URL: "https://stage.buymeacoffee.com",
-    API_URL: "https://stage1.buymeacoffee.com",
-    SHORT_URL: "stage.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
-  },
-  xd3: {
-    MAIN_URL: "https://dev-v3.buymeacoffee.com",
-    API_URL: "https://xd3.buymeacoffee.com",
-    SHORT_URL: "dev-v3.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
-  },
-  stagev2: {
-    MAIN_URL: "https://stage-v2.buymeacoffee.com",
-    API_URL: "https://rd4.buymeacoffee.com",
-    SHORT_URL: "stage-v2.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
+  dev: {
+    MAIN_URL: "https://devview.voicenotes.com",
+    API_URL: "https://devapi.voicenotes.com",
+    SHORT_URL: "devview.voicenotes.com",
+    CDN_URL: "https://cdn.voicenotes.com",
   },
   stage: {
     MAIN_URL: "https://stageview.voicenotes.com",
