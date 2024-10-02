@@ -18,7 +18,7 @@ struct iOSWidget: Widget {
       iOSWidgetEntryView(entry: entry)
         .containerBackground(.windowBackground, for: .widget)
     }
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular])
     .configurationDisplayName("Voicenote widgets")
     .description("Voicenote widgets")
   }
@@ -52,7 +52,6 @@ struct Provider: TimelineProvider {
 struct iOSWidgetEntryView: View {
   var entry: SimpleEntry
   @Environment(\.widgetFamily) var family
-  @Environment(\.openURL) var openURL
   
   var body: some View {
     switch family {
@@ -70,6 +69,8 @@ struct iOSWidgetEntryView: View {
           askButton
         }
       }
+    case .accessoryCircular:
+      accessoryCircular
     default: Text("Not implemented!")
     }
   }
@@ -152,4 +153,59 @@ struct iOSWidgetEntryView: View {
     .background(Color("askAIButton"))
     .cornerRadius(20)
   }
+  
+  // MARK: Accessory Circular
+  
+  var accessoryCircular: some View {
+    ZStack {
+      AccessoryWidgetBackground()
+      
+      GeometryReader { geometry in
+        let width = geometry.size.width
+        let height = geometry.size.height
+        
+        Group {
+          LogoLine(start: CGPoint(x: 0.48*width, y: 0.05*height),
+                   end: CGPoint(x: 0.52*width, y: 0.05*height))
+          LogoLine(start: CGPoint(x: 0.405*width, y: 0.15*height),
+                   end: CGPoint(x: 0.585*width, y: 0.15*height))
+          LogoLine(start: CGPoint(x: 0.29*width, y: 0.25*height),
+                   end: CGPoint(x: 0.74*width, y: 0.25*height))
+          LogoLine(start: CGPoint(x: 0.275*width, y: 0.35*height),
+                   end: CGPoint(x: 0.725*width, y: 0.35*height))
+          LogoLine(start: CGPoint(x: 0.09*width, y: 0.45*height),
+                   end: CGPoint(x: 0.89*width, y: 0.45*height))
+          LogoLine(start: CGPoint(x: 0.125*width, y: 0.55*height),
+                   end: CGPoint(x: 0.875*width, y: 0.55*height))
+          LogoLine(start: CGPoint(x: 0.05*width, y: 0.65*height),
+                   end: CGPoint(x: 1.09*width, y: 0.65*height))
+          LogoLine(start: CGPoint(x: 0.0*width, y: 0.75*height),
+                   end: CGPoint(x: 1.0*width, y: 0.75*height))
+        }
+        .rotationEffect(.degrees(-63))
+      }
+      .frame(width: 38, height: 38)
+    }
+    .widgetURL(URL(string: "voicenotes://record"))
+    .widgetAccentable()
+  }
+}
+
+#Preview(as: .systemMedium) {
+    iOSWidget()
+} timeline: {
+    SimpleEntry(date: .now)
+}
+
+struct LogoLine: View {
+    var start: CGPoint
+    var end: CGPoint
+    
+    var body: some View {
+        Path { path in
+            path.move(to: start)
+            path.addLine(to: end)
+        }
+        .stroke(.white, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+    }
 }
