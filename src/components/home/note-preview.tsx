@@ -660,7 +660,7 @@ const NotePreview = forwardRef(
         </ScrollView>
       );
     };
-index==0&&console.log(note?.title,note?.transcript)
+
     const renderMoreSharedMenu = () => (
       <Menu
         visible={moreOption}

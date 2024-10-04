@@ -4,6 +4,7 @@ import * as Device from "expo-device";
 import * as Application from "expo-application";
 import * as FileSystem from "expo-file-system";
 import axios from "axios";
+import {Buffer} from "buffer"
 
 export const saveVoiceNote = async (data: {
   audio: any;
@@ -43,10 +44,15 @@ export const saveVoiceNote = async (data: {
       type: `audio/${filetype}`,
     });
 
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const buffer = Buffer.from(base64, "base64");
     // Make the POST request using axios
-    const signedURLUpload = await axios.put(signedURL, uri, {
+    await axios.put(signedURL, buffer, {
       headers: {
-        'Content-Type': filetype,   // Ensure to set the correct MIME type
+        'Content-Type': `audio/${filetype}`,   // Ensure to set the correct MIME type
       },
     });
     const formData1:any = new FormData();

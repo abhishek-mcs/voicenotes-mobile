@@ -183,6 +183,7 @@ export default () => {
           // ) {
           //   return;
           // }
+          console.log('firebase snapshot')
           let updatedStatus = "uploading";
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
@@ -228,14 +229,14 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_FORMATTED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
-            RecordingStatus.TRANSCRIPT_FORMATTED&&dispatch(setTriggerTypingTranscript(recordingId))
-            status===RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
+            RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTranscript(recordingId))
+            status===RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -259,6 +260,8 @@ export default () => {
         } else {
           console.log("Snapshot does not exist");
         }
+      },(error) => {
+        console.error(error);
       });
     },
     [token, dispatch]
