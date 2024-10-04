@@ -170,7 +170,7 @@ export default () => {
         ? "processStatuses/recording/"
         : "processStatuses/guest/recording/";
       const statusRef = ref(db, firebasePath + recordingId);
-
+      console.log('firebase listen')
       onValue(statusRef, async (snapshot) => {
         if (snapshot.exists()) {
           const status = +snapshot.val();
@@ -183,6 +183,7 @@ export default () => {
           // ) {
           //   return;
           // }
+          console.log('firebase snapshot')
           let updatedStatus = "uploading";
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
@@ -223,12 +224,12 @@ export default () => {
             dispatch(
               updateRecordingDetails({
                 recordingId,
-                data: { status: updatedStatus },
+                data: { status: updatedStatus,is_transcript_loading: false },
                 temporaryRecordingId,
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_FORMATTED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");

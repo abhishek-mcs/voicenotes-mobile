@@ -7,6 +7,7 @@ import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 import { LogBox, Platform, UIManager } from 'react-native';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 
+LogBox.ignoreLogs(['Sending `onInstallConversionDataLoaded` with no listeners registered.']);
 LogBox.ignoreLogs(['Require cycle: src']);
 LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new']);
 LogBox.ignoreLogs(['Warning: Overriding previous layout animation with new one before the first began:'])

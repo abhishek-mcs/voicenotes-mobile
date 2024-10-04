@@ -40,14 +40,15 @@ const ChatBubble = ({
     let currentIndex = 0;
     let interval: any;
     if (triggerAnimation == 2 && !!message && continueGenerating) {
+      const words = message.split(' ');
       interval = setInterval(() => {
-        setDisplayedMessage(message?.substring(0, currentIndex + 1));
+        setDisplayedMessage((prev:any) => prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex]);
         currentIndex++;
-        if (currentIndex === message.length || currentIndex === 350) {
+        if ((currentIndex > words?.length-1) || currentIndex === 150) {
           disableGenerating();
           interval && clearInterval(interval);
         }
-      }, 30); // Adjust the interval for faster typing speed
+      },  60); // Adjust the interval for faster typing speed
     } else {
       disableGenerating();
       setDisplayedMessage(message);

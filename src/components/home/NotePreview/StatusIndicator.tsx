@@ -17,7 +17,7 @@ const StatusIndicator = ({
 
   return (
     <Touchable
-      style={{ flexDirection: "row", alignItems: "center", padding: 2 }}
+      style={{ flexDirection: "row", alignItems: "center",alignSelf:'flex-start', padding: 2 }}
       disabled={!canRetry}
       onPress={onRetry}
     >
