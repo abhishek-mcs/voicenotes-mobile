@@ -35,11 +35,11 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
   }
   let modifiedRecords = finalList.map((rec) => ({
     ...rec,
-    status: rec.status ?? "processed",
+    status: !!rec?.transcript?"processed":rec.status=="processing"?"processing_failed":(rec?.status ?? "processed"),
     recorded_at: rec.recorded_at ?? rec.created_at,
     subnotes: rec.subnotes.map((subnote: Subnote) => ({
       ...subnote,
-      status: subnote.status ?? "processed",
+      status:  !!subnote?.transcript?"processed":subnote.status=="processing"?"processing_failed":(subnote?.status ?? "processed"),
       recorded_at: rec.recorded_at ?? rec.created_at,
     })),
   }));
