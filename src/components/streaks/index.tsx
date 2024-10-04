@@ -45,7 +45,8 @@ export default forwardRef(({ data = null }: Props, ref) => {
   const previousMonths = getLastSixMonths();
   const [tooltipData, setTooltipData] = useState({ visible: false, text: '', position: { x: 0, y: 0 } });
   const containerRef = useRef<View>(null);
-
+  const tooltipOpacity= useRef(new Animated.Value(1))
+  
   const getOpacity = (count: number) => {
     if (count === 0) return Colors.green4WithOpacity(0.1);
     if (count === 1) return Colors.green4WithOpacity(0.25);
@@ -56,13 +57,17 @@ export default forwardRef(({ data = null }: Props, ref) => {
 
   const showTooltip = (item: any, event: any) => {
     event.persist(); // This ensures the event object doesn't get reused
-    const { target, pageX, pageY } = event.nativeEvent;
+    const { locationX,locationY, pageX, pageY } = event.nativeEvent;
     if (containerRef.current) {
       containerRef.current.measure((fx, fy, width, height, px, py) => {
         // Calculate position relative to the container
-        const x = pageX-0;
-        const y = pageY-0;
+        let x = pageX-(fx+30);
+        let y = pageY-(fy+160);
+        let { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+        // Adjust tooltip position to stay within screen bounds
+        if (x < 0) x = 0; // Prevent going off the left edge
+        if (x + 150 > screenWidth) x = screenWidth - 180; // Prevent going off the right edge
         setTooltipData({
           visible: true,
           text: `${formatDate(item.date)} - ${item.recordings_count} notes`,
@@ -73,24 +78,18 @@ export default forwardRef(({ data = null }: Props, ref) => {
   };
 
   const hideTooltip = () => {
-    tooltipData.visible&&setTooltipData(prev => ({ ...prev, visible: false }));
+    tooltipData.visible&&setTooltipData(prev => ({ ...prev, visible: false }));  // Start fade-in animation
   };
 
 
-  // useEffect(() => {
-  //   Animated.timing(shadowOpacity, {
-  //     toValue: visible ? 1 : 0,
-  //     duration: 350,
-  //     easing:Easing.ease,
-  //     useNativeDriver: false,
-  //   }).start();
-  //   Animated.timing(opacity, {
-  //     toValue: visible ? 1 : 0,
-  //     duration: 20,
-  //     easing:Easing.ease,
-  //     useNativeDriver: false,
-  //   }).start();
-  // }, [visible]);
+  useEffect(() => {
+    Animated.timing(shadowOpacity, {
+      toValue: visible ? 1 : 0,
+      duration: 1000,
+      easing:Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [visible]);
 
   const onClose = () => {
     setVisible(false);
@@ -125,13 +124,13 @@ export default forwardRef(({ data = null }: Props, ref) => {
       animationOutTiming={100}
       hideModalContentWhileAnimating={true}
       onBackdropPress={onClose}
-      style={{ justifyContent: "flex-start" ,position:'relative',marginTop:45}}
+      style={{ justifyContent: "flex-start",position:'relative' ,marginTop:45}}
       backdropOpacity={0}
       avoidKeyboard
       hasBackdrop={true}
       coverScreen={false}
       // onTouchStart={(e)=>{console.log(e?.nativeEvent.pageX,'hello')}}
-    ><View style={{position:'relative'}}>
+    ><View style={{}}>
      {/* <View style={[styles.shadow,{width:10,height:10,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:12,right:60}]}/>
      <View style={[styles.shadow,{width:20,height:20,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:25,right:65}]}/> */}
         <View ref={containerRef} style={[styles.modal, styles.shadow]} onTouchStart={()=>{hideTooltip()}}>
@@ -172,13 +171,13 @@ export default forwardRef(({ data = null }: Props, ref) => {
                   ))}
                 </View>
               ))}
+              {tooltipData.visible && (
+                <Animated.View style={[styles.tooltip,{left:tooltipData.position.x,top:tooltipData.position.y,opacity:shadowOpacity}]}>
+                  <Text style={styles.tooltipText}>{tooltipData.text}</Text>
+              </Animated.View>)}
             </View>
-
           </View>
         </View>
-              {/* <View style={{backgroundColor:'red',zIndex:100000,position:'absolute',width:150,top:tooltipData.position.x,left:tooltipData.position.y+0}}>
-                  <Text>{tooltipData.text}</Text>
-              </View> */}
         </View>
     </ReactNativeModal>
   );
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     padding: 8,
     borderRadius: 4,
-    minWidth: 150,
+    minWidth: 130,
     zIndex:1000
   },
   tooltipText: {
