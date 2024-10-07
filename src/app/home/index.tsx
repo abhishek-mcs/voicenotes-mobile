@@ -76,6 +76,7 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
+import Review from "components/common/Review";
 
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
@@ -758,6 +759,7 @@ export default () => {
     <SafeAreaView
       style={[styles.container, hideBackground ? styles.hideBg : {}]}
     >
+      <Review />
       <KeyboardAvoidView
         behavior={isIOS ? "padding" : null}
         style={{ flex: 1 }}
