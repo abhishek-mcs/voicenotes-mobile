@@ -1,9 +1,45 @@
-import { Image, Modal, StyleSheet, Text, View } from "react-native";
+import { ReviewSvg } from "assets/svg/ReviewSvg";
+import { useRouter } from "expo-router";
+import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { SvgXml } from "react-native-svg";
+import * as StoreReview from 'expo-store-review'
 
-const Review = () => {
+type Props = {
+    onClose: () => void,
+    visible: boolean
+}
+const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
+
+    const router = useRouter()
+    
+    const onNegativeFeedback = () => {
+        router.push("/review/")
+        onClose()
+    }
+
+    const onPositiveFeedback = () => {
+        onClose()
+        StoreReview.requestReview()
+            .then(() => {})
+            .catch(() => {
+                const url = StoreReview.storeUrl();
+                if(url) Linking.openURL(url);
+            })
+    }
+
+    const Action = ({ yes }: { yes?: boolean }) => {
+        return <Pressable
+                onPress={yes ? onPositiveFeedback : onNegativeFeedback}
+                style={[styles.action, { borderRightWidth: yes ? 0.3 : 0 }]}
+            >
+            <SvgXml xml={yes ? ReviewSvg.yes : ReviewSvg.no} />
+            <Text style={styles.label}>{yes ? 'Yes' : 'No'}</Text>
+        </Pressable>
+    }
+
     return <Modal
         transparent
-        visible
+        visible={visible}
     >
         <View style={styles.root}>
             <View style={styles.box}>
@@ -18,7 +54,10 @@ const Review = () => {
                     <Text style={styles.heading}>Enjoying the app?</Text>
                     <Text style={styles.subtext}>Tell us your experience</Text>
                 </View>
-                <View style={styles.actions}></View>
+                <View style={styles.actions}>
+                    <Action yes />
+                    <Action />
+                </View>
             </View>
         </View>
     </Modal>
@@ -34,8 +73,8 @@ const styles = StyleSheet.create({
     box: {
         backgroundColor: '#D8D8D8',
         borderRadius: 16,
-        width: '65%',
-        height: '25%'
+        width: 280,
+        height: 250
     },
     logo: {
         flex: 3,
@@ -48,14 +87,17 @@ const styles = StyleSheet.create({
         width: '38%',
         height: '65%',
         overflow: 'hidden',
-        borderRadius: 10, // Adjust this value to change the border radius
+        borderRadius: 10,
     },
     image: {
         width: '100%',
         height: '100%',
     },
     actions: {
-        flex: 1
+        flex: 1.5,
+        borderTopWidth: 0.3,
+        borderColor: '#3C3C43',
+        flexDirection: 'row'
     },
     heading: {
         fontFamily: 'Primary-Medium',
@@ -69,6 +111,18 @@ const styles = StyleSheet.create({
         color: 'grey',
         fontSize: 14,
         fontWeight: '400'
+    },
+    action: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 5
+    },
+    label: {
+        color: '#007AFF',
+        fontWeight: '600',
+        fontSize: 14
     }
 })
 

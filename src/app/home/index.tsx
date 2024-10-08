@@ -124,6 +124,7 @@ export default () => {
   const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [isOffline, setOffline] = useState(false);
+  const [review, askReview] = useState(false)
   const [splitCount, setSplitCount] = useState(0);
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
     null
@@ -759,7 +760,7 @@ export default () => {
     <SafeAreaView
       style={[styles.container, hideBackground ? styles.hideBg : {}]}
     >
-      <Review />
+      <Review visible={review} onClose={() => askReview(false)} />
       <KeyboardAvoidView
         behavior={isIOS ? "padding" : null}
         style={{ flex: 1 }}
