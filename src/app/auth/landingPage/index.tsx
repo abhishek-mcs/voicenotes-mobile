@@ -19,9 +19,8 @@ import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
-import useFBEventTracking from "hooks/fbsdk/useFBEventTracking"
-import { StatusBar } from "react-native"
 import appsFlyer from "react-native-appsflyer"
+import { incrementCounter } from "utils/counter"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -42,6 +41,7 @@ export default () => {
         setAuthToken(data?.data?.token,false,netInfo);
         dispatch(setToken(token));
         dispatch(setUserDetail(userData))
+        incrementCounter()
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
         router.replace("/home/");

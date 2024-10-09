@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as StoreReview from 'expo-store-review'
+import { clearCounter } from "utils/counter";
 
 type Props = {
     onClose: () => void,
@@ -13,24 +14,32 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
     const router = useRouter()
     
     const onNegativeFeedback = () => {
-        router.push("/review/")
         onClose()
+        setTimeout(() => {
+            router.push("/review/")
+        }, 100)
     }
 
     const onPositiveFeedback = () => {
-        onClose()
         StoreReview.requestReview()
             .then(() => {})
-            .catch(() => {
+            .catch((e) => {
+                console.error(e)
                 const url = StoreReview.storeUrl();
                 if(url) Linking.openURL(url);
             })
+        onClose()
+        clearCounter()
     }
 
-    const Action = ({ yes }: { yes?: boolean }) => {
+    const Action = ({ yes, onPress }: { yes?: boolean, onPress: () => void }) => {
         return <Pressable
-                onPress={yes ? onPositiveFeedback : onNegativeFeedback}
-                style={[styles.action, { borderRightWidth: yes ? 0.3 : 0 }]}
+                onPress={onPress}
+                style={({ pressed }) => [
+                    styles.action,
+                    { borderRightWidth: yes ? 0.3 : 0 },
+                    pressed && styles.actionPressed
+                ]}
             >
             <SvgXml xml={yes ? ReviewSvg.yes : ReviewSvg.no} />
             <Text style={styles.label}>{yes ? 'Yes' : 'No'}</Text>
@@ -55,8 +64,8 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
                     <Text style={styles.subtext}>Tell us your experience</Text>
                 </View>
                 <View style={styles.actions}>
-                    <Action yes />
-                    <Action />
+                    <Action yes onPress={onPositiveFeedback} />
+                    <Action onPress={onNegativeFeedback} />
                 </View>
             </View>
         </View>
@@ -118,6 +127,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 5
+    },
+    actionPressed: {
+        opacity: 0.8,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
     label: {
         color: '#007AFF',

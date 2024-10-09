@@ -23,6 +23,7 @@ import Email from "components/settings/email";
 import Names from "components/settings/names";
 import Password from "components/settings/password";
 import ProfilePic from "components/settings/profilepic";
+import { deleteCounter } from "utils/counter";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -197,6 +198,7 @@ export default () => {
       text:"Yes",
       onPress:async()=>{
         await AsyncStorage.removeItem('isLoggedIn');
+        await deleteCounter()
         await logout.mutateAsync('').catch(()=>{})
         dispatch(setTempIsIAPPurchased(false))
         router?.back();

@@ -28,6 +28,7 @@ import { analytics } from "../../../../firebaseConfig";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { setRecordingList } from "redux/reducers/recordingStates";
 import appsFlyer from "react-native-appsflyer";
+import { incrementCounter } from "utils/counter";
 
 export default () => {
   const router = useRouter();
@@ -72,6 +73,7 @@ export default () => {
           if (token) {
             dispatch(setRecordingList([]))
             setAuthToken(response.data?.authorisation?.token,false,netInfo);
+            incrementCounter()
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')

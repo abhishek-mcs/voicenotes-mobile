@@ -77,6 +77,7 @@ import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
 import Review from "components/common/Review";
+import { incrementCounter, shouldPromptNow } from "utils/counter";
 
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
@@ -635,6 +636,10 @@ export default () => {
         // setSplitCount(splitCount+1);
         onStartRecord({repeat:true,parent_id:recordingParentId??null});
       }
+
+      await incrementCounter()
+      if(await shouldPromptNow()) askReview(true)
+
       // upload a new note
       await uploadVoiceNote(newTemporaryRecording);
 
