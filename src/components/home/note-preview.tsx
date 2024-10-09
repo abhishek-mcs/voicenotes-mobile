@@ -958,7 +958,6 @@ const NotePreview = forwardRef(
                     message={note?.transcript
                       ?.replaceAll(/<br\/?>/g, "\n")
                       ?.trimEnd()}
-                    continueGenerating={triggerTypingTitle == note?.id}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
@@ -1102,7 +1101,7 @@ const styles = StyleSheet.create({
     fontFamily: "Primary",
     fontSize: 15,
     color: Colors.grey2WithOpacity(0.5),
-    lineHeight: 23,
+    lineHeight: 21,
     marginTop: 4,
   },
   buttonContainer: {

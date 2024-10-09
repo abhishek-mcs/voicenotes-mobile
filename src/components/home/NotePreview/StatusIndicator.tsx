@@ -23,7 +23,7 @@ const StatusIndicator = ({
     >
       {getStatusIcon(status)}
       {status && (
-        <Text style={{ marginLeft: 4 }}>{formatStatus(status)}...</Text>
+        <Text style={{ marginLeft: 4 }}>{formatStatus(status)}</Text>
       )}
     </Touchable>
   );
@@ -35,7 +35,7 @@ const formatStatus = (word_with_underscores = "") => {
   const multi_word = word_with_underscores.split("_").join(" ");
   const capitalized_word = multi_word
     .split(" ")
-    .map((word) => capitalizeFirstLetter(word))
+    .map((word,index) =>index==0? capitalizeFirstLetter(word):word)
     .join(" ");
   return capitalized_word=="Upload Failed"?"Waiting for network":capitalized_word;
 };

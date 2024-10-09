@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextStyle } from "react-native";
+import { View, Text, TextStyle, Animated } from "react-native";
 import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
 import Colors from "assets/Colors";
+import * as Animatable from 'react-native-animatable';
 
 const ChatBubble = ({
   delay = 30,
@@ -67,12 +68,32 @@ const ChatBubble = ({
       </View>
     );
   }
-
+  useEffect(()=>{
+    if(triggerAnimation&&!!message){
+      animated()
+    }
+  },[message,triggerAnimation])
+  const txtArray=message.split(' ')
+  let animatedValues:any=[]
+  txtArray.forEach((_:any,i:number)=>{
+    animatedValues[i]=new Animated.Value(0)
+  })
+  const animated=(toValue=1)=>{
+    const animations=txtArray.map((words:any,i:number)=>{
+      return Animated.timing(animatedValues[i],{
+        toValue,
+        duration:500,
+        useNativeDriver:true
+      })
+    })
+    Animated.stagger(100,animations)
+  }
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Text style={[style, {}]} numberOfLines={lines}>
-        {displayedMessage}
-      </Text>
+      {txtArray.map((words:any,i:number)=>
+      <Animated.Text key={`${words}-${i}`} style={[style, {opacity:animatedValues[i]}]} numberOfLines={lines}>
+        {words}
+      </Animated.Text>)}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (
         <Text

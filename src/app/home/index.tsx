@@ -76,6 +76,7 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
+import { useGetRelatedRecording } from "queries/home/relatedNote";
 
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
@@ -134,6 +135,7 @@ export default () => {
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
+  const relatedNotes = useGetRelatedRecording();
 
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
@@ -229,14 +231,14 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
             RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTranscript(recordingId))
-            status===RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
+            status===RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -249,10 +251,11 @@ export default () => {
             );
             dispatch(updateTempRecordingData(updatedStatus));
             dispatchCanRecord(updatedNote.data?.can_record_more);
+            await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
-            await remove(statusRef);
-            status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
-            setTimeout(() => {
+            status === RecordingStatus.PROCESS_COMPLETED&&await remove(statusRef);
+            // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
+            status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
               !updatedNote.data?.parent_id&&setExpandNote(0);
             }, 600);
             return;
