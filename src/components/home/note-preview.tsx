@@ -1,6 +1,6 @@
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
-import { memo } from "react";
+import { memo, useContext } from "react";
 import Touchable from "components/common/Touchable";
 import {
   Alert,
@@ -47,8 +47,6 @@ import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
-  setTriggerTypingTitle,
-  setTriggerTypingTranscript,
   updateRecordingDetails,
 } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
@@ -79,6 +77,7 @@ import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
+import { NoteContext } from "context";
 
 const NotePreview = forwardRef(
   (
@@ -129,10 +128,6 @@ const NotePreview = forwardRef(
     } | null>(null);
     const [attachments, setAttachments] = useState([]);
 
-    const { recordingList,triggerTypingTitle,triggerTypingTranscript } = useSelector(
-      (state: RootState) => state.recordingStates
-    );
-
     const dispatch = useDispatch();
 
     const { token } = useSelector((state: RootState) => state.userDetails);
@@ -149,6 +144,7 @@ const NotePreview = forwardRef(
     const unPublishRecording = useUnpublishRecording();
     const relatedNotes = useGetRelatedRecording();
     const NetInfo = useNetInfo();
+    const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
@@ -892,13 +888,11 @@ const NotePreview = forwardRef(
                         showCursorAtEnd={
                           note?.title === "New Recording" || !note?.title
                         }
-                        message={note?.title?.trimEnd() ?? "New Recording"}
+                        message={!!note?.title?note?.title?.trimEnd():"New Recording"}
                         triggerAnimation={
                           triggerTypingTitle == note?.id ? 2 : 0
                         }
-                        disableGenerating={() =>
-                          dispatch(setTriggerTypingTitle(null))
-                        }
+                        disableGenerating={() => setTriggerTypingTitle(null)}
                       />
                     </View>
                     {isNoteExpanded && (
@@ -961,9 +955,7 @@ const NotePreview = forwardRef(
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
-                    disableGenerating={() =>
-                      dispatch(setTriggerTypingTranscript(null))
-                    }
+                    disableGenerating={() =>setTriggerTypingTranscript(null)}
                   />
                 )}
 

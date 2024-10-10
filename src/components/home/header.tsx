@@ -19,7 +19,7 @@ import { MAIN_URL } from "services/api/api-constants";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
 
-export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false}:any) => {
+export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
@@ -73,7 +73,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   
   const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
   return (
-    <Animated.View style={{height:headerHeightAnimate}}>
+    <Animated.View style={{height:headerHeightAnimate,transform:[{scale}],opacity:scale}}>
     <View style={{marginTop:isBeliever?0:12,marginBottom:8}} onTouchStart={()=>Keyboard.dismiss()}>
       <View style={styles.container}>
         {/* drawer button */}

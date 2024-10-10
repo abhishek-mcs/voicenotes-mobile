@@ -55,7 +55,7 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
     offlineList = offlineList.filter((offlineItem:any) => 
       !sortedList.some(sortedItem => sortedItem.temp_id === offlineItem.temp_id)
     );
-    sortedList=[...offlineList,sortedList]
+    sortedList=[...offlineList,...sortedList]
   }
   return sortedList;
 };

@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { View } from "../../components/common/Themed";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
@@ -46,17 +46,15 @@ import {
   setCreateRecordingList,
   setRecordingList,
   setTempRecordingData,
-  setTriggerTypingTitle,
-  setTriggerTypingTranscript,
   updateRecordingDetails,
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
 import NetInfo from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
-import { analytics, db } from "../../../firebaseConfig";
+import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import { off, onValue, ref, remove, update } from "firebase/database";
+import { get, off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
 import { NewNote, Note } from "types";
@@ -65,20 +63,21 @@ import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
-import * as FileSystem from 'expo-file-system';
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 import TagButtons from "components/home/tag-buttons";
-import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData, setTagsFilter } from "redux/reducers/hashSlice";
+import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "redux/reducers/hashSlice";
 import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-
-const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
+import Search from "app/search";
+import { NoteContext } from "context";
+import database from '@react-native-firebase/database';
+import { sleep } from "utils/Timer";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -140,6 +139,7 @@ export default () => {
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
+  const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
@@ -162,19 +162,40 @@ export default () => {
     }
   }, [getTags?.data?.data]);
 
-  const listenToFirebaseStatus = useCallback(
-    (
+  const listenToFirebaseStatus = 
+   async(
       recordingId: string | number,
       temporaryRecordingId: string | null = null
     ) => {
+      try{
       // console.log("listening to firebase");
-      const firebasePath =  "processStatuses/recording/"
+      const firebasePath =  "/processStatuses/recording/"
         // : "processStatuses/guest/recording/";
-      const statusRef = ref(db, firebasePath + recordingId);
+      // const statusRef = ref(db, firebasePath + recordingId);
       console.log('firebase listen', firebasePath + recordingId)
-      onValue(statusRef, async (snapshot) => {
-        console.log('snapshot',snapshot.exists())
-        if (snapshot.exists()) {
+      // const snapshot = await get(statusRef);
+      // console.log(snapshot.exists(),'snapshot exists')
+      // const checkSnapshotExists = async (attempts: number) => {
+      //   for (let i = 0; i < attempts; i++) {
+      //     const snapshot = await get(statusRef);
+      //     if (snapshot.exists()) {
+      //       return snapshot;
+      //     }
+      //     console.log(`Attempt ${i + 1}: Snapshot does not exist, retrying...`);
+      //     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+      //   }
+      //   console.log("Max attempts reached. Snapshot still does not exist.");
+      //   return null; // Return null if snapshot does not exist after retries
+      // };
+      database()
+      .ref(firebasePath + recordingId)
+      .on('value', async (snapshot) => {
+      //   console.log('User data: ', snapshot.val());
+      // });
+      // onValue(statusRef, async (snapshot) => {
+        // const snapshot = await checkSnapshotExists(5);
+        console.log('snapshot',snapshot?.exists())
+        if (snapshot?.exists()) {
           const status = +snapshot.val();
 
           // if (
@@ -187,6 +208,7 @@ export default () => {
           // }
           console.log('firebase snapshot')
           let updatedStatus = "uploading";
+          let isTitleGenerated=false;
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
             console.log("audio uploaded");
@@ -231,15 +253,14 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
-            RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTranscript(recordingId))
-            status===RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
-            status===RecordingStatus.TITLE_GENERATED&&dispatch(
+            isTitleGenerated=updatedNote?.data?.title!=null
+            dispatch(
               updateRecordingDetails({
                 recordingId,
                 data: {
@@ -249,11 +270,14 @@ export default () => {
                 },
               })
             );
+            RecordingStatus.TRANSCRIPT_GENERATED&&setTriggerTypingTranscript(recordingId);
+            isTitleGenerated&&setTriggerTypingTitle(recordingId);
             dispatch(updateTempRecordingData(updatedStatus));
             dispatchCanRecord(updatedNote.data?.can_record_more);
             RecordingStatus.TITLE_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
-            status === RecordingStatus.PROCESS_COMPLETED&&await remove(statusRef);
+            status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).remove();
+            status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).off('value');
             // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
             status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
               !updatedNote.data?.parent_id&&setExpandNote(0);
@@ -266,9 +290,10 @@ export default () => {
       },(error) => {
         console.error(error);
       });
-    },
-    [token, dispatch]
-  );
+    }catch(e){
+      console.log(e,'firebase listener error')
+    }
+    }
 
   useEffect(() => {
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
@@ -526,6 +551,8 @@ export default () => {
     onRecord(setRec, setRecEnabled);
     activateKeepAwakeAsync();
     analytics().logEvent("started_recording");
+    setTriggerTypingTitle(null)
+    setTriggerTypingTranscript(null)
   };
 
   const onPause = async (paused: boolean) => {
@@ -560,7 +587,7 @@ export default () => {
         parent_id: note?.parent_id ??null,
         recorded_at: note.recorded_at,
         temp_id:note.temp_id,
-      }).then((response)=>{
+      }).then(async(response)=>{
         const recordingId = response.recording.id;
         console.log(recordingId,'recording id')
         // if(response.recording?.parent_id){
@@ -568,7 +595,15 @@ export default () => {
         // }else{
         //   setRecordingParentId(null)
         // }
-        listenToFirebaseStatus(recordingId, temporaryRecordingId);
+        dispatch(
+          updateRecordingDetails({
+            recordingId,
+            data: { status: "uploading" },
+            temporaryRecordingId,
+          })
+        );
+        sleep(500)
+        await listenToFirebaseStatus(recordingId, temporaryRecordingId);
       });
       setTimeout(() => {
         console.log("removing old recordings to save memory");
@@ -677,6 +712,11 @@ export default () => {
     }
   },[recordingList,hashFilter])
 
+  useEffect(()=>{
+      setTriggerTypingTitle(null)
+      setTriggerTypingTranscript(null)
+  },[hashFilter])
+
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
@@ -758,6 +798,27 @@ export default () => {
     recordingQuery?.isLoading ||
     recordingQuery?.isRefetching)
 
+  const scale=useRef(new Animated.Value(1))
+  const searchTranslateY=useRef(new Animated.Value(0)).current
+  const [searchFocused,setSearchFocus]=useState(false)
+  const onSearchAnim=(isFocus=false)=>{
+    Animated.parallel([
+      Animated.timing(scale.current, {
+        duration: isFocus?350:200,
+        toValue: isFocus?0:1, // Scale down
+        useNativeDriver: false,
+        easing: Easing.ease,
+      }),
+      Animated.timing(searchTranslateY, {
+        duration: isFocus?350:200,
+        toValue: isFocus?-90:0, // Translate up
+        useNativeDriver: false,
+        easing: Easing.ease,
+      }),
+    ]).start();
+    setSearchFocus(isFocus)
+  }
+
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
@@ -788,6 +849,7 @@ export default () => {
                 streaksRef={streaksRef}
                 scrollY={scrollY}
                 hideBgColor={hideBackground}
+                scale={scale.current}
               />
               <BannerAlert
                 ref={bannerRef}
@@ -799,10 +861,10 @@ export default () => {
               {!!token && (
                 <Animated.View
                   style={{
-                    opacity: hideBackground ? 0 : 1,
+                    // opacity: hideBackground ? 0 : 1,
                     marginTop: isIOS ? 0 : 10,
                   }}
-                  onTouchEnd={() => !hideBackground && router.push("/search/")}
+                  // onTouchEnd={() => !hideBackground && router.push("/search/")}
                   onTouchStart={(e) => {
                     e?.stopPropagation();
                     setHideSearch(false);
@@ -812,17 +874,21 @@ export default () => {
                     style={[
                       { zIndex: 1 },
                       {
-                        height: searchBarHeightAnimated,
+                        height: searchFocused?screenHeight:searchBarHeightAnimated,
                         transform: [{ scaleY: searchBarScale }],
                       },
                     ]}
                   >
-                    <SearchBar
-                      scrollY={scrollY}
-                      style={{ opacity: 1 }}
-                      hideView={hideSearch}
-                      setHide={setHideSearch}
-                      isSearchVisible={isSearchVisible}
+                    <Search
+                      onFocus={()=>onSearchAnim(true)}
+                      onBlur={()=>onSearchAnim(false)}
+                      searchHeight={searchBarHeight}
+                      searchTranslateY={searchTranslateY}
+                      // scrollY={scrollY}
+                      // style={{ opacity: 1 }}
+                      // hideView={hideSearch}
+                      // setHide={setHideSearch}
+                      // isSearchVisible={isSearchVisible}
                     />
                   </Animated.View>
                 </Animated.View>

@@ -31,9 +31,9 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({
-    serializableCheck: {
-      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-    },
+    thunk: true,
+    serializableCheck: false,
+    immutableCheck: false,
   }),
 });
 export const persistor = persistStore(store);

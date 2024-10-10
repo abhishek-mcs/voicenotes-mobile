@@ -7,29 +7,19 @@ export interface HashState {
   recordingCreateList: any[];
   tempRecordings: any;
   tempRecordingData:any;
-  triggerTypingTitle:any;
-  triggerTypingTranscript:any;
 }
 
 const initialState: HashState = {
   recordingList: [],
   recordingCreateList: [],
   tempRecordings: [],
-  tempRecordingData:{},
-  triggerTypingTitle:null,
-  triggerTypingTranscript:null
+  tempRecordingData:{}
 };
 
 export const recordingStates = createSlice({
   name: "recordingStates",
   initialState,
   reducers: {
-    setTriggerTypingTitle: (state, action: PayloadAction<any>) => {
-      state.triggerTypingTitle = action.payload;
-    },
-    setTriggerTypingTranscript: (state, action: PayloadAction<any>) => {
-      state.triggerTypingTranscript = action.payload;
-    },
     setRecordingList: (state, action: PayloadAction<object[]>) => {
       state.recordingList = action.payload;
     },
@@ -99,6 +89,7 @@ export const recordingStates = createSlice({
           recording.id === recordingId ||
           recording.id === temporaryRecordingId
         ) {
+          recording?.title
           return {
             ...recording,
             ...data,
@@ -117,11 +108,7 @@ export const recordingStates = createSlice({
         // If no changes, return the original recording
         return recording;
       };
-
-      return {
-        ...state,
-        recordingList: state.recordingList.map(updateRecording),
-      };
+      state.recordingList= state.recordingList.map(updateRecording)
     },
   },
 });
@@ -137,8 +124,6 @@ export const {
   deleteRecordingsFromState,
   updateRecordingDetails,
   updateTempRecordingData,
-  setTriggerTypingTitle,
-  setTriggerTypingTranscript,
   setCreateRecordingList
 } = recordingStates.actions;
 

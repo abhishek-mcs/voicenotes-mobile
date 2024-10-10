@@ -79,6 +79,8 @@ const ChatBubble = ({
       style={style}
       cursor={false}
       typeSpeed={20}
+      onComplete={disableGenerating}
+      numberOfLines={lines}
     />
     :<Text style={[style, {}]} numberOfLines={lines}>
         {message}

@@ -1,4 +1,4 @@
-import { InteractionManager, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet, TextInput, TouchableHighlight, View } from "react-native"
+import { InteractionManager, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet, TextInput, TouchableHighlight, View, Animated } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { useEffect, useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
@@ -7,8 +7,7 @@ import { Text } from "react-native";
 import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
 import { useRouter } from "expo-router";
 import CircularLoader from "components/common/loaders/circular-loader";
-import Animated from "react-native-reanimated";
-import { isIOS, screenWidth } from "utils/common";
+import { isIOS, screenHeight, screenWidth } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
@@ -18,7 +17,7 @@ import Touchable from "components/common/Touchable";
 
 const {debounce}=require("lodash")
 
-export default ({setHide=(v:boolean)=>{}})=>{
+export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeight=40,searchTranslateY=0}:any)=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +40,18 @@ export default ({setHide=(v:boolean)=>{}})=>{
       setSearchQuery(q);
     }, 500); 
 
+    const onFocusInput=()=>{
+      setIsFocused(true);
+      onFocus();
+    }
+
+    const onBlurInput=()=>{
+      console.log('sdsdsd')
+      Keyboard.dismiss()
+      setIsFocused(false);
+      onBlur();
+    }
+
     const onSearch=(q:string)=>{
       setSearchText(q)
       debouncedSearch(q);
@@ -59,7 +70,8 @@ export default ({setHide=(v:boolean)=>{}})=>{
       setSearchHistory.mutate(rec_id)
       // router.push({pathname:"/RelatedNotes/",params:{id:rec_id}})
       dispatch(setRelatedNoteId(rec_id))
-      router.back()
+      // router.back() 
+      onBlurInput()
       clearSearch()
     }
     useEffect(()=>{
@@ -92,20 +104,21 @@ export default ({setHide=(v:boolean)=>{}})=>{
     }
 
     return (
-        <SafeAreaView>
-          <View style={{flexDirection:'row',marginTop:isIOS?10:50,alignItems:'center',marginBottom:4}}>
+        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:'#fff',}}>
+          <Animated.View style={{flexDirection:'row',marginTop:4,alignItems:'center',marginBottom:4,height:searchHeight}}>
                 <SearchBarIOS
                   onClear={onClear}
                   clearButtonMode="while-editing"
                   searchIcon={<SvgXml xml={commonSvg.search} />}
                   clearIcon={<View style={{width:0,height:0}}/>}
-                  onCancel={()=>router.back()}
+                  onCancel={()=>{}}
+                  showCancel={isFocused}
                   // onSubmitEditing={()=>onSearch(searchText)}
-                  onFocus={()=>setIsFocused(true)}
-                  onBlur={()=>setIsFocused(false)}
+                  onFocus={onFocusInput}
+                  onBlur={onBlurInput}
                   onChangeText={onSearch}
                   autoCapitalize={"none"}
-                  autoFocus={true}
+                  autoFocus={false}
                   placeholder="Search"
                   placeholderTextColor={Colors.grey6}
                   contextMenuHidden={true}
@@ -115,10 +128,10 @@ export default ({setHide=(v:boolean)=>{}})=>{
                   containerStyle={{backgroundColor:'transparent'}}
                   inputContainerStyle={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,height:40}}
                 />
-          </View>
-                  <ScrollView 
+          </Animated.View>
+                  {isFocused&&<ScrollView 
                     showsVerticalScrollIndicator={false} 
-                    style={{overflow:'hidden',paddingBottom:100}}
+                    style={{overflow:'hidden',paddingBottom:100,marginTop:8,height:screenHeight,backgroundColor:"#fff"}}
                     contentContainerStyle={{paddingBottom:100}}
                     keyboardShouldPersistTaps="handled">
                     {((getSearchData?.isFetched&&searchData.length==0)||searchText=='')&&
@@ -129,8 +142,8 @@ export default ({setHide=(v:boolean)=>{}})=>{
                     {filteredHashTags?.length>0&&
                     <View style={{paddingVertical:0}}>
                       <Text style={styles.recent}>Tags</Text>
-                      <View style={{flexDirection:'row',flexWrap:'wrap',marginTop:8,rowGap:8,paddingHorizontal:20}}>
-                      {filteredHashTags?.slice(0, visibleTags)?.map((itm:any,i:number)=><TagButton key={i} title={itm} from="search" onPress={()=>{router?.back()}}/>)}
+                      <View style={{flexDirection:'row',flexWrap:'wrap',marginTop:8,rowGap:8,paddingHorizontal:12}}>
+                      {filteredHashTags?.slice(0, visibleTags)?.map((itm:any,i:number)=><TagButton key={i} title={itm} from="search" onPress={()=>{onBlurInput()}}/>)}
                       {visibleTags < filteredHashTags.length && (
                         <ShowMoreTagsButton onPress={showMoreTags} />
                       )}
@@ -173,8 +186,8 @@ export default ({setHide=(v:boolean)=>{}})=>{
                   :<View style={[styles.result,{alignItems:'center',marginTop:40}]}>
                     <CircularLoader/>
                   </View>}
-                  </ScrollView>
-          </SafeAreaView>
+                  </ScrollView>}
+          </Animated.View>
     )
 }
 
@@ -216,13 +229,13 @@ const styles=StyleSheet.create({
       flexDirection:'row',
       alignItems:'center',
       paddingVertical:8,
-      paddingHorizontal:20
+      paddingHorizontal:12
     },
     recent:{
       fontFamily:'Primary-Medium',
       color:Colors.grey,
       fontSize:12,
-      paddingHorizontal:20
+      paddingHorizontal:12
     },
     recentText:{
       fontFamily:'Primary',
@@ -233,7 +246,7 @@ const styles=StyleSheet.create({
     },
     title:{fontFamily:'Primary-Semibold',fontSize:16,color:'#222',marginLeft:8},
     txt:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:4},
-    result:{paddingHorizontal:20,paddingVertical:16},
+    result:{paddingHorizontal:12,paddingVertical:16},
     noData:{
       fontFamily:'Primary-Semibold',
       color:"#222",
