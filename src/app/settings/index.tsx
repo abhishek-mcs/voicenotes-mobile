@@ -3,7 +3,7 @@ import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useNavigation, useRouter } from "expo-router";
 import { useLogout } from "queries/auth";
-import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard } from "react-native";
+import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard, Linking } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -287,7 +287,8 @@ export default () => {
           title="APP"
           items={[
             {title: 'Language', isMenu:true, data:Object.entries(languages), value:lang, onPressMenu:onSelectLang},
-            {title:'Names to remember', value:'', onPress: () => showScreen('names'), rightIcon:settingsSvg.arrow}
+            {title:'Names to remember', value:'', onPress: () => showScreen('names'), rightIcon:settingsSvg.arrow},
+            {title:'FAQ', value:'', onPress: () => Linking.openURL('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions'), rightIcon:settingsSvg.arrow}
           ]} 
         />
         <Grouped 
