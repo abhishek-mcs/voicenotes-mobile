@@ -9673,6 +9673,11 @@ react-native-toast-message@^2.2.0:
   resolved "https://registry.yarnpkg.com/react-native-toast-message/-/react-native-toast-message-2.2.0.tgz#c53a4746b15616858a7d61c4386b92cbe9fbf911"
   integrity sha512-AFti8VzUk6JvyGAlLm9/BknTNDXrrhqnUk7ak/pM7uCTxDPveAu2ekszU0on6vnUPFnG04H/QfYE2IlETqeaWw==
 
+react-native-type-animation@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-type-animation/-/react-native-type-animation-0.4.0.tgz#b40eec5fea2d20f7cbe2f5ad703c6329efd4b4f8"
+  integrity sha512-JQikS4iv4ltxsH6y0XbdcOvXEKtPt93UgXgG6bQqvQirr6reuqM4DNxxyoRG6eB5fxex+PHcu2x+NZX2C6vt1Q==
+
 react-native-uuid@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/react-native-uuid/-/react-native-uuid-2.0.2.tgz#3da192e342ef35ee95a7def676ab41c1256dfd66"

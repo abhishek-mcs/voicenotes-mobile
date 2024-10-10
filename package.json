@@ -87,6 +87,7 @@
     "react-native-swiper": "^1.6.0",
     "react-native-three-dots-loader": "^1.0.1",
     "react-native-toast-message": "^2.2.0",
+    "react-native-type-animation": "^0.4.0",
     "react-native-uuid": "^2.0.2",
     "react-native-vector-icons": "^10.2.0",
     "react-native-wagmi-charts": "^2.4.1",

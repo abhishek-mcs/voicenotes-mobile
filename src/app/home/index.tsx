@@ -76,6 +76,7 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
+import { useGetRelatedRecording } from "queries/home/relatedNote";
 
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
@@ -134,6 +135,7 @@ export default () => {
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
+  const relatedNotes = useGetRelatedRecording();
 
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
@@ -166,12 +168,12 @@ export default () => {
       temporaryRecordingId: string | null = null
     ) => {
       // console.log("listening to firebase");
-      const firebasePath = token
-        ? "processStatuses/recording/"
-        : "processStatuses/guest/recording/";
+      const firebasePath =  "processStatuses/recording/"
+        // : "processStatuses/guest/recording/";
       const statusRef = ref(db, firebasePath + recordingId);
-      console.log('firebase listen')
+      console.log('firebase listen', firebasePath + recordingId)
       onValue(statusRef, async (snapshot) => {
+        console.log('snapshot',snapshot.exists())
         if (snapshot.exists()) {
           const status = +snapshot.val();
 
@@ -229,15 +231,15 @@ export default () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED) {
+          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
             RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTranscript(recordingId))
-            status===RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
-            dispatch(
+            status===RecordingStatus.TITLE_GENERATED&&dispatch(setTriggerTypingTitle(recordingId))
+            status===RecordingStatus.TITLE_GENERATED&&dispatch(
               updateRecordingDetails({
                 recordingId,
                 data: {
@@ -249,10 +251,11 @@ export default () => {
             );
             dispatch(updateTempRecordingData(updatedStatus));
             dispatchCanRecord(updatedNote.data?.can_record_more);
+            RecordingStatus.TITLE_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
-            await remove(statusRef);
-            status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
-            setTimeout(() => {
+            status === RecordingStatus.PROCESS_COMPLETED&&await remove(statusRef);
+            // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
+            status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
               !updatedNote.data?.parent_id&&setExpandNote(0);
             }, 600);
             return;
@@ -551,24 +554,26 @@ export default () => {
       //   parent_id=recordingList.find((rec)=>rec.temp_id==note.temp_parent_id)?.id??null;
       //   console.log('parent_id: ',parent_id)
       // }
-      const response = await saveVoiceNote({
+      await saveVoiceNote({
         audio: note.audio.data.url,
         duration: note.audio.data.duration,
         parent_id: note?.parent_id ??null,
         recorded_at: note.recorded_at,
         temp_id:note.temp_id,
+      }).then((response)=>{
+        const recordingId = response.recording.id;
+        console.log(recordingId,'recording id')
+        // if(response.recording?.parent_id){
+        //   setRecordingParentId(recordingId)
+        // }else{
+        //   setRecordingParentId(null)
+        // }
+        listenToFirebaseStatus(recordingId, temporaryRecordingId);
       });
-      const recordingId = response.recording.id;
-      // if(response.recording?.parent_id){
-      //   setRecordingParentId(recordingId)
-      // }else{
-      //   setRecordingParentId(null)
-      // }
-      listenToFirebaseStatus(recordingId, temporaryRecordingId);
       setTimeout(() => {
         console.log("removing old recordings to save memory");
         removeExtraOldAudios(recordingList, dispatch);
-      }, 2500);
+      }, 4000);
       await queryClient.resetQueries('streaks');
     } catch (error) {
       console.log("Error in network upload");
@@ -662,7 +667,7 @@ export default () => {
   const fetchNextPage = () => {
     // if(recordingList?.length>10){
       recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
-      console.log("fetching next page");
+      recordingQuery.hasNextPage&&console.log("fetching next page");
     // }
   };
 

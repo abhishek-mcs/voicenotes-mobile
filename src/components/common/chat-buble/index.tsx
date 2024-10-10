@@ -4,6 +4,7 @@ import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
 import Colors from "assets/Colors";
+import { TypeAnimation } from 'react-native-type-animation';
 
 const ChatBubble = ({
   delay = 30,
@@ -36,26 +37,26 @@ const ChatBubble = ({
     return htmlPattern.test(str);
   };
 
-  useEffect(() => {
-    let currentIndex = 0;
-    let interval: any;
-    if (triggerAnimation == 2 && !!message && continueGenerating) {
-      const words = message.split(' ');
-      interval = setInterval(() => {
-        setDisplayedMessage((prev:any) => prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex]);
-        currentIndex++;
-        if ((currentIndex > words?.length-1) || currentIndex === 150) {
-          disableGenerating();
-          interval && clearInterval(interval);
-        }
-      },  60); // Adjust the interval for faster typing speed
-    } else {
-      disableGenerating();
-      setDisplayedMessage(message);
-      interval && clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [message, triggerAnimation, continueGenerating]);
+  // useEffect(() => {
+  //   let currentIndex = 0;
+  //   let interval: any;
+  //   if (triggerAnimation == 2 && !!message && continueGenerating) {
+  //     const words = message.split(' ');
+  //     interval = setInterval(() => {
+  //       setDisplayedMessage((prev:any) => prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex]);
+  //       currentIndex++;
+  //       if ((currentIndex > words?.length-1) || currentIndex === 150) {
+  //         disableGenerating();
+  //         interval && clearInterval(interval);
+  //       }
+  //     },  60); // Adjust the interval for faster typing speed
+  //   } else {
+  //     disableGenerating();
+  //     setDisplayedMessage(message);
+  //     interval && clearInterval(interval);
+  //   }
+  //   return () => clearInterval(interval);
+  // }, [message, triggerAnimation, continueGenerating]);
 
   if (containsHTML(displayedMessage)) {
     return (
@@ -67,12 +68,21 @@ const ChatBubble = ({
       </View>
     );
   }
-
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Text style={[style, {}]} numberOfLines={lines}>
-        {displayedMessage}
-      </Text>
+
+      {triggerAnimation==2?
+      <TypeAnimation
+      sequence={[
+        { text: message },
+      ]}
+      style={style}
+      cursor={false}
+      typeSpeed={20}
+    />
+    :<Text style={[style, {}]} numberOfLines={lines}>
+        {message}
+      </Text>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (
         <Text
