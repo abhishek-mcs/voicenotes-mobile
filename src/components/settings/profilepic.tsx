@@ -1,6 +1,6 @@
 import { Alert, Dimensions, Pressable, StyleSheet, View } from "react-native"
 import * as ImagePicker from 'expo-image-picker'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { uploadDP } from "queries/auth"
 import ImageBackground from "components/common/ImageBackground"
 import CircularLoader from "components/common/loaders/circular-loader"
@@ -15,12 +15,15 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     const [image, setImage] = useState(url)
     const [working, setWorking] = useState(false)
+    const [showOverlay, setShowOverlay] = useState(false)
 
     const pickImage = async () => {
+        setShowOverlay(true)
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (!permissionResult.granted) {
             Alert.alert('Access denied', "You've refused to allow VoiceNotes to access your photos!");
+            setShowOverlay(false)
             return;
         }
 
@@ -38,24 +41,32 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
             onChange(newURI);
             setWorking(false)
         }
+        setShowOverlay(false)
     }
 
     return <View style={styles.root}>
         <View style={styles.container}>
-        {!image?
-        <SvgXml xml={commonSvg.profileIcon} width={width/3.5} height={width/3.5}/>
-        :<ImageBackground
+        <ImageBackground
                 uri={image}
                 style={styles.image}
                 imageStyle={{ borderRadius: 100 }}
             >
-                {working ?
+                {working ? (
                     <CircularLoader color="#bfbfbf" />
-                : <Pressable style={styles.button} onPress={pickImage} />}
-            </ImageBackground>}
+                ) : (
+                    <Pressable style={styles.button} onPress={pickImage}>
+                        {showOverlay && (
+                            <View style={styles.overlay}>
+                                <SvgXml xml={commonSvg.camera} width={35} height={35} />
+                            </View>
+                        )}
+                    </Pressable>
+                )}
+            </ImageBackground>
         </View>
     </View>
 }
+
 
 const width = Dimensions.get('window').width;
 const styles = StyleSheet.create({
@@ -84,7 +95,14 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
-    }
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 100,
+    },
 })
 
 export default ProfilePic
