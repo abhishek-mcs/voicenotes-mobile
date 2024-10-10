@@ -4,7 +4,7 @@ import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
 import Colors from "assets/Colors";
-import * as Animatable from 'react-native-animatable';
+import { TypeAnimation } from 'react-native-type-animation';
 
 const ChatBubble = ({
   delay = 30,
@@ -37,26 +37,26 @@ const ChatBubble = ({
     return htmlPattern.test(str);
   };
 
-  useEffect(() => {
-    let currentIndex = 0;
-    let interval: any;
-    if (triggerAnimation == 2 && !!message && continueGenerating) {
-      const words = message.split(' ');
-      interval = setInterval(() => {
-        setDisplayedMessage((prev:any) => prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex]);
-        currentIndex++;
-        if ((currentIndex > words?.length-1) || currentIndex === 150) {
-          disableGenerating();
-          interval && clearInterval(interval);
-        }
-      },  60); // Adjust the interval for faster typing speed
-    } else {
-      disableGenerating();
-      setDisplayedMessage(message);
-      interval && clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [message, triggerAnimation, continueGenerating]);
+  // useEffect(() => {
+  //   let currentIndex = 0;
+  //   let interval: any;
+  //   if (triggerAnimation == 2 && !!message && continueGenerating) {
+  //     const words = message.split(' ');
+  //     interval = setInterval(() => {
+  //       setDisplayedMessage((prev:any) => prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex]);
+  //       currentIndex++;
+  //       if ((currentIndex > words?.length-1) || currentIndex === 150) {
+  //         disableGenerating();
+  //         interval && clearInterval(interval);
+  //       }
+  //     },  60); // Adjust the interval for faster typing speed
+  //   } else {
+  //     disableGenerating();
+  //     setDisplayedMessage(message);
+  //     interval && clearInterval(interval);
+  //   }
+  //   return () => clearInterval(interval);
+  // }, [message, triggerAnimation, continueGenerating]);
 
   if (containsHTML(displayedMessage)) {
     return (
@@ -68,32 +68,21 @@ const ChatBubble = ({
       </View>
     );
   }
-  useEffect(()=>{
-    if(triggerAnimation&&!!message){
-      animated()
-    }
-  },[message,triggerAnimation])
-  const txtArray=message.split(' ')
-  let animatedValues:any=[]
-  txtArray.forEach((_:any,i:number)=>{
-    animatedValues[i]=new Animated.Value(0)
-  })
-  const animated=(toValue=1)=>{
-    const animations=txtArray.map((words:any,i:number)=>{
-      return Animated.timing(animatedValues[i],{
-        toValue,
-        duration:500,
-        useNativeDriver:true
-      })
-    })
-    Animated.stagger(100,animations)
-  }
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      {txtArray.map((words:any,i:number)=>
-      <Animated.Text key={`${words}-${i}`} style={[style, {opacity:animatedValues[i]}]} numberOfLines={lines}>
-        {words}
-      </Animated.Text>)}
+
+      {triggerAnimation==2?
+      <TypeAnimation
+      sequence={[
+        { text: message },
+      ]}
+      style={style}
+      cursor={false}
+      typeSpeed={20}
+    />
+    :<Text style={[style, {}]} numberOfLines={lines}>
+        {message}
+      </Text>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (
         <Text

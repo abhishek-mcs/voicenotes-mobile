@@ -1,7 +1,7 @@
 import { format, isToday, isYesterday } from 'date-fns';
 
 export const formatDateAndTimeNew=(date: Date | number)=>{
-  const inputDate = new Date(date);
+  const inputDate = new Date(date??Date.now());
   
   if (isToday(inputDate)) {
     return `Today · ${format(inputDate, 'h:mm a')}`;
@@ -10,7 +10,7 @@ export const formatDateAndTimeNew=(date: Date | number)=>{
   if (isYesterday(inputDate)) {
     return `Yesterday · ${format(inputDate, 'h:mm a')}`;
   }
-  
+
   return format(inputDate, 'MMM d · h:mm a');
 }
 

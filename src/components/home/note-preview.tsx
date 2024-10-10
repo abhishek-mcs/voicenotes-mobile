@@ -847,7 +847,7 @@ const NotePreview = forwardRef(
                   recordingList[index - 1]?.recorded_at
                 ))) && ( */}
           <Text style={styles.date}>
-            {formatDateAndTimeNew(note?.recorded_at)}
+            {formatDateAndTimeNew(note?.recorded_at??note?.created_at)}
           </Text>
           {/* )} */}
           <View style={styles.row}>

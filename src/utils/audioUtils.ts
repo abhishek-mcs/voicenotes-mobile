@@ -61,6 +61,7 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
 };
 
 export const removeExtraOldAudios = async (recordingList: Note[], dispatch: any) => {
+  console.log(recordingList.length)
   if (recordingList.length > MAX_NOTES_STORAGE_LIMIT_IN_DEVICE) {
     let recordsToRemoveFromCache = [];
     for (
