@@ -209,6 +209,8 @@ export default () => {
           console.log('firebase snapshot')
           let updatedStatus = "uploading";
           let isTitleGenerated=false;
+          let isTitleTriggered=false;
+          let isTranscriptTriggered=false;
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
             console.log("audio uploaded");
@@ -270,11 +272,13 @@ export default () => {
                 },
               })
             );
-            RecordingStatus.TRANSCRIPT_GENERATED&&setTriggerTypingTranscript(recordingId);
-            isTitleGenerated&&setTriggerTypingTitle(recordingId);
+            !isTranscriptTriggered&&status==RecordingStatus.TRANSCRIPT_GENERATED&&setTriggerTypingTranscript(recordingId);
+            !isTitleTriggered&&isTitleGenerated&&setTriggerTypingTitle(recordingId);
+            isTitleTriggered=isTitleGenerated;
+            isTranscriptTriggered=status==RecordingStatus.TRANSCRIPT_GENERATED
             dispatch(updateTempRecordingData(updatedStatus));
             dispatchCanRecord(updatedNote.data?.can_record_more);
-            RecordingStatus.TITLE_GENERATED&&await relatedNotes.mutateAsync(recordingId)
+            status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
             status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).remove();
             status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).off('value');
@@ -804,16 +808,16 @@ export default () => {
   const onSearchAnim=(isFocus=false)=>{
     Animated.parallel([
       Animated.timing(scale.current, {
-        duration: isFocus?350:200,
+        duration: 150,
         toValue: isFocus?0:1, // Scale down
         useNativeDriver: false,
-        easing: Easing.ease,
+        easing: Easing.linear,
       }),
       Animated.timing(searchTranslateY, {
-        duration: isFocus?350:200,
+        duration: 150,
         toValue: isFocus?-90:0, // Translate up
         useNativeDriver: false,
-        easing: Easing.ease,
+        easing: Easing.linear,
       }),
     ]).start();
     setSearchFocus(isFocus)

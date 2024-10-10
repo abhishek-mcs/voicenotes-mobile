@@ -73,7 +73,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   
   const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
   return (
-    <Animated.View style={{height:headerHeightAnimate,transform:[{scale}],opacity:scale}}>
+    <Animated.View style={{height:headerHeightAnimate,transform:[{scaleY:scale}],opacity:scale}}>
     <View style={{marginTop:isBeliever?0:12,marginBottom:8}} onTouchStart={()=>Keyboard.dismiss()}>
       <View style={styles.container}>
         {/* drawer button */}

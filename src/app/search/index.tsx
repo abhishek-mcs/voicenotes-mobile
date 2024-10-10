@@ -46,7 +46,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     }
 
     const onBlurInput=()=>{
-      console.log('sdsdsd')
+      console.log('on blur')
       Keyboard.dismiss()
       setIsFocused(false);
       onBlur();
