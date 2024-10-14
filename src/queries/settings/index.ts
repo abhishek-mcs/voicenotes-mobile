@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "react-query";
+import * as Device from 'expo-device';
 import axiosApi from "services/api/axios-api";
 import { SettingsPayload } from "types";
+import { currentVersion } from "services/api/api-constants";
 
 export function useSaveSettings() {
   const queryClient = useQueryClient();
@@ -32,4 +34,22 @@ export async function changeEmail(email: string, otp?: string) {
   } catch (error) {
       throw error;
   }
+}
+
+export async function submitReview(review: string) {
+  try {
+    const response = await axiosApi.post('/feedback', {
+      review,
+      platform: Device.osName,
+      device_details: {
+        platform: Device.osName,
+        modelName: Device.modelName,
+        osVersion: Device.osVersion,
+        appVersion: currentVersion,
+        deviceType: Device.DeviceType,
+        manufacturer: Device.manufacturer
+      }
+    })
+    return response.data
+  } catch (error) { throw error }
 }

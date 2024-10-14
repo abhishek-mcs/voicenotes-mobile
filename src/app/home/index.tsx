@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   Animated,
   DeviceEventEmitter,
   Easing,
@@ -15,9 +14,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
 import NotePreview from "components/home/note-preview";
 import AboutProduct from "components/home/about-product";
-import AIModal from "components/AIModal";
-import CreateModal from "components/CreateModal";
-import SearchBar, { heightIn, heightOut } from "components/common/search-bar";
 import { Audio } from "expo-av";
 import BottomBar from "components/home/bottom-bar";
 import {
@@ -71,14 +67,15 @@ import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "
 import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
-import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from "expo-router";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-import Search from "app/search";
 import { NoteContext } from "context";
 import database from '@react-native-firebase/database';
 import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
+import Review from "components/common/Review";
+import { incrementCounter, shouldPromptNow } from "utils/counter";
+
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -124,6 +121,7 @@ export default () => {
   const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [isOffline, setOffline] = useState(false);
+  const [review, askReview] = useState(false)
   const [splitCount, setSplitCount] = useState(0);
   const [recordingParentId, setRecordingParentId] = useState<string | null>(
     null
@@ -678,6 +676,10 @@ export default () => {
         // setSplitCount(splitCount+1);
         onStartRecord({repeat:true,parent_id:recordingParentId??null});
       }
+
+      await incrementCounter()
+      if(await shouldPromptNow()) askReview(true)
+
       // upload a new note
       await uploadVoiceNote(newTemporaryRecording);
 
@@ -829,6 +831,7 @@ export default () => {
     <SafeAreaView
       style={[styles.container, hideBackground ? styles.hideBg : {}]}
     >
+      <Review visible={review} onClose={() => askReview(false)} />
       <KeyboardAvoidView
         behavior={isIOS ? "padding" : null}
         style={{ flex: 1 }}
