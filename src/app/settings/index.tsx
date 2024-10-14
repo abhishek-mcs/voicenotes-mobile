@@ -273,6 +273,7 @@ export default () => {
             dispatch(setUserDetail({ ...userDetails, photo_url }))
           }}
         />
+        <ScrollView showsVerticalScrollIndicator={false}>
         <Grouped 
           title="ACCOUNT"
           items={[
@@ -302,6 +303,7 @@ export default () => {
         <View style={{alignSelf:'center'}}>
           <Text style={{fontFamily:'Primary-Medium', fontSize:14, color:Colors.grey}}>Version {currentVersion}</Text>
         </View>
+        </ScrollView>
       </View>
       
       {renderScreen('name', Name)}
