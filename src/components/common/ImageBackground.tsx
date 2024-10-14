@@ -8,9 +8,10 @@ type Props = {
     style?: any,
     imageStyle?: any,
     resizeMode?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down',
+    onError?: () => void
 };
 
-const ImageBackground: React.FC<Props> = ({ uri, children, style, imageStyle, resizeMode = 'cover' }) => {
+const ImageBackground: React.FC<Props> = ({ uri, children, style, imageStyle, onError, resizeMode = 'cover' }) => {
     return (
         <View style={[{ flex: 1 }, style]}>
             <Image
@@ -18,6 +19,7 @@ const ImageBackground: React.FC<Props> = ({ uri, children, style, imageStyle, re
                 style={[StyleSheet.absoluteFill, imageStyle]}
                 contentFit={resizeMode}
                 priority={'high'}
+                onError={onError}
             />
             {children}
         </View>

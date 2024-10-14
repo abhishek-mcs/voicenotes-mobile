@@ -270,7 +270,7 @@ export default () => {
           <SvgXml xml={settingsSvg.close} width={30} height={30} />
         </Touchable>
         <ProfilePic 
-          url={userDetails?.photo_url || ""}
+          url={userDetails?.photo_url}
           onChange={photo_url => {
             dispatch(setUserDetail({ ...userDetails, photo_url }))
           }}

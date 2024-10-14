@@ -8,7 +8,7 @@ import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 
 type Props = {
-    url: string,
+    url?: string,
     onChange: (newURI: string) => void
 }
 const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
@@ -16,6 +16,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
     const [image, setImage] = useState(url)
     const [working, setWorking] = useState(false)
     const [showOverlay, setShowOverlay] = useState(false)
+    const [imageError, setImageError] = useState(false);
 
     const pickImage = async () => {
         setShowOverlay(true)
@@ -44,27 +45,47 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
         setShowOverlay(false)
     }
 
-    return <View style={styles.root}>
-        <View style={styles.container}>
-        <ImageBackground
-                uri={image}
-                style={styles.image}
-                imageStyle={{ borderRadius: 100 }}
-            >
-                {working ? (
-                    <CircularLoader color="#bfbfbf" />
-                ) : (
-                    <Pressable style={styles.button} onPress={pickImage}>
-                        {showOverlay && (
-                            <View style={styles.overlay}>
-                                <SvgXml xml={commonSvg.camera} width={35} height={35} />
-                            </View>
-                        )}
-                    </Pressable>
-                )}
-            </ImageBackground>
+    const renderContent = () => {
+        if (working) {
+            return <CircularLoader color="#bfbfbf" />;
+        }
+
+        if (!image || imageError) {
+            return (
+                <View style={styles.fallbackContainer}>
+                    <SvgXml xml={commonSvg.profileIcon} width={80} height={80} />
+                </View>
+            );
+        }
+
+        return null;
+    }
+
+    return (
+        <View style={styles.root}>
+            <View style={[styles.container, { backgroundColor: image && !imageError ? "rgba(0,0,0,0.1)" : "transparent" }]}>
+                <Pressable style={styles.button} onPress={pickImage}>
+                    {image && !imageError ? (
+                        <ImageBackground
+                            uri={image}
+                            style={styles.image}
+                            imageStyle={{ borderRadius: 100 }}
+                            onError={() => setImageError(true)}
+                        >
+                            {renderContent()}
+                        </ImageBackground>
+                    ) : (
+                        renderContent()
+                    )}
+                    {showOverlay && (
+                        <View style={styles.overlay}>
+                            <SvgXml xml={commonSvg.camera} width={35} height={35} />
+                        </View>
+                    )}
+                </Pressable>
+            </View>
         </View>
-    </View>
+    );
 }
 
 
@@ -82,7 +103,6 @@ const styles = StyleSheet.create({
         borderRadius: width/3.5,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: "rgba(0,0,0,0.1)",
         overflow:'hidden'
     },
     image: {
@@ -102,6 +122,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 100,
+    },
+    fallbackContainer: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: width/3.5,
     },
 })
 
