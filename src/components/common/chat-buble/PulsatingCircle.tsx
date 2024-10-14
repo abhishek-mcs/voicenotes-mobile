@@ -40,7 +40,7 @@ const PulsatingSVG = ({ svg = '', size = 12,status="" }) => {
     ]).start();
 
     return () => {
-      status=="processing"&&scaleAnim.stopAnimation();
+      scaleAnim.stopAnimation();
       rotateAnim.stopAnimation();
     };
   }, [status]);

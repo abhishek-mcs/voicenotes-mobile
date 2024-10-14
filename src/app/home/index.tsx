@@ -186,6 +186,10 @@ export default () => {
       //   console.log("Max attempts reached. Snapshot still does not exist.");
       //   return null; // Return null if snapshot does not exist after retries
       // };
+      let isTitleGenerated=false;
+      let isTitleTriggered=false;
+      let isTranscriptTriggered=false;
+      let isProcessCompleted=false;
       database()
       .ref(firebasePath + recordingId)
       .on('value', async (snapshot) => {
@@ -207,9 +211,6 @@ export default () => {
           // }
           console.log('firebase snapshot')
           let updatedStatus = "uploading";
-          let isTitleGenerated=false;
-          let isTitleTriggered=false;
-          let isTranscriptTriggered=false;
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
             console.log("audio uploaded");
@@ -261,11 +262,14 @@ export default () => {
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
             isTitleGenerated=updatedNote?.data?.title!=null
+            isProcessCompleted=isTitleTriggered&&isTranscriptTriggered&&status === RecordingStatus.PROCESS_COMPLETED
+            !isProcessCompleted&&
             dispatch(
               updateRecordingDetails({
                 recordingId,
                 data: {
                   ...updatedNote.data,
+                  title:status==RecordingStatus.TRANSCRIPT_GENERATED?null:updatedNote?.data?.title,
                   status: updatedStatus,
                   is_transcript_loading: false,
                 },
