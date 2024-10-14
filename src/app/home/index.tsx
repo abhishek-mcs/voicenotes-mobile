@@ -78,6 +78,7 @@ import Search from "app/search";
 import { NoteContext } from "context";
 import database from '@react-native-firebase/database';
 import { sleep } from "utils/Timer";
+import SearchComponent from "components/search-component";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -883,7 +884,7 @@ export default () => {
                       },
                     ]}
                   >
-                    <Search
+                    <SearchComponent
                       onFocus={()=>onSearchAnim(true)}
                       onBlur={()=>onSearchAnim(false)}
                       searchHeight={searchBarHeight}
