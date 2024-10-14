@@ -78,8 +78,9 @@ const ChatBubble = ({
       ]}
       style={style}
       cursor={false}
-      typeSpeed={20}
+      typeSpeed={100}
       onComplete={disableGenerating}
+      splitter={(str) => str.split(/\s+/)}
       numberOfLines={lines}
     />
     :<Text style={[style, {}]} numberOfLines={lines}>

@@ -137,6 +137,8 @@ PODS:
     - ReactCommon/turbomodule/core
   - ExpoSharing (11.10.0):
     - ExpoModulesCore
+  - ExpoStoreReview (6.8.3):
+    - ExpoModulesCore
   - ExpoSystemUI (2.9.4):
     - ExpoModulesCore
   - ExpoTrackingTransparency (3.3.0):
@@ -1483,6 +1485,7 @@ DEPENDENCIES:
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoSharing (from `../node_modules/expo-sharing/ios`)
+  - ExpoStoreReview (from `../node_modules/expo-store-review/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
   - ExpoTrackingTransparency (from `../node_modules/expo-tracking-transparency/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
@@ -1664,6 +1667,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-core"
   ExpoSharing:
     :path: "../node_modules/expo-sharing/ios"
+  ExpoStoreReview:
+    :path: "../node_modules/expo-store-review/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui/ios"
   ExpoTrackingTransparency:
@@ -1849,6 +1854,7 @@ SPEC CHECKSUMS:
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
   ExpoModulesCore: 370096473359f5f6aade0871400d063333747719
   ExpoSharing: 752ad6ae2b693de9cd4e7fddb78297bdc658b815
+  ExpoStoreReview: 3911cdf5a416230a421af41f93e763595bd7a681
   ExpoSystemUI: 735278045c1a28de0018a300bb5abb3f9090652b
   ExpoTrackingTransparency: bbae3e495bc58c79b9430cfbc217a56c2ddc9354
   ExpoWebBrowser: e31c97230ea93b51a2a74c6c2381b0d4fca5698c
