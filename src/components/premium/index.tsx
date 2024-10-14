@@ -1,25 +1,20 @@
-import { color } from "@rneui/base"
 import Colors from "assets/Colors"
 import { iapSvg } from "assets/svg/iapSvg"
-import { settingsSvg } from "assets/svg/settingsSvg"
 import Touchable from "components/common/Touchable"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useState } from "react"
-import { ActivityIndicator, Alert, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableHighlight, View } from "react-native"
+import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import { isIOS, screenHeight, screenWidth } from "utils/common"
-import * as webBrowser from 'expo-web-browser'
+import { isIOS, screenHeight} from "utils/common"
 import * as Updates from 'expo-updates';
 import { useQueryClient } from "react-query"
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates"
 import { analytics } from "../../../firebaseConfig"
-import { commonSvg } from "assets/svg/commonSvg"
 import { AppEventsLogger } from "react-native-fbsdk-next"
 import { ImageBackground } from "expo-image"
-import appsFlyer from "react-native-appsflyer"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
@@ -69,9 +64,6 @@ export default (props:any) => {
                 ? "monthly_subscription_success"
                 : "lifetime_purchase_success"
             )
-            appsFlyer.logEvent(selected == "monthly"
-              ? "monthly_subscription_success"
-              : "lifetime_purchase_success",{value:selected == "monthly"?pack[1]?.product?.priceString??"$10":pack[0]?.product?.priceString??"$50"})
             AppEventsLogger.logPurchase(
               selected == "monthly"
                 ? pack[1]?.product?.price || 10
@@ -127,47 +119,45 @@ export default (props:any) => {
   return (
     <View style={styles.main}>
       <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
-        <View style={{height:isIOS?150:130,width:'100%',justifyContent:'flex-end',paddingLeft:32}}>
-          <SvgXml xml={iapSvg.usersCount}/>
-    {/* {from=="home"&& */}
-         <Touchable style={[{position:'absolute',padding:10,zIndex:10, right:16,top:isIOS?65:45}]} onPress={()=>from=="home"?router?.back():freeUser()}>
-           <SvgXml xml={iapSvg.close}/>
-         </Touchable>
-        </View>
-      <View style={styles.container}>
-        {/* <Image source={premium} style={styles.img} resizeMode="contain"/> */}
-          <Text style={styles.title}>Unlock the power of your voice</Text>
-          <View style={styles.descView}>
-            <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-            <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
-          </View>
-          <View style={styles.descView}>
-          <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-            <Text style={styles.desc}>Human-level transcription in 55 languages.</Text>
-          </View>
-          <View style={styles.descView}>
-          <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-            <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
-          </View>
-          <View style={[styles.descView]}>
-          <SvgXml xml={iapSvg.done} style={{marginTop:3}}/>
-            <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
-            <SvgXml xml={iapSvg.techCrunch} style={{marginLeft:4}}/>
-          </View>
-        <ScrollView style={styles.subContainer} showsVerticalScrollIndicator={false}>
-          <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
-          <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>
-          {/* {from=='signup'&&<Btn type="free" price={''} selected={selected=='free'} onPress={()=>setSelected('free')} underlay="#f9f9f9" title="Continue as free"/>} */}
-          <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
-        
-        {/* <Text style={[styles.footerText]}>
-        This subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. If you have used a trial subscription previously, payment will be charged to your Apple ID account at the confirmation of purchase.
-        </Text> */}
-
-          <Touchable onPress={onRestore} style={{padding:8}}>
-            <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
+        <SafeAreaView style={{flex:1}}>
+          <Touchable style={styles.closeButton} onPress={()=>from=="home"?router?.back():freeUser()}>
+            <SvgXml xml={iapSvg.close}/>
           </Touchable>
-        </ScrollView>
+          <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
+            <View style={{paddingLeft:32, marginBottom: 20}}>
+              <SvgXml xml={iapSvg.usersCount}/>
+            </View>
+            <View style={styles.container}>
+              <Text style={styles.title}>Unlock the power of your voice</Text>
+              <View style={styles.descView}>
+                <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
+                <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
+              </View>
+              <View style={styles.descView}>
+              <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
+                <Text style={styles.desc}>Human-level transcription in 55 languages.</Text>
+              </View>
+              <View style={styles.descView}>
+              <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
+                <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
+              </View>
+              <View style={[styles.descView]}>
+              <SvgXml xml={iapSvg.done} style={{marginTop:3}}/>
+                <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
+                <SvgXml xml={iapSvg.techCrunch} style={{marginLeft:4}}/>
+              </View>
+              <View style={styles.subContainer}>
+                <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
+                <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>
+                <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
+              
+                <Touchable onPress={onRestore} style={{padding:8}}>
+                  <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
+                </Touchable>
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
         {/* <View style={styles.footer}>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
             <Text style={[styles.footerText,{color:'#000'}]}>Terms of Service</Text>
@@ -179,7 +169,6 @@ export default (props:any) => {
             <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
           </Touchable>
         </View> */}
-      </View>
       </ImageBackground>
     </View>
   )
@@ -259,6 +248,17 @@ const styles = StyleSheet.create({
   btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4,textAlign:'right'},
   footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
   footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',bottom:40,paddingVertical:10},
+  closeButton: {
+    position: 'absolute',
+    padding: 10,
+    zIndex: 10,
+    right: 16,
+    top: isIOS ? 45 : 25,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    // paddingTop: isIOS ? 30 : 50,
+  },
 })
 
 interface Props {
