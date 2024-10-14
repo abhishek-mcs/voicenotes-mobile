@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as StoreReview from 'expo-store-review'
-import { clearCounter } from "utils/counter";
 
 type Props = {
     onClose: () => void,
@@ -29,7 +28,6 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
                 if(url) Linking.openURL(url);
             })
         onClose()
-        clearCounter()
     }
 
     const Action = ({ yes, onPress }: { yes?: boolean, onPress: () => void }) => {

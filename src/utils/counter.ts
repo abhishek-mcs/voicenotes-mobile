@@ -10,7 +10,11 @@ export const shouldPromptNow = async (): Promise<boolean> => {
     const count = await AsyncStorage.getItem(COUNTER)
     if(!count || count === 'completed') return false
 
-    return parseInt(count) >= THRESHOLD - 1
+    const shouldPrompt = parseInt(count) === THRESHOLD
+    if (shouldPrompt) {
+        await clearCounter()
+    }
+    return shouldPrompt
 }
 
 export const incrementCounter = async () => {
@@ -23,7 +27,7 @@ export const incrementCounter = async () => {
     await AsyncStorage.setItem(COUNTER, count.toString())
 }
 
-export const clearCounter = async () => {
+const clearCounter = async () => {
     await AsyncStorage.setItem(COUNTER, 'completed')
 }
 
