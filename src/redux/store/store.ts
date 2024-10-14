@@ -13,7 +13,7 @@ import relatedNoteStates from 'redux/reducers/relatedNoteStates';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist:['userDetails','IAPStates','recordingStates']
+  whitelist:['userDetails','IAPStates','recordingStates','hashSlice']
 };
 
 const rootReducer = combineReducers({
