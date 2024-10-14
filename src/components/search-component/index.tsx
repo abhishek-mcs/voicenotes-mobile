@@ -124,7 +124,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                   onBlur={onBlurInput}
                   onChangeText={onSearch}
                   autoCapitalize={"none"}
-                  autoFocus={false}
+                  autoFocus={isRouted}
                   placeholder="Search"
                   placeholderTextColor={Colors.grey6}
                   contextMenuHidden={true}
