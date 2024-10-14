@@ -35,7 +35,7 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
                 onPress={onPress}
                 style={({ pressed }) => [
                     styles.action,
-                    { borderRightWidth: yes ? 0.3 : 0 },
+                    { borderRightWidth: !yes ? 0.3 : 0 },
                     pressed && styles.actionPressed
                 ]}
             >
@@ -62,8 +62,8 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
                     <Text style={styles.subtext}>Tell us your experience</Text>
                 </View>
                 <View style={styles.actions}>
-                    <Action yes onPress={onPositiveFeedback} />
                     <Action onPress={onNegativeFeedback} />
+                    <Action yes onPress={onPositiveFeedback} />
                 </View>
             </View>
         </View>
