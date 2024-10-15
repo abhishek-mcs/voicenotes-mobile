@@ -42,7 +42,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
 
     useLayoutAnim([expand])
     return (
-        <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:32}}>
+        <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:0}}>
             <View>
                 <Touchable onPress={onBack} style={{flexDirection:'row',alignItems:'center',padding:12}}>
                     <SvgXml xml={commonSvg.back} height={21}/>

@@ -66,10 +66,10 @@ const CustomModal = forwardRef(({ visible, children }:CustomModalProps, ref) => 
       right: 0,
       bottom: 0,
       width: screenWidth,
-      height: screenHeight,
+      height: screenHeight+100,
       backgroundColor: 'white',
       zIndex: 1000,flex:1,
-      paddingVertical:60
+      paddingTop:60
     },
   });
   
