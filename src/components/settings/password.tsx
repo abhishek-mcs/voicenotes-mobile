@@ -85,8 +85,8 @@ const Password: React.FC<Props> = (props) => {
             else await changePassword(defaulT, confirm, false, old)
             Alert.alert('Changed!', "Your password has been changed. You can now use it to log in.")
             handleClose()
-          } catch(e) {
-            Alert.alert('Oops!', e.message)
+          } catch(e: any) {
+            Alert.alert('Oops!', e.message.replace(/\s*\([^)]*\)\s*$/, ''))
           }
           setWorking(false)
         }
