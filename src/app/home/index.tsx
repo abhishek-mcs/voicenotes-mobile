@@ -993,7 +993,7 @@ export default () => {
                     >
                       <CircularLoader strokeWidth={3} />
                     </View>
-                  ) : filteredRecordingList?.length == 0 && !!token ? (
+                  ) : (filteredRecordingList?.length == 0 && !!token&&hashFilter=='') ? (
                     <AboutProduct disable={true} />
                   ) : null
                 }
