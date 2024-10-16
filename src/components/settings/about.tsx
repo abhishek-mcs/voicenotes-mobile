@@ -1,41 +1,12 @@
 import { StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import RecButton from "components/common/recording/rec-button";
-import Colors from "assets/Colors";
 import { useSaveSettings } from "queries/settings";
 import { setUserDetail } from "redux/reducers/userDetails";
 import { getLanguageCode } from "utils/common";
-
-interface ComponentProps {
-    value: string;
-    onValueChange: (value: string) => void;
-    onSubmit: () => void;
-}
-
-const Component: React.FC<ComponentProps> = ({ value, onValueChange, onSubmit }) => {
-    return (
-      <View style={styles.root}>
-        <Text style={styles.description}>What would you like your AI to know about you?</Text>
-        <TextField
-          value={value}
-          onValueChange={onValueChange}
-          multiline
-        />
-        <RecButton
-          title="Save"
-          onPress={onSubmit}
-          underlayColor={Colors.blackWithOpacity(0.7)}
-          style={{ paddingHorizontal: 15 }}
-          bgColor="#000"
-          color="#fff"
-        />
-      </View>
-    );
-  };
 
 type Props = {
     onClose: () => void,
@@ -47,23 +18,28 @@ const About: React.FC<Props> = (props) => {
     const saveSettings = useSaveSettings()
     
     const [about, setAbout] = useState(userDetails.settings?.about || '');
+    const [working, setWorking] = useState(false)
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+      setWorking(true)
       const settings = userDetails.settings
-      dispatch(setUserDetail({ ... userDetails, about}))
-      saveSettings.mutate({
+      await saveSettings.mutateAsync({
         language: getLanguageCode(lang) || '',
         about,
         remember_words:settings?.remember_words||[],
         name: userDetails?.name,
         fix_punctuation:settings?.fix_punctuation,
       })
+      dispatch(setUserDetail({ ... userDetails, about}))
+      setWorking(false)
+      props.onClose()
     }
   
     return (
       <Header
         onCancel={props.onClose}
         onSubmit={handleSubmit}
+        working={working}
         label="About"
       >
         <View style={styles.root}>

@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { changePassword } from "queries/auth";
 import RecButton from "components/common/recording/rec-button";
+import { screenWidth } from "utils/common";
 import Colors from "assets/Colors";
 
 interface ComponentProps {
@@ -19,6 +20,11 @@ interface ComponentProps {
 }
 
 const Component: React.FC<ComponentProps> = (props) => {
+
+  const [show, setShow] = useState(false)
+  const toggleShow = () => {
+    setShow(!show)
+  }
     return (
       <View style={styles.root}>
         <Text style={styles.heading}>Change password</Text>
@@ -27,17 +33,29 @@ const Component: React.FC<ComponentProps> = (props) => {
           value={props.old}
           onValueChange={props.onOldChange}
           placeholder="Old password"
+          notPassword={!show}
         />}
         <TextField
           value={props.defaulT}
           onValueChange={props.onDefaultChange}
           placeholder="New password"
+          notPassword={!show}
         />
         <TextField
           value={props.confirm}
           onValueChange={props.onConfirmChange}
           placeholder="Confirm password"
+          notPassword={!show}
         />
+        <View style={styles.show}>
+        <RecButton
+          title={show ? "Hide" : "Show"}
+          onPress={toggleShow}
+          underlayColor={Colors.blackWithOpacity(0.7)}
+          bgColor="#000"
+          color="#fff"
+        />
+        </View>
       </View>
     );
   };
@@ -52,24 +70,41 @@ const Password: React.FC<Props> = (props) => {
     const [old, setOld] = useState('')
     const [defaulT, setDefault] = useState('')
     const [confirm, setConfirm] = useState('')
+    const [working, setWorking] = useState(false)
 
     const handleOldChange = useCallback((value: string) => setOld(value), []);
     const handleDefaultChange = useCallback((value: string) => setDefault(value), []);
     const handleConfirmChange = useCallback((value: string) => setConfirm(value), []);
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
         if(defaulT !== confirm) Alert.alert('Oops!', "These passwords don't match.");
         else {
-            if(!userDetails.is_password_set) changePassword(defaulT, confirm, true)
-            else changePassword(defaulT, confirm, false, old)
+          setWorking(true)
+          try{
+            if(!userDetails.is_password_set) await changePassword(defaulT, confirm, true)
+            else await changePassword(defaulT, confirm, false, old)
+            Alert.alert('Changed!', "Your password has been changed. You can now use it to log in.")
+            handleClose()
+          } catch(e) {
+            Alert.alert('Oops!', e.message)
+          }
+          setWorking(false)
         }
+    }
+
+    const handleClose = () => {
+      setOld('')
+      setDefault('')
+      setConfirm('')
+      props.onClose()
     }
   
     return (
       <Header
         label="Change password"
-        onCancel={props.onClose}
+        onCancel={handleClose}
         onSubmit={handleSubmit}
+        working={working}
       >
         <Component
           isPasswdSet={userDetails.is_password_set}
@@ -101,6 +136,10 @@ const styles = StyleSheet.create({
         fontFamily: "Primary",
         fontSize: 15,
         textAlign: 'center'
+    },
+    show: {
+      marginTop: 10,
+      width: screenWidth/4
     }
 })
 

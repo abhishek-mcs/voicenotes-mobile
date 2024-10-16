@@ -34,10 +34,12 @@ const Names: React.FC<Props> = (props) => {
 
     const [name, setName] = useState('');
     const [namesList, setNamesList] = useState<string[]>(userDetails.settings?.remember_words || []);
+    const [working, setWorking] = useState(false)
 
     const updateNames = () => {
       const settings = userDetails.settings;
-
+      setWorking(true)
+      
       dispatch(setUserDetail({ ... userDetails, remember_words: namesList}))
       saveSettings.mutate({
         language: getLanguageCode(lang) || '',
@@ -46,7 +48,7 @@ const Names: React.FC<Props> = (props) => {
         name: userDetails?.name,
         fix_punctuation:settings?.fix_punctuation,
       })
-
+      setWorking(false)
       props.onClose()
     }
   
@@ -68,6 +70,7 @@ const Names: React.FC<Props> = (props) => {
         onCancel={props.onClose}
         onSubmit={updateNames}
         label="Names to remember"
+        working={working}
       >
         <View style={styles.root}>
           <Text style={styles.heading}>Names to remember</Text>

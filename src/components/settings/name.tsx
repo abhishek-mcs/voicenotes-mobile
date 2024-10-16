@@ -4,8 +4,6 @@ import TextField from "./textfield"
 import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import RecButton from "components/common/recording/rec-button"
-import Colors from "assets/Colors"
 import { useSaveSettings } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
 import { getLanguageCode } from "utils/common"
@@ -20,23 +18,28 @@ const Name: React.FC<Props> = (props) => {
     const saveSettings = useSaveSettings()
     
     const [name, setName] = useState(userDetails?.name || '');
+    const [working, setWorking] = useState(false)
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
+      setWorking(true)
       const settings = userDetails.settings
-      dispatch(setUserDetail({ ... userDetails, name}))
-      saveSettings.mutate({
+      await saveSettings.mutateAsync({
         language: getLanguageCode(lang) || '',
         about:settings?.about,
         remember_words:settings?.remember_words||[],
         name,
         fix_punctuation:settings?.fix_punctuation,
       })
+      dispatch(setUserDetail({ ... userDetails, name}))
+      setWorking(false)
+      props.onClose()
     }
   
     return (
       <Header
         onCancel={props.onClose}
         onSubmit={handleSubmit}
+        working={working}
         label="Display name"
       >
         <View style={styles.root}>

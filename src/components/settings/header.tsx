@@ -1,6 +1,7 @@
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
+import CircularLoader from "components/common/loaders/circular-loader";
 
 type Props = {
     onCancel: () => void,
@@ -8,7 +9,8 @@ type Props = {
     cancelLabel?: string,
     submitLabel?: string,
     label?: string,
-    children?: React.ReactElement
+    children?: React.ReactElement,
+    working?: boolean
 }
 
 const Header: React.FC<Props> = (props) => {
@@ -25,15 +27,15 @@ const Header: React.FC<Props> = (props) => {
                         onPress={props.onCancel}
                     />
                 </View>
-                <View style={[styles.action, { alignItems: 'flex-end' }]} >
-                    {props.onSubmit && <RecButton
+                <View style={[styles.action, { alignItems: 'flex-end', justifyContent: props.working ? 'center' : 'flex-end', paddingHorizontal: props.working ? 20 : 10 }]} >
+                    {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
                         title={props.submitLabel || "Save"}
                         underlayColor={Colors.blackWithOpacity(0.7)}
                         bgColor="#000"
                         color="#fff"
                         style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                         onPress={props.onSubmit}
-                    />}
+                    />: null}
                 </View>
             </View>
             <View style={styles.content}>{props.children}</View>
