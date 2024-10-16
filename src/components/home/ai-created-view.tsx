@@ -49,7 +49,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
             <SvgXml xml={commonSvg.smallArrow}  style={{transform:[{rotate:!expand?'180deg':'360deg'}]}}/>
         </View> */}
       <View style={[row,btw]}>
-        <Text style={txt}>{`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
+        <Text style={txt}>{type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
       </View>
       {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
       :(type=="points"||type=="todo")?

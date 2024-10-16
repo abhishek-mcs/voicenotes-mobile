@@ -986,13 +986,6 @@ const NotePreview = forwardRef(
                 {expand === index && (
                   <View style={{marginBottom:8}}>
                     {renderButtons()}
-                    <RelatedNotesList
-                      note={note}
-                      onPress={(id: any) => {
-                        // setRelatedNoteId(null);
-                        dispatch(setRelatedNoteId(id));
-                      }}
-                    />
                     {token && (
                       <CreationsList
                         note={note}
@@ -1000,6 +993,13 @@ const NotePreview = forwardRef(
                         creationLoader={creationLoader}
                       />
                     )}
+                    <RelatedNotesList
+                      note={note}
+                      onPress={(id: any) => {
+                        // setRelatedNoteId(null);
+                        dispatch(setRelatedNoteId(id));
+                      }}
+                    />
                     {/* <Text style={styles.timestamp}>
                       {formatDateTime(note?.recorded_at)}
                     </Text> */}
