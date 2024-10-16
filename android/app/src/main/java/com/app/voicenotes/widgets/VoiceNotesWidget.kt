@@ -25,8 +25,7 @@ class VoiceNotesWidget : AppWidgetProvider() {
     ) {
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
-        }
-        widgetScheduler.scheduleUpdates(context, appWidgetIds, this.javaClass)
+        }   
     }
 
     @RequiresApi(Build.VERSION_CODES.S)

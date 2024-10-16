@@ -20,7 +20,9 @@
         android:drawablePadding="12dp"
         android:background="@drawable/app_widget_search_background"
         android:theme="@style/Theme.VoiceNotesWidget.AppWidgetSearch"
-        android:queryHint="Search notes"/>
+        android:queryHint="Search notes"
+        android:ellipsize="end"
+        android:maxLines="1"/>
 
 
     <LinearLayout
@@ -44,7 +46,9 @@
             android:text="@string/record"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:theme="@style/Theme.VoiceNotesWidget.AppWidgetRecord" />
+            android:theme="@style/Theme.VoiceNotesWidget.AppWidgetRecord"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <LinearLayout
             android:layout_width="15dp"
@@ -62,7 +66,9 @@
             android:text="@string/ask"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:theme="@style/Theme.VoiceNotesWidget.AppWidgetAsk" />
+            android:theme="@style/Theme.VoiceNotesWidget.AppWidgetAsk"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
     </LinearLayout>
 </LinearLayout>
