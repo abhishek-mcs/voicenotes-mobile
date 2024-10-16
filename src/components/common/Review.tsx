@@ -2,7 +2,7 @@ import { ReviewSvg } from "assets/svg/ReviewSvg";
 import { useRouter } from "expo-router";
 import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
-import * as StoreReview from 'expo-store-review'
+import { isIOS } from "utils/common";
 
 type Props = {
     onClose: () => void,
@@ -20,13 +20,11 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
     }
 
     const onPositiveFeedback = () => {
-        StoreReview.requestReview()
-            .then(() => {})
-            .catch((e) => {
-                console.error(e)
-                const url = StoreReview.storeUrl();
-                if(url) Linking.openURL(url);
-            })
+        try{
+            Linking.openURL(isIOS ? `itms-apps://itunes.apple.com/app/viewContentsUserReviews/id6483293628?action=write-review` : `market://details?id=com.app.voicenotes&showAllReviews=true`)
+        } catch {
+            Linking.openURL(isIOS ? `https://apps.apple.com/app/apple-store/id6483293628?action=write-review` : `https://play.google.com/store/apps/details?id=com.app.voicenotes&showAllReviews=true`)
+        }
         onClose()
     }
 
