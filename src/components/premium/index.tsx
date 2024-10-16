@@ -16,6 +16,7 @@ import { analytics } from "../../../firebaseConfig"
 import { AppEventsLogger } from "react-native-fbsdk-next"
 import { ImageBackground } from "expo-image"
 import * as webBrowser from "expo-web-browser"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
@@ -29,6 +30,7 @@ export default (props:any) => {
   const pack=IAPOfferings?.availablePackages||[]
   const dispatch=useDispatch()
   const queryClient=useQueryClient()
+  const insets = useSafeAreaInsets()
 
   useEffect(()=>{
     // const load=async()=>{
@@ -125,7 +127,7 @@ export default (props:any) => {
             <SvgXml xml={iapSvg.close}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-            <View style={{paddingLeft:32, marginBottom: 20}}>
+            <View style={{paddingLeft:32, marginBottom: 20, marginTop: isIOS ? 0 : insets.top + 20}}>
               <SvgXml xml={iapSvg.usersCount}/>
             </View>
             <View style={styles.container}>
@@ -142,10 +144,14 @@ export default (props:any) => {
               <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
                 <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
               </View>
-              <View style={[styles.descView]}>
-              <SvgXml xml={iapSvg.done} style={{marginTop:3}}/>
-                <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
-                <SvgXml xml={iapSvg.techCrunch} style={{marginLeft:4}}/>
+              <View style={styles.descView}>
+                <SvgXml xml={iapSvg.done} style={styles.doneIcon} />
+                <View style={styles.descTextContainer}>
+                  <Text style={styles.desc}>
+                    #1 AI voice app. As seen on
+                  </Text>
+                  <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />
+                </View>
               </View>
               <View style={styles.subContainer}>
                 <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
@@ -230,7 +236,7 @@ const Btn = ({
 
 const styles = StyleSheet.create({
   main:{flex:1,backgroundColor:'#fff'},
-  container:{flex:1,marginTop:14},
+  container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
   subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
   img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},
   title:{fontSize:56,fontFamily:'Secondary',color:'#222',marginBottom:20,alignSelf:'center',lineHeight:64,marginHorizontal:20},
@@ -257,6 +263,20 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     // paddingTop: isIOS ? 30 : 50,
+  },
+  doneIcon: {
+    marginTop: 3,
+    marginRight: 9,
+  },
+  descTextContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  techCrunchIcon: {
+    marginLeft: 4,
+    marginTop: 2,
   },
 })
 
