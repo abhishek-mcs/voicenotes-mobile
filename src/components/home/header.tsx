@@ -50,11 +50,12 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
     route.navigate("/settings/")
   }
 
+  const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
   const headerHeight=90
   const minHeaderHeight=40
   const titleFontSize=36
   const titleMinFontSize=24
-  const translateY=48
+  const translateY=isBeliever?48:52
   const headerHeightAnimate = scrollY?.interpolate({
     inputRange: [0, headerHeight],
     outputRange: [headerHeight, minHeaderHeight],
@@ -67,11 +68,10 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   });
   const titleTranslateY = scrollY?.interpolate({
     inputRange: [0, headerHeight],
-    outputRange: [-16, -translateY],
+    outputRange: [isBeliever?-16:-20, -translateY],
     extrapolate: 'clamp',
   });
   
-  const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
   return (
     <Animated.View style={{height:headerHeightAnimate,transform:[{scaleY:scale}],opacity:scale}}>
     <View style={{marginTop:isBeliever?0:6,marginBottom:8}} onTouchStart={()=>Keyboard.dismiss()}>
