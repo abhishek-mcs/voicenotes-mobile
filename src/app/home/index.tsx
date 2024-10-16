@@ -755,11 +755,6 @@ export default () => {
     [isPlay, play, audioLoading, expandNote,isOffline]
   );
 
-  const [isSearchVisible, setIsSearchVisible] = useState(true);
-  const [prevOffset, setPrevOffset] = useState(0);
-
-  useLayoutAnim([isSearchVisible]);
-
   const onRefresh = async () => {
     setRefreshing(true);
     await recordingQuery.refetch().catch(()=>{});
@@ -768,15 +763,7 @@ export default () => {
     setRefreshing(false);
   };
 
-  const handleScroll = (event: any) => {
-    const currentOffset = event.nativeEvent.contentOffset.y;
-    if (currentOffset > prevOffset && currentOffset > 0) {
-      setIsSearchVisible(false);
-    } else if (currentOffset < prevOffset && currentOffset > 10) {
-      setIsSearchVisible(true);
-    }
-    setPrevOffset(currentOffset);
-  };
+
   const scrollY = useRef(new Animated.Value(0)).current;
   const searchBarHeight = 30; // Adjust based on your search bar height
   const headerHeight=50;
@@ -787,7 +774,7 @@ export default () => {
     extrapolate: 'clamp',
   });
   const searchBarHeightAnimated = scrollY.interpolate({
-    inputRange: [0, searchBarHeight],
+    inputRange: [0, isIOS?searchBarHeight:150],
     outputRange: [searchBarHeight, 0],
     extrapolate: 'clamp',
   });
