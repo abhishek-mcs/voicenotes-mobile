@@ -22,7 +22,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     const [searchQuery, setSearchQuery] = useState('');
     const [visibleTags, setVisibleTags] = useState(6);
     const router = useRouter()
-    const ref=useRef<TextInput>(null)
+    const ref:any=useRef<TextInput>(null)
     const {hashTags}=useSelector((state:RootState)=>state?.hash)
 
     const searchHistoryData=useSearchHistory()
@@ -85,7 +85,9 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     useEffect(()=>{
       InteractionManager.runAfterInteractions(() => {
         if (ref?.current&&isRouted) {
-            // ref.current?.focus()
+            setTimeout(() => {
+              ref?.current?.focus()
+            }, 600);
         }
       })
       return ()=>Keyboard.dismiss()
@@ -114,6 +116,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
         <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:'#fff',}}>
           <Animated.View style={{flexDirection:'row',marginTop:4,alignItems:'center',marginBottom:4,height:searchHeight}}>
                 <SearchBarIOS
+                  ref={ref}
                   onClear={onClear}
                   clearButtonMode="while-editing"
                   searchIcon={<SvgXml xml={commonSvg.search} />}
@@ -124,7 +127,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                   onBlur={onBlurInput}
                   onChangeText={onSearch}
                   autoCapitalize={"none"}
-                  autoFocus={isRouted}
+                  autoFocus={false}
                   placeholder="Search"
                   placeholderTextColor={Colors.grey6}
                   contextMenuHidden={true}

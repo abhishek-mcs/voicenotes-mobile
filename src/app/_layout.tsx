@@ -56,7 +56,6 @@ export default function Layout() {
               <Stack.Screen
                 name="search/index"
                 options={{ animation: "fade" }}
-                initialParams={{from:'widget'}}
               />
               <Stack.Screen
                 name="premium/index"
