@@ -6,6 +6,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -82,7 +83,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [input, setInput] = useState("");
   const [chats, setChats] = useState<chatProps>(initChat);
-  const scrollRef = useRef<FlatList>(null);
+  const scrollRef = useRef<ScrollView>(null);
   const [suggIndex, setSuggIndex] = useState(-2);
   const [drawerIndex, setDrawerIndex] = useState(-10);
   const [chatLoader,setChatLoader]=useState(false);
@@ -337,28 +338,26 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)}]}>
-      <View style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:'#fff'}]}>
         <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
-        {/* <Swiper ref={swiperRef} showsPagination={false} showsButtons={false} loop={false} onIndexChanged={(i)=>{setSelectedIndex(i)}} > */}
-        {/* <View style={{flex:1}}> */}
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={isIOS ? "padding" : "height"}
-          keyboardVerticalOffset={isIOS ? 64 : 0} // Adjust based on header height
-        >
+          style={[{ flex: 1 ,paddingTop:isIOS?0:40}]}
+          behavior={"padding"}
+          keyboardVerticalOffset={isIOS ? 64 :0} // Adjust based on header height
+        >        
           {!chatLoader ? (
-            <FlatList
+            <ScrollView
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
+              // style={{height:screenHeight}}
+              automaticallyAdjustKeyboardInsets
+              keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
-                paddingVertical: 16,
-              }}
-              data={chats?.related_messages || []}
-              keyExtractor={(item, index) => `${item?.id}-${index}`}
-              renderItem={({ item, index }) => (
-                <View>
+                paddingVertical: 16
+              }}>
+                {(chats?.related_messages||[])?.map((item:any, index:number) => (
+                <View key={`${index}`}>
                   {!!item?.question && (
                     <ChatItem
                       text={item?.question}
@@ -378,11 +377,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     />
                   )}
                 </View>
-              )}
-              contentInset={{ bottom: 16 }}
-              contentInsetAdjustmentBehavior="always"
-              keyboardShouldPersistTaps="handled"
-              ListEmptyComponent={() => (
+              ))}
+                {chats?.related_messages?.length==0&&
                 <View style={{ marginLeft: 20 }}>
                   <SvgXml
                     xml={AIModalSVG.askAILogo}
@@ -396,10 +392,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                   >
                     Ask about your notes.
                   </Text>
-                </View>
-              )}
-              ListFooterComponent={() =>
-                !chatStarted
+                </View>}
+                {!chatStarted
                   ? getSuggestions.data?.data?.length > 0 && (
                       <View style={styles.suggestContainer}>
                         <View style={[styles.row, { marginBottom: 4 }]}>
@@ -407,6 +401,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                           <Touchable
                             onPress={getNewSugg}
                             style={styles.refresh}
+                            activeOpacity={1}
                           >
                             <SvgXml
                               xml={AIModalSVG.refresh}
@@ -435,22 +430,23 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     )
                   : null
               }
-            />
+            </ScrollView>
           ) : (
             <View
               style={{
                 flex: 1,
                 justifyContent: "center",
                 alignItems: "center",
+                marginTop:isIOS?0:screenHeight/2.5
               }}
             >
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-          <View>
             <View
               style={[
                 styles.inputContainer,
+                // {position:'absolute',bottom:0,zIndex:100,left:0,right:0},
                 keyboardShown ? { minHeight: 97 } : {},
               ]}
             >
@@ -503,7 +499,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                 </View>
               )}
             </View>
-          </View>
           <View
             style={{
               position: "absolute",
@@ -527,14 +522,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               drawerContainerStyle={styles.drawer}
             />
           </View>
-        </KeyboardAvoidingView>
-        {/* </View> */}
-        {/* <View style={{flex:1}}>
-        <CreateModal/>
-        </View>
-        </Swiper> */}
-      </View>
-    </SafeAreaView>
+          </KeyboardAvoidingView>
+          </SafeAreaView>
   );
 });
 
@@ -561,7 +550,7 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{},{paddingHorizontal:16,marginBottom:13}]}>
     {text=='Typing'?
     <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
-    :<View style={[styles.audioChat,{backgroundColor:isAI?Colors.primary:Colors.whiteWithOpacity(0.5)}]}>
+    :<View style={[styles.audioChat,styles.shadow,{backgroundColor:isAI?Colors.primary:isIOS?Colors.whiteWithOpacity(0.5):Colors.whiteWithOpacity(1)}]}>
       <AudioPlayer isAI={isAI} url={url}/>
       <Text style={{color:isAI?Colors.whiteWithOpacity(0.5):Colors.grey,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
     </View>}
@@ -588,7 +577,7 @@ return (
       </View>
       <View>
         {sources.map((source:any,index:number)=>(
-          <Touchable key={index} onPress={()=>goToSource(source?.id)} style={[styles.row,{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8}]}>
+          <Touchable key={index} activeOpacity={1} onPress={()=>goToSource(source?.id)} style={[styles.row,{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8}]}>
             <SvgXml xml={AIModalSVG.source} style={{marginRight:8,marginTop:6}}/>
             <Text style={[styles.text,{flexWrap:'wrap',width:'90%'}]}>{source?.title}</Text>
           </Touchable>
@@ -596,7 +585,7 @@ return (
       </View>
     </View>:null}
     </View>
-   {isAI&&text!="Searching"&&text!="Typing"&&<Touchable onPress={onCopy} style={[styles.aiChat,styles.aiChatStyle,styles.row,{alignSelf:'flex-start',paddingVertical:4}]}>
+   {isAI&&text!="Searching"&&text!="Typing"&&<Touchable onPress={onCopy} activeOpacity={1} style={[styles.aiChat,styles.aiChatStyle,styles.row,{alignSelf:'flex-start',paddingVertical:4}]}>
       <SvgXml xml={AIModalSVG.copy} style={{marginRight:4}}/>
       <Text style={[styles.text]}>{copy}</Text>
     </Touchable>}
@@ -606,7 +595,7 @@ return (
 const Btns = ({ txt = "", onPress = () => {} }) => (
   <TouchableHighlight
     onPress={onPress}
-    underlayColor={Colors.darkWithOpacity(0.05)}
+    underlayColor={isIOS?Colors.darkWithOpacity(0.05):Colors.whiteWithOpacity(1)}
     style={styles.btn}
   >
     <Text style={styles.btnTxt}>{txt}</Text>
@@ -614,7 +603,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
 );
 
 const styles = StyleSheet.create({
-  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey },
+  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:40 },
   modal: {
     height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
     justifyContent: "space-between",
@@ -803,6 +792,8 @@ const styles = StyleSheet.create({
   },
   audioChat:{
     padding:12,borderRadius:12,width:'85%',
+  },
+  shadow:{
     shadowColor: "#000000",
     shadowOpacity: 0.2,
     shadowRadius: 1.5,

@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { isIOS } from "utils/common";
 
 export default function Layout() {
   const [fontsLoaded,error] = useFonts({
@@ -42,15 +43,15 @@ export default function Layout() {
               <Stack.Screen name="RelatedNotes/index" />
               <Stack.Screen
                 name="settings/index"
-                options={{ presentation: "formSheet" }}
+                options={{ presentation: "formSheet",animation:isIOS?"ios":"slide_from_bottom"  }}
               />
               <Stack.Screen
                 name="ask-my-ai/index"
-                options={{ presentation: "formSheet" }}
+                options={{ presentation: "formSheet",animation:isIOS?"ios":"slide_from_bottom" }}
               />
               <Stack.Screen
                 name="create/index"
-                options={{ presentation: "formSheet" }}
+                options={{ presentation: "formSheet",animation:isIOS?"ios":"slide_from_bottom" }}
               />
               <Stack.Screen
                 name="search/index"

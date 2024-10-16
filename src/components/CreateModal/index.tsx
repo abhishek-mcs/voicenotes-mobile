@@ -1,4 +1,4 @@
-import { FlatList, Keyboard, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
@@ -147,7 +147,7 @@ export default forwardRef(({}:createModalProps, ref) => {
         {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
         {(preview === 'suggestions'||preview === 'records') ?
         <View style={{
-          height:screenHeight/1.2
+          height:isIOS?screenHeight/1.2:screenHeight/1.1
           // keyboardShown?screenHeight/2.1:screenHeight/1.4
           }} onTouchStart={(e)=>e?.stopPropagation()}>
           <FlatList
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     // height:screenHeight/1.4,
     flex: 1,
+    paddingTop:isIOS?0:40
   },
   heading: {
     fontSize: 16,
