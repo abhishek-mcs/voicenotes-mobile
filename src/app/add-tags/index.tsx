@@ -50,8 +50,14 @@ export default () => {
       temp=temp.includes(name)?temp?.filter((f:any)=>f!=name):[...temp,name]
       setAddedTags([...temp])
       if(addNew){
-        setTags([{name},...tags])
-        tagsList.current=[{name},...tags]
+        setSearch('')
+        const isDuplicate = tags.some((tag: any) => tag.name === name);
+        if(!isDuplicate){
+          setTags([{name},...tags])
+          tagsList.current=[{name},...tags]
+        }else{
+          tagsList.current=[...tags]
+        }
       }
     }
 
@@ -118,7 +124,7 @@ const Btn=({onPress=(v:any)=>{},title,isAdded,style={}}:any)=>(
   <TouchableHighlight onPress={() => onPress(title)} style={[{ padding: 6, marginBottom: 1, paddingHorizontal: 16, backgroundColor: isAdded ? 'rgba(35,84,159,0.1)' : 'transparent', borderRadius: 8 }, { ...style }]} underlayColor={'rgba(35,84,159,0.2)'}>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <SvgXml xml={(title === 'starred'?commonSvg.tagStarred:commonSvg.tagHash)?.replaceAll('{color}',isAdded?'rgba(35,84,159,1)' : '#0D0D0D')} style={{ marginRight: 3 }}/>
+          {!title?.includes('+Add')&&<SvgXml xml={(title === 'starred'?commonSvg.tagStarred:commonSvg.tagHash)?.replaceAll('{color}',isAdded?'rgba(35,84,159,1)' : '#0D0D0D')} style={{ marginRight: 3 }}/>}
           <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? 'rgba(35,84,159,1)' : '#0D0D0D' }}>{title === 'starred'?'Starred':title} </Text>
       </View>
       {isAdded&&<SvgXml xml={commonSvg.smallClose} />}
