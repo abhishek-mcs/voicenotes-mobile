@@ -17,7 +17,7 @@
         android:paddingStart="25dp"
         android:paddingEnd="25dp"
         android:text="@string/record"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:theme="@style/Theme.VoiceNotesWidget.AppWidgetRecord" />
 
@@ -32,9 +32,9 @@
         android:layout_height="75dp"
         android:background="@drawable/app_widget_search_background"
         android:paddingStart="25dp"
-        android:paddingEnd="25dp"
+        android:paddingEnd="40dp"
         android:text="@string/ask"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:theme="@style/Theme.VoiceNotesWidget.AppWidgetAsk" />
 </LinearLayout>

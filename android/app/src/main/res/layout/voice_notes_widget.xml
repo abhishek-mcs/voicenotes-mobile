@@ -42,9 +42,9 @@
             android:layout_weight="1"
             android:background="@drawable/app_widget_search_background"
             android:paddingStart="15dp"
-            android:paddingEnd="15dp"
+            android:paddingEnd="25dp"
             android:text="@string/record"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:theme="@style/Theme.VoiceNotesWidget.AppWidgetRecord"
             android:ellipsize="end"
@@ -61,14 +61,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/app_widget_search_background"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
-            android:text="@string/ask"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:theme="@style/Theme.VoiceNotesWidget.AppWidgetAsk"
             android:ellipsize="end"
-            android:maxLines="1"/>
+            android:maxLines="1"
+            android:paddingStart="15dp"
+            android:paddingEnd="40dp"
+            android:text="@string/ask"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:theme="@style/Theme.VoiceNotesWidget.AppWidgetAsk" />
 
     </LinearLayout>
 </LinearLayout>
