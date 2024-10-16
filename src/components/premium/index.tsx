@@ -15,6 +15,7 @@ import { setTempIsIAPPurchased } from "redux/reducers/IAPStates"
 import { analytics } from "../../../firebaseConfig"
 import { AppEventsLogger } from "react-native-fbsdk-next"
 import { ImageBackground } from "expo-image"
+import * as webBrowser from "expo-web-browser"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
@@ -156,19 +157,16 @@ export default (props:any) => {
                 </Touchable>
               </View>
             </View>
-          </ScrollView>
-        </SafeAreaView>
-        {/* <View style={styles.footer}>
+        <View style={styles.footer}>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
-            <Text style={[styles.footerText,{color:'#000'}]}>Terms of Service</Text>
+            <Text style={[styles.footerText1,{color:'#000'}]}>Terms of Service</Text>
           </Touchable>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy')}>
-            <Text style={[styles.footerText,{color:'#000',marginHorizontal:16}]}>Privacy Policy</Text>
+            <Text style={[styles.footerText1,{color:'#000',marginHorizontal:16}]}>Privacy Policy</Text>
           </Touchable>
-          <Touchable onPress={onRestore} style={{padding:8}}>
-            <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
-          </Touchable>
-        </View> */}
+        </View>
+          </ScrollView>
+        </SafeAreaView>
       </ImageBackground>
     </View>
   )
@@ -247,7 +245,8 @@ const styles = StyleSheet.create({
   btnPrice:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2,textAlign:'right'},
   btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4,textAlign:'right'},
   footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
-  footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',bottom:40,paddingVertical:10},
+  footerText1:{color:'#9B9B9B',fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
+  footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:14},
   closeButton: {
     position: 'absolute',
     padding: 10,
