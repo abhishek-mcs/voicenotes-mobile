@@ -8,16 +8,18 @@ import Colors from "assets/Colors"
 import RecButton from "components/common/recording/rec-button"
 import { changeEmail } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
+import CircularLoader from "components/common/loaders/circular-loader"
 
 interface ComponentProps {
   value: string;
   email: string,
   onValueChange: (value: string) => void;
   onSubmit: () => void;
-  isOTP: boolean
+  isOTP: boolean,
+  working?: boolean
 }
 
-const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP }) => {
+const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP, working }) => {
   return (
     <View style={styles.root}>
       <Text style={styles.heading}>Email</Text>
@@ -33,14 +35,14 @@ const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onS
         placeholder={isOTP ? "Enter OTP" : "Enter new email"}
       />
       <View style={styles.action}>
-        <RecButton
+        {working ? <CircularLoader /> : <RecButton
           title={isOTP ? "Confirm" : "Send"}
           underlayColor={Colors.blackWithOpacity(0.7)}
           bgColor="#000"
           color="#fff"
           style={{ flex: 1, paddingHorizontal: 15 }}
           onPress={onSubmit}
-        />
+        />}
       </View>
       <Text style={styles.footer}>Current email is {email}</Text>
     </View>
@@ -55,26 +57,31 @@ const Email: React.FC<Props> = (props) => {
     const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
     const [email, setEmail] = useState('');
     const [otp, setOTP] = useState('');
-    const [showOTP, setShowOTP] = useState(false)
+    const [showOTP, setShowOTP] = useState(false);
+    const [working, setWorking] = useState(false);
 
     const dispatch = useDispatch()
     
     const handleOTPSubmit = async () => {
+      setWorking(true)
       try {
         await changeEmail(email, otp)
         dispatch(setUserDetail({...userDetails, email}))
         Alert.alert("Email updated", `Your email address has been updated to ${email}.`)
         props.onClose()
       } catch {}
+      setWorking(false)
     }
 
     const handleEmailSubmit = async () => {
+      setWorking(true)
       try {
         await changeEmail(email)
         setShowOTP(true)
       } catch(e) {
         Alert.alert('Uh oh', "Voicenotes ran into an error trying to change your email. Please try again later.")
       }
+      setWorking(false)
     }
 
     const handleEmailChange = useCallback((value: string) => { setEmail(value); }, [])
@@ -90,6 +97,7 @@ const Email: React.FC<Props> = (props) => {
           value={showOTP ? otp : email} 
           email={userDetails?.email || ''} onValueChange={showOTP ? handleOTPChange : handleEmailChange} 
           onSubmit={showOTP ? handleOTPSubmit : handleEmailSubmit} 
+          working={working}
         />
       </Header>
     );
@@ -116,7 +124,9 @@ const styles = StyleSheet.create({
     },
     action: {
       width: '100%',
-      height: 50
+      height: 50,
+      justifyContent: 'center',
+      alignItems: 'center'
     },
     footer: {
       fontFamily: "Primary",

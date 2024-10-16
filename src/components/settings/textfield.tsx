@@ -4,7 +4,8 @@ type Props = {
     value: string,
     onValueChange: (value: string) => void,
     placeholder?: string,
-    multiline?: boolean
+    multiline?: boolean,
+    notPassword?: boolean
 }
 const TextField: React.FC<Props> = (props) => {
 
@@ -25,6 +26,7 @@ const TextField: React.FC<Props> = (props) => {
             minHeight: props.multiline ? 150 : 40
         }}
         multiline={props.multiline || false}
+        secureTextEntry={props.notPassword || false}
     />
 }
 

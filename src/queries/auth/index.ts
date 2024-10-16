@@ -121,6 +121,7 @@ export async function changePassword(newPasswd: string, confirmPasswd: string, f
       confirm_password: confirmPasswd,
       new_password: newPasswd,
       first_time: firstTime,
+      old_password: "something"
     };
   
     if (oldPasswd !== undefined) {
@@ -131,6 +132,11 @@ export async function changePassword(newPasswd: string, confirmPasswd: string, f
       const response = await axiosApi.post('/auth/change-password', payload);
       return response.data;
     } catch (error) {
-      throw error;
+        if (axios.isAxiosError(error) && error.response) {
+            // Throw an error with more details
+            throw new Error(error.response.data.message || 'An error occurred while changing the password');
+        }
+        // If it's not an Axios error, just throw it as is
+        throw error;
     }
 }
