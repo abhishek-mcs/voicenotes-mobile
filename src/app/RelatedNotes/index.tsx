@@ -48,7 +48,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
                     <SvgXml xml={commonSvg.back} height={21}/>
                     <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.darkWithOpacity(1)}}>Back</Text>
                 </Touchable>
-                <ScrollView contentContainerStyle={{paddingBottom:100}} showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerStyle={{paddingBottom:400}} showsVerticalScrollIndicator={false}>
                     {getIndividualNote.isSuccess?
                     <NotePreview
                       ref={notePreviewRef}
