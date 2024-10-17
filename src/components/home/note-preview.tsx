@@ -821,7 +821,6 @@ const NotePreview = forwardRef(
     //   }
     // ]
 
-  //  index==32&& console.log(note?.transcript)
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
     };

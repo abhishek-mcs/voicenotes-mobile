@@ -21,6 +21,29 @@ struct iOSWidget: Widget {
     .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular])
     .configurationDisplayName("Voicenote widgets")
     .description("Voicenote widgets")
+  }    
+  // Function to return display name based on widget family
+  private func displayName(for family: WidgetFamily) -> String {
+      switch family {
+      case .systemSmall:
+          return "Record & Ask AI"
+      case .systemMedium:
+          return "Search"
+      default:
+          return "Voicenote Widget"
+      }
+  }
+    
+  // Function to return description based on widget family
+  private func description(for family: WidgetFamily) -> String {
+      switch family {
+      case .systemSmall:
+          return "Ask your AI & Record a Voicenote directly from your home screen."
+      case .systemMedium:
+          return "Ask your AI, Record a Voicenote, Search directly from your home screen."
+      default:
+          return "Voicenote widgets"
+      }
   }
 }
 
