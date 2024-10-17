@@ -814,6 +814,7 @@ const NotePreview = forwardRef(
     //   }
     // ]
 
+  //  index==32&& console.log(note?.transcript)
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
     };
@@ -950,7 +951,10 @@ const NotePreview = forwardRef(
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     message={note?.transcript
-                      ?.replaceAll(/<br\/?>/g, "\n")
+                      ?.replaceAll(/\n/g, '')
+                      ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+                      ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
+                      ?.replaceAll(/<br\/?>/g, "\n\n")
                       ?.trimEnd()}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
