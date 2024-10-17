@@ -112,7 +112,7 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
                   placeholderTextColor={Colors.grey6}
                   contextMenuHidden={true}
                   autoComplete="off"
-                  autoCorrect={false}
+                  autoCorrect={true}
                   value={searchText}
                   disabledInputStyle={{opacity:1}}
                   disabled={true}

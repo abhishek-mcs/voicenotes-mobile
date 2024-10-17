@@ -132,7 +132,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                   placeholderTextColor={Colors.grey6}
                   contextMenuHidden={true}
                   autoComplete="off"
-                  autoCorrect={false}
+                  autoCorrect={true}
                   value={searchText}
                   containerStyle={{backgroundColor:'transparent'}}
                   inputContainerStyle={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,height:40}}
