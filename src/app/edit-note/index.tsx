@@ -140,7 +140,7 @@ export default () => {
         <TextInput
           style={styles.titleInput}
           autoComplete="off"
-          autoCorrect={false}
+          autoCorrect={true}
           selectTextOnFocus={false}
           value={editNote?.title}
           onChangeText={(txt) =>
@@ -160,7 +160,7 @@ export default () => {
             style={styles.textInput}
             multiline
             autoComplete="off"
-            autoCorrect={false}
+            autoCorrect={true}
             scrollEnabled={false}
             selectTextOnFocus={false}
             value={editNote?.transcript?.replaceAll(/<br\/?>/g, "\n")}

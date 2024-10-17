@@ -464,7 +464,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     value={input}
                     enablesReturnKeyAutomatically={true}
                     returnKeyType="send"
-                    autoCorrect={false}
+                    autoCorrect={true}
                     autoFocus={false}
                     autoCapitalize="none"
                     onChangeText={(text) => setInput(text)}
