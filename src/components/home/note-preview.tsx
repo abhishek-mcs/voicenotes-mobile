@@ -703,11 +703,11 @@ const NotePreview = forwardRef(
         systemIcon:'doc.text',
         onPress:()=>onCopy(note?.transcript ?? "")
       },
-      {
+      ...(isSubnote ? [] : [{
         title:"Add subnote",
         systemIcon:'mic',
         onPress:onThreadNote
-      },
+      }]),
       {
         title:"Attach",
         systemIcon:'photo.on.rectangle',
