@@ -66,6 +66,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   }, [onAttachmentUpdate]);
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
+    console.log(attachmentId,type)
     Alert.alert(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
@@ -229,7 +230,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => selectedImageIndex&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
+                onPress={() => selectedImageIndex !== null&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
               >
                 <SvgXml xml={notePreviewSVG.delete}/>
               </TouchableOpacity>
