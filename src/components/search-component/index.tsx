@@ -21,6 +21,8 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [visibleTags, setVisibleTags] = useState(6);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
     const router = useRouter()
     const ref:any=useRef<TextInput>(null)
     const {hashTags}=useSelector((state:RootState)=>state?.hash)
@@ -92,6 +94,26 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
       })
       return ()=>Keyboard.dismiss()
       },[ref.current])
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            (e) => {
+                setKeyboardHeight(e.endCoordinates.height);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setKeyboardHeight(0);
+            }
+        );
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
     
     const onDeleteSearchHistory=(id:number)=>{
       const temp=searchHistoryList?.filter((itm:any)=>itm?.id!=id)
@@ -195,6 +217,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                   :<View style={[styles.result,{alignItems:'center',marginTop:40}]}>
                     <CircularLoader/>
                   </View>}
+                  <View style={{ height: keyboardHeight }} />
                   </ScrollView>}
           </Animated.View>
     )
