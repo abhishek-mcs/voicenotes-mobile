@@ -52,7 +52,12 @@ export default () => {
   const saveEditedNote = useSaveEditedNote(editNote?.id);
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
-  const textRef = useRef<any>(null);
+  const titleInputRef = useRef<TextInput>(null);
+  const transcriptInputRef = useRef<TextInput>(null);
+
+  const handleTitleSubmit = () => {
+    transcriptInputRef.current?.focus();
+  };
 
   const onSaveEdit = async () => {
     if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
@@ -87,7 +92,7 @@ export default () => {
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
-      textRef.current && textRef.current?.focus();
+      titleInputRef.current?.focus();
     });
   }, []);
 
@@ -137,7 +142,8 @@ export default () => {
         )}
       </View>
       <View style={styles.editContainer}>
-        <TextInput
+      <TextInput
+          ref={titleInputRef}
           style={styles.titleInput}
           autoComplete="off"
           autoCorrect={true}
@@ -148,6 +154,8 @@ export default () => {
               return { ...n, title: txt };
             })
           }
+          onSubmitEditing={handleTitleSubmit}
+          returnKeyType="next"
         />
 
         <ScrollView
@@ -156,7 +164,7 @@ export default () => {
           contentContainerStyle={{ paddingBottom: "50%" }}
         >
           <TextInput
-            ref={textRef}
+            ref={transcriptInputRef}
             style={styles.textInput}
             multiline
             autoComplete="off"

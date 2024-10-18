@@ -113,8 +113,8 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
       setSearchText("")
     }
     return (
-        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:Colors.whiteWithOpacity(1),}}>
-          <Animated.View style={{flexDirection:'row',marginTop:4,alignItems:'center',marginBottom:4,height:searchHeight}}>
+        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:Colors.whiteWithOpacity(1)}}>
+          <Animated.View style={{flexDirection:'row',marginTop:10,alignItems:'center',marginBottom:4,height:searchHeight}}>
                 <SearchBarIOS
                   ref={ref}
                   onClear={onClear}
