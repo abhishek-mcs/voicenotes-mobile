@@ -1,5 +1,4 @@
 import Colors from "assets/Colors";
-import { commonSvg } from "assets/svg/commonSvg";
 import CircularLoader from "components/common/loaders/circular-loader";
 import Touchable from "components/common/Touchable";
 import { setStringAsync } from "expo-clipboard";
@@ -7,7 +6,6 @@ import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { useDeleteFormattedNote } from "queries/home";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableHighlight, View } from "react-native";
-import { SvgXml } from "react-native-svg";
 import { capitalizeFirstLetter } from "utils/common";
 import { formatDate } from "utils/format-date";
 

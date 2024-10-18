@@ -1,5 +1,4 @@
 import AiLoader from 'components/common/loaders/ai-loader';
-import React from 'react'
 import creationContent from 'utils/constants/creation-content';
 import AiCreatedView from '../ai-created-view';
 import { Note } from 'types';
