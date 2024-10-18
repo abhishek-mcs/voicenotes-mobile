@@ -185,7 +185,6 @@ const NotePreview = forwardRef(
     };
 
     const onCreate = async (type = "summary") => {
-      setExpand(index)
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
