@@ -122,7 +122,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
             onPress={() => {
               route.navigate("/auth/login/loginPassword");
             }}
-            style={{ alignSelf: "flex-end",backgroundColor:'#222',borderRadius:16,padding:12,paddingVertical:8,height:35 }}
+            style={{ alignSelf: "flex-end",backgroundColor:Colors.darkWithOpacity(1),borderRadius:16,padding:12,paddingVertical:8,height:35 }}
           ><Text style={{ color: '#fff',fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
           </Touchable>
           </View>}

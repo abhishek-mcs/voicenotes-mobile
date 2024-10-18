@@ -131,8 +131,8 @@ export default forwardRef(({ data = null }: Props, ref) => {
       coverScreen={false}
       // onTouchStart={(e)=>{console.log(e?.nativeEvent.pageX,'hello')}}
     ><View style={{}}>
-     {/* <View style={[styles.shadow,{width:10,height:10,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:12,right:60}]}/>
-     <View style={[styles.shadow,{width:20,height:20,borderRadius:20,backgroundColor:'#fff',position:'absolute',top:25,right:65}]}/> */}
+     {/* <View style={[styles.shadow,{width:10,height:10,borderRadius:20,backgroundColor:Colors.whiteWithOpacity(1),position:'absolute',top:12,right:60}]}/>
+     <View style={[styles.shadow,{width:20,height:20,borderRadius:20,backgroundColor:Colors.whiteWithOpacity(1),position:'absolute',top:25,right:65}]}/> */}
         <View ref={containerRef} style={[styles.modal, styles.shadow]} onTouchStart={()=>{hideTooltip()}}>
           <Text
             style={{
@@ -185,7 +185,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   modal: {
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 20,
     paddingVertical: 10,
     justifyContent: "center",
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   loader: { justifyContent: "flex-start", paddingTop: 36, paddingLeft: 28 },
   tooltip: {
     position: 'absolute',
-    backgroundColor: '#222',
+    backgroundColor:Colors.darkWithOpacity(1),
     padding: 8,
     borderRadius: 4,
     minWidth: 130,

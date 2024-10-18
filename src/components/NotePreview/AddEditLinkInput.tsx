@@ -168,11 +168,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor:Colors.whiteWithOpacity(1),
   },
   content: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor:Colors.whiteWithOpacity(1),
   },
   separator: {
     height: 1,

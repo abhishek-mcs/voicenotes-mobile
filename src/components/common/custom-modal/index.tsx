@@ -1,3 +1,4 @@
+import Colors from 'assets/Colors';
 import React, { useImperativeHandle, forwardRef, useState, useRef, useEffect } from 'react';
 import {
   Text,
@@ -67,7 +68,7 @@ const CustomModal = forwardRef(({ visible, children }:CustomModalProps, ref) => 
       bottom: 0,
       width: screenWidth,
       height: screenHeight+100,
-      backgroundColor: 'white',
+      backgroundColor:Colors.whiteWithOpacity(1),
       zIndex: 1000,flex:1,
       paddingTop:60
     },

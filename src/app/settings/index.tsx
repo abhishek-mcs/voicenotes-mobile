@@ -324,7 +324,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
   return (
     <View style={{marginBottom:20}}>
     <Text style={{fontFamily:'Primary-Medium',fontSize:12,color:Colors.grey,marginLeft:32,marginBottom:8}}>{title}</Text>
-    <View style={{marginHorizontal:16,borderRadius:12,backgroundColor:'#fff',overflow:'hidden'}}>
+    <View style={{marginHorizontal:16,borderRadius:12,backgroundColor:Colors.whiteWithOpacity(1),overflow:'hidden'}}>
     {items?.map((item:any,index:number)=>
     <View key={index}>
     <TouchableHighlight onPress={item?.isMenu?onShowMenu:item?.onPress} underlayColor={Colors.greyWithOpacity(0.12)} style={{overflow:'hidden',padding:16,paddingBottom:index!=items?.length-1?12:16}}>

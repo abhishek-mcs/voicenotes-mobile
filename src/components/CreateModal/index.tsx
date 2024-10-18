@@ -179,7 +179,7 @@ export default forwardRef(({}:createModalProps, ref) => {
 const styles = StyleSheet.create({
   modal: {
     // justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 20,
     paddingBottom: 0,
     // paddingTop:24,

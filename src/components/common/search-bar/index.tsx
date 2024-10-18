@@ -153,7 +153,7 @@ const styles=StyleSheet.create({
       flex:1,
       width:'100%',
       height:200,
-      backgroundColor:'#fff',
+      backgroundColor:Colors.whiteWithOpacity(1),
       position:'absolute',
       top:45,borderRadius:12,
       zIndex:100,

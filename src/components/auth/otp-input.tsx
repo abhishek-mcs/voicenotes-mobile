@@ -164,6 +164,6 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 11
   },
   noBorderLeft:{borderLeftWidth:0},
-  separator:{width:1,backgroundColor:'#000',height:50},
+  separator:{width:1,backgroundColor:Colors.blackWithOpacity(1),height:50},
   errorText:{}
 });

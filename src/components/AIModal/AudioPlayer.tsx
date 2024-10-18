@@ -109,7 +109,7 @@ export default ({isAI=false,url=''}) => {
           value={position}
           onValueChange={handleSliderValueChange}
           onSlidingComplete={handleSliderSlidingComplete}
-          thumbStyle={[styles.thumb,isAI?{backgroundColor:'white'}:{}]}
+          thumbStyle={[styles.thumb,isAI?{backgroundColor:Colors.whiteWithOpacity(1)}:{}]}
           minimumTrackTintColor={isAI?'white':Colors.primary}
           maximumTrackTintColor={isAI?Colors.whiteWithOpacity(0.5):Colors.primaryWithOpacity(0.1)}
         />

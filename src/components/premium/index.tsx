@@ -235,7 +235,7 @@ const Btn = ({
 );
 
 const styles = StyleSheet.create({
-  main:{flex:1,backgroundColor:'#fff'},
+  main:{flex:1,backgroundColor:Colors.whiteWithOpacity(1)},
   container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
   subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
   img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},

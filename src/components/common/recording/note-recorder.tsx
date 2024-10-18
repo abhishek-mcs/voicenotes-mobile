@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor:Colors.whiteWithOpacity(1),
   },
   tabItemText: {
     fontFamily: "Primary-Semibold",

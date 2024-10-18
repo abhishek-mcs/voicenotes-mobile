@@ -92,7 +92,7 @@ export default () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.whiteWithOpacity(1) }}>
       {/* <KeyboardAvoidingView behavior={"padding"} > */}
       <View
         style={{

@@ -679,7 +679,7 @@ const NotePreview = forwardRef(
         }
       >
         <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
-          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#000'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
+          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.blackWithOpacity(1)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
         </MenuItem>
         <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
           <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#0d0d0d0d'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#222'}]} />
@@ -1183,7 +1183,7 @@ const styles = StyleSheet.create({
   },
   relatedNoteModal: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     width: "100%",
     height: "100%",
     margin: 0,

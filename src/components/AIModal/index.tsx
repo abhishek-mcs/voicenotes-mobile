@@ -338,7 +338,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:'#fff'}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:Colors.whiteWithOpacity(1)}]}>
         <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
         <KeyboardAvoidingView
           style={[{ flex: 1 ,paddingTop:isIOS?0:40}]}
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
   modal: {
     height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 24,
     shadowColor: "#00000026",
     shadowOpacity: 0.9,
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
-    backgroundColor:'#fff'
+    backgroundColor:Colors.whiteWithOpacity(1)
   },
   btnTxt: { fontSize: 14, fontFamily: "Primary-Medium", lineHeight: 20,color:Colors.black2 },
   subTitle: {
@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 7,
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     shadowColor: "#000000",
     shadowOpacity: 0.2,
     shadowRadius: 1.5,

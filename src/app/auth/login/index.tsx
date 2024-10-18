@@ -84,7 +84,7 @@ export default ()=> {
         <TextField
           forwardedRef={inputRef}
           style={{marginTop:0,flexDirection:'column'}}
-          inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:'#fff'}}
+          inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1)}}
           value={emailText}
           label={"Enter your email"}
           labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}

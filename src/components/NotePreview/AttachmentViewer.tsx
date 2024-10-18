@@ -22,6 +22,7 @@ import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
+import Colors from "assets/Colors";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 14,
-    backgroundColor: '#222',
+    backgroundColor:Colors.darkWithOpacity(1),
     borderRadius: 50
   },
   loader: {
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     padding: 13,
     marginRight: 10,
-    backgroundColor: '#222',
+    backgroundColor:Colors.darkWithOpacity(1),
     borderRadius: 50
   },
   linkContainer: {

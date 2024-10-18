@@ -113,7 +113,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
       setSearchText("")
     }
     return (
-        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:'#fff',}}>
+        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:Colors.whiteWithOpacity(1),}}>
           <Animated.View style={{flexDirection:'row',marginTop:4,alignItems:'center',marginBottom:4,height:searchHeight}}>
                 <SearchBarIOS
                   ref={ref}
@@ -140,7 +140,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
           </Animated.View>
                   {(isFocused||isRouted)&&<ScrollView 
                     showsVerticalScrollIndicator={false} 
-                    style={{overflow:'hidden',paddingBottom:100,marginTop:8,height:screenHeight,backgroundColor:"#fff"}}
+                    style={{overflow:'hidden',paddingBottom:100,marginTop:8,height:screenHeight,backgroundColor:Colors.whiteWithOpacity(1)}}
                     contentContainerStyle={{paddingBottom:100}}
                     keyboardShouldPersistTaps="handled">
                     {((getSearchData?.isFetched&&searchData.length==0)||searchText=='')&&
@@ -184,7 +184,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                     <TouchableHighlight onPress={()=>goto(itm?.recording_id)} style={styles.result} underlayColor={Colors.greyWithOpacity(0.1)} key={i}>
                       <View style={{overflow:'hidden'}}>
                       <View style={{flexDirection:'row',alignItems:'center'}}>
-                        <View style={{backgroundColor:'#222',width:6,height:6,borderRadius:9}}/>
+                        <View style={{backgroundColor:Colors.darkWithOpacity(1),width:6,height:6,borderRadius:9}}/>
                         <Text style={styles.title}>{itm?.title}</Text>
                       </View>
                       <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()?.replaceAll(/<br\/?>/g, '\n')}</Text></View>
@@ -224,7 +224,7 @@ const styles=StyleSheet.create({
     //   flex:1,
     //   width:'100%',
     //   height:200,
-    //   backgroundColor:'#fff',
+    //   backgroundColor:Colors.whiteWithOpacity(1),
     //   position:'absolute',
     //   top:45,borderRadius:12,
     //   zIndex:100,

@@ -35,7 +35,7 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
         {type=='custom'&&
         <TextField
           style={{marginTop:0,flexDirection:'column'}}
-          inputStyle={{ height: 42, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:'#fff',marginLeft:0}}
+          inputStyle={{ height: 42, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1),marginLeft:0}}
           value={customText}
           labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
           onChangeText={(t:string)=>setCustomText(t)}

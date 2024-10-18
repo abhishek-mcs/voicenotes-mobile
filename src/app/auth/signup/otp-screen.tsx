@@ -129,15 +129,15 @@ const rspValue=(v:number)=>(v*w)/390;
 const isIOS=Platform.OS=='ios'
 
 const styles=StyleSheet.create({
-  container:{flex:1,backgroundColor:'#f8f8f8',paddingTop:16},
-  contentContainer:{flex:1,backgroundColor:'#f8f8f8',padding:16},
-  tabBarStyle:{height:6,marginBottom:isIOS?24:20,width:rspValue(198),alignSelf:'center',backgroundColor:'#f8f8f8',borderWidth:0,flexDirection:'row',justifyContent:'space-between'},
+  container:{flex:1,backgroundColor:Colors.white1,paddingTop:16},
+  contentContainer:{flex:1,backgroundColor:Colors.white1,padding:16},
+  tabBarStyle:{height:6,marginBottom:isIOS?24:20,width:rspValue(198),alignSelf:'center',backgroundColor:Colors.white1,borderWidth:0,flexDirection:'row',justifyContent:'space-between'},
   tabBarIndicatorStyle:{height:6,width:rspValue(62),borderRadius:100,overflow:'hidden'},
-  box:{paddingVertical:24,paddingHorizontal:16,backgroundColor:'#fff',borderRadius:12,shadowColor:'rgba(0, 0, 0, 0.0.04)',shadowOffset:{width:0,height:2},shadowRadius:10,shadowOpacity:0.1},
+  box:{paddingVertical:24,paddingHorizontal:16,backgroundColor:Colors.whiteWithOpacity(1),borderRadius:12,shadowColor:'rgba(0, 0, 0, 0.0.04)',shadowOffset:{width:0,height:2},shadowRadius:10,shadowOpacity:0.1},
   checkOutline:{borderWidth: 1, height: 20, width: 20, borderRadius:5, borderColor:'rgba(113, 113, 113, 0.5)',alignSelf:'flex-start',marginTop:2},
   radioOutline:{borderWidth: 1, height: 20, width: 20, borderRadius:100, borderColor:'rgba(113, 113, 113, 0.5)',alignSelf:'flex-start',marginTop:2},
-  checkFill:{backgroundColor:'#222',width:20,height:20,borderRadius:5,justifyContent:'center',alignItems:'center'},
-  radioFill:{borderWidth:5,borderColor:'#222',backgroundColor:'#fff',width:20,height:20,borderRadius:100,justifyContent:'center',alignItems:'center'},
+  checkFill:{backgroundColor:Colors.darkWithOpacity(1),width:20,height:20,borderRadius:5,justifyContent:'center',alignItems:'center'},
+  radioFill:{borderWidth:5,borderColor:'#222',backgroundColor:Colors.whiteWithOpacity(1),width:20,height:20,borderRadius:100,justifyContent:'center',alignItems:'center'},
   continueBtn:{alignSelf:'center',backgroundColor:Colors.primary,marginVertical:32,position:'absolute',bottom:0,width:'100%',borderRadius:100,height:49,alignItems:'center',justifyContent:'center'},
   continueBtnText:{color:'#222',fontFamily:'Primary-Bold',fontSize:16,lineHeight:19.2},
   title:{fontSize:24,fontFamily:'Primary-Medium',color:'#222',textAlign:'center',marginBottom:32},

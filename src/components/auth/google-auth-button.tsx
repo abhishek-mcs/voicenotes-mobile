@@ -66,7 +66,7 @@ export default () => {
 const {btn,btnTxt}=StyleSheet.create({
     btn:{
         borderRadius:8,
-        backgroundColor:'#fff',
+        backgroundColor:Colors.whiteWithOpacity(1),
         marginTop:24,
         width:'100%',
         flexDirection:'row',

@@ -121,9 +121,9 @@ const signInGoogle=(token:any,params:any)=>{
 //apple login end
 
   return (
-    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
+    <SafeAreaView style={{flex:1,backgroundColor:Colors.whiteWithOpacity(1)}}>
     <View
-      style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:'#fff',flex:1,justifyContent:'space-between'}}
+      style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >
       <View>
       <SvgXml xml={LandingSvg.logo} />

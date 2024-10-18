@@ -173,7 +173,7 @@ export default ({
 
 const styles = StyleSheet.create({
   addingContainer: {
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     minHeight: 56,
     borderRadius: 24,
     position: "absolute",
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   parentNoteIndicator: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     height: 40,
     borderRadius: 24,
     position: "absolute",
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   tab: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 24,
     marginHorizontal: 20,
     marginBottom: 20,

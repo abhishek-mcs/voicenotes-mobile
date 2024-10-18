@@ -8,6 +8,7 @@ import { commonSvg } from "assets/svg/commonSvg"
 import Touchable from "components/common/Touchable";
 import { useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
+import Colors from "assets/Colors"
 
 export default () => {
     const router = useRouter()
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 60,
         borderRadius: 10,
-        backgroundColor: 'white',
+        backgroundColor:Colors.whiteWithOpacity(1),
         flexDirection: 'row',
         marginBottom: 10
     },

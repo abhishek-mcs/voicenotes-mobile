@@ -125,7 +125,7 @@ export default () => {
       <TextField
         forwardedRef={inputRef}
         style={{ marginTop: isIOS? 36: 24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:'#fff'}}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1)}}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -156,7 +156,7 @@ export default () => {
         placeholder="Password"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
         style={{ marginTop: 0}}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:'#fff' }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:Colors.whiteWithOpacity(1) }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&

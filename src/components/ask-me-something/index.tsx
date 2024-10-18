@@ -69,7 +69,7 @@ export default ({onClose=()=>{}})=>{
 
 const {container,heading,question,caption}=StyleSheet.create({
     container: {
-      backgroundColor: "#fff",
+      backgroundColor:Colors.whiteWithOpacity(1),
       minHeight: 56,
       borderRadius: 24,
       position: "absolute",

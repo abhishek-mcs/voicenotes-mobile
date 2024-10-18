@@ -1043,14 +1043,14 @@ export default () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
   },
   wrapper: {
     paddingVertical: isIOS ? 0 : 32,
   },
   tab: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     height: 64,
     borderRadius: 24,
     position: "absolute",
