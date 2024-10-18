@@ -55,6 +55,14 @@ export default (props:any) => {
       };
       setIsLoading(true)
       await Purchases.setAttributes({'email':userDetails?.email})
+
+      if (!pack || pack.length === 0) {
+        console.error('No products available');
+        Alert.alert('Error', 'Unable to fetch product information. Please try again later.');
+        setIsLoading(false);
+        return;
+      }
+      
       const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
@@ -93,7 +101,8 @@ export default (props:any) => {
       }
     } catch (e:any) {
       if (!e.userCancelled) {
-        // showError(e);
+        console.log('error',e)
+        //showError(e);
       }
     }
     setIsLoading(false)
