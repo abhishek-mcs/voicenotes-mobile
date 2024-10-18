@@ -16,6 +16,7 @@ import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import Header from "components/AIModal/header";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default forwardRef(({}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
@@ -33,6 +34,7 @@ export default forwardRef(({}:createModalProps, ref) => {
   const aiCreate=useCreate()
   const getAiCreation=useGetAiCreation()
   const recordingQuery = useRecordings("");
+  const insets = useSafeAreaInsets();
 
   // useImperativeHandle(
   //   ref,
@@ -142,7 +144,7 @@ export default forwardRef(({}:createModalProps, ref) => {
       // propagateSwipe={true}
       // onSwipeComplete={onClose}
     // > 
-      <View style={[styles.modal,styles[preview]]}>
+      <View style={[styles.modal,styles[preview], {paddingTop: isIOS ? 0 : insets.top}]}>
         <Header title="Create"/>
         {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
         {(preview === 'suggestions'||preview === 'records') ?
@@ -162,7 +164,7 @@ export default forwardRef(({}:createModalProps, ref) => {
           )}
           />
           {(noteId?.length>0&&(noteType !== 'custom'||(noteType=='custom'&&customText?.length>0)))&&
-          <Touchable style={styles.createBtn} onPress={onCreate}>
+          <Touchable style={[styles.createBtn, {marginBottom: isIOS ? 16 : insets.bottom + 40 }] } onPress={onCreate}>
             <Text style={styles.createTxt}>Create</Text>
             <SvgXml xml={CreateModalSvg.create} />
           </Touchable>}
@@ -192,7 +194,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     // height:screenHeight/1.4,
     flex: 1,
-    paddingTop:isIOS?0:40
   },
   heading: {
     fontSize: 16,
@@ -217,7 +218,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 40,
     borderRadius: 16,
-    marginVertical: 16,
   },
   createTxt: {
     fontSize: 14,
