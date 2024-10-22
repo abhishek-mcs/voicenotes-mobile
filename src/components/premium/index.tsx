@@ -8,7 +8,7 @@ import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import { isIOS, screenHeight} from "utils/common"
+import { isIOS, screenHeight, screenWidth} from "utils/common"
 import * as Updates from 'expo-updates';
 import { useQueryClient } from "react-query"
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates"
@@ -131,12 +131,12 @@ export default (props:any) => {
   return (
     <View style={styles.main}>
       <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
-        <SafeAreaView style={{flex:1}}>
+        <SafeAreaView style={{flex:1, paddingTop: insets.top}}>
           <Touchable style={styles.closeButton} onPress={()=>from=="home"?router?.back():freeUser()}>
             <SvgXml xml={iapSvg.close}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-            <View style={{paddingLeft:32, marginBottom: 20, marginTop: isIOS ? 0 : insets.top + 20}}>
+            <View style={{paddingLeft:32, marginBottom: 20}}>
               <SvgXml xml={iapSvg.usersCount}/>
             </View>
             <View style={styles.container}>
@@ -248,7 +248,6 @@ const styles = StyleSheet.create({
   container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
   subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
   img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},
-  title:{fontSize:56,fontFamily:'Secondary',color:'#222',marginBottom:20,alignSelf:'center',lineHeight:64,marginHorizontal:20},
   descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:screenHeight>690?17:12},
   desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Medium',color:'#222',lineHeight:22,marginTop:-4},
   border:{borderWidth:2,borderColor:Colors.darkWithOpacity(0)},
@@ -262,6 +261,15 @@ const styles = StyleSheet.create({
   footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
   footerText1:{color:'#9B9B9B',fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
   footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:14},
+  title:{
+    fontSize:screenWidth/8,
+    fontFamily:'Secondary',
+    color:'#222',
+    marginBottom:20,
+    alignSelf:'center',
+    lineHeight:64,
+    marginHorizontal:20
+  },
   closeButton: {
     position: 'absolute',
     padding: 10,
