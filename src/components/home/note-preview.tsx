@@ -78,6 +78,7 @@ import { setEditNote } from "redux/reducers/editStates";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext } from "context";
+import { StorageAccessFramework } from "expo-file-system";
 
 const NotePreview = forwardRef(
   (
@@ -145,6 +146,7 @@ const NotePreview = forwardRef(
     const relatedNotes = useGetRelatedRecording();
     const NetInfo = useNetInfo();
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
+    const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
@@ -497,24 +499,20 @@ const NotePreview = forwardRef(
     const onDownloadAudio = async () => {
       let audioUrl = "";
       if (note?.internalUrl && (await checkFileExists(note?.internalUrl))) {
-        console.log("internal url = ", note?.internalUrl);
         audioUrl = note.internalUrl;
       } else if (
         note?.audio?.data?.url &&
         (await checkFileExists(note?.audio?.data?.url))
       ) {
-        console.log("note audio url = ", note?.internalUrl);
         audioUrl = note?.audio?.data?.url;
       } else {
         const resp = await getSignedURL.mutateAsync(note?.id);
-        console.log("signed url = ", note?.internalUrl);
         audioUrl = resp.data?.url;
       }
 
       try {
         hideMoreOption();
-        const visibilityTime =
-          Math.max(note.transcript?.length / 500, 1) * 1500;
+        const visibilityTime = Math.max(note.transcript?.length / 500, 1) * 1500;
         Toast.show({
           type: "info",
           text1: "Preparing",
@@ -524,8 +522,9 @@ const NotePreview = forwardRef(
         });
 
         let fileUri: string = audioUrl;
+        const fileName = generateVoiceNoteFilename(note);
+
         if (audioUrl.startsWith("http://") || audioUrl.startsWith("https://")) {
-          const fileName = generateVoiceNoteFilename(note);
           fileUri = `${FileSystem.documentDirectory}${fileName}`;
           const downloadResumable = FileSystem.createDownloadResumable(
             audioUrl,
@@ -543,21 +542,34 @@ const NotePreview = forwardRef(
         }
 
         if (Platform.OS === "android") {
-          const asset = await MediaLibrary.createAssetAsync(fileUri);
-          const album = await MediaLibrary.getAlbumAsync("Download");
-          if (album === null) {
-            await MediaLibrary.createAlbumAsync("Download", asset, false);
+          const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+          if (permissions.granted) {
+            const destinationUri = await StorageAccessFramework.createFileAsync(
+              permissions.directoryUri,
+              fileName,
+              'audio/mpeg'
+            );
+            await FileSystem.copyAsync({
+              from: fileUri,
+              to: destinationUri
+            });
+            Toast.show({
+              type: "success",
+              text1: "Success",
+              text2: "Audio saved successfully",
+              position: "top",
+              visibilityTime: 3000,
+            });
           } else {
-            await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+            Toast.show({
+              type: "error",
+              text1: "Permission denied",
+              text2: "Unable to save audio without storage permission",
+              position: "top",
+              visibilityTime: 3000,
+            });
           }
-          Toast.show({
-            type: "success",
-            text1: "Success",
-            text2: "Audio saved to Downloads folder",
-            position: "top",
-            visibilityTime: 3000,
-          });
-        } else if (Platform.OS === "ios") {
+        } else {
           const UTI = "public.audio";
           await Sharing.shareAsync(fileUri, {
             UTI: UTI,
