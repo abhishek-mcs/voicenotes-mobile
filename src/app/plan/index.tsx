@@ -30,12 +30,12 @@ export default () => {
                 </View>
                 {userDetails.subscription_status && <View style={[styles.chipLabel, { justifyContent: 'flex-end' }]}>
                     <SvgXml xml={commonSvg.activeTick} />
-                    <Text style={{ color: '#499035', fontFamily: 'Primary-Medium' }}>Active</Text>
+                    <Text style={{ color:Colors.green2, fontFamily: 'Primary-Medium' }}>Active</Text>
                 </View>}
             </View>
             {userDetails.subscription_plan !== "Believer" && <Pressable onPress={() => router.push('/premium/')} style={styles.action}>
                 <SvgXml xml={iapSvg.lightning} />
-                <Text style={{ color: '#4285F4', fontFamily: 'Primary-Bold' }} >Upgrade for lifetime</Text>
+                <Text style={{ color: Colors.blue, fontFamily: 'Primary-Bold' }} >Upgrade for lifetime</Text>
             </Pressable>}
         </View>
     </SafeAreaView>
@@ -44,7 +44,7 @@ export default () => {
 const styles = StyleSheet.create({
     root: { 
         flex: 1,
-        backgroundColor: '#F2F2F7',
+        backgroundColor: Colors.white4,
         paddingTop: isIOS ? 0 : 40 
     },
     close: {

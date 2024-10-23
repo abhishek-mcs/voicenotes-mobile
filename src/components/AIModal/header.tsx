@@ -59,7 +59,7 @@ leftContainer:{
     width: "25%",
     justifyContent: "flex-end",
   },
-  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color: "#000",width:'50%',textAlign:'center' },
+  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color:Colors.blackWithOpacity(1),width:'50%',textAlign:'center' },
   rightContainer:{
     padding: 4,
     flexDirection: "row",

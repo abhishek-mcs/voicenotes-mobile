@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
         borderRadius:8,
         backgroundColor:Colors.whiteWithOpacity(1),
         marginRight:6,
-        shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,1)',
+        shadowColor:Colors.blackWithOpacity(1),
         shadowOffset:{width:0,height:1},
         shadowOpacity:0.15,
         shadowRadius:1.3,
@@ -48,5 +48,5 @@ const styles = StyleSheet.create({
         elevation:2,
     },
     row:{flexDirection:'row',alignItems:'center',justifyContent:'center'},
-    text:{marginLeft:4,fontSize:13,color:'#0D0D0D',fontFamily:'Primary-Medium'}
+    text:{marginLeft:4,fontSize:13,color:Colors.black2,fontFamily:'Primary-Medium'}
 })

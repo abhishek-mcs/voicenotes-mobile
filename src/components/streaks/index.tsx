@@ -138,7 +138,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
             style={{
               fontSize: 14,
               fontFamily: "Primary",
-              color: "#222",
+              color: Colors.darkWithOpacity(1),
               marginBottom: 12,
               textAlign:'left',
               width:'100%',
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     position:'relative'
   },
   shadow: {
-    shadowColor:"#000000",
+    shadowColor:Colors.blackWithOpacity(1),
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius:40,
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   },
   tooltipText: {
     fontFamily: 'Primary',
-    color: '#fff',
+    color: Colors.whiteWithOpacity(1),
     fontSize: 12,
   },
 });

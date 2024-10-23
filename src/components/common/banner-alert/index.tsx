@@ -97,7 +97,7 @@ export default forwardRef(({ message, actionText, onAction, snackHeight = 50,cou
 
 const styles = StyleSheet.create({
   snackbarContainer: {
-    backgroundColor:'#D6A2431A',
+    backgroundColor:Colors.yellowWithOpacity(0.1),
     paddingHorizontal: 12,
     borderRadius: 12,
     flexDirection: 'row',
@@ -106,18 +106,18 @@ const styles = StyleSheet.create({
     // marginBottom:12
   },
   message: {
-    color: '#D6A243',
+    color: Colors.yellow,
     fontSize: 12,
     fontFamily:'Primary-Medium',
     lineHeight:18,
   },
   action: {
-    color: '#D6A243',
+    color: Colors.yellow,
     fontSize: 12,
     fontFamily:'Primary-Semibold'
   },
   actionBtn:{
-    backgroundColor:'#D6A24333',
+    backgroundColor:Colors.yellowWithOpacity(0.2),
     padding:7,
     paddingHorizontal:13,
     marginLeft:20,

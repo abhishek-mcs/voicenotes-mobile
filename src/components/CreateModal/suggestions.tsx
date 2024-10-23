@@ -37,7 +37,7 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
           style={{marginTop:0,flexDirection:'column'}}
           inputStyle={{ height: 42, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1),marginLeft:0}}
           value={customText}
-          labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
+          labelStyle={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
           onChangeText={(t:string)=>setCustomText(t)}
           placeholder="Enter your instructions here..."
           autoCapitalize="none"
@@ -48,7 +48,7 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
 
 const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => (
     <Touchable style={[styles.btn,style,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
-        {icon&&<SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?'#fff':'#000001')} />}
+        {icon&&<SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?Colors.whiteWithOpacity(1):Colors.blackWithOpacity(1))} />}
         <Text style={[styles.btnTxt,selected?styles.selected1:{}]}>{title}</Text>
     </Touchable>
   );
@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
       fontSize:14,
       fontFamily:"Primary-Semibold",
       marginBottom:32,
-      color:'#0d0d0d',
+      color:Colors.black2,
       marginLeft:-14
     },
     row:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',justifyContent:'space-between'},
     btw:{justifyContent:'space-between',marginTop:20},
     selected:{backgroundColor:Colors.primary},
-    selected1:{color:'#fff'}
+    selected1:{color:Colors.whiteWithOpacity(1)}
   });

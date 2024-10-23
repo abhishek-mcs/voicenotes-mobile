@@ -76,7 +76,7 @@ const {container,heading,question,caption}=StyleSheet.create({
       left: 20,
       right: 20,
       bottom: 85,
-      shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
+      shadowColor:isIOS?Colors.blackWithOpacity(0.15):Colors.blackWithOpacity(0.7),
           shadowOpacity: 0.9,
           shadowOffset: { width: 0, height:0.5 },
           shadowRadius: 1.5,
@@ -89,13 +89,13 @@ const {container,heading,question,caption}=StyleSheet.create({
     heading:{
         fontFamily:'Primary',
         fontSize:14,
-        color:'#222',
+        color:Colors.darkWithOpacity(1),
         textAlign:'left'
     },
     question:{
         fontFamily:'Primary-Medium',
         fontSize:15,
-        color:'#222',
+        color:Colors.darkWithOpacity(1),
         marginTop:12,
         textAlign:'left',
         lineHeight:20,

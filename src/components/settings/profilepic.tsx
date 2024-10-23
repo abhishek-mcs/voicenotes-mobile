@@ -6,6 +6,7 @@ import ImageBackground from "components/common/ImageBackground"
 import CircularLoader from "components/common/loaders/circular-loader"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
+import Colors from "assets/Colors"
 
 type Props = {
     url?: string,
@@ -47,7 +48,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     const renderContent = () => {
         if (working) {
-            return <CircularLoader color="#bfbfbf" />;
+            return <CircularLoader color={Colors.grey10} />;
         }
 
         if (!image || imageError) {
@@ -63,7 +64,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     return (
         <View style={styles.root}>
-            <View style={[styles.container, { backgroundColor: image && !imageError ? "rgba(0,0,0,0.1)" : "transparent" }]}>
+            <View style={[styles.container, { backgroundColor: image && !imageError ? Colors.blackWithOpacity(0.1) : "transparent" }]}>
                 <Pressable style={styles.button} onPress={pickImage}>
                     {image && !imageError ? (
                         <ImageBackground
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: Colors.blackWithOpacity(0.5),
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 100,

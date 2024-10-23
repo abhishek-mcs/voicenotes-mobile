@@ -19,11 +19,11 @@ export const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
       style={[
         style,
         {
-          backgroundColor: 'rgba(0, 0, 0, 1)', 
+          backgroundColor: Colors.blackWithOpacity(1), 
         },
       ]}
     >
-      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:'rgba(255,255,255,0.98)',flex:1,width:screenWidth-32}}/>
+      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:Colors.whiteWithOpacity(0.98),flex:1,width:screenWidth-32}}/>
     </SafeAreaView>
   );
 };
@@ -132,7 +132,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
               <Text style={styles.cancelText}>Cancel</Text>
             </Touchable>
             <Touchable disabled={isSaveDisabled} onPress={handleSave} style={styles.headerButton} activeOpacity={0.6}>
-              <Text style={{ ...styles.saveText,color: isSaveDisabled? Colors.grey :"#007AFF" }}>Save</Text>
+              <Text style={{ ...styles.saveText,color: isSaveDisabled? Colors.grey :Colors.blue }}>Save</Text>
             </Touchable>
           </View>
           <View style={styles.separator} />
@@ -145,7 +145,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
               keyboardType="url"
               onChangeText={url=>setUrl(url)}
               placeholder="Type or Paste URL"
-              placeholderTextColor="#717171"
+              placeholderTextColor={Colors.grey3}
               style={styles.input}
               autoCapitalize="none"
               autoCorrect={false}
@@ -163,8 +163,9 @@ const styles = StyleSheet.create({
   bottomSheet: {
     marginTop: 0,
     paddingTop: 0,
-    color: 'gray',
-    backgroundColor:'gray'
+    color: Colors.grey,
+    backgroundColor:Colors.blackWithOpacity(1),
+    overflow:'hidden'
   },
   container: {
     flex: 1,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
     height: 5,
     width: 36,
     alignSelf: 'center',
-    backgroundColor: 'rgba(60, 60, 67, 0.3)',
+    backgroundColor: Colors.grey5WithOpacity(0.3),
     borderRadius: 20,
     marginTop: 8,
   },
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
   },
   input: {
-    color: '#222',
+    color: Colors.darkWithOpacity(1),
     fontFamily: 'Primary',
     fontSize: 14,
     paddingHorizontal: 16,

@@ -70,7 +70,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
           </Text>}
           {expand&&<View style={[row]}>
           <Touchable style={btn} onPress={onCopy}>
-            <Text style={[btnTxt,copied?{color:'#222'}:{}]}>{copied?'Copied':'Copy'}</Text>
+            <Text style={[btnTxt,copied?{color:Colors.darkWithOpacity(1)}:{}]}>{copied?'Copied':'Copy'}</Text>
           </Touchable>
           <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete}>
             <Text style={[btnTxt]}>Delete</Text>
@@ -97,7 +97,7 @@ const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
     alignItems:'center',
   },
   btw:{justifyContent:'space-between'},
-  titleStyle:{fontFamily:'Primary',fontSize:12,color:'#222',marginTop:6},
+  titleStyle:{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1),marginTop:6},
   txt:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
   btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.grey}

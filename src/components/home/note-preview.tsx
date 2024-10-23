@@ -679,10 +679,10 @@ const NotePreview = forwardRef(
         }
       >
         <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
-          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.blackWithOpacity(1)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
+          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.blackWithOpacity(1)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.whiteWithOpacity(1)}]} />
         </MenuItem>
         <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
-          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#0d0d0d0d'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#222'}]} />
+          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.grey2WithOpacity(0.05)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.darkWithOpacity(1)}]} />
         </MenuItem>
       </Menu>
     );
@@ -1077,7 +1077,7 @@ const styles = StyleSheet.create({
     paddingHorizontal:17
   },
   expandedContainer: {
-    // backgroundColor: "#f7f7f7",
+    // backgroundColor: "f7f7f7",
     // borderRadius: 12,
   },
   row: {
@@ -1132,14 +1132,14 @@ const styles = StyleSheet.create({
   menuItemContentSharedStyle: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0d0d0d0d",
+    backgroundColor:Colors.grey2WithOpacity(0.05),
     borderRadius: 16,
     // padding: 12,
     width: 136,
     justifyContent: "center",
   },
   menuItemContentSharedTextStyle: {
-    color: "#fff",
+    color: Colors.whiteWithOpacity(1),
     fontFamily: "Primary-Medium",
     fontSize: 14,
   },
@@ -1149,7 +1149,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.darkWithOpacity(1),
   },
   timestamp: {
     color: Colors.grey3,

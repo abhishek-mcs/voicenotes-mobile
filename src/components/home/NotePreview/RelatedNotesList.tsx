@@ -17,7 +17,7 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
               style={{
                 fontFamily: "Primary-Semibold",
                 fontSize: 12,
-                color: "#0D0D0D",
+                color:Colors.black2,
               }}
             >
               Related Notes

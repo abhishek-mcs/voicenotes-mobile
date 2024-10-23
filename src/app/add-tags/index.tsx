@@ -79,7 +79,7 @@ export default () => {
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
             </Touchable>
             <Touchable onPress={onDone} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
-              <Text style={{fontFamily:'Primary-Semibold',fontSize:16,color:'#007AFF'}}>Done</Text>
+              <Text style={{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.blue}}>Done</Text>
             </Touchable>
           </View>
           <View style={{marginHorizontal:24}}>
@@ -91,8 +91,8 @@ export default () => {
               autoFocus={false}
               onChangeText={onSearch}
               placeholder={"Add tags"}
-              placeholderTextColor={'#717171'}
-              style={[{color:'#222',fontFamily:'Primary',fontSize:14,paddingHorizontal:16,paddingVertical:12,borderRadius:8,backgroundColor:Colors.darkWithOpacity(0.05)}]}
+              placeholderTextColor={Colors.grey3}
+              style={[{color:Colors.darkWithOpacity(1),fontFamily:'Primary',fontSize:14,paddingHorizontal:16,paddingVertical:12,borderRadius:8,backgroundColor:Colors.darkWithOpacity(0.05)}]}
               autoCapitalize="none"
               autoCorrect={false}
               clearButtonMode="while-editing"
@@ -121,11 +121,11 @@ export default () => {
 
 
 const Btn=({onPress=(v:any)=>{},title,isAdded,style={}}:any)=>(
-  <TouchableHighlight onPress={() => onPress(title)} style={[{ padding: 6, marginBottom: 1, paddingHorizontal: 16, backgroundColor: isAdded ? 'rgba(35,84,159,0.1)' : 'transparent', borderRadius: 8 }, { ...style }]} underlayColor={'rgba(35,84,159,0.2)'}>
+  <TouchableHighlight onPress={() => onPress(title)} style={[{ padding: 6, marginBottom: 1, paddingHorizontal: 16, backgroundColor: isAdded ? Colors.lightBlueWithOpacity(0.1) : 'transparent', borderRadius: 8 }, { ...style }]} underlayColor={Colors.lightBlueWithOpacity(0.2)}>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {!title?.includes('+Add')&&<SvgXml xml={(title === 'starred'?commonSvg.tagStarred:commonSvg.tagHash)?.replaceAll('{color}',isAdded?'rgba(35,84,159,1)' : '#0D0D0D')} style={{ marginRight: 3 }}/>}
-          <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? 'rgba(35,84,159,1)' : '#0D0D0D' }}>{title === 'starred'?'Starred':title} </Text>
+          {!title?.includes('+Add')&&<SvgXml xml={(title === 'starred'?commonSvg.tagStarred:commonSvg.tagHash)?.replaceAll('{color}',isAdded?Colors.lightBlue : Colors.black2)} style={{ marginRight: 3 }}/>}
+          <Text style={{ fontFamily: 'Primary-Medium', fontSize: 16, color: (isAdded || title?.includes('+Add')) ? Colors.lightBlue : Colors.black2 }}>{title === 'starred'?'Starred':title} </Text>
       </View>
       {isAdded&&<SvgXml xml={commonSvg.smallClose} />}
     </View>

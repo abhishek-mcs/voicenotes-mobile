@@ -79,13 +79,13 @@ export default (
 const styles = StyleSheet.create({
     box:{height:screenHeight/1.4,paddingBottom:30},
     topBox:{flexDirection:'row-reverse',alignItems:'center',paddingBottom:16,paddingHorizontal:24,borderBottomWidth:1,borderBottomColor:Colors.darkWithOpacity(0.1)},
-    titleStyle:{fontFamily:'Primary-Semibold',fontSize:16,lineHeight:28,color:'#0D0D0D',marginVertical:12,marginHorizontal:32},
-    text:{color:'#000',fontFamily:'Primary',lineHeight:24,fontSize:14,marginBottom:8},
+    titleStyle:{fontFamily:'Primary-Semibold',fontSize:16,lineHeight:28,color:Colors.black2,marginVertical:12,marginHorizontal:32},
+    text:{color:Colors.blackWithOpacity(1),fontFamily:'Primary',lineHeight:24,fontSize:14,marginBottom:8},
     svg:{marginRight:16},
     btnBox:{flexDirection:'row',alignItems:'center',marginHorizontal:32},
     btn:{flexDirection:'row',alignItems:'center',marginRight:12,marginLeft:-6,paddingHorizontal:12,height:32,borderRadius:12,backgroundColor:Colors.darkWithOpacity(0.05)},
-    btnText:{fontFamily:'Primary',fontSize:12,color:'#0d0d0d',marginLeft:4},
-    subject:{fontFamily:'Primary-Medium',fontSize:14,color:"#222",marginBottom:20}
+    btnText:{fontFamily:'Primary',fontSize:12,color:Colors.black2,marginLeft:4},
+    subject:{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:20}
 })
 
 const { titleStyle,text,topBox,box,svg,btnBox,btnText,btn,subject } = styles

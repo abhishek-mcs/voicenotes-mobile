@@ -1,3 +1,4 @@
+import Colors from "assets/Colors";
 import { ReviewSvg } from "assets/svg/ReviewSvg";
 import { useRouter } from "expo-router";
 import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
@@ -71,12 +72,12 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: Colors.blackWithOpacity(0.5),
         justifyContent: 'center',
         alignItems: 'center'
     },
     box: {
-        backgroundColor: '#D8D8D8',
+        backgroundColor: Colors.grey7,
         borderRadius: 16,
         width: 280,
         height: 250
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     actions: {
         flex: 1.5,
         borderTopWidth: 0.3,
-        borderColor: '#3C3C43',
+        borderColor: Colors.grey5WithOpacity(1),
         flexDirection: 'row'
     },
     heading: {
@@ -126,10 +127,10 @@ const styles = StyleSheet.create({
     },
     actionPressed: {
         opacity: 0.8,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: Colors.blackWithOpacity(0.1),
     },
     label: {
-        color: '#007AFF',
+        color: Colors.blue,
         fontWeight: '600',
         fontSize: 14
     }

@@ -157,7 +157,7 @@ const styles=StyleSheet.create({
       position:'absolute',
       top:45,borderRadius:12,
       zIndex:100,
-      shadowColor: "#00000026",
+      shadowColor: Colors.blackWithOpacity(0.15),
       shadowOpacity: 1,
       shadowOffset: { width: 0, height: 0.5 },
       shadowRadius: 1.5,
@@ -183,12 +183,12 @@ const styles=StyleSheet.create({
       marginLeft:8,
       width:'86%'
     },
-    title:{fontFamily:'Primary-Semibold',fontSize:16,color:'#222',marginLeft:8},
-    txt:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:4},
+    title:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.darkWithOpacity(1),marginLeft:8},
+    txt:{fontFamily:'Primary',fontSize:14,color:Colors.darkWithOpacity(1),marginTop:4},
     result:{paddingHorizontal:20,paddingVertical:16},
     noData:{
       fontFamily:'Primary-Semibold',
-      color:"#222",
+      color:Colors.darkWithOpacity(1),
       fontSize:16,
       textAlign:'center',
       marginTop:40,marginHorizontal:20

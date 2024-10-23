@@ -168,7 +168,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                         key={i}>
                           <View style={{flexDirection:'row',alignItems:'center',height:40,justifyContent:'space-between'}}>
                             <View style={{flexDirection:'row',alignItems:'center',width:'85%'}}>
-                              <SvgXml xml={commonSvg.playSearchIcon?.replace('{color}','#222')} />
+                              <SvgXml xml={commonSvg.playSearchIcon?.replace('{color}',Colors.darkWithOpacity(1))} />
                               <Text style={styles.recentText} numberOfLines={1}>{itm?.title}</Text>
                             </View>
                             <Pressable style={{height:40,width:'15%',justifyContent:'center',alignItems:'center'}} onPress={(e)=>{e?.stopPropagation();onDeleteSearchHistory(itm?.id)}}>
@@ -253,12 +253,12 @@ const styles=StyleSheet.create({
       marginLeft:8,
       width:'86%'
     },
-    title:{fontFamily:'Primary-Semibold',fontSize:16,color:'#222',marginLeft:8},
-    txt:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:4},
+    title:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.darkWithOpacity(1),marginLeft:8},
+    txt:{fontFamily:'Primary',fontSize:14,color:Colors.darkWithOpacity(1),marginTop:4},
     result:{paddingHorizontal:12,paddingVertical:16},
     noData:{
       fontFamily:'Primary-Semibold',
-      color:"#222",
+      color:Colors.darkWithOpacity(1),
       fontSize:16,
       textAlign:'center',
       marginTop:40,marginHorizontal:20

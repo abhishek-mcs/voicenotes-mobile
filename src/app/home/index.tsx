@@ -834,7 +834,7 @@ export default () => {
           <View style={[styles.wrapper, hideBackground ? styles.hideBg : {}]}>
             <Animated.View
               style={{
-                backgroundColor: hideBackground ? "transparent" : "#fff",
+                backgroundColor: hideBackground ? "transparent" : Colors.whiteWithOpacity(1),
                 paddingHorizontal: 12,
                 paddingBottom: 12,
                 borderBottomWidth: 0.3,
@@ -1058,7 +1058,7 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 60,
     alignItems: "center",
-    shadowColor: "#00000026",
+    shadowColor: Colors.blackWithOpacity(0.15),
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
     shadowOpacity: 1,
@@ -1073,15 +1073,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    backgroundColor: "#2222220D",
+    backgroundColor: Colors.darkWithOpacity(0.15),
     overflow: "hidden",
   },
   tabItemText: {
     fontFamily: "Primary-Bold",
     fontSize: 14,
-    color: "#000",
+    color: Colors.blackWithOpacity(1),
     marginLeft: 8,
     fontWeight: "700",
   },
-  hideBg: { backgroundColor: "#F4F6F6" },
+  hideBg: { backgroundColor: Colors.white3 },
 });

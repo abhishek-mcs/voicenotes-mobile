@@ -163,8 +163,8 @@ export default (props:any) => {
                 </View>
               </View>
               <View style={styles.subContainer}>
-                <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
-                <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>
+                <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay={Colors.lightGrey} title="Monthly" isLoading={isLoading}/>
+                <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay={Colors.lightGrey} title="Believer" isLoading={isLoading}/>
                 <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
               
                 <Touchable onPress={onRestore} style={{padding:8}}>
@@ -174,10 +174,10 @@ export default (props:any) => {
             </View>
         <View style={styles.footer}>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
-            <Text style={[styles.footerText1,{color:'#000'}]}>Terms of Service</Text>
+            <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
           </Touchable>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy')}>
-            <Text style={[styles.footerText1,{color:'#000',marginHorizontal:16}]}>Privacy Policy</Text>
+            <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
           </Touchable>
         </View>
           </ScrollView>
@@ -232,13 +232,13 @@ const Btn = ({
       <Text
         style={[
           styles.btnText,
-          { color: "#fff", fontSize: 16, fontFamily: "Primary-Semibold" },
+          { color: Colors.whiteWithOpacity(1), fontSize: 16, fontFamily: "Primary-Semibold" },
         ]}
       >
         {title}
       </Text>
     ) : (
-      <ActivityIndicator size={"small"} color={"#fff"} />
+      <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)} />
     )}
   </TouchableHighlight>
 );
@@ -248,19 +248,19 @@ const styles = StyleSheet.create({
   container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
   subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
   img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},
-  title:{fontSize:56,fontFamily:'Secondary',color:'#222',marginBottom:20,alignSelf:'center',lineHeight:64,marginHorizontal:20},
+  title:{fontSize:56,fontFamily:'Secondary',color:Colors.darkWithOpacity(1),marginBottom:20,alignSelf:'center',lineHeight:64,marginHorizontal:20},
   descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:screenHeight>690?17:12},
-  desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Medium',color:'#222',lineHeight:22,marginTop:-4},
+  desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Medium',color:Colors.darkWithOpacity(1),lineHeight:22,marginTop:-4},
   border:{borderWidth:2,borderColor:Colors.darkWithOpacity(0)},
   btnFilled:{height:56,width:'100%',backgroundColor:Colors.black2,justifyContent:'center',marginVertical:screenHeight>690?20:14,borderWidth:0,marginTop:24},
   btn:{minHeight:64,width:'100%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:12,backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12},
   btnContent:{marginBottom:5,flexDirection:'row',alignItems:'center'},
   btnText:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2},
-  offer:{color:'#FF4538', fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
+  offer:{color:Colors.redWithOpacity(1), fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
   btnPrice:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2,textAlign:'right'},
   btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4,textAlign:'right'},
-  footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
-  footerText1:{color:'#9B9B9B',fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
+  footerText:{color:Colors.grey,fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
+  footerText1:{color:Colors.grey,fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
   footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:14},
   closeButton: {
     position: 'absolute',

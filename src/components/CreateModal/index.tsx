@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     // paddingTop:24,
     paddingHorizontal: 24,
-    shadowColor: "#00000026",
+    shadowColor: Colors.blackWithOpacity(0.15),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -222,11 +222,11 @@ const styles = StyleSheet.create({
   createTxt: {
     fontSize: 14,
     fontFamily: "Primary-Semibold",
-    color: "#fff",
+    color: Colors.whiteWithOpacity(1),
     marginRight: 8,
   },
   drag: {
-    backgroundColor: "#D9D9D9",
+    backgroundColor: Colors.grey8,
     height: 5,
     width: 64,
     marginTop: -8,

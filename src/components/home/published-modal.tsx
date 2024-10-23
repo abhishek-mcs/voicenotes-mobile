@@ -55,7 +55,7 @@ export default ({
           padding: 16,
           backgroundColor: Colors.whiteWithOpacity(1),
           borderRadius: 12,
-          shadowColor: "rgba(0,0,0,0.5)",
+          shadowColor: Colors.blackWithOpacity(0.5),
         }}
       >
         {isNoteJustMadePrivate ? (

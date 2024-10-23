@@ -52,8 +52,8 @@ const Component: React.FC<ComponentProps> = (props) => {
           title={show ? "Hide" : "Show"}
           onPress={toggleShow}
           underlayColor={Colors.blackWithOpacity(0.7)}
-          bgColor="#000"
-          color="#fff"
+          bgColor={Colors.blackWithOpacity(1)}
+          color={Colors.whiteWithOpacity(1)}
         />
         </View>
       </View>

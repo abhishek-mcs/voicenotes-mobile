@@ -93,14 +93,14 @@ export default () => {
     return <Redirect href="/home/" />;
   }
   return (
-    <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
+    <SafeAreaView style={{backgroundColor: Colors.white3,flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "#f4f6f6",
+        backgroundColor: Colors.white3,
       }}
     >
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
@@ -113,7 +113,7 @@ export default () => {
       <Text
         style={{
           alignSelf: "center",
-          color: "#222",
+          color: Colors.darkWithOpacity(1),
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
@@ -135,12 +135,12 @@ export default () => {
         placeholder="Email Address"
         keyboardType="email-address"
         autoCapitalize="none"
-        placeholderTextColor={"rgba(34,34,34,0.25)"}
+        placeholderTextColor={Colors.darkWithOpacity(0.25)}
         autoCorrect={false}
       />
       {signInMutation.isError &&
         signInMutation.error.response.data.errors?.email && (
-          <Text style={{ marginTop: 4, color: "red" }}>
+          <Text style={{ marginTop: 4, color:Colors.redWithOpacity(1) }}>
             {signInMutation.error.response.data.errors.email[0]}
           </Text>
         )}
@@ -154,14 +154,14 @@ export default () => {
         returnKeyType={"next"}
         onSubmitEditing={continueClicked}
         placeholder="Password"
-        placeholderTextColor={"rgba(34,34,34,0.25)"}
+        placeholderTextColor={Colors.darkWithOpacity(0.25)}
         style={{ marginTop: 0}}
         inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:Colors.whiteWithOpacity(1) }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&
         signInMutation.error.response.data.errors?.password && (
-          <Text style={{ marginTop: 4, color: "red" }}>
+          <Text style={{ marginTop: 4, color: Colors.redWithOpacity(1) }}>
             {signInMutation.error.response.data.errors.password[0]}
           </Text>
         )}
@@ -182,13 +182,13 @@ export default () => {
         onPress={continueClicked}
       >
         {signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={"#fff"}/>
+        <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)}/>
         :<Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: "#fff",
+            color: Colors.whiteWithOpacity(1),
           }}
         >
           Continue
@@ -202,7 +202,7 @@ export default () => {
             fontFamily: "Primary",
             fontSize: 14,
             textAlign: "center",
-            color: "#222",
+            color: Colors.darkWithOpacity(1),
           }}
         >
           Don't have an account?

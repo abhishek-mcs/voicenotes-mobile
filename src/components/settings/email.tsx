@@ -38,8 +38,8 @@ const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onS
         {working ? <CircularLoader /> : <RecButton
           title={isOTP ? "Confirm" : "Send"}
           underlayColor={Colors.blackWithOpacity(0.7)}
-          bgColor="#000"
-          color="#fff"
+          bgColor={Colors.blackWithOpacity(1)}
+          color={Colors.blackWithOpacity(1)}
           style={{ flex: 1, paddingHorizontal: 15 }}
           onPress={onSubmit}
         />}

@@ -133,7 +133,7 @@ export default () => {
               style={{
                 fontFamily: "Primary-Semibold",
                 fontSize: 16,
-                color: "#007AFF",
+                color: Colors.blue,
               }}
             >
               Save

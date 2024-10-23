@@ -127,7 +127,7 @@ const signInGoogle=(token:any,params:any)=>{
     >
       <View>
       <SvgXml xml={LandingSvg.logo} />
-      <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:'#000',marginTop:20}}>
+      <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:Colors.blackWithOpacity(1),marginTop:20}}>
         A place to dump your thoughts.
       </Text>
       </View>
@@ -151,7 +151,7 @@ const signInGoogle=(token:any,params:any)=>{
             style={styles.button}
             onPress={signInAppleAsync}
             text="Continue with Apple"
-            color="#fff"
+            color={Colors.whiteWithOpacity(1)}
             logo={LandingSvg.apple}
             />
         )}
@@ -169,24 +169,13 @@ const signInGoogle=(token:any,params:any)=>{
             text="Continue with Google"
             isLoading={loginGoogle?.isLoading||false}
             logo={LandingSvg.google}/>
-        {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
+        {loginError && <Text style={{marginTop:8,color:Colors.redWithOpacity(1)}}>{loginError}</Text>}
 
-        {/* <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
-          <Pressable
-            // onPress={() => router.push('/auth/login')}
-          >
-            <Text style={{fontWeight:'bold',fontFamily:'Primary-Bold',fontSize:16,height:32,color:'#222'}}>
-              <Text style={{color:'#222'}}>Already have an account?</Text>
-
-              <Text style={{color : "#1A0FAB"}}> Log in</Text>
-              </Text>
-          </Pressable>
-        </View> */}
-        <Text style={{fontFamily:'Primary',fontSize:12,color:'#222',textAlign:'center',marginTop:16}}>
+        <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1),textAlign:'center',marginTop:16}}>
           {`By signing up, you agree to our `}
           <Text onPress={()=>{}} style={[{fontFamily:'Primary',fontSize:12}]} >terms</Text>
           {` and `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
+          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : Colors.darkBlue}]}>privacy policy</Text>
           {`.`}
         </Text>
       </Animated.View>
@@ -203,7 +192,7 @@ const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=
     {!isLoading?<>
       {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
       <Text style={[styles.text,color?{color}:{}]}>{text}</Text>
-    </>:<ActivityIndicator size={"small"} color={"#222"}/>}
+    </>:<ActivityIndicator size={"small"} color={Colors.darkWithOpacity(1)}/>}
 </TouchableHighlight>
 )
 

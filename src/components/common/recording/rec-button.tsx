@@ -1,3 +1,4 @@
+import Colors from "assets/Colors";
 import { Text } from "react-native";
 import { StyleSheet, TouchableHighlight, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -7,9 +8,9 @@ import { isIOS } from "utils/common";
     onPress = (v:any) => {},
     icon,
     title = "Ask",
-    bgColor = "#2222220D",
-    color = "#000",
-    underlayColor = "rgba(0,0,0,0.1)",
+    bgColor = Colors.darkWithOpacity(0.05),
+    color = Colors.blackWithOpacity(1),
+    underlayColor = Colors.blackWithOpacity(0.1),
     style={},
   }:BtnProps) => (
     <TouchableHighlight
@@ -43,13 +44,13 @@ const {tabItem,tabItemText} = StyleSheet.create({
       flexDirection: "row",
       alignItems: "center",
       justifyContent:'center',
-      backgroundColor: "#2222220D",
+      backgroundColor: Colors.darkWithOpacity(0.05),
       overflow: "hidden",
     },
     tabItemText: {
       fontFamily: "Primary-Semibold",
       fontSize: 14,
-      color: "#000",
+      color: Colors.blackWithOpacity(1),
       fontWeight: "700",
       lineHeight:17
     },

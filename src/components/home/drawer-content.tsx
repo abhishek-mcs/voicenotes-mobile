@@ -88,7 +88,7 @@ export default (props:any) => {
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
               <View style={{flexDirection:'row',alignItems:'center',maxWidth:'75%'}}>
-                <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
+                <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:Colors.black2,maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
                 {(userDetails?.subscription_status||isTempIAPPurchased)&&<SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>}
               </View>
               </View>
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop:isIOS?0:20,
     padding: 20,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: Colors.lightGrey,
   },
   title: {
     fontSize: 20,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   postContainer: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: Colors.grey9,
   },
   btn: {
     paddingHorizontal: 13,
@@ -170,11 +170,11 @@ const styles = StyleSheet.create({
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.darkWithOpacity(1),
     lineHeight: 24,
     marginLeft: 0,
   },
   upgrade:{flexDirection:'row',alignItems:'center',padding:12,borderRadius:8,marginVertical:20,backgroundColor:Colors.primaryWithOpacity(0.05),overflow:'hidden'},
-  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#222',width:screenHeight>690?'76%':'74%'},
-  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:'#222',marginTop:4,width:screenHeight>690?'76%':'74%'}
+  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:Colors.darkWithOpacity(1),width:screenHeight>690?'76%':'74%'},
+  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:Colors.darkWithOpacity(1),marginTop:4,width:screenHeight>690?'76%':'74%'}
 });

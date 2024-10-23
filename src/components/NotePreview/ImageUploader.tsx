@@ -15,6 +15,7 @@ import { Attachment, ATTACHMENT_TYPE } from "types";
 import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useQueryClient } from "react-query";
+import Colors from "assets/Colors";
 
 
 interface ImageUploaderProps {
@@ -191,10 +192,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             style={{
               flex: 1,
               justifyContent: "flex-end",
-              backgroundColor: "rgba(0,0,0,0.5)",
+              backgroundColor: Colors.blackWithOpacity(0.5),
             }}
           >
-            <View style={{ backgroundColor: "white", padding: 20}}>
+            <View style={{ backgroundColor: Colors.whiteWithOpacity(1), padding: 20}}>
               <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);
@@ -214,7 +215,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowImagePicker(false)}>
-                <Text style={{ fontSize: 18, padding: 10, color: "red" }}>
+                <Text style={{ fontSize: 18, padding: 10, color: Colors.redWithOpacity(1) }}>
                   Cancel
                 </Text>
               </TouchableOpacity>

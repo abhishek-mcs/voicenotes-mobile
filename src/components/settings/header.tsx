@@ -31,8 +31,8 @@ const Header: React.FC<Props> = (props) => {
                     {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
                         title={props.submitLabel || "Save"}
                         underlayColor={Colors.blackWithOpacity(0.7)}
-                        bgColor="#000"
-                        color="#fff"
+                        bgColor={Colors.blackWithOpacity(1)}
+                        color={Colors.whiteWithOpacity(1)}
                         style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                         onPress={props.onSubmit}
                     />: null}

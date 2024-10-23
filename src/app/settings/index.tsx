@@ -174,7 +174,7 @@ export default () => {
             transform: [{ translateX: animation }],
             zIndex: isActive ? 2 : 0,
             elevation: isActive ? 2 : 0,
-            backgroundColor: '#F2F2F7',
+            backgroundColor: Colors.white4,
             opacity: animation.interpolate({
               inputRange: [0, SCREEN_WIDTH],
               outputRange: [1, 0],
@@ -264,7 +264,7 @@ export default () => {
   }, [])
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F2F2F7', paddingTop: isIOS ? 0 : 40 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white4, paddingTop: isIOS ? 0 : 40 }}>
       <View style={{ flex: 1, zIndex: 1, elevation: 1 }} pointerEvents={activeScreen || isAnimating ? 'none' : 'auto'}>
         <Touchable onPress={() => router.back()} style={{padding:12, alignSelf:'flex-end', marginRight: 2}} activeOpacity={0.6}>
           <SvgXml xml={settingsSvg.close} width={30} height={30} />
@@ -299,7 +299,7 @@ export default () => {
           items={[
             {title:'Delete account', value:'', onPress:onDelete, rightIcon:settingsSvg.arrow},
             {title:'Share feedback', value:'', onPress:feedback, rightIcon:settingsSvg.arrow},
-            {title:'Sign out', value:'', onPress:onLogout, style:{color:'#FF453A'}, leftIcon:settingsSvg.signOut},
+            {title:'Sign out', value:'', onPress:onLogout, style:{color:Colors.redWithOpacity(1)}, leftIcon:settingsSvg.signOut},
           ]}
         />
         <View style={{alignSelf:'center'}}>
@@ -331,7 +331,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
         <View style={{flexDirection:'row',flex:1}}>
         {!!item?.leftIcon&&<SvgXml xml={item?.leftIcon}  style={{marginRight:9}}/>}
-        <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:'#000'},item?.style??{}]}>{item.title}</Text>
+        <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:Colors.blackWithOpacity(1)},item?.style??{}]}>{item.title}</Text>
         </View>
         <View style={{flexDirection:'row',gap:4,alignSelf:'center',alignItems:"center",justifyContent:'flex-end'}}>
         {item?.isMenu?
@@ -367,7 +367,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         </View>
       </View>
     </TouchableHighlight>
-    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:1,backgroundColor:'rgba(221, 221, 221, 0.87)',width:'100%'}}/></View>}
+    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:1,backgroundColor:Colors.grey4WithOpacity(0.87),width:'100%'}}/></View>}
     </View>)}
     </View>
 </View>

@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useSaveSettings } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
 import { getLanguageCode } from "utils/common"
+import Colors from "assets/Colors"
 
 const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ name, onClose }) => {
     return (
@@ -84,8 +85,8 @@ const Names: React.FC<Props> = (props) => {
             <RecButton
               onPress={addName}
               title="Add"
-              bgColor="#000"
-              color="#fff"
+              bgColor={Colors.blackWithOpacity(1)}
+              color={Colors.whiteWithOpacity(1)}
               style={{ paddingHorizontal: 20 }}
             />
           </View>
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     name: {
-        backgroundColor: "#2222220D",
+        backgroundColor: Colors.darkWithOpacity(0.05),
         paddingHorizontal: 14,
         paddingVertical:8,
         maxHeight: 40,

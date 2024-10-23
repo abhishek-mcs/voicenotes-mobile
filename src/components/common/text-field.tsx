@@ -45,12 +45,12 @@ export function TextField(props: TextFieldProps) {
 
   const [hasFocus, setHasFocus] = React.useState(false)
   const containerStyle: ViewStyle = {flexDirection:'column'}
-  const inputStyle: TextStyle = {marginTop:8,color:'#222',borderWidth:1,borderRadius:16,fontFamily:'Primary',fontSize:16,paddingHorizontal:16};
+  const inputStyle: TextStyle = {marginTop:8,color:Colors.darkWithOpacity(1),borderWidth:1,borderRadius:16,fontFamily:'Primary',fontSize:16,paddingHorizontal:16};
   const actualPlaceholder = placeholderTx ? placeholderTx : placeholder
 
   return (
     <View style={[containerStyle, styleOverride]}>
-      {!!label&&<Text style={[{color:'#222',fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'},labelStyle]}>{label}</Text>}
+      {!!label&&<Text style={[{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'},labelStyle]}>{label}</Text>}
       <TextInput
         onFocus={(state) => setHasFocus(true)}
         onBlur={(state) => setHasFocus(false)}
@@ -65,7 +65,7 @@ export function TextField(props: TextFieldProps) {
         ref={forwardedRef}
       />
       {errorMessage && (
-        <Text style={{alignItems:'center',alignSelf:'center',marginTop:4,color:'red'}}>{errorMessage}</Text>
+        <Text style={{alignItems:'center',alignSelf:'center',marginTop:4,color:Colors.redWithOpacity(1)}}>{errorMessage}</Text>
       )}
     </View>
   )

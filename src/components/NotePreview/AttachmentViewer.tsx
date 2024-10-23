@@ -92,7 +92,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           />
           {item.is_uploading && (
             <BlurView intensity={50} style={styles.blurOverlay}>
-              <CircularLoader color="#FFF"/>
+              <CircularLoader color={Colors.whiteWithOpacity(1)}/>
             </BlurView>
           )}
         </View>
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   bottomSheet: {
     flex:1,
     // height:screenHeight,
-    backgroundColor:'rgba(0,0,0,0.7)'
+    backgroundColor:Colors.blackWithOpacity(0.7)
   },
   container: {
     flex:1,
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    backgroundColor: Colors.blackWithOpacity(0.9),
     justifyContent: "center",
     alignItems: "center",
   },
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(0,113,176,0.05)",
+    backgroundColor: Colors.lightBlueWithOpacity(0.05),
     padding: 4,
     paddingHorizontal: 8,
     borderRadius: 8,
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     marginLeft: 10,
-    color: "#0071b0",
+    color: Colors.lightBlueWithOpacity(0.8),
     flex: 1,
   },
 });

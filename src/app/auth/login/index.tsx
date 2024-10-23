@@ -75,7 +75,7 @@ export default ()=> {
   return (
     <KeyboardAvoidingView 
     behavior="padding"
-    style={{flex:1,paddingHorizontal:24,backgroundColor: "#f4f6f6",paddingTop:150,justifyContent:'space-between'}}>
+    style={{flex:1,paddingHorizontal:24,backgroundColor: Colors.white3,paddingTop:150,justifyContent:'space-between'}}>
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?54:54,padding:16}}>
           <SvgXml xml={commonSvg.back1}/>
         </Touchable>
@@ -87,7 +87,7 @@ export default ()=> {
           inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1)}}
           value={emailText}
           label={"Enter your email"}
-          labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
+          labelStyle={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
           returnKeyType="go"
           textContentType="emailAddress"
           onSubmitEditing={continueClicked}
@@ -99,11 +99,11 @@ export default ()=> {
           autoFocus
         />
         {validationError && (
-          <Text style={{color:'red',fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
+          <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
         )}
         {emailError && (
           <Text style={{marginTop:8}}>
-            <Text style={{color:'red',fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
+            <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
             <Text
             suppressHighlighting={true}
               onPress={() => {
@@ -111,12 +111,12 @@ export default ()=> {
                 appsFlyer.logEvent('signup_redirected',{value:'signup_redirected'})
                 router.push("/auth/signup/")
               }}
-              style={{color:'red',fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
+              style={{color:Colors.redWithOpacity(1),fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
             >{` Sign up`}</Text>
           </Text>
         )}
         {captchaError && (
-          <Text style={{color:'red',fontFamily:'Primary',fontSize:14,marginTop:4}}>{captchaError}</Text>
+          <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:4}}>{captchaError}</Text>
         )}
       </View>
 
@@ -136,14 +136,14 @@ export default ()=> {
         onPress={continueClicked}
       >
         {checkEmailMutation.isLoading?
-        <ActivityIndicator size={17} color={"#fff"}/>
+        <ActivityIndicator size={17} color={Colors.whiteWithOpacity(1)}/>
         :
         <Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: "#fff",
+            color: Colors.whiteWithOpacity(1),
           }}
         >
           Continue

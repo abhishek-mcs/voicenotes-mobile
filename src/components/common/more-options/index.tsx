@@ -3,6 +3,7 @@ import { forwardRef, useImperativeHandle, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import Touchable from '../Touchable';
 import * as Haptics from "expo-haptics";
+import Colors from 'assets/Colors';
 
 export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(true);
@@ -46,10 +47,10 @@ const onPress=async()=>
 const { button, buttonText } = StyleSheet.create({
   button: {
     padding: 10,
-    backgroundColor: 'blue',
+    backgroundColor: Colors.blue,
     borderRadius: 5,
   },
   buttonText: {
-    color: 'white',
+    color: Colors.whiteWithOpacity(1),
   }
 })

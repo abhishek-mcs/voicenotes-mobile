@@ -64,14 +64,14 @@ export default () => {
     }
 
   return (
-    <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
+    <SafeAreaView style={{backgroundColor: Colors.white3,flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "#f4f6f6",
+        backgroundColor: Colors.white3,
       }}
     >
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
@@ -85,7 +85,7 @@ export default () => {
       <Text
         style={{
           alignSelf: "center",
-          color: "#222",
+          color: Colors.darkWithOpacity(1),
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
@@ -97,7 +97,7 @@ export default () => {
       <TextField
         // forwardedRef={inputref}
         style={{ marginTop: isIOS?36:24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: "white"  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0 , backgroundColor: Colors.whiteWithOpacity(1)  }}
         value={name|| ""}
         textContentType="familyName"
         // label={"Enter your email"}
@@ -112,7 +112,7 @@ export default () => {
       />
       <TextField
         forwardedRef={inputRef}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:8 , backgroundColor: "white"  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:8 , backgroundColor: Colors.whiteWithOpacity(1)  }}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -136,7 +136,7 @@ export default () => {
         onSubmitEditing={continueClicked}
         placeholder="Password"
         style={{ marginTop: 0}}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:8, backgroundColor: "white"  }}
+        inputStyle={{ height: 48, borderRadius: 8,marginTop:8, backgroundColor: Colors.whiteWithOpacity(1)  }}
         autoCapitalize="none"
         placeholderTextColor={"rgba(34,34,34,0.25)"}
       />
@@ -167,14 +167,14 @@ export default () => {
         }}
         onPress={continueClicked}
       >{signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={"#fff"}/>
+        <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)}/>
         :
         <Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: "#fff",
+            color: Colors.whiteWithOpacity(1),
           }}
         >
           Continue
@@ -186,7 +186,7 @@ export default () => {
             fontFamily: "Primary",
             fontSize: 14,
             textAlign: "center",
-            color: "#222",
+            color: Colors.darkWithOpacity(1),
           }}
         >
           Already have an account?

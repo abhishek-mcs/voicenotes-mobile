@@ -74,5 +74,5 @@ const {btn,btnTxt}=StyleSheet.create({
         height:44,
         justifyContent:'center'
     },
-    btnTxt:{fontSize:16,fontFamily:'Primary',color:'#222',marginLeft:8},
+    btnTxt:{fontSize:16,fontFamily:'Primary',color:Colors.darkWithOpacity(1),marginLeft:8},
 })

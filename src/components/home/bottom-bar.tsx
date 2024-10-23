@@ -133,8 +133,8 @@ export default ({
               title="Record"
               icon={home.record}
               underlayColor={Colors.blackWithOpacity(0.7)}
-              bgColor="#000"
-              color="#fff"
+              bgColor={Colors.blackWithOpacity(1)}
+              color={Colors.whiteWithOpacity(1)}
               style={styles.button}
             />
             <RecButton
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     bottom: 85,
-    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   heading: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.darkWithOpacity(1),
     textAlign: "left",
   },
   container: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     bottom: 100,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
     shadowOffset: { width: 0, height: 0.5 },
     shadowOpacity: 0.9,
     shadowRadius: 1.5,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
   parentNoteText: {
     fontSize: 14,
-    color: "#333",
+    color: Colors.darkWithOpacity(1),
   },
   tab: {
     flexDirection: "row",
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
     justifyContent:'space-between',
-    shadowColor:"#000000",
+    shadowColor:Colors.blackWithOpacity(1),
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,

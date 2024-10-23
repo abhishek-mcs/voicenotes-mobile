@@ -63,9 +63,9 @@ export default ({
       >
         <RecButton
           title="Cancel"
-          bgColor="#FF45380D"
-          underlayColor="#FF45380F"
-          color={"#FF4538"}
+          bgColor={Colors.redWithOpacity(0.05)}
+          underlayColor={Colors.redWithOpacity(0.06)}
+          color={Colors.redWithOpacity(1)}
           onPress={onCancelClick}
           style={{
             paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
@@ -79,7 +79,7 @@ export default ({
         >
           <View
             style={{
-              backgroundColor: "red",
+              backgroundColor: Colors.redWithOpacity(1),
               height: 6,
               width: 6,
               borderRadius: 10,
@@ -129,7 +129,7 @@ export default ({
         <Text
           style={{
             fontFamily: "Primary-Semibold",
-            color: "#000",
+            color: Colors.blackWithOpacity(1),
             fontSize: 14,
           }}
         >
@@ -146,9 +146,9 @@ export default ({
         >
           <RecButton
             title="Yes, cancel"
-            bgColor="#FF45380D"
-            underlayColor="#FF45380F"
-            color={"#FF4538"}
+            bgColor={Colors.redWithOpacity(0.05)}
+            underlayColor={Colors.redWithOpacity(0.06)}
+            color={Colors.redWithOpacity(1)}
             onPress={onCancel}
             style={{ paddingHorizontal: 20 }}
           />
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   tabItemText: {
     fontFamily: "Primary-Semibold",
     fontSize: 14,
-    color: "#0D0D0D",
+    color: Colors.black2,
     fontWeight: "600",
     lineHeight: 17,
   },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   item: {
     width: 3,
-    backgroundColor: "blue",
+    backgroundColor: Colors.blue,
     marginHorizontal: 2,
   },
 });

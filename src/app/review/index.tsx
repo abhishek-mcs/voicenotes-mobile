@@ -1,3 +1,4 @@
+import Colors from "assets/Colors";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { useRouter } from "expo-router";
 import { submitReview } from "queries/settings";
@@ -57,7 +58,7 @@ const Review = () => {
         </View>
         <Modal visible={working} transparent
         >
-            <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1, backgroundColor: Colors.blackWithOpacity(0.5), justifyContent: 'center', alignItems: 'center' }}>
                 <CircularLoader />
             </View>
         </Modal>
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
     header: {
         flex: 1,
         flexDirection: 'row',
-        borderColor: "#DDDDDD",
+        borderColor: Colors.grey4,
         borderBottomWidth: 1
     },
     action: {
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     actionLabel: {
-        color: "#007AFF",
+        color: Colors.blue,
         fontWeight: '600',
         fontSize: 16
     },

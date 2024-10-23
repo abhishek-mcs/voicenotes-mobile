@@ -118,7 +118,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
         ))}
       </View>
     </View>
-    <Text style={{marginTop:4,marginLeft:4,color:"red",fontFamily:'Primary',fontSize:14}}>{errorText}</Text>
+    <Text style={{marginTop:4,marginLeft:4,color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>{errorText}</Text>
     </View>
   );
 };
@@ -141,11 +141,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent:'center',
     borderWidth: 1,
-    borderColor:'rgba(243, 233, 233, 1)',
+    borderColor:Colors.lightRoseWithOpacity(1),
     width: 42,
     height: 50,
   },
-  activeColor:{borderColor:'#000'},
+  activeColor:{borderColor:Colors.blackWithOpacity(1)},
   input: {
     textAlign: 'center',
     fontSize: 16

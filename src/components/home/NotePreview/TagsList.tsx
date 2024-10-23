@@ -1,3 +1,4 @@
+import Colors from "assets/Colors";
 import Touchable from "components/common/Touchable";
 import { StyleSheet, Text } from "react-native";
 import { View } from "react-native";
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 19,
     fontFamily: "Primary",
-    color: "#717171",
+    color: Colors.grey3,
     marginTop: 4,
     marginRight: 4,
     marginLeft: 0,

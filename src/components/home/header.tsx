@@ -123,13 +123,13 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
               route.navigate("/auth/login/loginPassword");
             }}
             style={{ alignSelf: "flex-end",backgroundColor:Colors.darkWithOpacity(1),borderRadius:16,padding:12,paddingVertical:8,height:35 }}
-          ><Text style={{ color: '#fff',fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
+          ><Text style={{ color: Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
           </Touchable>
           </View>}
         </View>
       </View>
     </View>
-    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':'#0D0D0D',transform:[{translateY:titleTranslateY}]}}>
+    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':Colors.black2,transform:[{translateY:titleTranslateY}]}}>
       Voicenotes
     </Animated.Text>
     </Animated.View>

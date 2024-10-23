@@ -514,7 +514,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               drawerWidth={200}
               drawerPosition={"left"}
               drawerType="front"
-              drawerBackgroundColor="#fff"
+              drawerBackgroundColor={Colors.whiteWithOpacity(1)}
               overlayColor="transparent"
               renderNavigationView={renderDrawer}
               contentContainerStyle={{ flex: 1 }}
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 24,
-    shadowColor: "#00000026",
+    shadowColor: Colors.blackWithOpacity(0.15),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     alignSelf: "flex-start",
-    shadowColor: "#000000",
+    shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
@@ -731,7 +731,7 @@ const styles = StyleSheet.create({
   aiChat: { marginLeft: 28,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
   aiChatStyle:{
     backgroundColor:Colors.whiteWithOpacity(1),
-    shadowColor: "#000000",
+    shadowColor:Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -745,7 +745,7 @@ const styles = StyleSheet.create({
   header2: { marginBottom: 0, borderBottomWidth: 0 },
   lottie: { width:40,height:20,marginBottom:-6,marginLeft:-14},
   drawer: {
-    shadowColor: "#00000026",
+    shadowColor:Colors.blackWithOpacity(0.15),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -760,17 +760,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginLeft: 7,
     backgroundColor:Colors.whiteWithOpacity(1),
-    shadowColor: "#000000",
+    shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
   },
-  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color: "#000",width:'50%',textAlign:'center' },
+  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color: Colors.blackWithOpacity(1),width:'50%',textAlign:'center' },
   historyText: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.darkWithOpacity(1),
     maxWidth: "80%",
   },
   history: { paddingVertical: 20 },
@@ -794,7 +794,7 @@ const styles = StyleSheet.create({
     padding:12,borderRadius:12,width:'85%',
   },
   shadow:{
-    shadowColor: "#000000",
+    shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
