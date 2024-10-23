@@ -79,6 +79,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext } from "context";
 import { StorageAccessFramework } from "expo-file-system";
+import { saveFileAndroid } from "utils/filesystem";
 
 const NotePreview = forwardRef(
   (
@@ -542,33 +543,14 @@ const NotePreview = forwardRef(
         }
 
         if (Platform.OS === "android") {
-          const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-          if (permissions.granted) {
-            const destinationUri = await StorageAccessFramework.createFileAsync(
-              permissions.directoryUri,
-              fileName,
-              'audio/mpeg'
-            );
-            await FileSystem.copyAsync({
-              from: fileUri,
-              to: destinationUri
-            });
-            Toast.show({
-              type: "success",
-              text1: "Success",
-              text2: "Audio saved successfully",
-              position: "top",
-              visibilityTime: 3000,
-            });
-          } else {
-            Toast.show({
-              type: "error",
-              text1: "Permission denied",
-              text2: "Unable to save audio without storage permission",
-              position: "top",
-              visibilityTime: 3000,
-            });
-          }
+          await saveFileAndroid(fileUri, fileName);
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "Audio saved successfully",
+            position: "top",
+            visibilityTime: 3000,
+          });
         } else {
           const UTI = "public.audio";
           await Sharing.shareAsync(fileUri, {
