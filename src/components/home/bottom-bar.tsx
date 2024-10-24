@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState,useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import NoteRecorder from "components/common/recording/note-recorder";
@@ -10,7 +10,6 @@ import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
-import { Shadow } from 'react-native-shadow-2';
 
 interface Props {
   onRecord: (v:any) => void;
@@ -49,7 +48,8 @@ export default ({
   );
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
-  
+  const [temporaryRecordingId, setTemporaryRecordingId] = useState<string | null>(null);
+
   useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
     if (recEnabled&&!paused) {
@@ -63,6 +63,9 @@ export default ({
             onStopRecord(newDuration);
             return 0;
           } else if (newDuration >= 1200000 && !!token) {
+            if (!recordingParentNoteName) {
+              setRecordingParentId(temporaryRecordingId);
+            }
             onStopRecord(newDuration, true);
             return 0;
           }
@@ -94,6 +97,13 @@ export default ({
     timerId.current&&clearInterval(timerId.current);
     setIsCanceling(false);
   }
+
+  const onRecordStart = () => {
+    const newTemporaryRecordingId = Math.random().toString(36).substring(7);
+    setTemporaryRecordingId(newTemporaryRecordingId);
+    onRecord("");
+  };
+
   return (
     <View style={styles.container}>
       {recordingParentNoteName&&!isCanceling&& (
@@ -129,7 +139,7 @@ export default ({
         {!recEnabled ? (
           <>
             <RecButton
-              onPress={onRecord}
+              onPress={onRecordStart}
               title="Record"
               icon={home.record}
               underlayColor={Colors.blackWithOpacity(0.7)}
