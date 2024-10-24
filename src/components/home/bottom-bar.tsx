@@ -13,7 +13,7 @@ import { commonSvg } from "assets/svg/commonSvg";
 
 interface Props {
   onRecord: (v:any) => void;
-  onStopRecord: (d: number, r?: boolean) => void;
+  onStopRecord: (d: number, r?: boolean) => Promise<void>;
   onAsk: () => void;
   onCreate: () => void;
   recEnabled: boolean;
@@ -24,6 +24,7 @@ interface Props {
   rec: any;
   recordingParentNoteName: string | null;
   setRecordingParentId: Dispatch<SetStateAction<string | null>>;
+  parentId?: string | null;
 }
 
 export default ({
@@ -37,6 +38,7 @@ export default ({
   onCancel,
   setShowAskMe,
   showAskMe,
+  parentId,
   onPause=(v:any)=>{},rec=null
 }: Props) => {
   const [duration, setDuration] = useState(0);
@@ -50,7 +52,7 @@ export default ({
   const isSmallScreen = width < 375; // For small screend devices
   const [temporaryRecordingId, setTemporaryRecordingId] = useState<string | null>(null);
 
-  useEffect(() => {
+useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
     if (recEnabled&&!paused) {
       timerId.current = setInterval(() => {
@@ -63,18 +65,14 @@ export default ({
             onStopRecord(newDuration);
             return 0;
           } else if (newDuration >= 1200000 && !!token) {
-            if (!recordingParentNoteName) {
-              setRecordingParentId(temporaryRecordingId);
-            }
             onStopRecord(newDuration, true);
             return 0;
           }
           return newDuration;
         });
       }, 1000);
-
     }
-  }, [recEnabled, token, userDetails?.subscription_status,paused,onStopRecord]);
+  }, [recEnabled, token, userDetails?.subscription_status, paused, onStopRecord, temporaryRecordingId, recordingParentNoteName]);
 
   const onPauseClick = () => {
     onPause(!paused);
@@ -101,12 +99,12 @@ export default ({
   const onRecordStart = () => {
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
-    onRecord("");
+    onRecord(newTemporaryRecordingId);
   };
 
   return (
     <View style={styles.container}>
-      {recordingParentNoteName&&!isCanceling&& (
+      {(recordingParentNoteName || parentId)&&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
@@ -117,7 +115,7 @@ export default ({
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                Adding to Note "{recordingParentNoteName}"
+                {recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable
