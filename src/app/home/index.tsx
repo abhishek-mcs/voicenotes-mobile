@@ -52,7 +52,7 @@ import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import { get, off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
-import axiosApi from "services/api/axios-api";
+import axiosApi, { setAuthToken } from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
@@ -303,6 +303,10 @@ export default () => {
     }
 
   useEffect(() => {
+    const tokenSubscription = actionEmitter.addListener('sendToken', () => {
+      console.log("React Native: Send token started");
+      NativeModules.TokenBridge.sendTokenToWatch(token);
+    });
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
       console.log("React Native: Recording started");
       setTimeout(() => {
