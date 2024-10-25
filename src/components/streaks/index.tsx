@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 20,
-    width: "105%",
     alignSelf: "center",
   },
   shadow: {
