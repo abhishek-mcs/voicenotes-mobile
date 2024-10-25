@@ -14,7 +14,7 @@ const CreationsList = ({note, creationLoader, createType}:{note:Note, creationLo
             />
           )}
 
-          {note.creations?.map((itm: any, i: number) => (
+          {[...note.creations].reverse().map((itm: any, i: number) => (
             <AiCreatedView
               id={itm?.id}
               type={itm?.type}
