@@ -191,6 +191,7 @@ const NotePreview = forwardRef(
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
+      setExpand(index)
       await createAI.mutateAsync(
         { recording_id: note?.id, type },
         {
