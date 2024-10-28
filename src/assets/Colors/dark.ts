@@ -1,6 +1,7 @@
 const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
-const primary = 'rgba(14, 57, 52, 1)';
+const primary = '#000';
+const secondary='rgba(255, 255, 255, 0.12)';
 export default {
   light: {
     text: '#000',
@@ -16,43 +17,56 @@ export default {
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
   },
-  primary,
+  primary: 'rgba(39, 79, 71, 1)', // Darker version of the primary color
   primaryWithOpacity: (opacity:number) => `rgba(39, 79, 71, ${opacity})`,
-  darkWithOpacity: (opacity:number) => `rgba(34, 34, 34, ${opacity})`,
-  blackWithOpacity: (opacity:number) => `rgba(0, 0, 0, ${opacity})`,
-  whiteWithOpacity: (opacity:number) => `rgba(255, 255, 255, ${opacity})`,
-  greyWithOpacity: (opacity:number) => `rgba(130, 130, 130, ${opacity})`,
-  grey2WithOpacity: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
-  grey3WithOpacity: (opacity:number) => `rgba(113, 113, 113, ${opacity})`,
-  greenWithOpacity: (opacity:number) => `rgba(88, 169, 66, ${opacity})`,
-  green3WithOpacity:(opacity:number) => `rgba(14, 57, 52, ${opacity})`,
-  green4WithOpacity: (opacity:number) => `rgba(110, 217, 64, ${opacity})`,
-  grey4WithOpacity:(opacity:number) => `rgba(221, 221, 221, ${opacity})`,
-  grey5WithOpacity:(opacity:number) => `rgba(60, 60, 67, ${opacity})`,
-  redWithOpacity:(opacity:number) => `rgba(255, 69, 56, ${opacity})`,
-  lightBlueWithOpacity:(opacity:number) => `rgba(35,84,159, ${opacity})`,
-  lightRoseWithOpacity:(opacity:number) => `rgba(243, 233, 233, ${opacity})`,
-  yellowWithOpacity:(opacity:number) => `rgba(214, 162, 67, ${opacity})`,
-  grey:'#9b9b9b',
-  green:'#58a942',
-  green2:'#499035',
-  lightGrey:'#f9f9f9',
-  grey3:'#717171',
-  grey4:'#ddd',
-  grey5:'rgba(60, 60, 67, 1)',
-  grey6:'#828282',
-  grey7:'#D8D8D8',
-  grey8:'#D9D9D9',
-  grey9:'#ccc',
-  grey10:'#bfbfbf',
-  brownWithOpacity: (opacity:number) => `rgba(214,162,67,${opacity})`,
-  black2:`#0d0d0d`,
-  blue:'#007AFF',
-  white1:'#f8f8f8',
-  white2:'#f0f0f0',
-  white3:'#f4f6f6',
-  white4:'#F2F2F7',
-  lightBlue:'rgba(35,84,159,1)',
-  darkBlue:"#1A0FAB",
-  yellow:"rgba(214, 162, 67, 1)"
+  darkWithOpacity: (opacity:number) => `rgba(34, 34, 34, ${opacity})`, // Same as in light mode
+  blackWithOpacity: (opacity:number) => `rgba(255, 255, 255, ${opacity})`, // Lightening for readability
+  whiteWithOpacity: (opacity:number) => `rgba(0, 0, 0, ${opacity})`, // Same as in light mode
+  greyWithOpacity: (opacity:number) => `rgba(180, 180, 180, ${opacity})`, // Slightly lighter for dark mode
+  grey2WithOpacity: (opacity:number) => `rgba(255, 255, 255, ${opacity})`, // Darker version for background
+  grey3WithOpacity: (opacity:number) => `rgba(113, 113, 113, ${opacity})`, // Same grey for consistency
+  greenWithOpacity: (opacity:number) => `rgba(88, 169, 66, ${opacity})`, // Keep accent color
+  green3WithOpacity: (opacity:number) => `rgba(39, 79, 71, ${opacity})`, // Adjusted for dark mode
+  green4WithOpacity: (opacity:number) => `rgba(110, 217, 64, ${opacity})`, // Accent colors unchanged
+  grey4WithOpacity: (opacity:number) => `rgba(221, 221, 221, 0.25)`, // Slightly darker for readability
+  grey5WithOpacity: (opacity:number) => `rgba(100, 100, 107, ${opacity})`, // Darker shade for background elements
+  redWithOpacity: (opacity:number) => `rgba(255, 99, 79, ${opacity})`, // Slightly lighter red for dark mode
+  lightBlueWithOpacity: (opacity:number) => `rgba(60,110,180, ${opacity})`, // Keep blue consistent but adjusted slightly
+  lightRoseWithOpacity: (opacity:number) => `rgba(120, 110, 110, ${opacity})`, // More muted for dark mode
+  yellowWithOpacity: (opacity:number) => `rgba(214, 162, 67, ${opacity})`, // Accent yellow unchanged
+  grey: '#c5c5c5', // Slightly lighter grey for dark mode
+  green: '#6fb573', // Darker green for dark mode
+  green2: '#4e7f56', // Darker shade of secondary green
+  lightGrey: '#303030', // Darker background grey
+  grey3: '#828282', // Slightly adjusted grey for text
+  grey4: '#444444', // Darker grey for secondary elements
+  grey5: 'rgba(60, 60, 67, 1)', // Same opacity color as original
+  grey6: '#a3a3a3', // Lighter grey for readability
+  grey7: '#4d4d4d', // Adjusted darker shade
+  grey8: '#3b3b3b', // Darker grey for background elements
+  grey9: '#888888', // Lighter grey for dark mode text
+  grey10: '#6d6d6d', // Darker shade of grey for muted elements
+  brownWithOpacity: (opacity:number) => `rgba(140, 97, 50, ${opacity})`, // Darker brown
+  black2: `#f5f5f5`, // Inverted to light color for text readability
+  blue: '#5397FF', // Slightly lighter blue for dark mode accents
+  white1: '#3a3a3a', // Darker background
+  white2: '#2f2f2f', // Even darker version
+  white3: '#383838', // Darker shade for cards or surfaces
+  white4: '#2d2d2d', // Background grey for dark mode
+  lightBlue: 'rgba(60,110,180,1)', // Adjusted for consistency
+  darkBlue: "#0D0F59", // Darker blue for dark mode
+  yellow: "rgba(214, 162, 67, 1)", // Accent yellow unchanged
+  bgColor:'#000',
+  bgColor1:'rgba(60, 60, 67, 0.3)',
+  bgColor2:'rgba(34, 34, 34, 0.05)',
+  bgColor3: (opacity:number) => secondary,
+  inputBg:'#000',
+  inputBg2:secondary,
+  text:'#fff',
+  text1:'#9b9b9b',
+  bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
+  bottomBarButtonBg1:'rgba(33, 33, 33, 1)',
+  bottomBarText:'#fff',
+  bottomBarText1:'#fff',
+  more:'#fff'
 };

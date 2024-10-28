@@ -137,7 +137,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
       setSearchText("")
     }
     return (
-        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:Colors.whiteWithOpacity(1)}}>
+        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:Colors.inputBg}}>
           <Animated.View style={{flexDirection:'row',marginTop:10,alignItems:'center',marginBottom:4,height:searchHeight}}>
                 <SearchBarIOS
                   ref={ref}
@@ -159,7 +159,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                   autoCorrect={true}
                   value={searchText}
                   containerStyle={{backgroundColor:'transparent'}}
-                  inputContainerStyle={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,height:40}}
+                  inputContainerStyle={{backgroundColor:Colors.inputBg2,borderRadius:12,height:40}}
                 />
           </Animated.View>
                   {(isFocused||isRouted)&&<ScrollView 

@@ -33,7 +33,7 @@ export default () => {
     let tagsList=useRef((tagsQuery?.data||[]).filter((f:any)=>f?.name!="starred"));
     const [tags,setTags]=useState([{name:'starred'},...tagsList.current]||[])
     const [addedTags,setAddedTags]:any=useState(JSON.parse(tagsArray)||[])
-    const {Colors,isDark} = useTheme()
+    const {Colors} = useTheme()
     
     const onSearch=useCallback((q:string)=>{
       setSearch(q);
@@ -72,9 +72,9 @@ export default () => {
     }
     
     return (
-        <SafeAreaView style={{flex:1,backgroundColor:Colors.whiteWithOpacity(1)}}>
+        <SafeAreaView style={{flex:1,backgroundColor:Colors.bgColor}}>
           <KeyboardAvoidingView behavior="padding">
-          {isIOS&&<View style={{height:5,width:36,alignSelf:'center',backgroundColor:Colors.grey5WithOpacity(0.3),borderRadius:20,marginTop:8}}/>}
+          {isIOS&&<View style={{height:5,width:36,alignSelf:'center',backgroundColor:Colors.bgColor1,borderRadius:20,marginTop:8}}/>}
           <View style={{flexDirection:'row',justifyContent:'space-between',marginTop: isIOS?16: 28,marginHorizontal:12}}>
             <Touchable onPress={()=>router.back()} style={{padding:12,alignSelf:'flex-end'}} activeOpacity={0.6}>
               <Text style={{fontFamily:'Primary',fontSize:16,color:Colors.grey}}>Cancel</Text>
@@ -93,7 +93,7 @@ export default () => {
               onChangeText={onSearch}
               placeholder={"Add tags"}
               placeholderTextColor={Colors.grey3}
-              style={[{color:Colors.darkWithOpacity(1),fontFamily:'Primary',fontSize:14,paddingHorizontal:16,paddingVertical:12,borderRadius:8,backgroundColor:Colors.darkWithOpacity(0.05)}]}
+              style={[{color:Colors.darkWithOpacity(1),fontFamily:'Primary',fontSize:14,paddingHorizontal:16,paddingVertical:12,borderRadius:8,backgroundColor:Colors.bgColor}]}
               autoCapitalize="none"
               autoCorrect={false}
               clearButtonMode="while-editing"

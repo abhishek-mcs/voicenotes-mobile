@@ -129,7 +129,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         </View>
       </View>
     </View>
-    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':Colors.black2,transform:[{translateY:titleTranslateY}]}}>
+    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:Colors.black2,transform:[{translateY:titleTranslateY}]}}>
       Voicenotes
     </Animated.Text>
     </Animated.View>

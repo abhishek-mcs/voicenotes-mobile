@@ -117,7 +117,6 @@ export default () => {
   const soundRef = useRef<any>(null);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
-  const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [isOffline, setOffline] = useState(false);
   const [review, askReview] = useState(false)
@@ -821,7 +820,7 @@ export default () => {
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
-      style={[styles.container, hideBackground ? styles.hideBg : {}]}
+      style={[styles.container]}
     >
       <Review visible={review} onClose={() => askReview(false)} />
       <KeyboardAvoidView
@@ -832,10 +831,10 @@ export default () => {
         }}
       >
         <View style={{ flex: 1 }}>
-          <View style={[styles.wrapper, hideBackground ? styles.hideBg : {}]}>
+          <View style={[styles.wrapper]}>
             <Animated.View
               style={{
-                backgroundColor: hideBackground ? "transparent" : Colors.whiteWithOpacity(1),
+                backgroundColor:  Colors.bgColor,
                 paddingHorizontal: 12,
                 paddingBottom: 12,
                 borderBottomWidth: 0.3,
@@ -848,7 +847,6 @@ export default () => {
                 streaks={streaks}
                 streaksRef={streaksRef}
                 scrollY={scrollY}
-                hideBgColor={hideBackground}
                 scale={scale.current}
               />
               <BannerAlert
@@ -899,15 +897,13 @@ export default () => {
                 ListHeaderComponent={() =>
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
                 }
-                // bounces={false}
-                style={{ opacity: hideBackground ? 0 : 1 }}
                 data={isRecordListLoading?[]:filteredRecordingList}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
                 )}
                 scrollEventThrottle={16}
-                contentContainerStyle={{ paddingBottom: 300 }}
+                contentContainerStyle={{ paddingBottom: 300,backgroundColor:Colors.bgColor }}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
                 renderItem={renderItem}
@@ -925,6 +921,7 @@ export default () => {
                         alignItems: "center",
                         justifyContent: "center",
                         marginTop: 20,
+                        backgroundColor:Colors.bgColor
                       }}
                     >
                       <CircularLoader />
@@ -937,7 +934,7 @@ export default () => {
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        backgroundColor: Colors.darkWithOpacity(0.05),
+                        backgroundColor: Colors.bgColor,
                         paddingHorizontal: 24,
                         paddingVertical: 12,
                         // borderRadius: 12,
@@ -989,7 +986,8 @@ export default () => {
                         height: height - 500,
                         justifyContent: "center",
                         alignItems: "center",
-                        marginTop: 50
+                        marginTop: 50,
+                        backgroundColor:Colors.bgColor
                       }}
                     >
                       <CircularLoader strokeWidth={3} />
@@ -1046,46 +1044,10 @@ const useStyles = () => {
   return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:Colors.whiteWithOpacity(1),
+    backgroundColor:Colors.bgColor,
   },
   wrapper: {
     paddingVertical: isIOS ? 0 : 32,
   },
-  tab: {
-    flexDirection: "row",
-    backgroundColor:Colors.whiteWithOpacity(1),
-    height: 64,
-    borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 60,
-    alignItems: "center",
-    shadowColor: Colors.blackWithOpacity(0.15),
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    shadowOpacity: 1,
-    zIndex: 10,
-    elevation: 5,
-    padding: 12,
-    justifyContent: "space-between",
-  },
-  tabItem: {
-    height: 40,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    backgroundColor: Colors.darkWithOpacity(0.15),
-    overflow: "hidden",
-  },
-  tabItemText: {
-    fontFamily: "Primary-Bold",
-    fontSize: 14,
-    color: Colors.blackWithOpacity(1),
-    marginLeft: 8,
-    fontWeight: "700",
-  },
-  hideBg: { backgroundColor: Colors.white3 },
 }), [Colors]); // Recreate styles when Colors change
 };

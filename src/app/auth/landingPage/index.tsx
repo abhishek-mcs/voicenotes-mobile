@@ -31,7 +31,7 @@ export default () => {
   const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
-  const {Colors,isDark}=useTheme()
+  const {Colors}=useTheme()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){

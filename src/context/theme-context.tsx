@@ -5,14 +5,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 
 const ThemeContext = React.createContext({
-    isDark: false,
+    theme: "dark",
     Colors: light,
     setScheme: () => { },
 });
 
 export const ThemeProvider = ({ children }:any) => {
   const {savedTheme}:any=useSelector((state:RootState)=>state.userDetails)
-  const [theme,setTheme] = useState<'light'|'dark'|'light-dark'|'auto'>(!!savedTheme?savedTheme:'light');
+  const [theme,setTheme] = useState<'light'|'dark'|'light-dark'|'auto'>('dark');
 
   const switchTheme = (scheme:any) => {
     setTheme(scheme);

@@ -54,5 +54,18 @@ export default {
   white4:'#F2F2F7',
   lightBlue:'rgba(35,84,159,1)',
   darkBlue:"#1A0FAB",
-  yellow:"rgba(214, 162, 67, 1)"
+  yellow:"rgba(214, 162, 67, 1)",
+  bgColor:'#fff',
+  bgColor1:'rgba(60, 60, 67, 0.3)',
+  bgColor2:'rgba(34, 34, 34, 0.05)',
+  bgColor3: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
+  inputBg:'#fff',
+  inputBg2:'rgba(34, 34, 34, 0.05)',
+  text:'#fff',
+  text1:'#9b9b9b',
+  bottomBarButtonBg:'#000',
+  bottomBarButtonBg1:'rgba(34, 34, 34,0.05)',
+  bottomBarText:'#fff',
+  bottomBarText1:'#000',
+  more:'#3C3C43'
 };

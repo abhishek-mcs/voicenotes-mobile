@@ -819,7 +819,7 @@ const NotePreview = forwardRef(
 
     return (
       <View style={[{borderColor:Colors.grey4WithOpacity(86.67),borderBottomWidth:0.5},isSubnote?{borderBottomWidth:0}:{paddingBottom:8}]}>
-      <View style={{borderLeftWidth:0.5,borderColor:Colors.grey4WithOpacity(86.67)}}>
+      <View style={{borderLeftWidth:isSubnote?0.5:0,borderColor:Colors.grey4WithOpacity(86.67)}}>
         <Touchable
           onPress={onExpand}
           activeOpacity={1}
@@ -968,15 +968,15 @@ const NotePreview = forwardRef(
                   />
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
-                <Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.grey2WithOpacity(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}} activeOpacity={0.8}>
                   {audioLoading==index?
-                  <CircularLoader strokeWidth={3} width={15} height={15}/>
-                  :<SvgXml xml={isPlay == index ? home.pause : home.play} />}
+                  <CircularLoader strokeWidth={3} width={15} height={15} color={Colors.black2}/>
+                  :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Touchable>
                 {(note?.status=="processed"||isSingle)&&
                   <MoreOptions options={options} style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
-                  <SvgXml xml={home.moreNew}/>
+                  <SvgXml xml={home.moreNew?.replace('#3C3C43',Colors.more)}/>
                 </MoreOptions>}
                 </View>
 

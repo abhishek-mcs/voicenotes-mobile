@@ -1,0 +1,317 @@
+diff --git a/node_modules/react-native-context-menu-view/android/build/.transforms/6644dda462b24b9bc654dc536b4e2e6f/results.bin b/node_modules/react-native-context-menu-view/android/build/.transforms/6644dda462b24b9bc654dc536b4e2e6f/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/.transforms/6644dda462b24b9bc654dc536b4e2e6f/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/react-native-context-menu-view/android/build/.transforms/6644dda462b24b9bc654dc536b4e2e6f/transformed/classes/classes_dex/classes.dex b/node_modules/react-native-context-menu-view/android/build/.transforms/6644dda462b24b9bc654dc536b4e2e6f/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..e454b71
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/.transforms/6644dda462b24b9bc654dc536b4e2e6f/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/.transforms/afea8ef792bd2d3bda8607f729a6ec43/results.bin b/node_modules/react-native-context-menu-view/android/build/.transforms/afea8ef792bd2d3bda8607f729a6ec43/results.bin
+new file mode 100644
+index 0000000..e3f0ff0
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/.transforms/afea8ef792bd2d3bda8607f729a6ec43/results.bin
+@@ -0,0 +1 @@
++i/classes_global-synthetics
+diff --git a/node_modules/react-native-context-menu-view/android/build/.transforms/ccbc37b8f455bc755faba23102bb8e68/results.bin b/node_modules/react-native-context-menu-view/android/build/.transforms/ccbc37b8f455bc755faba23102bb8e68/results.bin
+new file mode 100644
+index 0000000..28bb879
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/.transforms/ccbc37b8f455bc755faba23102bb8e68/results.bin
+@@ -0,0 +1 @@
++o/classes.jar
+diff --git a/node_modules/react-native-context-menu-view/android/build/.transforms/ccbc37b8f455bc755faba23102bb8e68/transformed/classes.jar b/node_modules/react-native-context-menu-view/android/build/.transforms/ccbc37b8f455bc755faba23102bb8e68/transformed/classes.jar
+new file mode 100644
+index 0000000..97d6258
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/.transforms/ccbc37b8f455bc755faba23102bb8e68/transformed/classes.jar differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/.transforms/ed8df5521450872ca97a7c9859d18745/results.bin b/node_modules/react-native-context-menu-view/android/build/.transforms/ed8df5521450872ca97a7c9859d18745/results.bin
+new file mode 100644
+index 0000000..61a58fa
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/.transforms/ed8df5521450872ca97a7c9859d18745/results.bin
+@@ -0,0 +1 @@
++i/classes_dex
+diff --git a/node_modules/react-native-context-menu-view/android/build/generated/source/buildConfig/debug/com/mpiannucci/reactnativecontextmenu/BuildConfig.java b/node_modules/react-native-context-menu-view/android/build/generated/source/buildConfig/debug/com/mpiannucci/reactnativecontextmenu/BuildConfig.java
+new file mode 100644
+index 0000000..b93ef2e
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/generated/source/buildConfig/debug/com/mpiannucci/reactnativecontextmenu/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.mpiannucci.reactnativecontextmenu;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.mpiannucci.reactnativecontextmenu";
++  public static final String BUILD_TYPE = "debug";
++}
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/react-native-context-menu-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..97527b3
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.mpiannucci.reactnativecontextmenu" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json b/node_modules/react-native-context-menu-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+new file mode 100644
+index 0000000..1b559ba
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.mpiannucci.reactnativecontextmenu",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-context-menu-view/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/react-native-context-menu-view/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/compile_library_classes_jar/debug/classes.jar b/node_modules/react-native-context-menu-view/android/build/intermediates/compile_library_classes_jar/debug/classes.jar
+new file mode 100644
+index 0000000..706660f
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/compile_library_classes_jar/debug/classes.jar differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/react-native-context-menu-view/android/build/intermediates/compile_r_class_jar/debug/R.jar
+new file mode 100644
+index 0000000..d9a05e2
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/react-native-context-menu-view/android/build/intermediates/compile_symbol_list/debug/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-context-menu-view/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..0627e40
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Mon Oct 14 09:06:35 IST 2024
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-context-menu-view/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..e4c03e8
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/BuildConfig.class b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/BuildConfig.class
+new file mode 100644
+index 0000000..224845f
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/BuildConfig.class differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuManager.class b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuManager.class
+new file mode 100644
+index 0000000..dc6a1a8
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuManager.class differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuPackage.class b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuPackage.class
+new file mode 100644
+index 0000000..12f60c3
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuPackage.class differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView$1.class b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView$1.class
+new file mode 100644
+index 0000000..ac9b328
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView$1.class differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView$2.class b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView$2.class
+new file mode 100644
+index 0000000..c5a4087
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView$2.class differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView.class b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView.class
+new file mode 100644
+index 0000000..fa1068d
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/javac/debug/classes/com/mpiannucci/reactnativecontextmenu/ContextMenuView.class differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/react-native-context-menu-view/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/react-native-context-menu-view/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..d83aa5c
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,7 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.mpiannucci.reactnativecontextmenu" >
++4
++5    <uses-sdk android:minSdkVersion="23" />
++6
++7</manifest>
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/react-native-context-menu-view/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+new file mode 100644
+index 0000000..97527b3
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.mpiannucci.reactnativecontextmenu" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/react-native-context-menu-view/android/build/intermediates/navigation_json/debug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/navigation_json/debug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar b/node_modules/react-native-context-menu-view/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar
+new file mode 100644
+index 0000000..669523b
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar differ
+diff --git a/node_modules/react-native-context-menu-view/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/react-native-context-menu-view/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+new file mode 100644
+index 0000000..92568fc
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+@@ -0,0 +1 @@
++com.mpiannucci.reactnativecontextmenu
+diff --git a/node_modules/react-native-context-menu-view/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-context-menu-view/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..341a4bf
+--- /dev/null
++++ b/node_modules/react-native-context-menu-view/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,17 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml:1:1-4:12
++INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml:1:1-4:12
++	package
++		ADDED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml:2:11-58
++		INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml:1:11-69
++uses-sdk
++INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml
++INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/athulmohan/Desktop/apps/voicenotes-app/node_modules/react-native-context-menu-view/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-context-menu-view/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-context-menu-view/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..7edae7e
+Binary files /dev/null and b/node_modules/react-native-context-menu-view/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-context-menu-view/index.d.ts b/node_modules/react-native-context-menu-view/index.d.ts
+index d90d510..b7cbc20 100644
+--- a/node_modules/react-native-context-menu-view/index.d.ts
++++ b/node_modules/react-native-context-menu-view/index.d.ts
+@@ -95,7 +95,10 @@ export interface ContextMenuProps extends ViewProps {
+   /**
+    * Children prop as per upgrade docs: https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-typescript-definitions
+    */
+-  children?: React.ReactNode;
++  children?: React.ReactNode;/**
++  * Theme for the context menu. Can be "dark", "light", or "auto" for system default.
++  */
++ theme?: "dark" | "light" | "auto";
+ }
+ 
+ export default class ContextMenu extends Component<ContextMenuProps> {}
+diff --git a/node_modules/react-native-context-menu-view/ios/ContextMenu.m b/node_modules/react-native-context-menu-view/ios/ContextMenu.m
+index c86f531..8dd6814 100644
+--- a/node_modules/react-native-context-menu-view/ios/ContextMenu.m
++++ b/node_modules/react-native-context-menu-view/ios/ContextMenu.m
+@@ -10,6 +10,7 @@ RCT_EXPORT_MODULE()
+     return contextMenuView;
+ }
+ 
++RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
+ RCT_EXPORT_VIEW_PROPERTY(title, NSString)
+ RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
+ RCT_EXPORT_VIEW_PROPERTY(onPreviewPress, RCTBubblingEventBlock)
+diff --git a/node_modules/react-native-context-menu-view/ios/ContextMenuView.h b/node_modules/react-native-context-menu-view/ios/ContextMenuView.h
+index 9456f01..89228a6 100644
+--- a/node_modules/react-native-context-menu-view/ios/ContextMenuView.h
++++ b/node_modules/react-native-context-menu-view/ios/ContextMenuView.h
+@@ -12,6 +12,7 @@
+ 
+ @interface ContextMenuView : UIControl<UIContextMenuInteractionDelegate>
+ 
++@property (nonnull, nonatomic, strong) NSString *theme;
+ @property (nonnull, nonatomic, copy) NSString* title;
+ @property (nullable, nonatomic, copy) RCTBubblingEventBlock onPress;
+ @property (nullable, nonatomic, copy) RCTBubblingEventBlock onPreviewPress;
+diff --git a/node_modules/react-native-context-menu-view/ios/ContextMenuView.m b/node_modules/react-native-context-menu-view/ios/ContextMenuView.m
+index 7f8ee75..1569caf 100644
+--- a/node_modules/react-native-context-menu-view/ios/ContextMenuView.m
++++ b/node_modules/react-native-context-menu-view/ios/ContextMenuView.m
+@@ -32,6 +32,30 @@
+     return self;
+ }
+ 
++- (void)setTheme:(NSString *)theme {
++    _theme = theme;
++    [self applyTheme];
++}
++
++- (void)applyTheme {
++    NSLog(@"Applying theme: %@", _theme);
++    if ([_theme isEqualToString:@"dark"]) {
++        if (@available(iOS 13.0, *)) {
++            self.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
++        }
++    } else if ([_theme isEqualToString:@"light"]) {
++        if (@available(iOS 13.0, *)) {
++            self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
++        }
++    } else if ([_theme isEqualToString:@"auto"]) {
++        if (@available(iOS 13.0, *)) {
++            self.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
++        }
++    }
++    
++    // Update the colors of your menu items or subviews accordingly
++}
++
+ - (void)insertReactSubview:(UIView *)subview atIndex:(NSInteger)atIndex
+ {
+   if ([subview.nativeID isEqualToString:@"ContextMenuPreview"]) {

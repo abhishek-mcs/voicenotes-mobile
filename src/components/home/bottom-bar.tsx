@@ -44,6 +44,7 @@ export default ({
   const [paused, setPaused] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
+  const homeIcons:any=home
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -135,21 +136,25 @@ export default ({
               title="Record"
               icon={home.record}
               underlayColor={Colors.blackWithOpacity(0.7)}
-              bgColor={Colors.blackWithOpacity(1)}
-              color={Colors.whiteWithOpacity(1)}
+              bgColor={Colors.bottomBarButtonBg}
+              color={Colors.bottomBarText}
               style={styles.button}
             />
             <RecButton
               onPress={onAsk}
               title={"Ask"}
-              icon={home.ask}
+              icon={homeIcons.ask?.replaceAll('#0D0D0D',Colors.black2)}
               style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
             />
             <RecButton
               onPress={onCreate}
               title="Create"
-              icon={home.create}
+              icon={homeIcons.create?.replaceAll('#0D0D0D',Colors.black2)}
               style={styles.button}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
             />
           </>
         ) : (

@@ -21,6 +21,7 @@ const onPress=async()=>
   return (
     <Touchable activeOpacity={1} onPress={onPress}>
         <ContextMenu
+        theme={"dark"}
           actions={options}
           style={style}
           onPress={(e) => {
