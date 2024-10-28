@@ -56,9 +56,10 @@ export default {
   darkBlue:"#1A0FAB",
   yellow:"rgba(214, 162, 67, 1)",
   bgColor:'#fff',
-  bgColor1:'rgba(60, 60, 67, 0.3)',
-  bgColor2:'rgba(34, 34, 34, 0.05)',
+  bgColor1:'#F2F2F7',
+  bgColor2:'#fff',
   bgColor3: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
+  dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#fff',
   streak2:'#fff',
   inputBg:'#fff',
@@ -66,8 +67,13 @@ export default {
   text:'#fff',
   text1:'#9b9b9b',
   bottomBarButtonBg:'#000',
+  bottomBarCancelBg:'rgba(255, 69, 56,0.05)',
   bottomBarButtonBg1:'rgba(34, 34, 34,0.05)',
+  settingsBtnBg:'#000',
+  settingsBtnText:'#fff',
   bottomBarText:'#fff',
   bottomBarText1:'#000',
-  more:'#3C3C43'
+  more:'#3C3C43',
+  underlayColorBlack:"rgba(0,0,0,0.7)",
+  refresh:'#717171'
 };

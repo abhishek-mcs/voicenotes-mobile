@@ -28,6 +28,7 @@ export default ({
   );
   const { Colors } = useTheme()
   const styles = useStyles()
+  const bottomSvgIcons:any = bottomSvg;
 
   const continueRecording = () => {
     setIsCanceling(false);
@@ -65,7 +66,7 @@ export default ({
       >
         <RecButton
           title="Cancel"
-          bgColor={Colors.redWithOpacity(0.05)}
+          bgColor={Colors.bottomBarButtonBg}
           underlayColor={Colors.redWithOpacity(0.06)}
           color={Colors.redWithOpacity(1)}
           onPress={onCancelClick}
@@ -97,10 +98,11 @@ export default ({
         </View>
         {onPause && (
           <RecButton
-            icon={!paused ? bottomSvg.pause : bottomSvg.play}
+            icon={!paused ? bottomSvgIcons.pause?.replaceAll("black",Colors.blackWithOpacity(1)) : bottomSvgIcons.play?.replaceAll("black",Colors.blackWithOpacity(1))}
             title=""
             underlayColor=""
             onPress={onPause}
+            bgColor={Colors.bottomBarButtonBg1}
             style={{ paddingHorizontal: 12, marginRight: -12,borderRadius:16,height:40 }}
           />
         )}

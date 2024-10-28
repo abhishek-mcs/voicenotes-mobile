@@ -4,6 +4,7 @@ import {
   Easing,
   FlatList,
   KeyboardAvoidingView,
+  RefreshControl,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
@@ -770,7 +771,7 @@ export default () => {
 
 
   const scrollY = useRef(new Animated.Value(0)).current;
-  const searchBarHeight = 30; // Adjust based on your search bar height
+  const searchBarHeight = 40; // Adjust based on your search bar height
   const headerHeight=50;
 
   const searchBarScale = scrollY.interpolate({
@@ -835,7 +836,7 @@ export default () => {
           setHideSearch(true);
         }}
       >
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1,backgroundColor:Colors.bgColor }}>
           <View style={[styles.wrapper]}>
             <Animated.View
               style={{
@@ -879,6 +880,7 @@ export default () => {
                       {
                         height: searchFocused?screenHeight:searchBarHeightAnimated,
                         transform: [{ scaleY: searchBarScale }],
+                        backgroundColor:'red'
                       },
                     ]}
                   >
@@ -907,16 +909,23 @@ export default () => {
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
                 )}
+                refreshControl={
+                <RefreshControl 
+                  onRefresh={onRefresh} 
+                  refreshing={isRefreshing}
+                  tintColor={'#fff'}
+                  colors={['#fff']}
+                  />
+                }
                 scrollEventThrottle={16}
+                style={{backgroundColor:Colors.bgColor}}
                 contentContainerStyle={{ paddingBottom: 300,backgroundColor:Colors.bgColor }}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
                 renderItem={renderItem}
                 onEndReachedThreshold={0.2}
                 onEndReached={fetchNextPage}
-                onRefresh={onRefresh}
                 initialNumToRender={3}
-                refreshing={isRefreshing}
                 ListFooterComponent={
                   !token && recordingQuery.isFetched ? (
                     <AboutProduct disable={false} />
@@ -1054,6 +1063,7 @@ const useStyles = () => {
   },
   wrapper: {
     paddingVertical: isIOS ? 0 : 32,
+    backgroundColor:Colors.bgColor
   },
 }), [Colors]); // Recreate styles when Colors change
 };

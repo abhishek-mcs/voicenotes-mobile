@@ -88,8 +88,8 @@ const Names: React.FC<Props> = (props) => {
             <RecButton
               onPress={addName}
               title="Add"
-              bgColor={Colors.blackWithOpacity(1)}
-              color={Colors.whiteWithOpacity(1)}
+              bgColor={Colors.settingsBtnBg}
+              color={Colors.settingsBtnText}
               style={{ paddingHorizontal: 20 }}
             />
           </View>
@@ -117,12 +117,14 @@ const useStyles = () => {
     heading: {
       fontFamily: 'Primary-Bold',
       fontSize: 20,
-      textAlign: 'center'
+      textAlign: 'center',
+      color:Colors.blackWithOpacity(1)
     },
     description: {
         fontFamily: "Primary",
         fontSize: 15,
-        textAlign: 'center'
+        textAlign: 'center',
+        color:Colors.blackWithOpacity(1)
     },
     controls: { 
         width: width,
@@ -143,7 +145,7 @@ const useStyles = () => {
         marginTop: 20,
     },
     name: {
-        backgroundColor: Colors.darkWithOpacity(0.05),
+        backgroundColor: Colors.inputBg2,
         paddingHorizontal: 14,
         paddingVertical:8,
         maxHeight: 40,
@@ -154,7 +156,8 @@ const useStyles = () => {
         gap: 5
     },
     label: {
-        fontSize: 15
+        fontSize: 15,
+        color:Colors.blackWithOpacity(1)
     },
     icon: {
         justifyContent: 'center',

@@ -57,9 +57,10 @@ export default {
   darkBlue: "#0D0F59", // Darker blue for dark mode
   yellow: "rgba(214, 162, 67, 1)", // Accent yellow unchanged
   bgColor:'#000',
-  bgColor1:'rgba(60, 60, 67, 0.3)',
-  bgColor2:'rgba(34, 34, 34, 0.05)',
+  bgColor1:'#0d0d0d',
+  bgColor2:'#171717',
   bgColor3: (opacity:number) => secondary,
+  dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',
   inputBg:'#000',
@@ -67,8 +68,13 @@ export default {
   text:'#fff',
   text1:'#9b9b9b',
   bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
+  bottomBarCancelBg:'rgba(255, 69, 56, 0.15)',
   bottomBarButtonBg1:'rgba(33, 33, 33, 1)',
+  settingsBtnBg:'rgba(33, 33, 33, 1)',
+  settingsBtnText:'#fff',
   bottomBarText:'#fff',
   bottomBarText1:'#fff',
-  more:'#fff'
+  more:'#fff',
+  underlayColorBlack:"rgba(0,0,0,0.7)",
+  refresh:'#fff'
 };

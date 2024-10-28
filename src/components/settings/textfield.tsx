@@ -18,15 +18,17 @@ const TextField: React.FC<Props> = (props) => {
         value={props.value}
         onChangeText={text => props.onValueChange(text)}
         style={{
-            backgroundColor: Colors.blackWithOpacity(0.1),
+            backgroundColor: Colors.inputBg2,
             width: props.multiline ? width / 1.3 :  width / 2,
             paddingTop: 15, // paddingVertical doesn't work with multiline
             paddingBottom: 15, // see https://github.com/facebook/react-native/issues/21720#issuecomment-515286499
             paddingHorizontal: 20,
             borderRadius: 10,
             fontSize: 15,
-            minHeight: props.multiline ? 150 : 40
+            minHeight: props.multiline ? 150 : 40,
+            color:Colors.blackWithOpacity(1)
         }}
+        placeholderTextColor={Colors.grey3}
         multiline={props.multiline || false}
         secureTextEntry={props.notPassword || false}
     />

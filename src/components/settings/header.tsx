@@ -28,14 +28,16 @@ const Header: React.FC<Props> = (props) => {
                         underlayColor={Colors.blackWithOpacity(0.2)}
                         style={{ width: 'auto',alignSelf:'flex-start', paddingHorizontal: 16,height:40}}
                         onPress={props.onCancel}
+                        bgColor={Colors.bottomBarButtonBg1}
+                        color={Colors.bottomBarText1}
                     />
                 </View>
                 <View style={[styles.action, { alignItems: 'flex-end', justifyContent: props.working ? 'center' : 'flex-end', paddingHorizontal: props.working ? 20 : 10 }]} >
                     {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
                         title={props.submitLabel || "Save"}
                         underlayColor={Colors.blackWithOpacity(0.7)}
-                        bgColor={Colors.blackWithOpacity(1)}
-                        color={Colors.whiteWithOpacity(1)}
+                        bgColor={Colors.settingsBtnBg}
+                        color={Colors.settingsBtnText}
                         style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                         onPress={props.onSubmit}
                     />: null}

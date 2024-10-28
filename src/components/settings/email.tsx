@@ -40,8 +40,8 @@ const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onS
         {working ? <CircularLoader /> : <RecButton
           title={isOTP ? "Confirm" : "Send"}
           underlayColor={Colors.blackWithOpacity(0.7)}
-          bgColor={Colors.blackWithOpacity(1)}
-          color={Colors.blackWithOpacity(1)}
+          bgColor={Colors.settingsBtnBg}
+          color={Colors.settingsBtnText}
           style={{ flex: 1, paddingHorizontal: 15 }}
           onPress={onSubmit}
         />}
@@ -118,13 +118,15 @@ const useStyles = () => {
     heading: {
       fontFamily: 'Primary-Bold',
       fontSize: 20,
-      textAlign: 'center'
+      textAlign: 'center',
+      color:Colors.blackWithOpacity(1)
     },
     description: {
         fontFamily: "Primary",
         fontSize: 15,
         textAlign: 'center',
         marginBottom: 10,
+        color:Colors.blackWithOpacity(1)
     },
     action: {
       width: '100%',
@@ -136,6 +138,7 @@ const useStyles = () => {
       fontFamily: "Primary",
       fontSize: 13,
       textAlign: 'center',
+      color:Colors.blackWithOpacity(1)
     }
   }), [Colors]); // Recreate styles when Colors change
 };

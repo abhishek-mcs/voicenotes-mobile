@@ -20,7 +20,7 @@ export default () => {
     return <SafeAreaView style={styles.root}>
         <View style={styles.close}>
             <Touchable onPress={() => router.back()} style={{padding:12, alignSelf:'flex-end', marginRight: 2}} activeOpacity={0.6}>
-                <SvgXml xml={settingsSvg.close} width={30} height={30} />
+                <SvgXml xml={settingsSvg.close?.replace("#0D0D0D",Colors.black2)} width={30} height={30} />
             </Touchable>
         </View>
         <View style={styles.header}>
@@ -49,7 +49,7 @@ const useStyles = () => {
     return useMemo(() =>  StyleSheet.create({
     root: { 
         flex: 1,
-        backgroundColor: Colors.white4,
+        backgroundColor: Colors.bgColor1,
         paddingTop: isIOS ? 0 : 40 
     },
     close: {
@@ -65,6 +65,7 @@ const useStyles = () => {
     heading: {
         fontFamily: 'Primary-Bold',
         fontSize: 20,
+        color:Colors.blackWithOpacity(1)
     },
     content: {
         flex: 11,
@@ -75,7 +76,7 @@ const useStyles = () => {
         width: '100%',
         height: 60,
         borderRadius: 10,
-        backgroundColor:Colors.whiteWithOpacity(1),
+        backgroundColor:Colors.bgColor2,
         flexDirection: 'row',
         marginBottom: 10
     },
@@ -89,6 +90,7 @@ const useStyles = () => {
     plan: {
         fontFamily: "Primary-Medium",
         fontSize: 15,
+        color:Colors.blackWithOpacity(1)
     },
     action: {
         width: '100%',
