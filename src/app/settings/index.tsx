@@ -298,6 +298,7 @@ export default () => {
         <Grouped 
           title="MORE"
           items={[
+            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO?typeform-source=voicenotes.com'), rightIcon:settingsSvg.arrow},
             {title:'Delete account', value:'', onPress:onDelete, rightIcon:settingsSvg.arrow},
             {title:'Share feedback', value:'', onPress:feedback, rightIcon:settingsSvg.arrow},
             {title:'Sign out', value:'', onPress:onLogout, style:{color:Colors.redWithOpacity(1)}, leftIcon:settingsSvg.signOut},

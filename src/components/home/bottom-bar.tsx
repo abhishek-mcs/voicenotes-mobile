@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState,useRef, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useState,useRef, useMemo } from "react";
 import { home } from "assets/svg/home";
 import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
@@ -9,12 +9,11 @@ import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
-import { Shadow } from 'react-native-shadow-2';
 import { useTheme } from "context";
 
 interface Props {
   onRecord: (v:any) => void;
-  onStopRecord: (d: number, r?: boolean) => void;
+  onStopRecord: (d: number, r?: boolean) => Promise<void>;
   onAsk: () => void;
   onCreate: () => void;
   recEnabled: boolean;
@@ -25,6 +24,7 @@ interface Props {
   rec: any;
   recordingParentNoteName: string | null;
   setRecordingParentId: Dispatch<SetStateAction<string | null>>;
+  parentId?: string | null;
 }
 
 export default ({
@@ -38,6 +38,7 @@ export default ({
   onCancel,
   setShowAskMe,
   showAskMe,
+  parentId,
   onPause=(v:any)=>{},rec=null
 }: Props) => {
   const [duration, setDuration] = useState(0);
@@ -50,10 +51,11 @@ export default ({
   );
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
+  const [temporaryRecordingId, setTemporaryRecordingId] = useState<string | null>(null);
   const { Colors } = useTheme()
   const styles = useStyles()
-  
-  useEffect(() => {
+
+useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
     if (recEnabled&&!paused) {
       timerId.current = setInterval(() => {
@@ -72,9 +74,8 @@ export default ({
           return newDuration;
         });
       }, 1000);
-
     }
-  }, [recEnabled, token, userDetails?.subscription_status,paused,onStopRecord]);
+  }, [recEnabled, token, userDetails?.subscription_status, paused, onStopRecord, temporaryRecordingId, recordingParentNoteName]);
 
   const onPauseClick = () => {
     onPause(!paused);
@@ -97,9 +98,16 @@ export default ({
     timerId.current&&clearInterval(timerId.current);
     setIsCanceling(false);
   }
+
+  const onRecordStart = () => {
+    const newTemporaryRecordingId = Math.random().toString(36).substring(7);
+    setTemporaryRecordingId(newTemporaryRecordingId);
+    onRecord(newTemporaryRecordingId);
+  };
+
   return (
     <View style={styles.container}>
-      {recordingParentNoteName&&!isCanceling&& (
+      {(recordingParentNoteName || parentId)&&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
@@ -110,7 +118,7 @@ export default ({
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                Adding to Note "{recordingParentNoteName}"
+                {recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable
@@ -132,7 +140,7 @@ export default ({
         {!recEnabled ? (
           <>
             <RecButton
-              onPress={onRecord}
+              onPress={onRecordStart}
               title="Record"
               icon={home.record}
               underlayColor={Colors.blackWithOpacity(0.7)}

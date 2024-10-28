@@ -51,7 +51,7 @@ import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import { get, off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
-import axiosApi from "services/api/axios-api";
+import axiosApi, { setAuthToken } from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
@@ -303,6 +303,10 @@ export default () => {
     }
 
   useEffect(() => {
+    const tokenSubscription = actionEmitter.addListener('sendToken', () => {
+      console.log("React Native: Send token started");
+      NativeModules.TokenBridge.sendTokenToWatch(token);
+    });
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
       console.log("React Native: Recording started");
       setTimeout(() => {
@@ -572,7 +576,7 @@ export default () => {
         });
   };
 
-  const uploadVoiceNote = async (note: NewNote) => {
+  const uploadVoiceNote = async (note: NewNote, continueUpload = false) => {
     const temporaryRecordingId = note.id;
 
     dispatch(
@@ -597,6 +601,7 @@ export default () => {
       }).then(async(response)=>{
         const recordingId = response.recording.id;
         console.log(recordingId,'recording id')
+        if(continueUpload && !recordingParentId) setRecordingParentId(recordingId)
         // if(response.recording?.parent_id){
         //   setRecordingParentId(recordingId)
         // }else{
@@ -651,7 +656,7 @@ export default () => {
         recorded_at: new Date().getTime(),
         status: "uploading",
         internalUrl: uri,
-        parent_id: recordingParentId ?? null,
+        parent_id: recordingParentId,
         // isSubnote:splitCount>0,
         // temp_id:temporaryRecordingId,
         // temp_parent_id:recordingList[0]?.id??null
@@ -685,7 +690,7 @@ export default () => {
       if(await shouldPromptNow()) askReview(true)
 
       // upload a new note
-      await uploadVoiceNote(newTemporaryRecording);
+      await uploadVoiceNote(newTemporaryRecording, repeat);
 
       if (!repeat) deactivateKeepAwake();
       analytics().logEvent("completed_recording");
@@ -1014,6 +1019,7 @@ export default () => {
       <BottomBar
         recordingParentNoteName={recordingParentNoteName}
         setRecordingParentId={setRecordingParentId}
+        parentId={recordingParentId}
         onAsk={onAsk}
         onCreate={onCreate}
         onRecord={onStartRecord}
