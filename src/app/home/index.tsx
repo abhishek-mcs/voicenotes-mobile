@@ -28,7 +28,7 @@ import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
+import { fetchSingleRecording, isAndroid, isIOS, screenHeight } from "utils/common";
 // import AskMeSomething from "components/ask-me-something";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
@@ -303,10 +303,13 @@ export default () => {
     }
 
   useEffect(() => {
-    const tokenSubscription = actionEmitter.addListener('sendToken', () => {
-      console.log("React Native: Send token started");
-      NativeModules.TokenBridge.sendTokenToWatch(token);
-    });
+    if (isAndroid) {
+      const tokenSubscription = actionEmitter.addListener('sendToken', () => {
+        console.log("React Native: Send token started");
+        NativeModules.TokenBridge.sendTokenToWatch(token);
+      });
+    }
+
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
       console.log("React Native: Recording started");
       setTimeout(() => {
