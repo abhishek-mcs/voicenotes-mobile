@@ -8,10 +8,10 @@ import {
   Pressable,
   Easing,
 } from 'react-native';
-import Colors from 'assets/Colors';
 import ReactNativeModal from "react-native-modal";
 import { formatDate } from "utils/format-date";
 import { useTheme } from 'context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const RECT_SIZE = 11;
@@ -122,7 +122,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
       coverScreen={false}
     >
       <View>
-        <View style={[styles.container, styles.shadow]}>
+        <LinearGradient colors={[Colors.streak1,Colors.streak2]} start={{x:0,y:0}} end={{x:1,y:1}} style={[styles.container, styles.shadow]}>
           <Text style={styles.rankText}>
             You rank {data?.rank} out of {data?.total_users} note-takers
           </Text>
@@ -160,7 +160,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
               </Animated.View>
             )}
           </View>
-        </View>
+        </LinearGradient>
       </View>
     </ReactNativeModal>
   );
@@ -175,7 +175,7 @@ const useStyles = () => {
     marginTop: 45
   },
   container: {
-    backgroundColor: Colors.whiteWithOpacity(1),
+    backgroundColor: Colors.bgColor,
     borderRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 20,
@@ -191,7 +191,7 @@ const useStyles = () => {
   rankText: {
     fontSize: 14,
     fontFamily: "Primary",
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text,
     marginBottom: 12,
     textAlign: 'left',
     width: '100%',

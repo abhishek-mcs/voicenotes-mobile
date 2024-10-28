@@ -59,6 +59,8 @@ export default {
   bgColor1:'rgba(60, 60, 67, 0.3)',
   bgColor2:'rgba(34, 34, 34, 0.05)',
   bgColor3: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
+  streak1:'#fff',
+  streak2:'#fff',
   inputBg:'#fff',
   inputBg2:'rgba(34, 34, 34, 0.05)',
   text:'#fff',
