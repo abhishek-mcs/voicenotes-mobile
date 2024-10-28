@@ -17,13 +17,14 @@ import CircularLoader from "../loaders/circular-loader"
 import { SvgXml } from "react-native-svg"
 import { AIModalSVG } from "assets/svg/AIModalSvg"
 import { commonSvg } from "assets/svg/commonSvg"
-import Colors from "assets/Colors"
+import { useTheme } from "context"
 
 const isIos = Platform.OS === "ios"
 
 function ScreenWithoutScrolling(props: ScreenProps) {
 
   const insets = useSafeAreaInsets()
+  const { Colors } = useTheme()
   const preset = presets.fixed
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
@@ -85,6 +86,7 @@ function ScreenWithScrolling(props: ScreenProps) {
   const insetStyle = { paddingTop: props.unsafe ? 0 : insets.top }
   const navBarStyleBase:any ={flexDirection:'row',justifyContent:'center',marginHorizontal:32,paddingVertical:16}
   const [isConnected, setIsConnected] = React.useState(true)
+  const { Colors } = useTheme()
   
   React.useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state:any) => {

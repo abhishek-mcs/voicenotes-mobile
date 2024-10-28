@@ -1,9 +1,10 @@
-import Colors from 'assets/Colors';
-import React, { useEffect, useRef } from 'react';
+import { useTheme } from 'context';
+import { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, View, StyleSheet } from 'react-native';
 
-export default ({ width=22,height=22, strokeWidth = 2, color = Colors.black2 }) => {
+export default ({ width=22,height=22, strokeWidth = 2, color = '#0d0d0d' }) => {
     const spinValue = useRef(new Animated.Value(0)).current;
+    const styles = useStyles()
   
     useEffect(() => {
       Animated.loop(
@@ -41,10 +42,13 @@ export default ({ width=22,height=22, strokeWidth = 2, color = Colors.black2 }) 
     );
   };
   
-  const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     loader: {
       borderLeftColor: Colors.greyWithOpacity(0.3),
       borderBottomColor: Colors.greyWithOpacity(0.3),
       position: 'absolute',
     },
-  });
+  }), [Colors]); // Recreate styles when Colors change
+};

@@ -1,13 +1,13 @@
 import { Alert, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { changePassword } from "queries/auth";
 import RecButton from "components/common/recording/rec-button";
 import { screenWidth } from "utils/common";
-import Colors from "assets/Colors";
+import { useTheme } from "context";
 
 interface ComponentProps {
     isPasswdSet: boolean,
@@ -22,6 +22,8 @@ interface ComponentProps {
 const Component: React.FC<ComponentProps> = (props) => {
 
   const [show, setShow] = useState(false)
+  const { Colors } = useTheme()
+  const styles = useStyles()
   const toggleShow = () => {
     setShow(!show)
   }
@@ -119,7 +121,9 @@ const Password: React.FC<Props> = (props) => {
     );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
         alignItems: 'center',
@@ -141,6 +145,7 @@ const styles = StyleSheet.create({
       marginTop: 10,
       width: screenWidth/4
     }
-})
+  }), [Colors]); // Recreate styles when Colors change
+};
 
 export default Password

@@ -1,8 +1,7 @@
 import { InteractionManager, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet, TextInput, TouchableHighlight, View, Animated } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
-import Colors from "assets/Colors";
 import { Text } from "react-native";
 import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
 import { useRouter } from "expo-router";
@@ -13,6 +12,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 import { RootState } from "redux/store/store";
 import { ShowMoreTagsButton, TagButton } from "components/home/tag-buttons";
+import { useTheme } from "context";
 
 const {debounce}=require("lodash")
 
@@ -32,6 +32,8 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     const deleteSearchHistory=useDeleteSearchHistory()
     const getSearchData=useSearch(searchQuery);
     const dispatch=useDispatch()
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     const searchData=getSearchData.data?.data||[]
 
@@ -223,7 +225,9 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     )
 }
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     container: {
         flexDirection:'row',
         alignItems:'center',
@@ -287,4 +291,5 @@ const styles=StyleSheet.create({
       marginTop:40,marginHorizontal:20
     },
     skeleton:{marginBottom:12,height:20,opacity:0.3}
-})
+  }), [Colors]); // Recreate styles when Colors change
+};

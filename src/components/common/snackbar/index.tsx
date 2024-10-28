@@ -1,8 +1,9 @@
 import Colors from 'assets/Colors';
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity, Dimensions, LayoutAnimation, ActivityIndicator } from 'react-native';
 import { screenWidth } from 'utils/common';
 import CircularLoader from '../loaders/circular-loader';
+import { useTheme } from 'context';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +18,8 @@ interface SnackbarProps {
 export default forwardRef(({ message, actionText, onAction, snackHeight = 50,count=0}:SnackbarProps,ref) => {
   const [visible, setVisible] = useState(false);
   const height = new Animated.Value(0);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   const onLayoutAnimation = () => {
     LayoutAnimation.configureNext({
@@ -95,7 +98,9 @@ export default forwardRef(({ message, actionText, onAction, snackHeight = 50,cou
       )
 });
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   snackbarContainer: {
     // position: 'absolute',
     // top: 0,
@@ -122,4 +127,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily:'Primary-Bold'
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
   FlatList,
   Linking,
   Dimensions,
@@ -22,7 +21,7 @@ import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
-import Colors from "assets/Colors";
+import { useTheme } from "context";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -32,6 +31,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   const fullScreenListRef = useRef(null);
   const thumbnailListRef = useRef<FlatList>(null);
@@ -250,7 +251,9 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   bottomSheet: {
     flex:1,
     // height:screenHeight,
@@ -385,6 +388,7 @@ const styles = StyleSheet.create({
     color: Colors.lightBlueWithOpacity(0.8),
     flex: 1,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default AttachmentViewer;

@@ -1,13 +1,13 @@
-import Colors from "assets/Colors";
 import { bottomSvg } from "assets/svg/bottomSvg";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import { Button, View } from "react-native";
 import RecButton from "./rec-button";
-import { useEffect, useState } from "react";
-import Waveform from "./waveform";
+import { useMemo } from "react";
+// import Waveform from "./waveform";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
+import { useTheme } from "context";
 
 export default ({
   onPause,
@@ -26,6 +26,8 @@ export default ({
   const { userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   const continueRecording = () => {
     setIsCanceling(false);
@@ -162,7 +164,9 @@ export default ({
     );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
@@ -185,4 +189,5 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.blue,
     marginHorizontal: 2,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

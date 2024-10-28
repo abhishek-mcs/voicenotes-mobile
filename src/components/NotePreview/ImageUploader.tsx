@@ -11,11 +11,11 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { sleep } from "utils/Timer";
-import { Attachment, ATTACHMENT_TYPE } from "types";
+import { ATTACHMENT_TYPE } from "types";
 import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useQueryClient } from "react-query";
-import Colors from "assets/Colors";
+import { useTheme } from "context";
 
 
 interface ImageUploaderProps {
@@ -33,6 +33,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   setAttachments,
   onAttachmentUpdate,
 }) => {
+  const { Colors } = useTheme()
   const queryClient = useQueryClient();
   const validateAndConvertImage = useCallback(async (uri: string) => {
     const fileExtension:string = uri?.split(".").pop()?.toLowerCase()??'';

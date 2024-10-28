@@ -1,12 +1,8 @@
-import Colors from 'assets/Colors';
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity, Dimensions, LayoutAnimation, ActivityIndicator } from 'react-native';
-import { screenWidth } from 'utils/common';
-import CircularLoader from '../loaders/circular-loader';
+import { useState, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
+import { View, Text, StyleSheet, Animated, TouchableOpacity, LayoutAnimation} from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { commonSvg } from 'assets/svg/commonSvg';
-
-const { width } = Dimensions.get('window');
+import { useTheme } from 'context';
 
 interface SnackbarProps {
     message: string;
@@ -19,6 +15,7 @@ interface SnackbarProps {
 export default forwardRef(({ message, actionText, onAction, snackHeight = 50,count=0}:SnackbarProps,ref) => {
   const [visible, setVisible] = useState(false);
   const height = new Animated.Value(0);
+  const styles = useStyles()
 
   const onLayoutAnimation = () => {
     LayoutAnimation.configureNext({
@@ -95,7 +92,9 @@ export default forwardRef(({ message, actionText, onAction, snackHeight = 50,cou
       )
 });
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   snackbarContainer: {
     backgroundColor:Colors.yellowWithOpacity(0.1),
     paddingHorizontal: 12,
@@ -123,4 +122,5 @@ const styles = StyleSheet.create({
     marginLeft:20,
     borderRadius:12
   }
-});
+}), [Colors]); // Recreate styles when Colors change
+};

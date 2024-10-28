@@ -1,4 +1,4 @@
-import Colors from "assets/Colors"
+import { useTheme } from "context"
 import { TextInput, Dimensions } from "react-native"
 
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
 const TextField: React.FC<Props> = (props) => {
 
     const width = Dimensions.get('window').width
+    const { Colors } = useTheme()
 
     return <TextInput
         placeholder={props.placeholder || ''}

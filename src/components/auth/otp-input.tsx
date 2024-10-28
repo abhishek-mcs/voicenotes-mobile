@@ -1,15 +1,16 @@
-import Colors from 'assets/Colors';
+import { useTheme } from 'context';
 import { getStringAsync } from 'expo-clipboard';
 import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TextInput, View, StyleSheet, InteractionManager, Platform, Text } from 'react-native';
-import { SvgXml } from 'react-native-svg';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { TextInput, View, StyleSheet, Text } from 'react-native';
 import { isIOS } from 'utils/common';
 
 export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='' }) => {
   const inputRefs = Array.from({ length: numberOfInputs }, () => useRef<TextInput>(null));
   const [currentIndex,setCurrentIndex] = useState(0)
   const isPasting=useRef(false);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useFocusEffect(useCallback(()=>{
     setTimeout(() => {
@@ -123,7 +124,9 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   main:{
     marginTop:32,
     marginBottom:48
@@ -166,4 +169,5 @@ const styles = StyleSheet.create({
   noBorderLeft:{borderLeftWidth:0},
   separator:{width:1,backgroundColor:Colors.blackWithOpacity(1),height:50},
   errorText:{}
-});
+}), [Colors]); // Recreate styles when Colors change
+};

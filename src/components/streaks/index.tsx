@@ -8,17 +8,11 @@ import {
   View,
 } from "react-native";
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import Colors from "assets/Colors";
 import { formatDate, getLastSixMonths } from "utils/format-date";
-import ControlledTooltip from "components/common/ControlledTooltip";
-import { isAndroid, isIOS } from "utils/common";
+import { isAndroid } from "utils/common";
 import { Dimensions } from "react-native";
-import * as Animatable from "react-native-animatable";
-import { transform } from "@babel/core";
 import ReactNativeModal from "react-native-modal";
-import { Rect, Svg } from "react-native-svg";
-import { Tooltip } from "@rneui/base";
-import { Shadow } from "react-native-shadow-2";
+import { useTheme } from "context";
 
 // Enable LayoutAnimation
 if (isAndroid) {
@@ -27,16 +21,14 @@ if (isAndroid) {
   }
 }
 
-const RECT_SIZE = 11;
-const RECT_MARGIN = 2;
-const RECTS_PER_ROW = 7;
-
-const StreakRect = React.memo(({ opacity, onPress }:any) => (
+const StreakRect = React.memo(({ opacity, onPress }:any) => {
+  const { Colors } = useTheme()
+  return (
   <Pressable
   onPress={onPress}
     style={{backgroundColor:Colors.primaryWithOpacity(opacity),width:11,height:11,borderRadius:2,marginRight:2,marginBottom:2}}
   />
-));
+)});
 
 export default forwardRef(({ data = null }: Props, ref) => {
   const [shadowOpacity, setShadowOpacity] = useState(new Animated.Value(0));
@@ -46,6 +38,8 @@ export default forwardRef(({ data = null }: Props, ref) => {
   const [tooltipData, setTooltipData] = useState({ visible: false, text: '', position: { x: 0, y: 0 } });
   const containerRef = useRef<View>(null);
   const tooltipOpacity= useRef(new Animated.Value(1))
+  const { Colors } = useTheme()
+  const styles = useStyles()
   
   const getOpacity = (count: number) => {
     if (count === 0) return Colors.green4WithOpacity(0.1);
@@ -182,8 +176,10 @@ export default forwardRef(({ data = null }: Props, ref) => {
     </ReactNativeModal>
   );
 });
-const { width } = Dimensions.get("window");
-const styles = StyleSheet.create({
+
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   modal: {
     backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 20,
@@ -227,7 +223,8 @@ const styles = StyleSheet.create({
     color: Colors.whiteWithOpacity(1),
     fontSize: 12,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 interface Props {
   data: any;

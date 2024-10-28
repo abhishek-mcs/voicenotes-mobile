@@ -1,4 +1,6 @@
 import Colors from "assets/Colors";
+import { useTheme } from "context";
+import { useMemo } from "react";
 import { Text } from "react-native";
 import { StyleSheet, TouchableHighlight, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -12,7 +14,9 @@ import { isIOS } from "utils/common";
     color = Colors.blackWithOpacity(1),
     underlayColor = Colors.blackWithOpacity(0.1),
     style={},
-  }:BtnProps) => (
+  }:BtnProps) => {
+    const {tabItem,tabItemText} = useStyles()
+    return (
     <TouchableHighlight
       onPress={onPress}
       style={[tabItem, { backgroundColor: bgColor },style]}
@@ -23,7 +27,7 @@ import { isIOS } from "utils/common";
         {!!title&&<Text style={[tabItemText, { color }]}>{title}</Text>}
       </>
     </TouchableHighlight>
-  );
+  )};
 
 interface BtnProps{
     onPress: (v:any) => void,
@@ -37,7 +41,9 @@ interface BtnProps{
 
 
 
-const {tabItem,tabItemText} = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     tabItem: {
       height: 44,
       borderRadius: 16,
@@ -54,4 +60,5 @@ const {tabItem,tabItemText} = StyleSheet.create({
       fontWeight: "700",
       lineHeight:17
     },
-  });
+  }), [Colors]); // Recreate styles when Colors change
+};

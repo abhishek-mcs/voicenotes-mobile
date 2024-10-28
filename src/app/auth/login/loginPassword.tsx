@@ -15,7 +15,6 @@ import { Redirect, useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails";
-import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { useLogin } from "queries/auth";
 import { useQueryClient } from "react-query";
@@ -28,6 +27,7 @@ import { analytics } from "../../../../firebaseConfig";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { setRecordingList } from "redux/reducers/recordingStates";
 import appsFlyer from "react-native-appsflyer";
+import { useTheme } from "context";
 
 export default () => {
   const router = useRouter();
@@ -47,6 +47,7 @@ export default () => {
   const netInfo=useNetInfo()
 
   const inputRef = useRef<TextInput>(null);
+  const { Colors } = useTheme()
 
   // useEffect(() => {
   //   // Must run after animations for keyboard to automatically open

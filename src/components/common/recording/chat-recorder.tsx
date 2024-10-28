@@ -1,12 +1,15 @@
-import Colors from "assets/Colors"
 import { bottomSvg } from "assets/svg/bottomSvg"
 import { StyleSheet } from "react-native"
 import { Text } from "react-native"
 import { View } from "react-native"
 import RecButton from "./rec-button"
+import { useMemo } from "react"
+import { useTheme } from "context"
 
 export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',onCancel=()=>{}}:any)=>{
   const formattedDuration = new Date(duration).toISOString().substring(14, 19);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
     return (
         <View style={[{justifyContent:'space-between',flexDirection:'row',flex:1,alignItems:'center'},onPause?{alignItems:'flex-end',height:156}:{}]}>
@@ -29,7 +32,9 @@ export default ({onPause,onStopRecord=(v:any)=>{},duration=0,totalDuration='',on
 }
 
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     tabItemText: {
       fontFamily: "Primary-Semibold",
       fontSize: 14,
@@ -38,4 +43,5 @@ const styles = StyleSheet.create({
       lineHeight:17
     },
     row:{flexDirection:'row',alignItems:"center"},
-  });
+  }), [Colors]); // Recreate styles when Colors change
+};

@@ -1,7 +1,8 @@
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
-import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { useTheme } from "context";
+import { useMemo } from "react";
 
 type Props = {
     onCancel: () => void,
@@ -15,6 +16,8 @@ type Props = {
 
 const Header: React.FC<Props> = (props) => {
     const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     return (
         <View style={[styles.root, { paddingTop: statusBarHeight }]}>
@@ -43,7 +46,9 @@ const Header: React.FC<Props> = (props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     root: { 
         flex: 1, 
         alignItems: 'center',
@@ -69,6 +74,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default Header;

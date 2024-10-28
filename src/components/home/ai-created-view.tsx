@@ -1,10 +1,10 @@
-import Colors from "assets/Colors";
 import CircularLoader from "components/common/loaders/circular-loader";
 import Touchable from "components/common/Touchable";
+import { useTheme } from "context";
 import { setStringAsync } from "expo-clipboard";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { useDeleteFormattedNote } from "queries/home";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { capitalizeFirstLetter } from "utils/common";
 import { formatDate } from "utils/format-date";
@@ -15,6 +15,8 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const [working, setWorking]=useState(false)
     const dt=Date.now()
     const deleteNote=useDeleteFormattedNote(id)
+    const { Colors } = useTheme()
+    const { container,row,btw,txt,titleStyle,btn,btnTxt } = useStyles()
 
     const onCopy=async()=>{
       setCopied(true)
@@ -84,7 +86,9 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     </Touchable>
   );
 };
-const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     marginTop: 4,
     // backgroundColor: Colors.darkWithOpacity(0.05),
@@ -101,4 +105,5 @@ const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
   txt:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
   btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.grey}
-});
+}), [Colors]); // Recreate styles when Colors change
+};

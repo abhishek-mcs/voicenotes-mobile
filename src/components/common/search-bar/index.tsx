@@ -1,20 +1,13 @@
-import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, TouchableHighlight, View } from "react-native"
+import { StyleSheet, TextInput } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
-import Colors from "assets/Colors";
-import { Text } from "react-native";
-import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
-import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import * as Animatable from "react-native-animatable"
-import CircularLoader from "../loaders/circular-loader";
-import { isIOS } from "utils/common";
-import { SearchBar } from "react-native-screens";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
-const {debounce}=require("lodash")
+import { useTheme } from "context";
+import Colors from "assets/Colors";
 
-const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
 const AnimSearchBarIOS = Animatable.createAnimatableComponent(SearchBarIOS);
 export const heightIn = {
   from: {
@@ -53,6 +46,8 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter()
     const ref=useRef<TextInput>(null)
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     // const searchHistoryData=useSearchHistory()
     // const setSearchHistory=useSetSearchHistory()
@@ -124,7 +119,9 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     )
 }
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     container: {
         flexDirection:'row',
         alignItems:'center',
@@ -194,4 +191,5 @@ const styles=StyleSheet.create({
       marginTop:40,marginHorizontal:20
     },
     skeleton:{marginBottom:12,height:20,opacity:0.3}
-})
+  }), [Colors]); // Recreate styles when Colors change
+};

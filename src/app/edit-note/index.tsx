@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import {
@@ -40,6 +39,7 @@ import {
 import CircularLoader from "components/common/loaders/circular-loader";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
+import { useTheme } from "context";
 
 export default () => {
     const router = useRouter();
@@ -54,6 +54,8 @@ export default () => {
   const [isLoading, setIsLoading] = useState(false);
   const titleInputRef = useRef<TextInput>(null);
   const transcriptInputRef = useRef<TextInput>(null);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   const handleTitleSubmit = () => {
     transcriptInputRef.current?.focus();
@@ -184,7 +186,9 @@ export default () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   editContainer: {
     marginTop: 6,
     marginHorizontal: 12,
@@ -211,4 +215,5 @@ const styles = StyleSheet.create({
     textAlign: "left",
     color: Colors.darkWithOpacity(0.9),
   },
-});
+}), [Colors]
+)}

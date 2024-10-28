@@ -1,7 +1,6 @@
-import Colors from "assets/Colors"
 import { useGlobalSearchParams, useRouter } from "expo-router"
 import { useSignup } from "queries/auth"
-import React, { useContext, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import {ActivityIndicator, Alert,Dimensions,KeyboardAvoidingView,Platform,SafeAreaView,StyleSheet,Text,TouchableHighlight,View,} from "react-native"
 import { useDispatch, useSelector } from "react-redux"
 import { setEmail, setGuestToken, setToken, setUserDetail } from "redux/reducers/userDetails"
@@ -17,6 +16,7 @@ import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { setRecordingList } from "redux/reducers/recordingStates"
 import appsFlyer from "react-native-appsflyer"
+import { useTheme } from "context"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -35,6 +35,8 @@ export default ()=>{
   const moveRecords=useMoveGuestRecords()
   const queryClient=useQueryClient()
   const netInfo=useNetInfo()
+  const { Colors } = useTheme()
+  const styles = useStyles()
   
 
   const continueDeletion = () => {
@@ -128,7 +130,9 @@ const w=Dimensions.get("window").width
 const rspValue=(v:number)=>(v*w)/390;
 const isIOS=Platform.OS=='ios'
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container:{flex:1,backgroundColor:Colors.white1,paddingTop:16},
   contentContainer:{flex:1,backgroundColor:Colors.white1,padding:16},
   tabBarStyle:{height:6,marginBottom:isIOS?24:20,width:rspValue(198),alignSelf:'center',backgroundColor:Colors.white1,borderWidth:0,flexDirection:'row',justifyContent:'space-between'},
@@ -146,4 +150,5 @@ const styles=StyleSheet.create({
   textInput:{paddingTop:13,paddingBottom:13,paddingHorizontal:16,backgroundColor:Colors.white2,borderWidth:0,borderRadius:12,marginTop:20,fontSize:14,fontFamily:'Primary-Medium',lineHeight:19,color:Colors.darkWithOpacity(1),textAlignVertical:'top'},
   otpDesc:{color:Colors.blackWithOpacity(1),fontSize:14,fontFamily:'Primary',lineHeight:21,textAlign:'center'},
   feedBackTitle:{marginTop:20,fontFamily:'Primary-Semibold',fontSize:16,lineHeight:22}
-})
+}), [Colors]);
+};

@@ -35,7 +35,6 @@ import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { Text } from "react-native";
-import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import {
@@ -69,7 +68,7 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { useLocalSearchParams } from "expo-router";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-import { NoteContext } from "context";
+import { NoteContext, useTheme } from "context";
 import database from '@react-native-firebase/database';
 import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
@@ -139,6 +138,8 @@ export default () => {
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
@@ -1040,7 +1041,9 @@ export default () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor:Colors.whiteWithOpacity(1),
@@ -1084,4 +1087,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   hideBg: { backgroundColor: Colors.white3 },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

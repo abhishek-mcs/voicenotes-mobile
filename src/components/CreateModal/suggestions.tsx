@@ -1,13 +1,16 @@
-import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import { TextField } from "components/common/text-field";
 import Touchable from "components/common/Touchable";
+import { useTheme } from "context";
+import { useMemo } from "react";
 import { StyleSheet, Text } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
 
 export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomText=(v:string)=>{}})=>{
+  const { Colors } = useTheme()
+  const styles = useStyles()
     return (
         <View style={{paddingHorizontal:28,marginBottom:13}}>
           <View style={[styles.row,styles.btw]}>
@@ -46,15 +49,20 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
 }
 
 
-const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => (
+const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  return(
     <Touchable style={[styles.btn,style,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
         {icon&&<SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?Colors.whiteWithOpacity(1):Colors.blackWithOpacity(1))} />}
         <Text style={[styles.btnTxt,selected?styles.selected1:{}]}>{title}</Text>
     </Touchable>
-  );
+  )}
   
 
-const styles = StyleSheet.create({
+  const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     btn: {
       flexDirection: "row",
       alignItems: "center",
@@ -82,4 +90,5 @@ const styles = StyleSheet.create({
     btw:{justifyContent:'space-between',marginTop:20},
     selected:{backgroundColor:Colors.primary},
     selected1:{color:Colors.whiteWithOpacity(1)}
-  });
+  }), [Colors]); // Recreate styles when Colors change
+};

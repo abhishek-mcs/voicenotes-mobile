@@ -5,7 +5,6 @@ import { SplashScreen, useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
-import Colors from "assets/Colors"
 import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
 import * as AuthSession from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
@@ -20,6 +19,7 @@ import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import appsFlyer from "react-native-appsflyer"
+import { useTheme } from "context"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -31,6 +31,7 @@ export default () => {
   const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
+  const {Colors,isDark}=useTheme()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
@@ -142,13 +143,13 @@ const signInGoogle=(token:any,params:any)=>{
       >
         <View style={{alignItems:'center'}} />
         {/* <TouchableOpacity
-          style={styles.button}
+          style=[{style.button,{backgroundColor:Colors.grey2WithOpacity(1)}]
           onPress={() => {}}
         ><Text style={styles.text}>Sign up</Text></TouchableOpacity> */}
         {(Platform.OS === "ios" || Platform.OS === "macos") && (
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.8)}
-            style={styles.button}
+            style={[styles.button,{backgroundColor:Colors.grey2WithOpacity(1)}]}
             onPress={signInAppleAsync}
             text="Continue with Apple"
             color={Colors.whiteWithOpacity(1)}
@@ -157,14 +158,14 @@ const signInGoogle=(token:any,params:any)=>{
         )}
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
-            style={styles.button2}
+            style={[styles.button2,{backgroundColor:Colors.grey2WithOpacity(0.1)}]}
             onPress={()=>{router.push('/auth/login/')}}
             text="Continue with Email"
             isLoading={loginApple?.isLoading||false}
             logo={LandingSvg.email}/>
           <Btn
             underlayColor={Colors.grey2WithOpacity(0.3)}
-            style={styles.button2}
+            style={[styles.button2,{backgroundColor:Colors.grey2WithOpacity(0.1),}]}
             onPress={onGoogleLogin}
             text="Continue with Google"
             isLoading={loginGoogle?.isLoading||false}
@@ -184,22 +185,24 @@ const signInGoogle=(token:any,params:any)=>{
   )
 }
 
-const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=>(
+const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=>{
+  const {Colors}=useTheme()
+  return (
   <TouchableHighlight
   underlayColor={underlayColor}
   style={style}
   onPress={onPress}>
     {!isLoading?<>
       {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
-      <Text style={[styles.text,color?{color}:{}]}>{text}</Text>
+      <Text style={[styles.text,color?{color}:{color:Colors.grey2WithOpacity(1)}]}>{text}</Text>
     </>:<ActivityIndicator size={"small"} color={Colors.darkWithOpacity(1)}/>}
 </TouchableHighlight>
-)
+)}
 
 const styles=StyleSheet.create({
-    text:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.grey2WithOpacity(1)},
-    button:{backgroundColor:Colors.grey2WithOpacity(1),height:48,justifyContent:'center',alignItems:'center',borderRadius:16,flexDirection:'row'},
-    button2:{marginTop:12,backgroundColor:Colors.grey2WithOpacity(0.1),borderRadius:16,height:48,justifyContent:'center',alignItems:'center',flexDirection:'row'}
+    text:{fontFamily:'Primary-Semibold',fontSize:16},
+    button:{height:48,justifyContent:'center',alignItems:'center',borderRadius:16,flexDirection:'row'},
+    button2:{marginTop:12,borderRadius:16,height:48,justifyContent:'center',alignItems:'center',flexDirection:'row'}
 })
 
 interface Props{

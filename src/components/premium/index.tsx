@@ -1,8 +1,7 @@
-import Colors from "assets/Colors"
 import { iapSvg } from "assets/svg/iapSvg"
 import Touchable from "components/common/Touchable"
 import { useLocalSearchParams, useRouter } from "expo-router"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
@@ -17,10 +16,13 @@ import { AppEventsLogger } from "react-native-fbsdk-next"
 import { ImageBackground } from "expo-image"
 import * as webBrowser from "expo-web-browser"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useTheme } from "context"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
 export default (props:any) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   const router = useRouter()
   const {from="home"}=useLocalSearchParams();
   const [isLoading,setIsLoading]=useState(false)
@@ -195,7 +197,10 @@ const Btn = ({
   underlay,
   selected = false,
   isLoading = false,
-}: Props) => (
+}: Props) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  return (
   <TouchableHighlight
     onPress={onPress}
     style={[
@@ -241,9 +246,11 @@ const Btn = ({
       <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)} />
     )}
   </TouchableHighlight>
-);
+)};
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   main:{flex:1,backgroundColor:Colors.whiteWithOpacity(1)},
   container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
   subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
@@ -295,7 +302,8 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     marginTop: 2,
   },
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 interface Props {
   type: string,

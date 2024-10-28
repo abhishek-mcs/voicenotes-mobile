@@ -1,4 +1,4 @@
-import Colors from "assets/Colors"
+import { useTheme } from "context"
 import React from "react"
 import { ColorValue, TextInput, TextInputProps, TextStyle, View, ViewStyle,Text } from "react-native"
 
@@ -44,6 +44,7 @@ export function TextField(props: TextFieldProps) {
   } = props
 
   const [hasFocus, setHasFocus] = React.useState(false)
+  const { Colors } = useTheme()
   const containerStyle: ViewStyle = {flexDirection:'column'}
   const inputStyle: TextStyle = {marginTop:8,color:Colors.darkWithOpacity(1),borderWidth:1,borderRadius:16,fontFamily:'Primary',fontSize:16,paddingHorizontal:16};
   const actualPlaceholder = placeholderTx ? placeholderTx : placeholder

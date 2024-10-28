@@ -1,9 +1,10 @@
 import { Drawer } from "expo-router/drawer";
 import DrawerContent from "components/home/drawer-content";
 import { screenWidth } from "utils/common";
-import Colors from "assets/Colors";
+import { useTheme } from "context";
 
 export default function Layout() {
+  const { Colors } = useTheme()
   return (
     <Drawer
       drawerContent={(props) => <DrawerContent {...props} />}

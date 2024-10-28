@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import { memo, useContext } from "react";
 import Touchable from "components/common/Touchable";
@@ -9,7 +8,6 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -22,7 +20,6 @@ import {
   useCreate,
   useDeleteRecording,
   useSignedUrl,
-  useToggleStar,
 } from "queries/home";
 import { useQueryClient } from "react-query";
 import { setStringAsync } from "expo-clipboard";
@@ -33,17 +30,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import {
   checkFileExists,
-  isIOS,
-  screenWidth,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
-import { CreateModalSvg } from "assets/svg/CreateModal";
-import AiCreatedView from "./ai-created-view";
-import { setTagsFilter } from "redux/reducers/hashSlice";
 import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
-import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
@@ -54,16 +45,11 @@ import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
 import Subnote from "./subnote";
-import creationContent from "utils/constants/creation-content";
 import { useNetInfo } from "@react-native-community/netinfo";
-import LottieView from "lottie-react-native";
-import threeDotLoader2 from "assets/lottie/threeDotLoader2.json";
 import Toast from "react-native-toast-message";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
-import { Foundation } from "@expo/vector-icons";
-import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
 import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
@@ -77,7 +63,7 @@ import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
-import { NoteContext } from "context";
+import { NoteContext, useTheme } from "context";
 
 const NotePreview = forwardRef(
   (
@@ -127,6 +113,8 @@ const NotePreview = forwardRef(
       url: string;
     } | null>(null);
     const [attachments, setAttachments] = useState([]);
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     const dispatch = useDispatch();
 
@@ -1070,7 +1058,9 @@ const NotePreview = forwardRef(
   }
 );
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     paddingTop: 11,
     paddingHorizontal:17
@@ -1188,6 +1178,7 @@ const styles = StyleSheet.create({
     margin: 0,
     zIndex:10,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default memo(NotePreview);

@@ -1,19 +1,17 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, TextInput, Text, StyleSheet, Keyboard, InteractionManager } from 'react-native';
+import { View, TextInput, Text, StyleSheet, InteractionManager } from 'react-native';
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
 import axiosApi from 'services/api/axios-api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Touchable from 'components/common/Touchable';
-import Colors from 'assets/Colors';
 import { isIOS, screenWidth } from 'utils/common';
 import { useQueryClient } from 'react-query';
 import { useFocusEffect } from 'expo-router';
+import { useTheme } from 'context';
 
 export const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
-  useFocusEffect(useCallback(()=>{
-    
-  },[]))
+  const { Colors } = useTheme()
   return (
     <SafeAreaView
       style={[
@@ -49,6 +47,8 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   const bottomSheetRef = useRef<BottomSheet>(null);
   const textInputRef = useRef<TextInput>(null);
   const snapPoints = useMemo(() => [ isIOS ?  '94%' : '95%'], []);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useEffect(() => {
     if (isVisible) {
@@ -159,7 +159,9 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   bottomSheet: {
     marginTop: 0,
     paddingTop: 0,
@@ -228,6 +230,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.darkWithOpacity(0.05),
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default AddEditLinkBottomSheet;

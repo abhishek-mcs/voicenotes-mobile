@@ -1,14 +1,14 @@
 import { Alert, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import Colors from "assets/Colors"
 import RecButton from "components/common/recording/rec-button"
 import { changeEmail } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
 import CircularLoader from "components/common/loaders/circular-loader"
+import { useTheme } from "context"
 
 interface ComponentProps {
   value: string;
@@ -20,6 +20,8 @@ interface ComponentProps {
 }
 
 const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP, working }) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={styles.root}>
       <Text style={styles.heading}>Email</Text>
@@ -103,7 +105,9 @@ const Email: React.FC<Props> = (props) => {
     );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
         alignItems: 'center',
@@ -133,6 +137,7 @@ const styles = StyleSheet.create({
       fontSize: 13,
       textAlign: 'center',
     }
-})
+  }), [Colors]); // Recreate styles when Colors change
+};
 
 export default Email

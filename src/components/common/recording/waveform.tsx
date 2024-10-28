@@ -6,6 +6,7 @@ import Animated, { Easing, FadeInRight, ReduceMotion, SlideInRight, useAnimatedS
 import { StyleSheet, View } from 'react-native';
 import { screenWidth } from 'utils/common';
 import Colors from 'assets/Colors';
+import { useTheme } from 'context';
 
 interface Props {
   recording?: Audio.Recording | null;
@@ -17,6 +18,7 @@ const Waveform: React.FC<Props> = ({ recording,isAI=false}) => {
   const [temp, setTemp] = useState([0]);
   const tempRef = useRef({ temp: [0,], isPlaying: false })
   const width = useSharedValue(10);
+  const { Colors } = useTheme()
 
   const linear = Easing.linear
   const customEasing = (value: number) => {

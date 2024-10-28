@@ -6,7 +6,6 @@ import { useRouter } from "expo-router"
 import { TextField } from "components/common/text-field"
 import { useDispatch } from "react-redux"
 import { setEmail } from "redux/reducers/userDetails"
-import Colors from "assets/Colors"
 import Touchable from "components/common/Touchable"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
@@ -14,6 +13,7 @@ import { isIOS } from "utils/common"
 import { useCheckEmail } from "queries/auth"
 import { analytics } from "../../../../firebaseConfig"
 import appsFlyer from "react-native-appsflyer"
+import { useTheme } from "context"
 
 
 export default ()=> {
@@ -26,6 +26,7 @@ export default ()=> {
   const dispatch = useDispatch()
 
   const inputRef = useRef<TextInput>(null)
+  const {Colors} = useTheme()
 
   useEffect(() => {
     // Must run after animations for keyboard to automatically open

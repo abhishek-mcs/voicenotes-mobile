@@ -1,7 +1,7 @@
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { home } from "assets/svg/home"
 import RecButton from "components/common/recording/rec-button";
 import { SvgXml } from "react-native-svg"
@@ -10,9 +10,10 @@ import { useDispatch, useSelector } from "react-redux"
 import { useSaveSettings } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
 import { getLanguageCode } from "utils/common"
-import Colors from "assets/Colors"
+import { useTheme } from "context"
 
 const Name: React.FC<{ name: string; onClose: (name: string) => void }> = ({ name, onClose }) => {
+  const styles = useStyles()
     return (
       <View style={styles.name}>
         <Text style={styles.label}>{name}</Text>
@@ -32,6 +33,8 @@ const Names: React.FC<Props> = (props) => {
     const { userDetails, lang }:any = useSelector((state: RootState) => state.userDetails);
     const dispatch = useDispatch()
     const saveSettings = useSaveSettings()
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     const [name, setName] = useState('');
     const [namesList, setNamesList] = useState<string[]>(userDetails.settings?.remember_words || []);
@@ -101,7 +104,9 @@ const Names: React.FC<Props> = (props) => {
 };
 
 const width = Dimensions.get('window').width;
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
         alignItems: 'center',
@@ -155,6 +160,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
-})
+  }), [Colors]); // Recreate styles when Colors change
+};
 
 export default Names

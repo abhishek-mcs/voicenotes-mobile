@@ -9,6 +9,8 @@ import { isIOS } from "utils/common"
 import Touchable from "../Touchable"
 import LottieView from "lottie-react-native"
 import loader from "assets/lottie/threeDotLoader.json"
+import { useTheme } from "context"
+import { useMemo } from "react"
 
 interface NoteButtonProps {
     hashFilter?: string
@@ -21,6 +23,7 @@ interface NoteButtonProps {
 }
 
 export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={},isLoading=false}:NoteButtonProps)=>{
+    const styles = useStyles()
     return (
         <Touchable style={[styles.main,style]} onPress={(e)=>{e?.stopPropagation();onPress()}} activeOpacity={0.6}  disabled={disabled||isLoading}>
             {!isLoading?
@@ -33,7 +36,9 @@ export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=fa
     )
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     main:{
         height:34,justifyContent:'center',
         paddingHorizontal:9,
@@ -49,4 +54,5 @@ const styles = StyleSheet.create({
     },
     row:{flexDirection:'row',alignItems:'center',justifyContent:'center'},
     text:{marginLeft:4,fontSize:13,color:Colors.black2,fontFamily:'Primary-Medium'}
-})
+}), [Colors]); // Recreate styles when Colors change
+};

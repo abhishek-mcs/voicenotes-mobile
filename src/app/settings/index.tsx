@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useNavigation, useRouter } from "expo-router";
@@ -6,7 +5,7 @@ import { useLogout } from "queries/auth";
 import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard, Linking } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { languages } from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -24,6 +23,7 @@ import Names from "components/settings/names";
 import Password from "components/settings/password";
 import ProfilePic from "components/settings/profilepic";
 import { deleteCounter } from "utils/counter";
+import { useTheme } from "context";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -151,6 +151,7 @@ const useAnimatedScreens = () => {
 export default () => {
   const router = useRouter();
   const navigation = useNavigation()
+  const { Colors } = useTheme()
 
   const logout=useLogout()
   const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
@@ -321,6 +322,8 @@ const Grouped=({title,items}:{title:string,items:any})=>{
   const [showMenu,setShowMenu]=useState(false)
   const onShowMenu=()=>setShowMenu(true)
   const onHideMenu=()=>setShowMenu(false)
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={{marginBottom:20}}>
     <Text style={{fontFamily:'Primary-Medium',fontSize:12,color:Colors.grey,marginLeft:32,marginBottom:8}}>{title}</Text>
@@ -373,11 +376,14 @@ const Grouped=({title,items}:{title:string,items:any})=>{
 </View>
 )}
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   rightTxt:{
     fontFamily:'Primary-Medium',
     fontSize:14,
     color:Colors.grey,
     textAlign:'right'
   }
-})
+}), [Colors]); // Recreate styles when Colors change
+};

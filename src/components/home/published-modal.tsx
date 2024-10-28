@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { setStringAsync } from "expo-clipboard";
@@ -14,6 +13,7 @@ import { screenWidth } from "utils/common";
 import LottieView from "lottie-react-native";
 import threeDotLoader from "assets/lottie/threeDotLoader.json";
 import threeDotLoader2 from "assets/lottie/threeDotLoader2.json";
+import { useTheme } from "context";
 
 export default ({
   visible,
@@ -27,6 +27,8 @@ export default ({
 }: PublishModalProps) => {
 
   const [copy, setCopy] = useState(false);
+  const { Colors } = useTheme()
+
   const onCopy = async () => {
     setCopy(true);
     await setStringAsync(MAIN_URL + "/s/" + slug);

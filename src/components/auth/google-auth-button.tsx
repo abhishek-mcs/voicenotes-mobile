@@ -1,26 +1,16 @@
-import Colors from "assets/Colors"
 import { authSvg } from "assets/svg/authSvg"
 import { StyleSheet, Text } from "react-native"
 import { TouchableHighlight } from "react-native"
 import { SvgXml } from "react-native-svg"
 import * as Google from "expo-auth-session/providers/google"
-import { isIOS } from "utils/common"
-import { androidGoogleClientID, API_URL, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
-import { useEffect } from "react"
-import { useDispatch } from "react-redux"
-import { setToken, setUserDetail } from "redux/reducers/userDetails"
-import { setAuthToken } from "services/api/axios-api"
-import { useQueryClient } from "react-query"
-import { useRouter } from "expo-router"
-import { signInWithGoogle } from "queries/auth"
-import * as WebBrowser from 'expo-web-browser';
+import { androidGoogleClientID, iosGoogleClientID } from "services/api/api-constants"
+import { useEffect, useMemo } from "react"
+import { useTheme } from "context"
 
 export default () => {
-    const router = useRouter()
-    const dispatch = useDispatch()
-    const queryClient = useQueryClient()
-    const socialSignIn = API_URL+'/api/auth/redirect/google'
-    const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuthRequest({
+  const { Colors } = useTheme()
+  const {btn,btnTxt} = useStyles()
+  const [googleResponse, googlePromptAsync]:any = Google.useIdTokenAuthRequest({
         iosClientId: iosGoogleClientID,
         androidClientId: androidGoogleClientID,
         scopes: ["profile", "email"],
@@ -63,7 +53,9 @@ export default () => {
     )
 }
 
-const {btn,btnTxt}=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     btn:{
         borderRadius:8,
         backgroundColor:Colors.whiteWithOpacity(1),
@@ -75,4 +67,5 @@ const {btn,btnTxt}=StyleSheet.create({
         justifyContent:'center'
     },
     btnTxt:{fontSize:16,fontFamily:'Primary',color:Colors.darkWithOpacity(1),marginLeft:8},
-})
+  }), [Colors]); // Recreate styles when Colors change
+};

@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextStyle, Animated } from "react-native";
-import { capitalizeFirstLetter, screenWidth } from "utils/common";
+import { useState } from "react";
+import { View, Text, TextStyle } from "react-native";
+import { screenWidth } from "utils/common";
 import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
-import Colors from "assets/Colors";
 import { TypeAnimation } from 'react-native-type-animation';
+import { useTheme } from "context";
+
+const TypeAnim:any=TypeAnimation
 
 const ChatBubble = ({
   delay = 30,
@@ -31,11 +33,12 @@ const ChatBubble = ({
   status?: string;
   showStatus?: boolean;
 }) => {
-  const [displayedMessage, setDisplayedMessage]: any = useState("");
+  const [displayedMessage]: any = useState("");
   const containsHTML = (str: string) => {
     const htmlPattern = /<[^>]+>/g;
     return htmlPattern.test(str);
   };
+  const { Colors } = useTheme()
 
   // useEffect(() => {
   //   let currentIndex = 0;
@@ -72,7 +75,7 @@ const ChatBubble = ({
     <View style={{ flexDirection: "row", alignItems: "center" }}>
 
       {triggerAnimation==2?
-      <TypeAnimation
+      <TypeAnim
       sequence={[
         { text: message },
       ]}
@@ -80,7 +83,7 @@ const ChatBubble = ({
       cursor={false}
       typeSpeed={100}
       onComplete={disableGenerating}
-      splitter={(str) => str.split(/\s+/)}
+      splitter={(str:any) => str.split(/\s+/)}
       numberOfLines={lines}
     />
     :<Text style={[style, {}]} numberOfLines={lines}>

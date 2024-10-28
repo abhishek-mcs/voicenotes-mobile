@@ -1,8 +1,9 @@
 import Colors from "assets/Colors"
 import { home } from "assets/svg/home"
 import Touchable from "components/common/Touchable"
+import { useTheme } from "context"
 import { setStringAsync } from "expo-clipboard"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { FlatList, StyleSheet, Text } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg"
@@ -12,7 +13,8 @@ export default (
     {type="summary",result=null,title="",id,onClose,onEdit,onRetry}
     :{type:string,result:any,title:string,id:number,onClose:()=>void,onEdit:()=>void,onRetry:(i:number,v:string)=>void}
     )=>{
-        const [copy,setCopy]=useState('Copy')
+    const { titleStyle,text,topBox,box,svg,btnBox,btnText,btn,subject } = useStyles()
+    const [copy,setCopy]=useState('Copy')
     const onCopy = async()=>{
         setCopy('Copied')
         let copy=Array.isArray(result)?result.join('\n'):result;
@@ -76,7 +78,9 @@ export default (
     )
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     box:{height:screenHeight/1.4,paddingBottom:30},
     topBox:{flexDirection:'row-reverse',alignItems:'center',paddingBottom:16,paddingHorizontal:24,borderBottomWidth:1,borderBottomColor:Colors.darkWithOpacity(0.1)},
     titleStyle:{fontFamily:'Primary-Semibold',fontSize:16,lineHeight:28,color:Colors.black2,marginVertical:12,marginHorizontal:32},
@@ -86,6 +90,5 @@ const styles = StyleSheet.create({
     btn:{flexDirection:'row',alignItems:'center',marginRight:12,marginLeft:-6,paddingHorizontal:12,height:32,borderRadius:12,backgroundColor:Colors.darkWithOpacity(0.05)},
     btnText:{fontFamily:'Primary',fontSize:12,color:Colors.black2,marginLeft:4},
     subject:{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:20}
-})
-
-const { titleStyle,text,topBox,box,svg,btnBox,btnText,btn,subject } = styles
+}), [Colors]); // Recreate styles when Colors change
+};

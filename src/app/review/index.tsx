@@ -1,8 +1,8 @@
-import Colors from "assets/Colors";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { useTheme } from "context";
 import { useRouter } from "expo-router";
 import { submitReview } from "queries/settings";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Pressable, SafeAreaView, StyleSheet, View, Text, TextInput, Alert, Modal } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS } from "utils/common";
@@ -14,6 +14,8 @@ const Review = () => {
 
     const [review, setReview] = useState('')
     const [working, setWorking] = useState(false)
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     const onSubmit = async () => {
         if(!review) {
@@ -65,7 +67,9 @@ const Review = () => {
     </SafeAreaView>
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
     },
@@ -102,6 +106,7 @@ const styles = StyleSheet.create({
         width: '100%',
         fontSize: 14
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default Review;

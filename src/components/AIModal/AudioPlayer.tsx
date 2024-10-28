@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Button, Text, Pressable } from 'react-native';
+import { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
-import { color, Slider } from '@rneui/base';
-import Colors from 'assets/Colors';
+import { Slider } from '@rneui/base';
 import { SvgXml } from 'react-native-svg';
 import { playerSvg } from 'assets/svg/playerSvg';
 import { useSignedUrlForChat } from 'queries/home';
 import CircularLoader from 'components/common/loaders/circular-loader';
-
-const { width } = Dimensions.get('window');
+import { useTheme } from 'context';
 
 export default ({isAI=false,url=''}) => {
   const [sound, setSound] = useState<Audio.SoundObject|any>(null);
@@ -17,6 +15,8 @@ export default ({isAI=false,url=''}) => {
   const [status, setStatus] = useState<any>('');
   const [position, setPosition] = useState(0);
   const signedURL=useSignedUrlForChat()
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useEffect(() => {
     const loadSound = async () => {
@@ -118,7 +118,9 @@ export default ({isAI=false,url=''}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -133,4 +135,5 @@ const styles = StyleSheet.create({
     width:'92%'
   },
   thumb:{ backgroundColor: Colors.primary,width: 12, height: 12, borderRadius: 10}
-});
+}), [Colors]); // Recreate styles when Colors change
+};

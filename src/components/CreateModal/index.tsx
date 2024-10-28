@@ -1,5 +1,5 @@
 import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
 import Records from "./records";
@@ -17,6 +17,7 @@ import { CreateModalSvg } from "assets/svg/CreateModal";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import Header from "components/AIModal/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "context";
 
 export default forwardRef(({}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
@@ -30,6 +31,7 @@ export default forwardRef(({}:createModalProps, ref) => {
   const [noteId, setNoteId] = useState<number[]>([]);
   const [customText, setCustomText] = useState("");
   const {token}=useSelector((state:RootState)=>state.userDetails)
+  const styles = useStyles()
 
   const aiCreate=useCreate()
   const getAiCreation=useGetAiCreation()
@@ -178,7 +180,9 @@ export default forwardRef(({}:createModalProps, ref) => {
   );
 });
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   modal: {
     // justifyContent: "center",
     backgroundColor:Colors.whiteWithOpacity(1),
@@ -233,7 +237,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignSelf: "center",
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export interface createModalProps{
   recordingList?:any[],

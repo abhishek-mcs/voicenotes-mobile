@@ -1,9 +1,9 @@
 import { StyleSheet, } from 'react-native';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import Touchable from '../Touchable';
 import * as Haptics from "expo-haptics";
-import Colors from 'assets/Colors';
+import { useTheme } from 'context';
 
 export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(true);
@@ -44,7 +44,9 @@ const onPress=async()=>
       );
 });
 
-const { button, buttonText } = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   button: {
     padding: 10,
     backgroundColor: Colors.blue,
@@ -53,4 +55,5 @@ const { button, buttonText } = StyleSheet.create({
   buttonText: {
     color: Colors.whiteWithOpacity(1),
   }
-})
+}), [Colors]); // Recreate styles when Colors change
+};

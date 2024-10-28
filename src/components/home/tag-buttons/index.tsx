@@ -1,9 +1,8 @@
-import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
 import { usePinTag, usePinTagDelete } from "queries/home";
-import { memo } from "react";
+import { useMemo } from "react";
 import { Alert, ScrollView, StyleSheet } from "react-native";
 import { Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -13,6 +12,7 @@ import { setTagsFilter } from "redux/reducers/hashSlice";
 import { RootState } from "redux/store/store";
 import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import * as Haptics from "expo-haptics";
+import { useTheme } from "context";
 
 export const TagButton = ({
   title = "",
@@ -23,6 +23,7 @@ export const TagButton = ({
 }) => {
   const dispatch = useDispatch();
   const { hashFilter } = useSelector((state: RootState) => state.hash);
+  const styles = useStyles()
 
   const setTag = (tag: string) => {
     dispatch(setTagsFilter(tag));
@@ -60,6 +61,8 @@ export const ShowMoreTagsButton = ({
   title = "Show More",
   onPress = () => {},
 }) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <Touchable style={styles.tagButton} onPress={onPress} activeOpacity={1}>
       <Text style={[styles.tagButtonText, { color: Colors.grey3 }]}>
@@ -91,6 +94,9 @@ export default function TagButtons({
   const pinTagDelete = usePinTagDelete(id);
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
+  const { Colors } = useTheme()
+  const styles = useStyles()
+
   const options = [
     {
       title: !isDefaultHash?"Pin":"Unpin",
@@ -176,7 +182,9 @@ export default function TagButtons({
     )
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   tagButtonsContainer: {
     marginTop: 8,
   },
@@ -231,4 +239,5 @@ const styles = StyleSheet.create({
     color: Colors.redWithOpacity(1),
   },
   activeTagContainer: { backgroundColor: Colors.redWithOpacity(0.1) },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

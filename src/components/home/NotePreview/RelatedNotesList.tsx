@@ -1,8 +1,6 @@
-import Colors from 'assets/Colors';
 import CircularLoader from 'components/common/loaders/circular-loader';
 import Touchable from 'components/common/Touchable';
-import { router } from 'expo-router';
-import React from 'react'
+import { useTheme } from 'context';
 import { View, Text } from 'react-native';
 import { Note } from 'types';
 import { screenWidth } from 'utils/common';
@@ -10,6 +8,7 @@ import { formatDate } from 'utils/format-date';
 
 const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:any)=>void}) => {
       if (!note?.related_notes?.length) return null;
+      const { Colors } = useTheme()
       return (
         note?.transcript && (
           <View style={{ marginTop: 12 }}>

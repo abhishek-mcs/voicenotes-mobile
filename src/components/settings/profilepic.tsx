@@ -1,12 +1,12 @@
 import { Alert, Dimensions, Pressable, StyleSheet, View } from "react-native"
 import * as ImagePicker from 'expo-image-picker'
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { uploadDP } from "queries/auth"
 import ImageBackground from "components/common/ImageBackground"
 import CircularLoader from "components/common/loaders/circular-loader"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
-import Colors from "assets/Colors"
+import { useTheme } from "context"
 
 type Props = {
     url?: string,
@@ -18,6 +18,8 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
     const [working, setWorking] = useState(false)
     const [showOverlay, setShowOverlay] = useState(false)
     const [imageError, setImageError] = useState(false);
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     const pickImage = async () => {
         setShowOverlay(true)
@@ -91,7 +93,9 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
 
 const width = Dimensions.get('window').width;
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     root: {
         width: '100%',
         justifyContent: 'center',
@@ -131,6 +135,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: width/3.5,
     },
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default ProfilePic

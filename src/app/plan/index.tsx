@@ -8,10 +8,13 @@ import { commonSvg } from "assets/svg/commonSvg"
 import Touchable from "components/common/Touchable";
 import { useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import Colors from "assets/Colors"
+import { useMemo } from "react"
+import { useTheme } from "context"
 
 export default () => {
     const router = useRouter()
+    const { Colors } = useTheme()
+    const styles = useStyles()
     const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
     
     return <SafeAreaView style={styles.root}>
@@ -41,7 +44,9 @@ export default () => {
     </SafeAreaView>
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() =>  StyleSheet.create({
     root: { 
         flex: 1,
         backgroundColor: Colors.white4,
@@ -90,4 +95,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 5
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};

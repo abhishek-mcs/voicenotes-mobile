@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState,useRef } from "react";
-import Colors from "assets/Colors";
+import React, { Dispatch, SetStateAction, useEffect, useState,useRef, useMemo } from "react";
 import { home } from "assets/svg/home";
 import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
@@ -11,6 +10,7 @@ import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 import { Shadow } from 'react-native-shadow-2';
+import { useTheme } from "context";
 
 interface Props {
   onRecord: (v:any) => void;
@@ -49,6 +49,8 @@ export default ({
   );
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
+  const { Colors } = useTheme()
+  const styles = useStyles()
   
   useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
@@ -171,7 +173,9 @@ export default ({
 };
 
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   addingContainer: {
     backgroundColor:Colors.whiteWithOpacity(1),
     minHeight: 56,
@@ -252,4 +256,5 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

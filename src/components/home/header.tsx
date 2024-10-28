@@ -1,5 +1,4 @@
 import { useNavigation } from "@react-navigation/native";
-import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { Animated, Image, Keyboard, LayoutAnimation, StyleSheet, Text, View } from "react-native";
@@ -7,22 +6,23 @@ import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS, isIOSSmall } from "utils/common";
-import { useGetUserData, useStreak } from "queries/home";
-import Streaks from "components/streaks";
+import { isIOS } from "utils/common";
+import { useGetUserData } from "queries/home";
 import formatBigNumber from "utils/formatBigNumber";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import * as Haptics from 'expo-haptics';
 import { iapSvg } from "assets/svg/iapSvg";
 import { commonSvg } from "assets/svg/commonSvg";
-import { MAIN_URL } from "services/api/api-constants";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
+import { useTheme } from "context";
 
 export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   const dispatch=useDispatch()
   const data=useGetUserData(token);
@@ -136,7 +136,9 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center" },
   container: {
     flexDirection: "row",
@@ -155,4 +157,5 @@ const styles = StyleSheet.create({
     marginTop: -24,
   },
   streak:{padding:12,alignItems:'center',width:38,height:38,justifyContent:'center'}
-});
+}), [Colors]); // Recreate styles when Colors change
+};

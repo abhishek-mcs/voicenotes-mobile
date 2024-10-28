@@ -1,6 +1,7 @@
-import Colors from "assets/Colors";
 import { ReviewSvg } from "assets/svg/ReviewSvg";
+import { useTheme } from "context";
 import { useRouter } from "expo-router";
+import { useMemo } from "react";
 import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
@@ -12,6 +13,7 @@ type Props = {
 const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
 
     const router = useRouter()
+    const styles = useStyles()
     
     const onNegativeFeedback = () => {
         onClose()
@@ -69,7 +71,9 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
     </Modal>
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
         backgroundColor: Colors.blackWithOpacity(0.5),
@@ -134,6 +138,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 14
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default Review;

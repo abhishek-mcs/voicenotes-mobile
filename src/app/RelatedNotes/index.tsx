@@ -1,8 +1,8 @@
-import Colors from "assets/Colors"
 import { commonSvg } from "assets/svg/commonSvg"
 import CircularLoader from "components/common/loaders/circular-loader"
 import Touchable from "components/common/Touchable"
 import NotePreview from "components/home/note-preview"
+import { useTheme } from "context"
 import { Audio } from "expo-av"
 import { useRouter } from "expo-router"
 import useLayoutAnim from "hooks/anim/useLayoutAnim"
@@ -17,6 +17,7 @@ import { isIOS, screenHeight } from "utils/common"
 
 export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcessing=(v:any)=>{},syncUpNote=(v:any)=>{}})=>{
     const router=useRouter()
+    const { Colors } = useTheme()
     const notePreviewRef = useRef<any>();
     const [isPlay,setIsPlay] = useState(-1)
     const [expand,setExpand] = useState(0)

@@ -14,7 +14,6 @@ import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setEmail } from "redux/reducers/userDetails";
-import Colors from "assets/Colors";
 import { useSignup } from "queries/auth";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
@@ -23,6 +22,7 @@ import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
 import { analytics } from "../../../../firebaseConfig";
 import appsFlyer from "react-native-appsflyer";
+import { useTheme } from "context";
 
 export default () => {
   const router = useRouter();
@@ -40,6 +40,7 @@ export default () => {
   const signInMutation: any = useSignup()
 
   const inputRef = useRef<TextInput>(null);
+  const { Colors } = useTheme()
 
   const continueClicked = () => {
     dispatch(setEmail(emailText));

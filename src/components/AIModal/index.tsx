@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import {
   FlatList,
   Image,
@@ -54,6 +53,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import CreateModal from "components/CreateModal";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
+import { useTheme } from "context";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -96,6 +96,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const soundRef = useRef<any>(null);
   const textInputRef = useRef<TextInput>(null);
   const swiperRef = useRef<Swiper>(null)
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -528,6 +530,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
 });
 
 const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=[] }) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   const [expand,setExpand]=useState(false)
   const [copy,setCopy]=useState('Copy')
   const dispatch=useDispatch()
@@ -592,7 +596,10 @@ return (
   </View>
 )}}
 
-const Btns = ({ txt = "", onPress = () => {} }) => (
+const Btns = ({ txt = "", onPress = () => {} }) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  return (
   <TouchableHighlight
     onPress={onPress}
     underlayColor={isIOS?Colors.darkWithOpacity(0.05):Colors.whiteWithOpacity(1)}
@@ -601,8 +608,11 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
     <Text style={styles.btnTxt}>{txt}</Text>
   </TouchableHighlight>
 );
+}
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:40 },
   modal: {
     height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
@@ -800,4 +810,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
   }
-});
+}), [Colors]); // Recreate styles when Colors change
+};

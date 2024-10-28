@@ -1,13 +1,15 @@
-import Colors from "assets/Colors"
 import { AIModalSVG } from "assets/svg/AIModalSvg"
 import Touchable from "components/common/Touchable"
+import { useTheme } from "context"
 import { useRouter } from "expo-router"
+import { useMemo } from "react"
 import { Text } from "react-native"
 import { StyleSheet, View } from "react-native"
 import { SvgXml } from "react-native-svg"
 
 export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,onNewChat=()=>{},onDrawer=()=>{}})=>{
     const router=useRouter()
+    const styles = useStyles()
 
     const onClose=()=>router.back()
     return (
@@ -43,7 +45,9 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,on
     )
 }
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
 header1: {
   height: 53,
   paddingHorizontal: 16,
@@ -66,4 +70,5 @@ leftContainer:{
     alignItems: "center",
     width: "25%",
   }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
