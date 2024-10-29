@@ -903,7 +903,7 @@ export default () => {
             </Animated.View>
             <Animated.FlatList
                 ref={scrollRef}
-                ListHeaderComponent={() =>
+                ListHeaderComponent={
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
                 }
                 // bounces={false}

@@ -483,7 +483,7 @@ const NotePreview = forwardRef(
         },
       });
       setExpand();
-      if(!note?.related_notes||note?.related_notes?.length==0)
+      if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
     };
 
@@ -899,7 +899,7 @@ const NotePreview = forwardRef(
                     {isNoteExpanded && (
                       <StatusIndicator
                         status={note?.status}
-                        onRetry={() => syncUpNote(note)}
+                        onRetry={() => {}}
                       />
                     )}
                   </>

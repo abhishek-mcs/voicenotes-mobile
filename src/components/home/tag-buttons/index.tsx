@@ -3,7 +3,7 @@ import { home } from "assets/svg/home";
 import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
 import { usePinTag, usePinTagDelete } from "queries/home";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Alert, ScrollView, StyleSheet } from "react-native";
 import { Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -127,7 +127,7 @@ export default function TagButtons({
         ]),
     },
   ];
-  const RenderButton=()=>{
+  const RenderButton=useCallback(()=>{
     if (isDefaultHash)
     return (
       <View style={styles.tagButtonsContainer}>
@@ -145,7 +145,7 @@ export default function TagButtons({
             ))}
         </ScrollView>
       </View>
-    );
+    )
   else
     return (
       <View style={{paddingHorizontal:17,marginTop:8}}>
@@ -157,7 +157,7 @@ export default function TagButtons({
         />
       </View>
     );
-  }
+  },[isDefaultHash,isPinned,pinnedTags]);
     return (
       <View>
         <RenderButton/>
