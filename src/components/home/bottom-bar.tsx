@@ -147,7 +147,7 @@ useEffect(() => {
             />
             <RecButton
               onPress={onAsk}
-              title={"Ask"}
+              title={"Ask AI"}
               icon={home.ask}
               style={{...styles.button}}
             />
