@@ -161,10 +161,8 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 
 const styles = StyleSheet.create({
   bottomSheet: {
-    marginTop: 0,
+    marginTop: isIOS?0:20,
     paddingTop: 0,
-    color: 'gray',
-    backgroundColor:'gray'
   },
   container: {
     flex: 1,

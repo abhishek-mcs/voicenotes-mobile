@@ -908,7 +908,7 @@ export default () => {
                 }
                 // bounces={false}
                 style={{ opacity: hideBackground ? 0 : 1 }}
-                data={isRecordListLoading?[]:filteredRecordingList}
+                data={isRecordListLoading?[]:filteredRecordingList??[]}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
