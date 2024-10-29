@@ -899,7 +899,7 @@ const NotePreview = forwardRef(
                     {isNoteExpanded && (
                       <StatusIndicator
                         status={note?.status}
-                        onRetry={() => syncUpNote(note)}
+                        onRetry={() => {}}
                       />
                     )}
                   </>
