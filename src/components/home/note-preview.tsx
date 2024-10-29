@@ -482,7 +482,7 @@ const NotePreview = forwardRef(
           property: LayoutAnimation.Properties.opacity,
         },
       });
-      setExpand(index);
+      setExpand((i:any)=>index==i?-1:index);
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
     };
