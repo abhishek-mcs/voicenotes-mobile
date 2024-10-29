@@ -76,5 +76,6 @@ export default {
   bottomBarText1:'#fff',
   more:'#fff',
   underlayColorBlack:"rgba(0,0,0,0.7)",
-  refresh:'#fff'
+  refresh:'#fff',
+  emptyShare:'#9b9b9b'
 };

@@ -64,8 +64,8 @@ export default {
   streak2:'#fff',
   inputBg:'#fff',
   inputBg2:'rgba(34, 34, 34, 0.05)',
-  text:'#fff',
-  text1:'#9b9b9b',
+  text:'#000',
+  text1:'#222',
   bottomBarButtonBg:'#000',
   bottomBarCancelBg:'rgba(255, 69, 56,0.05)',
   bottomBarButtonBg1:'rgba(34, 34, 34,0.05)',
@@ -75,5 +75,6 @@ export default {
   bottomBarText1:'#000',
   more:'#3C3C43',
   underlayColorBlack:"rgba(0,0,0,0.7)",
-  refresh:'#717171'
+  refresh:'#717171',
+  emptyShare:'#0d0d0d'
 };

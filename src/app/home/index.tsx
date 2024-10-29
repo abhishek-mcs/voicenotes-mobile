@@ -880,7 +880,6 @@ export default () => {
                       {
                         height: searchFocused?screenHeight:searchBarHeightAnimated,
                         transform: [{ scaleY: searchBarScale }],
-                        backgroundColor:'red'
                       },
                     ]}
                   >
@@ -958,8 +957,8 @@ export default () => {
                       <SvgXml
                         xml={
                           hashFilter == "shared"
-                            ? home.share
-                            : home?.emptyStarred
+                            ? home.share?.replace("#0D0D0D",Colors.emptyShare)
+                            : home?.emptyStarred?.replace("#0D0D0D",Colors.emptyShare)
                         }
                       />
                       <View
@@ -972,7 +971,7 @@ export default () => {
                           style={{
                             fontFamily: "Primary-Medium",
                             fontSize: 14,
-                            color: Colors.darkWithOpacity(1),
+                            color: Colors.text1,
                             marginBottom: 4,
                           }}
                         >
@@ -984,7 +983,7 @@ export default () => {
                           style={{
                             fontFamily: "Primary",
                             fontSize: 12,
-                            color: Colors.darkWithOpacity(1),
+                            color: Colors.text1,
                             width: "70%",
                           }}
                         >
