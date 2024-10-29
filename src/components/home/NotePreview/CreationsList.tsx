@@ -4,6 +4,7 @@ import AiCreatedView from '../ai-created-view';
 import { Note } from 'types';
 
 const CreationsList = ({note, creationLoader, createType}:{note:Note, creationLoader:boolean, createType:string}) => {
+  if(!note?.creations||note?.creations?.length==0) return null;
       return (
         <>
           {creationLoader && (
