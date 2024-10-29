@@ -482,7 +482,7 @@ const NotePreview = forwardRef(
           property: LayoutAnimation.Properties.opacity,
         },
       });
-      setExpand();
+      setExpand(index);
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
     };
@@ -1052,7 +1052,6 @@ const NotePreview = forwardRef(
         {note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote
             list={note?.subnotes}
-            setExpand={setExpand}
             expand={expand}
             hashFilter={hashFilter}
             onUploadRetry={onUploadRetry}

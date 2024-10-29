@@ -754,7 +754,7 @@ export default () => {
         syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
-        setExpand={(v:any) =>v?setExpandNote(v): setExpandNote(index == expandNote ? -1 : index)}
+        setExpand={(v:any) =>setExpandNote(v)}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
