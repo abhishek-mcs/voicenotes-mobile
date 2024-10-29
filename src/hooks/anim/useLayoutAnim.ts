@@ -6,19 +6,16 @@ const useLayoutAnim = (dependency:any[]) => {
   const layoutAnimation = () => {
     LayoutAnimation.configureNext({
       duration: 250,
-      create: {
-        type: LayoutAnimation.Types.easeIn,
-        property: LayoutAnimation.Properties.opacity,
+      create: 
+      {
+         type: LayoutAnimation.Types.easeInEaseOut,
+         property: LayoutAnimation.Properties.opacity,
       },
-      update: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-    });
+      update: 
+      {
+         type: LayoutAnimation.Types.easeInEaseOut,
+      }
+     });
   }
 
   useEffect(() => {

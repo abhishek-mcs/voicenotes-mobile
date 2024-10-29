@@ -469,19 +469,16 @@ const NotePreview = forwardRef(
       setShowLinkEditModal(false);
       LayoutAnimation.configureNext({
         duration: 150,
-        create: {
-          type: LayoutAnimation.Types.linear,
-          property: LayoutAnimation.Properties.opacity,
+        create: 
+        {
+           type: LayoutAnimation.Types.easeInEaseOut,
+           property: LayoutAnimation.Properties.opacity,
         },
-        update: {
-          type: LayoutAnimation.Types.linear,
-          property: LayoutAnimation.Properties.opacity,
-        },
-        delete: {
-          type: LayoutAnimation.Types.linear,
-          property: LayoutAnimation.Properties.opacity,
-        },
-      });
+        update: 
+        {
+           type: LayoutAnimation.Types.easeInEaseOut,
+        }
+       });
       setExpand((i:any)=>index==i?-1:index);
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
