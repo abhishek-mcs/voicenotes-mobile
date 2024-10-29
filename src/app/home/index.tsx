@@ -303,12 +303,10 @@ export default () => {
     }
 
   useEffect(() => {
-    if (isAndroid) {
-      const tokenSubscription = actionEmitter.addListener('sendToken', () => {
-        console.log("React Native: Send token started");
-        NativeModules.TokenBridge.sendTokenToWatch(token);
-      });
-    }
+    const tokenSubscription = actionEmitter.addListener('sendToken', () => {
+      console.log("React Native: Send token started");
+      NativeModules.TokenBridge.sendTokenToWatch(token);
+    });
 
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
       console.log("React Native: Recording started");
