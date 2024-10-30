@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Waveform from "./waveform";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
+import { isIOSSmall, isSmallDevice } from "utils/common";
 
 export default ({
   onPause,
@@ -99,7 +100,7 @@ export default ({
             title=""
             underlayColor=""
             onPress={onPause}
-            style={{ paddingHorizontal: 12, marginRight: -12,borderRadius:16,height:40 }}
+            style={{ paddingHorizontal: 12, marginRight:isSmallDevice?-4: -12,borderRadius:16,height:40 }}
           />
         )}
         <RecButton

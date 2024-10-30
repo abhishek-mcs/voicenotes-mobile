@@ -15,6 +15,7 @@ export const isAndroid = Platform.OS == "android";
 export const screenHeight = Dimensions.get("window").height;
 export const screenWidth = Dimensions.get("window").width;
 export const isIOSSmall = isIOS && screenHeight < 690;
+export const isSmallDevice = screenWidth<350
 
 export const fetchSingleRecording = async (id: any) => {
   console.log("refetching single recording: ", id);
