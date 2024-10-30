@@ -146,7 +146,7 @@ export default forwardRef(({}:createModalProps, ref) => {
     // > 
       <View style={[styles.modal,styles[preview], {paddingTop: isIOS ? 0 : insets.top}]}>
         <Header title="Create"/>
-        {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
+        {/* {preview=="loader"&&<Text style={styles.heading}>Great!</Text>} */}
         {(preview === 'suggestions'||preview === 'records') ?
         <View style={{
           height:isIOS?screenHeight/1.2:screenHeight/1.1
@@ -169,7 +169,7 @@ export default forwardRef(({}:createModalProps, ref) => {
             <SvgXml xml={CreateModalSvg.create} />
           </Touchable>}
         </View>
-        :preview=="loader"? <AiLoader text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
+        :preview=="loader"? <AiLoader style={{marginTop:20,marginLeft:20}} text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
         :
         <Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
   records: {},
   note: { paddingHorizontal: 0, paddingTop: 16 },
-  loader: { justifyContent: "flex-start", paddingTop: 16, paddingLeft: 28 },
+  loader: { justifyContent: "flex-start", paddingTop: 16, paddingHorizontal:0 },
   createBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 40,
     borderRadius: 16,
+    marginTop:16
   },
   createTxt: {
     fontSize: 14,

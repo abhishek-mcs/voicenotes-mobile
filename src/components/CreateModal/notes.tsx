@@ -4,6 +4,7 @@ import Touchable from "components/common/Touchable"
 import { setStringAsync } from "expo-clipboard"
 import { useState } from "react"
 import { FlatList, StyleSheet, Text } from "react-native"
+import { ScrollView } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { screenHeight } from "utils/common"
@@ -35,19 +36,18 @@ export default (
                     <SvgXml xml={home.editSuggest} style={svg} />
                 </Touchable>
             </View> */}
-            <Text style={titleStyle}>{`Great!`}</Text>
-            <FlatList
-            data={[1]}
-            style={{marginBottom:20}}
+            {/* <Text style={titleStyle}>{`Great!`}</Text> */}
+            <ScrollView
+            style={{marginVertical:20}}
             contentContainerStyle={{paddingHorizontal:32}}
-            keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
-            showsVerticalScrollIndicator={false}
-            renderItem={()=>
-                (type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?
+            showsVerticalScrollIndicator={false}>
+                {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?
                 <Text onPress={()=>{}} suppressHighlighting style={text}>{result}</Text>
                 :(type=="points"||type=="todo")?
                 result?.map((itm:string,i:number)=>
-                    <Text onPress={()=>{}} suppressHighlighting key={i} style={text}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}`}</Text>
+                    <Text onPress={()=>{}} suppressHighlighting key={i} style={text}>
+                        {`${type=="points"?'\u2022 ':i+1+'. '} ${itm}`}
+                    </Text>
                 )
                 :type=="blog"?
                 result?.map((itm:string,i:number)=>
@@ -56,8 +56,8 @@ export default (
                 :<View>
                     <Text onPress={()=>{}} suppressHighlighting style={subject}>Subject: {result?.subject}</Text>
                     <Text onPress={()=>{}} suppressHighlighting style={text}>Body: {result?.body}</Text>
-                </View>
-                }/>
+                </View>}
+                </ScrollView>
             <View style={btnBox}>
                 <Touchable onPress={onCopy} style={btn} activeOpacity={0.6}>
                     <>
@@ -77,7 +77,7 @@ export default (
 }
 
 const styles = StyleSheet.create({
-    box:{height:screenHeight/1.4,paddingBottom:30},
+    box:{maxHeight:screenHeight/1.1,paddingBottom:30},
     topBox:{flexDirection:'row-reverse',alignItems:'center',paddingBottom:16,paddingHorizontal:24,borderBottomWidth:1,borderBottomColor:Colors.darkWithOpacity(0.1)},
     titleStyle:{fontFamily:'Primary-Semibold',fontSize:16,lineHeight:28,color:'#0D0D0D',marginVertical:12,marginHorizontal:32},
     text:{color:'#000',fontFamily:'Primary',lineHeight:24,fontSize:14,marginBottom:8},
