@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { useMutation, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
+import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "redux/reducers/hashSlice";
 import { setToken } from "redux/reducers/userDetails";
 import { RootState } from "redux/store/store";
 import { API_URL } from "services/api/api-constants";
@@ -60,6 +61,10 @@ export function useLogout(){
         setAuthToken(guestToken,true,netInfo)
         queryClient.clear()
         dispatch(setToken(''))
+        dispatch(setPinnedTags([]))
+        dispatch(setPinnedTagsData([]))
+        dispatch(setHashTags([]))
+        dispatch(setHashTagsData([]))
         route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {

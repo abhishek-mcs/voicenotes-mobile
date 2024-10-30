@@ -168,18 +168,18 @@ export default () => {
     ) => {
       try{
       // console.log("listening to firebase");
-      const firebasePath =  "/processStatuses/recording/"
+      const firebasePath =  "processStatuses/recording"
         // : "processStatuses/guest/recording/";
       // const statusRef = ref(db, firebasePath + recordingId);
       console.log('firebase listen', firebasePath + recordingId)
-      // const snapshot = await get(statusRef);
-      // console.log(snapshot.exists(),'snapshot exists')
       // const checkSnapshotExists = async (attempts: number) => {
       //   for (let i = 0; i < attempts; i++) {
-      //     const snapshot = await get(statusRef);
-      //     if (snapshot.exists()) {
-      //       return snapshot;
-      //     }
+          
+      // database()
+      // .ref("processStatuses/recording").child(`${recordingId}`).on("child_added",async(s)=>{
+      //   console.log('snap status',s.val())
+      //   return true
+      // })
       //     console.log(`Attempt ${i + 1}: Snapshot does not exist, retrying...`);
       //     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
       //   }
@@ -191,7 +191,7 @@ export default () => {
       let isTranscriptTriggered=false;
       let isProcessCompleted=false;
       database()
-      .ref(firebasePath + recordingId)
+      .ref(firebasePath).child(`${recordingId}`)
       .on('value', async (snapshot) => {
       //   console.log('User data: ', snapshot.val());
       // });
@@ -603,19 +603,16 @@ export default () => {
         const recordingId = response.recording.id;
         console.log(recordingId,'recording id')
         if(continueUpload && !recordingParentId) setRecordingParentId(recordingId)
-        // if(response.recording?.parent_id){
-        //   setRecordingParentId(recordingId)
-        // }else{
-        //   setRecordingParentId(null)
-        // }
+        console.log("audio uploaded waiting for process");
         dispatch(
           updateRecordingDetails({
             recordingId,
-            data: { status: "uploading" },
+            data: { status: "processing" },
             temporaryRecordingId,
           })
         );
-        sleep(500)
+        dispatch(updateTempRecordingData("processing"));
+        note.audio.data.duration>300000&&sleep(2000)
         await listenToFirebaseStatus(recordingId, temporaryRecordingId);
       });
       setTimeout(() => {
