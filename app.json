@@ -2,7 +2,7 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.43",
+    "version": "1.5.44",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
@@ -40,7 +40,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 171,
+      "versionCode": 173,
       "googleServicesFile": "./google-services.json"
     },
     "web": {

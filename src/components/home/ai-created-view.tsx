@@ -19,14 +19,14 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const onCopy=async()=>{
       setCopied(true)
       let txtCopy=''
-      if(type=="summary"||type=="tweet"||type=="custom")
-        txtCopy=content
+      if(type=="email")
+        txtCopy=`Subject: ${content.subject}\n\n${content.body}`
       else if(type=="points"||type=="todo")
         txtCopy=content.join('\n')
       else if(type=="blog")
         txtCopy=content.join('\n')
       else
-        txtCopy=`Subject: ${content.subject}\n\n${content.body}`
+        txtCopy=content
       await setStringAsync(txtCopy||'');
       setTimeout(() => {
         setCopied(false)
