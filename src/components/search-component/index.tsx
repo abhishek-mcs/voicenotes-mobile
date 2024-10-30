@@ -89,7 +89,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
         if (ref?.current&&isRouted) {
             setTimeout(() => {
               ref?.current?.focus()
-            }, 600);
+            }, 1000);
         }
       })
       return ()=>Keyboard.dismiss()
