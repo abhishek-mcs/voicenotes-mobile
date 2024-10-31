@@ -38,7 +38,7 @@ internal fun setupAskAiButton(context: Context, views: RemoteViews) {
 
 
 internal fun setupSearchButton(context: Context, views: RemoteViews) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("voicenotes://search"))
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("voicenotes://searchDeeplink"))
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     val pendingIntent = PendingIntent.getActivity(
         context,
