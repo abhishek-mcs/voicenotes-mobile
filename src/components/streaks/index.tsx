@@ -11,6 +11,7 @@ import {
 import Colors from 'assets/Colors';
 import ReactNativeModal from "react-native-modal";
 import { formatDate } from "utils/format-date";
+import { isIOS } from 'utils/common';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const RECT_SIZE = 11;
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: "flex-start",
     position: 'relative',
-    marginTop: 45
+    marginTop: isIOS?45:80
   },
   container: {
     backgroundColor: "#fff",

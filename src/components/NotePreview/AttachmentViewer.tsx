@@ -57,6 +57,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     try {
       await axiosApi.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
+      onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
       Alert.alert("Error", "Failed to delete the attachment. Please try again.");
@@ -162,11 +163,11 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     // setSelectedImageIndex(slideIndex);
   }, []);
 
-  const onClose=()=>{setSelectedImageIndex(null)}
+  const onClose=() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      onClose();
+      setSelectedImageIndex(null);
     } else if (index === 0) {
     }
   }, []);
@@ -202,7 +203,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         snapPoints={[screenHeight]}
         onChange={handleSheetChanges}
         enablePanDownToClose
-        onClose={onClose}
+        onClose={()=>setSelectedImageIndex(null)}
       >
         <View style={styles.modalContainer}>
           <FlatList
@@ -223,7 +224,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           />
           <View style={styles.modalHeader}>
             <Text style={styles.imageCounter}>
-              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 0} / ${
+              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 1} / ${
                 imageAttachments.length
               }`}
             </Text>
@@ -236,7 +237,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}}
+                onPress={onClose}
               >
                 <SvgXml xml={notePreviewSVG.close}/>
               </TouchableOpacity>
