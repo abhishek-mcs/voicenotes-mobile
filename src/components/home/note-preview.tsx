@@ -265,6 +265,7 @@ const NotePreview = forwardRef(
                   setIsPublished((t: any) => !t);
                 }, 50);
                 await queryClient.invalidateQueries("all-recording");
+                await queryClient.invalidateQueries("single-recording");
               } catch (e) {
                 console.info("error in toggle publish", e);
               } finally {
