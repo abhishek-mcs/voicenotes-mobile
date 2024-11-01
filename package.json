@@ -22,7 +22,6 @@
     "@react-native-firebase/analytics": "^21.0.0",
     "@react-native-firebase/app": "^21.0.0",
     "@react-native-firebase/database": "^21.0.0",
-    "@react-native-segmented-control/segmented-control": "^2.5.4",
     "@react-navigation/drawer": "^6.6.15",
     "@react-navigation/native": "^6.0.2",
     "@reduxjs/toolkit": "^2.2.1",

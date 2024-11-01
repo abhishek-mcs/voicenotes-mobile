@@ -50,8 +50,6 @@ import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import { setStringAsync } from "expo-clipboard";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import CreateModal from "components/CreateModal";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
 

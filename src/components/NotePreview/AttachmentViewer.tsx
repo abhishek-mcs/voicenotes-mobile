@@ -22,6 +22,7 @@ import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
+import { useQueryClient } from "react-query";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -40,6 +41,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const linkAttachments = attachments.filter(
     (a:any) => a.type === ATTACHMENT_TYPE.LINK
   );
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
@@ -57,6 +59,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     try {
       await axiosApi.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
+      queryClient.invalidateQueries('single-recording')
       onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);

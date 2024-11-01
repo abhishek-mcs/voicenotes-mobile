@@ -22,25 +22,19 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
     const [expand,setExpand] = useState(0)
     const [play,setPlay] = useState<Audio.Sound|null>()
     const [audioLoading,setAudioLoading] = useState(-1)
-    const [note,setNote] = useState<any>(null)
+    // const [note,setNote] = useState<any>(null)
     const {tempRecordingData} = useSelector((state:RootState)=>state.recordingStates)
+    const {relatedNoteLoaders} = useSelector((state:RootState)=>state.relatedNoteStates)
+    const is_title_loading = relatedNoteLoaders.title;
+    const is_transcript_loading = relatedNoteLoaders.transcript;
     // const {id}:{id:number}=useGlobalSearchParams<any>()
     
-    const getIndividualNote = useGetSingleRecording()
-    const queryClient = useQueryClient()
+    const getIndividualNote = useGetSingleRecording(id)
+    const note=getIndividualNote.data?.data
 
-    useEffect(()=>{
-        if(id&&!tempRecordingData.status){
-            getIndividualNote.mutate(id,{
-                onSuccess:(data:any)=>{
-                            setNote(data?.data)
-                }
-            })
-            queryClient.resetQueries('related-recording')
-        }
-    },[id,tempRecordingData])
 
     useLayoutAnim([expand])
+    if(note)
     return (
         <SafeAreaView style={{backgroundColor:'#fff',flex:1,paddingTop:isIOS?0:0}}>
             <View>
@@ -52,7 +46,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
                     {getIndividualNote.isSuccess?
                     <NotePreview
                       ref={notePreviewRef}
-                      note={{...note,subnotes:!!tempRecordingData.status?[...note.subnotes,tempRecordingData]:note.subnotes}}
+                      note={{...note,is_title_loading,is_transcript_loading,subnotes:!!tempRecordingData.status?[...note.subnotes,tempRecordingData]:note.subnotes}}
                       index={0}
                       list={[note]}
                       isPlay={isPlay}
