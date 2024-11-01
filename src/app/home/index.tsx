@@ -58,7 +58,7 @@ import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
-import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
@@ -279,8 +279,11 @@ export default () => {
             !isTitleTriggered&&isTitleGenerated&&setTriggerTypingTitle(recordingId);
             isTitleTriggered=isTitleGenerated;
             isTranscriptTriggered=status==RecordingStatus.TRANSCRIPT_GENERATED
+            status==RecordingStatus.TRANSCRIPT_GENERATED&&await queryClient.invalidateQueries('single-recording')
             dispatch(updateTempRecordingData(updatedStatus));
             dispatchCanRecord(updatedNote.data?.can_record_more);
+            isTitleGenerated&&dispatch(setRelatedNoteTitleLoad(false))
+            status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
             status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).remove();

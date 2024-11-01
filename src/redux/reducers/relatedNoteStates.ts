@@ -3,10 +3,18 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 export interface HashState {
   relatedNoteId: any,
+  relatedNoteLoaders:{
+    transcript:false
+    title:false
+  }
 }
 
 const initialState: HashState = {
   relatedNoteId: null,
+  relatedNoteLoaders:{
+    transcript:false,
+    title:false
+  }
 }
 
 export const relatedNoteStates = createSlice({
@@ -16,10 +24,16 @@ export const relatedNoteStates = createSlice({
     setRelatedNoteId: (state, action: PayloadAction<any>) => {
       state.relatedNoteId = action.payload
     },
+    setRelatedNoteTitleLoad: (state, action: PayloadAction<any>) => {
+      state.relatedNoteLoaders.title = action.payload
+    },
+    setRelatedNoteTranscriptLoad: (state, action: PayloadAction<any>) => {
+      state.relatedNoteLoaders.transcript = action.payload
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setRelatedNoteId } = relatedNoteStates.actions
+export const { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } = relatedNoteStates.actions
 
 export default relatedNoteStates.reducer

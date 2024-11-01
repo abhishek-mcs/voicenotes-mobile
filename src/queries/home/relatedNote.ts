@@ -3,8 +3,8 @@ import { useDispatch } from "react-redux";
 import { setRelatedNotes } from "redux/reducers/recordingStates";
 import axiosApi from "services/api/axios-api";
 
-export function useGetSingleRecording(){
-    return useMutation('single-recording',(id?:any) => {
+export function useGetSingleRecording(id:string|null){
+    return useQuery('single-recording',() => {
         return axiosApi.get(`/recordings/${id}`)
     },
     {
