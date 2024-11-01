@@ -26,7 +26,7 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - Expo (50.0.19):
+  - Expo (50.0.21):
     - ExpoModulesCore
   - expo-dev-client (3.3.12):
     - EXManifests
@@ -128,7 +128,7 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (12.8.2):
     - ExpoModulesCore
-  - ExpoModulesCore (1.11.13):
+  - ExpoModulesCore (1.11.14):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1829,7 +1829,7 @@ SPEC CHECKSUMS:
   EXJSONUtils: 5c42959e87be238b045ef37cc5268b16a6c0ad4a
   EXManifests: 5e8c29f36c716af768a4ea47ec05e1b89ab93091
   EXMediaLibrary: 70cf1fb7028fda2d682090c9fe57568674e4abab
-  Expo: ad8bce0c0fc557cae703cc8dbce73d61a90ab5c5
+  Expo: 7b9976a9b2be116a701b233d6655b229a3c9316e
   expo-dev-client: f22fdebdb8760bc22f660b7c0cb1dd58d80005c0
   expo-dev-launcher: 11c184a2dca65f9bd6dc575a73a554b7be589d1d
   expo-dev-menu: 68ea53d923996e27b20ce02b51cc820fc2327a83
@@ -1847,7 +1847,7 @@ SPEC CHECKSUMS:
   ExpoImageManipulator: c1d7cb865eacd620a35659f3da34c70531f10b59
   ExpoImagePicker: 66970181d1c838f444e5e1f81b804ab2d5ff49bd
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
-  ExpoModulesCore: 370096473359f5f6aade0871400d063333747719
+  ExpoModulesCore: 0f9e3c49657f681cd06219d97c77c3108a67ca00
   ExpoSharing: 752ad6ae2b693de9cd4e7fddb78297bdc658b815
   ExpoStoreReview: 3911cdf5a416230a421af41f93e763595bd7a681
   ExpoSystemUI: 735278045c1a28de0018a300bb5abb3f9090652b
