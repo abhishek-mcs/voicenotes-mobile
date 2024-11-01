@@ -7,7 +7,7 @@ import { FlatList, StyleSheet, Text } from "react-native"
 import { ScrollView } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { screenHeight } from "utils/common"
+import { isIOS, screenHeight } from "utils/common"
 
 export default (
     {type="summary",result=null,title="",id,onClose,onEdit,onRetry}
@@ -77,7 +77,7 @@ export default (
 }
 
 const styles = StyleSheet.create({
-    box:{maxHeight:screenHeight/1.1,paddingBottom:30},
+    box:{maxHeight:isIOS?screenHeight/1.2:screenHeight/1.1,paddingBottom:30},
     topBox:{flexDirection:'row-reverse',alignItems:'center',paddingBottom:16,paddingHorizontal:24,borderBottomWidth:1,borderBottomColor:Colors.darkWithOpacity(0.1)},
     titleStyle:{fontFamily:'Primary-Semibold',fontSize:16,lineHeight:28,color:'#0D0D0D',marginVertical:12,marginHorizontal:32},
     text:{color:'#000',fontFamily:'Primary',lineHeight:24,fontSize:14,marginBottom:8},
