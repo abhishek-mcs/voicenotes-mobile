@@ -59,6 +59,10 @@ export default {
   bgColor1:'#F2F2F7',
   bgColor2:'#fff',
   bgColor3: (opacity:number) => `rgba(13, 13, 13, ${opacity})`,
+  bgColor4:'#f9f9f9',
+  bgColor5:'#f9f9f9',
+  bgColor6:'#fff',
+  bgColor7:'rgba(13, 13, 13, 0.05)',
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#fff',
   streak2:'#fff',
@@ -66,6 +70,8 @@ export default {
   inputBg2:'rgba(34, 34, 34, 0.05)',
   text:'#000',
   text1:'#222',
+  text2:'#9b9b9b',
+  text3:'rgba(34, 34, 34, 0.5)',
   bottomBarButtonBg:'#000',
   bottomBarCancelBg:'rgba(255, 69, 56,0.05)',
   bottomBarButtonBg1:'rgba(34, 34, 34,0.05)',
@@ -76,5 +82,9 @@ export default {
   more:'#3C3C43',
   underlayColorBlack:"rgba(0,0,0,0.7)",
   refresh:'#717171',
-  emptyShare:'#0d0d0d'
+  emptyShare:'#0d0d0d',
+  suggestionBg:'#fff',
+  border:'rgba(34,34,34,0.1)',
+  askClose:'#1C1B1F',
+  askLogo:'#0E3934'
 };

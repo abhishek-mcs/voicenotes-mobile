@@ -2,6 +2,7 @@ const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
 const primary = '#000';
 const secondary='rgba(255, 255, 255, 0.12)';
+const tertiary='rgba(33, 33, 33, 1)'
 export default {
   light: {
     text: '#000',
@@ -17,7 +18,7 @@ export default {
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
   },
-  primary: 'rgba(39, 79, 71, 1)', // Darker version of the primary color
+  primary: 'rgba(14, 57, 52, 1)', // Darker version of the primary color
   primaryWithOpacity: (opacity:number) => `rgba(39, 79, 71, ${opacity})`,
   darkWithOpacity: (opacity:number) => `rgba(34, 34, 34, ${opacity})`, // Same as in light mode
   blackWithOpacity: (opacity:number) => `rgba(255, 255, 255, ${opacity})`, // Lightening for readability
@@ -60,6 +61,10 @@ export default {
   bgColor1:'#0d0d0d',
   bgColor2:'#171717',
   bgColor3: (opacity:number) => secondary,
+  bgColor4:'#0d0d0d',
+  bgColor5:tertiary,
+  bgColor6:tertiary,
+  bgColor7:tertiary,
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',
@@ -67,15 +72,21 @@ export default {
   inputBg2:secondary,
   text:'#fff',
   text1:'#9b9b9b',
+  text2:'#222',
+  text3:'rgba(221, 221, 221, 0.5)',
   bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
   bottomBarCancelBg:'rgba(255, 69, 56, 0.15)',
-  bottomBarButtonBg1:'rgba(33, 33, 33, 1)',
-  settingsBtnBg:'rgba(33, 33, 33, 1)',
+  bottomBarButtonBg1:tertiary,
+  settingsBtnBg:tertiary,
   settingsBtnText:'#fff',
   bottomBarText:'#fff',
   bottomBarText1:'#fff',
   more:'#fff',
   underlayColorBlack:"rgba(0,0,0,0.7)",
   refresh:'#fff',
-  emptyShare:'#9b9b9b'
+  emptyShare:'#9b9b9b',
+  suggestionBg:tertiary,
+  border:secondary,
+  askClose:'#ffffff',
+  askLogo:'#ffffff'
 };

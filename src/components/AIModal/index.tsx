@@ -108,6 +108,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const deleteChatHistory = useDeleteAskHistory();
   const uploadRecord=useUploadChatRecord();
   const getAnswer=useVoiceChatResponse();
+  const AIModalSVGIcons:any = AIModalSVG 
   
   const getNewSugg = () => {
     setSuggLoaded(false)
@@ -340,7 +341,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:Colors.whiteWithOpacity(1)}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:Colors.whiteWithOpacity(1)}]}>
         <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
         <KeyboardAvoidingView
           style={[{ flex: 1 ,paddingTop:isIOS?0:40}]}
@@ -383,7 +384,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                 {chats?.related_messages?.length==0&&
                 <View style={{ marginLeft: 20 }}>
                   <SvgXml
-                    xml={AIModalSVG.askAILogo}
+                    xml={AIModalSVGIcons.askAILogo?.replaceAll('stroke="#0E3934"','stroke='+Colors.askLogo)}
                     style={{ marginVertical: 16 }}
                   />
                   <Text
@@ -406,7 +407,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                             activeOpacity={1}
                           >
                             <SvgXml
-                              xml={AIModalSVG.refresh}
+                              xml={AIModalSVG.refresh?.replace('black',Colors.blackWithOpacity(1))}
                               style={{ marginBottom: 2 }}
                             />
                           </Touchable>
@@ -461,7 +462,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     style={styles.input}
                     scrollEnabled={false}
                     placeholder="Ask a question..."
-                    placeholderTextColor={Colors.grey}
+                    placeholderTextColor={Colors.text2}
                     multiline
                     value={input}
                     enablesReturnKeyAutomatically={true}
@@ -477,7 +478,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     onPress={() => (!!input ? onSend(input) : onRecordStart())}
                   >
                     <SvgXml
-                      xml={!!input ? AIModalSVG.send : AIModalSVG.record}
+                      xml={!!input ? AIModalSVG.send : AIModalSVG.record?.replace('#1C1B1F',Colors.askClose)?.replace('#222222',Colors.text1)}
                     />
                   </Touchable>
                 </>
@@ -590,7 +591,7 @@ return (
     </View>:null}
     </View>
    {isAI&&text!="Searching"&&text!="Typing"&&<Touchable onPress={onCopy} activeOpacity={1} style={[styles.aiChat,styles.aiChatStyle,styles.row,{alignSelf:'flex-start',paddingVertical:4}]}>
-      <SvgXml xml={AIModalSVG.copy} style={{marginRight:4}}/>
+      <SvgXml xml={AIModalSVG.copy?.replace('#0D0D0D',Colors.black2)} style={{marginRight:4}}/>
       <Text style={[styles.text]}>{copy}</Text>
     </Touchable>}
   </View>
@@ -648,12 +649,12 @@ const useStyles = () => {
     paddingHorizontal: 12,
     paddingVertical: 6,
     alignSelf: "flex-start",
-    shadowColor: Colors.blackWithOpacity(1),
+    shadowColor: Colors.text1,
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
-    backgroundColor:Colors.whiteWithOpacity(1)
+    backgroundColor:Colors.bgColor2
   },
   btnTxt: { fontSize: 14, fontFamily: "Primary-Medium", lineHeight: 20,color:Colors.black2 },
   subTitle: {
@@ -668,7 +669,7 @@ const useStyles = () => {
     // marginRight: 8,x
     fontSize: 16,
     fontFamily: "Primary",
-    color: Colors.darkWithOpacity(0.9),
+    color: Colors.text1,
     textAlignVertical: "top",
     flexWrap: "wrap",
     width: "80%",
@@ -676,17 +677,17 @@ const useStyles = () => {
     paddingTop: 16,
     paddingBottom: 16,
     minHeight: 24,
-    backgroundColor: Colors.lightGrey,
+    backgroundColor: Colors.bgColor4,
   },
   inputContainer: {
     minHeight: 60,
     borderTopWidth: 1,
-    borderTopColor: Colors.darkWithOpacity(0.1),
+    borderTopColor: Colors.border,
     paddingLeft: 24,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    backgroundColor: Colors.lightGrey,
+    backgroundColor: Colors.bgColor4,
   },
   send: {
     paddingVertical: 16,
@@ -718,7 +719,7 @@ const useStyles = () => {
   },
   text: {
     fontSize: 14,
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text1,
     fontFamily: "Primary-Medium",
     lineHeight: 20,
   },
@@ -738,9 +739,9 @@ const useStyles = () => {
     alignItems: "center",
   },
   suggestContainer: { marginBottom: 24, marginHorizontal: 16, marginTop: 20 },
-  aiChat: { marginLeft: 28,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
+  aiChat: { marginLeft: 16,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
   aiChatStyle:{
-    backgroundColor:Colors.whiteWithOpacity(1),
+    backgroundColor:Colors.bgColor6,
     shadowColor:Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
@@ -750,7 +751,7 @@ const useStyles = () => {
     paddingVertical:12,paddingHorizontal:12
   },
   userChatStyle:{
-    backgroundColor:Colors.grey2WithOpacity(0.05)
+    backgroundColor:Colors.bgColor7
   },
   header2: { marginBottom: 0, borderBottomWidth: 0 },
   lottie: { width:40,height:20,marginBottom:-6,marginLeft:-14},
@@ -780,14 +781,14 @@ const useStyles = () => {
   historyText: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text1,
     maxWidth: "80%",
   },
   history: { paddingVertical: 20 },
   date: {
     fontFamily: "Primary",
     fontSize: 12,
-    color: Colors.darkWithOpacity(0.5),
+    color: Colors.text3,
     marginTop: 16,
     marginBottom: 12,
     paddingHorizontal: 20,

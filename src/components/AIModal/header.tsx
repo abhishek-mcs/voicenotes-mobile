@@ -10,6 +10,7 @@ import { SvgXml } from "react-native-svg"
 export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,onNewChat=()=>{},onDrawer=()=>{}})=>{
     const router=useRouter()
     const styles = useStyles()
+    const { Colors } = useTheme()
 
     const onClose=()=>router.back()
     return (
@@ -20,11 +21,11 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,on
                 onPress={onNewChat}
                 style={{ padding: 4, marginLeft: 12 }}
               >
-                <SvgXml xml={AIModalSVG.newChat} />
+                <SvgXml xml={AIModalSVG.newChat?.replace('#1C1B1F',Colors.askClose)} />
               </Touchable>
             )}
             <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
-              <SvgXml xml={AIModalSVG.close} />
+              <SvgXml xml={AIModalSVG.close?.replace("#1C1B1F",Colors.askClose)} />
             </Touchable>
           </View>
           <Text style={styles.headerText}>{title}</Text>
@@ -38,7 +39,7 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,on
             onPress={onDrawer}
             style={styles.rightContainer}
           >
-            <SvgXml xml={AIModalSVG.history} />
+            <SvgXml xml={AIModalSVG.history?.replace('#1C1B1F',Colors.askClose)} />
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
           </Touchable>:<View style={{width: "25%"}}/>}
         </View>
@@ -55,7 +56,7 @@ header1: {
   alignItems: "center",
   justifyContent: "space-between",
   borderBottomWidth: 1,
-  borderBottomColor: Colors.darkWithOpacity(0.1)
+  borderBottomColor: Colors.border
 },
 leftContainer:{
     flexDirection: "row",
