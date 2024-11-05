@@ -1,9 +1,10 @@
-import { StyleSheet, } from 'react-native';
+import { Pressable, StyleSheet, } from 'react-native';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import Touchable from '../Touchable';
 import * as Haptics from "expo-haptics";
 import Colors from 'assets/Colors';
+import { isIOS } from 'utils/common';
 
 export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(true);
@@ -19,7 +20,7 @@ const onPress=async()=>
     () => {}
   );
   return (
-    <Touchable activeOpacity={1} onPress={onPress} style={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:100}}>
+    <Pressable onPress={onPress}>
         <ContextMenu
           actions={options}
           style={style}
@@ -40,7 +41,7 @@ const onPress=async()=>
         >
           {children}
         </ContextMenu>
-        </Touchable>
+        </Pressable>
       );
 });
 

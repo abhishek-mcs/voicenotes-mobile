@@ -23,6 +23,7 @@ import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
 import { useQueryClient } from "react-query";
+import Colors from "assets/Colors";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -275,11 +276,16 @@ const styles = StyleSheet.create({
   thumbnailContainer: {
     position: 'relative',
     marginRight: 2.5  ,
+    width: 100,
+    height: 100,
+    borderRadius: 2,
+    backgroundColor:Colors.darkWithOpacity(0.05)
   },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 2,
+    backgroundColor:Colors.darkWithOpacity(0.05)
   },
   blurOverlay: {
     position: 'absolute',
