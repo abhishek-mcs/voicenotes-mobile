@@ -989,7 +989,7 @@ const NotePreview = forwardRef(
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Touchable>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
-                  <MoreOptions options={options} style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
+                  <MoreOptions options={options} style={{height:30,paddingHorizontal:8,borderRadius:100,backgroundColor:'red',justifyContent:"center",alignItems:'center'}}>
                   <SvgXml xml={home.moreNew}/>
                 </MoreOptions>}
                 </View>

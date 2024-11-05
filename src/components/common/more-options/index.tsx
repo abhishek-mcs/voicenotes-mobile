@@ -3,6 +3,7 @@ import { forwardRef, useImperativeHandle, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import Touchable from '../Touchable';
 import * as Haptics from "expo-haptics";
+import Colors from 'assets/Colors';
 
 export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(true);
@@ -18,7 +19,7 @@ const onPress=async()=>
     () => {}
   );
   return (
-    <Touchable activeOpacity={1} onPress={onPress}>
+    <Touchable activeOpacity={1} onPress={onPress} style={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:100}}>
         <ContextMenu
           actions={options}
           style={style}
