@@ -25,13 +25,19 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
     // const [note,setNote] = useState<any>(null)
     const {tempRecordingData} = useSelector((state:RootState)=>state.recordingStates)
     const {relatedNoteLoaders} = useSelector((state:RootState)=>state.relatedNoteStates)
-    const is_title_loading = relatedNoteLoaders.title;
-    const is_transcript_loading = relatedNoteLoaders.transcript;
     // const {id}:{id:number}=useGlobalSearchParams<any>()
     
     const getIndividualNote = useGetSingleRecording(id)
     const note=getIndividualNote.data?.data
-
+    const is_title_loading = relatedNoteLoaders.title==note?.id?relatedNoteLoaders.title:null;
+    const is_transcript_loading = relatedNoteLoaders.transcript==note?.id?relatedNoteLoaders.transcript:null;
+    const is_title_loading_subnote = relatedNoteLoaders.title!=note?.id?relatedNoteLoaders.title:null;
+    const is_transcript_loading_subnote = relatedNoteLoaders.transcript!=note?.id?relatedNoteLoaders.transcript:null;
+    const subnotes = note?.subnotes?.map((subnote:any) => ({
+        ...subnote,
+        is_transcript_loading:is_transcript_loading_subnote,
+        is_title_loading:is_title_loading_subnote,
+    }))||[];
 
     useLayoutAnim([expand])
     if(note)
@@ -46,7 +52,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
                     {getIndividualNote.isSuccess?
                     <NotePreview
                       ref={notePreviewRef}
-                      note={{...note,is_title_loading,is_transcript_loading,subnotes:!!tempRecordingData.status?[...note.subnotes,tempRecordingData]:note.subnotes}}
+                      note={{...note,is_title_loading,is_transcript_loading,subnotes:!!tempRecordingData.status?[...subnotes,tempRecordingData]:subnotes}}
                       index={0}
                       list={[note]}
                       isPlay={isPlay}

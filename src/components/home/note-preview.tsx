@@ -213,7 +213,7 @@ const NotePreview = forwardRef(
           data: { is_title_loading: true },
         })
       );
-      dispatch(setRelatedNoteTitleLoad(true))
+      dispatch(setRelatedNoteTitleLoad(note?.id))
 
       try {
         const resp = await axiosApi.patch(`/recordings/${note.id}/title`);
@@ -240,7 +240,7 @@ const NotePreview = forwardRef(
     const onReGenerateTranscript = async () => {
       hideMoreOption();
       await sleep(0.5);
-      dispatch(setRelatedNoteTranscriptLoad(true))
+      dispatch(setRelatedNoteTranscriptLoad(note?.id))
       continueProcessing(note, true);
     };
 
@@ -872,7 +872,7 @@ const NotePreview = forwardRef(
                   justifyContent: "space-between",
                 }}
               >
-                {note?.is_title_loading ? (
+                {note?.is_title_loading==note?.id ? (
                   <AiLoader
                     text="Creating title from your voice"
                     style={{ marginTop: -7 }}
@@ -913,7 +913,7 @@ const NotePreview = forwardRef(
               </View>
               }
 
-              {note.is_transcript_loading && (
+              {note?.is_transcript_loading==note?.id && (
                 <AiLoader
                   text={`Creating transcript from your voice`}
                   style={{ marginTop: 0 }}
@@ -1065,6 +1065,7 @@ const NotePreview = forwardRef(
             hashFilter={hashFilter}
             onUploadRetry={onUploadRetry}
             syncUpNote={syncUpNote}
+            continueProcessing={continueProcessing}
           />
         )}
       </View>

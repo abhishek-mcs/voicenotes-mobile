@@ -460,7 +460,7 @@ export default () => {
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
-          data: isProcessFailed?{status:"processing",is_transcript_loading:false}:{ is_transcript_loading: true },
+          data: isProcessFailed?{status:"processing",is_transcript_loading:false}:{ is_transcript_loading: note?.id },
         })
       );
       console.log("making request");
