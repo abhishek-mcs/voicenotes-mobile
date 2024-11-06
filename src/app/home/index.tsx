@@ -905,14 +905,14 @@ export default () => {
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
                 }
                 // bounces={false}
-                style={{ opacity: hideBackground ? 0 : 1 }}
+                style={{ backgroundColor:Colors.whiteWithOpacity(1) }}
                 data={isRecordListLoading?[]:filteredRecordingList??[]}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
                 )}
                 scrollEventThrottle={16}
-                contentContainerStyle={{ paddingBottom: 300 }}
+                contentContainerStyle={{ paddingBottom: 300,backgroundColor:Colors.whiteWithOpacity(1) }}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
                 renderItem={renderItem}

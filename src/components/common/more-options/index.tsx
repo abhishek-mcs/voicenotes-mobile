@@ -48,9 +48,10 @@ const onPress=async()=>
       <>
        {!visibleSubMenu? <Menu
           visible={visible}
-          style={{width:screenWidth/2.4}}
+          // style={{width:screenWidth/2.1}}
           onRequestClose={hideMenu}
           anchor={<Pressable onPress={showMenu}>{children}</Pressable>}
+          animationDuration={250}
         >
           {options.map((option:any, index:number) => (
             <MenuItem
@@ -65,7 +66,7 @@ const onPress=async()=>
                 }
               }}
             >
-              <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:screenWidth/3}}>
+              <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:screenWidth/2.6}}>
                 <Text style={[{fontFamily:'Primary',fontSize:14,color:Colors.blackWithOpacity(1)},option.title=="Delete"?{color:Colors.redWithOpacity(1)}:{}]}>{option.title}</Text>
                 {option.actions&&<SvgXml xml={settingsSvg.arrow} style={{}}/>}
               </View>
