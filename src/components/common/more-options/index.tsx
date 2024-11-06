@@ -60,6 +60,7 @@ const onPress=async()=>
                   showSubMenu(option?.actions)
                 } else {
                   hideMenu()
+                  await sleep(500)
                   option.onPress && option.onPress();
                 }
               }}
