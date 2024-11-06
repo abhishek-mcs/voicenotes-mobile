@@ -59,8 +59,8 @@ const onPress=async()=>
                 if (option.actions) {
                   showSubMenu(option?.actions)
                 } else {
-                  option.onPress && option.onPress();
                   hideMenu()
+                  option.onPress && option.onPress();
                 }
               }}
             >
