@@ -75,6 +75,7 @@ import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
+import { StatusBar } from "react-native";
 
 
 const { height } = Dimensions.get("screen");
@@ -149,6 +150,9 @@ export default () => {
 
 
   useEffect(() => {
+    StatusBar.setBarStyle('dark-content')
+    StatusBar.setHidden(false)
+    StatusBar.setTranslucent(true)
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
       const tags=(getTags?.data?.data?.filter((t: any) => t?.name !== 'starred') ?? [])
       dispatch(setHashTagsData(tags))
