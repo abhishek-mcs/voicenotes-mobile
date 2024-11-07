@@ -836,7 +836,7 @@ export default () => {
           setHideSearch(true);
         }}
       >
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1,backgroundColor:Colors.whiteWithOpacity(1) }}>
           <View style={[styles.wrapper, hideBackground ? styles.hideBg : {}]}>
             <Animated.View
               style={{
@@ -930,6 +930,7 @@ export default () => {
                         alignItems: "center",
                         justifyContent: "center",
                         marginTop: 20,
+                        backgroundColor:Colors.whiteWithOpacity(1)
                       }}
                     >
                       <CircularLoader />
@@ -994,7 +995,8 @@ export default () => {
                         height: height - 500,
                         justifyContent: "center",
                         alignItems: "center",
-                        marginTop: 50
+                        marginTop: 50,
+                        backgroundColor:Colors.whiteWithOpacity(1)
                       }}
                     >
                       <CircularLoader strokeWidth={3} />
@@ -1053,7 +1055,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   wrapper: {
-    paddingVertical: isIOS ? 0 : 32,
+    paddingVertical: isIOS ? 0 : 32,backgroundColor:Colors.whiteWithOpacity(1)
   },
   tab: {
     flexDirection: "row",
