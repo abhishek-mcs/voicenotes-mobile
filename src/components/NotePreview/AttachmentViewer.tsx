@@ -22,6 +22,7 @@ import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
 import { useTheme } from "context";
+import { useQueryClient } from "react-query";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -42,6 +43,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const linkAttachments = attachments.filter(
     (a:any) => a.type === ATTACHMENT_TYPE.LINK
   );
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
@@ -59,6 +61,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     try {
       await axiosApi.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
+      queryClient.invalidateQueries('single-recording')
+      onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
       Alert.alert("Error", "Failed to delete the attachment. Please try again.");
@@ -164,11 +168,11 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     // setSelectedImageIndex(slideIndex);
   }, []);
 
-  const onClose=()=>{setSelectedImageIndex(null)}
+  const onClose=() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      onClose();
+      setSelectedImageIndex(null);
     } else if (index === 0) {
     }
   }, []);
@@ -204,7 +208,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         snapPoints={[screenHeight]}
         onChange={handleSheetChanges}
         enablePanDownToClose
-        onClose={onClose}
+        onClose={()=>setSelectedImageIndex(null)}
       >
         <View style={styles.modalContainer}>
           <FlatList
@@ -225,7 +229,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           />
           <View style={styles.modalHeader}>
             <Text style={styles.imageCounter}>
-              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 0} / ${
+              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 1} / ${
                 imageAttachments.length
               }`}
             </Text>
@@ -238,7 +242,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}}
+                onPress={onClose}
               >
                 <SvgXml xml={notePreviewSVG.close}/>
               </TouchableOpacity>
@@ -275,11 +279,16 @@ const useStyles = () => {
   thumbnailContainer: {
     position: 'relative',
     marginRight: 2.5  ,
+    width: 100,
+    height: 100,
+    borderRadius: 2,
+    backgroundColor:Colors.darkWithOpacity(0.05)
   },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 2,
+    backgroundColor:Colors.darkWithOpacity(0.05)
   },
   blurOverlay: {
     position: 'absolute',

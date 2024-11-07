@@ -12,6 +12,7 @@ import ReactNativeModal from "react-native-modal";
 import { formatDate } from "utils/format-date";
 import { useTheme } from 'context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { isIOS } from 'utils/common';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const RECT_SIZE = 11;
@@ -172,7 +173,7 @@ const useStyles = () => {
   modal: {
     justifyContent: "flex-start",
     position: 'relative',
-    marginTop: 45
+    marginTop: isIOS?45:80
   },
   container: {
     backgroundColor: Colors.bgColor,

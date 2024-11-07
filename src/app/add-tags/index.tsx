@@ -67,6 +67,7 @@ export default () => {
         onSuccess:()=>{
           queryClient.invalidateQueries('all-recording')
           queryClient.invalidateQueries('all-tags')
+          queryClient.invalidateQueries("single-recording");
       }})
       router.back()
     }

@@ -163,7 +163,7 @@ const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
   bottomSheet: {
-    marginTop: 0,
+    marginTop: isIOS?0:20,
     paddingTop: 0,
     color: Colors.grey,
     backgroundColor:Colors.blackWithOpacity(1),

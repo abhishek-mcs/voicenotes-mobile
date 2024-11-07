@@ -29,7 +29,7 @@ import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
+import { fetchSingleRecording, isAndroid, isIOS, screenHeight } from "utils/common";
 // import AskMeSomething from "components/ask-me-something";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
@@ -58,7 +58,7 @@ import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
-import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
@@ -169,18 +169,18 @@ export default () => {
     ) => {
       try{
       // console.log("listening to firebase");
-      const firebasePath =  "/processStatuses/recording/"
+      const firebasePath =  "processStatuses/recording"
         // : "processStatuses/guest/recording/";
       // const statusRef = ref(db, firebasePath + recordingId);
       console.log('firebase listen', firebasePath + recordingId)
-      // const snapshot = await get(statusRef);
-      // console.log(snapshot.exists(),'snapshot exists')
       // const checkSnapshotExists = async (attempts: number) => {
       //   for (let i = 0; i < attempts; i++) {
-      //     const snapshot = await get(statusRef);
-      //     if (snapshot.exists()) {
-      //       return snapshot;
-      //     }
+          
+      // database()
+      // .ref("processStatuses/recording").child(`${recordingId}`).on("child_added",async(s)=>{
+      //   console.log('snap status',s.val())
+      //   return true
+      // })
       //     console.log(`Attempt ${i + 1}: Snapshot does not exist, retrying...`);
       //     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
       //   }
@@ -192,7 +192,7 @@ export default () => {
       let isTranscriptTriggered=false;
       let isProcessCompleted=false;
       database()
-      .ref(firebasePath + recordingId)
+      .ref(firebasePath).child(`${recordingId}`)
       .on('value', async (snapshot) => {
       //   console.log('User data: ', snapshot.val());
       // });
@@ -280,8 +280,11 @@ export default () => {
             !isTitleTriggered&&isTitleGenerated&&setTriggerTypingTitle(recordingId);
             isTitleTriggered=isTitleGenerated;
             isTranscriptTriggered=status==RecordingStatus.TRANSCRIPT_GENERATED
+            status==RecordingStatus.TRANSCRIPT_GENERATED&&await queryClient.invalidateQueries('single-recording')
             dispatch(updateTempRecordingData(updatedStatus));
             dispatchCanRecord(updatedNote.data?.can_record_more);
+            isTitleGenerated&&dispatch(setRelatedNoteTitleLoad(false))
+            status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
             status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).remove();
@@ -304,10 +307,11 @@ export default () => {
     }
 
   useEffect(() => {
-    // const tokenSubscription = actionEmitter.addListener('sendToken', () => {
-    //   console.log("React Native: Send token started");
-    //   NativeModules.TokenBridge.sendTokenToWatch(token);
-    // });
+    const tokenSubscription = actionEmitter.addListener('sendToken', () => {
+      console.log("React Native: Send token started");
+      NativeModules.TokenBridge.sendTokenToWatch(token);
+    });
+
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
       console.log("React Native: Recording started");
       setTimeout(() => {
@@ -457,7 +461,7 @@ export default () => {
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
-          data: isProcessFailed?{status:"processing",is_transcript_loading:false}:{ is_transcript_loading: true },
+          data: isProcessFailed?{status:"processing",is_transcript_loading:false}:{ is_transcript_loading: note?.id },
         })
       );
       console.log("making request");
@@ -603,19 +607,16 @@ export default () => {
         const recordingId = response.recording.id;
         console.log(recordingId,'recording id')
         if(continueUpload && !recordingParentId) setRecordingParentId(recordingId)
-        // if(response.recording?.parent_id){
-        //   setRecordingParentId(recordingId)
-        // }else{
-        //   setRecordingParentId(null)
-        // }
+        console.log("audio uploaded waiting for process");
         dispatch(
           updateRecordingDetails({
             recordingId,
-            data: { status: "uploading" },
+            data: { status: "processing" },
             temporaryRecordingId,
           })
         );
-        sleep(500)
+        dispatch(updateTempRecordingData("processing"));
+        note.audio.data.duration>300000&&sleep(2000)
         await listenToFirebaseStatus(recordingId, temporaryRecordingId);
       });
       setTimeout(() => {
@@ -752,7 +753,7 @@ export default () => {
         syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
-        setExpand={(v:any) =>v?setExpandNote(v): setExpandNote(index == expandNote ? -1 : index)}
+        setExpand={(v:any) =>setExpandNote(v)}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
@@ -900,10 +901,11 @@ export default () => {
             </Animated.View>
             <Animated.FlatList
                 ref={scrollRef}
-                ListHeaderComponent={() =>
+                ListHeaderComponent={
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
                 }
-                data={isRecordListLoading?[]:filteredRecordingList}
+                // bounces={false}
+                data={isRecordListLoading?[]:filteredRecordingList??[]}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }

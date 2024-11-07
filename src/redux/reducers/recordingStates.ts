@@ -108,7 +108,7 @@ export const recordingStates = createSlice({
         // If no changes, return the original recording
         return recording;
       };
-      state.recordingList= state.recordingList.map(updateRecording)
+      state.recordingList= state?.recordingList?.map(updateRecording)
     },
   },
 });

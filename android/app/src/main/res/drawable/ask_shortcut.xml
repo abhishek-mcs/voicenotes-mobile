@@ -13,6 +13,5 @@
 
     <!-- Vector icon -->
     <item android:drawable="@drawable/ask_ic_black"
-        android:height="24dp"
-        android:width="24dp"/>
+        />
 </layer-list>

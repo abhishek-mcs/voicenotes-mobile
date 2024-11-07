@@ -39,6 +39,7 @@ import PublishedModal from "./published-modal";
 import {
   deleteRecording,
   updateRecordingDetails,
+  updateTempRecordingData,
 } from "redux/reducers/recordingStates";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import NoteButtons from "components/common/note-buttons";
@@ -61,7 +62,7 @@ import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
-import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
@@ -170,7 +171,7 @@ const NotePreview = forwardRef(
 
     const getCreation = async (id: number) => {
       await queryClient.refetchQueries("all-recording");
-      isSingle && (await queryClient.resetQueries("single-recording"));
+      isSingle && (await queryClient.invalidateQueries("single-recording"));
       setCreationLoader(false);
     };
 
@@ -199,6 +200,7 @@ const NotePreview = forwardRef(
           data: { is_title_loading: true },
         })
       );
+      dispatch(setRelatedNoteTitleLoad(note?.id))
 
       try {
         const resp = await axiosApi.patch(`/recordings/${note.id}/title`);
@@ -209,6 +211,7 @@ const NotePreview = forwardRef(
             data: { is_title_loading: false, title },
           })
         );
+        dispatch(setRelatedNoteTitleLoad(false))
       } catch (error) {
         console.log("error in dispatching: ", error);
         dispatch(
@@ -217,12 +220,14 @@ const NotePreview = forwardRef(
             data: { error_loading_title: error, is_title_loading: false },
           })
         );
+        dispatch(setRelatedNoteTitleLoad(false))
       }
     };
 
     const onReGenerateTranscript = async () => {
       hideMoreOption();
       await sleep(0.5);
+      dispatch(setRelatedNoteTranscriptLoad(note?.id))
       continueProcessing(note, true);
     };
 
@@ -247,6 +252,7 @@ const NotePreview = forwardRef(
                   setIsPublished((t: any) => !t);
                 }, 50);
                 await queryClient.invalidateQueries("all-recording");
+                await queryClient.invalidateQueries("single-recording");
               } catch (e) {
                 console.info("error in toggle publish", e);
               } finally {
@@ -324,6 +330,7 @@ const NotePreview = forwardRef(
                 // edge case
                 // await cancelUpload(note?.id);
                 dispatch(deleteRecording({ id: note?.id }));
+                dispatch(updateTempRecordingData('processed'))
                 // onDeleteCallBack();
               } else {
                 try {
@@ -456,21 +463,18 @@ const NotePreview = forwardRef(
       setShowLinkEditModal(false);
       LayoutAnimation.configureNext({
         duration: 150,
-        create: {
-          type: LayoutAnimation.Types.linear,
-          property: LayoutAnimation.Properties.opacity,
+        create: 
+        {
+           type: LayoutAnimation.Types.easeInEaseOut,
+           property: LayoutAnimation.Properties.opacity,
         },
-        update: {
-          type: LayoutAnimation.Types.linear,
-          property: LayoutAnimation.Properties.opacity,
-        },
-        delete: {
-          type: LayoutAnimation.Types.linear,
-          property: LayoutAnimation.Properties.opacity,
-        },
-      });
-      setExpand();
-      if(!note?.related_notes||note?.related_notes?.length==0)
+        update: 
+        {
+           type: LayoutAnimation.Types.easeInEaseOut,
+        }
+       });
+      setExpand((i:any)=>index==i?-1:index);
+      if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
     };
 
@@ -685,7 +689,7 @@ const NotePreview = forwardRef(
         onPress:()=>onCopy(note?.transcript ?? "")
       },
       ...(isSubnote ? [] : [{
-        title:"Add subnote",
+        title:"Record subnote",
         systemIcon:'mic',
         onPress:onThreadNote
       }]),
@@ -804,6 +808,7 @@ const NotePreview = forwardRef(
 
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
+      await queryClient.invalidateQueries("single-recording");
     };
 
     if (!note) return null;
@@ -846,14 +851,15 @@ const NotePreview = forwardRef(
               <View style={styles.timeLine} />
             </View> */}
             <View style={styles.content}>
-              {(!isSubnote||note?.status!='processed')&&<View
+              {isSubnote&&!note?.status?null
+              :(!isSubnote||note?.status!='processed')&&<View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
                 }}
               >
-                {note?.is_title_loading ? (
+                {note?.is_title_loading==note?.id ? (
                   <AiLoader
                     text="Creating title from your voice"
                     style={{ marginTop: -7 }}
@@ -886,14 +892,15 @@ const NotePreview = forwardRef(
                     {isNoteExpanded && (
                       <StatusIndicator
                         status={note?.status}
-                        onRetry={() => syncUpNote(note)}
+                        onRetry={() => {}}
                       />
                     )}
                   </>
                 )}
-              </View>}
+              </View>
+              }
 
-              {note.is_transcript_loading && (
+              {note?.is_transcript_loading==note?.id && (
                 <AiLoader
                   text={`Creating transcript from your voice`}
                   style={{ marginTop: 0 }}
@@ -968,9 +975,11 @@ const NotePreview = forwardRef(
                   :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Touchable>
-                {(note?.status=="processed"||isSingle)&&
-                  <MoreOptions options={options} style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
-                  <SvgXml xml={home.moreNew?.replace('#3C3C43',Colors.more)}/>
+                {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
+                  <MoreOptions options={options} style={{height:30,width:30,zIndex:1000,position:'relative'}}>
+                    <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.darkWithOpacity(0.05),justifyContent:"center",alignItems:'center'}}>
+                    <SvgXml xml={home.moreNew?.replace('#3C3C43',Colors.more)}/>
+                  </View>
                 </MoreOptions>}
                 </View>
 
@@ -1039,11 +1048,11 @@ const NotePreview = forwardRef(
         {note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote
             list={note?.subnotes}
-            setExpand={setExpand}
             expand={expand}
             hashFilter={hashFilter}
             onUploadRetry={onUploadRetry}
             syncUpNote={syncUpNote}
+            continueProcessing={continueProcessing}
           />
         )}
       </View>

@@ -1,13 +1,14 @@
 import { bottomSvg } from "assets/svg/bottomSvg";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native";
-import { Button, View } from "react-native";
+import { View } from "react-native";
 import RecButton from "./rec-button";
 import { useMemo } from "react";
 // import Waveform from "./waveform";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { useTheme } from "context";
+import { isSmallDevice } from "utils/common";
 
 export default ({
   onPause,
@@ -103,7 +104,7 @@ export default ({
             underlayColor=""
             onPress={onPause}
             bgColor={Colors.bottomBarButtonBg1}
-            style={{ paddingHorizontal: 12, marginRight: -12,borderRadius:16,height:40 }}
+            style={{ paddingHorizontal: 12, marginRight:isSmallDevice?-4: -12,borderRadius:16,height:40 }}
           />
         )}
         <RecButton
