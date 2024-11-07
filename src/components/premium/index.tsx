@@ -130,7 +130,7 @@ export default (props:any) => {
 
   return (
     <View style={styles.main}>
-      <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
+      <ImageBackground source={premiumBg} style={{height:screenHeight,width:'100%',flex:1}}>
         <SafeAreaView style={{flex:1, paddingTop: insets.top}}>
           <Touchable style={styles.closeButton} onPress={()=>from=="home"?router?.back():freeUser()}>
             <SvgXml xml={iapSvg.close}/>
@@ -163,10 +163,11 @@ export default (props:any) => {
                 </View>
               </View>
               <View style={styles.subContainer}>
-                <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
-                <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>
+                <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                  <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
+                  <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>               
+                </View>
                 <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
-              
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
@@ -204,24 +205,30 @@ const Btn = ({
       type == "upgrade"
         ? styles.btnFilled
         : selected
-        ? { borderColor: Colors.green2, borderWidth: 2 }
+        ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.green2WithOpacity(0.05) }
         : {},
     ]}
     underlayColor={underlay}
   >
     {type == "monthly" || type == "believer" || type == "free" ? (
       <>
-        <View>
+        {/* <View>
           {type == "believer" && (
             <View style={styles.btnContent}>
               <SvgXml xml={iapSvg.limit} />
             </View>
           )}
           <Text style={styles.btnText}>{title}</Text>
-        </View>
+        </View> */}
         {type != "free" && (
           <View>
-            <Text style={styles.btnPrice}>{price}</Text>
+            <View style={{position:'absolute',top:-21,alignSelf:'center',borderRadius:10,backgroundColor:Colors.whiteWithOpacity(1),paddingVertical:2,paddingHorizontal:4}}>
+              <SvgXml xml={iapSvg.limit}/>
+            </View>
+            <Text style={styles.btnPrice}>
+              {price}{'  '}
+              <Text style={styles.nonOfferPrice}>{'$120.99'}</Text>
+            </Text>
             <Text style={styles.btnPriceType}>
               {type == "believer" ? "One-time" : "Per month"}
             </Text>
@@ -252,12 +259,12 @@ const styles = StyleSheet.create({
   desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Medium',color:'#222',lineHeight:22,marginTop:-4},
   border:{borderWidth:2,borderColor:Colors.darkWithOpacity(0)},
   btnFilled:{height:56,width:'100%',backgroundColor:Colors.black2,justifyContent:'center',marginVertical:screenHeight>690?20:14,borderWidth:0,marginTop:24},
-  btn:{minHeight:64,width:'100%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:12,backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12},
+  btn:{height:84,width:'48%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:12,backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12},
   btnContent:{marginBottom:5,flexDirection:'row',alignItems:'center'},
   btnText:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2},
   offer:{color:'#FF4538', fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
-  btnPrice:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2,textAlign:'right'},
-  btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4,textAlign:'right'},
+  btnPrice:{fontSize:20,fontFamily:'Primary-Semibold',color:Colors.black2},
+  btnPriceType:{color:Colors.black2,fontSize:14,fontFamily:'Primary',marginTop:4},
   footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
   footerText1:{color:'#9B9B9B',fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
   footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:14},
@@ -295,6 +302,12 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     marginTop: 2,
   },
+  nonOfferPrice:{
+    fontFamily:'Primary-Medium',
+    fontSize:14,
+    color:Colors.grey3,
+    textDecorationLine:'line-through',
+  }
 })
 
 interface Props {
