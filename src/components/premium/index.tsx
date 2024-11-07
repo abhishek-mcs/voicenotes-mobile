@@ -220,11 +220,11 @@ const Btn = ({
           )}
           <Text style={styles.btnText}>{title}</Text>
         </View> */}
-        {type != "free" && (
-          <View>
-            <View style={{position:'absolute',top:-21,alignSelf:'center',borderRadius:10,backgroundColor:Colors.whiteWithOpacity(1),paddingVertical:2,paddingHorizontal:4}}>
+            <View style={[styles.limitted,styles.shadow]}>
               <SvgXml xml={iapSvg.limit}/>
             </View>
+        {type != "free" && (
+          <View>
             <Text style={styles.btnPrice}>
               {price}{'  '}
               <Text style={styles.nonOfferPrice}>{'$120.99'}</Text>
@@ -251,34 +251,112 @@ const Btn = ({
 );
 
 const styles = StyleSheet.create({
-  main:{flex:1,backgroundColor:'#fff'},
-  container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
-  subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
-  img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},
-  descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:screenHeight>690?17:12},
-  desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Medium',color:'#222',lineHeight:22,marginTop:-4},
-  border:{borderWidth:2,borderColor:Colors.darkWithOpacity(0)},
-  btnFilled:{height:56,width:'100%',backgroundColor:Colors.black2,justifyContent:'center',marginVertical:screenHeight>690?20:14,borderWidth:0,marginTop:24},
-  btn:{height:84,width:'48%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:12,backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12},
-  btnContent:{marginBottom:5,flexDirection:'row',alignItems:'center'},
-  btnText:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2},
-  offer:{color:'#FF4538', fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
-  btnPrice:{fontSize:20,fontFamily:'Primary-Semibold',color:Colors.black2},
-  btnPriceType:{color:Colors.black2,fontSize:14,fontFamily:'Primary',marginTop:4},
-  footerText:{color:'#9B9B9B',fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
-  footerText1:{color:'#9B9B9B',fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
-  footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:14},
-  title:{
-    fontSize:screenWidth/8,
-    fontFamily:'Secondary',
-    color:'#222',
-    marginBottom:20,
-    alignSelf:'center',
-    lineHeight:64,
-    marginHorizontal:20
+  main: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, marginTop: 14, paddingHorizontal: isIOS ? 0 : 5 },
+  subContainer: {
+    flex: 2,
+    padding: screenHeight > 690 ? 16 : 8,
+    paddingVertical: 0,
+    marginTop: 4,
+  },
+  img: {
+    width: "80%",
+    height: screenHeight / 3.3,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+  descView: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+    marginBottom: screenHeight > 690 ? 17 : 12,
+  },
+  desc: {
+    marginLeft: 9,
+    fontSize: 16,
+    fontFamily: "Primary-Medium",
+    color: "#222",
+    lineHeight: 22,
+    marginTop: -4,
+  },
+  border: { borderWidth: 2, borderColor: Colors.darkWithOpacity(0) },
+  btnFilled: {
+    height: 56,
+    width: "100%",
+    backgroundColor: Colors.black2,
+    justifyContent: "center",
+    marginVertical: screenHeight > 690 ? 20 : 14,
+    borderWidth: 0,
+    marginTop: 24,
+  },
+  btn: {
+    height: 84,
+    width: "48%",
+    paddingVertical: 8,
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    marginTop: 12,
+    backgroundColor: Colors.darkWithOpacity(0.05),
+    borderRadius: 12,
+  },
+  btnContent: { marginBottom: 5, flexDirection: "row", alignItems: "center" },
+  btnText: {
+    fontSize: 16,
+    fontFamily: "Primary-Semibold",
+    color: Colors.black2,
+  },
+  offer: {
+    color: "#FF4538",
+    fontFamily: "Primary-Semibold",
+    fontSize: 10,
+    textAlignVertical: "center",
+    marginLeft: 4,
+  },
+  btnPrice: {
+    fontSize: 20,
+    fontFamily: "Primary-Semibold",
+    color: Colors.black2,
+  },
+  btnPriceType: {
+    color: Colors.black2,
+    fontSize: 14,
+    fontFamily: "Primary",
+    marginTop: 4,
+  },
+  footerText: {
+    color: "#9B9B9B",
+    fontFamily: "Primary",
+    fontSize: 14,
+    lineHeight: 15,
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  footerText1: {
+    color: "#9B9B9B",
+    fontFamily: "Primary",
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: "center",
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+  },
+  title: {
+    fontSize: screenWidth / 8,
+    fontFamily: "Secondary",
+    color: "#222",
+    marginBottom: 20,
+    alignSelf: "center",
+    lineHeight: 64,
+    marginHorizontal: 20,
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     padding: 10,
     zIndex: 10,
     right: 16,
@@ -294,21 +372,37 @@ const styles = StyleSheet.create({
   },
   descTextContainer: {
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
   },
   techCrunchIcon: {
     marginLeft: 4,
     marginTop: 2,
   },
-  nonOfferPrice:{
-    fontFamily:'Primary-Medium',
-    fontSize:14,
-    color:Colors.grey3,
-    textDecorationLine:'line-through',
-  }
-})
+  nonOfferPrice: {
+    fontFamily: "Primary-Medium",
+    fontSize: 14,
+    color: Colors.grey3,
+    textDecorationLine: "line-through",
+  },
+  limitted: {
+    position: "absolute",
+    top: -21,
+    alignSelf: "center",
+    borderRadius: 10,
+    backgroundColor: "red",
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+  },
+  shadow: {
+    shadowColor: Colors.blackWithOpacity(1),
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { width: 0, height: 0.5 },
+    elevation: 2,
+  },
+});
 
 interface Props {
   type: string,
