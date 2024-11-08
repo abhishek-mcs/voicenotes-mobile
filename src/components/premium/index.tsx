@@ -64,7 +64,7 @@ const Premium=(props:any) => {
         return;
       }
       
-      const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
+      const productToBuy=selected=='monthly'?pack[1]?.product:pack[3]?.product;
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
         // Unlock that great "pro" content
@@ -78,14 +78,14 @@ const Premium=(props:any) => {
             )
             AppEventsLogger.logPurchase(
               selected == "monthly"
-                ? pack[1]?.product?.price || 10
-                : pack[0]?.product?.price || 50,
+                ? pack[1]?.product?.price || 9.99
+                : pack[3]?.product?.price || 49.99,
               pack[1]?.product?.currencyCode || "USD",
               {
                 fb_currency:
                   selected == "monthly"
-                    ? pack[1]?.product?.priceString || "$10.00"
-                    : pack[0]?.product?.priceString || "$50.00",
+                    ? pack[1]?.product?.priceString || "$9.99"
+                    : pack[3]?.product?.priceString || "$49.99",
                 _eventName:
                   selected == "monthly" ? "Monthly Subscription" : "Lifetime",
               }
