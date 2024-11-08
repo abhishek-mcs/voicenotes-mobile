@@ -210,7 +210,7 @@ const NotePreview = forwardRef(
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
-          data: { is_title_loading: true },
+          data: { is_title_loading: note?.id },
         })
       );
       dispatch(setRelatedNoteTitleLoad(note?.id))

@@ -468,10 +468,22 @@ export default () => {
         })
       );
       console.log("making request");
-      await axiosApi.patch(`/recordings/${note.id}/continue`, {
+      const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
         is_transcript_only,
       });
-      listenToFirebaseStatus(note.id);
+
+      if(is_transcript_only){
+        const transcript = resp.data?.recording?.title;
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { is_transcript_loading: false, transcript },
+          })
+        );
+        dispatch(setRelatedNoteTranscriptLoad(false))
+      }
+      else
+        listenToFirebaseStatus(note.id);
     } catch (error) {
       console.log("error in queing new transcript: ", error);
     }
