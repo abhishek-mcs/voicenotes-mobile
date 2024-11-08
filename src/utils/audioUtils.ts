@@ -40,7 +40,7 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
     subnotes: rec.subnotes.map((subnote: Subnote) => ({
       ...subnote,
       status:  !!subnote?.transcript?"processed":subnote.status=="processing"?"processing_failed":(subnote?.status ?? "processed"),
-      recorded_at: rec.recorded_at ?? rec.created_at,
+      recorded_at: subnote.recorded_at ?? subnote.created_at,
     })),
   }));
 
