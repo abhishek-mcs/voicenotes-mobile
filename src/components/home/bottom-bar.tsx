@@ -58,14 +58,15 @@ useEffect(() => {
       timerId.current = setInterval(() => {
         setDuration((prevDuration) => {
           const newDuration = prevDuration + 1000;
-          if (
-            newDuration >= 60000 &&
-            (!token || !userDetails?.subscription_status)
-          ) {
-            onStopRecord(newDuration);
-            return 0;
-          } else if (newDuration >= 1800000 && !!token) {
-            onStopRecord(newDuration, true);
+          // if (
+          //   newDuration >= 60000 &&
+          //   (!token || !userDetails?.subscription_status)
+          // ) {
+          //   onStopRecord(newDuration);
+          //   return 0;
+          // } else 
+          if (newDuration >= 1800000 && !!token) {
+            onStopRecord(newDuration, userDetails?.subscription_status);
             return 0;
           }
           return newDuration;
