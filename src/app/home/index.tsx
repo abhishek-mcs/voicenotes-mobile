@@ -737,7 +737,7 @@ export default () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
-
+console.log(recordingQuery.data)
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview

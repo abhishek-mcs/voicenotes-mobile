@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
-export default (props:any) => {
+const Premium=(props:any) => {
   const router = useRouter()
   const {from="home"}=useLocalSearchParams();
   const [isLoading,setIsLoading]=useState(false)
@@ -33,6 +33,7 @@ export default (props:any) => {
   const insets = useSafeAreaInsets()
 
   useEffect(()=>{
+    console.warn(pack[1]?.product?.priceString,pack[1]?.product?.identifier)
     // const load=async()=>{
     //   try{
     //   const firebaseID=await analytics().getAppInstanceId()
@@ -127,7 +128,13 @@ export default (props:any) => {
     }
     setIsLoading(false)
   }
-
+  const priceMonthString=(pack[1]?.product?.priceString?.replaceAll(' ','')||'$9.99')?.replace('.00','')
+  const priceAnnualString=(pack[3]?.product?.priceString?.replaceAll(' ','')||'$49.99')?.replace('.00','')
+  const priceMonth=pack[1]?.product?.price||9.99;
+  const match = priceMonthString?.match(/^[^\d]*[^\d\s]/);
+  const currencySymbol=match?match[0]?.trim():"$";
+  const continueText=`Subscribe for ${selected=="monthly"?priceMonthString+' / month':priceAnnualString+' / year'}`
+  const originPrice=`${currencySymbol}${(priceMonth*12)}`
   return (
     <View style={styles.main}>
       <ImageBackground source={premiumBg} style={{height:screenHeight,width:'100%',flex:1}}>
@@ -164,10 +171,10 @@ export default (props:any) => {
               </View>
               <View style={styles.subContainer}>
                 <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-                  <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>
-                  <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>               
+                  <Btn type="believer" originPrice={originPrice} price={priceAnnualString} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>  
+                  <Btn type="monthly" isOverflow={(priceAnnualString?.length||0)>=8} price={priceMonthString} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>             
                 </View>
-                <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
+                <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={continueText} isLoading={isLoading}/>
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
@@ -188,14 +195,18 @@ export default (props:any) => {
   )
 }
 
+export default  Premium;
+
 const Btn = ({
   title,
   type,
-  price,
+  price='',
   onPress,
   underlay,
   selected = false,
   isLoading = false,
+  originPrice,
+  isOverflow=false
 }: Props) => (
   <TouchableHighlight
     onPress={onPress}
@@ -207,6 +218,7 @@ const Btn = ({
         : selected
         ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.green2WithOpacity(0.05) }
         : {},
+        isOverflow?{alignItems:'flex-end'}:{alignItems:'center'}
     ]}
     underlayColor={underlay}
   >
@@ -220,17 +232,18 @@ const Btn = ({
           )}
           <Text style={styles.btnText}>{title}</Text>
         </View> */}
-            <View style={[styles.limitted,styles.shadow]}>
+            {type != "monthly"&&<View style={[styles.limitted,styles.shadow]}>
               <SvgXml xml={iapSvg.limit}/>
-            </View>
+            </View>}
         {type != "free" && (
           <View>
+            {type != "monthly"&&price?.length>=8&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
             <Text style={styles.btnPrice}>
               {price}{'  '}
-              <Text style={styles.nonOfferPrice}>{'$120.99'}</Text>
+              {type != "monthly" && price?.length<8&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
             </Text>
             <Text style={styles.btnPriceType}>
-              {type == "believer" ? "One-time" : "Per month"}
+              {type == "believer" ? "per year" : "per month"}
             </Text>
           </View>
         )}
@@ -281,20 +294,21 @@ const styles = StyleSheet.create({
   },
   border: { borderWidth: 2, borderColor: Colors.darkWithOpacity(0) },
   btnFilled: {
-    height: 56,
+    minHeight: 58,
     width: "100%",
     backgroundColor: Colors.black2,
     justifyContent: "center",
     marginVertical: screenHeight > 690 ? 20 : 14,
     borderWidth: 0,
     marginTop: 24,
+    alignItems: "center",
   },
   btn: {
-    height: 84,
+    minHeight: 84,
     width: "48%",
-    paddingVertical: 8,
-    justifyContent: "space-between",
-    alignItems: "center",
+    paddingVertical: 16,
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
     flexDirection: "row",
     paddingHorizontal: 16,
     marginTop: 12,
@@ -323,7 +337,7 @@ const styles = StyleSheet.create({
     color: Colors.black2,
     fontSize: 14,
     fontFamily: "Primary",
-    marginTop: 4,
+    marginTop: 0,
   },
   footerText: {
     color: "#9B9B9B",
@@ -388,12 +402,13 @@ const styles = StyleSheet.create({
   },
   limitted: {
     position: "absolute",
-    top: -21,
-    alignSelf: "center",
+    top: -12,
+    alignSelf:'center',
     borderRadius: 10,
-    backgroundColor: "red",
-    paddingVertical: 2,
-    paddingHorizontal: 4,
+    backgroundColor: Colors.whiteWithOpacity(1),
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    left:'27%'
   },
   shadow: {
     shadowColor: Colors.blackWithOpacity(1),
@@ -411,5 +426,7 @@ interface Props {
   underlay: string,
   title: string,
   selected?: boolean,
-  isLoading?: boolean
+  isLoading?: boolean,
+  originPrice?: string | null,
+  isOverflow?:boolean|null
 }
