@@ -33,7 +33,6 @@ const Premium=(props:any) => {
   const insets = useSafeAreaInsets()
 
   useEffect(()=>{
-    console.warn(pack[1]?.product?.priceString,pack[1]?.product?.identifier)
     // const load=async()=>{
     //   try{
     //   const firebaseID=await analytics().getAppInstanceId()
@@ -128,13 +127,18 @@ const Premium=(props:any) => {
     }
     setIsLoading(false)
   }
-  const priceMonthString=(pack[1]?.product?.priceString?.replaceAll(' ','')||'$9.99')?.replace('.00','')
-  const priceAnnualString=(pack[3]?.product?.priceString?.replaceAll(' ','')||'$49.99')?.replace('.00','')
-  const priceMonth=(pack[1]?.product?.price||9.9933333333333).toFixed(2);
+  const priceMonthString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace('.00','')
+  const priceAnnualString=(pack[3]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace('.00','')
+  const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
+  const formattedPrice = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(priceMonth * 12);
   const match = priceMonthString?.match(/^[^\d]*[^\d\s]/);
   const currencySymbol=match?match[0]?.trim():"$";
   const continueText=`Subscribe for ${selected=="monthly"?priceMonthString+' / month':priceAnnualString+' / year'}`
-  const originPrice=`${currencySymbol}${(priceMonth*12)}`
+  const originPrice=`${currencySymbol}${(formattedPrice)}`?.replace(/\.\d+$/, '.99');
   return (
     <View style={styles.main}>
       <ImageBackground source={premiumBg} style={{height:screenHeight,width:'100%',flex:1}}>
@@ -143,18 +147,18 @@ const Premium=(props:any) => {
             <SvgXml xml={iapSvg.close}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-            <View style={{paddingLeft:32, marginBottom: 20}}>
+            <View style={{paddingLeft:32, marginBottom: 0}}>
               <SvgXml xml={iapSvg.usersCount}/>
             </View>
             <View style={styles.container}>
-              <Text style={styles.title}>Unlock the power of your voice</Text>
+              <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
               <View style={styles.descView}>
                 <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
                 <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
               </View>
               <View style={styles.descView}>
               <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-                <Text style={styles.desc}>Human-level transcription in 55 languages.</Text>
+                <Text style={styles.desc}>Human-level transcription in 100+ languages.</Text>
               </View>
               <View style={styles.descView}>
               <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
@@ -163,23 +167,19 @@ const Premium=(props:any) => {
               <View style={styles.descView}>
                 <SvgXml xml={iapSvg.done} style={styles.doneIcon} />
                 <View style={styles.descTextContainer}>
-                  <Text style={styles.desc}>
-                    #1 AI voice app. As seen on
-                  </Text>
+                  <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
                   <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />
                 </View>
               </View>
               <View style={styles.subContainer}>
                 <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-                  <Btn type="believer" originPrice={originPrice} price={priceAnnualString} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>  
-                  <Btn type="monthly" isOverflow={(priceAnnualString?.length||0)>=8} price={priceMonthString} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>             
+                  <Btn type="believer" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} originPrice={originPrice} price={priceAnnualString} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>  
+                  <Btn type="monthly" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} price={priceMonthString} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>             
                 </View>
                 <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={continueText} isLoading={isLoading}/>
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
-              </View>
-            </View>
         <View style={styles.footer}>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
             <Text style={[styles.footerText1,{color:'#000'}]}>Terms of Service</Text>
@@ -188,6 +188,8 @@ const Premium=(props:any) => {
             <Text style={[styles.footerText1,{color:'#000',marginHorizontal:16}]}>Privacy Policy</Text>
           </Touchable>
         </View>
+              </View>
+            </View>
           </ScrollView>
         </SafeAreaView>
       </ImageBackground>
@@ -237,10 +239,10 @@ const Btn = ({
             </View>}
         {type != "free" && (
           <View>
-            {type != "monthly"&&price?.length>=8&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
+            {type != "monthly"&&isOverflow&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
             <Text style={styles.btnPrice}>
               {price}{'  '}
-              {type != "monthly" && price?.length<8&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
+              {type != "monthly"&& !isOverflow&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
             </Text>
             <Text style={styles.btnPriceType}>
               {type == "believer" ? "per year" : "per month"}
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
     fontFamily: "Secondary",
     color: "#222",
     marginBottom: 20,
-    alignSelf: "center",
+    alignSelf: "flex-start",
     lineHeight: 64,
     marginHorizontal: 20,
   },
@@ -381,18 +383,18 @@ const styles = StyleSheet.create({
     // paddingTop: isIOS ? 30 : 50,
   },
   doneIcon: {
-    marginTop: 3,
-    marginRight: 9,
+    marginTop: 2,
+    // marginRight: 9,
   },
   descTextContainer: {
     flex: 1,
     flexDirection: "row",
-    flexWrap: "wrap",
+    // flexWrap: "wrap",
     alignItems: "center",
   },
   techCrunchIcon: {
     marginLeft: 4,
-    marginTop: 2,
+    // marginTop: 2,
   },
   nonOfferPrice: {
     fontFamily: "Primary-Medium",
