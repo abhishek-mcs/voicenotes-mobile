@@ -130,7 +130,7 @@ const Premium=(props:any) => {
   }
   const priceMonthString=(pack[1]?.product?.priceString?.replaceAll(' ','')||'$9.99')?.replace('.00','')
   const priceAnnualString=(pack[3]?.product?.priceString?.replaceAll(' ','')||'$49.99')?.replace('.00','')
-  const priceMonth=pack[1]?.product?.price||9.99;
+  const priceMonth=(pack[1]?.product?.price||9.9933333333333).toFixed(2);
   const match = priceMonthString?.match(/^[^\d]*[^\d\s]/);
   const currencySymbol=match?match[0]?.trim():"$";
   const continueText=`Subscribe for ${selected=="monthly"?priceMonthString+' / month':priceAnnualString+' / year'}`

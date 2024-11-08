@@ -32,9 +32,9 @@ export default () => {
                     <Text style={{ color: '#499035', fontFamily: 'Primary-Medium' }}>Active</Text>
                 </View>}
             </View>
-            {userDetails.subscription_plan !== "Believer" && <Pressable onPress={() => router.push('/premium/')} style={styles.action}>
+            {(userDetails.subscription_plan == "monthly"||userDetails.subscription_plan == "free") && <Pressable onPress={() => router.push('/premium/')} style={styles.action}>
                 <SvgXml xml={iapSvg.lightning} />
-                <Text style={{ color: '#4285F4', fontFamily: 'Primary-Bold' }} >Upgrade for lifetime</Text>
+                <Text style={{ color: '#4285F4', fontFamily: 'Primary-Bold' }} >Upgrade for yearly</Text>
             </Pressable>}
         </View>
     </SafeAreaView>
