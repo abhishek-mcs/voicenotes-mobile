@@ -90,7 +90,7 @@ const fadeOut = {
 
 const KeyboardAvoidView:any = KeyboardAvoidingView;
 
-export default () => {
+const Home = () => {
   const { ActionModule } = NativeModules;
   const actionEmitter = new NativeEventEmitter(ActionModule);
   const insets = useSafeAreaInsets();
@@ -1110,3 +1110,4 @@ const styles = StyleSheet.create({
   },
   hideBg: { backgroundColor: "#F4F6F6" },
 });
+export default Home
