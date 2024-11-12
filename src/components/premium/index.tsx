@@ -73,7 +73,7 @@ const Premium=(props:any) => {
             .logEvent(
               selected == "monthly"
                 ? "monthly_subscription_success"
-                : "lifetime_purchase_success"
+                : "yearly_subscription_success"
             )
             AppEventsLogger.logPurchase(
               selected == "monthly"
@@ -86,7 +86,7 @@ const Premium=(props:any) => {
                     ? pack[1]?.product?.priceString || "$9.99"
                     : pack[3]?.product?.priceString || "$49.99",
                 _eventName:
-                  selected == "monthly" ? "Monthly Subscription" : "Lifetime",
+                  selected == "monthly" ? "Monthly Subscription" : "Yearly Subscription",
               }
             );
         } catch {}

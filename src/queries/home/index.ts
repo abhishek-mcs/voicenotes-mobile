@@ -6,6 +6,8 @@ import { useGetRelatedRecording } from "./relatedNote";
 import { Platform } from "react-native";
 import * as Device from 'expo-device';
 import { currentVersion } from "services/api/api-constants";
+import { useDispatch } from "react-redux";
+import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
 
 
 export function useRecordings(tags?:string){
@@ -269,12 +271,15 @@ export function usePinTagDelete(id:any){
 }
 
 export function useGetUserData(token:any){
-   
+   const dispatch=useDispatch()
     return useQuery('user-data',(p?:any)=> {
     if(!!token)
         return axiosApi.get(`/auth/me`)
     },
     {
+        onSuccess:(r)=>{
+            dispatch(setTempIsIAPPurchased(r?.data?.data?.subscription_status??false))
+        },
         onError:(error:any)=>{
             console.log('auth me',error?.response?.data?.message);
         }
