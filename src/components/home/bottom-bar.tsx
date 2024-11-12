@@ -48,6 +48,10 @@ export default ({
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
+  const { isTempIAPPurchased }: any = useSelector(
+    (state: RootState) => state.IAPStates
+  );
+  const isBeliever = userDetails?.subscription_status||isTempIAPPurchased
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
   const [temporaryRecordingId, setTemporaryRecordingId] = useState<string | null>(null);
@@ -60,7 +64,7 @@ useEffect(() => {
           const newDuration = prevDuration + 1000;
           if (
             newDuration >= 60000 &&
-            (!token || !userDetails?.subscription_status)
+            (!token || !isBeliever)
           ) {
             onStopRecord(newDuration);
             return 0;
@@ -160,7 +164,7 @@ useEffect(() => {
           </>
         ) : (
 <NoteRecorder
-        totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
+        totalDuration={(!!token&&isBeliever)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
         onStopRecord={onDoneClick}
