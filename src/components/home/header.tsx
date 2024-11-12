@@ -13,10 +13,12 @@ import Streaks from "components/streaks";
 import formatBigNumber from "utils/formatBigNumber";
 import { useMemo, useState } from "react";
 import * as Haptics from 'expo-haptics';
+import { iapSvg } from "assets/svg/iapSvg";
 
 export default ({isLogged=true,isOffline}:any) => {
   const router:any=useNavigation()
-  const {token}=useSelector((state:RootState)=>state?.userDetails)
+  const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
+  const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const [streakVisible,setStreakVisible]=useState(false)
 
   const streaks=useStreak(token)
@@ -30,8 +32,9 @@ export default ({isLogged=true,isOffline}:any) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     router?.openDrawer()
   }
+  const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
   return (
-    <View style={{height: streakVisible?'auto':30}} onTouchStart={()=>Keyboard.dismiss()}>
+    <View style={{marginTop:12,height: streakVisible?'auto':30,marginBottom:isBeliever?0:8}} onTouchStart={()=>Keyboard.dismiss()}>
       <View style={styles.container}>
        <View style={{flexDirection:'row',alignSelf:'center'}}>
        {token&&
@@ -44,9 +47,14 @@ export default ({isLogged=true,isOffline}:any) => {
           <Text style={{color:Colors.primary,fontFamily:'Primary-Medium',fontSize:12}}>️Offline mode</Text>
         </View>}
         <View style={{  justifyContent: "flex-start" }}>
-
      {isLogged?
-        <View onTouchStart={(e)=>e?.stopPropagation()}>
+        <View style={{flexDirection:'row',alignItems:'flex-start',justifyContent:'center'}} onTouchStart={(e)=>e?.stopPropagation()}>
+
+        {!isBeliever&&
+        <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.green3WithOpacity(0.1),paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8,marginTop:-6}}>
+          <SvgXml xml={iapSvg.thunder} />
+          <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
+        </Touchable>}
         <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={0.6}>
           <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
         </Touchable>
@@ -71,7 +79,7 @@ export default ({isLogged=true,isOffline}:any) => {
           </View>}
         </View>
       </View>
-      <Streaks data={streaks?.data?.data||[]} visible={streakVisible}/>
+        <Streaks data={streaks?.data?.data||[]} visible={streakVisible}/>
     </View>
   );
 }

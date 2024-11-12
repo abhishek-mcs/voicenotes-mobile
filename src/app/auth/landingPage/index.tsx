@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator, InteractionManager } from "react-native"
 import * as WebBrowser from "expo-web-browser"
-import { useRouter } from "expo-router"
+import { SplashScreen, useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
@@ -18,6 +18,9 @@ import { useDispatch } from "react-redux"
 import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
+import { useNetInfo } from "@react-native-community/netinfo"
+import useFBEventTracking from "hooks/fbsdk/useFBEventTracking"
+import { StatusBar } from "react-native"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -26,15 +29,18 @@ export default () => {
   const [loginError, setLoginError] = useState()
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
+  const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
+
+  useFBEventTracking()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
       const token = data?.data?.token
       const userData = data?.data?.user
       if (token) {
-        setAuthToken(token,false);
+        setAuthToken(data?.data?.token,false,netInfo);
         dispatch(setToken(token));
         dispatch(setUserDetail(userData))
         queryClient.resetQueries('all-recording')

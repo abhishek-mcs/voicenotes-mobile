@@ -25,6 +25,7 @@ import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
 import GoogleAuthButton from "components/auth/google-auth-button";
 import { analytics } from "../../../../firebaseConfig";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default () => {
   const router = useRouter();
@@ -41,6 +42,7 @@ export default () => {
 
   const signInMutation: any = useLogin();
   const queryClient = useQueryClient();
+  const netInfo=useNetInfo()
 
   const inputRef = useRef<TextInput>(null);
 
@@ -66,7 +68,7 @@ export default () => {
           const token = response.data?.authorisation?.token;
           const userData = response.data?.user
           if (token) {
-            setAuthToken(token,false);
+            setAuthToken(response.data?.authorisation?.token,false,netInfo);
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')

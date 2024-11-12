@@ -18,6 +18,7 @@ import { setLang } from "redux/reducers/userDetails";
 import { useQueryClient } from "react-query";
 import { currentVersion } from "services/api/api-constants";
 import { setTempIsIAPPurchased } from "redux/reducers/IAPStates";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default () => {
     const router = useRouter();
@@ -37,9 +38,10 @@ export default () => {
     },{
       text:"Yes",
       onPress:async()=>{
+        await AsyncStorage.removeItem('isLoggedIn');
+        await logout.mutateAsync('').catch(()=>{})
         dispatch(setTempIsIAPPurchased(false))
         router?.back();
-        await logout.mutateAsync('').catch(()=>{})
     }
     }])
   }

@@ -49,11 +49,16 @@ import { LayoutAnimation } from "react-native";
 import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics } from "../../../firebaseConfig";
+import * as FileSystem from 'expo-file-system';
+import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
+
+// const recordSound = require("../../assets/sounds/record.wav");
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
-import * as FileSystem from 'expo-file-system';
+import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
+import Premium from "components/premium";
 
-const recordSound = require("../../assets/sounds/record.wav");
 const {height}=Dimensions.get('screen')
 const fadeIn={
   from:{opacity:0},to:{opacity:1}
@@ -66,7 +71,8 @@ export default ()=> {
   const insets=useSafeAreaInsets()
   const notePreviewRef = useRef<any>();
   const {hashFilter} = useSelector((state: RootState) => state.hash);
-  const token = useSelector((state: RootState) => state.userDetails.token);
+  const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
+  const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
   const [expandNote,setExpandNote] = useState(-1)
   const guestToken = useSelector(
@@ -93,9 +99,12 @@ export default ()=> {
   const [threadIndex,setThreadIndex]=useState(-1)
   const [recordingParentId,setRecordingParentId]=useState<string|null>(null)
   const bannerRef=useRef<any>(null)
+  const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
+  const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
-
+  useWatchNetInfo()
+  
   const recordingQuery = useRecordings(hashFilter=='All'?'':hashFilter)
   const uploadRecord = useUploadRecord()
   const addTranscriptRecord = useAddTranscript(true)
@@ -176,6 +185,7 @@ export default ()=> {
    :await rec?.startAsync().finally(()=>{console.log('resumed')})
   };
   const onStopRecord = useCallback(async(d:number,repeat=false) => {
+    checkAndShowPremium()
     // const file = rec.getURI()||"";
     setRecEnabled(false);
     const file = await stopRecording(rec);
@@ -326,7 +336,6 @@ export default ()=> {
     : (!!generateDummy ? [...generateDummy, ...recordingList] : recordingList)
 
   const recordingParentNoteName = renderData.find(note => note?.id === recordingParentId)?.title ?? null
-
 
   if(!token)
       return <Redirect href="/auth/landingPage/" />

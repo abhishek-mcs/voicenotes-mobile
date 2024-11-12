@@ -2,18 +2,25 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.36",
+    "version": "1.5.40",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.png",
+    "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [
       "**/*"
     ],
+    // "splash": {
+    //   "ios": {
+    //     "image": "./src/assets/images/splash.png",
+    //     "backgroundColor": "#E03A3C",
+    //     "resizeMode": "cover"
+    //   }
+    // },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "97",
+      "buildNumber": "114",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -32,7 +39,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
-        "backgroundColor": "#fff"
+        "backgroundImage": "./src/assets/images/adaptive-bg.png"
       },
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
@@ -40,7 +47,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 105,
+      "versionCode": 137,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
