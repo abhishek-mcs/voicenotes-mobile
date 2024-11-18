@@ -27,6 +27,7 @@ export default {
   grey2WithOpacity: (opacity:number) => `rgba(255, 255, 255, ${opacity})`, // Darker version for background
   grey3WithOpacity: (opacity:number) => `rgba(113, 113, 113, ${opacity})`, // Same grey for consistency
   greenWithOpacity: (opacity:number) => `rgba(88, 169, 66, ${opacity})`, // Keep accent color
+  green2WithOpacity: (opacity:number) => `rgba(73, 144, 53, ${opacity})`,
   green3WithOpacity: (opacity:number) => `rgba(39, 79, 71, ${opacity})`, // Adjusted for dark mode
   green4WithOpacity: (opacity:number) => `rgba(110, 217, 64, ${opacity})`, // Accent colors unchanged
   grey4WithOpacity: (opacity:number) => `rgba(221, 221, 221, 0.25)`, // Slightly darker for readability
