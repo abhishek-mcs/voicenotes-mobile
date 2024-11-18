@@ -20,10 +20,10 @@ import { useTheme } from "context"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
-export default (props:any) => {
+const Premium=(props:any) => {
+  const router = useRouter()
   const { Colors } = useTheme()
   const styles = useStyles()
-  const router = useRouter()
   const {from="home"}=useLocalSearchParams();
   const [isLoading,setIsLoading]=useState(false)
   const [selected, setSelected] = useState('believer')
@@ -65,7 +65,7 @@ export default (props:any) => {
         return;
       }
       
-      const productToBuy=selected=='monthly'?pack[1]?.product:pack[0]?.product;
+      const productToBuy=selected=='monthly'?pack[1]?.product:pack[3]?.product;
       const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
       if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
         // Unlock that great "pro" content
@@ -75,20 +75,20 @@ export default (props:any) => {
             .logEvent(
               selected == "monthly"
                 ? "monthly_subscription_success"
-                : "lifetime_purchase_success"
+                : "yearly_subscription_success"
             )
             AppEventsLogger.logPurchase(
               selected == "monthly"
-                ? pack[1]?.product?.price || 10
-                : pack[0]?.product?.price || 50,
+                ? pack[1]?.product?.price || 9.99
+                : pack[3]?.product?.price || 49.99,
               pack[1]?.product?.currencyCode || "USD",
               {
                 fb_currency:
                   selected == "monthly"
-                    ? pack[1]?.product?.priceString || "$10.00"
-                    : pack[0]?.product?.priceString || "$50.00",
+                    ? pack[1]?.product?.priceString || "$9.99"
+                    : pack[3]?.product?.priceString || "$49.99",
                 _eventName:
-                  selected == "monthly" ? "Monthly Subscription" : "Lifetime",
+                  selected == "monthly" ? "Monthly Subscription" : "Yearly Subscription",
               }
             );
         } catch {}
@@ -129,27 +129,38 @@ export default (props:any) => {
     }
     setIsLoading(false)
   }
-
+  const priceMonthString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace('.00','')
+  const priceAnnualString=(pack[3]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace('.00','')
+  const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
+  const formattedPrice = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(priceMonth * 12);
+  const match = priceMonthString?.match(/^[^\d]*[^\d\s]/);
+  const currencySymbol=match?match[0]?.trim():"$";
+  const continueText=`Subscribe for ${selected=="monthly"?priceMonthString+' / month':priceAnnualString+' / year'}`
+  const originPrice=`${currencySymbol}${(formattedPrice)}`?.replace(/\.\d+$/, '.99');
   return (
     <View style={styles.main}>
-      <ImageBackground source={premiumBg} style={{height:'100%',width:'100%',flex:1}}>
+      <ImageBackground source={premiumBg} style={{height:screenHeight,width:'100%',flex:1}}>
         <SafeAreaView style={{flex:1, paddingTop: insets.top}}>
           <Touchable style={styles.closeButton} onPress={()=>from=="home"?router?.back():freeUser()}>
             <SvgXml xml={iapSvg.close}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-            <View style={{paddingLeft:32, marginBottom: 20}}>
+            <View style={{paddingLeft:32, marginBottom: 0}}>
               <SvgXml xml={iapSvg.usersCount}/>
             </View>
             <View style={styles.container}>
-              <Text style={styles.title}>Unlock the power of your voice</Text>
+              <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
               <View style={styles.descView}>
                 <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
                 <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
               </View>
               <View style={styles.descView}>
               <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
-                <Text style={styles.desc}>Human-level transcription in 55 languages.</Text>
+                <Text style={styles.desc}>Human-level transcription in 100+ languages.</Text>
               </View>
               <View style={styles.descView}>
               <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
@@ -158,22 +169,19 @@ export default (props:any) => {
               <View style={styles.descView}>
                 <SvgXml xml={iapSvg.done} style={styles.doneIcon} />
                 <View style={styles.descTextContainer}>
-                  <Text style={styles.desc}>
-                    #1 AI voice app. As seen on
-                  </Text>
+                  <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
                   <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />
                 </View>
               </View>
               <View style={styles.subContainer}>
-                <Btn type="monthly" price={pack[1]?.product?.priceString?.replaceAll(' ','')||'$ 10.00'} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay={Colors.lightGrey} title="Monthly" isLoading={isLoading}/>
-                <Btn type="believer" price={pack[0]?.product?.priceString?.replaceAll(' ','')||'$50.00'} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay={Colors.lightGrey} title="Believer" isLoading={isLoading}/>
-                <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={"Continue"} isLoading={isLoading}/>
-              
+                <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                  <Btn type="believer" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} originPrice={originPrice} price={priceAnnualString} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay={Colors.lightGrey} title="Believer" isLoading={isLoading}/>  
+                  <Btn type="monthly" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} price={priceMonthString} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay={Colors.lightGrey} title="Monthly" isLoading={isLoading}/>             
+                </View>
+                <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={continueText} isLoading={isLoading}/>
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
-              </View>
-            </View>
         <View style={styles.footer}>
           <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
             <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
@@ -182,6 +190,8 @@ export default (props:any) => {
             <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
           </Touchable>
         </View>
+              </View>
+            </View>
           </ScrollView>
         </SafeAreaView>
       </ImageBackground>
@@ -189,18 +199,22 @@ export default (props:any) => {
   )
 }
 
+export default  Premium;
+
 const Btn = ({
   title,
   type,
-  price,
+  price='',
   onPress,
   underlay,
   selected = false,
   isLoading = false,
+  originPrice,
+  isOverflow=false
 }: Props) => {
   const { Colors } = useTheme()
   const styles = useStyles()
-  return (
+  return(
   <TouchableHighlight
     onPress={onPress}
     style={[
@@ -209,26 +223,34 @@ const Btn = ({
       type == "upgrade"
         ? styles.btnFilled
         : selected
-        ? { borderColor: Colors.green2, borderWidth: 2 }
+        ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.green2WithOpacity(0.05) }
         : {},
+        isOverflow?{alignItems:'flex-end'}:{alignItems:'center'}
     ]}
     underlayColor={underlay}
   >
     {type == "monthly" || type == "believer" || type == "free" ? (
       <>
-        <View>
+        {/* <View>
           {type == "believer" && (
             <View style={styles.btnContent}>
               <SvgXml xml={iapSvg.limit} />
             </View>
           )}
           <Text style={styles.btnText}>{title}</Text>
-        </View>
+        </View> */}
+            {type != "monthly"&&<View style={[styles.limitted,styles.shadow]}>
+              <SvgXml xml={iapSvg.limit}/>
+            </View>}
         {type != "free" && (
           <View>
-            <Text style={styles.btnPrice}>{price}</Text>
+            {type != "monthly"&&isOverflow&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
+            <Text style={styles.btnPrice}>
+              {price}{'  '}
+              {type != "monthly"&& !isOverflow&&<Text style={styles.nonOfferPrice}>{originPrice}</Text>}
+            </Text>
             <Text style={styles.btnPriceType}>
-              {type == "believer" ? "One-time" : "Per month"}
+              {type == "believer" ? "per year" : "per month"}
             </Text>
           </View>
         )}
@@ -251,34 +273,113 @@ const Btn = ({
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  main:{flex:1,backgroundColor:Colors.whiteWithOpacity(1)},
-  container:{flex:1,marginTop:14, paddingHorizontal: isIOS ? 0 : 5},
-  subContainer:{flex:2,padding:screenHeight>690?16:8,paddingVertical:0,marginTop:4},
-  img:{width:'80%',height:screenHeight/3.3,alignSelf:'center',marginTop:20},
-  descView:{flexDirection:'row',alignItems:'flex-start',paddingHorizontal:20,marginBottom:screenHeight>690?17:12},
-  desc:{marginLeft:9,fontSize:16,fontFamily:'Primary-Medium',color:Colors.darkWithOpacity(1),lineHeight:22,marginTop:-4},
-  border:{borderWidth:2,borderColor:Colors.darkWithOpacity(0)},
-  btnFilled:{height:56,width:'100%',backgroundColor:Colors.black2,justifyContent:'center',marginVertical:screenHeight>690?20:14,borderWidth:0,marginTop:24},
-  btn:{minHeight:64,width:'100%',paddingVertical:8,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingHorizontal:16,marginTop:12,backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12},
-  btnContent:{marginBottom:5,flexDirection:'row',alignItems:'center'},
-  btnText:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2},
-  offer:{color:Colors.redWithOpacity(1), fontFamily:'Primary-Semibold',fontSize:10,textAlignVertical:'center',marginLeft:4},
-  btnPrice:{fontSize:16,fontFamily:'Primary-Semibold',color:Colors.black2,textAlign:'right'},
-  btnPriceType:{color:Colors.black2,fontSize:12,fontFamily:'Primary',marginTop:4,textAlign:'right'},
-  footerText:{color:Colors.grey,fontFamily:'Primary',fontSize:14,lineHeight:15,textAlign:'center',marginBottom:4},
-  footerText1:{color:Colors.grey,fontFamily:'Primary',fontSize:12,lineHeight:15,textAlign:'center'},
-  footer:{flexDirection:'row',alignItems:'center',justifyContent:'center',paddingVertical:14},
-  title:{
-    fontSize:screenWidth/8,
-    fontFamily:'Secondary',
-    color:Colors.darkWithOpacity(1),
-    marginBottom:20,
-    alignSelf:'center',
-    lineHeight:64,
-    marginHorizontal:20
+  main: { flex: 1, backgroundColor: Colors.whiteWithOpacity(1) },
+  container: { flex: 1, marginTop: 14, paddingHorizontal: isIOS ? 0 : 5 },
+  subContainer: {
+    flex: 2,
+    padding: screenHeight > 690 ? 16 : 8,
+    paddingVertical: 0,
+    marginTop: 4,
+  },
+  img: {
+    width: "80%",
+    height: screenHeight / 3.3,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+  descView: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+    marginBottom: screenHeight > 690 ? 17 : 12,
+  },
+  desc: {
+    marginLeft: 9,
+    fontSize: 16,
+    fontFamily: "Primary-Medium",
+    color: Colors.darkWithOpacity(1),
+    lineHeight: 22,
+    marginTop: -4,
+  },
+  border: { borderWidth: 2, borderColor: Colors.darkWithOpacity(0) },
+  btnFilled: {
+    minHeight: 58,
+    width: "100%",
+    backgroundColor: Colors.black2,
+    justifyContent: "center",
+    marginVertical: screenHeight > 690 ? 20 : 14,
+    borderWidth: 0,
+    marginTop: 24,
+    alignItems: "center",
+  },
+  btn: {
+    minHeight: 84,
+    width: "48%",
+    paddingVertical: 16,
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    marginTop: 12,
+    backgroundColor: Colors.darkWithOpacity(0.05),
+    borderRadius: 12,
+  },
+  btnContent: { marginBottom: 5, flexDirection: "row", alignItems: "center" },
+  btnText: {
+    fontSize: 16,
+    fontFamily: "Primary-Semibold",
+    color: Colors.black2,
+  },
+  offer: {
+    color: Colors.redWithOpacity(1),
+    fontFamily: "Primary-Semibold",
+    fontSize: 10,
+    textAlignVertical: "center",
+    marginLeft: 4,
+  },
+  btnPrice: {
+    fontSize: 20,
+    fontFamily: "Primary-Semibold",
+    color: Colors.black2,
+  },
+  btnPriceType: {
+    color: Colors.black2,
+    fontSize: 14,
+    fontFamily: "Primary",
+    marginTop: 0,
+  },
+  footerText: {
+    color: Colors.grey,
+    fontFamily: "Primary",
+    fontSize: 14,
+    lineHeight: 15,
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  footerText1: {
+    color: Colors.grey,
+    fontFamily: "Primary",
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: "center",
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+  },
+  title: {
+    fontSize: screenWidth / 8,
+    fontFamily: "Secondary",
+    color: Colors.darkWithOpacity(1),
+    marginBottom: 20,
+    alignSelf: "flex-start",
+    lineHeight: 64,
+    marginHorizontal: 20,
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     padding: 10,
     zIndex: 10,
     right: 16,
@@ -289,18 +390,41 @@ const useStyles = () => {
     // paddingTop: isIOS ? 30 : 50,
   },
   doneIcon: {
-    marginTop: 3,
-    marginRight: 9,
+    marginTop: 2,
+    // marginRight: 9,
   },
   descTextContainer: {
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
+    flexDirection: "row",
+    // flexWrap: "wrap",
+    alignItems: "center",
   },
   techCrunchIcon: {
     marginLeft: 4,
-    marginTop: 2,
+    // marginTop: 2,
+  },
+  nonOfferPrice: {
+    fontFamily: "Primary-Medium",
+    fontSize: 14,
+    color: Colors.grey3,
+    textDecorationLine: "line-through",
+  },
+  limitted: {
+    position: "absolute",
+    top: -12,
+    alignSelf:'center',
+    borderRadius: 10,
+    backgroundColor: Colors.whiteWithOpacity(1),
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    left:'27%'
+  },
+  shadow: {
+    shadowColor: Colors.blackWithOpacity(1),
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { width: 0, height: 0.5 },
+    elevation: 2,
   },
 }), [Colors]); // Recreate styles when Colors change
 };
@@ -312,5 +436,7 @@ interface Props {
   underlay: string,
   title: string,
   selected?: boolean,
-  isLoading?: boolean
+  isLoading?: boolean,
+  originPrice?: string | null,
+  isOverflow?:boolean|null
 }

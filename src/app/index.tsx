@@ -1,11 +1,12 @@
 import { useEffect, useState} from 'react';
 import { Redirect, router } from 'expo-router';
 import { RootState } from 'redux/store/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as WebBrowser from 'expo-web-browser';
 import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
-import { LogBox, Platform, UIManager } from 'react-native';
+import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
+import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates';
 
 LogBox.ignoreLogs(['Sending `onInstallConversionDataLoaded` with no listeners registered.']);
 LogBox.ignoreLogs(['Require cycle: src']);
@@ -30,6 +31,7 @@ if (Platform.OS === 'android') {
 export default function App() {
   const {token} = useSelector((state: RootState) => state.userDetails);
   // const [isLoading,setIsLoading]=useState(true)
+  const dispatch = useDispatch()
   
   useFBEventTracking()
   useIAPSetup()
@@ -41,6 +43,8 @@ export default function App() {
       //   setIsLoading(false)
       // }, 2000);
     // })
+    StatusBar.setBarStyle("dark-content")
+    dispatch(setTempIsIAPPurchased(false))
     return () => {
       WebBrowser.coolDownAsync();
     };

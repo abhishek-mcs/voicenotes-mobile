@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-type-animation/src/TypeAnimation.tsx b/node_modules/react-native-type-animation/src/TypeAnimation.tsx
-index 760cab2..82293d8 100644
+index 760cab2..00036fc 100644
 --- a/node_modules/react-native-type-animation/src/TypeAnimation.tsx
 +++ b/node_modules/react-native-type-animation/src/TypeAnimation.tsx
 @@ -170,6 +170,8 @@ type TypeAnimationProps = {
@@ -20,12 +20,12 @@ index 760cab2..82293d8 100644
  }) => {
    const [text, setText] = useState<string>(preRenderText);
    let currentText = preRenderText;
-@@ -206,14 +210,15 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
+@@ -206,13 +210,15 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
        let i = 0;
        const textArray = splitter(textToType);
        const interval = setInterval(() => {
 -        if (i >= textArray.length) {
-+        if (i >= textArray.length||i>=100) {
++        if (i >= textArray.length||i>=40) {
            clearInterval(interval);
 +          onComplete()
            resolve();
@@ -33,12 +33,11 @@ index 760cab2..82293d8 100644
            if (direction === 'front') {
              setText((currText) => {
                const character = textArray[i];
--              const word = `${currText}${character}`;
-+              const word = `${currText?currText+' ':''}${character}`;
++              // const word = `${currText?currText+' ':''}${character}`;
+               const word = `${currText}${character}`;
                if (character) {
                  const data = {
-                   character,
-@@ -372,7 +377,7 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
+@@ -372,7 +378,7 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
    }, [cursor, blinkSpeed, style, cursorStyle]);
  
    return (

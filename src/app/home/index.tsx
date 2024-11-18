@@ -75,6 +75,7 @@ import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
+import { StatusBar } from "react-native";
 
 
 const { height } = Dimensions.get("screen");
@@ -89,7 +90,7 @@ const fadeOut = {
 
 const KeyboardAvoidView:any = KeyboardAvoidingView;
 
-export default () => {
+const Home = () => {
   const { ActionModule } = NativeModules;
   const actionEmitter = new NativeEventEmitter(ActionModule);
   const insets = useSafeAreaInsets();
@@ -150,6 +151,9 @@ export default () => {
 
 
   useEffect(() => {
+    StatusBar.setBarStyle('dark-content')
+    StatusBar.setHidden(false)
+    StatusBar.setTranslucent(true)
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
       const tags=(getTags?.data?.data?.filter((t: any) => t?.name !== 'starred') ?? [])
       dispatch(setHashTagsData(tags))
@@ -465,10 +469,22 @@ export default () => {
         })
       );
       console.log("making request");
-      await axiosApi.patch(`/recordings/${note.id}/continue`, {
+      const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
         is_transcript_only,
       });
-      listenToFirebaseStatus(note.id);
+
+      if(is_transcript_only){
+        const transcript = resp.data?.recording?.title;
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { is_transcript_loading: false, transcript },
+          })
+        );
+        dispatch(setRelatedNoteTranscriptLoad(false))
+      }
+      else
+        listenToFirebaseStatus(note.id);
     } catch (error) {
       console.log("error in queing new transcript: ", error);
     }
@@ -734,7 +750,7 @@ export default () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
-
+console.log(recordingQuery.data)
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview

@@ -29,16 +29,16 @@ export default () => {
         <View style={styles.content}>
             <View style={styles.chip}>
                 <View style={styles.chipLabel}>
-                    <Text style={styles.plan}>{userDetails.subscription_status ? userDetails.subscription_plan : "Free"}</Text>
+                    <Text style={styles.plan}>{userDetails.subscription_status ? userDetails.subscription_plan : "Free" }</Text>
                 </View>
                 {userDetails.subscription_status && <View style={[styles.chipLabel, { justifyContent: 'flex-end' }]}>
                     <SvgXml xml={commonSvg.activeTick} />
                     <Text style={{ color:Colors.green2, fontFamily: 'Primary-Medium' }}>Active</Text>
                 </View>}
             </View>
-            {userDetails.subscription_plan !== "Believer" && <Pressable onPress={() => router.push('/premium/')} style={styles.action}>
+            {(userDetails.subscription_plan=="Monthly"||userDetails.subscription_plan==null) && <Pressable onPress={() => router.push('/premium/')} style={styles.action}>
                 <SvgXml xml={iapSvg.lightning} />
-                <Text style={{ color: Colors.blue, fontFamily: 'Primary-Bold' }} >Upgrade for lifetime</Text>
+                <Text style={{ color: Colors.blue, fontFamily: 'Primary-Bold' }} >Upgrade for yearly</Text>
             </Pressable>}
         </View>
     </SafeAreaView>
