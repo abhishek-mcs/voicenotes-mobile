@@ -1819,7 +1819,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppsFlyerFramework: 375c63ff47da664031d2723947867caf0205058c
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
+  DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   EASClient: a42ee8bf36c93b3128352faf2ae49405ab4f80bd
   EXApplication: 16bcea16789221bd566e64b5ea2608cf7756b005
   EXAV: e4f6137431ddc4cb025895046bfefa9612025c35
@@ -1874,7 +1874,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 58cf94dabf1e2bb2fa87725a9be5c2249171cda0
   FirebaseSharedSwift: d39c2ad64a11a8d936ce25a42b00df47078bb59c
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
+  glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
   GoogleAppMeasurement: 76d4f8b36b03bd8381fa9a7fe2cc7f99c0a2e93a
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
   hermes-engine: 9cecf9953a681df7556b8cc9c74905de8f3293c0
