@@ -1003,7 +1003,7 @@ const NotePreview = forwardRef(
                 } */}
                 </View>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
-                  <MoreOptions options={options} style={{height:30,width:30,zIndex:1000,position:'relative'}}>
+                  <MoreOptions options={options} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.darkWithOpacity(0.05),justifyContent:"center",alignItems:'center'}}>
                   <SvgXml xml={home.moreNew}/>
                   </View>
