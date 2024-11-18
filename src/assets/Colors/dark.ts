@@ -75,6 +75,7 @@ export default {
   text1:'#9b9b9b',
   text2:'#222',
   text3:'rgba(221, 221, 221, 0.5)',
+  text4:'#fff',
   bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
   bottomBarCancelBg:'rgba(255, 69, 56, 0.15)',
   bottomBarButtonBg1:tertiary,
@@ -89,5 +90,9 @@ export default {
   suggestionBg:tertiary,
   border:secondary,
   askClose:'#ffffff',
-  askLogo:'#ffffff'
+  askLogo:'#ffffff',
+  upgradeBtn:'#0d0d0d',
+  upgrade:tertiary,
+  pricing:secondary,
+  pricingSelected:secondary
 };

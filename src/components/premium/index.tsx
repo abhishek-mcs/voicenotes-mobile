@@ -22,7 +22,7 @@ const premiumBg = require('../../assets/images/premiumBg.png')
 
 const Premium=(props:any) => {
   const router = useRouter()
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
   const {from="home"}=useLocalSearchParams();
   const [isLoading,setIsLoading]=useState(false)
@@ -33,6 +33,7 @@ const Premium=(props:any) => {
   const dispatch=useDispatch()
   const queryClient=useQueryClient()
   const insets = useSafeAreaInsets()
+  const iapSvgIcons:any = iapSvg
 
   useEffect(()=>{
     // const load=async()=>{
@@ -143,14 +144,14 @@ const Premium=(props:any) => {
   const originPrice=`${currencySymbol}${(formattedPrice)}`?.replace(/\.\d+$/, '.99');
   return (
     <View style={styles.main}>
-      <ImageBackground source={premiumBg} style={{height:screenHeight,width:'100%',flex:1}}>
+      <ImageBackground source={isLightMode?premiumBg:null} style={{height:screenHeight,backgroundColor:Colors.whiteWithOpacity(1),width:'100%',flex:1}}>
         <SafeAreaView style={{flex:1, paddingTop: insets.top}}>
           <Touchable style={styles.closeButton} onPress={()=>from=="home"?router?.back():freeUser()}>
-            <SvgXml xml={iapSvg.close}/>
+            <SvgXml xml={iapSvg.close?.replace("#222222",Colors.text1)}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
             <View style={{paddingLeft:32, marginBottom: 0}}>
-              <SvgXml xml={iapSvg.usersCount}/>
+              <SvgXml xml={iapSvgIcons.usersCount?.replace("#222222",Colors.text1).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
             <View style={styles.container}>
               <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
@@ -215,7 +216,7 @@ const Btn = ({
   const { Colors } = useTheme()
   const styles = useStyles()
   return(
-  <TouchableHighlight
+  <Touchable
     onPress={onPress}
     style={[
       styles.btn,
@@ -223,11 +224,11 @@ const Btn = ({
       type == "upgrade"
         ? styles.btnFilled
         : selected
-        ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.green2WithOpacity(0.05) }
+        ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.pricingSelected }
         : {},
         isOverflow?{alignItems:'flex-end'}:{alignItems:'center'}
     ]}
-    underlayColor={underlay}
+    activeOpacity={1}
   >
     {type == "monthly" || type == "believer" || type == "free" ? (
       <>
@@ -259,7 +260,7 @@ const Btn = ({
       <Text
         style={[
           styles.btnText,
-          { color: Colors.whiteWithOpacity(1), fontSize: 16, fontFamily: "Primary-Semibold" },
+          { color: Colors.text4, fontSize: 16, fontFamily: "Primary-Semibold" },
         ]}
       >
         {title}
@@ -267,7 +268,7 @@ const Btn = ({
     ) : (
       <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)} />
     )}
-  </TouchableHighlight>
+  </Touchable>
 )};
 
 const useStyles = () => {
@@ -297,7 +298,7 @@ const useStyles = () => {
     marginLeft: 9,
     fontSize: 16,
     fontFamily: "Primary-Medium",
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text1,
     lineHeight: 22,
     marginTop: -4,
   },
@@ -305,7 +306,7 @@ const useStyles = () => {
   btnFilled: {
     minHeight: 58,
     width: "100%",
-    backgroundColor: Colors.black2,
+    backgroundColor: Colors.upgrade,
     justifyContent: "center",
     marginVertical: screenHeight > 690 ? 20 : 14,
     borderWidth: 0,
@@ -321,7 +322,7 @@ const useStyles = () => {
     flexDirection: "row",
     paddingHorizontal: 16,
     marginTop: 12,
-    backgroundColor: Colors.darkWithOpacity(0.05),
+    backgroundColor: Colors.pricing,
     borderRadius: 12,
   },
   btnContent: { marginBottom: 5, flexDirection: "row", alignItems: "center" },
@@ -372,7 +373,7 @@ const useStyles = () => {
   title: {
     fontSize: screenWidth / 8,
     fontFamily: "Secondary",
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text1,
     marginBottom: 20,
     alignSelf: "flex-start",
     lineHeight: 64,
@@ -414,10 +415,10 @@ const useStyles = () => {
     top: -12,
     alignSelf:'center',
     borderRadius: 10,
-    backgroundColor: Colors.whiteWithOpacity(1),
+    backgroundColor: Colors.bgColor6,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    left:'27%'
+    left:'25%'
   },
   shadow: {
     shadowColor: Colors.blackWithOpacity(1),

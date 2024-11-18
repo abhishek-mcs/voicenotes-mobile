@@ -73,6 +73,7 @@ export default {
   text1:'#222',
   text2:'#9b9b9b',
   text3:'rgba(34, 34, 34, 0.5)',
+  text4:'#fff',
   bottomBarButtonBg:'#000',
   bottomBarCancelBg:'rgba(255, 69, 56,0.05)',
   bottomBarButtonBg1:'rgba(34, 34, 34,0.05)',
@@ -87,5 +88,9 @@ export default {
   suggestionBg:'#fff',
   border:'rgba(34,34,34,0.1)',
   askClose:'#1C1B1F',
-  askLogo:'#0E3934'
+  askLogo:'#0E3934',
+  upgradeBtn:'rgba(14, 57, 52,0.1)',
+  upgrade:'#0d0d0d',
+  pricing:'rgba(34, 34, 34,0.05)',
+  pricingSelected:'rgba(73, 144, 53,0.05)'
 };

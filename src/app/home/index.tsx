@@ -1084,3 +1084,5 @@ const useStyles = () => {
   },
 }), [Colors]); // Recreate styles when Colors change
 };
+
+export default Home

@@ -21,7 +21,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
 
   const dispatch=useDispatch()
@@ -93,7 +93,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}} onTouchStart={(e)=>e?.stopPropagation()}>
         {/* upgrade button */}
         {!isBeliever&&
-        <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.green3WithOpacity(0.1),paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
+        <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.upgradeBtn,paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
           <SvgXml xml={iapSvg.thunder} />
           <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
@@ -104,7 +104,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
           {!!photo_url?
           <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30}}/>
-          :<SvgXml xml={commonSvg.profileIcon}/>}
+          :<SvgXml xml={commonSvg.profileIcon?.replace("0.1",isLightMode?"0.1":"0.2")}/>}
         </Touchable>
         </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
