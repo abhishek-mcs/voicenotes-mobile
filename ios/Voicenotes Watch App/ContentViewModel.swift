@@ -179,6 +179,10 @@ final class ContentViewModel: ObservableObject {
           withAnimation {
             self.recordings[index].isUploadingAudio = false
           }
+        } else if self.recordings.count == 1 {
+          withAnimation {
+            self.recordings[0].isUploadingAudio = false
+          }
         }
       case .finished: break
       }
@@ -189,6 +193,10 @@ final class ContentViewModel: ObservableObject {
         withAnimation {
           self.recordings[index].isUploadingAudio = false
           self.recordings[index].isCreatingTranscript = true
+        }
+      } else if self.recordings.count == 1 {
+        withAnimation {
+          self.recordings[0].isUploadingAudio = false
         }
       }
       
