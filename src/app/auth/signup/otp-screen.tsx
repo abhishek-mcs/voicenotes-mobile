@@ -20,7 +20,7 @@ import { useTheme } from "context"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
-export default ()=>{
+const OtpScreen = () => {
   const router=useRouter()
   const [otpText, setOTP] = useState('------')
   const [errorText, setErrorText] = useState('')
@@ -99,7 +99,7 @@ export default ()=>{
       <KeyboardAvoidingView behavior="padding" style={{flex:1}}>
       <View style={{justifyContent:'space-between',flexDirection:'row',alignItems:'center',marginTop:16}}>
         <Touchable style={{height:56,paddingHorizontal:16}} onPress={()=>{router.back()}}>
-          <SvgXml xml={commonSvg.back1}/>
+          <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>
         </Touchable>
         <Text style={styles.title}>Confirm Sign Up</Text>
         <View style={{width:56}}/>
@@ -115,10 +115,10 @@ export default ()=>{
         errorText={errorText}
         />
       </View>
-      <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.2 : 1,backgroundColor:Colors.primary}]} disabled={otpText?.indexOf('-')!=-1} underlayColor={Colors.primaryWithOpacity(0.8)}>
+      <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.3 : 1,backgroundColor:Colors.primary}]} disabled={otpText?.indexOf('-')!=-1} underlayColor={Colors.primaryWithOpacity(0.8)}>
         {(signup?.isLoading||moveRecords.isLoading)?
-        <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)} />
-        :<Text style={[styles.continueBtnText,{color:Colors.whiteWithOpacity(1)}]}>Sign Up</Text>}
+        <ActivityIndicator size={"small"} color={Colors.text4} />
+        :<Text style={[styles.continueBtnText,{color:Colors.text4}]}>Sign Up</Text>}
       </TouchableHighlight>
       </View>
       </KeyboardAvoidingView>
@@ -133,18 +133,18 @@ const isIOS=Platform.OS=='ios'
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  container:{flex:1,backgroundColor:Colors.white1,paddingTop:16},
-  contentContainer:{flex:1,backgroundColor:Colors.white1,padding:16},
+  container:{flex:1,backgroundColor:Colors.bgColor9,paddingTop:16},
+  contentContainer:{flex:1,backgroundColor:Colors.bgColor9,padding:16},
   tabBarStyle:{height:6,marginBottom:isIOS?24:20,width:rspValue(198),alignSelf:'center',backgroundColor:Colors.white1,borderWidth:0,flexDirection:'row',justifyContent:'space-between'},
   tabBarIndicatorStyle:{height:6,width:rspValue(62),borderRadius:100,overflow:'hidden'},
-  box:{paddingVertical:24,paddingHorizontal:16,backgroundColor:Colors.whiteWithOpacity(1),borderRadius:12,shadowColor:Colors.blackWithOpacity(0.04),shadowOffset:{width:0,height:2},shadowRadius:10,shadowOpacity:0.1},
+  box:{paddingVertical:24,paddingHorizontal:16,backgroundColor:Colors.bgColor2,borderRadius:12,shadowColor:Colors.blackWithOpacity(0.04),shadowOffset:{width:0,height:2},shadowRadius:10,shadowOpacity:0.1},
   checkOutline:{borderWidth: 1, height: 20, width: 20, borderRadius:5, borderColor:Colors.grey3WithOpacity(0.5),alignSelf:'flex-start',marginTop:2},
   radioOutline:{borderWidth: 1, height: 20, width: 20, borderRadius:100, borderColor:Colors.grey3WithOpacity(0.5),alignSelf:'flex-start',marginTop:2},
   checkFill:{backgroundColor:Colors.darkWithOpacity(1),width:20,height:20,borderRadius:5,justifyContent:'center',alignItems:'center'},
   radioFill:{borderWidth:5,borderColor:Colors.darkWithOpacity(1),backgroundColor:Colors.whiteWithOpacity(1),width:20,height:20,borderRadius:100,justifyContent:'center',alignItems:'center'},
   continueBtn:{alignSelf:'center',backgroundColor:Colors.primary,marginVertical:32,position:'absolute',bottom:0,width:'100%',borderRadius:100,height:49,alignItems:'center',justifyContent:'center'},
   continueBtnText:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Bold',fontSize:16,lineHeight:19.2},
-  title:{fontSize:24,fontFamily:'Primary-Medium',color:Colors.darkWithOpacity(1),textAlign:'center',marginBottom:32},
+  title:{fontSize:24,fontFamily:'Primary-Medium',color:Colors.text5,textAlign:'center',marginBottom:32},
   checkBoxStyle:{minHeight:32, marginBottom:16},
   checkboxLabel:{alignSelf:'center',color:Colors.darkWithOpacity(1),fontSize:14,lineHeight:22,fontFamily:'Primary',flex:1,marginLeft:6},
   textInput:{paddingTop:13,paddingBottom:13,paddingHorizontal:16,backgroundColor:Colors.white2,borderWidth:0,borderRadius:12,marginTop:20,fontSize:14,fontFamily:'Primary-Medium',lineHeight:19,color:Colors.darkWithOpacity(1),textAlignVertical:'top'},
@@ -152,3 +152,5 @@ const useStyles = () => {
   feedBackTitle:{marginTop:20,fontFamily:'Primary-Semibold',fontSize:16,lineHeight:22}
 }), [Colors]);
 };
+
+export default OtpScreen

@@ -23,12 +23,13 @@ import { useTheme } from "context"
 
 WebBrowser.maybeCompleteAuthSession()
 
-export default () => {
+const LandingPage =() => {
   const router=useRouter()
   const [loginError, setLoginError] = useState()
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
   const netInfo=useNetInfo()
+  const LandingSvgIcons:any=LandingSvg
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
   const {Colors}=useTheme()
@@ -127,7 +128,7 @@ const signInGoogle=(token:any,params:any)=>{
       style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >
       <View>
-      <SvgXml xml={LandingSvg.logo} />
+      <SvgXml xml={LandingSvg.logo} style={{borderRadius:8,overflow:'hidden'}}/>
       <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:Colors.blackWithOpacity(1),marginTop:20}}>
         A place to dump your thoughts.
       </Text>
@@ -148,35 +149,35 @@ const signInGoogle=(token:any,params:any)=>{
         ><Text style={styles.text}>Sign up</Text></TouchableOpacity> */}
         {(Platform.OS === "ios" || Platform.OS === "macos") && (
           <Btn
-            underlayColor={Colors.grey2WithOpacity(0.8)}
-            style={[styles.button,{backgroundColor:Colors.grey2WithOpacity(1)}]}
+            underlayColor={Colors.bgColor3(0.8)}
+            style={[styles.button,{backgroundColor:Colors.bgColor3(1)}]}
             onPress={signInAppleAsync}
             text="Continue with Apple"
-            color={Colors.whiteWithOpacity(1)}
+            color={Colors.text4}
             logo={LandingSvg.apple}
             />
         )}
           <Btn
-            underlayColor={Colors.grey2WithOpacity(0.3)}
-            style={[styles.button2,{backgroundColor:Colors.grey2WithOpacity(0.1)}]}
+            underlayColor={Colors.bgColor3(0.3)}
+            style={[styles.button2,{backgroundColor:Colors.bgColor3(0.1)}]}
             onPress={()=>{router.push('/auth/login/')}}
             text="Continue with Email"
             isLoading={loginApple?.isLoading||false}
-            logo={LandingSvg.email}/>
+            logo={LandingSvgIcons.email?.replaceAll('#0D0D0D',Colors.text)}/>
           <Btn
-            underlayColor={Colors.grey2WithOpacity(0.3)}
-            style={[styles.button2,{backgroundColor:Colors.grey2WithOpacity(0.1),}]}
+            underlayColor={Colors.bgColor3(0.3)}
+            style={[styles.button2,{backgroundColor:Colors.bgColor3(0.1),}]}
             onPress={onGoogleLogin}
             text="Continue with Google"
             isLoading={loginGoogle?.isLoading||false}
             logo={LandingSvg.google}/>
         {loginError && <Text style={{marginTop:8,color:Colors.redWithOpacity(1)}}>{loginError}</Text>}
 
-        <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1),textAlign:'center',marginTop:16}}>
+        <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text1,textAlign:'center',marginTop:16}}>
           {`By signing up, you agree to our `}
           <Text onPress={()=>{}} style={[{fontFamily:'Primary',fontSize:12}]} >terms</Text>
           {` and `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : Colors.darkBlue}]}>privacy policy</Text>
+          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : Colors.blue}]}>privacy policy</Text>
           {`.`}
         </Text>
       </Animated.View>
@@ -214,3 +215,5 @@ interface Props{
   color?:string
   isLoading?:boolean
 }
+
+export default LandingPage

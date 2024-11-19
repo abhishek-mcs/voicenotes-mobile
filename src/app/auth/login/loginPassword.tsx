@@ -29,7 +29,7 @@ import { setRecordingList } from "redux/reducers/recordingStates";
 import appsFlyer from "react-native-appsflyer";
 import { useTheme } from "context";
 
-export default () => {
+const LoginPassword = () => {
   const router = useRouter();
   const refPassword = useRef<TextInput>();
 
@@ -94,18 +94,18 @@ export default () => {
     return <Redirect href="/home/" />;
   }
   return (
-    <SafeAreaView style={{backgroundColor: Colors.white3,flex:1}}>
+    <SafeAreaView style={{backgroundColor: Colors.bgColor9,flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: Colors.white3,
+        backgroundColor: Colors.bgColor9,
       }}
     >
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
-          <SvgXml xml={commonSvg.back1}/>
+          <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>
         </Touchable>
         {/* <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
@@ -114,7 +114,7 @@ export default () => {
       <Text
         style={{
           alignSelf: "center",
-          color: Colors.darkWithOpacity(1),
+          color: Colors.text5,
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
@@ -126,7 +126,7 @@ export default () => {
       <TextField
         forwardedRef={inputRef}
         style={{ marginTop: isIOS? 36: 24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1)}}
+        inputStyle={{ height: 48, color:Colors.text, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.inputBg3}}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -136,7 +136,7 @@ export default () => {
         placeholder="Email Address"
         keyboardType="email-address"
         autoCapitalize="none"
-        placeholderTextColor={Colors.darkWithOpacity(0.25)}
+        placeholderTextColor={Colors.grey6}
         autoCorrect={false}
       />
       {signInMutation.isError &&
@@ -155,9 +155,9 @@ export default () => {
         returnKeyType={"next"}
         onSubmitEditing={continueClicked}
         placeholder="Password"
-        placeholderTextColor={Colors.darkWithOpacity(0.25)}
+        placeholderTextColor={Colors.grey6}
         style={{ marginTop: 0}}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:Colors.whiteWithOpacity(1) }}
+        inputStyle={{ height: 48, color:Colors.text, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:Colors.inputBg3 }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&
@@ -183,13 +183,13 @@ export default () => {
         onPress={continueClicked}
       >
         {signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)}/>
+        <ActivityIndicator size={"small"} color={Colors.text4}/>
         :<Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: Colors.whiteWithOpacity(1),
+            color: Colors.text4,
           }}
         >
           Continue
@@ -203,7 +203,7 @@ export default () => {
             fontFamily: "Primary",
             fontSize: 14,
             textAlign: "center",
-            color: Colors.darkWithOpacity(1),
+            color: Colors.text1,
           }}
         >
           Don't have an account?
@@ -238,3 +238,5 @@ export default () => {
     </SafeAreaView>
   );
 };
+
+export default LoginPassword
