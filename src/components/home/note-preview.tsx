@@ -978,8 +978,8 @@ const NotePreview = forwardRef(
                 </Touchable>
                 {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
                   <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
-                    <SvgXml xml={home.subnote}/>
-                    <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.darkWithOpacity(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
+                    <SvgXml xml={home.subnote?.replace('#1C1B1F',Colors.askClose)}/>
+                    <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.text8(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
                   </View>
                 }
                 {/* {!!attachments&&attachments.length>0&&expand!=index&&

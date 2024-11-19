@@ -82,6 +82,7 @@ export default {
   text5:'#fff',
   text6:'#000',
   text7:'#828282',
+  text8:(opacity:number)=>'#fff',
   bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
   bottomBarCancelBg:'rgba(255, 69, 56, 0.15)',
   bottomBarButtonBg1:tertiary,
