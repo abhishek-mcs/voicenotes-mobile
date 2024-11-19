@@ -16,7 +16,7 @@ import appsFlyer from "react-native-appsflyer"
 import { useTheme } from "context"
 
 
-export default ()=> {
+const Login=()=> {
   const router=useRouter()
   const [emailText, setEmailText]:any = useState('')
   const [emailError, setEmailError]:any = useState('')
@@ -76,24 +76,25 @@ export default ()=> {
   return (
     <KeyboardAvoidingView 
     behavior="padding"
-    style={{flex:1,paddingHorizontal:24,backgroundColor: Colors.white3,paddingTop:150,justifyContent:'space-between'}}>
+    style={{flex:1,paddingHorizontal:24,backgroundColor: Colors.bgColor9,paddingTop:150,justifyContent:'space-between'}}>
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?54:54,padding:16}}>
-          <SvgXml xml={commonSvg.back1}/>
+          <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>
         </Touchable>
       <View style={{marginTop:0}}>
 
         <TextField
           forwardedRef={inputRef}
           style={{marginTop:0,flexDirection:'column'}}
-          inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1)}}
+          inputStyle={{ height: 48, color:Colors.text, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.inputBg3}}
           value={emailText}
           label={"Enter your email"}
-          labelStyle={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
+          labelStyle={{color:Colors.text,fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
           returnKeyType="go"
           textContentType="emailAddress"
           onSubmitEditing={continueClicked}
           onChangeText={(text) =>{ setEmailText(text);setEmailError(null);setValidationError(false)}}
           placeholder="john@doe.com"
+          placeholderTextColor={Colors.grey10}
           autoComplete="email"
           keyboardType="email-address"
           autoCapitalize="none"
@@ -137,14 +138,14 @@ export default ()=> {
         onPress={continueClicked}
       >
         {checkEmailMutation.isLoading?
-        <ActivityIndicator size={17} color={Colors.whiteWithOpacity(1)}/>
+        <ActivityIndicator size={17} color={Colors.text4}/>
         :
         <Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: Colors.whiteWithOpacity(1),
+            color: Colors.text4,
           }}
         >
           Continue
@@ -163,3 +164,5 @@ export default ()=> {
     </KeyboardAvoidingView>
   )
 }
+
+export default Login
