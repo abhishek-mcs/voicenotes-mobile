@@ -6,7 +6,7 @@ import { SvgXml } from "react-native-svg"
 import { CreateModalSvg } from "assets/svg/CreateModal"
 import { useTheme } from "context"
 
-export default ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
+const Records = ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
     const filteredRecordingList = recordingList.filter(item => (item.transcript && item.title))
     const { Colors } = useTheme()
@@ -43,13 +43,13 @@ const useStyles = () => {
     const { Colors } = useTheme();
     return useMemo(() => StyleSheet.create({
     titleStyle:{
-        color:Colors.darkWithOpacity(1),
+        color:Colors.text5,
         fontSize:14,
         fontFamily:"Primary",
         marginBottom:8
     },
     text:{
-        color:Colors.grey,
+        color:Colors.grey7,
         fontSize:14,
         fontFamily:"Primary",
     },
@@ -59,7 +59,8 @@ const useStyles = () => {
         fontFamily:"Primary-Semibold",
         marginBottom:8,
         marginLeft:-14,
-        paddingHorizontal:28
+        paddingHorizontal:28,
+        color:Colors.text
     },
     itemContainer:{paddingHorizontal:16,paddingVertical:8,borderRadius:12,marginHorizontal:15,marginBottom:8},
     selected:{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,overflow:'hidden'},
@@ -67,3 +68,4 @@ const useStyles = () => {
 }), [Colors]); // Recreate styles when Colors change
 };
 
+export default Records

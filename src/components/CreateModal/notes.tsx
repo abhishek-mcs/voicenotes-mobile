@@ -10,10 +10,11 @@ import { View } from "react-native"
 import { SvgXml } from "react-native-svg"
 import { isIOS, screenHeight } from "utils/common"
 
-export default (
+const Notes = (
     {type="summary",result=null,title="",id,onClose,onEdit,onRetry}
     :{type:string,result:any,title:string,id:number,onClose:()=>void,onEdit:()=>void,onRetry:(i:number,v:string)=>void}
     )=>{
+    const {Colors} =useTheme()
     const { titleStyle,text,topBox,box,svg,btnBox,btnText,btn,subject } = useStyles()
     const [copy,setCopy]=useState('Copy')
     const onCopy = async()=>{
@@ -63,13 +64,13 @@ export default (
             <View style={btnBox}>
                 <Touchable onPress={onCopy} style={btn} activeOpacity={0.6}>
                     <>
-                    <SvgXml xml={home.copy2}/>
+                    <SvgXml xml={home.copy2?.replace('#0d0d0d',Colors.text)}/>
                     <Text style={btnText}>{copy}</Text>
                     </>
                 </Touchable>
                 <Touchable onPress={()=>onRetry(id,title)} style={btn} activeOpacity={0.6}>
                     <>
-                    <SvgXml xml={home.retry1}/>
+                    <SvgXml xml={home.retry1?.replace('#0D0D0D',Colors.text)}/>
                     <Text style={[btnText,{marginLeft:4}]}>Retry</Text>
                     </>
                 </Touchable>
@@ -87,8 +88,10 @@ const useStyles = () => {
     text:{color:Colors.blackWithOpacity(1),fontFamily:'Primary',lineHeight:24,fontSize:14,marginBottom:8},
     svg:{marginRight:16},
     btnBox:{flexDirection:'row',alignItems:'center',marginHorizontal:32},
-    btn:{flexDirection:'row',alignItems:'center',marginRight:12,marginLeft:-6,paddingHorizontal:12,height:32,borderRadius:12,backgroundColor:Colors.darkWithOpacity(0.05)},
+    btn:{flexDirection:'row',alignItems:'center',marginRight:12,marginLeft:-6,paddingHorizontal:12,height:32,borderRadius:12,backgroundColor:Colors.bottomBarButtonBg1},
     btnText:{fontFamily:'Primary',fontSize:12,color:Colors.black2,marginLeft:4},
     subject:{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:20}
 }), [Colors]); // Recreate styles when Colors change
 };
+
+export default Notes;
