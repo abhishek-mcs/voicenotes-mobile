@@ -8,7 +8,7 @@ import { View } from "react-native"
 import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
 
-export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomText=(v:string)=>{}})=>{
+const Suggestions = ({onPress=(v:string)=>{},type='summary',customText='',setCustomText=(v:string)=>{}})=>{
   const { Colors } = useTheme()
   const styles = useStyles()
     return (
@@ -50,11 +50,11 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
 
 
 const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => {
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
   return(
     <Touchable style={[styles.btn,style,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
-        {icon&&<SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?Colors.whiteWithOpacity(1):Colors.blackWithOpacity(1))} />}
+        {icon&&<SvgXml xml={isLightMode?icon?.replace(selected?/#000001/g:/#fff/g,selected?Colors.text4:Colors.blackWithOpacity(1)):icon?.replace(/#000001/g,Colors.text4)} />}
         <Text style={[styles.btnTxt,selected?styles.selected1:{}]}>{title}</Text>
     </Touchable>
   )}
@@ -68,7 +68,7 @@ const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selec
       alignItems: "center",
       justifyContent:'center',
       height: 32,
-      backgroundColor: Colors.darkWithOpacity(0.05),
+      backgroundColor: Colors.bottomBarButtonBg1,
       borderRadius: 12,
       width:'47%',
       // paddingHorizontal: 12,
@@ -77,7 +77,8 @@ const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selec
     btnTxt:{
       marginLeft:isIOS?8:6,
       fontSize:13,
-      fontFamily:'Primary-Medium'
+      fontFamily:'Primary-Medium',
+      color:Colors.text
     },
     title:{
       fontSize:14,
@@ -89,6 +90,8 @@ const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selec
     row:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',justifyContent:'space-between'},
     btw:{justifyContent:'space-between',marginTop:20},
     selected:{backgroundColor:Colors.primary},
-    selected1:{color:Colors.whiteWithOpacity(1)}
+    selected1:{color:Colors.text5}
   }), [Colors]); // Recreate styles when Colors change
 };
+
+export default Suggestions

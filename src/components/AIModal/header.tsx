@@ -1,4 +1,5 @@
 import { AIModalSVG } from "assets/svg/AIModalSvg"
+import { commonSvg } from "assets/svg/commonSvg"
 import Touchable from "components/common/Touchable"
 import { useTheme } from "context"
 import { useRouter } from "expo-router"
@@ -41,7 +42,15 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,on
           >
             <SvgXml xml={AIModalSVG.history?.replace('#1C1B1F',Colors.askClose)} />
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
-          </Touchable>:<View style={{width: "25%"}}/>}
+          </Touchable>:type=="notes"?<Touchable
+            onPress={onNewChat}
+            style={styles.rightContainer}
+          >
+            <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.askClose)} />
+            {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
+          </Touchable>:
+          <View style={{width: "25%"}}/>}
+          
         </View>
     )
 }

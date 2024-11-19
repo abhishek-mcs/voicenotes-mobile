@@ -80,6 +80,8 @@ export default {
   text3:'rgba(221, 221, 221, 0.5)',
   text4:'#fff',
   text5:'#fff',
+  text6:'#000',
+  text7:'#828282',
   bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
   bottomBarCancelBg:'rgba(255, 69, 56, 0.15)',
   bottomBarButtonBg1:tertiary,
