@@ -83,7 +83,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               ref={inputRef}
               onFocus={()=>setCurrentIndex(index)}
               placeholder='0'
-              placeholderTextColor={'rgba(113, 113, 113, 0.44)'}
+              placeholderTextColor={Colors.grey3WithOpacity(0.44)}
               style={styles.input}
               maxLength={1}
               selectTextOnFocus={false}
@@ -151,7 +151,8 @@ const useStyles = () => {
   activeColor:{borderColor:Colors.blackWithOpacity(1)},
   input: {
     textAlign: 'center',
-    fontSize: 16
+    fontSize: 16,
+    color:Colors.text
   },
   dash: {
     marginHorizontal: 12,
