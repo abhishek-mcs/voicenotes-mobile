@@ -72,6 +72,7 @@ export default {
   bgColor11:'#0d0d0d',
   bgColor12:secondary,
   bgColor13:(opacity:number)=>`rgba(255,255,255,${opacity})`,
+  bgColor14:'rgb(16,16,16)',
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',
