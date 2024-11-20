@@ -101,8 +101,8 @@ const useStyles = () => {
     alignItems:'center',
   },
   btw:{justifyContent:'space-between'},
-  titleStyle:{fontFamily:'Primary',fontSize:12,color:Colors.darkWithOpacity(1),marginTop:6},
-  txt:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Medium',fontSize:12},
+  titleStyle:{fontFamily:'Primary',fontSize:12,color:Colors.text5,marginTop:6},
+  txt:{color:Colors.text5,fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
   btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.grey}
 }), [Colors]); // Recreate styles when Colors change
