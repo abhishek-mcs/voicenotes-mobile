@@ -198,7 +198,7 @@ const useStyles = () => {
   tagButton: {
     height: 33,
     paddingHorizontal: 12,
-    backgroundColor: Colors.blackWithOpacity(0.05),
+    backgroundColor: Colors.bgColor3(0.05),
     borderRadius: 56,
     marginRight: 5,
     alignItems: "center",

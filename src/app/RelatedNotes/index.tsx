@@ -46,8 +46,8 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
         <SafeAreaView style={{backgroundColor:Colors.whiteWithOpacity(1),flex:1,paddingTop:isIOS?0:0}}>
             <View>
                 <Touchable onPress={onBack} style={{flexDirection:'row',alignItems:'center',padding:12}}>
-                    <SvgXml xml={commonSvg.back} height={21}/>
-                    <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.darkWithOpacity(1)}}>Back</Text>
+                    <SvgXml xml={commonSvg.back?.replace('#222222',Colors.text1)} height={21}/>
+                    <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.text1}}>Back</Text>
                 </Touchable>
                 <ScrollView contentContainerStyle={{paddingBottom:400}} showsVerticalScrollIndicator={false}>
                     {getIndividualNote.isSuccess?
