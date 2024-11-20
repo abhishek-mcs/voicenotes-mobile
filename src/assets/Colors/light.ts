@@ -101,6 +101,7 @@ export default {
   askClose:'#1C1B1F',
   askLogo:'#0E3934',
   upgradeBtn:'rgba(14, 57, 52,0.1)',
+  primaryDark:primary,
   upgrade:'#0d0d0d',
   pricing:'rgba(34, 34, 34,0.05)',
   pricingSelected:'rgba(73, 144, 53,0.05)',

@@ -17,7 +17,7 @@ import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails
 import { languages } from "utils/constants/languages";
 import { useTheme } from "context";
 
-export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
+const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
@@ -94,8 +94,8 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         {/* upgrade button */}
         {!isBeliever&&
         <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.upgradeBtn,paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
-          <SvgXml xml={iapSvg.thunder} />
-          <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
+          <SvgXml xml={iapSvg.thunder?.replace(/#0E3934/g,Colors.primaryDark)} />
+          <Text style={{color:Colors.primaryDark,fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
         {/* streak indicator */}
         <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
@@ -104,7 +104,7 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
           {!!photo_url?
           <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30}}/>
-          :<SvgXml xml={commonSvg.profileIcon?.replace("0.1",isLightMode?"0.1":"0.2")}/>}
+          :<SvgXml xml={commonSvg.profileIcon?.replace(/#274F47/g,Colors.primaryDark)}/>}
         </Touchable>
         </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
@@ -159,3 +159,5 @@ const useStyles = () => {
   streak:{padding:12,alignItems:'center',width:38,height:38,justifyContent:'center'}
 }), [Colors]); // Recreate styles when Colors change
 };
+
+export default Header;

@@ -1,6 +1,6 @@
 import { Alert, Dimensions, Pressable, StyleSheet, View } from "react-native"
 import * as ImagePicker from 'expo-image-picker'
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { uploadDP } from "queries/auth"
 import ImageBackground from "components/common/ImageBackground"
 import CircularLoader from "components/common/loaders/circular-loader"
@@ -56,7 +56,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
         if (!image || imageError) {
             return (
                 <View style={styles.fallbackContainer}>
-                    <SvgXml xml={commonSvg.profileIcon} width={80} height={80} />
+                    <SvgXml xml={commonSvg.profileIcon?.replace(/#274F47/g,Colors.primaryDark)} width={80} height={80} />
                 </View>
             );
         }
