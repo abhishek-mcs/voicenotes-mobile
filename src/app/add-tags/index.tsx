@@ -20,7 +20,7 @@ import { useSaveEditedNote, useToggleStar } from "queries/home";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useTheme } from "context";
 
-export default () => {
+const AddTags = () => {
     const router = useRouter();
     const params = useLocalSearchParams();
     const {tagsArray,recording_id}:any=params;
@@ -73,7 +73,7 @@ export default () => {
     }
     
     return (
-        <SafeAreaView style={{flex:1,backgroundColor:Colors.bgColor}}>
+        <SafeAreaView style={{flex:1,backgroundColor:Colors.bgColor8}}>
           <KeyboardAvoidingView behavior="padding">
           {isIOS&&<View style={{height:5,width:36,alignSelf:'center',backgroundColor:Colors.dragBar,borderRadius:20,marginTop:8}}/>}
           <View style={{flexDirection:'row',justifyContent:'space-between',marginTop: isIOS?16: 28,marginHorizontal:12}}>
@@ -94,7 +94,7 @@ export default () => {
               onChangeText={onSearch}
               placeholder={"Add tags"}
               placeholderTextColor={Colors.grey3}
-              style={[{color:Colors.darkWithOpacity(1),fontFamily:'Primary',fontSize:14,paddingHorizontal:16,paddingVertical:12,borderRadius:8,backgroundColor:Colors.bgColor}]}
+              style={[{color:Colors.text5,fontFamily:'Primary',fontSize:14,paddingHorizontal:16,paddingVertical:12,borderRadius:8,backgroundColor:Colors.inputBg2}]}
               autoCapitalize="none"
               autoCorrect={false}
               clearButtonMode="while-editing"
@@ -143,3 +143,5 @@ const styles=StyleSheet.create({
     textAlign:'right'
   }
 })
+
+export default AddTags;
