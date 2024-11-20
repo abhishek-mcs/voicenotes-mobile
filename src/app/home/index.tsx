@@ -149,9 +149,11 @@ const Home = () => {
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
 
-
-  useEffect(() => {
+  useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
+  },[isLightMode])
+  
+  useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
       const tags=(getTags?.data?.data?.filter((t: any) => t?.name !== 'starred') ?? [])
       dispatch(setHashTagsData(tags))

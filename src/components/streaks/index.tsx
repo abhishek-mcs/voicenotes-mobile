@@ -22,7 +22,7 @@ interface Props {
   data: any;
 }
 
-export default forwardRef(({ data = null }: Props, ref) => {
+const Streaks = forwardRef(({ data = null }: Props, ref) => {
   const [shadowOpacity] = useState(new Animated.Value(0));
   const [visible, setVisible] = useState(false);
   const [tooltipData, setTooltipData] = useState({ visible: false, text: '', position: { x: 0, y: 0 } });
@@ -94,8 +94,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
     if (x < 0) x = 0;
-    if (x + 150 > screenWidth) x = screenWidth - 180;
-    
+    if (x + (screenWidth/2.2) > screenWidth) x = screenWidth - (screenWidth/1.8);
     setTooltipData({
       visible: true,
       text: `${formatDate(item.date)} - ${item.recordings_count} notes`,
@@ -181,6 +180,8 @@ const useStyles = () => {
     paddingVertical: 20,
     paddingHorizontal: 20,
     alignSelf: "center",
+    borderColor: Colors.bgColor3(0.08),
+    borderWidth:1
   },
   shadow: {
     shadowColor: Colors.blackWithOpacity(1),
@@ -235,8 +236,10 @@ const useStyles = () => {
   },
   tooltipText: {
     fontFamily: 'Primary',
-    color: Colors.whiteWithOpacity(1),
+    color: Colors.text4,
     fontSize: 12,
   },
 }), [Colors]); // Recreate styles when Colors change
 };
+
+export default Streaks
