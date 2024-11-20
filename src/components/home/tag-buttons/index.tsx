@@ -94,7 +94,7 @@ export default function TagButtons({
   const pinTagDelete = usePinTagDelete(id);
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
 
   const options = [
@@ -130,7 +130,7 @@ export default function TagButtons({
               });
             },
           },
-        ]),
+        ],{userInterfaceStyle:isLightMode?"light":"dark"}),
     },
   ];
   const RenderButton=useCallback(()=>{
@@ -174,7 +174,7 @@ export default function TagButtons({
               <Text style={styles.tagNoteCount} numberOfLines={1}>{`${count} ${count>1?'notes':'note'}`}.</Text>
             </View>
             <MoreOptions options={options}>
-              <SvgXml xml={home.moreRounded} />
+              <SvgXml xml={home.moreRounded?.replace(/black/g,Colors.blackWithOpacity(1))} />
             </MoreOptions>
           </View>
         )}

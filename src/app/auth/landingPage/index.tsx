@@ -32,7 +32,7 @@ const LandingPage =() => {
   const LandingSvgIcons:any=LandingSvg
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
-  const {Colors}=useTheme()
+  const {Colors,isLightMode}=useTheme()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
@@ -177,7 +177,7 @@ const signInGoogle=(token:any,params:any)=>{
           {`By signing up, you agree to our `}
           <Text onPress={()=>{}} style={[{fontFamily:'Primary',fontSize:12}]} >terms</Text>
           {` and `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : Colors.blue}]}>privacy policy</Text>
+          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy",{toolbarColor:isLightMode?'#fff':'#000'})} style={[{fontFamily:'Primary',fontSize:12,color : Colors.blue}]}>privacy policy</Text>
           {`.`}
         </Text>
       </Animated.View>

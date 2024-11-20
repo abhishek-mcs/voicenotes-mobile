@@ -149,10 +149,10 @@ const useAnimatedScreens = () => {
   return { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating };
 };
 
-export default () => {
+const Settings = () => {
   const router = useRouter();
   const navigation = useNavigation()
-  const { Colors } = useTheme()
+  const { Colors, theme, switchTheme, isLightMode } = useTheme()
 
   const logout=useLogout()
   const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
@@ -206,7 +206,7 @@ export default () => {
         dispatch(setTempIsIAPPurchased(false))
         router?.back();
     }
-    }])
+    }],{userInterfaceStyle:isLightMode?"light":"dark"})
   }
 
   const onDelete = () =>{
@@ -216,11 +216,11 @@ export default () => {
       style:"cancel"
     },{
       text:"Yes",
-      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey')
-    }])
+      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey',{toolbarColor:isLightMode?'#fff':'#000'})
+    }],{userInterfaceStyle:isLightMode?"light":"dark"})
   }
 
-  const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com')
+  const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com',{toolbarColor:isLightMode?'#fff':'#000'})
   const onSelectLang=(code='en')=>{
     dispatch(setLang(languages[code]))
     saveSettings.mutate({
@@ -266,6 +266,12 @@ export default () => {
     });
   }, [])
 
+  const onSelectTheme = (v:string) =>{
+    switchTheme(v)
+  }
+
+  const selectedTheme:any={auto:'Auto',light:'Day',dark:'Night'}
+  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bgColor1, paddingTop: isIOS ? 0 : 40 }}>
       <View style={{ flex: 1, zIndex: 1, elevation: 1 }} pointerEvents={activeScreen || isAnimating ? 'none' : 'auto'}>
@@ -294,13 +300,14 @@ export default () => {
           items={[
             {title: 'Language', isMenu:true, data:Object.entries(languages), value:lang, onPressMenu:onSelectLang},
             {title:'Names to remember', value:'', onPress: () => showScreen('names'), rightIcon:settingsSvg.arrow},
-            {title:'FAQ', value:'', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions',), rightIcon:settingsSvg.arrow}
+            {title:'Theme', data:[['auto','Auto','circle.lefthalf.fill'],['light','Day','sun.max'],['dark','Night','moon.zzz']], value:selectedTheme[theme], onPressMenu: onSelectTheme,isMenu:true},
+            {title:'FAQ', value:'', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow}
           ]} 
         />
         <Grouped 
           title="MORE"
           items={[
-            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://help.voicenotes.com/en'), rightIcon:settingsSvg.arrow},
+            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://help.voicenotes.com/en',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow},
             {title:'Delete account', value:'', onPress:onDelete, rightIcon:settingsSvg.arrow},
             {title:'Share feedback', value:'', onPress:feedback, rightIcon:settingsSvg.arrow},
             {title:'Sign out', value:'', onPress:onLogout, style:{color:Colors.redWithOpacity(1)}, leftIcon:settingsSvg.signOut},
@@ -343,7 +350,8 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         {item?.isMenu?
         <MoreOptions options={item?.data?.map((t: string, v: number) => ({
           title: t[1],
-          onPress: () => item?.onPressMenu(t[0])
+          onPress: () => item?.onPressMenu(t[0]),
+          systemIcon:t[2]||''
         })) || []} 
         style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
           <View style={{flexDirection:'row',alignItems:'center',marginRight:-7}}>
@@ -375,3 +383,5 @@ const useStyles = () => {
   }
 }), [Colors]); // Recreate styles when Colors change
 };
+
+export default Settings;

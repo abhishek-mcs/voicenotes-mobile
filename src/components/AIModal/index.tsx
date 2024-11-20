@@ -94,7 +94,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const soundRef = useRef<any>(null);
   const textInputRef = useRef<TextInput>(null);
   const swiperRef = useRef<Swiper>(null)
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
@@ -273,7 +273,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const onRecordStart = async() => {
     setIsRecording(true)
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-    onRecord(setRec, setRecEnabled);
+    onRecord(setRec, setRecEnabled,isLightMode);
     activateKeepAwakeAsync()
   }
   const onCancelRecord = async() => {

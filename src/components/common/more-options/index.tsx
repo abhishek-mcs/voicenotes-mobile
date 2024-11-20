@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, } from 'react-native';
+import { Pressable, StyleSheet, useColorScheme, } from 'react-native';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import * as Haptics from "expo-haptics";
@@ -15,6 +15,9 @@ export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(false);
   const [visibleSubMenu, setVisibleSubMenu] = useState(false);
   const [subMenuOptions, setSubMenuOptions] = useState([]);
+  const {isLightMode} = useTheme()
+  const theme = isLightMode? "light" : "dark"
+
   useImperativeHandle(ref, () => {
     return {
       show(){setVisible(true)},
@@ -96,7 +99,7 @@ const onPress=async()=>
   return (
     <Pressable onPress={onPress} onLongPress={()=>null}>
         <ContextMenu
-          theme={"dark"}
+          theme={theme}
           actions={options}
           style={style}
           onPress={(e) => {

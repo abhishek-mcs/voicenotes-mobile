@@ -61,7 +61,7 @@ const Premium=(props:any) => {
 
       if (!pack || pack.length === 0) {
         console.error('No products available');
-        Alert.alert('Error', 'Unable to fetch product information. Please try again later.');
+        Alert.alert('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
         setIsLoading(false);
         return;
       }
@@ -117,7 +117,7 @@ const Premium=(props:any) => {
     if(actives.activeSubscriptions.length==0||!userDetails?.subscription_status){
       Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
         // Updates.reloadAsync()
-      }}])
+      }}],{userInterfaceStyle:isLightMode?"light":"dark"})
     }else{
       
         Alert.alert(
@@ -126,7 +126,7 @@ const Premium=(props:any) => {
           [{text:'OK',onPress:async()=>{
             Updates.reloadAsync()
             await queryClient.invalidateQueries('user-data');
-          }}])
+          }}],{userInterfaceStyle:isLightMode?"light":"dark"})
     }
     setIsLoading(false)
   }
@@ -184,10 +184,10 @@ const Premium=(props:any) => {
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
         <View style={styles.footer}>
-          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
+          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
             <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
           </Touchable>
-          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy')}>
+          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
             <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
           </Touchable>
         </View>

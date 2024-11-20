@@ -17,11 +17,11 @@ export const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
       style={[
         style,
         {
-          backgroundColor: Colors.blackWithOpacity(1), 
+          backgroundColor: Colors.bgColor11, 
         },
       ]}
     >
-      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:Colors.whiteWithOpacity(0.98),flex:1,width:screenWidth-32}}/>
+      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:Colors.bgColor8,flex:1,width:screenWidth-32}}/>
     </SafeAreaView>
   );
 };
@@ -125,6 +125,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
         onChange={handleSheetChanges}
         enablePanDownToClose
         onClose={onClose}
+        handleStyle={{backgroundColor:Colors.bgColor8}}
       >
         <View style={styles.content}>
           <View style={styles.header}>
@@ -166,20 +167,22 @@ const useStyles = () => {
     marginTop: isIOS?0:20,
     paddingTop: 0,
     color: Colors.grey,
-    backgroundColor:Colors.blackWithOpacity(1),
-    overflow:'hidden'
+    backgroundColor:Colors.bgColor8,
+    overflow:'hidden',
+    borderTopEndRadius:12,
+    borderTopStartRadius:12,
   },
   container: {
     flex: 1,
-    backgroundColor:Colors.whiteWithOpacity(1),
+    backgroundColor:Colors.bgColor8,
   },
   content: {
     flex: 1,
-    backgroundColor:Colors.whiteWithOpacity(1),
+    backgroundColor:Colors.bgColor8,
   },
   separator: {
     height: 1,
-    backgroundColor: Colors.darkWithOpacity(0.1),
+    backgroundColor: Colors.border,
     marginTop: 8,
   },
   iosHandle: {
@@ -217,18 +220,19 @@ const useStyles = () => {
     marginHorizontal: 24,
     marginTop: 16,
     marginBottom: 10,
+    color:Colors.text
   },
   inputContainer: {
     marginHorizontal: 24,
   },
   input: {
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text1,
     fontFamily: 'Primary',
     fontSize: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: Colors.darkWithOpacity(0.05),
+    backgroundColor: Colors.inputBg2,
   },
 }), [Colors]); // Recreate styles when Colors change
 };

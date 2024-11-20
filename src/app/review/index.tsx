@@ -14,22 +14,22 @@ const Review = () => {
 
     const [review, setReview] = useState('')
     const [working, setWorking] = useState(false)
-    const { Colors } = useTheme()
+    const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
 
     const onSubmit = async () => {
         if(!review) {
-            Alert.alert('Just your honest opinion', 'Please write a few thoughts about voicenotes. It really helps us improve your experience.')
+            Alert.alert('Just your honest opinion', 'Please write a few thoughts about voicenotes. It really helps us improve your experience.',[],{userInterfaceStyle:isLightMode?"light":"dark"})
             return
         }
 
         setWorking(true)
         try {
             await submitReview(review)
-            Alert.alert('Got it!', "Thanks for your feedback! This really means a lot & we'll be sure to listen to this opinion for future releases.")
+            Alert.alert('Got it!', "Thanks for your feedback! This really means a lot & we'll be sure to listen to this opinion for future releases.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
         } catch (error) {
             console.error(`Error submitting review: ${JSON.stringify(error)}`)
-            Alert.alert('Oops!', "There was a problem submitting your review. Please try again next time this pops up.")
+            Alert.alert('Oops!', "There was a problem submitting your review. Please try again next time this pops up.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
         }
         setWorking(false)
         router.back()

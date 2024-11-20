@@ -18,7 +18,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
     const [working, setWorking] = useState(false)
     const [showOverlay, setShowOverlay] = useState(false)
     const [imageError, setImageError] = useState(false);
-    const { Colors } = useTheme()
+    const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
 
     const pickImage = async () => {
@@ -26,7 +26,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (!permissionResult.granted) {
-            Alert.alert('Access denied', "You've refused to allow VoiceNotes to access your photos!");
+            Alert.alert('Access denied', "You've refused to allow VoiceNotes to access your photos!",[],{userInterfaceStyle:isLightMode?"light":"dark"});
             setShowOverlay(false)
             return;
         }
@@ -40,7 +40,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
         if(!result.canceled) {
             setWorking(true)
-            let newURI = await uploadDP(result.assets[0].uri);
+            let newURI = await uploadDP(result.assets[0].uri,isLightMode);
             setImage(newURI);
             onChange(newURI);
             setWorking(false)

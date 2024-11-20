@@ -139,7 +139,7 @@ const Home = () => {
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
-  const { Colors } = useTheme()
+  const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
@@ -151,9 +151,7 @@ const Home = () => {
 
 
   useEffect(() => {
-    StatusBar.setBarStyle('dark-content')
-    StatusBar.setHidden(false)
-    StatusBar.setTranslucent(true)
+    StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
       const tags=(getTags?.data?.data?.filter((t: any) => t?.name !== 'starred') ?? [])
       dispatch(setHashTagsData(tags))
@@ -580,7 +578,7 @@ const Home = () => {
       return;
     }
     setRecordingParentId(parent_id);
-    onRecord(setRec, setRecEnabled);
+    onRecord(setRec, setRecEnabled,isLightMode);
     activateKeepAwakeAsync();
     analytics().logEvent("started_recording");
     setTriggerTypingTitle(null)
@@ -750,7 +748,7 @@ const Home = () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
-console.log(recordingQuery.data)
+  
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
@@ -930,8 +928,8 @@ console.log(recordingQuery.data)
                 <RefreshControl 
                   onRefresh={onRefresh} 
                   refreshing={isRefreshing}
-                  tintColor={'#fff'}
-                  colors={['#fff']}
+                  tintColor={Colors.refresh}
+                  colors={[Colors.refresh]}
                   />
                 }
                 scrollEventThrottle={16}

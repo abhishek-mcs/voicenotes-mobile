@@ -54,7 +54,7 @@ export default () => {
   const [isLoading, setIsLoading] = useState(false);
   const titleInputRef = useRef<TextInput>(null);
   const transcriptInputRef = useRef<TextInput>(null);
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
 
   const handleTitleSubmit = () => {
@@ -63,7 +63,7 @@ export default () => {
 
   const onSaveEdit = async () => {
     if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
-      return Alert.alert("", "Title and Transcript cannot be empty");
+      return Alert.alert("", "Title and Transcript cannot be empty",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     }
     setIsLoading(true);
     const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);

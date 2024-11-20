@@ -115,7 +115,7 @@ const NotePreview = forwardRef(
       url: string;
     } | null>(null);
     const [attachments, setAttachments] = useState([]);
-    const { Colors } = useTheme()
+    const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
 
     const dispatch = useDispatch();
@@ -306,7 +306,7 @@ const NotePreview = forwardRef(
               text: "Got It",
               style: "cancel",
             },
-          ]
+          ],{userInterfaceStyle:isLightMode?"light":"dark"}
         );
         return;
       }
@@ -343,7 +343,7 @@ const NotePreview = forwardRef(
               }
             },
           },
-        ]
+        ],{userInterfaceStyle:isLightMode?"light":"dark"}
       );
     };
     const onPlaybackStatusUpdate = async (status: any) => {

@@ -23,6 +23,7 @@ import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
 import { useTheme } from "context";
 import { useQueryClient } from "react-query";
+import MoreOptions from "components/common/more-options";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -32,7 +33,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const { Colors } = useTheme()
+  const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
 
   const fullScreenListRef = useRef(null);
@@ -65,7 +66,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
-      Alert.alert("Error", "Failed to delete the attachment. Please try again.");
+      Alert.alert("Error", "Failed to delete the attachment. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     } finally {
       onAttachmentUpdate();
     }
@@ -79,7 +80,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       [
         { text: "Cancel", style: "cancel" },
         { text: "Delete", onPress: () => deleteAttachment(attachmentId), style: "destructive" }
-      ]
+      ],{userInterfaceStyle:isLightMode?"light":"dark"}
     );
   }, [deleteAttachment]);
 
@@ -118,24 +119,27 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
             {item.description}
           </Text>
         </TouchableOpacity>
-        <Menu
-          visible={visibleMenu === item.id}
-          anchor={
-            <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
-              <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
-            </TouchableOpacity>
-          }
-          onRequestClose={() => setVisibleMenu(null)}
-        >
-          <MenuItem onPress={() => {
+        <MoreOptions options={[
+          {
+            title:'Edit',
+            systemIcon:'square.and.pencil',
+            onPress:() => {
             onEditLink(item);
             setVisibleMenu(null);
-          }}>Edit</MenuItem>
-          <MenuItem onPress={() => {
-            handleDeletePress(item.id, 'link');
-            setVisibleMenu(null);
-          }}>Delete</MenuItem>
-        </Menu>
+          }},
+          {
+            title:'Delete',
+            destructive:true,
+            systemIcon:'trash',
+            onPress:() => {
+              handleDeletePress(item.id, 'link');
+              setVisibleMenu(null);
+            }}
+          ]}>
+          <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
+            <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
+          </TouchableOpacity>
+        </MoreOptions>
       </View>
     ),
     [openLink, visibleMenu, handleDeletePress, onEditLink]
@@ -261,7 +265,7 @@ const useStyles = () => {
   bottomSheet: {
     flex:1,
     // height:screenHeight,
-    backgroundColor:Colors.blackWithOpacity(0.7)
+    backgroundColor:Colors.bgColor10(0.7)
   },
   container: {
     flex:1,
@@ -303,7 +307,7 @@ const useStyles = () => {
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.blackWithOpacity(0.9),
+    backgroundColor: Colors.bgColor10(0.9),
     justifyContent: "center",
     alignItems: "center",
   },

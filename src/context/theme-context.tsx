@@ -1,28 +1,32 @@
 import dark from "assets/Colors/dark";
 import light from "assets/Colors/light";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setSavedTheme } from "redux/reducers/userDetails";
 import { RootState } from "redux/store/store";
 
 const ThemeContext = React.createContext({
     theme: "dark",
     isLightMode: true,
     Colors: light,
-    setScheme: () => { },
+    switchTheme: (v:string) => { },
 });
 
 export const ThemeProvider = ({ children }:any) => {
   const {savedTheme}:any=useSelector((state:RootState)=>state.userDetails)
   const colorScheme = useColorScheme()
-  const [theme,setTheme] = useState<'light'|'dark'|'light-dark'|'auto'>('dark');
-
+  const dispatch = useDispatch()
+  const [theme,setTheme] = useState<'light'|'dark'|'light-dark'|'auto'>(savedTheme||'auto');
+  
   const switchTheme = (scheme:any) => {
     setTheme(scheme);
+    dispatch(setSavedTheme(scheme))
   };
+  
   const isLightMode = theme=="auto"? colorScheme=="light" : theme == "light"
-  const Colors = theme=="auto"? colorScheme : theme=="dark" ? dark : light;
-  const value:any={Colors,switchTheme,isLightMode}
+  const Colors = theme=="auto"? (colorScheme=='dark'? dark : light ):( theme=="dark" ? dark : light);
+  const value:any={Colors,switchTheme,isLightMode,theme}
   return (
     <ThemeContext.Provider value={value}>
       {children}

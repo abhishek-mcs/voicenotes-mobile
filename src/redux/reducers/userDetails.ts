@@ -7,7 +7,8 @@ export interface userState {
   guestToken:string,
   userDetails:string,
   canRecord:boolean,
-  lang:string
+  lang:string,
+  savedTheme:string
 }
 
 const initialState: userState = {
@@ -16,7 +17,8 @@ const initialState: userState = {
   guestToken:'',
   userDetails:'',
   canRecord:false,
-  lang:'Detect language'
+  lang:'Detect language',
+  savedTheme:'auto'
 }
 
 export const userDetails = createSlice({
@@ -44,10 +46,13 @@ export const userDetails = createSlice({
     setCanRecord:(state, action: PayloadAction<boolean>)=>{
       state.canRecord= action.payload||true;
     },
+    setSavedTheme:(state, action: PayloadAction<string>)=>{
+      state.savedTheme= action.payload||'auto';
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setEmail, setToken, setGuestToken, logOut, setUserDetail,setLang, setCanRecord } = userDetails.actions
+export const { setEmail, setToken, setGuestToken, logOut, setUserDetail,setLang, setCanRecord, setSavedTheme } = userDetails.actions
 
 export default userDetails.reducer

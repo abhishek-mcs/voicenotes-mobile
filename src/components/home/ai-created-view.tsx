@@ -15,7 +15,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const [working, setWorking]=useState(false)
     const dt=Date.now()
     const deleteNote=useDeleteFormattedNote(id)
-    const { Colors } = useTheme()
+    const { Colors, isLightMode } = useTheme()
     const { container,row,btw,txt,titleStyle,btn,btnTxt } = useStyles()
 
     const onCopy=async()=>{
@@ -43,7 +43,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
           await deleteNote.mutateAsync(id)
           setWorking(false)
         }}
-      ])
+      ],{userInterfaceStyle:isLightMode?"light":"dark"})
     }
 
     useLayoutAnim([expand])
