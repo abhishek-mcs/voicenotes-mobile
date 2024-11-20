@@ -236,8 +236,9 @@ const useStyles = () => {
     width:screenWidth/1.4
   },
   activeTag: {
-    color: Colors.redWithOpacity(1),
+    color: Colors.text,
+    // fontFamily:'Primary-Bold'
   },
-  activeTagContainer: { backgroundColor: Colors.redWithOpacity(0.1) },
+  activeTagContainer: {  },
 }), [Colors]); // Recreate styles when Colors change
 };
