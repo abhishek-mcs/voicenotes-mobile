@@ -76,12 +76,12 @@ const useStyles = () => {
     return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: Colors.blackWithOpacity(0.5),
+        backgroundColor: Colors.bgColor10(0.5),
         justifyContent: 'center',
         alignItems: 'center'
     },
     box: {
-        backgroundColor: Colors.grey7,
+        backgroundColor: Colors.bgColor16,
         borderRadius: 16,
         width: 280,
         height: 250
@@ -111,7 +111,7 @@ const useStyles = () => {
     },
     heading: {
         fontFamily: 'Primary-Medium',
-        color: 'black',
+        color: Colors.text,
         fontSize: 16,
         fontWeight: '600',
         marginTop: 15

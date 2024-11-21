@@ -43,7 +43,7 @@ const useStyles = () => {
         height:34,justifyContent:'center',
         paddingHorizontal:9,
         borderRadius:8,
-        backgroundColor:Colors.whiteWithOpacity(1),
+        backgroundColor:Colors.bgColor6,
         marginRight:6,
         shadowColor:Colors.blackWithOpacity(1),
         shadowOffset:{width:0,height:1},

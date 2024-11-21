@@ -93,7 +93,7 @@ const ChatBubble = ({
       {showCursorAtEnd&&showStatus && (
         <Text
           style={{
-            color: Colors.grey3,
+            color: Colors.text10,
             fontFamily: "Primary",
             fontSize: 12,
             lineHeight: 20,

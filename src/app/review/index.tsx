@@ -40,7 +40,7 @@ const Review = () => {
             <Text style={styles.actionLabel}>{label}</Text>
         </Pressable> 
     }
-    return <SafeAreaView style={{ flex: 1, paddingTop: isIOS ? 0 : insets.top }}>
+    return <SafeAreaView style={{ flex: 1, paddingTop: isIOS ? 0 : insets.top, backgroundColor:Colors.bgColor8 }}>
         <View style={styles.header}>
             <Action onPress={() => router.back()} label="Cancel" />
             <View style={styles.labelContainer}>
@@ -56,6 +56,7 @@ const Review = () => {
                 value={review}
                 onChangeText={text => setReview(text)}
                 style={styles.field}
+                placeholderTextColor={Colors.grey6}
             />
         </View>
         <Modal visible={working} transparent
@@ -76,7 +77,7 @@ const useStyles = () => {
     header: {
         flex: 1,
         flexDirection: 'row',
-        borderColor: Colors.grey4,
+        borderColor: Colors.border,
         borderBottomWidth: 1
     },
     action: {
@@ -96,7 +97,8 @@ const useStyles = () => {
     },
     label: {
         fontWeight: '600',
-        fontSize: 18
+        fontSize: 18,
+        color:Colors.text
     },
     content: {
         flex: 12,
@@ -104,7 +106,8 @@ const useStyles = () => {
     },
     field: {
         width: '100%',
-        fontSize: 14
+        fontSize: 14,
+        color:Colors.text
     }
 }), [Colors]); // Recreate styles when Colors change
 };

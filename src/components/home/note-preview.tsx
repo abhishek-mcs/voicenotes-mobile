@@ -589,9 +589,9 @@ const NotePreview = forwardRef(
         {
           text: "Download",
           onPress: onDownloadAudio,
-          icon: home.download,
+          icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
         },
-        { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete },
+        { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete?.replace(/#0D0D0D/g,Colors.text) },
       ];
 
       const failedButtons = isOffline?
@@ -604,7 +604,7 @@ const NotePreview = forwardRef(
             await syncUpNote(note).catch(()=>{})
             // setRetryLoader(false);
           },
-          icon: home.repeat,
+          icon: home.repeat?.replace(/black/g,Colors.text),
           isLoading: !note?.status?.includes('failed'),
         },
         ...intermediateButtons,
@@ -874,9 +874,9 @@ const NotePreview = forwardRef(
                         showStatus={!isNoteExpanded}
                         cursorSvg={
                           note?.status == "processing"
-                            ? notePreviewSVG.flower
+                            ? notePreviewSVG.flower?.replace(/#0D0D0D/g,Colors.arrow)
                             : note?.status == "uploading"
-                            ? notePreviewSVG.blackCircle
+                            ? notePreviewSVG.blackCircle?.replace(/#0D0D0D/g,Colors.arrow)
                             : ""
                         }
                         showCursorAtEnd={

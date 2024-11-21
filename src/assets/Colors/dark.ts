@@ -74,6 +74,7 @@ export default {
   bgColor13:(opacity:number)=>`rgba(255,255,255,${opacity})`,
   bgColor14:'rgb(16,16,16)',
   bgColor15:()=>tertiary,
+  bgColor16:tertiary,
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',
@@ -90,6 +91,7 @@ export default {
   text7:'#828282',
   text8:(opacity:number)=>'#fff',
   text9:'#fff',
+  text10:'#9b9b9b',
   bottomBarButtonBg:'rgba(255, 69, 56, 0.15)',
   bottomBarCancelBg:'rgba(255, 69, 56, 0.15)',
   bottomBarButtonBg1:tertiary,
@@ -113,5 +115,6 @@ export default {
   pricing:secondary,
   pricingSelected:secondary,
   back:'#FFFFFF',
-  arrow:'#ffffff'
+  arrow:'#ffffff',
+  status:''
 };
