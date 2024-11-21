@@ -8,7 +8,7 @@ import { useSignedUrlForChat } from 'queries/home';
 import CircularLoader from 'components/common/loaders/circular-loader';
 import { useTheme } from 'context';
 
-export default ({isAI=false,url=''}) => {
+const AudioPlayer = ({isAI=false,url=''}) => {
   const [sound, setSound] = useState<Audio.SoundObject|any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(100);
@@ -98,7 +98,7 @@ export default ({isAI=false,url=''}) => {
         {sound==null?
         <CircularLoader width={24} height={24} color={isAI?'white':Colors.primary}/>
         :<Pressable onPress={handlePlayPause}>
-            <SvgXml xml={!isPlaying?playerSvg.play?.replace("color",isAI?Colors.whiteWithOpacity(1):Colors.primary):playerSvg.pause?.replace("color",isAI?Colors.whiteWithOpacity(1):Colors.primary)} />
+            <SvgXml xml={!isPlaying?playerSvg.play?.replace("color",isAI?Colors.bgColor13(1):Colors.primaryDark):playerSvg.pause?.replace("color",isAI?Colors.bgColor13(1):Colors.primaryDark)} />
         </Pressable>}
       <View style={styles.sliderContainer}>
         <Slider
@@ -109,9 +109,9 @@ export default ({isAI=false,url=''}) => {
           value={position}
           onValueChange={handleSliderValueChange}
           onSlidingComplete={handleSliderSlidingComplete}
-          thumbStyle={[styles.thumb,isAI?{backgroundColor:Colors.whiteWithOpacity(1)}:{}]}
-          minimumTrackTintColor={isAI?'white':Colors.primary}
-          maximumTrackTintColor={isAI?Colors.whiteWithOpacity(0.5):Colors.primaryWithOpacity(0.1)}
+          thumbStyle={[styles.thumb,isAI?{backgroundColor:Colors.bgColor13(1)}:{}]}
+          minimumTrackTintColor={isAI?'white':Colors.primaryDark}
+          maximumTrackTintColor={isAI?Colors.bgColor13(0.5):Colors.primaryDark3()}
         />
       </View>
     </View>
@@ -134,6 +134,8 @@ const useStyles = () => {
   slider: {
     width:'92%'
   },
-  thumb:{ backgroundColor: Colors.primary,width: 12, height: 12, borderRadius: 10}
+  thumb:{ backgroundColor: Colors.primaryDark,width: 12, height: 12, borderRadius: 10}
 }), [Colors]); // Recreate styles when Colors change
 };
+
+export default AudioPlayer;

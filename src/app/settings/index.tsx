@@ -366,7 +366,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         </View>
       </View>
     </TouchableHighlight>
-    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:1,backgroundColor:Colors.grey4WithOpacity(0.87),width:'100%'}}/></View>}
+    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:0.8,backgroundColor:Colors.border,width:'100%'}}/></View>}
     </View>)}
     </View>
 </View>

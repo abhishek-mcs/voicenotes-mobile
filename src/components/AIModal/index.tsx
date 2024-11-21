@@ -382,7 +382,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                 {chats?.related_messages?.length==0&&
                 <View style={{ marginLeft: 20 }}>
                   <SvgXml
-                    xml={AIModalSVGIcons.askAILogo?.replaceAll('stroke="#0E3934"','stroke='+Colors.askLogo)}
+                    xml={AIModalSVG.askAILogo?.replace(/#0E3934/g,Colors.askLogo).replace('fill-opacity="0.1"',isLightMode?'fill-opacity="0.1"':'fill-opacity="0.3"')}
                     style={{ marginVertical: 16 }}
                   />
                   <Text
@@ -529,7 +529,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
 });
 
 const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=[] }) => {
-  const { Colors } = useTheme()
+  const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
   const [expand,setExpand]=useState(false)
   const [copy,setCopy]=useState('Copy')
@@ -551,11 +551,18 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   if(!!url){
   return (
   <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{},{paddingHorizontal:16,marginBottom:13}]}>
-    {text=='Typing'?
-    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
-    :<View style={[styles.audioChat,styles.shadow,{backgroundColor:isAI?Colors.primary:isIOS?Colors.whiteWithOpacity(0.5):Colors.whiteWithOpacity(1)}]}>
+    {text=="Typing"?
+    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
+    colorFilters={[
+      { keypath: 'Ellipse 1', color: Colors.bgColor6 },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor6 },
+      { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
+  ]}/>
+    :<View style={[styles.audioChat,styles.shadow,{backgroundColor:isAI?Colors.primaryDark2:isIOS?Colors.bgColor15(0.5):Colors.bgColor15(1)},isAI?{}:{borderWidth:isLightMode?0:1,borderColor:Colors.bgColor13(0.1)}]}>
       <AudioPlayer isAI={isAI} url={url}/>
-      <Text style={{color:isAI?Colors.whiteWithOpacity(0.5):Colors.grey,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
+      <Text style={{color:isAI?Colors.bgColor13(isLightMode?0.5:1):Colors.text9,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
     </View>}
   </Pressable>
 )}
@@ -565,7 +572,12 @@ return (
     <View style={[styles.aiChat,isAI?styles.aiChatStyle:styles.userChatStyle,(text=="Typing"||text=='Searching')?{paddingVertical:8}:{}]}>
       <Text style={[styles.text,{position:"relative"}]}>
         {text}
-        {(text=="Typing"||text=='Searching')&&<View><LottieView source={typing} speed={0.8} autoPlay loop style={styles.lottie}/></View>}
+        {(text=="Typing"||text=='Searching')&&<View><LottieView source={typing} speed={0.8} autoPlay loop style={styles.lottie} colorFilters={[
+        { keypath: 'Shape Layer 1', color: Colors.text }, // Update the layer keypath and color
+        { keypath: 'Shape Layer 2', color: Colors.text },
+        { keypath: 'Shape Layer 3', color: Colors.text },
+        { keypath: 'Shape Layer 4', color: Colors.text },
+      ]} /></View>}
       </Text>
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
 
@@ -581,7 +593,7 @@ return (
       <View>
         {sources.map((source:any,index:number)=>(
           <Touchable key={index} activeOpacity={1} onPress={()=>goToSource(source?.id)} style={[styles.row,{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8}]}>
-            <SvgXml xml={AIModalSVG.source} style={{marginRight:8,marginTop:6}}/>
+            <SvgXml xml={AIModalSVG.source?.replace("#0D0D0D",Colors.arrow)} style={{marginRight:8,marginTop:6}}/>
             <Text style={[styles.text,{flexWrap:'wrap',width:'90%'}]}>{source?.title}</Text>
           </Touchable>
         ))}
@@ -717,7 +729,7 @@ const useStyles = () => {
   },
   text: {
     fontSize: 14,
-    color: Colors.text1,
+    color: Colors.text5,
     fontFamily: "Primary-Medium",
     lineHeight: 20,
   },
@@ -768,7 +780,7 @@ const useStyles = () => {
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 7,
-    backgroundColor:Colors.whiteWithOpacity(1),
+    backgroundColor:Colors.bgColor2,
     shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
