@@ -41,7 +41,7 @@ import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
 import { useTheme } from "context";
 
-export default () => {
+const EditNote = () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {editNoteRedux} = useSelector((state:RootState)=>state.editStates)
@@ -99,7 +99,7 @@ export default () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.whiteWithOpacity(1) }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor1 }}>
       {/* <KeyboardAvoidingView behavior={"padding"} > */}
       <View
         style={{
@@ -151,6 +151,8 @@ export default () => {
           autoCorrect={true}
           selectTextOnFocus={false}
           value={editNote?.title}
+          placeholder="Title"
+          placeholderTextColor={Colors.grey6}
           onChangeText={(txt) =>
             setEditNote((n: any) => {
               return { ...n, title: txt };
@@ -173,6 +175,8 @@ export default () => {
             autoCorrect={true}
             scrollEnabled={false}
             selectTextOnFocus={false}
+            placeholder="Transcript"
+            placeholderTextColor={Colors.grey6}
             value={editNote?.transcript?.replaceAll(/<br\/?>/g, "\n")}
             onChangeText={(txt) =>
               setEditNote((n: any) => {
@@ -200,7 +204,7 @@ const useStyles = () => {
     fontSize: 16,
     lineHeight: 28,
     fontWeight: "500",
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text5,
     marginBottom: 6,
   },
   textInput: {
@@ -213,7 +217,9 @@ const useStyles = () => {
     fontWeight: "400",
     textAlignVertical: "top",
     textAlign: "left",
-    color: Colors.darkWithOpacity(0.9),
+    color: Colors.text5,
   },
 }), [Colors]
 )}
+
+export default EditNote
