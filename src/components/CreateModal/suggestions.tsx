@@ -91,7 +91,7 @@ const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selec
     row:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',justifyContent:'space-between'},
     btw:{justifyContent:'space-between',marginTop:20},
     selected:{backgroundColor:Colors.primary},
-    selected1:{color:Colors.text5}
+    selected1:{color:Colors.text4}
   }), [Colors]); // Recreate styles when Colors change
 };
 

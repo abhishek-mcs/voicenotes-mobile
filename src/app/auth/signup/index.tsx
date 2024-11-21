@@ -175,7 +175,7 @@ const Signup = () => {
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: Colors.text5,
+            color: Colors.text4,
           }}
         >
           Continue

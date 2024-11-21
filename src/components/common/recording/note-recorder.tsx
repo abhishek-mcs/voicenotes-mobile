@@ -67,7 +67,7 @@ export default ({
       >
         <RecButton
           title="Cancel"
-          bgColor={Colors.bottomBarButtonBg}
+          bgColor={Colors.redWithOpacity(0.05)}
           underlayColor={Colors.redWithOpacity(0.06)}
           color={Colors.redWithOpacity(1)}
           onPress={onCancelClick}
@@ -161,6 +161,9 @@ export default ({
             title="No, continue"
             onPress={continueRecording}
             style={{ paddingHorizontal: 20, marginLeft: 12 }}
+            bgColor={Colors.bottomBarButtonBg1}
+            underlayColor={""}
+            color={Colors.text}
           />
         </View>
       </View>

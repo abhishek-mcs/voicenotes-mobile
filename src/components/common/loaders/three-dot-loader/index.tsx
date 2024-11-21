@@ -11,9 +11,9 @@ export default ({size=40,style={}}:{style?:ViewStyle,size?:number})=>{
   <View style={[styles.row,style]}>
     <LottieView source={loader} autoPlay loop style={[styles.lottie,{width:size,height:size}]}
     colorFilters={[
-      {keypath:'Left',color:Colors.text},
-      {keypath:'Mid',color:Colors.text},
-      {keypath:'Right',color:Colors.text}
+      {keypath:'Left',color:Colors.bgColor13(1)},
+      {keypath:'Mid',color:Colors.bgColor13(1)},
+      {keypath:'Right',color:Colors.bgColor13(1)}
     ]}
     />
   </View>
