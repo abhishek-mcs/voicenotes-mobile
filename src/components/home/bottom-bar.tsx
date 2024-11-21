@@ -93,6 +93,7 @@ useEffect(() => {
     onStopRecord(duration);
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
+    setRecordingParentId(null)
     // setPaused(true);
   }
 
@@ -101,6 +102,7 @@ useEffect(() => {
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
     setIsCanceling(false);
+    setRecordingParentId(null)
   }
 
   const onRecordStart = () => {
@@ -194,7 +196,7 @@ const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
   addingContainer: {
-    backgroundColor:Colors.whiteWithOpacity(1),
+    backgroundColor:Colors.bgColor1,
     minHeight: 56,
     borderRadius: 24,
     position: "absolute",
@@ -214,7 +216,7 @@ const useStyles = () => {
   heading: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text5,
     textAlign: "left",
   },
   container: {
