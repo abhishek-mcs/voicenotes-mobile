@@ -10,7 +10,7 @@ const Records = ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:st
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
     const filteredRecordingList = recordingList.filter(item => (item.transcript && item.title))
     const { Colors } = useTheme()
-    const {heading,titleStyle,text,list,itemContainer,row} = useStyles()
+    const {heading,titleStyle,text,list,itemContainer,row,selectedStyle} = useStyles()
     return (
         <View style={{flex:1,height:'auto',marginTop:10}}>
             <Text style={heading}><Text style={{color:Colors.grey}}>2.  </Text>Select the note</Text>
@@ -21,7 +21,7 @@ const Records = ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:st
             keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
             scrollEnabled={false}
             renderItem={({item})=>(
-                <TouchableHighlight onPress={()=>onSelect(item?.id,item?.title)} style={[itemContainer,isSelected(item?.id)?selected:{}]} underlayColor={Colors.greyWithOpacity(0)}>
+                <TouchableHighlight onPress={()=>onSelect(item?.id,item?.title)} style={[itemContainer,isSelected(item?.id)?selectedStyle:{}]} underlayColor={Colors.greyWithOpacity(0)}>
                     <View style={row}>
                         <View style={{flex:1}}>
                         <Text style={titleStyle} numberOfLines={1}>{item?.title}</Text>
@@ -49,7 +49,7 @@ const useStyles = () => {
         marginBottom:8
     },
     text:{
-        color:Colors.grey7,
+        color:Colors.grey6,
         fontSize:14,
         fontFamily:"Primary",
     },
@@ -63,7 +63,7 @@ const useStyles = () => {
         color:Colors.text
     },
     itemContainer:{paddingHorizontal:16,paddingVertical:8,borderRadius:12,marginHorizontal:15,marginBottom:8},
-    selected:{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,overflow:'hidden'},
+    selectedStyle:{backgroundColor:Colors.inputBg2,borderRadius:12,overflow:'hidden'},
     row:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}
 }), [Colors]); // Recreate styles when Colors change
 };

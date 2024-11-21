@@ -90,7 +90,7 @@ const useStyles = () => {
     btnBox:{flexDirection:'row',alignItems:'center',marginHorizontal:32},
     btn:{flexDirection:'row',alignItems:'center',marginRight:12,marginLeft:-6,paddingHorizontal:12,height:32,borderRadius:12,backgroundColor:Colors.bottomBarButtonBg1},
     btnText:{fontFamily:'Primary',fontSize:12,color:Colors.black2,marginLeft:4},
-    subject:{fontFamily:'Primary-Medium',fontSize:14,color:Colors.darkWithOpacity(1),marginBottom:20}
+    subject:{fontFamily:'Primary-Medium',fontSize:14,color:Colors.text5,marginBottom:20}
 }), [Colors]); // Recreate styles when Colors change
 };
 

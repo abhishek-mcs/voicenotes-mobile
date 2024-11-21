@@ -38,11 +38,12 @@ const Suggestions = ({onPress=(v:string)=>{},type='summary',customText='',setCus
         {type=='custom'&&
         <TextField
           style={{marginTop:0,flexDirection:'column'}}
-          inputStyle={{ height: 42, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:Colors.whiteWithOpacity(1),marginLeft:0}}
+          inputStyle={{ height: 42, color:Colors.text, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:Colors.inputBg3,marginLeft:0}}
           value={customText}
-          labelStyle={{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
+          labelStyle={{color:Colors.text5,fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
           onChangeText={(t:string)=>setCustomText(t)}
           placeholder="Enter your instructions here..."
+          placeholderTextColor={Colors.grey}
           autoCapitalize="none"
         />}
         </View>)
