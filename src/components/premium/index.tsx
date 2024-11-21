@@ -266,7 +266,7 @@ const Btn = ({
         {title}
       </Text>
     ) : (
-      <ActivityIndicator size={"small"} color={Colors.whiteWithOpacity(1)} />
+      <ActivityIndicator size={"small"} color={Colors.bgColor3(1)} />
     )}
   </Touchable>
 )};
