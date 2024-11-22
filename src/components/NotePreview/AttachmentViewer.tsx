@@ -136,9 +136,9 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
               setVisibleMenu(null);
             }}
           ]}>
-          <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
+          {/* <TouchableOpacity onPress={() => setVisibleMenu(item.id)}> */}
             <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
-          </TouchableOpacity>
+          {/* </TouchableOpacity> */}
         </MoreOptions>
       </View>
     ),

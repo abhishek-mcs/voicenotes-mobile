@@ -7,21 +7,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Touchable from 'components/common/Touchable';
 import { isIOS, screenWidth } from 'utils/common';
 import { useQueryClient } from 'react-query';
-import { useFocusEffect } from 'expo-router';
 import { useTheme } from 'context';
+import ThreeDotLoader from 'components/common/loaders/three-dot-loader';
 
 export const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
-  const { Colors } = useTheme()
+  const { Colors} = useTheme()
   return (
     <SafeAreaView
       style={[
         style,
         {
-          backgroundColor: Colors.bgColor11, 
+          backgroundColor: Colors.bgColor10(1), 
         },
       ]}
     >
-      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:Colors.bgColor8,flex:1,width:screenWidth-32}}/>
+      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:Colors.bgColor10(1),flex:1,width:screenWidth-32}}/>
     </SafeAreaView>
   );
 };
@@ -43,6 +43,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const [url, setUrl] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const textInputRef = useRef<TextInput>(null);
@@ -82,7 +83,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 
   const handleSave = async () => {
     if (!url) return;
-
+    setIsLoading(true)
     let httpUrl = url;
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
       httpUrl = `http://${url}`;
@@ -106,9 +107,11 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       onClose();
       queryClient.resetQueries('single-recording');
     } catch (error) {
+      setIsLoading(false)
       console.error("Error saving link:", error);
     }finally{
       setIsSaving(false)
+      setIsLoading(false)
     }
   };
 
@@ -117,6 +120,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   return (
     <Portal>
       <BottomSheet
+        enableOverDrag={false}
         style={styles.bottomSheet}
         backdropComponent={CustomBackdrop}
         ref={bottomSheetRef}
@@ -132,9 +136,15 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
             <Touchable onPress={onClose} style={styles.headerButton} activeOpacity={0.6}>
               <Text style={styles.cancelText}>Cancel</Text>
             </Touchable>
+            {isLoading ? (
+              <View style={{ alignSelf: "flex-end" }}>
+                <ThreeDotLoader />
+              </View>
+            ) :
             <Touchable disabled={isSaveDisabled} onPress={handleSave} style={styles.headerButton} activeOpacity={0.6}>
               <Text style={{ ...styles.saveText,color: isSaveDisabled? Colors.grey :Colors.blue }}>Save</Text>
             </Touchable>
+            }
           </View>
           <View style={styles.separator} />
 

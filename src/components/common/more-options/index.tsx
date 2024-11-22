@@ -60,6 +60,7 @@ const onPress=async()=>
           {options.map((option:any, index:number) => (
             <MenuItem
               key={index}
+              pressColor={Colors.border}
               onPress={async(e) => {
                 if (option.actions) {
                   showSubMenu(option?.actions)
@@ -81,15 +82,18 @@ const onPress=async()=>
               visible={visibleSubMenu}
               onRequestClose={hideSubMenu}
               anchor={<Pressable onPress={showSubMenu}>{children}</Pressable>}
+              style={{backgroundColor:Colors.bgColor6}}
             >
               {!!subMenuOptions&&subMenuOptions?.map((itm:any, i:number) => (
                 <MenuItem
                   key={i}
+                  pressColor={Colors.border}
                   onPress={async() => {
                       hideSubMenu()
                       await sleep(500)
                       itm.onPress && itm.onPress();
                   }}
+                  textStyle={{color:Colors.text}}
                 >{itm.title}</MenuItem>
               ))}
                 </Menu>}

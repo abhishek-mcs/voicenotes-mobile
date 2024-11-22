@@ -1,4 +1,4 @@
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native"
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
 import { useMemo, useState } from "react"
@@ -91,13 +91,16 @@ const Names: React.FC<Props> = (props) => {
               bgColor={Colors.settingsBtnBg}
               color={Colors.settingsBtnText}
               style={{ paddingHorizontal: 20 }}
+              underlayColor={Colors.settingsBtnBg}
             />
           </View>
+          <ScrollView>
           <View style={styles.names}>
             {namesList.map((name, index) => (
               <Name key={`${name}-${index}`} name={name} onClose={removeName} />
             ))}
           </View>
+          </ScrollView>
         </View>
       </Header>
     );
@@ -135,8 +138,7 @@ const useStyles = () => {
         marginTop: 10
     },
     names: {
-        width: width,
-        paddingHorizontal: 10,
+        paddingHorizontal:12,
         height: '80%',
         flexDirection: 'row',
         justifyContent: 'center',
