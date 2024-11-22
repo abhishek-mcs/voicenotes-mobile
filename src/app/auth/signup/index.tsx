@@ -168,7 +168,7 @@ const Signup = () => {
         }}
         onPress={continueClicked}
       >{signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={Colors.text5}/>
+        <ActivityIndicator size={"small"} color={Colors.text4}/>
         :
         <Text
           style={{
