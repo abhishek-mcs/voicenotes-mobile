@@ -3,7 +3,6 @@ import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import * as Haptics from "expo-haptics";
 import { useTheme } from 'context';
-import Colors from 'assets/Colors';
 import { isIOS, screenWidth, sleep } from 'utils/common';
 import { Menu, MenuItem } from 'react-native-material-menu';
 import { Text } from 'react-native';
@@ -15,7 +14,7 @@ export default forwardRef(({options=[],children,style={}}:any,ref) => {
   const [visible, setVisible] = useState(false);
   const [visibleSubMenu, setVisibleSubMenu] = useState(false);
   const [subMenuOptions, setSubMenuOptions] = useState([]);
-  const {isLightMode} = useTheme()
+  const {isLightMode,Colors} = useTheme()
   const theme = isLightMode? "light" : "dark"
 
   useImperativeHandle(ref, () => {
@@ -56,6 +55,7 @@ const onPress=async()=>
           onRequestClose={hideMenu}
           anchor={<Pressable onPress={showMenu}>{children}</Pressable>}
           animationDuration={250}
+          style={{backgroundColor:Colors.bgColor6}}
         >
           {options.map((option:any, index:number) => (
             <MenuItem

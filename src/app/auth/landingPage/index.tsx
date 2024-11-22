@@ -196,7 +196,7 @@ const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=
     {!isLoading?<>
       {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
       <Text style={[styles.text,color?{color}:{color:Colors.grey2WithOpacity(1)}]}>{text}</Text>
-    </>:<ActivityIndicator size={"small"} color={Colors.darkWithOpacity(1)}/>}
+    </>:<ActivityIndicator size={"small"} color={Colors.text}/>}
 </TouchableHighlight>
 )}
 

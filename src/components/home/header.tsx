@@ -103,7 +103,7 @@ const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         </Touchable>
         <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
           {!!photo_url?
-          <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30}}/>
+          <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30,backgroundColor:Colors.bgColor3(0.1)}}/>
           :<SvgXml xml={commonSvg.profileIcon?.replace(/#274F47/g,Colors.primaryDark)}/>}
         </Touchable>
         </View>
