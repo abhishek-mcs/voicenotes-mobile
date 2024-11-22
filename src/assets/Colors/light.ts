@@ -114,4 +114,5 @@ export default {
   pricingSelected:'rgba(73, 144, 53,0.05)',
   back:'#1C1B1F',
   arrow:'#0d0d0d',
+  loader:(o:number)=>`rgba(130, 130, 130,${o})`
 };

@@ -61,7 +61,7 @@ const Review = () => {
         </View>
         <Modal visible={working} transparent
         >
-            <View style={{ flex: 1, backgroundColor: Colors.blackWithOpacity(0.5), justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1, backgroundColor: Colors.bgColor10(0.5), justifyContent: 'center', alignItems: 'center' }}>
                 <CircularLoader />
             </View>
         </Modal>

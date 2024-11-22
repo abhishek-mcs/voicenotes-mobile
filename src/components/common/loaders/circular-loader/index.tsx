@@ -46,8 +46,8 @@ const useStyles = () => {
     const { Colors } = useTheme();
     return useMemo(() => StyleSheet.create({
     loader: {
-      borderLeftColor: Colors.greyWithOpacity(0.3),
-      borderBottomColor: Colors.greyWithOpacity(0.3),
+      borderLeftColor: Colors.loader(0.3),
+      borderBottomColor: Colors.loader(0.3),
       position: 'absolute',
     },
   }), [Colors]); // Recreate styles when Colors change

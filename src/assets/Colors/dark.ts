@@ -116,5 +116,6 @@ export default {
   pricingSelected:secondary,
   back:'#FFFFFF',
   arrow:'#ffffff',
-  status:''
+  status:'',
+  loader:(o:number)=>'#fff'
 };
