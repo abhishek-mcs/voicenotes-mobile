@@ -5,12 +5,12 @@ import { SvgXml } from "react-native-svg"
 import loader from "assets/lottie/threeDotLoader.json"
 import { useTheme } from "context"
 
-export default ({size=40,style={}}:{style?:ViewStyle,size?:number})=>{
+export default ({size=40,style={},colorFilters=null}:{style?:ViewStyle,size?:number,colorFilters?:any})=>{
   const { Colors } = useTheme()
   return (
   <View style={[styles.row,style]}>
     <LottieView source={loader} autoPlay loop style={[styles.lottie,{width:size,height:size}]}
-    colorFilters={[
+    colorFilters={colorFilters?colorFilters:[
       {keypath:'Left',color:Colors.bgColor13(1)},
       {keypath:'Mid',color:Colors.bgColor13(1)},
       {keypath:'Right',color:Colors.bgColor13(1)}

@@ -25,14 +25,14 @@ export default function Layout() {
   }
   return (
     <>
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor:'#000'}}>
       <PortalProvider>
         <BottomSheetModalProvider>
           <AppProvider>
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: { padding: 0, flex: 1 }
+                contentStyle: { padding: 0, flex: 1,backgroundColor:'#000' }
               }}
             >
               <Stack.Screen name="home/index" options={{animation:"none"}}/>

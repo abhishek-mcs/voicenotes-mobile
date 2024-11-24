@@ -122,39 +122,64 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       <BottomSheet
         enableOverDrag={false}
         style={styles.bottomSheet}
-        backdropComponent={CustomBackdrop}
+        // backdropComponent={CustomBackdrop}
         ref={bottomSheetRef}
         index={isVisible ? 0 : -1}
         snapPoints={snapPoints}
         onChange={handleSheetChanges}
         enablePanDownToClose
         onClose={onClose}
-        handleStyle={{backgroundColor:Colors.bgColor8}}
+        handleStyle={{ backgroundColor: Colors.bgColor8 }}
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <Touchable onPress={onClose} style={styles.headerButton} activeOpacity={0.6}>
+            <Touchable
+              onPress={onClose}
+              style={styles.headerButton}
+              activeOpacity={0.6}
+            >
               <Text style={styles.cancelText}>Cancel</Text>
             </Touchable>
             {isLoading ? (
               <View style={{ alignSelf: "flex-end" }}>
-                <ThreeDotLoader />
+                <ThreeDotLoader
+                style={{}}
+                  colorFilters={[
+                    { keypath: "Left", color: Colors.text },
+                    { keypath: "Mid", color: Colors.text },
+                    { keypath: "Right", color: Colors.text },
+                  ]}
+                />
               </View>
-            ) :
-            <Touchable disabled={isSaveDisabled} onPress={handleSave} style={styles.headerButton} activeOpacity={0.6}>
-              <Text style={{ ...styles.saveText,color: isSaveDisabled? Colors.grey :Colors.blue }}>Save</Text>
-            </Touchable>
-            }
+            ) : (
+              <Touchable
+                disabled={isSaveDisabled}
+                onPress={handleSave}
+                style={styles.headerButton}
+                activeOpacity={0.6}
+              >
+                <Text
+                  style={{
+                    ...styles.saveText,
+                    color: isSaveDisabled ? Colors.grey : Colors.blue,
+                  }}
+                >
+                  Save
+                </Text>
+              </Touchable>
+            )}
           </View>
           <View style={styles.separator} />
 
-          <Text style={styles.title}>{editingLink ? 'Edit Link' : 'Add New Link'}</Text>
+          <Text style={styles.title}>
+            {editingLink ? "Edit Link" : "Add New Link"}
+          </Text>
           <View style={styles.inputContainer}>
             <TextInput
               ref={textInputRef}
               defaultValue={url}
               keyboardType="url"
-              onChangeText={url=>setUrl(url)}
+              onChangeText={(url) => setUrl(url)}
               placeholder="Type or Paste URL"
               placeholderTextColor={Colors.grey3}
               style={styles.input}
