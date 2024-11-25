@@ -123,7 +123,12 @@ const EditNote = () => {
         </Touchable>
         {isLoading ? (
           <View style={{ alignSelf: "flex-end" }}>
-            <ThreeDotLoader />
+            <ThreeDotLoader 
+                colorFilters={[
+                  {keypath:'Left',color:Colors.text},
+                  {keypath:'Mid',color:Colors.text},
+                  {keypath:'Right',color:Colors.text}
+                ]}/>
           </View>
         ) : (
           <Touchable
