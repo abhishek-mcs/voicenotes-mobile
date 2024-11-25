@@ -90,7 +90,7 @@ const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         </View>} */}
         <View style={{  justifyContent: "center" }}>
      {isLogged?
-        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}} onTouchStart={(e)=>e?.stopPropagation()}>
+        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
         {/* upgrade button */}
         {!isBeliever&&
         <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.upgradeBtn,paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
@@ -129,7 +129,7 @@ const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         </View>
       </View>
     </View>
-    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:Colors.black2,transform:[{translateY:titleTranslateY}]}}>
+    <Animated.Text style={{alignSelf:'flex-start',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:Colors.black2,transform:[{translateY:titleTranslateY}]}}>
       Voicenotes
     </Animated.Text>
     </Animated.View>
