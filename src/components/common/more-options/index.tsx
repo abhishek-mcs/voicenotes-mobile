@@ -1,16 +1,16 @@
-import { Pressable, StyleSheet, useColorScheme, } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, useColorScheme, } from 'react-native';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import * as Haptics from "expo-haptics";
 import { useTheme } from 'context';
-import { isIOS, screenWidth, sleep } from 'utils/common';
+import { isIOS, screenHeight, screenWidth, sleep } from 'utils/common';
 import { Menu, MenuItem } from 'react-native-material-menu';
 import { Text } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { settingsSvg } from 'assets/svg/settingsSvg';
 import { View } from 'react-native';
 
-export default forwardRef(({options=[],children,style={}}:any,ref) => {
+export default forwardRef(({options=[],children,style={},isNative=false}:any,ref) => {
   const [visible, setVisible] = useState(false);
   const [visibleSubMenu, setVisibleSubMenu] = useState(false);
   const [subMenuOptions, setSubMenuOptions] = useState([]);
@@ -46,7 +46,7 @@ const onPress=async()=>
   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
     () => {}
   );
-  if(!isIOS){
+  if(!isIOS&&!isNative){
     return (
       <>
        {!visibleSubMenu? <Menu
@@ -96,7 +96,7 @@ const onPress=async()=>
                   textStyle={{color:Colors.text}}
                 >{itm.title}</MenuItem>
               ))}
-                </Menu>}
+          </Menu>}
         </>
     );
   }

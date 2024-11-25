@@ -193,17 +193,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             style={{
               flex: 1,
               justifyContent: "flex-end",
-              backgroundColor: Colors.blackWithOpacity(0.5),
+              backgroundColor: Colors.bgColor10(0.5),
             }}
           >
-            <View style={{ backgroundColor: Colors.whiteWithOpacity(1), padding: 20}}>
+            <View style={{ backgroundColor: Colors.bgColor2, padding: 20}}>
               <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);
                   launchImagePicker("camera");
                 }}
               >
-                <Text style={{ fontSize: 18, padding: 10 }}>Take Photo</Text>
+                <Text style={{ fontSize: 18, padding: 10,color:Colors.text }}>Take Photo</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -211,7 +211,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                   launchImagePicker("library");
                 }}
               >
-                <Text style={{ fontSize: 18, padding: 10 }}>
+                <Text style={{ fontSize: 18, padding: 10,color:Colors.text }}>
                   Choose from Library
                 </Text>
               </TouchableOpacity>
