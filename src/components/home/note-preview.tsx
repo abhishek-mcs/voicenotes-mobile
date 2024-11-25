@@ -945,6 +945,8 @@ const NotePreview = forwardRef(
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     message={note?.transcript
+                      ?.replaceAll(/<b\/?>/g, '')
+                      ?.replaceAll(/<\/b\/?>/g, '')
                       ?.replaceAll(/\n/g, '')
                       ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
                       ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')

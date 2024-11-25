@@ -71,7 +71,7 @@ useEffect(() => {
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 1800000 && !!token) {
+          } else if (newDuration >= 2400000 && !!token) {
             onStopRecord(newDuration, true);
             return 0;
           }
