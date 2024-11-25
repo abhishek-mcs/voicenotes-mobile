@@ -50,7 +50,10 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
     const renderContent = () => {
         if (working) {
-            return <CircularLoader color={Colors.grey10} />;
+            return (
+            <View style={styles.container}>
+                <CircularLoader color={Colors.grey10} />
+            </View>);
         }
 
         if (!image || imageError) {

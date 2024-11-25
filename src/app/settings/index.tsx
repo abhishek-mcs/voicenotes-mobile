@@ -25,6 +25,7 @@ import ProfilePic from "components/settings/profilepic";
 import { deleteCounter } from "utils/counter";
 import { useTheme } from "context";
 import MoreOptions from "components/common/more-options";
+import { useQueryClient } from "react-query";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -160,6 +161,7 @@ const Settings = () => {
   const settings:any=userDetails.settings
   const saveSettings=useSaveSettings()
   const dispatch=useDispatch()
+  const queryClient = useQueryClient()
 
   const { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating } = useAnimatedScreens();
 
@@ -281,6 +283,7 @@ const Settings = () => {
         <ProfilePic 
           url={userDetails?.photo_url}
           onChange={photo_url => {
+            queryClient.invalidateQueries('user-data')
             dispatch(setUserDetail({ ...userDetails, photo_url }))
           }}
         />
