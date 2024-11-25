@@ -115,10 +115,10 @@ const OtpScreen = () => {
         errorText={errorText}
         />
       </View>
-      <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.3 : 1,backgroundColor:Colors.primary}]} disabled={otpText?.indexOf('-')!=-1} underlayColor={Colors.primaryWithOpacity(0.8)}>
+      <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.3 : 1,backgroundColor:Colors.primaryDark}]} disabled={otpText?.indexOf('-')!=-1} activeOpacity={1}>
         {(signup?.isLoading||moveRecords.isLoading)?
-        <ActivityIndicator size={"small"} color={Colors.text4} />
-        :<Text style={[styles.continueBtnText,{color:Colors.text4}]}>Sign Up</Text>}
+        <ActivityIndicator size={"small"} color={Colors.text12} />
+        :<Text style={[styles.continueBtnText,{color:Colors.text12}]}>Sign Up</Text>}
       </TouchableHighlight>
       </View>
       </KeyboardAvoidingView>
@@ -142,7 +142,7 @@ const useStyles = () => {
   radioOutline:{borderWidth: 1, height: 20, width: 20, borderRadius:100, borderColor:Colors.grey3WithOpacity(0.5),alignSelf:'flex-start',marginTop:2},
   checkFill:{backgroundColor:Colors.darkWithOpacity(1),width:20,height:20,borderRadius:5,justifyContent:'center',alignItems:'center'},
   radioFill:{borderWidth:5,borderColor:Colors.darkWithOpacity(1),backgroundColor:Colors.whiteWithOpacity(1),width:20,height:20,borderRadius:100,justifyContent:'center',alignItems:'center'},
-  continueBtn:{alignSelf:'center',backgroundColor:Colors.primary,marginVertical:32,position:'absolute',bottom:0,width:'100%',borderRadius:100,height:49,alignItems:'center',justifyContent:'center'},
+  continueBtn:{alignSelf:'center',backgroundColor:Colors.primaryDark,marginVertical:32,position:'absolute',bottom:0,width:'100%',borderRadius:100,height:49,alignItems:'center',justifyContent:'center'},
   continueBtnText:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Bold',fontSize:16,lineHeight:19.2},
   title:{fontSize:24,fontFamily:'Primary-Medium',color:Colors.text5,textAlign:'center',marginBottom:32},
   checkBoxStyle:{minHeight:32, marginBottom:16},

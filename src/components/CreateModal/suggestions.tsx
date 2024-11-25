@@ -53,9 +53,10 @@ const Suggestions = ({onPress=(v:string)=>{},type='summary',customText='',setCus
 const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => {
   const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
+  const regex = `${Colors.text12}`
   return(
     <Touchable style={[styles.btn,style,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
-        {icon&&<SvgXml xml={isLightMode?icon?.replace(selected?/#000001/g:/#fff/g,selected?Colors.text4:Colors.blackWithOpacity(1)):icon?.replace(/#000001/g,Colors.text4)} />}
+        {icon&&<SvgXml xml={isLightMode?icon?.replace(/#000/g,selected?Colors.text12:Colors.text):icon?.replace(/#000/g,selected?Colors.text12:Colors.text)} />}
         <Text style={[styles.btnTxt,selected?styles.selected1:{}]}>{title}</Text>
     </Touchable>
   )}
@@ -90,8 +91,8 @@ const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selec
     },
     row:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',justifyContent:'space-between'},
     btw:{justifyContent:'space-between',marginTop:20},
-    selected:{backgroundColor:Colors.primary},
-    selected1:{color:Colors.text4}
+    selected:{backgroundColor:Colors.primaryDark},
+    selected1:{color:Colors.text12}
   }), [Colors]); // Recreate styles when Colors change
 };
 

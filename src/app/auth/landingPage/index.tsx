@@ -153,6 +153,7 @@ const signInGoogle=(token:any,params:any)=>{
             style={[styles.button,{backgroundColor:Colors.bgColor3(1)}]}
             onPress={signInAppleAsync}
             text="Continue with Apple"
+            isLoading={loginApple?.isLoading||false}
             color={Colors.text4}
             logo={LandingSvg.apple}
             />
@@ -162,7 +163,6 @@ const signInGoogle=(token:any,params:any)=>{
             style={[styles.button2,{backgroundColor:Colors.bgColor3(0.1)}]}
             onPress={()=>{router.push('/auth/login/')}}
             text="Continue with Email"
-            isLoading={loginApple?.isLoading||false}
             logo={LandingSvgIcons.email?.replaceAll('#0D0D0D',Colors.text)}/>
           <Btn
             underlayColor={Colors.bgColor3(0.3)}

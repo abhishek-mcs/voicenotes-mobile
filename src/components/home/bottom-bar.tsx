@@ -196,7 +196,7 @@ const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
   addingContainer: {
-    backgroundColor:Colors.bgColor1,
+    backgroundColor:Colors.bgColor17,
     minHeight: 56,
     borderRadius: 24,
     position: "absolute",

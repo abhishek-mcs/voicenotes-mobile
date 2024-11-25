@@ -260,7 +260,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
 };
 
 const useStyles = () => {
-  const { Colors } = useTheme();
+  const { Colors, isLightMode } = useTheme();
   return useMemo(() => StyleSheet.create({
   bottomSheet: {
     flex:1,
@@ -383,7 +383,7 @@ const useStyles = () => {
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.lightBlueWithOpacity(0.05),
+    backgroundColor: Colors.lightBlueWithOpacity(isLightMode?0.05:0.15),
     padding: 4,
     paddingHorizontal: 8,
     borderRadius: 8,

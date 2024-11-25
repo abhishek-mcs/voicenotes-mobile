@@ -29,6 +29,7 @@ const CreateModal = forwardRef(({}:createModalProps, ref) => {
   const [customText, setCustomText] = useState("");
   const {token}=useSelector((state:RootState)=>state.userDetails)
   const styles = useStyles()
+  const {Colors} = useTheme()
 
   const aiCreate=useCreate()
   const getAiCreation=useGetAiCreation()
@@ -165,7 +166,7 @@ const CreateModal = forwardRef(({}:createModalProps, ref) => {
           {(noteId?.length>0&&(noteType !== 'custom'||(noteType=='custom'&&customText?.length>0)))&&
           <Touchable style={[styles.createBtn, {marginBottom: isIOS ? 16 : insets.bottom + 40 }] } onPress={onCreate}>
             <Text style={styles.createTxt}>Create</Text>
-            <SvgXml xml={CreateModalSvg.create} />
+            <SvgXml xml={CreateModalSvg.create?.replace('white',Colors.text12)} />
           </Touchable>}
         </View>
         :preview=="loader"? <AiLoader style={{marginTop:20,marginLeft:20}} text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
@@ -213,7 +214,7 @@ const useStyles = () => {
   createBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryDark,
     alignSelf: "center",
     paddingHorizontal: 16,
     height: 40,
@@ -223,7 +224,7 @@ const useStyles = () => {
   createTxt: {
     fontSize: 14,
     fontFamily: "Primary-Semibold",
-    color: Colors.text4,
+    color: Colors.text12,
     marginRight: 8,
   },
   drag: {

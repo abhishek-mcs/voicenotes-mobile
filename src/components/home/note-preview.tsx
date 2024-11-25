@@ -1094,7 +1094,7 @@ const useStyles = () => {
     flex: 1,
   },
   date: {
-    color: Colors.grey5WithOpacity(0.6),
+    color: Colors.text11,
     fontFamily: "Primary-Medium",
     fontSize: 12,
     marginBottom: 6,

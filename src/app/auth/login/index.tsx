@@ -127,7 +127,7 @@ const Login=()=> {
         testID="signInPasswordBtn"
         style={{
           alignSelf: "center",
-          backgroundColor: Colors.primary,
+          backgroundColor: Colors.primaryDark,
           marginBottom: 36,
           marginTop: 24,
           paddingVertical: 16,
@@ -138,14 +138,14 @@ const Login=()=> {
         onPress={continueClicked}
       >
         {checkEmailMutation.isLoading?
-        <ActivityIndicator size={17} color={Colors.text4}/>
+        <ActivityIndicator size={17} color={Colors.text12}/>
         :
         <Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: Colors.text4,
+            color: Colors.text12,
           }}
         >
           Continue

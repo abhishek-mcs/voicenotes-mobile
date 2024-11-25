@@ -158,7 +158,7 @@ const Signup = () => {
         testID="signInPasswordBtn"
         style={{
           alignSelf: "center",
-          backgroundColor: Colors.primary,
+          backgroundColor: Colors.primaryDark,
           marginBottom: 12,
           marginTop: 24,
           paddingVertical: 16,
@@ -168,14 +168,14 @@ const Signup = () => {
         }}
         onPress={continueClicked}
       >{signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={Colors.text4}/>
+        <ActivityIndicator size={"small"} color={Colors.text12}/>
         :
         <Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: Colors.text4,
+            color: Colors.text12,
           }}
         >
           Continue
@@ -203,7 +203,7 @@ const Signup = () => {
               fontSize: 14,
               textAlign: "center",
               fontWeight: "600",
-              color: Colors.primary,
+              color: Colors.primaryDark,
             }}
           >
             {" Log In"}

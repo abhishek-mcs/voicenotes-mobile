@@ -151,7 +151,7 @@ const Premium=(props:any) => {
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
             <View style={{paddingLeft:32, marginBottom: 0}}>
-              <SvgXml xml={iapSvgIcons.usersCount?.replace("#222222",Colors.text1).replaceAll('black',Colors.blackWithOpacity(1))}/>
+              <SvgXml xml={iapSvgIcons.usersCount?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
             <View style={styles.container}>
               <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
@@ -260,13 +260,13 @@ const Btn = ({
       <Text
         style={[
           styles.btnText,
-          { color: Colors.text4, fontSize: 16, fontFamily: "Primary-Semibold" },
+          { color: Colors.text12, fontSize: 16, fontFamily: "Primary-Semibold" },
         ]}
       >
         {title}
       </Text>
     ) : (
-      <ActivityIndicator size={"small"} color={Colors.bgColor13(1)} />
+      <ActivityIndicator size={"small"} color={Colors.text12} />
     )}
   </Touchable>
 )};
@@ -298,7 +298,7 @@ const useStyles = () => {
     marginLeft: 9,
     fontSize: 16,
     fontFamily: "Primary-Medium",
-    color: Colors.text1,
+    color: Colors.text5,
     lineHeight: 22,
     marginTop: -4,
   },
@@ -373,7 +373,7 @@ const useStyles = () => {
   title: {
     fontSize: screenWidth / 8,
     fontFamily: "Secondary",
-    color: Colors.text1,
+    color: Colors.text5,
     marginBottom: 20,
     alignSelf: "flex-start",
     lineHeight: 64,
