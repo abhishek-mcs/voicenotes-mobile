@@ -118,7 +118,7 @@ const OtpScreen = () => {
       <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.3 : 1,backgroundColor:Colors.primaryDark}]} disabled={otpText?.indexOf('-')!=-1} activeOpacity={1}>
         {(signup?.isLoading||moveRecords.isLoading)?
         <ActivityIndicator size={"small"} color={Colors.text12} />
-        :<Text style={[styles.continueBtnText,{color:Colors.text12}]}>Sign Up</Text>}
+        :<Text style={[styles.continueBtnText,{color:Colors.text12,opacity:otpText?.indexOf('-')!=-1?0.3:1}]}>Sign Up</Text>}
       </TouchableHighlight>
       </View>
       </KeyboardAvoidingView>
