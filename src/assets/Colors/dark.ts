@@ -114,6 +114,7 @@ export default {
   primaryDark:'#ffffff',
   primaryDark2:tertiary,
   primaryDark3:()=>'rgba(255,255,255,0.5)',
+  primaryDark4:'#499035',
   upgrade:'#fff',
   pricing:secondary,
   pricingSelected:secondary,

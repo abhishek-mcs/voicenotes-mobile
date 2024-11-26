@@ -112,6 +112,7 @@ export default {
   primaryDark:primary,
   primaryDark2:primary,
   primaryDark3:(opacity=0.1)=>`rgba(14, 57, 52, ${opacity})`,
+  primaryDark4:primary,
   upgrade:'#0d0d0d',
   pricing:'rgba(34, 34, 34,0.05)',
   pricingSelected:'rgba(73, 144, 53,0.05)',

@@ -722,7 +722,7 @@ const NotePreview = forwardRef(
         systemIcon:'pencil.and.outline',
         actions:[
           {
-            title:"Summarize",
+            title:"Summary",
             onPress:()=>onCreate("summary")
           },
           {

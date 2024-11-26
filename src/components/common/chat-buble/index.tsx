@@ -93,7 +93,7 @@ const ChatBubble = ({
     :<Text style={[style, {}]} numberOfLines={lines}>
         {message}
         {showUpgrade&&'... '}
-        {showUpgrade&&<Text suppressHighlighting={true} onPress={()=>router.push('/premium/')} style={[style,{textDecorationLine:'underline',color:Colors.primary}]}>Upgrade for full transcript</Text>}
+        {showUpgrade&&<Text suppressHighlighting={true} onPress={()=>router.push('/premium/')} style={[style,{textDecorationLine:'underline',color:Colors.primaryDark4}]}>Upgrade for full transcript</Text>}
       </Text>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (

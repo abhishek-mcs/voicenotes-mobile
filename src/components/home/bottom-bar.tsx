@@ -174,7 +174,7 @@ useEffect(() => {
           </>
         ) : (
 <NoteRecorder
-        totalDuration={(!!token&&isBeliever)?'':'/01:00'}
+        totalDuration={''}
         duration={duration}
         onCancel={onCancelClick}
         onStopRecord={onDoneClick}
@@ -261,7 +261,7 @@ const useStyles = () => {
     marginBottom: 20,
     alignItems: "center",
     justifyContent:'space-between',
-    shadowColor:Colors.blackWithOpacity(1),
+    shadowColor:isIOS?Colors.blackWithOpacity(1):Colors.blackWithOpacity(0.2),
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
