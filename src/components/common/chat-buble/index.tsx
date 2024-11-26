@@ -5,6 +5,7 @@ import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
 import { TypeAnimation } from 'react-native-type-animation';
 import { useTheme } from "context";
+import { useRouter } from "expo-router";
 
 const TypeAnim:any=TypeAnimation
 
@@ -20,6 +21,7 @@ const ChatBubble = ({
   cursorSvg = '',
   status = "",
   showStatus = false,
+  showUpgrade= false
 }: {
   delay?: number;
   message: string;
@@ -32,6 +34,7 @@ const ChatBubble = ({
   cursorSvg?: string;
   status?: string;
   showStatus?: boolean;
+  showUpgrade?: boolean;
 }) => {
   const [displayedMessage]: any = useState("");
   const containsHTML = (str: string) => {
@@ -39,6 +42,7 @@ const ChatBubble = ({
     return htmlPattern.test(str);
   };
   const { Colors } = useTheme()
+  const router =useRouter()
 
   // useEffect(() => {
   //   let currentIndex = 0;
@@ -88,6 +92,8 @@ const ChatBubble = ({
     />
     :<Text style={[style, {}]} numberOfLines={lines}>
         {message}
+        {showUpgrade&&'... '}
+        {showUpgrade&&<Text suppressHighlighting={true} onPress={()=>router.push('/premium/')} style={[style,{textDecorationLine:'underline',color:Colors.primary}]}>Upgrade for full transcript</Text>}
       </Text>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (

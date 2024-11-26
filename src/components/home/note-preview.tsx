@@ -120,7 +120,7 @@ const NotePreview = forwardRef(
 
     const dispatch = useDispatch();
 
-    const { token } = useSelector((state: RootState) => state.userDetails);
+    const { token, userDetails }:{token:any,userDetails:any} = useSelector((state: RootState) => state.userDetails);
     const { tempRecordings } = useSelector(
       (state: RootState) => state.recordingStates
     );
@@ -955,6 +955,7 @@ const NotePreview = forwardRef(
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
+                    showUpgrade={note?.duration>60000&&!userDetails?.subscription_status}
                     disableGenerating={() =>setTriggerTypingTranscript(null)}
                   />
                 )}
