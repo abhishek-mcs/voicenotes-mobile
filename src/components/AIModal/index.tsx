@@ -52,6 +52,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
 import { useTheme } from "context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -339,18 +340,17 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:Colors.whiteWithOpacity(1)}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8}]}>
         <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
         <KeyboardAvoidingView
-          style={[{ flex: 1 ,paddingTop:isIOS?0:40}]}
+          style={[{ flex: 1}]}
           behavior={"padding"}
           keyboardVerticalOffset={isIOS ? 64 :0} // Adjust based on header height
         >        
           {!chatLoader ? (
-            <ScrollView
+            <KeyboardAwareScrollView bottomOffset={62}
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
-              // style={{height:screenHeight}}
               automaticallyAdjustKeyboardInsets
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
@@ -431,7 +431,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     )
                   : null
               }
-            </ScrollView>
+            </KeyboardAwareScrollView>
           ) : (
             <View
               style={{
