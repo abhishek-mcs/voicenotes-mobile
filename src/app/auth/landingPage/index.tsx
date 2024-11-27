@@ -127,11 +127,13 @@ const signInGoogle=(token:any,params:any)=>{
     <View
       style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >
-      <View>
-      <SvgXml xml={LandingSvg.logo} style={{borderRadius:8,overflow:'hidden'}}/>
-      <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:Colors.blackWithOpacity(1),marginTop:20}}>
-        A place to dump your thoughts.
-      </Text>
+      <View style={{marginTop:isIOS?0:50}}>
+        <View style={{borderRadius:8,height:55,width:55,overflow:'hidden'}}>
+          <SvgXml xml={LandingSvg.logo}/>
+        </View>
+        <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:Colors.blackWithOpacity(1),marginTop:20}}>
+          A place to dump your thoughts.
+        </Text>
       </View>
       <Animated.View
         style={[

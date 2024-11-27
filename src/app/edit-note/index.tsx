@@ -100,7 +100,10 @@ const EditNote = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor1 }}>
-      {/* <KeyboardAvoidingView behavior={"padding"} > */}
+      <KeyboardAvoidingView 
+        behavior={isIOS ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
       <View
         style={{
           flexDirection: "row",
@@ -194,6 +197,7 @@ const EditNote = () => {
           />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
