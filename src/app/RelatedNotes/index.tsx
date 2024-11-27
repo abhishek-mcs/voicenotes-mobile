@@ -50,7 +50,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
                     <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.text1}}>Back</Text>
                 </Touchable>
                 <ScrollView contentContainerStyle={{paddingBottom:400}} showsVerticalScrollIndicator={false}>
-                    {getIndividualNote.isSuccess?
+                    {getIndividualNote.isSuccess&&!getIndividualNote?.isRefetching?
                     <NotePreview
                       ref={notePreviewRef}
                       note={{...note,is_title_loading,is_transcript_loading,subnotes:!!tempRecordingData.status?[...subnotes,tempRecordingData]:subnotes}}
