@@ -43,7 +43,6 @@ export default function App() {
       //   setIsLoading(false)
       // }, 2000);
     // })
-    StatusBar.setBarStyle("dark-content")
     dispatch(setTempIsIAPPurchased(false))
     return () => {
       WebBrowser.coolDownAsync();
