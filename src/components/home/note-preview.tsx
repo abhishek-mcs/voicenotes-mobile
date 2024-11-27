@@ -958,6 +958,8 @@ const NotePreview = forwardRef(
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     message={note?.transcript
+                      ?.replaceAll(/<b\/?>/g,'')
+                      ?.replaceAll(/<\/b\/?>/g,'')
                       ?.replaceAll(/\n/g, '')
                       ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
                       ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
@@ -982,14 +984,28 @@ const NotePreview = forwardRef(
                   />
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
+                <View style={{flexDirection:'row',alignItems:'center'}}>
                 <Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.grey2WithOpacity(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                   {audioLoading==index?
                   <CircularLoader strokeWidth={3} width={15} height={15}/>
                   :<SvgXml xml={isPlay == index ? home.pause : home.play} />}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Touchable>
+                {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
+                  <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
+                    <SvgXml xml={home.subnote}/>
+                    <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.darkWithOpacity(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
+                  </View>
+                }
+                {/* {!!attachments&&attachments.length>0&&expand!=index&&
+                  <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
+                    <SvgXml xml={home.attach}/>
+                    <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.darkWithOpacity(0.9)}]}>+{attachments?.length}</Text>
+                  </View>
+                } */}
+                </View>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
-                  <MoreOptions options={options} style={{height:30,width:30,zIndex:1000,position:'relative'}}>
+                  <MoreOptions options={options} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.darkWithOpacity(0.05),justifyContent:"center",alignItems:'center'}}>
                   <SvgXml xml={home.moreNew}/>
                   </View>

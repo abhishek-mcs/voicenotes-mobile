@@ -154,6 +154,7 @@ export default () => {
 
   const logout=useLogout()
   const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
+  const {isTempIAPPurchased}=useSelector((state: RootState) => state.IAPStates);
   const settings:any=userDetails.settings
   const saveSettings=useSaveSettings()
   const dispatch=useDispatch()
@@ -283,7 +284,7 @@ export default () => {
             {title:'About', onPress: () => showScreen('about'), value:userDetails?.about||'', rightIcon:settingsSvg.arrow},
             {title:'Email', onPress: () => showScreen('email'), value:userDetails?.email||'', rightIcon:settingsSvg.arrow},
             {title:'Change password', onPress: () => showScreen('password'), value:'', rightIcon:settingsSvg.arrow},
-            {title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan || '', rightIcon:settingsSvg.arrow}
+            ...(!isTempIAPPurchased?[{title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan??'Free', rightIcon:settingsSvg.arrow}]:[])
           ]}
         />
         <Grouped
@@ -297,7 +298,7 @@ export default () => {
         <Grouped 
           title="MORE"
           items={[
-            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO?typeform-source=voicenotes.com'), rightIcon:settingsSvg.arrow},
+            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://help.voicenotes.com/en'), rightIcon:settingsSvg.arrow},
             {title:'Delete account', value:'', onPress:onDelete, rightIcon:settingsSvg.arrow},
             {title:'Share feedback', value:'', onPress:feedback, rightIcon:settingsSvg.arrow},
             {title:'Sign out', value:'', onPress:onLogout, style:{color:'#FF453A'}, leftIcon:settingsSvg.signOut},

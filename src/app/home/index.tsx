@@ -68,7 +68,7 @@ import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { useLocalSearchParams } from "expo-router";
-import { useGetRelatedRecording } from "queries/home/relatedNote";
+import { useGetRelatedRecording, useGetSingleRecording } from "queries/home/relatedNote";
 import { NoteContext } from "context";
 import database from '@react-native-firebase/database';
 import { sleep } from "utils/Timer";
@@ -90,7 +90,7 @@ const fadeOut = {
 
 const KeyboardAvoidView:any = KeyboardAvoidingView;
 
-export default () => {
+const Home = () => {
   const { ActionModule } = NativeModules;
   const actionEmitter = new NativeEventEmitter(ActionModule);
   const insets = useSafeAreaInsets();
@@ -168,7 +168,8 @@ export default () => {
   const listenToFirebaseStatus = 
    async(
       recordingId: string | number,
-      temporaryRecordingId: string | null = null
+      temporaryRecordingId: string | null = null,
+      is_transcript_only=false
     ) => {
       try{
       // console.log("listening to firebase");
@@ -190,8 +191,8 @@ export default () => {
       //   console.log("Max attempts reached. Snapshot still does not exist.");
       //   return null; // Return null if snapshot does not exist after retries
       // };
-      let isTitleGenerated=false;
-      let isTitleTriggered=false;
+      let isTitleGenerated=false||is_transcript_only;
+      let isTitleTriggered=false||is_transcript_only;
       let isTranscriptTriggered=false;
       let isProcessCompleted=false;
       database()
@@ -265,7 +266,7 @@ export default () => {
             console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
             console.log("updated note: ",updatedNote.data.title)
-            isTitleGenerated=updatedNote?.data?.title!=null
+            isTitleGenerated=updatedNote?.data?.title!=null||is_transcript_only
             isProcessCompleted=isTitleTriggered&&isTranscriptTriggered&&status === RecordingStatus.PROCESS_COMPLETED
             !isProcessCompleted&&
             dispatch(
@@ -273,9 +274,9 @@ export default () => {
                 recordingId,
                 data: {
                   ...updatedNote.data,
-                  title:status==RecordingStatus.TRANSCRIPT_GENERATED?null:updatedNote?.data?.title,
+                  title:(!is_transcript_only&&status==RecordingStatus.TRANSCRIPT_GENERATED)?null:updatedNote?.data?.title,
                   status: updatedStatus,
-                  is_transcript_loading: false,
+                  is_transcript_loading:false,
                 },
               })
             );
@@ -472,18 +473,7 @@ export default () => {
         is_transcript_only,
       });
 
-      if(is_transcript_only){
-        const transcript = resp.data?.recording?.title;
-        dispatch(
-          updateRecordingDetails({
-            recordingId: note.id,
-            data: { is_transcript_loading: false, transcript },
-          })
-        );
-        dispatch(setRelatedNoteTranscriptLoad(false))
-      }
-      else
-        listenToFirebaseStatus(note.id);
+      listenToFirebaseStatus(note.id,null,is_transcript_only);
     } catch (error) {
       console.log("error in queing new transcript: ", error);
     }
@@ -1110,3 +1100,4 @@ const styles = StyleSheet.create({
   },
   hideBg: { backgroundColor: "#F4F6F6" },
 });
+export default Home

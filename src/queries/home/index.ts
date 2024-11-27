@@ -269,7 +269,6 @@ export function usePinTagDelete(id:any){
 }
 
 export function useGetUserData(token:any){
-   
     return useQuery('user-data',(p?:any)=> {
     if(!!token)
         return axiosApi.get(`/auth/me`)

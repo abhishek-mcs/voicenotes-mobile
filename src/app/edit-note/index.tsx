@@ -171,7 +171,10 @@ export default () => {
             autoCorrect={true}
             scrollEnabled={false}
             selectTextOnFocus={false}
-            value={editNote?.transcript?.replaceAll(/<br\/?>/g, "\n")}
+            value={editNote?.transcript
+              ?.replaceAll(/<b\/?>/g,'')
+              ?.replaceAll(/<\/b\/?>/g,'')
+              ?.replaceAll(/<br\/?>/g, "\n")}
             onChangeText={(txt) =>
               setEditNote((n: any) => {
                 return { ...n, transcript: txt };
