@@ -35,7 +35,8 @@ const AddTags = () => {
     const [addedTags,setAddedTags]:any=useState(JSON.parse(tagsArray)||[])
     const {Colors} = useTheme()
     
-    const onSearch=useCallback((q:string)=>{
+    const onSearch=useCallback((s:string)=>{
+      const q = s?.replace(/-/g, '');
       setSearch(q);
       if(tags?.length>0)
         if(q=='')
