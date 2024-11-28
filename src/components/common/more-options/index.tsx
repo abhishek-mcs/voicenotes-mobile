@@ -66,7 +66,7 @@ const onPress=async()=>
                 }
               }}
             >
-              <View style={[{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},screenWidth<800?{width:screenWidth/2.6}:{}]}>
+              <View style={[{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},screenWidth<500?{width:screenWidth/2.4}:{}]}>
                 <Text style={[{fontFamily:'Primary',fontSize:14,color:Colors.blackWithOpacity(1)},option.title=="Delete"?{color:Colors.redWithOpacity(1)}:{}]}>{option.title}</Text>
                 {option.actions&&<SvgXml xml={settingsSvg.arrow} style={{}}/>}
               </View>
