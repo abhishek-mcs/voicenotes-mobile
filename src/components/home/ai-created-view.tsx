@@ -58,9 +58,9 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
         </View> */}
         {working?<CircularLoader/>:<>
           <View style={[row,btw]}>
-            <Text style={txt}>{type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
+            <Text style={txt}>{type=="team-summary"?"Summary":type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
           </View>
-          {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
+          {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy"||type=="team-summary")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
           :(type=="points"||type=="todo")?
           <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>{(!!content&&content?.length>0)&&content.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}${content?.length-1==i?'':'\n'}`}</Text>)}</Text>
           :type=="blog"?

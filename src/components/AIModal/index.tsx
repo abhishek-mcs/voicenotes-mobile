@@ -462,7 +462,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     style={styles.input}
                     scrollEnabled={false}
                     placeholder="Ask a question..."
-                    placeholderTextColor={Colors.text2}
+                    placeholderTextColor={Colors.text11}
                     multiline={false}
                     value={input}
                     enablesReturnKeyAutomatically={true}

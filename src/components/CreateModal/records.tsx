@@ -25,7 +25,16 @@ const Records = ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:st
                     <View style={row}>
                         <View style={{flex:1}}>
                         <Text style={titleStyle} numberOfLines={1}>{item?.title}</Text>
-                        <Text style={text} numberOfLines={1}>{item?.transcript?.trimEnd()}</Text>
+                        <Text style={text} numberOfLines={1}>{
+                        item?.transcript
+                        ?.replaceAll(/<b\/?>/g, '')
+                        ?.replaceAll(/<\/b\/?>/g, '')
+                        ?.replaceAll(/\n/g, '')
+                        ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+                        ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
+                        ?.replaceAll(/<br\/?>/g, "\n\n")
+                        ?.trimEnd()
+                        }</Text>
                         </View>
                         {isSelected(item?.id)&&<SvgXml xml={CreateModalSvg.check} style={{width:24,flex:1,marginRight:-4,marginLeft:8}} />}
                     </View>
