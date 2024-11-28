@@ -353,7 +353,7 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         </View>
         <View style={{flexDirection:'row',gap:4,alignSelf:'center',alignItems:"center",justifyContent:'flex-end'}}>
         {item?.isMenu?
-        <MoreOptions isNative={true} options={item?.data?.map((t: string, v: number) => ({
+        <MoreOptions options={item?.data?.map((t: string, v: number) => ({
           title: t[1],
           onPress: () => item?.onPressMenu(t[0]),
           systemIcon:t[2]||''

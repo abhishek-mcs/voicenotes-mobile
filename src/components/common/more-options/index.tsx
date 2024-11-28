@@ -57,6 +57,7 @@ const onPress=async()=>
           animationDuration={250}
           style={{backgroundColor:Colors.bgColor6}}
         >
+          <ScrollView style={{maxHeight:screenHeight/2}}>
           {options.map((option:any, index:number) => (
             <MenuItem
               key={index}
@@ -77,6 +78,7 @@ const onPress=async()=>
               </View>
             </MenuItem>
           ))}
+          </ScrollView>
         </Menu>
         :<Menu
               visible={visibleSubMenu}
