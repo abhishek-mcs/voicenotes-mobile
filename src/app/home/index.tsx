@@ -923,7 +923,7 @@ const Home = () => {
                   onRefresh={onRefresh} 
                   refreshing={isRefreshing}
                   tintColor={Colors.refresh}
-                  colors={[Colors.refresh]}
+                  colors={[isIOS?Colors.refresh:Colors.refresh1]}
                   />
                 }
                 scrollEventThrottle={16}

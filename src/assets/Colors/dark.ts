@@ -1,3 +1,5 @@
+import { refresh } from "@react-native-community/netinfo";
+
 const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
 const primary = '#000';
@@ -105,6 +107,7 @@ export default {
   more:'#fff',
   underlayColorBlack:"rgba(0,0,0,0.7)",
   refresh:'#fff',
+  refresh1:'#000',
   emptyShare:'#9b9b9b',
   suggestionBg:tertiary,
   border:secondary,
