@@ -76,6 +76,7 @@ import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
+import { useDialog } from "context/DialogContext";
 
 
 const { height } = Dimensions.get("screen");
@@ -141,6 +142,7 @@ const Home = () => {
   const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
+  const {showDialog}:any = useDialog()
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
@@ -570,7 +572,7 @@ const Home = () => {
       return;
     }
     setRecordingParentId(parent_id);
-    onRecord(setRec, setRecEnabled,isLightMode);
+    onRecord(setRec, setRecEnabled,isLightMode,showDialog);
     activateKeepAwakeAsync();
     analytics().logEvent("started_recording");
     setTriggerTypingTitle(null)

@@ -66,6 +66,7 @@ import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
+import { useDialog } from "context/DialogContext";
 
 const NotePreview = forwardRef(
   (
@@ -117,6 +118,7 @@ const NotePreview = forwardRef(
     const [attachments, setAttachments] = useState([]);
     const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
+    const {showDialog} = useDialog()
 
     const dispatch = useDispatch();
 
@@ -298,7 +300,7 @@ const NotePreview = forwardRef(
     const onDelete = (isCache=false) => {
       hideMoreOption();
       if (note.subnotes?.length) {
-        Alert.alert(
+        showDialog(
           "",
           "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
           [
@@ -311,7 +313,7 @@ const NotePreview = forwardRef(
         return;
       }
 
-      Alert.alert(
+      showDialog(
         "",
         `Are you sure you want to delete?`,
         [

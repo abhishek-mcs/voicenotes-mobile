@@ -17,6 +17,7 @@ import { ImageBackground } from "expo-image"
 import * as webBrowser from "expo-web-browser"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTheme } from "context"
+import { useDialog } from "context/DialogContext"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
@@ -34,6 +35,7 @@ const Premium=(props:any) => {
   const queryClient=useQueryClient()
   const insets = useSafeAreaInsets()
   const iapSvgIcons:any = iapSvg
+  const {showDialog} = useDialog()
 
   useEffect(()=>{
     // const load=async()=>{
@@ -61,7 +63,7 @@ const Premium=(props:any) => {
 
       if (!pack || pack.length === 0) {
         console.error('No products available');
-        Alert.alert('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
+        showDialog('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
         setIsLoading(false);
         return;
       }
@@ -115,12 +117,12 @@ const Premium=(props:any) => {
     setIsLoading(true)
     const actives=await Purchases.restorePurchases();
     if(actives.activeSubscriptions.length==0||!userDetails?.subscription_status){
-      Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
+      showDialog('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
         // Updates.reloadAsync()
       }}],{userInterfaceStyle:isLightMode?"light":"dark"})
     }else{
       
-        Alert.alert(
+        showDialog(
           'Restored',
           'You have successfully restored your purchase',
           [{text:'OK',onPress:async()=>{

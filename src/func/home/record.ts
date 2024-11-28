@@ -2,9 +2,9 @@ import { Audio } from "expo-av";
 import { openSettings } from "expo-linking";
 import { useEffect } from "react";
 import { Alert, Platform } from "react-native";
-const alertPermission=(isLightMode=true)=>{
+const alertPermission=(isLightMode=true,showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{})=>{
   const txt = "Please enable microphone permission to continue";
-        Alert.alert(
+        showDialog(
           Platform.OS == "ios" ? txt : "",
           Platform.OS == "ios" ? "" : txt,
           [
@@ -31,6 +31,7 @@ export const onRecord = async (
   setRec = (v: Audio.Recording) => {},
   setRecEnabled = (v: boolean) => {},
   isLightMode=true,
+  showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{}
 ) => {
   try {
     await Audio.getPermissionsAsync().then(async status => {
@@ -73,12 +74,12 @@ export const onRecord = async (
               setRec(recordingObject);
               setRecEnabled(true);
             } else if (!canAskAgain && status == "denied") {
-              alertPermission(isLightMode)
+              alertPermission(isLightMode,showDialog)
           }
         }
         );
       } else if (!status.canAskAgain && status.status == "denied") {
-        alertPermission(isLightMode)
+        alertPermission(isLightMode,showDialog)
       }
     });
   } catch (err:any) {

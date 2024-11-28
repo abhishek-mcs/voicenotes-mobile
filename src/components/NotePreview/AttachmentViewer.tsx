@@ -24,6 +24,7 @@ import { screenHeight } from "utils/common";
 import { useTheme } from "context";
 import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
+import { useDialog } from "context/DialogContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -35,6 +36,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
+  const {showDialog} = useDialog()
 
   const fullScreenListRef = useRef(null);
   const thumbnailListRef = useRef<FlatList>(null);
@@ -66,7 +68,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
-      Alert.alert("Error", "Failed to delete the attachment. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+      showDialog("Error", "Failed to delete the attachment. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     } finally {
       onAttachmentUpdate();
     }
@@ -74,7 +76,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
     console.log(attachmentId,type)
-    Alert.alert(
+    showDialog(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
       [

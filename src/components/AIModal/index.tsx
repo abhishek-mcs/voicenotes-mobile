@@ -53,6 +53,7 @@ import Swiper from 'react-native-swiper'
 import Header from "./header";
 import { useTheme } from "context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useDialog } from "context/DialogContext";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -108,6 +109,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const uploadRecord=useUploadChatRecord();
   const getAnswer=useVoiceChatResponse();
   const AIModalSVGIcons:any = AIModalSVG 
+  const {showDialog}:any = useDialog()
   
   const getNewSugg = () => {
     setSuggLoaded(false)
@@ -274,7 +276,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const onRecordStart = async() => {
     setIsRecording(true)
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-    onRecord(setRec, setRecEnabled,isLightMode);
+    onRecord(setRec, setRecEnabled,isLightMode,showDialog);
     activateKeepAwakeAsync()
   }
   const onCancelRecord = async() => {

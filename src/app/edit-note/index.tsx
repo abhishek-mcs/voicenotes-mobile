@@ -1,14 +1,11 @@
-import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import {
-  useGlobalSearchParams,
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
 import {
   SafeAreaView,
   Text,
-  TouchableHighlight,
   View,
   Alert,
   StyleSheet,
@@ -16,35 +13,27 @@ import {
   KeyboardAvoidingView,
   InteractionManager,
 } from "react-native";
-import { SvgXml } from "react-native-svg";
-import * as Wb from "expo-web-browser";
-import { ScreenWidth } from "@rneui/base";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { languages } from "utils/constants/languages";
-import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
-import { useSaveSettings } from "queries/settings";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { setLang } from "redux/reducers/userDetails";
 import { TextInput } from "react-native";
 import { useQueryClient } from "react-query";
-import { FlatList } from "react-native";
 import { useSaveEditedNote } from "queries/home";
-import { commonSvg } from "assets/svg/commonSvg";
 import {
   updateTitle,
   updateTranscript,
 } from "redux/reducers/recordingStates";
-import CircularLoader from "components/common/loaders/circular-loader";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 
 const EditNote = () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {editNoteRedux} = useSelector((state:RootState)=>state.editStates)
+    const {showDialog} = useDialog()
 
 
   const [editNote, setEditNote] = useState<any>(editNoteRedux);
@@ -63,7 +52,7 @@ const EditNote = () => {
 
   const onSaveEdit = async () => {
     if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
-      return Alert.alert("", "Title and Transcript cannot be empty",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+      return showDialog("", "Title and Transcript cannot be empty",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     }
     setIsLoading(true);
     const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);

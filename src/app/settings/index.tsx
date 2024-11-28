@@ -26,6 +26,7 @@ import { deleteCounter } from "utils/counter";
 import { useTheme } from "context";
 import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";
+import { useDialog } from "context/DialogContext";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -162,6 +163,7 @@ const Settings = () => {
   const saveSettings=useSaveSettings()
   const dispatch=useDispatch()
   const queryClient = useQueryClient()
+  const {showDialog} = useDialog()
 
   const { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating } = useAnimatedScreens();
 
@@ -195,7 +197,7 @@ const Settings = () => {
 
   const onLogout = () =>{
     
-    Alert.alert('',"Are you sure you want to log out?",
+    showDialog('',"Are you sure you want to log out?",
     [{
       text:"Cancel",
       style:"cancel"
@@ -212,7 +214,7 @@ const Settings = () => {
   }
 
   const onDelete = () =>{
-    Alert.alert('',"Are you sure you wish to delete your account?",
+    showDialog('',"Are you sure you wish to delete your account?",
     [{
       text:"Cancel",
       style:"cancel"

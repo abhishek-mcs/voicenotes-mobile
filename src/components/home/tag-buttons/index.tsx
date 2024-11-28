@@ -13,6 +13,7 @@ import { RootState } from "redux/store/store";
 import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 
 export const TagButton = ({
   title = "",
@@ -96,6 +97,7 @@ export default function TagButtons({
   const dispatch = useDispatch();
   const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
+  const {showDialog} = useDialog()
 
   const options = [
     {
@@ -114,7 +116,7 @@ export default function TagButtons({
       destructive: true,
       systemIcon: "trash",
       onPress: () =>
-        Alert.alert("", "Are you sure you want to delete?", [
+        showDialog("", "Are you sure you want to delete?", [
           {
             text: "No",
             style: "cancel",

@@ -1,5 +1,6 @@
 import CircularLoader from "components/common/loaders/circular-loader";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 import { useRouter } from "expo-router";
 import { submitReview } from "queries/settings";
 import { useMemo, useState } from "react";
@@ -16,20 +17,21 @@ const Review = () => {
     const [working, setWorking] = useState(false)
     const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
+    const {showDialog} = useDialog()
 
     const onSubmit = async () => {
         if(!review) {
-            Alert.alert('Just your honest opinion', 'Please write a few thoughts about voicenotes. It really helps us improve your experience.',[],{userInterfaceStyle:isLightMode?"light":"dark"})
+            showDialog('Just your honest opinion', 'Please write a few thoughts about voicenotes. It really helps us improve your experience.',[],{userInterfaceStyle:isLightMode?"light":"dark"})
             return
         }
 
         setWorking(true)
         try {
             await submitReview(review)
-            Alert.alert('Got it!', "Thanks for your feedback! This really means a lot & we'll be sure to listen to this opinion for future releases.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
+            showDialog('Got it!', "Thanks for your feedback! This really means a lot & we'll be sure to listen to this opinion for future releases.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
         } catch (error) {
             console.error(`Error submitting review: ${JSON.stringify(error)}`)
-            Alert.alert('Oops!', "There was a problem submitting your review. Please try again next time this pops up.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
+            showDialog('Oops!', "There was a problem submitting your review. Please try again next time this pops up.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
         }
         setWorking(false)
         router.back()
