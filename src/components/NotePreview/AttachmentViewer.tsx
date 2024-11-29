@@ -89,8 +89,9 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const renderImageThumbnail = useCallback(
     ({ item, index }:any) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <View style={[styles.thumbnailContainer,{backgroundColor:'transparent'}]}>
+        <View style={[styles.thumbnailContainer]}>
           <Image
+            key={item?.url}
             source={{ uri: item.url }}
             style={styles.thumbnail}
             contentFit="cover"
@@ -287,8 +288,9 @@ const useStyles = () => {
     marginRight: 2.5  ,
     width: 100,
     height: 100,
-    borderRadius: 2,
-    backgroundColor:Colors.inputBg2
+    borderRadius: 4,
+    backgroundColor:Colors.inputBg2,
+    overflow:'hidden'
   },
   thumbnail: {
     width: 100,
