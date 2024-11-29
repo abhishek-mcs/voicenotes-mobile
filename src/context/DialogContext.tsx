@@ -57,12 +57,12 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return (
         <DialogContext.Provider value={{ showDialog }}>
             {children}
-            <Dialog.Container visible={visible} onBackdropPress={handleCancel} contentStyle={{backgroundColor:Colors.bgColor6}}>
+            <Dialog.Container visible={visible} onBackdropPress={handleCancel} contentStyle={{backgroundColor:Colors.bgColor5}} >
                 {!!title&&<Dialog.Title style={{color:Colors.text}}>{title}</Dialog.Title>}
                 {!!description&&<Dialog.Description style={{color:Colors.text}}>{description}</Dialog.Description>}
                 {buttons.length>0?buttons.map((button:any, index) => (
                     button?.style?.includes('cancel')?
-                    <Dialog.Button label="Cancel" onPress={handleCancel} />
+                    <Dialog.Button key={index} label="Cancel" onPress={handleCancel} />
                     :<Dialog.Button key={index} label={button?.text} onPress={()=>{
                         button?.onPress();
                         setVisible(false);
