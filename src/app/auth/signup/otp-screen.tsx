@@ -96,7 +96,7 @@ const OtpScreen = () => {
   
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1,paddingTop:16}}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1,paddingTop:isIOS?0:16}}>
       <View style={{justifyContent:'space-between',flexDirection:'row',alignItems:'center',marginTop:16}}>
         <Touchable style={{height:56,paddingHorizontal:16}} onPress={()=>{router.back()}}>
           <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>

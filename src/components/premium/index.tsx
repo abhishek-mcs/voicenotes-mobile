@@ -276,7 +276,7 @@ const Btn = ({
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  main: { flex: 1, backgroundColor: Colors.whiteWithOpacity(1) },
+  main: { flex: 1, backgroundColor: Colors.whiteWithOpacity(1),paddingTop:isIOS?0:50 },
   container: { flex: 1, marginTop: 14, paddingHorizontal: isIOS ? 0 : 5 },
   subContainer: {
     flex: 2,
