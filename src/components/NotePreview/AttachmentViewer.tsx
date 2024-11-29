@@ -20,7 +20,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import { screenHeight } from "utils/common";
+import { isAndroid, screenHeight } from "utils/common";
 import { useTheme } from "context";
 import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
@@ -28,7 +28,7 @@ import { useDialog } from "context/DialogContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
+const blurhash = 'LjKU1xNfMdo3_2IWWVt7_MwbnOa#';
 
 const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -89,7 +89,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const renderImageThumbnail = useCallback(
     ({ item, index }:any) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <View style={styles.thumbnailContainer}>
+        <View style={[styles.thumbnailContainer,{backgroundColor:'transparent'}]}>
           <Image
             source={{ uri: item.url }}
             style={styles.thumbnail}
@@ -211,7 +211,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         handleComponent={null}
         backgroundComponent={(props: BottomSheetBackdropProps) => <View/>}
         index={selectedImageIndex !== null ? 0:-1}
-        snapPoints={[screenHeight]}
+        snapPoints={isAndroid?[screenHeight+40]:[screenHeight]}
         onChange={handleSheetChanges}
         enablePanDownToClose
         onClose={()=>setSelectedImageIndex(null)}
@@ -288,13 +288,13 @@ const useStyles = () => {
     width: 100,
     height: 100,
     borderRadius: 2,
-    backgroundColor:Colors.darkWithOpacity(0.05)
+    backgroundColor:Colors.inputBg2
   },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 2,
-    backgroundColor:Colors.darkWithOpacity(0.05)
+    backgroundColor:Colors.inputBg2
   },
   blurOverlay: {
     position: 'absolute',
