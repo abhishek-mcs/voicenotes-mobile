@@ -62,14 +62,14 @@ const onPress=async()=>
           // style={{width:screenWidth/2.1}}
           onRequestClose={hideMenu}
           anchor={<Pressable onPress={showMenu}>{children}</Pressable>}
-          animationDuration={250}
+          // animationDuration={250}
           style={{backgroundColor:Colors.bgColor6,borderRadius:8}}
         >
           <ScrollView style={{maxHeight:screenHeight/2}} showsVerticalScrollIndicator={false}>
           {options.map((option:any, index:number) => (
             <MenuItem
               key={index}
-              pressColor={Colors.border}
+              pressColor={Colors.bgColor1}
               style={{borderBottomWidth:(index<options?.length)?0.5:0,borderBottomColor:Colors.border}}
               onPress={async(e) => {
                 if (option.actions) {
