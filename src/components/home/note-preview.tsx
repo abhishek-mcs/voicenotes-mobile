@@ -955,7 +955,7 @@ const NotePreview = forwardRef(
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
-                    showUpgrade={note?.duration>60000&&!userDetails?.subscription_status}
+                    // showUpgrade={note?.duration>60000&&!userDetails?.subscription_status}
                     disableGenerating={() =>setTriggerTypingTranscript(null)}
                   />
                 )}
