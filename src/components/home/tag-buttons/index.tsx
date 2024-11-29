@@ -103,6 +103,7 @@ export default function TagButtons({
     {
       title: !isDefaultHash?"Pin":"Unpin",
       systemIcon: !isDefaultHash?"mappin":"mappin.slash",
+      androidIcon: !isDefaultHash?"pin-outline":"pin-off-outline",
       onPress: () =>
         pinTagMutation.mutate(
           { is_pinned: !isDefaultHash },
@@ -115,6 +116,7 @@ export default function TagButtons({
       title: "Delete",
       destructive: true,
       systemIcon: "trash",
+      androidIcon:"delete-outline",
       onPress: () =>
         showDialog("", "Are you sure you want to delete?", [
           {

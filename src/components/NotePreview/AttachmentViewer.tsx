@@ -28,7 +28,7 @@ import { useDialog } from "context/DialogContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const blurhash = 'LjKU1xNfMdo3_2IWWVt7_MwbnOa#';
+const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
