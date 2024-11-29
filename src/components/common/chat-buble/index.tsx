@@ -42,7 +42,6 @@ const ChatBubble = ({
     return htmlPattern.test(str);
   };
   const { Colors } = useTheme()
-  const router =useRouter()
 
   // useEffect(() => {
   //   let currentIndex = 0;
@@ -92,8 +91,6 @@ const ChatBubble = ({
     />
     :<Text style={[style, {}]} numberOfLines={lines}>
         {message}
-        {showUpgrade&&'... '}
-        {showUpgrade&&<Text suppressHighlighting={true} onPress={()=>router.push('/premium/')} style={[style,{textDecorationLine:'underline',color:Colors.primaryDark4}]}>Upgrade for full transcript</Text>}
       </Text>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (
