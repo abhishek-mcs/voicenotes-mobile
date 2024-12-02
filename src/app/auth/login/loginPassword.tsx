@@ -196,6 +196,20 @@ const LoginPassword = () => {
         </Text>}
       </Pressable>
 
+      <Pressable onPress={()=>router?.push('/auth/forgot-password/ForgotPassword')}>
+        <Text
+          style={{
+            marginTop: 24,
+            fontFamily: "Primary",
+            fontSize: 14,
+            textAlign: "center",
+            color: Colors.text1,
+            textDecorationLine:'underline'
+          }}
+        >
+          Forgot password?
+        </Text>
+      </Pressable>
       <View style={{ flexDirection: "row", justifyContent: "center",marginBottom:32 }}>
         <Text
           style={{

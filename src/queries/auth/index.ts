@@ -87,6 +87,12 @@ export function useCheckEmail(){
     })
 }
 
+export function useResetPassword(){
+    return useMutation("reset-password", (p?:any)=>{
+        return axiosApi.post("/auth/reset-password",p)
+    })
+}
+
 export async function uploadDP(file: string,isLightMode=true) {
     const formData = new FormData();
     const filename = file.split('/').pop();

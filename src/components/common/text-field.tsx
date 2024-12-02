@@ -61,7 +61,7 @@ export function TextField(props: TextFieldProps) {
         style={[
           inputStyle,
           inputStyleOverride,
-          hasFocus ? {borderColor:Colors.primaryDark3()} : {borderColor:Colors.primaryWithOpacity(0.1)},
+          hasFocus ? {borderColor:Colors.primaryDark3(1)} : {borderColor:Colors.primaryWithOpacity(0.1)},
         ]}
         ref={forwardedRef}
       />
