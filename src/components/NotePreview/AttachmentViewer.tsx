@@ -96,7 +96,6 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
             style={styles.thumbnail}
             contentFit="cover"
             transition={300}
-            placeholder={blurhash}
             cachePolicy="memory-disk"
           />
           {item.is_uploading && (
