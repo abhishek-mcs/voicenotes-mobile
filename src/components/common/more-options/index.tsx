@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, useColorScheme, } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import * as Haptics from "expo-haptics";
@@ -33,14 +33,17 @@ const hideMenu=()=>{
   setVisible(false)
 }
 const showSubMenu=async(v:any)=>{
-  hideMenu()
   setSubMenuOptions(v)
+  hideMenu()
   setTimeout(() => {
     setVisibleSubMenu(true)
-  }, 300);
+  }, 600);
 }
+
 const hideSubMenu=()=>{
+  setVisible(false)
   setVisibleSubMenu(false)
+  setSubMenuOptions([])
 }
 
 const isThemeMenu=(v:any)=>{
@@ -98,7 +101,7 @@ const onPress=async()=>
               anchor={<Pressable onPress={showSubMenu}>{children}</Pressable>}
               style={{backgroundColor:Colors.bgColor6}}
             >
-              {!!subMenuOptions&&subMenuOptions?.map((itm:any, i:number) => (
+              {subMenuOptions&&subMenuOptions?.map((itm:any, i:number) => (
                 <MenuItem
                   key={i}
                   pressColor={Colors.border}
