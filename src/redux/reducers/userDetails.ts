@@ -44,7 +44,7 @@ export const userDetails = createSlice({
         state.lang= action.payload||'';
     },
     setCanRecord:(state, action: PayloadAction<boolean>)=>{
-      state.canRecord= action.payload||true;
+      state.canRecord= (action.payload==true||action.payload==null)?true:false;
     },
     setSavedTheme:(state, action: PayloadAction<string>)=>{
       state.savedTheme= action.payload||'auto';

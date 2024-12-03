@@ -43,10 +43,11 @@ export default ({
 }: Props) => {
   const [duration, setDuration] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [closeAlert, setCloseAlert] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
   const homeIcons:any=home
-  const { token, userDetails }: any = useSelector(
+  const { token, userDetails, canRecord }: any = useSelector(
     (state: RootState) => state.userDetails
   );
   const { isTempIAPPurchased }: any = useSelector(
@@ -106,14 +107,21 @@ useEffect(() => {
   }
 
   const onRecordStart = () => {
+    !canRecord&&setCloseAlert(false)
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
     onRecord(newTemporaryRecordingId);
   };
 
+  const onCloseAlert = () => {
+    canRecord?
+    setRecordingParentId(null)
+    :setCloseAlert(true)
+  }
+
   return (
     <View style={styles.container}>
-      {(recordingParentNoteName || parentId)&&!isCanceling&& (
+      {((!canRecord&&!closeAlert)||recordingParentNoteName || parentId)&&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
@@ -124,11 +132,11 @@ useEffect(() => {
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                {recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
+                {!canRecord?"Your daily recording limit has been exceeded. Please try again later.":recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable
-              onPress={() => setRecordingParentId(null)}
+              onPress={onCloseAlert}
               style={{
                 width: 20,
                 height: 20,

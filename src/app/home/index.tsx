@@ -129,7 +129,7 @@ const Home = () => {
   );
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const queryClient = useQueryClient();
-  const bannerRef=useRef<any>(null)
+  // const bannerRef=useRef<any>(null)
   const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
@@ -149,7 +149,7 @@ const Home = () => {
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
   const dispatchCanRecord = (val: boolean) =>
-    dispatch(setCanRecord(val ?? true));
+    dispatch(setCanRecord((val)));
 
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
@@ -568,7 +568,6 @@ const Home = () => {
     AIModalRef.current?.close();
     // CreateModalRef.current?.close();
     if (!canRecord) {
-      bannerRef.current?.show();
       return;
     }
     setRecordingParentId(parent_id);
@@ -864,13 +863,13 @@ const Home = () => {
                 scrollY={scrollY}
                 scale={scale.current}
               />
-              <BannerAlert
+              {/* <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}
                 onAction={() => bannerRef?.current?.close()}
                 actionText="Close"
                 message="Your daily recording limit has been exceeded. Please try again later."
-              />
+              /> */}
               {!!token && (
                 <Animated.View
                   style={{
