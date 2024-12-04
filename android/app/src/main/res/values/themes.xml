@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.VoiceNotesWidget" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.VoiceNotesWidget.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <!-- Radius of the outer bound of widgets to make the rounded corners -->
+        <item name="appWidgetRadius">16dp</item>
+        <!--
+        Radius of the inner view's bound of widgets to make the rounded corners.
+        It needs to be 8dp or less than the value of appWidgetRadius
+        -->
+        <item name="appWidgetInnerRadius">8dp</item>
+    </style>
+
+    <style name="Theme.VoiceNotesWidget.AppWidgetContainer" parent="Theme.VoiceNotesWidget.AppWidgetContainerParent">
+        <!-- Apply padding to avoid the content of the widget colliding with the rounded corners -->
+        <item name="appWidgetPadding">16dp</item>
+    </style>
+    <style name="AppTheme.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <!-- Radius of the outer bound of widgets to make the rounded corners -->
+        <item name="appWidgetRadius">16dp</item>
+        <!--
+        Radius of the inner view's bound of widgets to make the rounded corners.
+        It needs to be 8dp or less than the value of appWidgetRadius
+        -->
+        <item name="appWidgetInnerRadius">8dp</item>
+    </style>
+
+    <style name="AppTheme.AppWidgetContainer" parent="AppTheme.AppWidgetContainerParent">
+        <!-- Apply padding to avoid the content of the widget colliding with the rounded corners -->
+        <item name="appWidgetPadding">16dp</item>
+    </style>
+
+    <style name="Theme.VoiceNotesWidget.AppWidgetRecord" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:drawableStart">@drawable/record_ic_night</item>
+        <item name="android:backgroundTint">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="appWidgetInnerRadius">?attr/appWidgetRadius</item>
+    </style>
+    <style name="Theme.VoiceNotesWidget.AppWidgetAsk" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:drawableStart">@drawable/ask_ic_black</item>
+        <item name="android:backgroundTint">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="appWidgetInnerRadius">?attr/appWidgetRadius</item>
+    </style>
+    <style name="Theme.VoiceNotesWidget.AppWidgetSearch" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:drawableStart">@drawable/search_ic</item>
+        <item name="android:backgroundTint">?attr/colorPrimaryInverse</item>
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+        <item name="drawableTint">?attr/colorOnPrimaryContainer</item>
+        <item name="appWidgetInnerRadius">?attr/appWidgetRadius</item>
+    </style>
+</resources>

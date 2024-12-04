@@ -6,19 +6,25 @@ import axiosApi from 'services/api/axios-api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Touchable from 'components/common/Touchable';
 import Colors from 'assets/Colors';
-import { isIOS } from 'utils/common';
+import { isIOS, screenWidth } from 'utils/common';
 import { useQueryClient } from 'react-query';
+import { useFocusEffect } from 'expo-router';
 
-const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
+export const CustomBackdrop = ({ style }: BottomSheetBackdropProps) => {
+  useFocusEffect(useCallback(()=>{
+    
+  },[]))
   return (
-    <View
+    <SafeAreaView
       style={[
         style,
         {
-          backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+          backgroundColor: 'rgba(0, 0, 0, 1)', 
         },
       ]}
-    />
+    >
+      <View style={{borderRadius:12,marginHorizontal:16,backgroundColor:'rgba(255,255,255,0.98)',flex:1,width:screenWidth-32}}/>
+    </SafeAreaView>
   );
 };
 
@@ -155,10 +161,8 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
 
 const styles = StyleSheet.create({
   bottomSheet: {
-    marginTop: 0,
+    marginTop: isIOS?0:20,
     paddingTop: 0,
-    color: 'gray',
-    backgroundColor:'gray'
   },
   container: {
     flex: 1,

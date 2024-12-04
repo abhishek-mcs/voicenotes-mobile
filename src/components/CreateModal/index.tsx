@@ -1,11 +1,11 @@
-import { FlatList, Keyboard, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import ReactNativeModal from "react-native-modal";
 import Suggestions from "./suggestions";
 import Records from "./records";
 import AiLoader from "components/common/loaders/ai-loader";
 import Notes from "./notes";
-import { useCreate, useGetAiCreation } from "queries/home";
+import { useCreate, useGetAiCreation, useRecordings } from "queries/home";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS, screenHeight } from "utils/common";
@@ -15,11 +15,15 @@ import { home } from "assets/svg/home";
 import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import listenAiCreate from "func/firebase/listen-ai-create";
+import Header from "components/AIModal/header";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:boolean)=>{}}:createModalProps, ref) => {
+export default forwardRef(({}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
-  const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("note");
-  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom'>("summary");
+  const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("suggestions");
+  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom' | 'tidy'>("summary");
+  const {recordingCreateList}=useSelector((state:RootState)=>state.recordingStates)
+  const recordingList=recordingCreateList
   const [result, setResult] = useState({id:recordingList[0]?.id||null,result:null})
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [title, setTitle] = useState("");
@@ -29,30 +33,32 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
 
   const aiCreate=useCreate()
   const getAiCreation=useGetAiCreation()
+  const recordingQuery = useRecordings("");
+  const insets = useSafeAreaInsets();
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        open() {
-          setVisible(true);
-          setHideBg(true)
-        },
-        close() {
-          setVisible(false);
-          setHideBg(false)
-        },
-        toggle(){
-          setVisible(!visible)
-          setHideBg(!visible)
-        },
-        onReset(){
-          onReset()
-        }
-      };
-    },
-    [visible]
-  );
+  // useImperativeHandle(
+  //   ref,
+  //   () => {
+  //     return {
+  //       open() {
+  //         setVisible(true);
+  //         // setHideBg(true)
+  //       },
+  //       close() {
+  //         setVisible(false);
+  //         // setHideBg(false)
+  //       },
+  //       toggle(){
+  //         setVisible(!visible)
+  //         setHideBg(!visible)
+  //       },
+  //       onReset(){
+  //         onReset()
+  //       }
+  //     };
+  //   },
+  //   [visible]
+  // );
   const onSuggest=(type:any)=>{
     setNoteType(type)
     setCustomText("")
@@ -92,7 +98,7 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   }
 
   const onClose=()=>{
-    setHideBg(false)
+    // setHideBg(false)
     setVisible(false)
     setTimeout(() => {
       onReset()
@@ -117,26 +123,35 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
   const top=isIOS?
       height>690? 74: 108
       :105
+  const fetchNextPage = () => {
+    // if(recordingList?.length>10){
+      recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
+      console.log("fetching next page");
+    // }
+  };
   return (
-    <ReactNativeModal
-      isVisible={visible}
-      animationIn={"fadeInUp"}
-      animationOut={"fadeOutDown"}
-      onBackdropPress={onClose}
-      style={{justifyContent:'flex-end',marginBottom:keyboardShown?10:top}}
-      backdropOpacity={0}
-      hasBackdrop={true}
-      coverScreen={false}
-      // onTouchStart={(e)=>e?.stopPropagation()}
-      swipeDirection={"down"}
-      propagateSwipe={true}
-      onSwipeComplete={onClose}
-    > 
-      <View style={[styles.modal,styles[preview]]}>
-          <View style={styles.drag}/>
-        {preview=="loader"&&<Text style={styles.heading}>Great!</Text>}
+    // <ReactNativeModal
+      // isVisible={visible}
+      // animationIn={"slideInUp"}
+      // animationOut={"fadeOutDown"}
+      // onBackdropPress={onClose}
+      // style={{justifyContent:'flex-end',marginBottom:keyboardShown?10:top}}
+      // backdropOpacity={0}
+      // hasBackdrop={true}
+      // coverScreen={false}
+      // // onTouchStart={(e)=>e?.stopPropagation()}
+      // swipeDirection={"down"}
+      // propagateSwipe={true}
+      // onSwipeComplete={onClose}
+    // > 
+      <View style={[styles.modal,styles[preview], {paddingTop: isIOS ? 0 : insets.top}]}>
+        <Header title="Create"/>
+        {/* {preview=="loader"&&<Text style={styles.heading}>Great!</Text>} */}
         {(preview === 'suggestions'||preview === 'records') ?
-        <View style={{height:keyboardShown?screenHeight/2.1:screenHeight/1.4}} onTouchStart={(e)=>e?.stopPropagation()}>
+        <View style={{
+          height:isIOS?screenHeight/1.2:screenHeight/1.1
+          // keyboardShown?screenHeight/2.1:screenHeight/1.4
+          }} onTouchStart={(e)=>e?.stopPropagation()}>
           <FlatList
           data={[1]}
           scrollIndicatorInsets={{top:20,bottom:20}}
@@ -149,17 +164,17 @@ export default forwardRef(({recordingList=[],fetchNextPage=()=>{},setHideBg=(v:b
           )}
           />
           {(noteId?.length>0&&(noteType !== 'custom'||(noteType=='custom'&&customText?.length>0)))&&
-          <Touchable style={styles.createBtn} onPress={onCreate}>
+          <Touchable style={[styles.createBtn, {marginBottom: isIOS ? 16 : insets.bottom + 40 }] } onPress={onCreate}>
             <Text style={styles.createTxt}>Create</Text>
             <SvgXml xml={CreateModalSvg.create} />
           </Touchable>}
         </View>
-        :preview=="loader"? <AiLoader text={noteType=="custom"?'AI is writing based on your custom instructions':`AI is writing your ${noteType}`}/>
+        :preview=="loader"? <AiLoader style={{marginTop:20,marginLeft:20}} text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
         :
         <Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }
       </View>
-    </ReactNativeModal>
+    // </ReactNativeModal>
   );
 });
 
@@ -168,36 +183,62 @@ const styles = StyleSheet.create({
     // justifyContent: "center",
     backgroundColor: "#fff",
     borderRadius: 20,
-    paddingBottom:0,
-    paddingTop:24,
-    paddingHorizontal:24,
-    shadowColor:"#00000026",
-		shadowOpacity: 0.9,
-		shadowOffset: { width: 0, height:0.5 },
-		shadowRadius: 1.5,
-    zIndex:10,
-		elevation: 2,
-    height:screenHeight/1.4
+    paddingBottom: 0,
+    // paddingTop:24,
+    paddingHorizontal: 24,
+    shadowColor: "#00000026",
+    shadowOpacity: 0.9,
+    shadowOffset: { width: 0, height: 0.5 },
+    shadowRadius: 1.5,
+    // zIndex:10,
+    elevation: 2,
+    // height:screenHeight/1.4,
+    flex: 1,
   },
-  heading:{
-      fontSize:16,
-      fontFamily:"Primary-Semibold",
-      marginBottom:8,
-      paddingHorizontal:0,
-      marginTop:12
+  heading: {
+    fontSize: 16,
+    fontFamily: "Primary-Semibold",
+    marginBottom: 8,
+    paddingHorizontal: 0,
+    marginTop: 12,
   },
-  suggestions:{height:'auto',paddingTop:16,paddingHorizontal:0},
-  records:{},
-  note:{paddingHorizontal:0,paddingTop:16},
-  loader:{justifyContent:'flex-start',paddingTop:16,paddingLeft:28},
-  createBtn:{flexDirection:'row',alignItems:'center',backgroundColor:Colors.primary,alignSelf:'center',paddingHorizontal:16,height:40,borderRadius:16,marginVertical:16},
-  createTxt:{fontSize:14,fontFamily:'Primary-Semibold',color:'#fff',marginRight:8},
-  drag:{backgroundColor:'#D9D9D9',height:5,width:64,marginTop:-8,borderRadius:14,alignSelf:'center'}
+  suggestions: { 
+    height: "auto",
+    // paddingTop: 16,
+    paddingHorizontal: 0
+  },
+  records: {},
+  note: { paddingHorizontal: 0, paddingTop: 16 },
+  loader: { justifyContent: "flex-start", paddingTop: 16, paddingHorizontal:0 },
+  createBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.primary,
+    alignSelf: "center",
+    paddingHorizontal: 16,
+    height: 40,
+    borderRadius: 16,
+    marginTop:16
+  },
+  createTxt: {
+    fontSize: 14,
+    fontFamily: "Primary-Semibold",
+    color: "#fff",
+    marginRight: 8,
+  },
+  drag: {
+    backgroundColor: "#D9D9D9",
+    height: 5,
+    width: 64,
+    marginTop: -8,
+    borderRadius: 14,
+    alignSelf: "center",
+  },
 });
 
 export interface createModalProps{
-  recordingList:any[],
-  fetchNextPage:()=>void,
+  recordingList?:any[],
+  fetchNextPage?:()=>void,
   onSelect?:(id:number,v:string)=>void
   title?:string
   setHideBg?:(v:boolean)=>void

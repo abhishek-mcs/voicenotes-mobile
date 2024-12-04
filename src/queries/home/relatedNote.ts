@@ -3,13 +3,13 @@ import { useDispatch } from "react-redux";
 import { setRelatedNotes } from "redux/reducers/recordingStates";
 import axiosApi from "services/api/axios-api";
 
-export function useGetSingleRecording(id:string){
-    return useQuery('single-recording',(p?:any) => {
+export function useGetSingleRecording(id:string|null){
+    return useQuery('single-recording',() => {
         return axiosApi.get(`/recordings/${id}`)
     },
     {
         onError:(error:any)=>{
-            console.log(error?.response?.data?.message);
+            console.log('single',error?.response?.data?.message);
         }
     })
 }
@@ -21,10 +21,9 @@ export function useGetRelatedRecording(index?:number){
         return axiosApi.get(`/recordings/${id}/related`)
     },
     {
-        onSuccess:(data:any)=>{
-            // const relatedNotes = data?.data??[]
+        onSuccess:async(data:any)=>{
             // dispatch(setRelatedNotes({related_notes:relatedNotes,index}));
-            queryClient.invalidateQueries('all-recording')
+            await queryClient.resetQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);

@@ -10,27 +10,34 @@ import { useRouter } from "expo-router";
 import * as Animatable from "react-native-animatable"
 import CircularLoader from "../loaders/circular-loader";
 import { isIOS } from "utils/common";
+import { SearchBar } from "react-native-screens";
+import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 const {debounce}=require("lodash")
 
 const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
-const heightIn = {
+const AnimSearchBarIOS = Animatable.createAnimatableComponent(SearchBarIOS);
+export const heightIn = {
   from: {
     height: 0,
-    borderColor:Colors.darkWithOpacity(0)
+    borderColor:Colors.darkWithOpacity(0),
+    opacity:0
   },
   to: {
     height: 40,
-    borderColor:Colors.darkWithOpacity(0.1)
+    borderColor:Colors.darkWithOpacity(0.1),
+    opacity:1
   },
 };
-const heightOut = {
+export const heightOut = {
   from: {
     height: 40,
-    borderColor:Colors.darkWithOpacity(0.1)
+    borderColor:Colors.darkWithOpacity(0.1),
+    opacity:1
   },
   to: {
     height: 0,
-    borderColor:Colors.darkWithOpacity(0)
+    borderColor:Colors.darkWithOpacity(0),
+    opacity:0
   },
 };
 const fadeIn={
@@ -40,7 +47,7 @@ const fadeOut={
   from:{opacity:1},to:{opacity:0}
 }
 
-export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,style={}})=>{
+export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,style={},scrollY}:any)=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -77,81 +84,43 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     //   router.push({pathname:"/RelatedNotes/",params:{id}})
     //   clearSearch()
     // }
+    
+    const searchBarOpacity = scrollY.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1,0],
+      extrapolate: 'clamp',
+    });
     return (
-        <View style={[styles.container,style]}>
-            <Animatable.View duration={150} animation={isSearchVisible?heightIn:heightOut} style={[styles.box]}>
-              <SvgXml xml={commonSvg.search} style={[{paddingHorizontal:8}]} />
-              <View style={{flex:1}}>
-                <TextInput
-                  onFocus={() => {setIsFocused(true);}}
-                  onBlur={() => setIsFocused(false)}
-                  textAlignVertical="center"
-                  value={searchText}
-                  returnKeyType={"search"}
-                  autoFocus={false}
-                  onChangeText={onSearch}
-                  placeholder={"Search"}
-                  placeholderTextColor={'#828282'}
-                  style={[{color:'#222',fontFamily:'Primary',fontSize:16,marginLeft:8}]}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="off"
-                  ref={ref}
-                  editable={false}
-                />
-              </View>
-              {searchText != "" ? (
-                <Pressable
-                  onPress={() => {
+        <Animatable.View style={[styles.container,style]} duration={150} animation={isSearchVisible?heightIn:heightOut}>
+            
+            <AnimSearchBarIOS
+                  onClear={()=>{
                     setSearchQuery("")
                     setSearchText("")
+                    setSearchText("")
                   }}
-                >
-                  <AnimSVG xml={commonSvg.searchClose} duration={150} animation={isSearchVisible?"fadeIn":"fadeOut"}/>
-                </Pressable>
-              ) : null}
-            </Animatable.View>
-            {/* {((searchHistoryList?.length!=0||searchText!='')&&!hideView)&&
-              <View style={styles.modal} onTouchStart={(e)=>e?.stopPropagation()}>
-                  <ScrollView showsVerticalScrollIndicator={false} style={{overflow:'hidden'}}>
-                    {(searchText==''&&searchHistoryList?.length!=0)?
-                    (<View style={{paddingVertical:12}}>
-                      <Text style={styles.recent}>Recent searches</Text>
-                      {searchHistoryList?.map((itm:any,i:number)=>
-                      <TouchableHighlight 
-                        onPress={(e)=>{setSearchText(itm?.keyword);setSearchQuery(itm?.keyword);}}
-                        style={[styles.row]} underlayColor={Colors.greyWithOpacity(0.1)} 
-                        key={i}>
-                          <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-                            <>
-                              <SvgXml xml={commonSvg.search?.replace('{color}','#222')} />
-                              <Text style={styles.recentText} numberOfLines={1}>{itm?.keyword}</Text>
-                            </>
-                            <Pressable onPress={()=>deleteSearchHistory.mutate(itm?.id)}>
-                              <SvgXml xml={commonSvg.smallClose} />
-                            </Pressable>
-                          </View>
-                      </TouchableHighlight>)}
-                    </View>)
-                    :searchText.length>0&&searchData?.length>0?
-                    searchData.map((itm:any,i:number)=>
-                    <TouchableHighlight onPress={()=>goto(itm?.id)} style={styles.result} underlayColor={Colors.greyWithOpacity(0.1)} key={i}>
-                      <View style={{overflow:'hidden'}}>
-                      <View style={{flexDirection:'row',alignItems:'center'}}>
-                        <View style={{backgroundColor:'#222',width:6,height:6,borderRadius:9}}/>
-                        <Text style={styles.title}>{itm?.title}</Text>
-                      </View>
-                      <Text style={styles.txt}>...{itm?.transcript?.trimEnd()}</Text></View>
-                    </TouchableHighlight>)
-                    :getSearchData.isFetched&&searchData?.length==0?
-                    <Text style={styles.noData}>No data found</Text>
-                  :
-                  <View style={[styles.result,{alignItems:'center',marginTop:40}]}>
-                    <CircularLoader/>
-                  </View>}
-                  </ScrollView>
-            </View>} */}
-          </View>
+                  clearIcon={<SvgXml xml={commonSvg.smallClose} />}
+                  searchIcon={<SvgXml xml={commonSvg.search}/>}
+                  onCancel={()=>router.back()}
+                  // onSubmitEditing={()=>onSearch(searchText)}
+                  onFocus={()=>setIsFocused(true)}
+                  onBlur={()=>setIsFocused(false)}
+                  onChangeText={onSearch}
+                  autoCapitalize={"none"}
+                  autoFocus={false}
+                  placeholder="Search"
+                  placeholderTextColor={Colors.grey6}
+                  contextMenuHidden={true}
+                  autoComplete="off"
+                  autoCorrect={true}
+                  value={searchText}
+                  disabledInputStyle={{opacity:1}}
+                  disabled={true}
+                  containerStyle={styles.inputContainerStyle}
+                  showCancel={false}
+                  inputContainerStyle={[{opacity:searchBarOpacity,backgroundColor:'transparent'}]}
+                />
+          </Animatable.View>
     )
 }
 
@@ -160,8 +129,13 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         marginTop:0,
-        marginHorizontal:0,
+        marginHorizontal:4,
         marginBottom:0,zIndex:1
+    },
+    inputContainerStyle:{
+      backgroundColor:Colors.darkWithOpacity(0.05),
+      borderRadius:12,
+      height:40
     },
     box:{
         flex:1,

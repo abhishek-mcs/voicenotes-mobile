@@ -6,13 +6,14 @@ import { screenHeight } from "utils/common"
 import { SvgXml } from "react-native-svg"
 import { CreateModalSvg } from "assets/svg/CreateModal"
 
-export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
+export default ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:string)=>{},selected=null}:createModalProps)=>{
     const isSelected=(id:number)=>selected?.some((v:any)=>v==id)
+    const filteredRecordingList = recordingList.filter(item => (item.transcript && item.title))
     return (
         <View style={{flex:1,height:'auto',marginTop:10}}>
             <Text style={heading}><Text style={{color:Colors.grey}}>2.  </Text>Select the note</Text>
             <FlatList 
-            data={recordingList}
+            data={filteredRecordingList}
             contentContainerStyle={list}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item:any,i)=>`${item?.id}-${i}`}
@@ -29,8 +30,8 @@ export default ({recordingList,fetchNextPage,onSelect=(id:number,v:string)=>{},s
                 </TouchableHighlight>
             )}
             ListEmptyComponent={()=><View style={itemContainer}><Text style={titleStyle}>You don't have any notes to create with.</Text></View>}
-            onEndReachedThreshold={50}
-            onEndReached={()=>fetchNextPage()}
+            onEndReachedThreshold={0.2}
+            onEndReached={fetchNextPage}
             />
         </View>
     )

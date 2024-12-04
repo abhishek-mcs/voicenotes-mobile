@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator, InteractionManager } from "react-native"
 import * as WebBrowser from "expo-web-browser"
-import { useRouter } from "expo-router"
+import { SplashScreen, useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
@@ -18,6 +18,8 @@ import { useDispatch } from "react-redux"
 import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
+import { useNetInfo } from "@react-native-community/netinfo"
+import appsFlyer from "react-native-appsflyer"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -26,6 +28,7 @@ export default () => {
   const [loginError, setLoginError] = useState()
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
+  const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
 
@@ -34,13 +37,14 @@ export default () => {
       const token = data?.data?.token
       const userData = data?.data?.user
       if (token) {
-        setAuthToken(token,false);
+        setAuthToken(data?.data?.token,false,netInfo);
         dispatch(setToken(token));
         dispatch(setUserDetail(userData))
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
         router.replace("/home/");
         analytics().logEvent('social_sign_in_success').catch(e=>{})
+        appsFlyer.logEvent('social_login',{value:'success'})
       }
     }
   }
@@ -54,6 +58,7 @@ const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuth
 const loginGoogle=signInWithGoogle()
 const signInGoogle=(token:any,params:any)=>{
   analytics().logEvent('google_sign_in_clicked').catch(e=>{})
+  appsFlyer.logEvent('google_sign_in_clicked',{value:'google_sign_in_initiate'})
   const {code,state,prompt,authuser,scope}=params
   loginGoogle.mutate({
     access_token:token,
@@ -103,6 +108,7 @@ const signInGoogle=(token:any,params:any)=>{
       if (credential.email) dispatch(setEmail(credential.email))
       signInAppleAPI(credential?.identityToken)
       analytics().logEvent('apple_sign_in_clicked').catch(e=>{})
+      appsFlyer.logEvent('apple_sign_in_clicked',{value:'apple_login_initiate'})
       // signed in
     } catch (e:any) {
       if (e?.code === "ERR_CANCELED") {

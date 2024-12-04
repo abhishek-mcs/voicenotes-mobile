@@ -9,6 +9,7 @@ import ControlledTooltip from "components/common/ControlledTooltip";
 import { screenWidth } from "utils/common";
 
 export default ({disable=false}) => {
+  return null
   return (
     <View style={styles.container}>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>

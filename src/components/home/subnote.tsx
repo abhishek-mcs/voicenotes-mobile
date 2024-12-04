@@ -8,10 +8,11 @@ interface Props {
     list: any[]
     onUploadRetry:()=>void
     expand:any
-    setExpand:(val:any)=>void
-    hashFilter:string
+    hashFilter:string,
+    syncUpNote:()=>void,
+    continueProcessing:(v:any)=>void
 }
-export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
+export default ({list=[],onUploadRetry,expand,hashFilter='',syncUpNote,continueProcessing}:Props)=>{
     const [expandNote,setExpandNote]=useState(-1)
     const [isPlay,setIsPlay]=useState(-1)
     const [audioLoading,setAudioLoading]=useState(-1)
@@ -21,11 +22,11 @@ export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
 
     const onExpand=(index:number)=>{
         setExpandNote(index==expandNote?-1:index)
-        expand!=-1&&setExpand(-1)
+        // expand!=-1&&setExpand(-1)
     }
 
     useEffect(()=>{
-        expand!=-1&&expandNote!=-1&&setExpandNote(-1)
+        // expand!=-1&&expandNote!=-1&&setExpandNote(-1)
     },[expand])
 
     return (
@@ -50,6 +51,8 @@ export default ({list=[],onUploadRetry,expand,setExpand,hashFilter=''}:Props)=>{
                 isSubnote={true}
                 setExpand={()=>onExpand(index)}
                 hashFilter={hashFilter}
+                syncUpNote={syncUpNote}
+                continueProcessing={continueProcessing}
                 />
         )}
       />

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState,useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
 import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import NoteRecorder from "components/common/recording/note-recorder";
@@ -12,8 +12,8 @@ import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 
 interface Props {
-  onRecord: () => void;
-  onStopRecord: (d: number, r?: boolean) => void;
+  onRecord: (v:any) => void;
+  onStopRecord: (d: number, r?: boolean) => Promise<void>;
   onAsk: () => void;
   onCreate: () => void;
   recEnabled: boolean;
@@ -24,6 +24,7 @@ interface Props {
   rec: any;
   recordingParentNoteName: string | null;
   setRecordingParentId: Dispatch<SetStateAction<string | null>>;
+  parentId?: string | null;
 }
 
 export default ({
@@ -37,6 +38,7 @@ export default ({
   onCancel,
   setShowAskMe,
   showAskMe,
+  parentId,
   onPause=(v:any)=>{},rec=null
 }: Props) => {
   const [duration, setDuration] = useState(0);
@@ -46,10 +48,15 @@ export default ({
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
+  const { isTempIAPPurchased }: any = useSelector(
+    (state: RootState) => state.IAPStates
+  );
+  const isBeliever = userDetails?.subscription_status||isTempIAPPurchased
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
-  
-  useEffect(() => {
+  const [temporaryRecordingId, setTemporaryRecordingId] = useState<string | null>(null);
+
+useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
     if (recEnabled&&!paused) {
       timerId.current = setInterval(() => {
@@ -57,20 +64,19 @@ export default ({
           const newDuration = prevDuration + 1000;
           if (
             newDuration >= 60000 &&
-            (!token || !userDetails?.subscription_status)
+            (!token || !isBeliever)
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 1200000 && !!token) {
+          } else if (newDuration >= 1800000 && !!token) {
             onStopRecord(newDuration, true);
             return 0;
           }
           return newDuration;
         });
       }, 1000);
-
     }
-  }, [recEnabled, token, userDetails?.subscription_status,paused,onStopRecord]);
+  }, [recEnabled, token, userDetails?.subscription_status, paused, onStopRecord, temporaryRecordingId, recordingParentNoteName]);
 
   const onPauseClick = () => {
     onPause(!paused);
@@ -93,9 +99,16 @@ export default ({
     timerId.current&&clearInterval(timerId.current);
     setIsCanceling(false);
   }
+
+  const onRecordStart = () => {
+    const newTemporaryRecordingId = Math.random().toString(36).substring(7);
+    setTemporaryRecordingId(newTemporaryRecordingId);
+    onRecord(newTemporaryRecordingId);
+  };
+
   return (
     <View style={styles.container}>
-      {recordingParentNoteName&&!isCanceling&& (
+      {(recordingParentNoteName || parentId)&&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
@@ -106,7 +119,7 @@ export default ({
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                Adding to Note "{recordingParentNoteName}"
+                {recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable
@@ -124,11 +137,11 @@ export default ({
           </View>
         </View>
       )}
-      <View style={styles.tab}>
+      <View style={[styles.tab,isCanceling?styles.alert:{}]}>
         {!recEnabled ? (
           <>
             <RecButton
-              onPress={onRecord}
+              onPress={onRecordStart}
               title="Record"
               icon={home.record}
               underlayColor={Colors.blackWithOpacity(0.7)}
@@ -138,9 +151,9 @@ export default ({
             />
             <RecButton
               onPress={onAsk}
-              title={isSmallScreen ? "Ask AI" : "Ask my AI"}
+              title={"Ask AI"}
               icon={home.ask}
-              style={{...styles.button, marginHorizontal: 8}}
+              style={{...styles.button}}
             />
             <RecButton
               onPress={onCreate}
@@ -151,7 +164,7 @@ export default ({
           </>
         ) : (
 <NoteRecorder
-        totalDuration={(!!token&&userDetails?.subscription_status)?'':'/01:00'}
+        totalDuration={(!!token&&isBeliever)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
         onStopRecord={onDoneClick}
@@ -200,6 +213,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 16,
+    zIndex:10000
   },
   parentNoteIndicator: {
     flexDirection: "row",
@@ -229,16 +243,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
     borderRadius: 24,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",
-    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
-    shadowOpacity: 0.9,
+    justifyContent:'space-between',
+    shadowColor:"#000000",
+    shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    elevation: 3,
-    paddingHorizontal: "3%",
+    elevation: 4,
+    paddingHorizontal: "2%",
     paddingVertical: "2%",
+    // height:74,
+    gap:8
+  },
+  alert:{
+    height:'auto',
+    borderRadius:16
   },
   button: {
     flex: 1,

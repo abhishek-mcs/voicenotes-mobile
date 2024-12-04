@@ -25,6 +25,9 @@ import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
 import GoogleAuthButton from "components/auth/google-auth-button";
 import { analytics } from "../../../../firebaseConfig";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { setRecordingList } from "redux/reducers/recordingStates";
+import appsFlyer from "react-native-appsflyer";
 
 export default () => {
   const router = useRouter();
@@ -41,6 +44,7 @@ export default () => {
 
   const signInMutation: any = useLogin();
   const queryClient = useQueryClient();
+  const netInfo=useNetInfo()
 
   const inputRef = useRef<TextInput>(null);
 
@@ -66,7 +70,8 @@ export default () => {
           const token = response.data?.authorisation?.token;
           const userData = response.data?.user
           if (token) {
-            setAuthToken(token,false);
+            dispatch(setRecordingList([]))
+            setAuthToken(response.data?.authorisation?.token,false,netInfo);
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')
@@ -74,6 +79,7 @@ export default () => {
             router.dismissAll();
             router.replace("/home/");
             analytics().logEvent('sign_in_success').catch(()=>{})
+            appsFlyer.logEvent('af_login',{value:'af_success'})
           }
         },
         onError: (error: any) => {

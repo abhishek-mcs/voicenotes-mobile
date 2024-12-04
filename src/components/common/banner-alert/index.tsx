@@ -98,7 +98,7 @@ export default forwardRef(({ message, actionText, onAction, snackHeight = 50,cou
 const styles = StyleSheet.create({
   snackbarContainer: {
     backgroundColor:'#D6A2431A',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     borderRadius: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
