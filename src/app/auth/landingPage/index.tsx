@@ -20,7 +20,6 @@ import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import appsFlyer from "react-native-appsflyer"
-import useFBEventTracking from "hooks/fbsdk/useFBEventTracking"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -32,8 +31,6 @@ export default () => {
   const netInfo=useNetInfo()
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
-
-  useFBEventTracking()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
