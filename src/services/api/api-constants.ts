@@ -1,12 +1,11 @@
 import * as Application from "expo-application"
 
+const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 50; // number of audio notes to be cached in device at any given time
+
 enum Environment {
   local = "local",
-  rose = "rose",
-  rose2 = "rose2",
+  dev = "dev",
   stage = "stage",
-  xd3 = "xd3",
-  stagev2 = "stagev2",
   production = "production",
 }
 
@@ -19,11 +18,8 @@ interface URLSETProps {
 
 interface ENVURLs {
   local: URLSETProps
-  rose: URLSETProps
-  rose2: URLSETProps
-  xd3: URLSETProps
+  dev: URLSETProps
   stage: URLSETProps,
-  stagev2 : URLSETProps,
   production: URLSETProps
 }
 
@@ -36,29 +32,11 @@ const ENVURLSet: ENVURLs = {
     SHORT_URL: "bmc.test",
     CDN_URL: "https://bmc-dev.s3.amazonaws.com",
   },
-  rose: {
-    MAIN_URL: "https://dev-v2.buymeacoffee.com",
-    API_URL: "https://xd2.buymeacoffee.com",
-    SHORT_URL: "dev-v2.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
-  },
-  rose2: {
-    MAIN_URL: "https://stage.buymeacoffee.com",
-    API_URL: "https://stage1.buymeacoffee.com",
-    SHORT_URL: "stage.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
-  },
-  xd3: {
-    MAIN_URL: "https://dev-v3.buymeacoffee.com",
-    API_URL: "https://xd3.buymeacoffee.com",
-    SHORT_URL: "dev-v3.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
-  },
-  stagev2: {
-    MAIN_URL: "https://stage-v2.buymeacoffee.com",
-    API_URL: "https://rd4.buymeacoffee.com",
-    SHORT_URL: "stage-v2.buymeacoffee.com",
-    CDN_URL: "https://bmc-dev.s3.amazonaws.com",
+  dev: {
+    MAIN_URL: "https://devview.voicenotes.com",
+    API_URL: "https://devapi.voicenotes.com",
+    SHORT_URL: "devview.voicenotes.com",
+    CDN_URL: "https://cdn.voicenotes.com",
   },
   stage: {
     MAIN_URL: "https://stageview.voicenotes.com",
@@ -85,14 +63,12 @@ const currentENV = Environment.production;
 const ota=".0"
 const currentVersion = Application.nativeApplicationVersion+ota
 
+
 const MAIN_URL = ENVURLSet[currentENV].MAIN_URL
 const API_URL = ENVURLSet[currentENV].API_URL
 const SHORTURL = ENVURLSet[currentENV].SHORT_URL
 const CDN_URL = ENVURLSet[currentENV].CDN_URL
 
-const TWITTER_REQUEST_URL = API_URL + "/api/v1/twitter/request_token"
-const TWITTER_AUTH_URL = "https://api.twitter.com/oauth/authenticate"
-const ELASTIC_SEARCH_URL = "https://elastic.buymeacoffee.com/api/as/v1/engines/coffee/search.json"
 
 const iosGoogleClientID =
   "364915655162-rv9t4rijv08090u74g8qor6lfnolg9lr.apps.googleusercontent.com"
@@ -107,13 +83,11 @@ export {
   API_URL,
   SHORTURL,
   CDN_URL,
-  TWITTER_AUTH_URL,
-  TWITTER_REQUEST_URL,
-  ELASTIC_SEARCH_URL,
   iosGoogleClientID,
   androidGoogleClientID,
   expoClientID,
   facebookAPPID,
   currentENV,
-  currentVersion
+  currentVersion,
+  MAX_NOTES_STORAGE_LIMIT_IN_DEVICE
 }

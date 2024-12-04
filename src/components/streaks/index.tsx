@@ -1,119 +1,236 @@
-import { Animated, Easing, StyleSheet, Text, UIManager, View } from "react-native";
-import { forwardRef, useEffect, useState } from "react";
-import Colors from "assets/Colors";
-import { formatDate, getLastSixMonths } from "utils/format-date";
-import ControlledTooltip from "components/common/ControlledTooltip";
-import { isAndroid, isIOS } from "utils/common";
-import { Dimensions } from "react-native";
+import React, { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Animated,
+  Easing,
+  Pressable,
+} from 'react-native';
+import Colors from 'assets/Colors';
+import ReactNativeModal from "react-native-modal";
+import { formatDate } from "utils/format-date";
+import { isIOS } from 'utils/common';
 
-// Enable LayoutAnimation
-if (isAndroid) {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const RECT_SIZE = 11;
+const RECT_MARGIN = 2;
+
+interface Props {
+  data: any;
 }
 
-export default forwardRef(({data=null,visible}:Props, ref) => {
-  const [shadowOpacity, setShadowOpacity] = useState(new Animated.Value(0));
-  const [opacity, setOpacity] = useState(new Animated.Value(0));
-  const previousMonths = getLastSixMonths();
+export default forwardRef(({ data = null }: Props, ref) => {
+  const [shadowOpacity] = useState(new Animated.Value(0));
+  const [visible, setVisible] = useState(false);
+  const [tooltipData, setTooltipData] = useState({ visible: false, text: '', position: { x: 0, y: 0 } });
+  const [monthLabels, setMonthLabels] = useState<string[]>([]);
+
+  const weeks = useMemo(() => data?.weeks || [], [data]);
+
+  useEffect(() => {
+    if (weeks.length > 0) {
+      const startDate = new Date(weeks[0][0].date);
+      const endDate = new Date(weeks[weeks.length - 1][weeks[weeks.length - 1].length - 1].date);
+      setMonthLabels(getMonthLabels(startDate, endDate));
+    }
+  }, [weeks]);
+
+  const getMonthLabels = (start: Date, end: Date) => {
+    const labels = [];
+    const current = new Date(start);
+    while (current <= end) {
+      labels.push(current.toLocaleString('default', { month: 'short' }));
+      current.setMonth(current.getMonth() + 1);
+    }
+    return labels;
+  };
+
+  const containerWidth = weeks.length * (RECT_SIZE + RECT_MARGIN);
+  const scale = Math.min(1, SCREEN_WIDTH / containerWidth);
 
   useEffect(() => {
     Animated.timing(shadowOpacity, {
       toValue: visible ? 1 : 0,
-      duration: 350,
-      easing:Easing.ease,
-      useNativeDriver: false,
-    }).start();
-    Animated.timing(opacity, {
-      toValue: visible ? 1 : 0,
-      duration: 20,
-      easing:Easing.ease,
-      useNativeDriver: false,
+      duration: 1000,
+      easing: Easing.ease,
+      useNativeDriver: true,
     }).start();
   }, [visible]);
-  
-  return (
-      <Animated.View style={[styles.modal,{height:visible?'auto':0,transform:[{scaleY:visible?1:0}]},visible?{...styles.shadow,shadowOpacity,opacity}:{}]}>
-        {visible&&<><Text
-          style={{
-            fontSize: 14,
-            fontFamily: "Primary",
-            color: "#222",
-            marginBottom: 12,
-          }}
-        >
-          You rank {data?.rank} out of {data?.total_users} note-takers
-        </Text>
-        <View>
-          <View style={{ flexDirection: "row" }}>
-            {previousMonths?.map((itm: any, i: number) => (
-              <Text
-                key={i}
-                style={{
-                  fontSize: 10,
-                  color: Colors.grey,
-                  fontFamily: "Primary",
-                  marginRight: 29,
-                }}
-              >
-                {itm}
-              </Text>
-            ))}
-          </View>
 
-          <View style={{flexDirection:'row',marginTop:2}}>
-              {data?.weeks?.map((c: any, cIndex: number) => (
-                <View key={cIndex+Math?.random()} style={{marginRight:2}}>
-                  {c?.map((itm:any, rIndex:number) => (
-                    <ControlledTooltip
-                    key={rIndex}
-                    popover={<Text style={{fontFamily:'Primary',color:'#fff',fontSize:12}}>{formatDate(itm?.date)+' - '+itm?.recordings_count+' notes'}</Text>}
-                    width={150}
-                    backgroundColor={'#222'}>
-                      <View style={{backgroundColor:Colors.primaryWithOpacity(itm?.recordings_count==0?0.1:itm?.recordings_count==1?0.25:itm?.recordings_count==2?0.5:itm?.recordings_count==3?0.75:1),width:11,height:11,borderRadius:2,marginBottom:2}}/>
-                    </ControlledTooltip>
+  const onClose = () => {
+    setVisible(false);
+  };
+
+  useImperativeHandle(ref, () => ({
+    open() {
+      setVisible(true);
+    },
+    close() {
+      onClose();
+    },
+    toggle() {
+      hideTooltip();
+      setVisible(!visible);
+    },
+  }));
+
+  const getOpacity = (count: number) => {
+    if (count === 0) return Colors.green4WithOpacity(0.1);
+    if (count === 1) return Colors.green4WithOpacity(0.25);
+    if (count === 2) return Colors.green4WithOpacity(0.5);
+    if (count === 3) return Colors.green4WithOpacity(0.75);
+    return Colors.green4WithOpacity(1);
+  };
+
+  const showTooltip = (item: any, event: any) => {
+    const { pageX, pageY } = event.nativeEvent;
+    let x = pageX - 75;
+    let y = pageY - 160;
+    const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+    if (x < 0) x = 0;
+    if (x + 150 > screenWidth) x = screenWidth - 180;
+    
+    setTooltipData({
+      visible: true,
+      text: `${formatDate(item.date)} - ${item.recordings_count} notes`,
+      position: { x, y }
+    });
+  };
+
+  const hideTooltip = () => {
+    tooltipData.visible && setTooltipData(prev => ({ ...prev, visible: false }));
+  };
+
+  return (
+    <ReactNativeModal
+      isVisible={visible}
+      animationIn={"slideInDown"}
+      animationOut={"slideOutUp"}
+      animationInTiming={100}
+      animationOutTiming={100}
+      hideModalContentWhileAnimating={true}
+      onBackdropPress={onClose}
+      style={styles.modal}
+      backdropOpacity={0}
+      avoidKeyboard
+      hasBackdrop={true}
+      coverScreen={false}
+    >
+      <View>
+        <View style={[styles.container, styles.shadow]}>
+          <Text style={styles.rankText}>
+            You rank {data?.rank} out of {data?.total_users} note-takers
+          </Text>
+          <View style={styles.streaksWrapper}>
+            <View style={[styles.monthLabelsContainer, { transform: [{ scale }] }]}>
+              {monthLabels.map((month, index) => (
+                <Text key={index} style={styles.monthLabel}>
+                  {month}
+                </Text>
+              ))}
+            </View>
+            <View style={[styles.streaksContainer, { transform: [{ scale }] }]}>
+              {weeks.map((week: any[], weekIndex: React.Key | null | undefined) => (
+                <View key={weekIndex} style={styles.weekColumn}>
+                  {week.map((day: { recordings_count: number; }, dayIndex: React.Key | null | undefined) => (
+                    <Pressable
+                      key={dayIndex}
+                      style={[
+                        styles.dayRect,
+                        { backgroundColor: getOpacity(day.recordings_count) }
+                      ]}
+                      onPress={(e) => showTooltip(day, e)}
+                    />
                   ))}
                 </View>
               ))}
             </View>
-        </View></>}
-    </Animated.View>
+            {tooltipData.visible && (
+              <Animated.View style={[styles.tooltip, {
+                left: tooltipData.position.x,
+                top: tooltipData.position.y,
+                opacity: shadowOpacity
+              }]}>
+                <Text style={styles.tooltipText}>{tooltipData.text}</Text>
+              </Animated.View>
+            )}
+          </View>
+        </View>
+      </View>
+    </ReactNativeModal>
   );
 });
-const {width} = Dimensions.get("window");
+
 const styles = StyleSheet.create({
   modal: {
+    justifyContent: "flex-start",
+    position: 'relative',
+    marginTop: isIOS?45:80
+  },
+  container: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingVertical:20,
-    justifyContent:'center',
-    alignItems:'center',
-    width:'100%',
-    alignSelf:'center'
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    alignSelf: "center",
   },
-  shadow:{
-    shadowColor:isIOS?"#00000026":"#00000066",
-		shadowOpacity: 0.9,
-		shadowOffset: { width: 0, height:0 },
-		shadowRadius: 1.5,
-    zIndex:10,
-		elevation: 10,
-    marginBottom:16
+  shadow: {
+    shadowColor: "#000000",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 40,
+    elevation: 4,
   },
-  heading:{
-      fontSize:20,
-      fontFamily:"Primary-Medium",
-      marginBottom:8,
-      paddingHorizontal:0
+  rankText: {
+    fontSize: 14,
+    fontFamily: "Primary",
+    color: "#222",
+    marginBottom: 12,
+    textAlign: 'left',
+    width: '100%',
   },
-  suggestions:{height:'auto',paddingTop:16},
-  records:{},
-  note:{paddingHorizontal:0,paddingTop:16},
-  loader:{justifyContent:'flex-start',paddingTop:36,paddingLeft:28}
+  streaksWrapper: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  monthLabelsContainer: {
+    flexDirection: 'row',
+    marginBottom: 4,
+    paddingLeft: RECT_SIZE / 2,
+  },
+  monthLabel: {
+    fontSize: 10,
+    color: Colors.grey,
+    fontFamily: 'Primary',
+    width: 4 * (RECT_SIZE + RECT_MARGIN),
+    textAlign: 'center',
+  },
+  streaksContainer: {
+    flexDirection: 'row',
+  },
+  weekColumn: {
+    marginRight: RECT_MARGIN,
+  },
+  dayRect: {
+    width: RECT_SIZE,
+    height: RECT_SIZE,
+    borderRadius: 2,
+    marginBottom: RECT_MARGIN,
+  },
+  tooltip: {
+    position: 'absolute',
+    backgroundColor: '#222',
+    padding: 8,
+    borderRadius: 4,
+    minWidth: 130,
+    zIndex: 1000
+  },
+  tooltipText: {
+    fontFamily: 'Primary',
+    color: '#fff',
+    fontSize: 12,
+  },
 });
-
-interface Props{
-    data:any,
-    visible:boolean
-}

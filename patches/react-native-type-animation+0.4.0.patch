@@ -1,0 +1,48 @@
+diff --git a/node_modules/react-native-type-animation/src/TypeAnimation.tsx b/node_modules/react-native-type-animation/src/TypeAnimation.tsx
+index 760cab2..00036fc 100644
+--- a/node_modules/react-native-type-animation/src/TypeAnimation.tsx
++++ b/node_modules/react-native-type-animation/src/TypeAnimation.tsx
+@@ -170,6 +170,8 @@ type TypeAnimationProps = {
+    * The speed at which characters are typed (typing speed, in milliseconds). Default: 100
+    */
+   typeSpeed?: number;
++  numberOfLines?: number;
++  onComplete?:()=>void;
+ };
+ 
+ /**
+@@ -192,6 +194,8 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
+   onCharDeleted,
+   typeSpeed = 100,
+   deletionSpeed = 100,
++  numberOfLines=10000,
++  onComplete=()=>{}
+ }) => {
+   const [text, setText] = useState<string>(preRenderText);
+   let currentText = preRenderText;
+@@ -206,13 +210,15 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
+       let i = 0;
+       const textArray = splitter(textToType);
+       const interval = setInterval(() => {
+-        if (i >= textArray.length) {
++        if (i >= textArray.length||i>=40) {
+           clearInterval(interval);
++          onComplete()
+           resolve();
+         } else {
+           if (direction === 'front') {
+             setText((currText) => {
+               const character = textArray[i];
++              // const word = `${currText?currText+' ':''}${character}`;
+               const word = `${currText}${character}`;
+               if (character) {
+                 const data = {
+@@ -372,7 +378,7 @@ const TypeAnimation: React.FC<TypeAnimationProps> = ({
+   }, [cursor, blinkSpeed, style, cursorStyle]);
+ 
+   return (
+-    <Text style={{ ...style }}>
++    <Text style={{ ...style }} numberOfLines={numberOfLines}>
+       {direction === 'back' && cursorComponent}
+       {text}
+       {direction === 'front' && cursorComponent}

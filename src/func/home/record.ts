@@ -48,7 +48,7 @@ export const onRecord = async (
         const { recording: recordingObject, status } = await Audio.Recording.createAsync({
           ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
           isMeteringEnabled: true,
-        });
+        },()=>{},30);
         setRec(recordingObject);
         setRecEnabled(true);
       } else if (status.canAskAgain && status.status == "undetermined") {
@@ -65,9 +65,10 @@ export const onRecord = async (
                 playThroughEarpieceAndroid: true,
               });
 
-              const { recording: recordingObject, status } = await Audio.Recording.createAsync(
-                Audio.RecordingOptionsPresets.HIGH_QUALITY
-              );
+              const { recording: recordingObject, status } = await Audio.Recording.createAsync({
+                ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+                isMeteringEnabled: true,
+              },()=>{},10);
               setRec(recordingObject);
               setRecEnabled(true);
             } else if (!canAskAgain && status == "denied") {

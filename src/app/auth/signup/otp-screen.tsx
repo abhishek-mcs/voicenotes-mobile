@@ -15,6 +15,8 @@ import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
+import { setRecordingList } from "redux/reducers/recordingStates"
+import appsFlyer from "react-native-appsflyer"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -56,6 +58,7 @@ export default ()=>{
           const token = response.data?.authorisation?.token;
           const userData = response.data?.user
           if (token) {
+            dispatch(setRecordingList([]))
             dispatch(setToken(token));
             dispatch(setUserDetail(userData))
             setAuthToken(response.data?.authorisation?.token,false,netInfo);
@@ -63,6 +66,7 @@ export default ()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
               analytics().logEvent('sign_up_success').catch(()=>{})
+              appsFlyer.logEvent('signup_success',{value:'af_success'})
               router.replace({ pathname: `/auth/signup/premium`, params: { from:"signup",email } });
             // }})
           }

@@ -1,3 +1,19 @@
+import { format, isToday, isYesterday } from 'date-fns';
+
+export const formatDateAndTimeNew=(date: Date | number)=>{
+  const inputDate = new Date(date??Date.now());
+  
+  if (isToday(inputDate)) {
+    return `Today · ${format(inputDate, 'h:mm a')}`;
+  }
+  
+  if (isYesterday(inputDate)) {
+    return `Yesterday · ${format(inputDate, 'h:mm a')}`;
+  }
+
+  return format(inputDate, 'MMM d · h:mm a');
+}
+
 export const formatDate = (date = Date.now(),dateFirst=true,short=false) => {
   const dateToFormat = new Date(date);
   const day = dateToFormat.toLocaleDateString("en-US", { day: "2-digit" });

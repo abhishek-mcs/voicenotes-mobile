@@ -22,7 +22,7 @@ interface NoteButtonProps {
 
 export default ({hashFilter='',onPress=()=>{},icon=home.more,text='',disabled=false,style={},isLoading=false}:NoteButtonProps)=>{
     return (
-        <Touchable style={[styles.main,style]} onPress={onPress} activeOpacity={0.6}  disabled={disabled||isLoading}>
+        <Touchable style={[styles.main,style]} onPress={(e)=>{e?.stopPropagation();onPress()}} activeOpacity={0.6}  disabled={disabled||isLoading}>
             {!isLoading?
             <View style={styles.row}>
                 {icon&&<SvgXml xml={icon} />}
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     main:{
         height:34,justifyContent:'center',
         paddingHorizontal:9,
-        borderRadius:10,
+        borderRadius:8,
         backgroundColor:Colors.whiteWithOpacity(1),
         marginRight:6,
         shadowColor:isIOS?'rgba(0,0,0,1)':'rgba(0,0,0,1)',

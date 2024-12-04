@@ -38,6 +38,9 @@ elsif podfile_properties.key?('ios.flipper') then
 end
 
 target 'Voicenotes' do
+# @generated begin AppsFlyer Strict Mode - expo prebuild (DO NOT MODIFY) sync-b29372208dd0dbd1274e957795cd756926086c3a
+$RNAppsFlyerStrictMode=false
+# @generated end AppsFlyer Strict Mode
   use_expo_modules!
   config = use_native_modules!
 
@@ -66,6 +69,7 @@ target 'Voicenotes' do
       .each do |pod_name, target_installation_result|
       target_installation_result.resource_bundle_targets.each do |resource_bundle_target|
         resource_bundle_target.build_configurations.each do |config|
+          config.build_settings['$RNFirebaseAnalyticsWithoutAdIdSupport'] = 'true'
           config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
         end
       end

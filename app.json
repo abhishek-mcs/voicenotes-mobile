@@ -2,11 +2,15 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.40",
+    "version": "1.5.46",
+    "runtimeVersion": "1.5.46",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
     "userInterfaceStyle": "light",
+    "androidStatusBar": {
+      "barStyle": "dark-content"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -20,7 +24,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "114",
+      "buildNumber": "133",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -39,15 +43,15 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
-        "backgroundImage": "./src/assets/images/adaptive-bg.png"
+        "backgroundColor": "#ffffff"
       },
-      "softwareKeyboardLayoutMode": "pan",
+      "softwareKeyboardLayoutMode": "resize",
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 137,
+      "versionCode": 192,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -102,7 +106,11 @@
           "userTrackingPermission": "Voicenotes require event tracking to improve app performance and enhance your user experience."
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "react-native-appsflyer",
+        {}
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
@@ -114,13 +122,28 @@
         "root": "./src/app"
       },
       "eas": {
-        "projectId": "d98194af-4672-49f7-976e-4b8dce4a8054"
+        "projectId": "d98194af-4672-49f7-976e-4b8dce4a8054",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "app.voicenotes.watchkitapp",
+                  "targetName": "WatchApp Watch App",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.app.voicenotes.sharedcontainer",
+                      "group.watchOS.storage"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "owner": "buymeacoffee",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
     "updates": {
       "url": "https://u.expo.dev/d98194af-4672-49f7-976e-4b8dce4a8054"
     }

@@ -5,6 +5,7 @@
     <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
   </style>
   <style name="ResetEditText" parent="@android:style/Widget.EditText">
     <item name="android:padding">0dp</item>
@@ -13,5 +14,13 @@
   </style>
   <style name="Theme.App.SplashScreen" parent="AppTheme">
     <item name="android:windowBackground">@drawable/splashscreen</item>
+  </style>
+  <style name="Widget.VoiceNotesWidget.AppWidget.Container" parent="android:Widget">
+    <item name="android:id">@android:id/background</item>
+    <item name="android:background">?android:attr/colorBackground</item>
+  </style>
+  <style name="Widget.VoiceNotesWidget.AppWidget.InnerView" parent="android:Widget"/>
+  <style name="MyWidgetTheme" parent="Theme.Material3.DynamicColors.DayNight">
+    <item name="android:colorBackground">@color/container_color</item>
   </style>
 </resources>

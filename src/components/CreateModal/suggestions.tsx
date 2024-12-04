@@ -27,7 +27,10 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
           <View style={styles.row}>
               <Btns onPress={onPress} type="email" title="Email" icon={CreateModalSvg.email} selected={type=='email'}/>
               <Btns onPress={onPress} type="blog" title="Blog post" icon={CreateModalSvg.blog} selected={type=='blog'}/>
-              <Btns onPress={onPress} type="custom" title="+ Custom instructions" selected={type=='custom'} style={{width:'auto',paddingHorizontal:12}}/>
+          </View>
+          <View style={styles.row}>
+              <Btns onPress={onPress} type="tidy" title="Cleanup" icon={CreateModalSvg.cleanup} selected={type=='tidy'}/>
+              <Btns onPress={onPress} type="custom" title="+ Custom" selected={type=='custom'} />
           </View>
         {type=='custom'&&
         <TextField

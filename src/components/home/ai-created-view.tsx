@@ -1,32 +1,32 @@
 import Colors from "assets/Colors";
-import { commonSvg } from "assets/svg/commonSvg";
+import CircularLoader from "components/common/loaders/circular-loader";
 import Touchable from "components/common/Touchable";
 import { setStringAsync } from "expo-clipboard";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { useDeleteFormattedNote } from "queries/home";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableHighlight, View } from "react-native";
-import { SvgXml } from "react-native-svg";
 import { capitalizeFirstLetter } from "utils/common";
 import { formatDate } from "utils/format-date";
 
 export default ({content,date=undefined,type="Summary",id}:{content:any,date:any,type:string,id:any}) => {
     const [expand,setExpand]=useState(false)
     const [copied,setCopied]=useState(false)
+    const [working, setWorking]=useState(false)
     const dt=Date.now()
     const deleteNote=useDeleteFormattedNote(id)
 
     const onCopy=async()=>{
       setCopied(true)
       let txtCopy=''
-      if(type=="summary"||type=="tweet"||type=="custom")
-        txtCopy=content
+      if(type=="email")
+        txtCopy=`Subject: ${content.subject}\n\n${content.body}`
       else if(type=="points"||type=="todo")
         txtCopy=content.join('\n')
       else if(type=="blog")
         txtCopy=content.join('\n')
       else
-        txtCopy=`Subject: ${content.subject}\n\n${content.body}`
+        txtCopy=content
       await setStringAsync(txtCopy||'');
       setTimeout(() => {
         setCopied(false)
@@ -36,7 +36,11 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const onDelete=()=>{
       Alert.alert('','Are you sure you want to delete this?',[
         {text:'Cancel',style:'cancel'},
-        {text:'Delete',onPress:async()=>await deleteNote.mutateAsync(id)}
+        {text:'Delete',onPress:async()=>{
+          setWorking(true)
+          await deleteNote.mutateAsync(id)
+          setWorking(false)
+        }}
       ])
     }
 
@@ -48,32 +52,34 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
         {/* <View style={{position:'absolute',right:0,top:0,padding:8,paddingHorizontal:12,zIndex:10}}>
             <SvgXml xml={commonSvg.smallArrow}  style={{transform:[{rotate:!expand?'180deg':'360deg'}]}}/>
         </View> */}
-      <View style={[row,btw]}>
-        <Text style={txt}>{`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
-      </View>
-      {(type=="summary"||type=="tweet"||type=="custom")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
-      :(type=="points"||type=="todo")?
-      <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>{(!!content&&content?.length>0)&&content.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}${content?.length-1==i?'':'\n'}`}</Text>)}</Text>
-      :type=="blog"?
-      <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>
-      {(!!content&&content?.length>0)&&content?.map((itm:string,i:number)=>
-          <Text key={i} style={titleStyle}>{itm}</Text>
-      )}</Text>
-      :<Text numberOfLines={expand?1000:1} style={{marginTop:6}}>
-        <Text style={[titleStyle,{fontFamily:'Primary-Medium'}]}>Subject: {content?.subject}</Text>
-        <Text style={titleStyle}>{'\n\n'}{content?.body}</Text>
-      </Text>}
-      {expand&&<View style={[row]}>
-      <Touchable style={btn} onPress={onCopy}>
-        <Text style={[btnTxt,copied?{color:'#222'}:{}]}>{copied?'Copied':'Copy'}</Text>
-      </Touchable>
-      <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete}>
-        <Text style={[btnTxt]}>Delete</Text>
-      </Touchable>
-      <Text style={[btnTxt,{flex:1,textAlign:'right'}]}>
-        {`${capitalizeFirstLetter(type)} ${type=='blog'?'post ':type=='todo'?'list ':''}created on ${formatDate(date||dt)}`}
-        </Text>
-      </View>}
+        {working?<CircularLoader/>:<>
+          <View style={[row,btw]}>
+            <Text style={txt}>{type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
+          </View>
+          {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
+          :(type=="points"||type=="todo")?
+          <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>{(!!content&&content?.length>0)&&content.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}${content?.length-1==i?'':'\n'}`}</Text>)}</Text>
+          :type=="blog"?
+          <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>
+          {(!!content&&content?.length>0)&&content?.map((itm:string,i:number)=>
+              <Text key={i} style={titleStyle}>{itm}</Text>
+          )}</Text>
+          :<Text numberOfLines={expand?1000:1} style={{marginTop:6}}>
+            <Text style={[titleStyle,{fontFamily:'Primary-Medium'}]}>Subject: {content?.subject}</Text>
+            <Text style={titleStyle}>{'\n\n'}{content?.body}</Text>
+          </Text>}
+          {expand&&<View style={[row]}>
+          <Touchable style={btn} onPress={onCopy}>
+            <Text style={[btnTxt,copied?{color:'#222'}:{}]}>{copied?'Copied':'Copy'}</Text>
+          </Touchable>
+          <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete}>
+            <Text style={[btnTxt]}>Delete</Text>
+          </Touchable>
+          <Text style={[btnTxt,{flex:1,textAlign:'right'}]}>
+            {`${capitalizeFirstLetter(type=="tidy"?'cleanup':type)} ${type=='blog'?'post ':type=='todo'?'list ':''}created on ${formatDate(date||dt)}`}
+            </Text>
+          </View>}
+        </>}
       </View>
     </Touchable>
   );

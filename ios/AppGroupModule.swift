@@ -7,6 +7,7 @@
 
 // AppGroupModule.swift
 import Foundation
+import React
 
 @objc(AppGroupModule)
 class AppGroupModule: NSObject {
@@ -19,5 +20,33 @@ class AppGroupModule: NSObject {
   
   @objc static func requiresMainQueueSetup() -> Bool {
     return false
+  }
+}
+
+@objc(ActionModule)
+class ActionModule: RCTEventEmitter {
+
+  override static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
+
+  override func supportedEvents() -> [String]! {
+    return ["onStartRecord", "askAI", "searchNote", "sendToken"]
+  }
+
+  @objc func startRecord() {
+    sendEvent(withName: "onStartRecord", body: nil)
+  }
+
+  @objc func askAI() {
+    sendEvent(withName: "askAI", body: nil)
+  }
+
+  @objc func searchNote() {
+    sendEvent(withName: "searchNote", body: nil)
+  }
+
+  @objc func sendToken() {
+    
   }
 }

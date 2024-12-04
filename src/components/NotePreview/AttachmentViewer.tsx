@@ -22,6 +22,8 @@ import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
+import { useQueryClient } from "react-query";
+import Colors from "assets/Colors";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -40,6 +42,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const linkAttachments = attachments.filter(
     (a:any) => a.type === ATTACHMENT_TYPE.LINK
   );
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
@@ -57,6 +60,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     try {
       await axiosApi.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
+      queryClient.invalidateQueries('single-recording')
+      onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
       Alert.alert("Error", "Failed to delete the attachment. Please try again.");
@@ -66,6 +71,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   }, [onAttachmentUpdate]);
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
+    console.log(attachmentId,type)
     Alert.alert(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
@@ -100,8 +106,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 
   const renderLinkItem = useCallback(
-    ({ item }:any) => (
-      <View style={styles.linkContainer} key={item.id?.toString()}>
+    ({ item,index }:any) => (
+      <View style={styles.linkContainer} key={item.id?.toString()+index}>
         <TouchableOpacity
           style={styles.linkContent}
           onPress={() => openLink(item.url)}
@@ -161,11 +167,11 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     // setSelectedImageIndex(slideIndex);
   }, []);
 
-  const onClose=()=>{setSelectedImageIndex(null)}
+  const onClose=() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      onClose();
+      setSelectedImageIndex(null);
     } else if (index === 0) {
     }
   }, []);
@@ -187,7 +193,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
 
       {linkAttachments.length > 0 && (
         <View style={styles.linkSection}>
-          {linkAttachments.map((item) => renderLinkItem({ item }))}
+          {linkAttachments.map((item,index) => renderLinkItem({ item,index }))}
         </View>
       )}
 
@@ -201,7 +207,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         snapPoints={[screenHeight]}
         onChange={handleSheetChanges}
         enablePanDownToClose
-        onClose={onClose}
+        onClose={()=>setSelectedImageIndex(null)}
       >
         <View style={styles.modalContainer}>
           <FlatList
@@ -222,20 +228,20 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           />
           <View style={styles.modalHeader}>
             <Text style={styles.imageCounter}>
-              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 0} / ${
+              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 1} / ${
                 imageAttachments.length
               }`}
             </Text>
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => selectedImageIndex&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
+                onPress={() => selectedImageIndex !== null&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
               >
                 <SvgXml xml={notePreviewSVG.delete}/>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}}
+                onPress={onClose}
               >
                 <SvgXml xml={notePreviewSVG.close}/>
               </TouchableOpacity>
@@ -270,11 +276,16 @@ const styles = StyleSheet.create({
   thumbnailContainer: {
     position: 'relative',
     marginRight: 2.5  ,
+    width: 100,
+    height: 100,
+    borderRadius: 2,
+    backgroundColor:Colors.darkWithOpacity(0.05)
   },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 2,
+    backgroundColor:Colors.darkWithOpacity(0.05)
   },
   blurOverlay: {
     position: 'absolute',

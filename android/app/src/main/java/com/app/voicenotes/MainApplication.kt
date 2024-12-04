@@ -30,6 +30,7 @@ class MainApplication : Application(), ReactApplication {
             // packages.add(new MyReactNativePackage());
               val packages = PackageList(this).packages
               packages.add(TokenBridgePackage())
+              packages.add(RecordBridgePackage())
             return packages
           }
 
