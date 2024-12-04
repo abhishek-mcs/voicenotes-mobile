@@ -96,7 +96,7 @@ const OtpScreen = () => {
   
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={{flex:1}}>
+      <KeyboardAvoidingView behavior="padding" style={{flex:1,paddingTop:isIOS?0:16}}>
       <View style={{justifyContent:'space-between',flexDirection:'row',alignItems:'center',marginTop:16}}>
         <Touchable style={{height:56,paddingHorizontal:16}} onPress={()=>{router.back()}}>
           <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>
@@ -115,10 +115,10 @@ const OtpScreen = () => {
         errorText={errorText}
         />
       </View>
-      <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.3 : 1,backgroundColor:Colors.primaryDark}]} disabled={otpText?.indexOf('-')!=-1} activeOpacity={1}>
+      <TouchableHighlight onPress={continueDeletion} style={[styles.continueBtn,{opacity:otpText?.indexOf('-')!=-1 ? 0.55 : 1,backgroundColor:Colors.primaryDark}]} disabled={otpText?.indexOf('-')!=-1} activeOpacity={1}>
         {(signup?.isLoading||moveRecords.isLoading)?
         <ActivityIndicator size={"small"} color={Colors.text12} />
-        :<Text style={[styles.continueBtnText,{color:Colors.text12,opacity:otpText?.indexOf('-')!=-1?0.3:1}]}>Sign Up</Text>}
+        :<Text style={[styles.continueBtnText,{color:Colors.text12,opacity:otpText?.indexOf('-')!=-1?1:1}]}>Sign Up</Text>}
       </TouchableHighlight>
       </View>
       </KeyboardAvoidingView>

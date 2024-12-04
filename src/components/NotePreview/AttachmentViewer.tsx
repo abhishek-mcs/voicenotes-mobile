@@ -20,10 +20,11 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import { screenHeight } from "utils/common";
+import { isAndroid, screenHeight } from "utils/common";
 import { useTheme } from "context";
 import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
+import { useDialog } from "context/DialogContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -35,6 +36,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
+  const {showDialog} = useDialog()
 
   const fullScreenListRef = useRef(null);
   const thumbnailListRef = useRef<FlatList>(null);
@@ -66,7 +68,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
-      Alert.alert("Error", "Failed to delete the attachment. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+      showDialog("Error", "Failed to delete the attachment. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     } finally {
       onAttachmentUpdate();
     }
@@ -74,7 +76,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
     console.log(attachmentId,type)
-    Alert.alert(
+    showDialog(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
       [
@@ -87,13 +89,13 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const renderImageThumbnail = useCallback(
     ({ item, index }:any) => (
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <View style={styles.thumbnailContainer}>
+        <View style={[styles.thumbnailContainer]}>
           <Image
+            key={item?.url}
             source={{ uri: item.url }}
             style={styles.thumbnail}
             contentFit="cover"
             transition={300}
-            placeholder={blurhash}
             cachePolicy="memory-disk"
           />
           {item.is_uploading && (
@@ -209,7 +211,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         handleComponent={null}
         backgroundComponent={(props: BottomSheetBackdropProps) => <View/>}
         index={selectedImageIndex !== null ? 0:-1}
-        snapPoints={[screenHeight]}
+        snapPoints={isAndroid?[screenHeight+40]:[screenHeight]}
         onChange={handleSheetChanges}
         enablePanDownToClose
         onClose={()=>setSelectedImageIndex(null)}
@@ -285,14 +287,15 @@ const useStyles = () => {
     marginRight: 2.5  ,
     width: 100,
     height: 100,
-    borderRadius: 2,
-    backgroundColor:Colors.darkWithOpacity(0.05)
+    borderRadius: 4,
+    backgroundColor:Colors.inputBg2,
+    overflow:'hidden'
   },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 2,
-    backgroundColor:Colors.darkWithOpacity(0.05)
+    backgroundColor:Colors.inputBg2
   },
   blurOverlay: {
     position: 'absolute',

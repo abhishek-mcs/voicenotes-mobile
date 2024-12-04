@@ -16,6 +16,7 @@ import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useQueryClient } from "react-query";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 
 
 interface ImageUploaderProps {
@@ -35,6 +36,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 }) => {
   const { Colors, isLightMode } = useTheme()
   const queryClient = useQueryClient();
+  const {showDialog} = useDialog()
   const validateAndConvertImage = useCallback(async (uri: string) => {
     const fileExtension:string = uri?.split(".").pop()?.toLowerCase()??'';
     if (["jpg", "jpeg", "png"].includes(fileExtension)) {
@@ -81,7 +83,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       
     } catch (error) {
       console.error("Upload error:", error);
-      Alert.alert(
+      showDialog(
         "Upload Error",
         "Failed to upload image. Please try again later."
       ,[],{userInterfaceStyle:isLightMode?"light":"dark"});
@@ -113,7 +115,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         }
       } catch (error) {
         console.log("Error in uploading image: " + error);
-        Alert.alert("Error", "Failed to upload image. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+        showDialog("Error", "Failed to upload image. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
       }
     }
   }, [validateAndConvertImage, uploadImage, onAttachmentUpdate, setAttachments]);
@@ -142,14 +144,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
 
     if (permission?.status !== "granted") {
-      Alert.alert("Permission Denied", `Permission to access ${type} was denied`,[],{userInterfaceStyle:isLightMode?"light":"dark"});
+      showDialog("Permission Denied", `Permission to access ${type} was denied`,[],{userInterfaceStyle:isLightMode?"light":"dark"});
       return;
     }
 
     const result = await launch();
     handleImageSelection(result);
   } catch (error) {
-    Alert.alert("", "Failed to access camera or library. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+    showDialog("", "Failed to access camera or library. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
   }
   }, [handleImageSelection]);
 

@@ -1,14 +1,15 @@
-import { Pressable, ScrollView, StyleSheet, useColorScheme, } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
 import * as Haptics from "expo-haptics";
 import { useTheme } from 'context';
 import { isIOS, screenHeight, screenWidth, sleep } from 'utils/common';
-import { Menu, MenuItem } from 'react-native-material-menu';
+import { Menu, MenuDivider, MenuItem } from 'react-native-material-menu';
 import { Text } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { settingsSvg } from 'assets/svg/settingsSvg';
 import { View } from 'react-native';
+import { Icon } from '@rneui/themed';
 
 export default forwardRef(({options=[],children,style={},isNative=false}:any,ref) => {
   const [visible, setVisible] = useState(false);
@@ -32,14 +33,24 @@ const hideMenu=()=>{
   setVisible(false)
 }
 const showSubMenu=async(v:any)=>{
-  hideMenu()
   setSubMenuOptions(v)
+  hideMenu()
   setTimeout(() => {
     setVisibleSubMenu(true)
-  }, 300);
+  }, 600);
 }
+
 const hideSubMenu=()=>{
+  setVisible(false)
   setVisibleSubMenu(false)
+  setSubMenuOptions([])
+}
+
+const isThemeMenu=(v:any)=>{
+  if(v=='Day'||v=='Night'||v=='Auto')
+    return true;
+  else
+    return false
 }
 
 const onPress=async()=>
@@ -54,13 +65,15 @@ const onPress=async()=>
           // style={{width:screenWidth/2.1}}
           onRequestClose={hideMenu}
           anchor={<Pressable onPress={showMenu}>{children}</Pressable>}
-          animationDuration={250}
-          style={{backgroundColor:Colors.bgColor6}}
+          // animationDuration={250}
+          style={{backgroundColor:Colors.bgColor6,borderRadius:8}}
         >
+          <ScrollView style={{maxHeight:screenHeight/2}} showsVerticalScrollIndicator={false}>
           {options.map((option:any, index:number) => (
             <MenuItem
               key={index}
-              pressColor={Colors.border}
+              pressColor={Colors.bgColor1}
+              style={{borderBottomWidth:(index<options?.length)?0.5:0,borderBottomColor:Colors.border}}
               onPress={async(e) => {
                 if (option.actions) {
                   showSubMenu(option?.actions)
@@ -71,12 +84,16 @@ const onPress=async()=>
                 }
               }}
             >
-              <View style={[{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},screenWidth<500?{width:screenWidth/2.4}:{}]}>
-                <Text style={[{fontFamily:'Primary',fontSize:14,color:Colors.blackWithOpacity(1)},option.title=="Delete"?{color:Colors.redWithOpacity(1)}:{}]}>{option.title}</Text>
-                {option.actions&&<SvgXml xml={settingsSvg.arrow} style={{}}/>}
+              <View style={[{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},screenWidth<500?{width:isThemeMenu(option?.title)?screenWidth/4:screenWidth/2.4}:{}]}>
+                <View style={{flexDirection:'row',alignItems:'center'}}>
+                  {option?.androidIcon&&<Icon name={option?.androidIcon} solid={false} type='material-community' color={option.title=="Delete"?Colors.redWithOpacity(1):Colors.text5} size={16} style={{marginRight:8}}/>}
+                  <Text style={[{fontFamily:'Primary',fontSize:14,color:Colors.blackWithOpacity(1)},option.title=="Delete"?{color:Colors.redWithOpacity(1)}:{}]}>{option.title}</Text>
+                </View>
+                {option.actions&&<Icon name='chevron-right' color={Colors.text5} size={16}/>}
               </View>
             </MenuItem>
           ))}
+          </ScrollView>
         </Menu>
         :<Menu
               visible={visibleSubMenu}
@@ -84,17 +101,23 @@ const onPress=async()=>
               anchor={<Pressable onPress={showSubMenu}>{children}</Pressable>}
               style={{backgroundColor:Colors.bgColor6}}
             >
-              {!!subMenuOptions&&subMenuOptions?.map((itm:any, i:number) => (
+              {subMenuOptions&&subMenuOptions?.map((itm:any, i:number) => (
                 <MenuItem
                   key={i}
                   pressColor={Colors.border}
+                  style={{borderBottomWidth:(i<options?.length)?0.5:0,borderBottomColor:Colors.border}}
                   onPress={async() => {
                       hideSubMenu()
                       await sleep(500)
                       itm.onPress && itm.onPress();
                   }}
                   textStyle={{color:Colors.text}}
-                >{itm.title}</MenuItem>
+                >
+                <View style={[{flexDirection:'row',alignItems:'center'},screenWidth<500?{minWidth:screenWidth/3.5}:{}]}>
+                    {itm?.androidIcon&&<Icon name={itm?.androidIcon} solid={false} type='material-community' color={itm.title=="Delete"?Colors.redWithOpacity(1):Colors.text5} size={16} style={{marginRight:8}}/>}
+                    <Text style={[{fontFamily:'Primary',fontSize:14,color:Colors.blackWithOpacity(1)},itm.title=="Delete"?{color:Colors.redWithOpacity(1)}:{}]}>{itm.title}</Text>
+                </View>
+                </MenuItem>
               ))}
           </Menu>}
         </>

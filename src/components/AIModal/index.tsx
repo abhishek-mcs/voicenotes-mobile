@@ -52,6 +52,9 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
 import { useTheme } from "context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useDialog } from "context/DialogContext";
+import TypingLoader from "components/common/loaders/typing/TypingLoader";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -107,6 +110,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const uploadRecord=useUploadChatRecord();
   const getAnswer=useVoiceChatResponse();
   const AIModalSVGIcons:any = AIModalSVG 
+  const {showDialog}:any = useDialog()
   
   const getNewSugg = () => {
     setSuggLoaded(false)
@@ -273,7 +277,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const onRecordStart = async() => {
     setIsRecording(true)
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-    onRecord(setRec, setRecEnabled,isLightMode);
+    onRecord(setRec, setRecEnabled,isLightMode,showDialog);
     activateKeepAwakeAsync()
   }
   const onCancelRecord = async() => {
@@ -339,18 +343,17 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:Colors.whiteWithOpacity(1)}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8}]}>
         <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
         <KeyboardAvoidingView
-          style={[{ flex: 1 ,paddingTop:isIOS?0:40}]}
+          style={[{ flex: 1}]}
           behavior={"padding"}
           keyboardVerticalOffset={isIOS ? 64 :0} // Adjust based on header height
         >        
           {!chatLoader ? (
-            <ScrollView
+            <KeyboardAwareScrollView bottomOffset={62}
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
-              // style={{height:screenHeight}}
               automaticallyAdjustKeyboardInsets
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
@@ -431,14 +434,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     )
                   : null
               }
-            </ScrollView>
+            </KeyboardAwareScrollView>
           ) : (
             <View
               style={{
                 flex: 1,
                 justifyContent: "center",
-                alignItems: "center",
-                marginTop:isIOS?0:screenHeight/2.5
+                alignItems: "center"
               }}
             >
               <CircularLoader width={25} height={25} strokeWidth={3} />
@@ -570,15 +572,12 @@ else{
 return (
   <View style={[styles.convoContentContainer,{alignSelf:isAI?'flex-start':'flex-end'}]}>
     <View style={[styles.aiChat,isAI?styles.aiChatStyle:styles.userChatStyle,(text=="Typing"||text=='Searching')?{paddingVertical:8}:{}]}>
+      <View style={{flexDirection:'row'}}>
       <Text style={[styles.text,{position:"relative"}]}>
         {text}
-        {(text=="Typing"||text=='Searching')&&<View><LottieView source={typing} speed={0.8} autoPlay loop style={styles.lottie} colorFilters={[
-        { keypath: 'Shape Layer 1', color: Colors.text }, // Update the layer keypath and color
-        { keypath: 'Shape Layer 2', color: Colors.text },
-        { keypath: 'Shape Layer 3', color: Colors.text },
-        { keypath: 'Shape Layer 4', color: Colors.text },
-      ]} /></View>}
       </Text>
+      {(text=='Typing'||text=='Searching')&&<TypingLoader/>}
+      </View>
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
 
    {!isAI? <View style={{position:'absolute',bottom:-8,right:-8}}>
@@ -764,7 +763,7 @@ const useStyles = () => {
     backgroundColor:Colors.bgColor7
   },
   header2: { marginBottom: 0, borderBottomWidth: 0 },
-  lottie: { width:40,height:20,marginBottom:-6,marginLeft:-14},
+  lottie: { width:60,height:60,backgroundColor:'red',marginBottom:-200},
   drawer: {
     shadowColor:Colors.blackWithOpacity(0.15),
     shadowOpacity: 0.9,

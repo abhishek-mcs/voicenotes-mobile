@@ -43,10 +43,11 @@ export default ({
 }: Props) => {
   const [duration, setDuration] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [closeAlert, setCloseAlert] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
   const homeIcons:any=home
-  const { token, userDetails }: any = useSelector(
+  const { token, userDetails, canRecord }: any = useSelector(
     (state: RootState) => state.userDetails
   );
   const { isTempIAPPurchased }: any = useSelector(
@@ -106,14 +107,21 @@ useEffect(() => {
   }
 
   const onRecordStart = () => {
+    !canRecord&&setCloseAlert(false)
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
     onRecord(newTemporaryRecordingId);
   };
 
+  const onCloseAlert = () => {
+    canRecord?
+    setRecordingParentId(null)
+    :setCloseAlert(true)
+  }
+
   return (
     <View style={styles.container}>
-      {(recordingParentNoteName || parentId)&&!isCanceling&& (
+      {((!canRecord&&!closeAlert)||recordingParentNoteName || parentId)&&!isCanceling&& (
         <View style={[styles.addingContainer]}>
           <View
             style={{
@@ -124,11 +132,11 @@ useEffect(() => {
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                {recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
+                {!canRecord?"Your daily recording limit has been exceeded. Please try again later.":recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable
-              onPress={() => setRecordingParentId(null)}
+              onPress={onCloseAlert}
               style={{
                 width: 20,
                 height: 20,
@@ -202,13 +210,13 @@ const useStyles = () => {
     position: "absolute",
     left: 20,
     right: 20,
-    bottom: 85,
-    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
+    bottom: 90,
+    shadowColor: isIOS ?Colors.bgColor10(0.15) : Colors.bgColor10(0.7),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
     zIndex: 10,
-    elevation: 3,
+    elevation: 4,
     paddingHorizontal: 20,
     paddingVertical: 16,
     justifyContent: "center",
@@ -260,7 +268,7 @@ const useStyles = () => {
     marginBottom: 20,
     alignItems: "center",
     justifyContent:'space-between',
-    shadowColor:isIOS?Colors.blackWithOpacity(1):Colors.blackWithOpacity(0.2),
+    shadowColor:Colors.bgColor10(1),
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,

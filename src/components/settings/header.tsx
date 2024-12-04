@@ -25,7 +25,7 @@ const Header: React.FC<Props> = (props) => {
                 <View style={styles.action} >
                     <RecButton
                         title={props.cancelLabel || "Cancel"}
-                        underlayColor={Colors.bottomBarButtonBg1}
+                        underlayColor={Colors.grey10}
                         style={{ width: 'auto',alignSelf:'flex-start', paddingHorizontal: 16,height:40}}
                         onPress={props.onCancel}
                         bgColor={Colors.bottomBarButtonBg1}
@@ -35,7 +35,7 @@ const Header: React.FC<Props> = (props) => {
                 <View style={[styles.action, { alignItems: 'flex-end', justifyContent: props.working ? 'center' : 'flex-end', paddingHorizontal: props.working ? 20 : 10 }]} >
                     {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
                         title={props.submitLabel || "Save"}
-                        underlayColor={Colors.bottomBarButtonBg}
+                        underlayColor={Colors.bgColor12}
                         bgColor={Colors.settingsBtnBg}
                         color={Colors.settingsBtnText}
                         style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
