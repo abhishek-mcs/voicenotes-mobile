@@ -994,12 +994,12 @@ const NotePreview = forwardRef(
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
                 <View style={{flexDirection:'row',alignItems:'center'}}>
-                <Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                {note?.recording_type!=3&&<Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                   {audioLoading==index?
                   <CircularLoader strokeWidth={3} width={15} height={15} color={Colors.black2}/>
                   :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
-                </Touchable>
+                </Touchable>}
                 {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
                   <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
                     <SvgXml xml={home.subnote?.replace('#1C1B1F',Colors.askClose)}/>
