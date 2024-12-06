@@ -951,6 +951,8 @@ const NotePreview = forwardRef(
                       ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
                       ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
                       ?.replaceAll(/<br\/?>/g, "\n\n")
+                      ?.replace(/&amp;/g, '&')
+                      ?.replace(/&nbsp;/g, '&')
                       ?.trimEnd()}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0

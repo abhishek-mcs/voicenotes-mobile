@@ -160,6 +160,7 @@ const EditNote = () => {
           selectTextOnFocus={false}
           value={editNote?.title}
           placeholder="Title"
+          multiline
           placeholderTextColor={Colors.grey6}
           onChangeText={(txt) =>
             setEditNote((n: any) => {
@@ -188,7 +189,9 @@ const EditNote = () => {
             value={editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
               ?.replaceAll(/<\/b\/?>/g, '')
-              ?.replaceAll(/<br\/?>/g, "\n")}
+              ?.replaceAll(/<br\/?>/g, "\n")
+              ?.replace(/&amp;/g, '&')
+              ?.replace(/&nbsp;/g, '&')}
             onChangeText={(txt) =>
               setEditNote((n: any) => {
                 return { ...n, transcript: txt };
@@ -218,6 +221,7 @@ const useStyles = () => {
     fontWeight: "500",
     color: Colors.text5,
     marginBottom: 6,
+    flexWrap:'wrap'
   },
   textInput: {
     paddingHorizontal: 12,
