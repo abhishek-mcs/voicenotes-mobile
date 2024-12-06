@@ -177,7 +177,9 @@ const EditNote = () => {
             value={editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
               ?.replaceAll(/<\/b\/?>/g, '')
-              ?.replaceAll(/<br\/?>/g, "\n")}
+              ?.replaceAll(/<br\/?>/g, "\n")
+              ?.replace(/&amp;/g, '&')
+              ?.replace(/&nbsp;/g, '&')}
             onChangeText={(txt) =>
               setEditNote((n: any) => {
                 return { ...n, transcript: txt };
