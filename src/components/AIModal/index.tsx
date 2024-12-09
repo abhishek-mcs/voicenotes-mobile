@@ -678,7 +678,7 @@ const useStyles = () => {
     // marginRight: 8,x
     fontSize: 16,
     fontFamily: "Primary",
-    color: Colors.text1,
+    color: Colors.text5,
     textAlignVertical: "top",
     flexWrap: "wrap",
     width: "80%",
