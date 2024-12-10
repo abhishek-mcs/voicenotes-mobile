@@ -45,6 +45,7 @@
     "expo-device": "~5.9.4",
     "expo-file-system": "~16.0.9",
     "expo-font": "~11.10.3",
+    "expo-gl": "~13.6.0",
     "expo-haptics": "^12.8.1",
     "expo-image": "~1.10.6",
     "expo-image-manipulator": "~11.8.0",

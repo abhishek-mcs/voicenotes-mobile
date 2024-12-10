@@ -111,6 +111,9 @@ PODS:
     - ExpoModulesCore
   - ExpoFileSystem (16.0.9):
     - ExpoModulesCore
+  - ExpoGL (13.6.0):
+    - ExpoModulesCore
+    - ReactCommon/turbomodule/core
   - ExpoHaptics (12.8.1):
     - ExpoModulesCore
   - ExpoHead (3.4.10):
@@ -1485,6 +1488,7 @@ DEPENDENCIES:
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoDevice (from `../node_modules/expo-device/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
+  - ExpoGL (from `../node_modules/expo-gl`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
@@ -1662,6 +1666,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-device/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
+  ExpoGL:
+    :path: "../node_modules/expo-gl"
   ExpoHaptics:
     :path: "../node_modules/expo-haptics/ios"
   ExpoHead:
@@ -1861,6 +1867,7 @@ SPEC CHECKSUMS:
   ExpoCrypto: b6428f48599c007676dc81a9b5f72c07e62fdccc
   ExpoDevice: 97307196d8cab694e245752b8a7afacc35c14e03
   ExpoFileSystem: 74cc0fae916f9f044248433971dcfc8c3befd057
+  ExpoGL: 085542f97b13f2428ac2edb077c9a90f4566944d
   ExpoHaptics: 28a771b630353cd6e8dcf1b1e3e693e38ad7c3c3
   ExpoHead: 89ffd324e60520751c2c285233fe45e875c91874
   ExpoImage: 8cf2d51de3d03b7e984e9b0ba8f19c0c22057001
