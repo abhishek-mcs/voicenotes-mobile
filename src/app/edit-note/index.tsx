@@ -155,6 +155,7 @@ const EditNote = () => {
               return { ...n, title: txt };
             })
           }
+          multiline
           onSubmitEditing={handleTitleSubmit}
           returnKeyType="next"
         />
@@ -203,7 +204,7 @@ const useStyles = () => {
   row: { flexDirection: "row", alignItems: "center" },
   titleInput: {
     paddingHorizontal: 12,
-    fontFamily: "Primary-Medium",
+    fontFamily: "Primary-Bold",
     fontSize: 16,
     lineHeight: 28,
     fontWeight: "500",
