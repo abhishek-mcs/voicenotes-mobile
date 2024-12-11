@@ -357,6 +357,15 @@ export function useGetAskChat(){
         })
 }
 
+export function useFetchMeetingAskChats(){
+    return useMutation('fetch-meeting-ask-chats',(recording_id?:any) => axiosApi.post(`ai-chat-thread/recording/ask`,{recording_id}),  
+        {
+            onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'fetch-meeting-ask-chats');
+        }
+        })
+}
+
 export function useDeleteAskHistory(){
     return useMutation('get-chat',(data?:any) => axiosApi.delete(`/ai-chat-thread/${data?.id}`),  
         {

@@ -6,6 +6,7 @@ import {
   Animated,
   LayoutAnimation,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -684,7 +685,11 @@ const NotePreview = forwardRef(
       closeAddMenu();
     }
 
-    const options = [
+    const onTranscriptOpen = () =>{
+      router?.push({pathname:'/transcript/',params:{transcript:note?.transcript,recording_id:note?.recording_id}})
+    }
+
+    const moreOptions = [
       {
         title:"Copy note",
         systemIcon:'doc.text',
@@ -720,54 +725,18 @@ const NotePreview = forwardRef(
         androidIcon:'pound',
         onPress:onGotoAddTag
       },
-      {
-        title:"Share",
-        systemIcon:'square.and.arrow.up',
-        androidIcon:'share-outline',
-        onPress:onShareNote
-      },
-      {
-        title:"Create",
-        systemIcon:'pencil.and.outline',
-        androidIcon:'circle-edit-outline',
-        actions:[
-          {
-            title:"Summary",
-            androidIcon:'bullseye-arrow',
-            onPress:()=>onCreate("summary")
-          },
-          {
-            title:"Main points",
-            androidIcon:'format-list-bulleted',
-            onPress:()=> onCreate("points")
-          },
-          {
-            title:"To-do list",
-            androidIcon:'checkbox-outline',
-            onPress:()=> onCreate("todo")
-          },
-          {
-            title:"Blog post",
-            androidIcon:'fountain-pen',
-            onPress:()=>onCreate("blog")
-          },
-          {
-            title:"Tweet",
-            androidIcon:'bullhorn-variant-outline',
-            onPress:()=>onCreate("tweet")
-          },
-          {
-            title:"Email",
-            androidIcon:'email-outline',
-            onPress:()=>onCreate("email")
-          },
-          {
-            title:"Cleanup",
-            androidIcon:'broom',
-            onPress:()=>onCreate("tidy")
-          }
-        ],
-      },
+      // {
+      //   title:"Share",
+      //   systemIcon:'square.and.arrow.up',
+      //   androidIcon:'share-outline',
+      //   onPress:onShareNote
+      // },
+      // {
+      //   title:"Create",
+      //   systemIcon:'pencil.and.outline',
+      //   androidIcon:'circle-edit-outline',
+      //   actions:,
+      // },
       {
         title:"Regenerate",
         systemIcon:'arrow.clockwise',
@@ -808,24 +777,53 @@ const NotePreview = forwardRef(
         onPress:()=>onDelete()
       }
     ]
-    // :[
-    //   {
-    //     title:"Retry",
-    //     systemIcon:'arrow.clockwise',
-    //     onPress:async()=>await syncUpNote(note).catch(()=>{})
-    //   },
-    //   {
-    //     title:"Download",
-    //     systemIcon:'arrow.down.circle',
-    //     onPress:()=>onCopy(note?.transcript ?? "")
-    //   },
-    //   {
-    //     title:"Delete",
-    //     destructive:true,
-    //     systemIcon:'trash',
-    //     onPress:()=>onDelete(true)
-    //   }
-    // ]
+
+    const shareOptions = [
+      {
+        title:"Copy note",
+        systemIcon:'doc.text',
+        androidIcon:'content-copy',
+        onPress:()=>onCopy(note?.transcript ?? "")
+      },
+    ]
+
+    const createOptions = [
+      {
+        title:"Summary",
+        // androidIcon:'bullseye-arrow',
+        onPress:()=>onCreate("summary")
+      },
+      {
+        title:"Main points",
+        // androidIcon:'format-list-bulleted',
+        onPress:()=> onCreate("points")
+      },
+      {
+        title:"To-do list",
+        // androidIcon:'checkbox-outline',
+        onPress:()=> onCreate("todo")
+      },
+      {
+        title:"Blog post",
+        // androidIcon:'fountain-pen',
+        onPress:()=>onCreate("blog")
+      },
+      {
+        title:"Tweet",
+        // androidIcon:'bullhorn-variant-outline',
+        onPress:()=>onCreate("tweet")
+      },
+      {
+        title:"Email",
+        // androidIcon:'email-outline',
+        onPress:()=>onCreate("email")
+      },
+      {
+        title:"Cleanup",
+        // androidIcon:'broom',
+        onPress:()=>onCreate("tidy")
+      }
+    ]
 
     const refreshNoteAfterAttachmentChange = async () => {
       await queryClient.invalidateQueries("all-recording");
@@ -965,10 +963,13 @@ const NotePreview = forwardRef(
                   <ChatBubble
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
-                    message={note?.transcript
+                    message={(
+                      note?.recording_type==2?
+                      note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')??''
+                      :note?.transcript
+                      ?.replaceAll(/\n/g, ''))
                       ?.replaceAll(/<b\/?>/g, '')
                       ?.replaceAll(/<\/b\/?>/g, '')
-                      ?.replaceAll(/\n/g, '')
                       ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
                       ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
                       ?.replaceAll(/<br\/?>/g, "\n\n")
@@ -1014,11 +1015,27 @@ const NotePreview = forwardRef(
                 } */}
                 </View>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
-                  <MoreOptions options={options} style={{height:30,width:30,position:'relative'}}>
+                <View style={[styles.row,{gap:8}]}>
+                  {note?.recording_type==2&&
+                  <Pressable onPress={onTranscriptOpen} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                      <SvgXml xml={home.transcript?.replace('#0D0D0D',Colors.more)}/>
+                  </Pressable>}
+                  <MoreOptions options={createOptions} style={{height:31,width:31,position:'relative'}}>
+                    <View style={{height:31,width:31,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                      <SvgXml xml={home.create1?.replace('#0D0D0D',Colors.more)}/>
+                    </View>
+                  </MoreOptions>
+                  {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
+                    <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                      <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
+                    </Pressable>
+                  {/* </MoreOptions> */}
+                  <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
-                    <SvgXml xml={home.moreNew?.replace('#3C3C43',Colors.more)}/>
-                  </View>
-                </MoreOptions>}
+                      <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+                    </View>
+                  </MoreOptions>
+                </View>}
                 </View>
 
                 {expand === index && (

@@ -102,7 +102,7 @@ export default {
   settingsBtnText:'#fff',
   bottomBarText:'#fff',
   bottomBarText1:'#000',
-  more:'#3C3C43',
+  more:'#0D0D0D',
   underlayColorBlack:"rgba(0,0,0,0.7)",
   refresh:'#717171',
   refresh1:'#000',

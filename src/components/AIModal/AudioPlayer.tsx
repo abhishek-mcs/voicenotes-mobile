@@ -96,7 +96,7 @@ const AudioPlayer = ({isAI=false,url=''}) => {
   return (
     <View style={styles.container}>
         {sound==null?
-        <CircularLoader width={24} height={24} color={isAI?'white':Colors.primary}/>
+        <CircularLoader width={24} height={24} color={Colors.bgColor}/>
         :<Pressable onPress={handlePlayPause}>
             <SvgXml xml={!isPlaying?playerSvg.play?.replace("color",isAI?Colors.bgColor13(1):Colors.primaryDark):playerSvg.pause?.replace("color",isAI?Colors.bgColor13(1):Colors.primaryDark)} />
         </Pressable>}
