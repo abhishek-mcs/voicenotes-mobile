@@ -726,7 +726,7 @@ const useStyles = () => {
     // marginRight: 8,x
     fontSize: 16,
     fontFamily: "Primary",
-    color: Colors.text,
+    color: Colors.text5,
     width: "85%",
   },
   inputContainer: {
