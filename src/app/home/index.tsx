@@ -760,7 +760,10 @@ const Home = () => {
         syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
-        setExpand={(v:any) =>setExpandNote(v)}
+        setExpand={(v:any) =>{
+          setExpandNote(v)
+          scrollRef.current?.scrollToIndex({animated:true,index})
+        }}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
