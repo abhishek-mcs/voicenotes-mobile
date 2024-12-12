@@ -912,7 +912,7 @@ const Home = () => {
             <Animated.FlatList
                 ref={scrollRef}
                 ListHeaderComponent={
-                  <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
+                  <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
                 }
                 // bounces={false}
                 data={isRecordListLoading?[]:filteredRecordingList??[]}
