@@ -111,8 +111,7 @@ final class RecordAudioViewModel: ObservableObject {
     let currentTime = mic.audioRecorder.currentTime
     if currentTime >= maxRecordingTime {
       if subscriptionStatus {
-        approveRecording(hideView: false)
-        recordButtonTapped()
+        approveRecording()
       } else {
         approveRecording()
       }
