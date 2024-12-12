@@ -12,7 +12,7 @@ import { isSmallDevice } from "utils/common";
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import Waveform from "./waveform";
 
-const recordingTypes = ['Note','Meeting']
+const recordingTypes = ['Note']
 
 const NoteRecorder = ({
   onPause,
@@ -35,7 +35,7 @@ const NoteRecorder = ({
   const { Colors } = useTheme()
   const styles = useStyles()
   const bottomSvgIcons:any = bottomSvg;
-  const [noteType, setNoteType]=useState(1)
+  const [noteType, setNoteType]=useState(0)
 
   const continueRecording = () => {
     setIsCanceling(false);
