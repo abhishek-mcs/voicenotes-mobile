@@ -52,7 +52,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
 import { useTheme } from "context";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useDialog } from "context/DialogContext";
 import TypingLoader from "components/common/loaders/typing/TypingLoader";
 
@@ -136,7 +136,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
       getNewSugg()
     }
     InteractionManager.runAfterInteractions(()=>{
-      textInputRef?.current&&textInputRef?.current?.focus();
+     !meetingData&&textInputRef?.current&&textInputRef?.current?.focus();
     })
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
@@ -354,13 +354,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   return (
     <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8}]}>
         {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>}
-        <KeyboardAvoidingView
-          style={[{ flex: 1}]}
-          behavior={"padding"}
-          keyboardVerticalOffset={isIOS ? 64 :0} // Adjust based on header height
-        >        
           {!chatLoader ? (
-            <KeyboardAwareScrollView bottomOffset={62}
+            <KeyboardAwareScrollView
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
               automaticallyAdjustKeyboardInsets
@@ -368,7 +363,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
                 paddingVertical: 16
-              }}>
+              }}
+              extraKeyboardSpace={-200}>
                 {(chats?.related_messages||[])?.map((item:any, index:number) => (
                 <View key={`${index}`}>
                   {!!item?.question && (
@@ -455,13 +451,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <View
-              style={[
-                styles.inputContainer,
-                // {position:'absolute',bottom:0,zIndex:100,left:0,right:0},
-                keyboardShown ? { minHeight: 97 } : {},
-              ]}
-            >
+            <KeyboardStickyView style={styles.inputContainer} offset={{opened:30}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
@@ -522,10 +512,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                 <View
                   style={{
                     width: "100%",
-                    marginLeft: -12,
+                    marginRight: -12,
                     marginTop: 0,
                     justifyContent: "center",
-                    height: 97,
+                    height: 60,
                   }}
                 >
                   <ChatRecorder
@@ -537,7 +527,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                   />
                 </View>
               )}
-            </View>
+            </KeyboardStickyView>
           <View
             style={{
               position: "absolute",
@@ -561,7 +551,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               drawerContainerStyle={styles.drawer}
             />
           </View>
-          </KeyboardAvoidingView>
           </SafeAreaView>
   );
 });
@@ -730,12 +719,13 @@ const useStyles = () => {
     width: "85%",
   },
   inputContainer: {
-    minHeight: 60,
-    paddingLeft: 24,
+    paddingTop:16,
+    paddingLeft: 16,
+    paddingRight:8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.bgColor4,
+    backgroundColor: Colors.bgColor8,
   },
   send: {
     paddingVertical: 16,

@@ -21,7 +21,7 @@ import {
 import { isAndroid, isIOS } from "utils/common";
 import Header from "components/AIModal/header";
 import { useNoteContext, useTheme } from "context";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { router, useFocusEffect, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import ChatRecorder from "components/common/recording/chat-recorder";
 import { SvgXml } from "react-native-svg";
@@ -96,6 +96,7 @@ const Transcript = () => {
   );
 
   const onSend = (question: string) => {
+    Keyboard.dismiss()
     setMeetingAskAIData((prev:any)=>{
       const data = { question, id: prev?.id }
       return ({...prev,data,isAudio:false,})
@@ -165,29 +166,21 @@ const Transcript = () => {
 
   return (
     <SafeAreaView style={styles.modalContainer}>
-      {/* <Header type="transcript" title="Transcript" /> */}
-      <KeyboardAvoidingView
-        style={[{ flex: 1 }]}
-        behavior={"padding"}
-        keyboardVerticalOffset={isIOS ? 64 : 0} // Adjust based on header height
-      >
         <KeyboardAwareScrollView
-          bottomOffset={62}
           ref={scrollRef}
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            padding: 16,
-          }}
+          contentContainerStyle={{ padding: 16}}
+          extraKeyboardSpace={-200}
         >
           {messages.map((message: any, index: number) => {
             // Split each message into speaker and content
             const [speaker, content] = message
-              .replace(/<\/?b>/g, "") // Remove <b> tags
-              .split(/:(.+)/) // Split on first colon only
-              .map((part: any) => part?.trim())
-              .filter(Boolean); // Remove empty strings
+              ?.replace(/<\/?b>/g, "") // Remove <b> tags
+              ?.split(/:(.+)/) // Split on first colon only
+              ?.map((part: any) => part?.trim())
+              ?.filter(Boolean); // Remove empty strings
 
             return (
               <View key={index} style={{}}>
@@ -199,12 +192,7 @@ const Transcript = () => {
             );
           })}
         </KeyboardAwareScrollView>
-        <View
-          style={[
-            styles.inputContainer,
-            keyboardShown ? { minHeight: 97 } : {},
-          ]}
-        >
+        <KeyboardStickyView style={styles.inputContainer} offset={{opened:10}}>
           {!isRecording ? (
             <>
               <View style={styles.inputContentContainer}>
@@ -257,10 +245,10 @@ const Transcript = () => {
             <View
               style={{
                 width: "100%",
-                marginLeft: -12,
+                paddingRight: 12,
                 marginTop: 0,
                 justifyContent: "center",
-                height: 97,
+                height: 60,
               }}
             >
               <ChatRecorder
@@ -272,8 +260,7 @@ const Transcript = () => {
               />
             </View>
           )}
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardStickyView>
     </SafeAreaView>
   );
 };
@@ -289,13 +276,14 @@ const useStyles = () => {
           paddingTop: isIOS ? 0 : 40,
         },
         inputContainer: {
-          minHeight: 60,
+          paddingTop:16,
           // borderTopWidth: 1,
           // borderTopColor: Colors.border,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           paddingLeft: 14,
+          backgroundColor:Colors.bgColor8
         },
         inputContentContainer:{
           justifyContent: "center",
