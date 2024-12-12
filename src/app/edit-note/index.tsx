@@ -175,7 +175,9 @@ const EditNote = () => {
             selectTextOnFocus={false}
             placeholder="Transcript"
             placeholderTextColor={Colors.grey6}
-            value={editNote?.transcript
+            value={editNote?.recording_type==2?
+              editNote?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')??''
+              :editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
               ?.replaceAll(/<\/b\/?>/g, '')
               ?.replaceAll(/<br\/?>/g, "\n")
