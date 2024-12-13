@@ -187,6 +187,21 @@ export function useGetAiCreation(){
     })
 }
 
+export function useSaveAICreation(id?:any){
+    const queryClient=useQueryClient()
+    return useMutation('save-edited-creation', ({recording_id,content,title}:any)=> {
+        return axiosApi.post(`/ai-create/${id}`,{recording_id,content,title})
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'save-edited-creation');
+        }
+    })
+}
+
 export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setReduxRecordingList:any=()=>{}){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()

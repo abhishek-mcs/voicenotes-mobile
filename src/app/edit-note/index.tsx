@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { TextInput } from "react-native";
 import { useQueryClient } from "react-query";
-import { useSaveEditedNote } from "queries/home";
+import { useSaveAICreation, useSaveEditedNote } from "queries/home";
 import {
   updateTitle,
   updateTranscript,
@@ -37,8 +37,14 @@ const EditNote = () => {
 
 
   const [editNote, setEditNote] = useState<any>(editNoteRedux);
+  const [editNoteSummary, setEditNoteSummary] = useState<string>(
+   editNote?.recording_type==2?
+   editNote?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data?.replace(/- /g, '• ')??'':''
+  )
   const dispatch = useDispatch();
-  const saveEditedNote = useSaveEditedNote(editNote?.id);
+  const saveEditedNote = editNote?.recording_type==2?
+  useSaveAICreation(editNote?.creations?.find((t:any)=>t?.type=="team-summary")?.id)
+  :useSaveEditedNote(editNote?.id);
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const titleInputRef = useRef<TextInput>(null);
@@ -51,17 +57,19 @@ const EditNote = () => {
   };
 
   const onSaveEdit = async () => {
-    if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
-      return showDialog("", "Title and Transcript cannot be empty",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+    if ((editNote?.transcript?.length === 0&&editNote?.recording_type!=2) || (editNoteSummary?.length === 0&&editNote?.recording_type==2) || editNote?.title?.length === 0) {
+      return showDialog("", `Title and ${editNote?.recording_type==2?'Summary':'Transcript'} cannot be empty`,[],{userInterfaceStyle:isLightMode?"light":"dark"});
     }
     setIsLoading(true);
-    const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);
+    // const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);
     const temp = { ...editNote };
 
-    const htmlTranscript = editNote?.transcript?.replaceAll(/\n/g, '<br/>');
+    const transcript = editNote?.transcript;
+    const content = editNoteSummary;
+    const recording_id = editNote?.recording_id
 
     await saveEditedNote.mutateAsync(
-      {title:editNote?.title,transcript: htmlTranscript ,tags:tags||[]},{
+      {title:editNote?.title,transcript,content,recording_id},{
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
@@ -175,19 +183,37 @@ const EditNote = () => {
             selectTextOnFocus={false}
             placeholder="Transcript"
             placeholderTextColor={Colors.grey6}
-            value={editNote?.recording_type==2?
-              editNote?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')??''
+            value={
+              editNote?.recording_type==2?
+              editNoteSummary
               :editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
               ?.replaceAll(/<\/b\/?>/g, '')
               ?.replaceAll(/<br\/?>/g, "\n")
               ?.replace(/&amp;/g, '&')
               ?.replace(/&nbsp;/g, '&')}
-            onChangeText={(txt) =>
+            onChangeText={(txt) =>{
               setEditNote((n: any) => {
-                return { ...n, transcript: txt };
+                return { 
+                  ...n, 
+                  ...(
+                    editNote?.recording_type==2?
+                    {
+                      creation:[
+                        ...n?.creations,
+                        {
+                          ...n?.creations?.find((t:any)=>t?.type=="team-summary"),
+                          content:{
+                            data:txt
+                          }
+                        }
+                      ]
+                    }
+                    :{transcript: txt}
+                )};
               })
-            }
+              setEditNoteSummary(txt)
+            }}
           />
         </ScrollView>
       </View>
