@@ -20,6 +20,7 @@ import {
   useAddTranscript,
   useCreate,
   useDeleteRecording,
+  useRegenerateTeamSummaryCreation,
   useSignedUrl,
 } from "queries/home";
 import { useQueryClient } from "react-query";
@@ -39,6 +40,7 @@ import { useUnpublishRecording } from "queries/home/share";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
+  setCurrentlyOpenedMeetingTranscript,
   updateRecordingDetails,
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
@@ -63,7 +65,7 @@ import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
-import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId, setRelatedNoteSummaryLoad, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
@@ -139,6 +141,7 @@ const NotePreview = forwardRef(
     const NetInfo = useNetInfo();
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+    const regenerateTeamSummary = useRegenerateTeamSummaryCreation()
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
@@ -230,8 +233,10 @@ const NotePreview = forwardRef(
     const onReGenerateTranscript = async () => {
       hideMoreOption();
       await sleep(0.5);
+      note?.recording_type!=2&&
       dispatch(setRelatedNoteTranscriptLoad(note?.id))
-      continueProcessing(note, true);
+      await continueProcessing(note, true);
+      note?.recording_type==2&&onTranscriptOpen(true)
     };
 
     const togglePublish = () => {
@@ -685,45 +690,57 @@ const NotePreview = forwardRef(
       closeAddMenu();
     }
 
-    const onTranscriptOpen = () =>{
-      router?.push({pathname:'/transcript/',params:{transcript:note?.transcript,recording_id:note?.recording_id}})
+    const onTranscriptOpen = (isRetry=false) =>{
+      dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
+      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id)}})
+    }
+
+    const onReGenerateTeamSummary = async() => {
+      hideMoreOption();
+      dispatch(setRelatedNoteTranscriptLoad(note?.id))
+      const id = note?.creations?.find((t:any)=>t?.type=="team-summary")?.id??'' 
+      await continueProcessing(note, true,id)
     }
 
     const moreOptions = [
       {
-        title:"Copy note",
-        systemIcon:'doc.text',
-        androidIcon:'content-copy',
-        onPress:()=>onCopy(note?.transcript ?? "")
+        title: "Copy note",
+        systemIcon: "doc.text",
+        androidIcon: "content-copy",
+        onPress: () => onCopy(note?.transcript ?? ""),
       },
-      ...(isSubnote ? [] : [{
-        title:"Record subnote",
-        androidIcon:'microphone-outline',
-        systemIcon:'mic',
-        onPress:onThreadNote
-      }]),
+      ...(isSubnote
+        ? []
+        : [
+            {
+              title: "Record subnote",
+              androidIcon: "microphone-outline",
+              systemIcon: "mic",
+              onPress: onThreadNote,
+            },
+          ]),
       {
-        title:"Attach",
-        systemIcon:'photo.on.rectangle',
-        androidIcon:'folder-multiple-image',
-        actions:[
+        title: "Attach",
+        systemIcon: "photo.on.rectangle",
+        androidIcon: "folder-multiple-image",
+        actions: [
           {
-            title:"Photo",
-            androidIcon:'image-area',
-            onPress:openImagePicker
+            title: "Photo",
+            androidIcon: "image-area",
+            onPress: openImagePicker,
           },
           {
-            title:"Link",
-            androidIcon:'link-variant',
-            onPress:openLinkEditModal
-          }
-        ]
+            title: "Link",
+            androidIcon: "link-variant",
+            onPress: openLinkEditModal,
+          },
+        ],
       },
       {
-        title:"Tag",
-        systemIcon:'number',
-        androidIcon:'pound',
-        onPress:onGotoAddTag
+        title: "Tag",
+        systemIcon: "number",
+        androidIcon: "pound",
+        onPress: onGotoAddTag,
       },
       // {
       //   title:"Share",
@@ -738,45 +755,55 @@ const NotePreview = forwardRef(
       //   actions:,
       // },
       {
-        title:"Regenerate",
-        systemIcon:'arrow.clockwise',
-        androidIcon:'reload',
-        actions:isSubnote?[
-          {
-            title:"Regenerate transcript",
-            onPress:onReGenerateTranscript
-          }
-        ]:[
-          {
-            title:"Regenerate title",
-            onPress:onGenerateTitle
-          },
-          {
-            title:"Regenerate transcript",
-            onPress:onReGenerateTranscript
-          }
-        ]
+        title: "Regenerate",
+        systemIcon: "arrow.clockwise",
+        androidIcon: "reload",
+        actions: isSubnote
+          ? [
+              {
+                title: "Regenerate transcript",
+                onPress: onReGenerateTranscript,
+              },
+            ]
+          : [
+              {
+                title: "Regenerate title",
+                onPress: onGenerateTitle,
+              },
+              ...(note?.recording_type != 3?[{
+                title: "Regenerate transcript",
+                onPress: onReGenerateTranscript,
+              }]:[]),
+              ...(note?.recording_type == 2
+                ? [
+                    {
+                      title: "Regenerate summary",
+                      onPress: onReGenerateTeamSummary,
+                    },
+                  ]
+                : []),
+            ],
       },
       {
-        title:"Download audio",
-        systemIcon:"arrow.down.circle",
-        androidIcon:'tray-arrow-down',
-        onPress:onDownloadAudio
+        title: "Download audio",
+        systemIcon: "arrow.down.circle",
+        androidIcon: "tray-arrow-down",
+        onPress: onDownloadAudio,
       },
       {
-        title:"Edit",
-        systemIcon:'square.and.pencil',
-        androidIcon:'pencil-outline',
-        onPress:onEdit
+        title: "Edit",
+        systemIcon: "square.and.pencil",
+        androidIcon: "pencil-outline",
+        onPress: onEdit,
       },
       {
-        title:"Delete",
-        destructive:true,
-        systemIcon:'trash',
-        androidIcon:'delete-outline',
-        onPress:()=>onDelete()
-      }
-    ]
+        title: "Delete",
+        destructive: true,
+        systemIcon: "trash",
+        androidIcon: "delete-outline",
+        onPress: () => onDelete(),
+      },
+    ];
 
     const shareOptions = [
       {
@@ -880,7 +907,7 @@ const NotePreview = forwardRef(
               >
                 {note?.is_title_loading==note?.id ? (
                   <AiLoader
-                    text="Creating title from your voice"
+                    text={`Creating title from your ${note?.recording_type==2?'meeting':note?.recording_type==3?'note':'voice'}`}
                     style={{ marginTop: -7 }}
                     size={14}
                   />
@@ -921,7 +948,10 @@ const NotePreview = forwardRef(
 
               {note?.is_transcript_loading==note?.id && (
                 <AiLoader
-                  text={`Creating transcript from your voice`}
+                  text={
+                    note?.recording_type==2?'Processing transcript with timestamps, speaker identification, and generating insights.':
+                    `Creating transcript from your voice`
+                  }
                   style={{ marginTop: 0 }}
                   size={14}
                 />
@@ -1019,7 +1049,7 @@ const NotePreview = forwardRef(
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
                 <View style={[styles.row,{gap:8}]}>
                   {note?.recording_type==2&&
-                  <Pressable onPress={onTranscriptOpen} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                  <Pressable onPress={()=>onTranscriptOpen()} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.transcript?.replace('#0D0D0D',Colors.more)}/>
                   </Pressable>}
                   <MoreOptions options={createOptions} style={{height:31,width:31,position:'relative'}}>

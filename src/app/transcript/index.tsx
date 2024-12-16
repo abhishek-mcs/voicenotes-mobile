@@ -40,12 +40,15 @@ import { cancelRecording, onRecord, stopRecording } from "func/home/record";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { useDialog } from "context/DialogContext";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
+import { RootState } from "redux/store/store";
+import AiLoader from "components/common/loaders/ai-loader";
 
 const Transcript = () => {
-  const { transcript = "", recording_id= "" }: any = useLocalSearchParams();
+  const { recording_id= "" }: any = useLocalSearchParams();
   const styles = useStyles();
   const { Colors, isLightMode } = useTheme();
-
+  const { currentlyOpenedMeetingTranscript } = useSelector((state:RootState)=>state?.recordingStates)
+  const transcript =currentlyOpenedMeetingTranscript
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<ScrollView>(null);
@@ -61,12 +64,15 @@ const Transcript = () => {
   const { setMeetingAskAIData } = useNoteContext()
 
   useFocusEffect(useCallback(() => {
-    meetingAskAI?.mutate(recording_id,{
-      onSuccess:(data)=>{
-        setMeetingAskAIData(data?.data)
-      }
-    })
-  },[]))
+    if(!!recording_id){
+      const rec_id = JSON.parse(recording_id)
+      meetingAskAI?.mutate(rec_id,{
+        onSuccess:(data)=>{
+          setMeetingAskAIData(data?.data)
+        }
+      })
+    }
+  },[recording_id]))
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -174,7 +180,13 @@ const Transcript = () => {
           contentContainerStyle={{ padding: 16}}
           extraKeyboardSpace={-200}
         >
-          {messages.map((message: any, index: number) => {
+          {!transcript?
+                <AiLoader
+                  text={'Processing transcript with timestamps, speaker identification, and generating insights.'}
+                  style={{ marginTop: 0 }}
+                  size={14}
+                />
+          :messages.map((message: any, index: number) => {
             // Split each message into speaker and content
             const [speaker, content] = message
               ?.replace(/<\/?b>/g, "") // Remove <b> tags

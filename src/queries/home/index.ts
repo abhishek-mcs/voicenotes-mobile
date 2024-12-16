@@ -202,6 +202,21 @@ export function useSaveAICreation(id?:any){
     })
 }
 
+export function useRegenerateTeamSummaryCreation(){
+    const queryClient=useQueryClient()
+    return useMutation('regenerate-team-creation', (id:any)=> {
+        return axiosApi.post(`/ai-create/${id}/regenerate`)
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'regenerate-team-creation');
+        }
+    })
+}
+
 export function useAddTranscript(doGenerateTitle=false,recordingList:any=[],setReduxRecordingList:any=()=>{}){
     const queryC=useQueryClient()
     const addTitle=useAddTitle()

@@ -40,6 +40,7 @@ import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import {
   setCreateRecordingList,
+  setCurrentlyOpenedMeetingTranscript,
   setRecordingList,
   setTempRecordingData,
   updateRecordingDetails,
@@ -292,6 +293,7 @@ const Home = () => {
             dispatchCanRecord(updatedNote.data?.can_record_more);
             isTitleGenerated&&dispatch(setRelatedNoteTitleLoad(false))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
+            is_transcript_only&&updatedNote.data?.recording_type==2&&dispatch(setCurrentlyOpenedMeetingTranscript(updatedNote.data?.transcript))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
             status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).remove();
@@ -462,7 +464,7 @@ const Home = () => {
     });
   }, []);
 
-  const continueProcessing = async (note: Note, is_transcript_only = false) => {
+  const continueProcessing = async (note: Note, is_transcript_only = false,summary_id=false) => {
     try {
       const isProcessFailed=(note?.title=="New Recording"||!note?.title)&&!note?.transcript
       dispatch(
@@ -472,9 +474,15 @@ const Home = () => {
         })
       );
       console.log("making request");
+
       const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
         is_transcript_only,
       });
+      if(!!summary_id){
+        const resp = await axiosApi.post(`/ai-create/${summary_id}/regenerate`)
+      }
+      // else{
+      // }
 
       listenToFirebaseStatus(note.id,null,is_transcript_only);
     } catch (error) {
