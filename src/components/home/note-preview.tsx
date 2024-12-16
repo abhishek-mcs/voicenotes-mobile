@@ -709,7 +709,7 @@ const NotePreview = forwardRef(
         androidIcon: "content-copy",
         onPress: () => onCopy(note?.transcript ?? ""),
       },
-      ...(isSubnote
+      ...((isSubnote||note?.recording_type!=1)
         ? []
         : [
             {
@@ -719,7 +719,8 @@ const NotePreview = forwardRef(
               onPress: onThreadNote,
             },
           ]),
-      {
+      ...(note?.recording_type==2?
+        []:[{
         title: "Attach",
         systemIcon: "photo.on.rectangle",
         androidIcon: "folder-multiple-image",
@@ -735,13 +736,14 @@ const NotePreview = forwardRef(
             onPress: openLinkEditModal,
           },
         ],
-      },
-      {
+      }]),
+      ...(note?.recording_type==2?
+        []:[{
         title: "Tag",
         systemIcon: "number",
         androidIcon: "pound",
         onPress: onGotoAddTag,
-      },
+      }]),
       // {
       //   title:"Share",
       //   systemIcon:'square.and.arrow.up',
@@ -754,6 +756,13 @@ const NotePreview = forwardRef(
       //   androidIcon:'circle-edit-outline',
       //   actions:,
       // },
+      ...(note?.recording_type == 3?
+        []:[{
+        title: "Download audio",
+        systemIcon: "arrow.down.circle",
+        androidIcon: "tray-arrow-down",
+        onPress: onDownloadAudio,
+      }]),
       {
         title: "Regenerate",
         systemIcon: "arrow.clockwise",
@@ -783,12 +792,6 @@ const NotePreview = forwardRef(
                   ]
                 : []),
             ],
-      },
-      {
-        title: "Download audio",
-        systemIcon: "arrow.down.circle",
-        androidIcon: "tray-arrow-down",
-        onPress: onDownloadAudio,
       },
       {
         title: "Edit",
