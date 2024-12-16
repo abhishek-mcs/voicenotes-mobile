@@ -56,8 +56,8 @@ const NoteRecorder = ({
     return (
       <View style={{ height: 156, width: "100%", paddingVertical:8, justifyContent:'space-between' }}>
         <View style={[styles.row, { justifyContent: "space-between" }]}>
-          <View style={{ width: "20%" }} />
-          <SegmentedControl
+          {/* <View style={{ width: "20%" }} /> */}
+          {/* <SegmentedControl
             style={{ width:132, height:32 }}
             tintColor={Colors.bgColor2}
             backgroundColor={Colors.bgColor7}
@@ -68,7 +68,8 @@ const NoteRecorder = ({
             onChange={(event) =>
               setNoteType(event.nativeEvent.selectedSegmentIndex)
             }
-          />
+          /> */}
+          <Text style={[styles.tabItemText,{marginLeft:12}]}>Recording...</Text>
           <View style={[styles.row, { width: "20%" }]}>
             <View
               style={{
@@ -142,7 +143,7 @@ const NoteRecorder = ({
                       Colors.blackWithOpacity(1)
                     )
               }
-              title={paused?"Play":'Pause'}
+              title={paused?"Resume":'Pause'}
               underlayColor=""
               onPress={onPause}
               color={Colors.text}
