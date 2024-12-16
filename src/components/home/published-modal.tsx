@@ -41,7 +41,7 @@ export default ({
   return (
     <ReactNativeModal
       isVisible={visible}
-      backdropColor="rgba(0,0,0,0.9)"
+      backdropColor="rgba(0,0,0,0.6)"
       onBackdropPress={hideModal}
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
@@ -198,7 +198,7 @@ export default ({
                 ) : (
                   <Text
                     style={{
-                      color: Colors.text5,
+                      color: Colors.text4,
                       fontFamily: "Primary-Semibold",
                       fontSize: 12,
                     }}
@@ -272,7 +272,7 @@ export default ({
               >
                 <Text
                   style={{
-                    color: Colors.text5,
+                    color: Colors.text4,
                     fontFamily: "Primary-Semibold",
                     fontSize: 12,
                   }}
