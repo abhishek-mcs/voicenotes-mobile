@@ -45,7 +45,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
     return (
         <SafeAreaView style={{backgroundColor:Colors.whiteWithOpacity(1),flex:1,paddingTop:isIOS?0:0}}>
             <View>
-                <Touchable onPress={onBack} style={{flexDirection:'row',alignItems:'center',padding:12}}>
+                <Touchable onPress={onBack} style={{flexDirection:'row',alignItems:'center',padding:12,alignSelf:'flex-start'}} activeOpacity={1}>
                     <SvgXml xml={commonSvg.back?.replace('#222222',Colors.text1)} height={21}/>
                     <Text style={{marginLeft:2,fontSize:16,fontFamily:'Primary',color:Colors.text1}}>Back</Text>
                 </Touchable>
