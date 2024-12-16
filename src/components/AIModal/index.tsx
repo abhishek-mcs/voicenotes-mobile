@@ -451,7 +451,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <KeyboardStickyView style={styles.inputContainer} offset={{opened:30}}>
+            <KeyboardStickyView style={styles.inputContainer} offset={{opened:40}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
@@ -719,7 +719,7 @@ const useStyles = () => {
     width: "85%",
   },
   inputContainer: {
-    paddingTop:16,
+    // paddingTop:16,
     paddingLeft: 16,
     paddingRight:8,
     flexDirection: "row",

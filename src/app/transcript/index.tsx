@@ -75,9 +75,9 @@ const Transcript = () => {
   },[recording_id]))
 
   useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      textInputRef?.current && textInputRef?.current?.focus();
-    });
+    // InteractionManager.runAfterInteractions(() => {
+    //   textInputRef?.current && textInputRef?.current?.focus();
+    // });
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
     );
@@ -204,7 +204,7 @@ const Transcript = () => {
             );
           })}
         </KeyboardAwareScrollView>
-        <KeyboardStickyView style={styles.inputContainer} offset={{opened:10}}>
+        <KeyboardStickyView style={styles.inputContainer} offset={{opened:40}}>
           {!isRecording ? (
             <>
               <View style={styles.inputContentContainer}>
@@ -288,7 +288,7 @@ const useStyles = () => {
           paddingTop: isIOS ? 0 : 40,
         },
         inputContainer: {
-          paddingTop:16,
+          paddingVertical:16,
           // borderTopWidth: 1,
           // borderTopColor: Colors.border,
           flexDirection: "row",
