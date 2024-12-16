@@ -250,21 +250,17 @@ const NotePreview = forwardRef(
           {
             onSuccess: async (r) => {
               try {
-                setShareVisible(false);
                 setTimeout(() => {
-                  if (wasPublic) {
-                    setIsNoteJustMadePrivate(true);
-                  } else {
-                    setIsNoteJustMadePrivate(false);
-                  }
-                  setIsPublished((t: any) => !t);
+                  setIsPublished((t:any)=>!t)
                 }, 50);
                 await queryClient.invalidateQueries("all-recording");
                 await queryClient.invalidateQueries("single-recording");
+                setShareVisible(false);
               } catch (e) {
                 console.info("error in toggle publish", e);
               } finally {
                 setPublishLoading(false);
+                setIsNoteJustMadePrivate(wasPublic)
                 setTimeout(() => {
                   setShareVisible(true);
                 }, 50);
@@ -275,13 +271,6 @@ const NotePreview = forwardRef(
       } catch (e) {
         console.log(e);
       }
-    };
-
-    const onPrivateOk = () => {
-      setShareVisible(false);
-      setTimeout(() => {
-        setIsNoteJustMadePrivate(false);
-      }, 50);
     };
 
     const onShareNote = () => {
@@ -585,13 +574,7 @@ const NotePreview = forwardRef(
 
     const renderButtons = () => {
       const mainButtons = hashFilter == "shared" ?
-      [
-        {
-          text: "More",
-          type: "menu",
-          function: renderMoreSharedMenu,
-        },
-      ]:[];
+      []:[];
 
       const intermediateButtons = [
         {
@@ -656,29 +639,6 @@ const NotePreview = forwardRef(
         </ScrollView>
       );
     };
-
-    const renderMoreSharedMenu = () => (
-      <Menu
-        visible={moreOption}
-        onRequestClose={hideMoreOption}
-        style={styles.menuShared}
-        anchor={
-          <NoteButtons
-            text="More"
-            style={{ marginLeft: 0 }}
-            onPress={showMoreOption}
-            icon={home.more}
-          />
-        }
-      >
-        <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
-          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.blackWithOpacity(1)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.whiteWithOpacity(1)}]} />
-        </MenuItem>
-        <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
-          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.grey2WithOpacity(0.05)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.darkWithOpacity(1)}]} />
-        </MenuItem>
-      </Menu>
-    );
 
     const openImagePicker = () => {
       setShowImagePicker(true);
@@ -1132,7 +1092,7 @@ const NotePreview = forwardRef(
           isLoading={publishLoading}
           isNoteJustMadePrivate={isNoteJustMadePrivate}
           setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
-          hideModal={() => setShareVisible(false)}
+          hideModal={() => {setShareVisible(false);setIsNoteJustMadePrivate(false)}}
         />
 
         {note?.subnotes?.length > 0 && isNoteExpanded&& (
