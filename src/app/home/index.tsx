@@ -260,14 +260,11 @@ const Home = () => {
             updatedStatus = "processed";
             await sleep(3000)
             const updatedNote = await fetchSingleRecording(recordingId);
-            const data = await axiosApi.get(`/ai-create/${teamSummaryId}`)
-            console.log(data?.data,teamSummaryId)
             dispatch(
               updateRecordingDetails({
                 recordingId,
                 data: {
                   ...updatedNote.data,
-                  creations:[...(updatedNote?.data?.creations??[]),data?.data??{}],
                   status: updatedStatus,
                   is_transcript_loading:false,
                 },

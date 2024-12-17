@@ -794,14 +794,14 @@ const NotePreview = forwardRef(
         onPress:()=> onCreate("todo")
       },
       {
-        title:"Blog post",
-        // androidIcon:'fountain-pen',
-        onPress:()=>onCreate("blog")
-      },
-      {
         title:"Tweet",
         // androidIcon:'bullhorn-variant-outline',
         onPress:()=>onCreate("tweet")
+      },
+      {
+        title:"Blog post",
+        // androidIcon:'fountain-pen',
+        onPress:()=>onCreate("blog")
       },
       {
         title:"Email",
