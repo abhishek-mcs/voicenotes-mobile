@@ -29,8 +29,13 @@ import { useDialog } from "context/DialogContext";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
+interface AttachmentViewerProps {
+  attachments?: any;
+  onAttachmentUpdate?: () => void;
+  onEditLink?: (linkData: object) => void;
+}
 
-const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }) => {
+const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }:AttachmentViewerProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -72,7 +77,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
     } finally {
       onAttachmentUpdate();
     }
-  }, [onAttachmentUpdate]);
+  }, []);
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
     console.log(attachmentId,type)
@@ -84,7 +89,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         { text: "Delete", onPress: () => deleteAttachment(attachmentId), style: "destructive" }
       ],{userInterfaceStyle:isLightMode?"light":"dark"}
     );
-  }, [deleteAttachment]);
+  }, []);
 
   const renderImageThumbnail = useCallback(
     ({ item, index }:any) => (
@@ -142,7 +147,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
         </MoreOptions>
       </View>
     ),
-    [openLink, visibleMenu, handleDeletePress, onEditLink]
+    [visibleMenu]
   );
 
   const renderFullScreenImage = useCallback(
@@ -198,7 +203,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
 
       {linkAttachments.length > 0 && (
         <View style={styles.linkSection}>
-          {linkAttachments.map((item,index) => renderLinkItem({ item,index }))}
+          {linkAttachments.map((item:any,index:number) => renderLinkItem({ item,index }))}
         </View>
       )}
 
@@ -269,7 +274,8 @@ const useStyles = () => {
   },
   container: {
     flex:1,
-    marginTop:10,
+    marginVertical:10,
+    gap:10
   },
   sectionTitle: {
     fontSize: 18,
@@ -278,7 +284,7 @@ const useStyles = () => {
     marginLeft: 10,
   },
   linkSection: {
-    marginTop: 8,
+    gap: 5
   },
   thumbnailContainer: {
     position: 'relative',
@@ -386,7 +392,6 @@ const useStyles = () => {
     alignItems: "center",
     backgroundColor: Colors.lightBlueWithOpacity(isLightMode?0.05:0.15),
     borderRadius: 8,
-    marginBottom: 6,
     justifyContent: 'space-between',
   },
   linkContent: {

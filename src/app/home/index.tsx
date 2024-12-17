@@ -187,10 +187,7 @@ const Home = () => {
       let isTitleTriggered=false||is_transcript_only;
       let isTranscriptTriggered=false;
       let isProcessCompleted=false;
-      dbRef.on('child_added',async()=>{
-        console.log('firebase child added')
-        dbRef.off('child_added')
-      })
+
       dbRef.on('value', async (snapshot) => {
         console.log('firebase listen value')
         if (!snapshot?.exists()) {
@@ -791,7 +788,7 @@ const Home = () => {
         expand={expandNote}
         setExpand={(v:any) =>{
           setExpandNote(v)
-          scrollRef.current?.scrollToIndex({animated:true,index})
+          // scrollRef.current?.scrollToIndex({animated:true,index})
         }}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}

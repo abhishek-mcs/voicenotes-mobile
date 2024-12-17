@@ -32,6 +32,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import {
   checkFileExists,
+  fetchSingleRecording,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
@@ -71,6 +72,7 @@ import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
 import { useDialog } from "context/DialogContext";
 import * as Haptics from "expo-haptics";
+import { ATTACHMENT_TYPE } from "types";
 
 const NotePreview = forwardRef(
   (
@@ -119,7 +121,7 @@ const NotePreview = forwardRef(
       id: string;
       url: string;
     } | null>(null);
-    const [attachments, setAttachments] = useState([]);
+    const [attachments, setAttachments] = useState(note?.attachments??[]);
     const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
     const {showDialog} = useDialog()
@@ -819,8 +821,19 @@ const NotePreview = forwardRef(
     ]
 
     const refreshNoteAfterAttachmentChange = async () => {
-      await queryClient.invalidateQueries("all-recording");
-      await queryClient.invalidateQueries("single-recording");
+      const recordingId = note?.id
+      const updatedStatus = "processed";
+      const updatedNote = await fetchSingleRecording(recordingId);
+      dispatch(
+        updateRecordingDetails({
+          recordingId,
+          data: {
+            ...updatedNote.data,
+            status: updatedStatus,
+            is_transcript_loading:false,
+          },
+        })
+      );
     };
 
     if (!note) return null;
