@@ -167,13 +167,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       await sleep(300);
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ["Cancel", "Take Photo", "Choose from Library"],
+          options: ["Cancel",  "Choose from Library"],
           cancelButtonIndex: 0,
         },
         (buttonIndex) => {
           if (buttonIndex === 1) {
-            launchImagePicker("camera");
-          } else if (buttonIndex === 2) {
+          //   launchImagePicker("camera");
+          // } else if (buttonIndex === 2) {
             launchImagePicker("library");
           }
           setShowImagePicker(false);
