@@ -286,14 +286,17 @@ const NotePreview = forwardRef(
 
     const onCopy = async (content = "") => {
       hideMoreOption();
-      const t:any=content
-      t?.replaceAll(/\n/g, '')
-      ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-      ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-      ?.replaceAll(/<br\/?>/g, "\n\n")
-      ?.trimEnd()
-      const s=note?.recording_type==2?note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data:t
-      await setStringAsync(s);
+      let t:any=''
+      if(note?.recording_type==2)
+        t=note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data??''
+      else
+        t=content
+          t?.replaceAll(/\n/g, '')
+          ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+          ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
+          ?.replaceAll(/<br\/?>/g, "\n\n")
+          ?.trimEnd()
+      await setStringAsync(t);
       setShareVisible(false);
     };
     const onDelete = (isCache=false) => {
