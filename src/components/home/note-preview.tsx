@@ -287,13 +287,13 @@ const NotePreview = forwardRef(
     const onCopy = async (content = "") => {
       hideMoreOption();
       const t:any=content
-      await setStringAsync(
-        t?.replaceAll(/\n/g, '')
-        ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-        ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-        ?.replaceAll(/<br\/?>/g, "\n\n")
-        ?.trimEnd()
-      );
+      t?.replaceAll(/\n/g, '')
+      ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+      ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
+      ?.replaceAll(/<br\/?>/g, "\n\n")
+      ?.trimEnd()
+      const s=note?.recording_type==2?note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data:t
+      await setStringAsync(s);
       setShareVisible(false);
     };
     const onDelete = (isCache=false) => {
@@ -672,7 +672,7 @@ const NotePreview = forwardRef(
         title: "Copy note",
         systemIcon: "doc.text",
         androidIcon: "content-copy",
-        onPress: () => onCopy(note?.transcript ?? ""),
+        onPress: () => onCopy(note?.recording_type==2?note:note?.transcript ?? ""),
       },
       ...((isSubnote||note?.recording_type!=1)
         ? []
