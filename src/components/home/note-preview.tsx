@@ -70,6 +70,7 @@ import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
 import { useDialog } from "context/DialogContext";
+import * as Haptics from "expo-haptics";
 
 const NotePreview = forwardRef(
   (
@@ -273,7 +274,8 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onShareNote = () => {
+    const onShareNote = async() => {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
       setTimeout(() => {
         setShareVisible(true);
@@ -650,7 +652,8 @@ const NotePreview = forwardRef(
       closeAddMenu();
     }
 
-    const onTranscriptOpen = (isRetry=false) =>{
+    const onTranscriptOpen = async(isRetry=false) =>{
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
       router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id)}})
     }

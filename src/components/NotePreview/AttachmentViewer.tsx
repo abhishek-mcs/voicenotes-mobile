@@ -138,9 +138,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
               setVisibleMenu(null);
             }}
           ]}>
-          {/* <TouchableOpacity onPress={() => setVisibleMenu(item.id)}> */}
-            <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
-          {/* </TouchableOpacity> */}
+            <SvgXml xml={notePreviewSVG.more} style={{paddingVertical:6, paddingHorizontal: 16}} />
         </MoreOptions>
       </View>
     ),
@@ -387,8 +385,6 @@ const useStyles = () => {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: Colors.lightBlueWithOpacity(isLightMode?0.05:0.15),
-    padding: 4,
-    paddingHorizontal: 8,
     borderRadius: 8,
     marginBottom: 6,
     justifyContent: 'space-between',
@@ -397,7 +393,8 @@ const useStyles = () => {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    marginRight: 8
+    paddingVertical: 4,
+    paddingLeft: 8
   },
   linkText: {
     marginLeft: 10,

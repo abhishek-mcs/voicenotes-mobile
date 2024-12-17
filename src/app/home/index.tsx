@@ -650,7 +650,7 @@ const Home = () => {
           })
         );
         dispatch(updateTempRecordingData("processing"));
-        note.audio.data.duration>300000&&await sleep(2000)
+        await sleep(3000)
         listenToFirebaseStatus(recordingId, temporaryRecordingId);
       }).catch((e)=>{
         console.log(e,'audio upload failed. please check for error')
