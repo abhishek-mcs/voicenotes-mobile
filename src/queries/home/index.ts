@@ -174,8 +174,8 @@ export function useDeleteFormattedNote(id:number){
 
 export function useGetAiCreation(){
     const queryClient=useQueryClient()
-    return useMutation('get-formatted-note', (id?:any)=> {
-        return axiosApi.get(`/ai-create/${id}`)
+    return useMutation('get-formatted-note', async(id?:any)=> {
+        return await axiosApi.get(`/ai-create/${id}`)
     },
     {
         onSuccess:async()=>{
