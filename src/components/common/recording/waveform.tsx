@@ -1,62 +1,122 @@
 import { useTheme } from 'context';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Animated } from 'react-native';
+import { StyleSheet, View, Animated, Platform } from 'react-native';
 
 interface WaveformProps {
   recording: any;
 }
 
-const BAR_COUNT = 50; // Number of bars in the waveform
-const MIN_HEIGHT = 2; // Minimum height of bars
-const MAX_HEIGHT = 24; // Maximum height of bars
-const BAR_SPACING = 2; // Space between bars
+const BAR_COUNT = 50;
+const MIN_HEIGHT = 1;
+const MAX_HEIGHT = 35;
+const BAR_SPACING = 2;
+
+// Platform-specific metering ranges
+const IOS_NOISE_THRESHOLD = -45;
+const IOS_SPEECH_LEVEL = -20;
+const ANDROID_NOISE_THRESHOLD = -60;
+const ANDROID_SPEECH_LEVEL = -35;
 
 const Waveform: React.FC<WaveformProps> = ({ recording }) => {
   const { Colors } = useTheme();
   const animatedBars = useRef<Animated.Value[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const lastMeterValue = useRef<number>(0);
+  const animationTimeout = useRef<NodeJS.Timeout>();
 
-  // Initialize animated values if not already done
   useEffect(() => {
     if (!isInitialized) {
       animatedBars.current = Array(BAR_COUNT).fill(0).map(() => new Animated.Value(MIN_HEIGHT));
       setIsInitialized(true);
     }
+
+    return () => {
+      if (animationTimeout.current) {
+        clearTimeout(animationTimeout.current);
+      }
+    };
   }, []);
+
+  const normalizeMeterLevel = (meter: number) => {
+    // Get platform-specific thresholds
+    const noiseThreshold = Platform.OS === 'ios' ? IOS_NOISE_THRESHOLD : ANDROID_NOISE_THRESHOLD;
+    const speechLevel = Platform.OS === 'ios' ? IOS_SPEECH_LEVEL : ANDROID_SPEECH_LEVEL;
+    
+    // Normalize based on platform-specific ranges
+    let normalizedValue = (meter - noiseThreshold) / (speechLevel - noiseThreshold);
+    
+    // Clamp between 0 and 1
+    normalizedValue = Math.max(0, Math.min(1, normalizedValue));
+    
+    // Apply non-linear scaling to enhance contrast
+    normalizedValue = Math.pow(normalizedValue, Platform.OS === 'ios' ? 1.8 : 1.5);
+    
+    // Enhanced thresholding for better visual distinction
+    if (normalizedValue < 0.2) {
+      normalizedValue *= Platform.OS === 'ios' ? 0.2 : 0.3; // More aggressive reduction on iOS
+    } else {
+      // More aggressive amplification on iOS
+      const amplificationFactor = Platform.OS === 'ios' ? 1.8 : 1.5;
+      normalizedValue = 0.2 + (normalizedValue - 0.2) * amplificationFactor;
+    }
+    
+    return Math.min(1, normalizedValue);
+  };
 
   useEffect(() => {
     if (recording) {
       recording.setOnRecordingStatusUpdate((status: any) => {
         if (status.metering !== undefined) {
-          // Convert metering value to a scale of 0-1
-          const normalizedMeter = Math.max(0, (status.metering + 160) / 160);
-          
-          // Animate each bar with a slight delay to create a wave effect
-          animatedBars.current.forEach((bar, index) => {
-            const delay = index * 10; // Stagger the animations
-            const randomFactor = 0.7 + Math.random() * 0.6; // Add some randomness
-            const targetHeight = MIN_HEIGHT + (normalizedMeter * (MAX_HEIGHT - MIN_HEIGHT) * randomFactor);
+          const normalizedMeter = normalizeMeterLevel(status.metering);
 
-            Animated.sequence([
-              Animated.delay(delay),
-              Animated.spring(bar, {
-                toValue: targetHeight,
-                useNativeDriver: false,
-                tension: 50,
-                friction: 3,
-              })
-            ]).start();
-          });
+          if (Math.abs(normalizedMeter - lastMeterValue.current) > (Platform.OS === 'ios' ? 0.02 : 0.03)) {
+            lastMeterValue.current = normalizedMeter;
+
+            if (animationTimeout.current) {
+              clearTimeout(animationTimeout.current);
+            }
+
+            animatedBars.current.forEach((bar, index) => {
+              const delay = index * (Platform.OS === 'ios' ? 4 : 8);
+              const randomFactor = Platform.OS === 'ios' 
+                ? 0.3 + Math.random() * 1.4  // Wider range for iOS
+                : 0.4 + Math.random() * 1.2;
+              const targetHeight = MIN_HEIGHT + (normalizedMeter * (MAX_HEIGHT - MIN_HEIGHT) * randomFactor);
+
+              Animated.sequence([
+                Animated.delay(delay),
+                Animated.spring(bar, {
+                  toValue: targetHeight,
+                  useNativeDriver: false,
+                  stiffness: Platform.OS === 'ios' ? 350 : 200, // Higher stiffness for iOS
+                  damping: Platform.OS === 'ios' ? 12 : 12,
+                  mass: Platform.OS === 'ios' ? 0.2 : 0.3, // Lower mass for iOS
+                })
+              ]).start();
+            });
+
+            animationTimeout.current = setTimeout(() => {
+              animatedBars.current.forEach((bar) => {
+                Animated.spring(bar, {
+                  toValue: MIN_HEIGHT + (normalizedMeter < 0.2 ? 2 : 0),
+                  useNativeDriver: false,
+                  stiffness: 100,
+                  damping: 10,
+                  mass: 0.3,
+                }).start();
+              });
+            }, Platform.OS === 'ios' ? 80 : 100); // Faster reset on iOS
+          }
         }
       });
     } else {
-      // Reset all bars to minimum height when recording stops
       animatedBars.current.forEach((bar) => {
         Animated.spring(bar, {
-          toValue: MIN_HEIGHT,
+          toValue: MIN_HEIGHT + Math.random() * 2,
           useNativeDriver: false,
-          tension: 40,
-          friction: 5,
+          stiffness: 100,
+          damping: 10,
+          mass: 0.3,
         }).start();
       });
     }
