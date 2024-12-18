@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo, memo } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   FlatList,
   Linking,
   Dimensions,
@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur"; 
 import axiosApi from "services/api/axios-api";
-import { Image } from 'expo-image'; 
+import { Image, ImageBackground } from 'expo-image'; 
 import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import { notePreviewSVG } from "assets/svg/notePreviewSVG";
@@ -25,17 +25,23 @@ import { useTheme } from "context";
 import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
 import { useDialog } from "context/DialogContext";
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
+const blurhash = 'LaC*Ibx]xvtRu6W@f+S2NGX8RiWA';
+
 interface AttachmentViewerProps {
-  attachments?: any;
-  onAttachmentUpdate?: () => void;
-  onEditLink?: (linkData: object) => void;
+  attachments: any;
+  onAttachmentUpdate: () => void;
+  onEditLink: (linkData: any) => void;
 }
 
-const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, onEditLink = (obj: object) => {} }:AttachmentViewerProps) => {
+const AttachmentViewer = ({ 
+  attachments = [], 
+  onAttachmentUpdate, 
+  onEditLink 
+}: AttachmentViewerProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -45,13 +51,18 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
 
   const fullScreenListRef = useRef(null);
   const thumbnailListRef = useRef<FlatList>(null);
-  const imageAttachments:any = attachments.filter(
-    (a:any) => a.type === ATTACHMENT_TYPE.IMAGE
-  );
-  const linkAttachments = attachments.filter(
-    (a:any) => a.type === ATTACHMENT_TYPE.LINK
-  );
   const queryClient = useQueryClient()
+
+  // Memoize filtered attachments
+  const imageAttachments = useMemo(() => 
+    attachments.filter((a:any) => a.type === ATTACHMENT_TYPE.IMAGE),
+    [attachments]
+  );
+  
+  const linkAttachments = useMemo(() => 
+    attachments.filter((a:any)=> a.type === ATTACHMENT_TYPE.LINK),
+    [attachments]
+  );
 
   useEffect(() => {
     if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
@@ -91,64 +102,41 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
     );
   }, []);
 
-  const renderImageThumbnail = useCallback(
-    ({ item, index }:any) => (
-      <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <View style={[styles.thumbnailContainer]}>
-          <Image
-            key={item?.url}
-            source={{ uri: item.url }}
-            style={styles.thumbnail}
-            contentFit="cover"
-            transition={300}
-            cachePolicy="memory-disk"
-          />
-          {item.is_uploading && (
-            <BlurView intensity={50} style={styles.blurOverlay}>
-              <CircularLoader color={Colors.whiteWithOpacity(1)}/>
-            </BlurView>
-          )}
-        </View>
-      </TouchableOpacity>
-    ),
-    []
-  );
+  // Memoize render functions
 
-  const renderLinkItem = useCallback(
-    ({ item,index }:any) => (
-      <View style={styles.linkContainer} key={item.id?.toString()+index}>
-        <TouchableOpacity
-          style={styles.linkContent}
-          onPress={() => openLink(item.url)}
-        >
-          <SvgXml xml={notePreviewSVG.link} />
-          <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
-            {item.description}
-          </Text>
-        </TouchableOpacity>
-        <MoreOptions options={[
-          {
-            title:'Edit',
-            systemIcon:'square.and.pencil',
-            onPress:() => {
-            onEditLink(item);
+
+  const renderLinkItem = useCallback(({ item, index }: any) => (
+    <View style={styles.linkContainer} key={`${item.id}-${index}`}>
+      <Pressable
+        style={styles.linkContent}
+        onPress={() => openLink(item.url)}
+      >
+        <SvgXml xml={notePreviewSVG.link} />
+        <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
+          {item.description}
+        </Text>
+      </Pressable>
+      <MoreOptions options={[
+        {
+          title:'Edit',
+          systemIcon:'square.and.pencil',
+          onPress:() => {
+          onEditLink(item);
+          setVisibleMenu(null);
+        }},
+        {
+          title:'Delete',
+          destructive:true,
+          systemIcon:'trash',
+          onPress:() => {
+            handleDeletePress(item.id, 'link');
             setVisibleMenu(null);
-          }},
-          {
-            title:'Delete',
-            destructive:true,
-            systemIcon:'trash',
-            onPress:() => {
-              handleDeletePress(item.id, 'link');
-              setVisibleMenu(null);
-            }}
-          ]}>
-            <SvgXml xml={notePreviewSVG.more} style={{paddingVertical:6, paddingHorizontal: 16}} />
-        </MoreOptions>
-      </View>
-    ),
-    [visibleMenu]
-  );
+          }}
+        ]}>
+          <SvgXml xml={notePreviewSVG.more} style={{paddingVertical:6, paddingHorizontal: 16}} />
+      </MoreOptions>
+    </View>
+  ), []);
 
   const renderFullScreenImage = useCallback(
     ({ item }:any) => (
@@ -186,6 +174,15 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
     }
   }, []);
 
+  // In the AttachmentViewer component, update the FlatList renderItem
+  // ... inside AttachmentViewer component ...
+  const renderImageThumbnail = ({item, index}:any) => 
+    <ImageThumbnail 
+      item={item} 
+      index={index} 
+      setSelectedImageIndex={setSelectedImageIndex}
+    />
+
   return (
     <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="never">
       {imageAttachments.length > 0 && (
@@ -194,7 +191,7 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
             ref={thumbnailListRef}
             data={imageAttachments}
             renderItem={renderImageThumbnail}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={useCallback((item:any) => item.id.toString(), [])}
             horizontal
             showsHorizontalScrollIndicator={false}
           />
@@ -203,7 +200,7 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
 
       {linkAttachments.length > 0 && (
         <View style={styles.linkSection}>
-          {linkAttachments.map((item:any,index:number) => renderLinkItem({ item,index }))}
+          {linkAttachments.map((item:any, index:number) => renderLinkItem({ item, index }))}
         </View>
       )}
 
@@ -243,18 +240,18 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
               }`}
             </Text>
             <View style={styles.headerButtons}>
-              <TouchableOpacity
+              <Pressable
                 style={styles.deleteButton}
                 onPress={() => selectedImageIndex !== null&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
               >
                 <SvgXml xml={notePreviewSVG.delete}/>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={styles.closeButton}
                 onPress={onClose}
               >
                 <SvgXml xml={notePreviewSVG.close}/>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -263,6 +260,67 @@ const AttachmentViewer = ({  attachments = [], onAttachmentUpdate = () => {}, on
     </ScrollView>
   );
 };
+
+
+  // Memoize ImageThumbnail component
+  const ImageThumbnail = ({ item, index, setSelectedImageIndex }:any) => {
+    const [imageLoading, setImageLoading] = useState(false);
+    const [loadProgress, setLoadProgress] = useState(0);
+    const styles = useStyles();
+    const { Colors } = useTheme()
+
+    // Memoize getCombinedProgress
+    const getCombinedProgress = useCallback(() => {
+      if (item.is_uploading|| imageLoading) {
+        return loadProgress * 95;
+      } 
+      return 100;
+    }, [item.is_uploading, imageLoading, loadProgress]);
+
+    // Memoize onPress handler
+    const handlePress = useCallback(() => {
+      setSelectedImageIndex(index);
+    }, [index, setSelectedImageIndex]);
+
+    return (
+      <Pressable onPress={handlePress}>
+        <View style={styles.thumbnailContainer}>
+          <ImageBackground
+            source={{ uri: item.url }}
+            style={styles.thumbnail}
+            contentFit="cover"
+            transition={0}
+            blurRadius={10}
+            cachePolicy={"disk"}
+            placeholder={blurhash}
+            onLoadStart={() => {
+              setImageLoading(true);
+              setLoadProgress(0);
+            }}
+            onProgress={({ loaded, total }) => {
+              setLoadProgress(loaded / total);
+            }}
+            onLoadEnd={() => {
+              setImageLoading(false);
+              setLoadProgress(1);
+            }}
+          />
+          {(item.is_uploading ) && (
+            <BlurView intensity={50} style={styles.blurOverlay}>
+              <AnimatedCircularProgress
+                size={25}
+                width={2.5}
+                fill={getCombinedProgress()}
+                tintColor={Colors.whiteWithOpacity(1)}
+                backgroundColor={Colors.whiteWithOpacity(0.3)}
+                rotation={0}
+              />
+            </BlurView>
+          )}
+        </View>
+      </Pressable>
+    );
+  };
 
 const useStyles = () => {
   const { Colors, isLightMode } = useTheme();
@@ -292,7 +350,6 @@ const useStyles = () => {
     width: 100,
     height: 100,
     borderRadius: 4,
-    backgroundColor:Colors.inputBg2,
     overflow:'hidden'
   },
   thumbnail: {
@@ -380,6 +437,7 @@ const useStyles = () => {
   headerButtons: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop:20
   },
   deleteButton: {
     padding: 13,
