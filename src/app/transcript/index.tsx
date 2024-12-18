@@ -18,7 +18,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { isAndroid, isIOS } from "utils/common";
+import { isAndroid, isIOS, screenHeight, screenWidth } from "utils/common";
 import Header from "components/AIModal/header";
 import { useNoteContext, useTheme } from "context";
 import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
@@ -204,7 +204,7 @@ const Transcript = () => {
             );
           })}
         </KeyboardAwareScrollView>
-        <KeyboardStickyView style={styles.inputContainer} offset={{opened:40}}>
+        <KeyboardStickyView style={styles.inputContainer} offset={{opened:isIOS?40:(screenHeight/100)}}>
           {!isRecording ? (
             <>
               <View style={styles.inputContentContainer}>
@@ -285,7 +285,7 @@ const useStyles = () => {
         modalContainer: {
           flex: 1,
           backgroundColor: Colors.bgColor8,
-          paddingTop: isIOS ? 0 : 40,
+          paddingTop: 0
         },
         inputContainer: {
           paddingVertical:16,

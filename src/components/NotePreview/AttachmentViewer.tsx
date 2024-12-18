@@ -20,7 +20,7 @@ import CircularLoader from "components/common/loaders/circular-loader";
 import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import { isAndroid, screenHeight } from "utils/common";
+import { isAndroid, isIOS, screenHeight } from "utils/common";
 import { useTheme } from "context";
 import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
@@ -290,7 +290,6 @@ const AttachmentViewer = ({
             style={styles.thumbnail}
             contentFit="cover"
             transition={0}
-            blurRadius={10}
             cachePolicy={"disk"}
             placeholder={blurhash}
             onLoadStart={() => {

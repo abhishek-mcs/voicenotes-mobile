@@ -51,7 +51,7 @@ const useStyles = () => {
 header1: {
   backgroundColor: Colors.bgColor8,
 },
-borderStyle:{borderTopWidth:0.3,borderTopColor:Colors.border},
+borderStyle:{borderTopWidth:0.19,borderTopColor:Colors.border},
   headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color:Colors.blackWithOpacity(1),width:'50%',textAlign:'center' },
   rightContainer:{ padding:4 }
 }), [Colors]); // Recreate styles when Colors change

@@ -206,14 +206,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             }}
           >
             <View style={{ backgroundColor: Colors.bgColor2, padding: 20}}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);
                   launchImagePicker("camera");
                 }}
               >
                 <Text style={{ fontSize: 18, padding: 10,color:Colors.text }}>Take Photo</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);

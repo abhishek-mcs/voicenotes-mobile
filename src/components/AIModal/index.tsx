@@ -258,9 +258,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   
   const renderDrawer = () => {
     return (
-      <View style={styles.history}>
+      // <View style={styles.history}>
         <FlatList
         data={askAIHistory}
+        contentContainerStyle={{height:'100%',paddingVertical:20}}
         ListHeaderComponent={()=><Text style={[styles.historyText,{paddingHorizontal:20}]}>History</Text>}
         keyExtractor={(item, index) => `${item?.id}-${index}`}
         renderItem={({ item,index }) => (
@@ -280,7 +281,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
         onEndReachedThreshold={0.5}
         onEndReached={()=>getAskHistory.hasNextPage&&getAskHistory.fetchNextPage()}
         />
-      </View>
+      // </View>
     );
   };
 
@@ -352,7 +353,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0}]}>
         {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>}
           {!chatLoader ? (
             <KeyboardAwareScrollView
@@ -451,7 +452,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <KeyboardStickyView style={styles.inputContainer} offset={{opened:40}}>
+            <KeyboardStickyView style={styles.inputContainer} offset={{opened:isIOS?40:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
@@ -533,9 +534,9 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               position: "absolute",
               flex: 1,
               zIndex: drawerIndex,
-              top: 0,
+              top: isIOS?0:93,
               width: "100%",
-              height: "90%",
+              height: isIOS?"90%":"88%",
             }}
           >
             <DrawerLayout
@@ -654,7 +655,7 @@ const useStyles = () => {
     justifyContent: "space-between",
     backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 24,
-    shadowColor: Colors.blackWithOpacity(0.15),
+    shadowColor: Colors.bgColor11,
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -780,7 +781,7 @@ const useStyles = () => {
   aiChat: { marginLeft: 16,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
   aiChatStyle:{
     backgroundColor:Colors.bgColor6,
-    shadowColor:Colors.blackWithOpacity(1),
+    shadowColor:Colors.bgColor11,
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -794,7 +795,7 @@ const useStyles = () => {
   header2: { marginBottom: 0, borderBottomWidth: 0 },
   lottie: { width:60,height:60,backgroundColor:'red',marginBottom:-200},
   drawer: {
-    shadowColor:Colors.blackWithOpacity(0.15),
+    shadowColor:Colors.bgColor11,
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -843,7 +844,7 @@ const useStyles = () => {
     padding:12,borderRadius:12,width:'85%',
   },
   shadow:{
-    shadowColor: Colors.blackWithOpacity(1),
+    shadowColor: Colors.bgColor11,
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
