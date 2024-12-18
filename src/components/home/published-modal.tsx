@@ -41,7 +41,7 @@ export default ({
   return (
     <ReactNativeModal
       isVisible={visible}
-      backdropColor="rgba(0,0,0,0.3)"
+      backdropColor="rgba(0,0,0,0.6)"
       onBackdropPress={hideModal}
       animationIn={"fadeIn"}
       animationOut={"fadeOut"}
@@ -50,15 +50,20 @@ export default ({
       backdropTransitionInTiming={500}
       backdropTransitionOutTiming={500}
       statusBarTranslucent
-      backdropOpacity={0.3}
+      backdropOpacity={0.8}
     >
       <View
         style={{
           padding: 16,
           backgroundColor: Colors.bgColor8,
           borderRadius: 12,
-          shadowColor: Colors.blackWithOpacity(0.5),
-          shadowRadius:5
+          shadowColor:Colors.bgColor10(1),
+          shadowOpacity: 0.15,
+          shadowOffset: { width: 0, height: 0.5 },
+          shadowRadius: 1.5,
+          elevation: 4,
+          borderWidth:1,
+          borderColor:Colors.bgColor13(0.1),
         }}
       >
         {isNoteJustMadePrivate ? (
@@ -174,7 +179,7 @@ export default ({
               <TouchableHighlight
                 onPress={onPressDone}
                 style={{
-                  backgroundColor: Colors.darkWithOpacity(0.05),
+                  backgroundColor: Colors.bgColor12,
                   alignSelf: "flex-start",
                   borderRadius: 12,
                   padding: 12,
@@ -185,7 +190,7 @@ export default ({
               >
                 {isLoading ? (
                   <LottieView
-                    source={threeDotLoader}
+                    source={threeDotLoader2}
                     autoPlay
                     loop
                     style={{ width: 30, height: 15 }}
@@ -193,7 +198,7 @@ export default ({
                 ) : (
                   <Text
                     style={{
-                      color: Colors.text5,
+                      color: Colors.text4,
                       fontFamily: "Primary-Semibold",
                       fontSize: 12,
                     }}
@@ -256,7 +261,7 @@ export default ({
               <TouchableHighlight
                 onPress={onPressCancel}
                 style={{
-                  backgroundColor: Colors.darkWithOpacity(0.05),
+                  backgroundColor: Colors.bgColor12,
                   alignSelf: "flex-start",
                   borderRadius: 12,
                   padding: 12,
@@ -267,7 +272,7 @@ export default ({
               >
                 <Text
                   style={{
-                    color: Colors.text5,
+                    color: Colors.text4,
                     fontFamily: "Primary-Semibold",
                     fontSize: 12,
                   }}

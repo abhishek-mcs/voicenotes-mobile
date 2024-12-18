@@ -1,6 +1,6 @@
 export const AIModalSVG = {
   record: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="16" cy="16" r="16" fill="#222222" fill-opacity="0.1"/>
+<circle cx="16" cy="16" r="16" fill="#222222"/>
 <mask id="mask0_2035_7157" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="6" y="6" width="20" height="20">
 <rect x="6" y="6" width="20" height="20" fill="#D9D9D9"/>
 </mask>

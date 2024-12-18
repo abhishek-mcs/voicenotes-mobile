@@ -40,6 +40,7 @@ import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import {
   setCreateRecordingList,
+  setCurrentlyOpenedMeetingTranscript,
   setRecordingList,
   setTempRecordingData,
   updateRecordingDetails,
@@ -172,51 +173,39 @@ const Home = () => {
    async(
       recordingId: string | number,
       temporaryRecordingId: string | null = null,
-      is_transcript_only=false
+      is_transcript_only=false,
+      teamSummaryId=null
     ) => {
       try{
-      // console.log("listening to firebase");
+        
       const firebasePath =  "processStatuses/recording"
-        // : "processStatuses/guest/recording/";
-      // const statusRef = ref(db, firebasePath + recordingId);
+      const dbRef = database().ref(firebasePath).child(`${recordingId}`);
+      
       console.log('firebase listen', firebasePath + recordingId)
-      // const checkSnapshotExists = async (attempts: number) => {
-      //   for (let i = 0; i < attempts; i++) {
-          
-      // database()
-      // .ref("processStatuses/recording").child(`${recordingId}`).on("child_added",async(s)=>{
-      //   console.log('snap status',s.val())
-      //   return true
-      // })
-      //     console.log(`Attempt ${i + 1}: Snapshot does not exist, retrying...`);
-      //     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
-      //   }
-      //   console.log("Max attempts reached. Snapshot still does not exist.");
-      //   return null; // Return null if snapshot does not exist after retries
-      // };
+      
       let isTitleGenerated=false||is_transcript_only;
       let isTitleTriggered=false||is_transcript_only;
       let isTranscriptTriggered=false;
       let isProcessCompleted=false;
-      database()
-      .ref(firebasePath).child(`${recordingId}`)
-      .on('value', async (snapshot) => {
-      //   console.log('User data: ', snapshot.val());
-      // });
-      // onValue(statusRef, async (snapshot) => {
-        // const snapshot = await checkSnapshotExists(5);
+
+      dbRef.on('value', async (snapshot) => {
+        console.log('firebase listen value')
+        if (!snapshot?.exists()) {
+          console.log("Snapshot does not exist");
+          return;
+        }
+
         console.log('snapshot',snapshot?.exists())
+
         if (snapshot?.exists()) {
+
           const status = +snapshot.val();
 
-          // if (
-          //   status !== RecordingStatus.TRANSCRIPT_FORMATTED &&
-          //   status !== RecordingStatus.GENERATE_TITLE_FAILED &&
-          //   status !== RecordingStatus.UPLOADED_FAILED &&
-          //   status !== RecordingStatus.AUDIO_UPLOADED
-          // ) {
-          //   return;
-          // }
+          if (isNaN(status)) {
+            console.error("Invalid status value");
+            return;
+          }
+          
           console.log('firebase snapshot')
           let updatedStatus = "uploading";
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
@@ -263,7 +252,27 @@ const Home = () => {
               })
             );
             dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED) {
+          } else if (teamSummaryId && status === RecordingStatus.MEETING_SUMMARY_GENERATED) {
+            console.log('summary generation worked')
+            updatedStatus = "processed";
+            await sleep(3000)
+            const updatedNote = await fetchSingleRecording(recordingId);
+            dispatch(
+              updateRecordingDetails({
+                recordingId,
+                data: {
+                  ...updatedNote.data,
+                  status: updatedStatus,
+                  is_transcript_loading:false,
+                },
+              })
+            );
+            !isTranscriptTriggered&&setTriggerTypingTranscript(recordingId);
+            return ()=> {
+              dbRef.off('value');
+              dbRef.remove();
+            }
+          } else if ((status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED)&&!teamSummaryId) {
             const isProcessOver = true;
             updatedStatus = "processed";
             console.log("formatted");
@@ -292,15 +301,15 @@ const Home = () => {
             dispatchCanRecord(updatedNote.data?.can_record_more);
             isTitleGenerated&&dispatch(setRelatedNoteTitleLoad(false))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
+            is_transcript_only&&updatedNote.data?.recording_type==2&&dispatch(setCurrentlyOpenedMeetingTranscript(updatedNote.data?.transcript))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
             console.log("removing firebase listener");
-            status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).remove();
-            status === RecordingStatus.PROCESS_COMPLETED&&database().ref(firebasePath+recordingId).off('value');
             // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
             status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
               !updatedNote.data?.parent_id&&setExpandNote(0);
+              status === RecordingStatus.PROCESS_COMPLETED&&dbRef.off('value');
+              status === RecordingStatus.PROCESS_COMPLETED&&dbRef.remove();
             }, 600);
-            return;
           }
         } else {
           console.log("Snapshot does not exist");
@@ -309,7 +318,15 @@ const Home = () => {
         console.error(error);
       });
     }catch(e){
-      console.log(e,'firebase listener error')
+      console.log("Error processing snapshot:", e);
+      // Update UI to show error state if needed
+      dispatch(
+        updateRecordingDetails({
+          recordingId,
+          data: { status: "processing_failed" },
+          temporaryRecordingId,
+        })
+      );
     }
     }
 
@@ -462,7 +479,7 @@ const Home = () => {
     });
   }, []);
 
-  const continueProcessing = async (note: Note, is_transcript_only = false) => {
+  const continueProcessing = async (note: Note, is_transcript_only = false,summary_id=null) => {
     try {
       const isProcessFailed=(note?.title=="New Recording"||!note?.title)&&!note?.transcript
       dispatch(
@@ -472,11 +489,18 @@ const Home = () => {
         })
       );
       console.log("making request");
-      const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
-        is_transcript_only,
-      });
 
-      listenToFirebaseStatus(note.id,null,is_transcript_only);
+      if(!!summary_id){
+        const resp = await axiosApi.post(`/ai-create/${summary_id}/regenerate`)
+      }else{
+        const resp = await axiosApi.patch(`/recordings/${note.id}/continue`, {
+          is_transcript_only,
+        });
+      }
+      // else{
+      // }
+
+      listenToFirebaseStatus(note.id,null,is_transcript_only,summary_id);
     } catch (error) {
       console.log("error in queing new transcript: ", error);
     }
@@ -623,8 +647,10 @@ const Home = () => {
           })
         );
         dispatch(updateTempRecordingData("processing"));
-        note.audio.data.duration>300000&&sleep(2000)
-        await listenToFirebaseStatus(recordingId, temporaryRecordingId);
+        await sleep(3000)
+        listenToFirebaseStatus(recordingId, temporaryRecordingId);
+      }).catch((e)=>{
+        console.log(e,'audio upload failed. please check for error')
       });
       setTimeout(() => {
         console.log("removing old recordings to save memory");
@@ -760,7 +786,10 @@ const Home = () => {
         syncUpNote={syncUpNote}
         hashFilter={hashFilter}
         expand={expandNote}
-        setExpand={(v:any) =>setExpandNote(v)}
+        setExpand={(v:any) =>{
+          setExpandNote(v)
+          // scrollRef.current?.scrollToIndex({animated:true,index})
+        }}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
@@ -909,7 +938,7 @@ const Home = () => {
             <Animated.FlatList
                 ref={scrollRef}
                 ListHeaderComponent={
-                  <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
+                  <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
                 }
                 // bounces={false}
                 data={isRecordListLoading?[]:filteredRecordingList??[]}

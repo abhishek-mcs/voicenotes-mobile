@@ -65,7 +65,8 @@ header1: {
   alignItems: "center",
   justifyContent: "space-between",
   borderBottomWidth: 1,
-  borderBottomColor: Colors.border
+  borderBottomColor: Colors.border,
+  backgroundColor: Colors.bgColor8,
 },
 leftContainer:{
     flexDirection: "row",

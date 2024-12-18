@@ -174,8 +174,8 @@ export function useDeleteFormattedNote(id:number){
 
 export function useGetAiCreation(){
     const queryClient=useQueryClient()
-    return useMutation('get-formatted-note', (id?:any)=> {
-        return axiosApi.get(`/ai-create/${id}`)
+    return useMutation('get-formatted-note', async(id?:any)=> {
+        return await axiosApi.get(`/ai-create/${id}`)
     },
     {
         onSuccess:async()=>{
@@ -183,6 +183,36 @@ export function useGetAiCreation(){
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
+        }
+    })
+}
+
+export function useSaveAICreation(id?:any){
+    const queryClient=useQueryClient()
+    return useMutation('save-edited-creation', ({recording_id,content,title}:any)=> {
+        return axiosApi.post(`/ai-create/${id}`,{recording_id,content,title})
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'save-edited-creation');
+        }
+    })
+}
+
+export function useRegenerateTeamSummaryCreation(){
+    const queryClient=useQueryClient()
+    return useMutation('regenerate-team-creation', (id:any)=> {
+        return axiosApi.post(`/ai-create/${id}/regenerate`)
+    },
+    {
+        onSuccess:async()=>{
+          await queryClient.invalidateQueries('all-recording')
+        },
+        onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'regenerate-team-creation');
         }
     })
 }
@@ -353,6 +383,15 @@ export function useGetAskChat(){
         {
             onError:(error:any)=>{
             console.log(error?.response?.data?.message);
+        }
+        })
+}
+
+export function useFetchMeetingAskChats(){
+    return useMutation('fetch-meeting-ask-chats',(recording_id?:any) => axiosApi.post(`ai-chat-thread/recording/ask`,{recording_id}),  
+        {
+            onError:(error:any)=>{
+            console.log(error?.response?.data?.message,'fetch-meeting-ask-chats');
         }
         })
 }

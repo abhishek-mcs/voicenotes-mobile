@@ -132,9 +132,13 @@ const Premium=(props:any) => {
     }
     setIsLoading(false)
   }
-  const priceMonthString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace('.00','')
-  const priceAnnualString=(pack[3]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace('.00','')
+  let priceMonthString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace(/\.0+$/, '')
+  let priceAnnualString=(pack[3]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace(/\.0+$/, '')
   const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
+  if (priceMonthString.startsWith('Rp')){
+    priceMonthString = priceMonthString+'ribu';
+    priceAnnualString = priceAnnualString+'ribu';
+  }
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: 2,
