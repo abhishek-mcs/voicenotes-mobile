@@ -110,6 +110,7 @@ useEffect(() => {
     !canRecord&&setCloseAlert(false)
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
+    setPaused(false)
     onRecord(newTemporaryRecordingId);
   };
 
