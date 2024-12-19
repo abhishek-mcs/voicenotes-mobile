@@ -130,9 +130,9 @@ const TextNote = () => {
           paddingRight: 24,
         }}
       >
-        <TouchableOpacity>
+        <Pressable>
           <SvgXml xml={home.img?.replace(/#0D0D0D/g, Colors.black2)} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
       </KeyboardStickyView>
     </SafeAreaView>
