@@ -12,8 +12,8 @@ const MAX_HEIGHT = 35;
 const BAR_SPACING = 2;
 
 // Platform-specific metering ranges
-const IOS_NOISE_THRESHOLD = -45;
-const IOS_SPEECH_LEVEL = -20;
+const IOS_NOISE_THRESHOLD = -30;
+const IOS_SPEECH_LEVEL = -5;
 const ANDROID_NOISE_THRESHOLD = -60;
 const ANDROID_SPEECH_LEVEL = -35;
 
@@ -38,26 +38,32 @@ const Waveform: React.FC<WaveformProps> = ({ recording }) => {
   }, []);
 
   const normalizeMeterLevel = (meter: number) => {
-    // Get platform-specific thresholds
     const noiseThreshold = Platform.OS === 'ios' ? IOS_NOISE_THRESHOLD : ANDROID_NOISE_THRESHOLD;
     const speechLevel = Platform.OS === 'ios' ? IOS_SPEECH_LEVEL : ANDROID_SPEECH_LEVEL;
     
-    // Normalize based on platform-specific ranges
     let normalizedValue = (meter - noiseThreshold) / (speechLevel - noiseThreshold);
-    
-    // Clamp between 0 and 1
     normalizedValue = Math.max(0, Math.min(1, normalizedValue));
     
-    // Apply non-linear scaling to enhance contrast
-    normalizedValue = Math.pow(normalizedValue, Platform.OS === 'ios' ? 1.8 : 1.5);
-    
-    // Enhanced thresholding for better visual distinction
-    if (normalizedValue < 0.2) {
-      normalizedValue *= Platform.OS === 'ios' ? 0.2 : 0.3; // More aggressive reduction on iOS
+    if (Platform.OS === 'ios') {
+      // Smoother scaling for iOS
+      normalizedValue = Math.pow(normalizedValue, 1.5);
+      
+      // Progressive scaling based on input level
+      if (normalizedValue < 0.2) {
+        normalizedValue *= 0.2;
+      } else if (normalizedValue > 0.8) {
+        // Prevent extreme values that could cause bars to get stuck
+        normalizedValue = 0.8 + (normalizedValue - 0.8) * 0.5;
+      } else {
+        normalizedValue = 0.2 + (normalizedValue - 0.2) * 1.2;
+      }
     } else {
-      // More aggressive amplification on iOS
-      const amplificationFactor = Platform.OS === 'ios' ? 1.8 : 1.5;
-      normalizedValue = 0.2 + (normalizedValue - 0.2) * amplificationFactor;
+      normalizedValue = Math.pow(normalizedValue, 1.5);
+      if (normalizedValue < 0.2) {
+        normalizedValue *= 0.3;
+      } else {
+        normalizedValue = 0.2 + (normalizedValue - 0.2) * 1.5;
+      }
     }
     
     return Math.min(1, normalizedValue);
@@ -78,9 +84,13 @@ const Waveform: React.FC<WaveformProps> = ({ recording }) => {
 
             animatedBars.current.forEach((bar, index) => {
               const delay = index * (Platform.OS === 'ios' ? 4 : 8);
-              const randomFactor = Platform.OS === 'ios' 
-                ? 0.3 + Math.random() * 1.4  // Wider range for iOS
+              // Reduce random variation for higher volumes on iOS
+              const randomFactor = Platform.OS === 'ios'
+                ? (normalizedMeter > 0.8 
+                  ? 0.7 + Math.random() * 0.6  // Less variation for loud sounds
+                  : 0.4 + Math.random() * 1.2)  // Normal variation for regular sounds
                 : 0.4 + Math.random() * 1.2;
+              
               const targetHeight = MIN_HEIGHT + (normalizedMeter * (MAX_HEIGHT - MIN_HEIGHT) * randomFactor);
 
               Animated.sequence([
@@ -88,9 +98,9 @@ const Waveform: React.FC<WaveformProps> = ({ recording }) => {
                 Animated.spring(bar, {
                   toValue: targetHeight,
                   useNativeDriver: false,
-                  stiffness: Platform.OS === 'ios' ? 350 : 200, // Higher stiffness for iOS
-                  damping: Platform.OS === 'ios' ? 12 : 12,
-                  mass: Platform.OS === 'ios' ? 0.2 : 0.3, // Lower mass for iOS
+                  stiffness: Platform.OS === 'ios' ? 300 : 200,
+                  damping: Platform.OS === 'ios' ? 15 : 12,
+                  mass: 0.3,
                 })
               ]).start();
             });
@@ -105,7 +115,7 @@ const Waveform: React.FC<WaveformProps> = ({ recording }) => {
                   mass: 0.3,
                 }).start();
               });
-            }, Platform.OS === 'ios' ? 80 : 100); // Faster reset on iOS
+            }, Platform.OS === 'ios' ? 80 : 100);
           }
         }
       });
