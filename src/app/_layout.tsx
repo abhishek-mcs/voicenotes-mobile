@@ -85,6 +85,10 @@ export default function Layout() {
                 name="review/index"
                 options={{ presentation: 'formSheet' }}
               />
+              <Stack.Screen
+                name="text-note/index"
+                options={{ presentation: "formSheet",animation:isIOS?"ios":"slide_from_bottom" }}
+              />
             </Stack>
           </AppProvider>
         </BottomSheetModalProvider>

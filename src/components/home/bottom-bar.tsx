@@ -10,6 +10,7 @@ import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useTheme } from "context";
+import { router } from "expo-router";
 
 interface Props {
   onRecord: (v:any) => void;
@@ -46,7 +47,6 @@ export default ({
   const [closeAlert, setCloseAlert] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
-  const homeIcons:any=home
   const { token, userDetails, canRecord }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -113,6 +113,10 @@ useEffect(() => {
     onRecord(newTemporaryRecordingId);
   };
 
+  const onTextNote = () => {
+    router.push('/text-note/')
+  }
+
   const onCloseAlert = () => {
     canRecord?
     setRecordingParentId(null)
@@ -154,6 +158,22 @@ useEffect(() => {
         {!recEnabled ? (
           <>
             <RecButton
+              onPress={onAsk}
+              title={"Ask AI"}
+              icon={home.ask?.replace(/#0D0D0D/g,Colors.black2)}
+              style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
+            />
+            <RecButton
+              onPress={onTextNote}
+              title="Note"
+              icon={home.note?.replace(/#0D0D0D/g,Colors.black2)}
+              style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
+            />
+            <RecButton
               onPress={onRecordStart}
               title="Record"
               icon={home.record}
@@ -162,22 +182,14 @@ useEffect(() => {
               color={Colors.bottomBarText}
               style={styles.button}
             />
-            <RecButton
-              onPress={onAsk}
-              title={"Ask AI"}
-              icon={homeIcons.ask?.replaceAll('#0D0D0D',Colors.black2)}
-              style={{...styles.button}}
-              bgColor={Colors.bottomBarButtonBg1}
-              color={Colors.bottomBarText1}
-            />
-            <RecButton
+            {/* <RecButton
               onPress={onCreate}
               title="Create"
               icon={homeIcons.create?.replaceAll('#0D0D0D',Colors.black2)}
               style={styles.button}
               bgColor={Colors.bottomBarButtonBg1}
               color={Colors.bottomBarText1}
-            />
+            /> */}
           </>
         ) : (
 <NoteRecorder
