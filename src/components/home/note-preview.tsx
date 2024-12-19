@@ -289,13 +289,15 @@ const NotePreview = forwardRef(
       let t:any=''
       if(note?.recording_type==2)
         t=note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data??''
-      else
+      else{
         t=content
-          t?.replaceAll(/\n/g, '')
-          ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-          ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-          ?.replaceAll(/<br\/?>/g, "\n\n")
+          ?.replace(/\n/g, '')
+          ?.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+          ?.replace(/<br\s*\/?>\s+/g, '<br>')
+          ?.replace(/<br\/?>/g, "\n\n")
           ?.trimEnd()
+        }
+      console.log(t)
       await setStringAsync(t);
       setShareVisible(false);
     };
