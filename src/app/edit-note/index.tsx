@@ -61,15 +61,16 @@ const EditNote = () => {
       return showDialog("", `Title and ${editNote?.recording_type==2?'Summary':'Transcript'} cannot be empty`,[],{userInterfaceStyle:isLightMode?"light":"dark"});
     }
     setIsLoading(true);
-    // const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);
+    const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);
     const temp = { ...editNote };
 
     const transcript = editNote?.transcript;
     const content = editNoteSummary;
     const recording_id = editNote?.recording_id
+    const data =editNote?.recording_type==2?{content,recording_id}:{transcript,tags} 
 
     await saveEditedNote.mutateAsync(
-      {title:editNote?.title,transcript,content,recording_id},{
+      {title:editNote?.title,...data},{
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
@@ -96,7 +97,7 @@ const EditNote = () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8 }}>
       <KeyboardAvoidingView 
         behavior={isIOS ? "padding" : "height"}
         style={{ flex: 1 }}
