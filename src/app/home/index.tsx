@@ -60,7 +60,6 @@ import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
 import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
-import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 import TagButtons from "components/home/tag-buttons";
@@ -78,7 +77,6 @@ import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
-
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -788,7 +786,7 @@ const Home = () => {
         expand={expandNote}
         setExpand={(v:any) =>{
           setExpandNote(v)
-          // scrollRef.current?.scrollToIndex({animated:true,index})
+          v==-1&&scrollRef.current?.scrollToIndex({animated:true,index})
         }}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}

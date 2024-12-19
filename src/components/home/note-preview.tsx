@@ -289,13 +289,15 @@ const NotePreview = forwardRef(
       let t:any=''
       if(note?.recording_type==2)
         t=note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data??''
-      else
+      else{
         t=content
-          t?.replaceAll(/\n/g, '')
-          ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-          ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-          ?.replaceAll(/<br\/?>/g, "\n\n")
+          ?.replace(/\n/g, '')
+          ?.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+          ?.replace(/<br\s*\/?>\s+/g, '<br>')
+          ?.replace(/<br\/?>/g, "\n\n")
           ?.trimEnd()
+        }
+      console.log(t)
       await setStringAsync(t);
       setShareVisible(false);
     };
@@ -984,7 +986,7 @@ const NotePreview = forwardRef(
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     message={(
                       note?.recording_type==2?
-                      note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')??''
+                      note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
                       :note?.transcript
                       ?.replaceAll(/\n/g, ''))
                       ?.replaceAll(/<b\/?>/g, '')

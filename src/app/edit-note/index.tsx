@@ -39,7 +39,7 @@ const EditNote = () => {
   const [editNote, setEditNote] = useState<any>(editNoteRedux);
   const [editNoteSummary, setEditNoteSummary] = useState<string>(
    editNote?.recording_type==2?
-   editNote?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data?.replace(/- /g, '• ')??'':''
+   editNote?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??'':''
   )
   const dispatch = useDispatch();
   const saveEditedNote = editNote?.recording_type==2?
@@ -65,7 +65,7 @@ const EditNote = () => {
     const temp = { ...editNote };
 
     const transcript = editNote?.transcript;
-    const content = editNoteSummary;
+    const content = editNoteSummary?.replace(/\* /g,'');
     const recording_id = editNote?.recording_id
     const data =editNote?.recording_type==2?{content,recording_id}:{transcript,tags} 
 
@@ -192,7 +192,8 @@ const EditNote = () => {
               ?.replaceAll(/<\/b\/?>/g, '')
               ?.replaceAll(/<br\/?>/g, "\n")
               ?.replace(/&amp;/g, '&')
-              ?.replace(/&nbsp;/g, '&')}
+              ?.replace(/&nbsp;/g, '&')
+            }
             onChangeText={(txt) =>{
               setEditNote((n: any) => {
                 return { 
