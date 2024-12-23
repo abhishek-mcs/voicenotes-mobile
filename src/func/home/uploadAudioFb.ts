@@ -27,6 +27,7 @@ export const saveVoiceNote = async (data: {
   const uri = audio;
   const fileInfo = await FileSystem.getInfoAsync(uri);
   if (!fileInfo.exists) {
+    console.log("File does not exist")
     throw new Error("File does not exist");
   }
 

@@ -1,5 +1,5 @@
 import { home } from "assets/svg/home";
-import { memo, useContext } from "react";
+import { memo, useCallback, useContext, useRef } from "react";
 import Touchable from "components/common/Touchable";
 import {
   Alert,
@@ -100,6 +100,7 @@ const NotePreview = forwardRef(
         repeat: boolean | null;
       }) => {},
       isOffline = false,
+      scrollRef,
     }: any,
     ref
   ) => {
@@ -144,7 +145,7 @@ const NotePreview = forwardRef(
     const NetInfo = useNetInfo();
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
-    const regenerateTeamSummary = useRegenerateTeamSummaryCreation()
+    const creationslistRef:any = useRef<View>(null);
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
@@ -184,11 +185,21 @@ const NotePreview = forwardRef(
       setCreationLoader(false);
     };
 
-    const onCreate = async (type = "summary") => {
+    const onCreate = useCallback(async (type = "summary") => {
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
       setExpand(index)
+      // Scroll to the specific component
+      setTimeout(() => {
+        if (creationslistRef.current) {
+          creationslistRef.current?.measure((fx:number, fy:number, width:number, height:number, px:number, py:number) => {
+            // Scroll to the y position of the component
+            console.log(py,fy)
+            scrollRef.current.scrollToOffset({ animated: true, offset: py+(height/1.3) });
+          });
+        }
+      }, 1000);
       await createAI.mutateAsync(
         { recording_id: note?.id, type },
         {
@@ -198,7 +209,7 @@ const NotePreview = forwardRef(
           onError: () => setCreationLoader(false),
         }
       );
-    };
+    },[note,index,creationslistRef]);
 
     const onGenerateTitle = async () => {
       hideMoreOption();
@@ -479,7 +490,14 @@ const NotePreview = forwardRef(
            type: LayoutAnimation.Types.easeInEaseOut,
         }
        });
-      setExpand((i:any)=>index==i?-1:index);
+      setExpand((i:any)=>{
+        if(index==i){
+          scrollRef.current?.scrollToIndex({animated:true,index})
+          return -1
+        }
+        else return index
+
+      });
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
     };
@@ -979,7 +997,7 @@ const NotePreview = forwardRef(
                   </Text>
                 </View>
               )}
-              <View>
+              <View ref={creationslistRef}>
                 {note?.transcript && !note.is_transcript_loading && (
                   <ChatBubble
                     lines={expand == index ? 10000 : 4}
@@ -1064,13 +1082,11 @@ const NotePreview = forwardRef(
                 {expand === index && (
                   <View style={{marginBottom:8}}>
                     {renderButtons()}
-                    {token && (
-                      <CreationsList
-                        note={note}
-                        createType={createType}
-                        creationLoader={creationLoader}
-                      />
-                    )}
+                    <CreationsList
+                      note={note}
+                      createType={createType}
+                      creationLoader={creationLoader}
+                    />
                     <RelatedNotesList
                       note={note}
                       onPress={(id: any) => {

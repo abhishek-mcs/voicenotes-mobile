@@ -787,11 +787,11 @@ const Home = () => {
         expand={expandNote}
         setExpand={(v:any) =>{
           setExpandNote(v)
-          v==-1&&scrollRef.current?.scrollToIndex({animated:true,index})
         }}
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
+        scrollRef={scrollRef}
       />
     ),
     [isPlay, play, audioLoading, expandNote,isOffline]
