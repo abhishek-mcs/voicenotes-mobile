@@ -17,12 +17,17 @@ export const ThemeProvider = ({ children }:any) => {
   const {savedTheme}:any=useSelector((state:RootState)=>state.userDetails)
   const colorScheme = useColorScheme()
   const dispatch = useDispatch()
-  const [theme,setTheme] = useState<'light'|'dark'|'light-dark'|'auto'>(savedTheme||'auto');
+  const [theme,setTheme] = useState<'light'|'dark'|'light-dark'|'auto'>('auto');
   
   const switchTheme = (scheme:any) => {
-    setTheme(scheme);
     dispatch(setSavedTheme(scheme))
   };
+
+  useEffect(()=>{
+    if(savedTheme){
+      setTheme(savedTheme)
+    }
+  },[savedTheme])
   
   const isLightMode = theme=="auto"? colorScheme=="light" : theme == "light"
   const Colors = theme=="auto"? (colorScheme=='dark'? dark : light ):( theme=="dark" ? dark : light);
