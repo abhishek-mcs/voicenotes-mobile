@@ -1,39 +1,44 @@
 import { useTheme } from 'context';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Animated, Platform } from 'react-native';
+import { StyleSheet, View, Animated, Platform, Dimensions } from 'react-native';
 
 interface WaveformProps {
   recording: any;
 }
 
-const BAR_COUNT = 50;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MIN_HEIGHT = 1;
 const MAX_HEIGHT = 35;
+const BAR_WIDTH = 3;
 const BAR_SPACING = 2;
+const BAR_COUNT = Math.floor(SCREEN_WIDTH / (BAR_WIDTH + BAR_SPACING));
+const TOTAL_BAR_WIDTH = BAR_WIDTH + BAR_SPACING;
 
 // Platform-specific metering ranges
-const IOS_NOISE_THRESHOLD = -30;
+const IOS_NOISE_THRESHOLD = -50;
 const IOS_SPEECH_LEVEL = -5;
 const ANDROID_NOISE_THRESHOLD = -60;
 const ANDROID_SPEECH_LEVEL = -35;
 
+interface BarData {
+  height: number;
+  position: Animated.Value;
+  opacity: Animated.Value;
+}
+
 const Waveform: React.FC<WaveformProps> = ({ recording }) => {
   const { Colors } = useTheme();
-  const animatedBars = useRef<Animated.Value[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const lastMeterValue = useRef<number>(0);
-  const animationTimeout = useRef<NodeJS.Timeout>();
+  const barsRef = useRef<BarData[]>([]);
+  const startX = SCREEN_WIDTH; // Starting position for new bars
 
   useEffect(() => {
     if (!isInitialized) {
-      animatedBars.current = Array(BAR_COUNT).fill(0).map(() => new Animated.Value(MIN_HEIGHT));
       setIsInitialized(true);
     }
-
     return () => {
-      if (animationTimeout.current) {
-        clearTimeout(animationTimeout.current);
-      }
+      barsRef.current = [];
     };
   }, []);
 
@@ -45,14 +50,10 @@ const Waveform: React.FC<WaveformProps> = ({ recording }) => {
     normalizedValue = Math.max(0, Math.min(1, normalizedValue));
     
     if (Platform.OS === 'ios') {
-      // Smoother scaling for iOS
       normalizedValue = Math.pow(normalizedValue, 1.5);
-      
-      // Progressive scaling based on input level
       if (normalizedValue < 0.2) {
         normalizedValue *= 0.2;
       } else if (normalizedValue > 0.8) {
-        // Prevent extreme values that could cause bars to get stuck
         normalizedValue = 0.8 + (normalizedValue - 0.8) * 0.5;
       } else {
         normalizedValue = 0.2 + (normalizedValue - 0.2) * 1.2;
@@ -74,74 +75,72 @@ const Waveform: React.FC<WaveformProps> = ({ recording }) => {
       recording.setOnRecordingStatusUpdate((status: any) => {
         if (status.metering !== undefined) {
           const normalizedMeter = normalizeMeterLevel(status.metering);
+          lastMeterValue.current = normalizedMeter;
 
-          if (Math.abs(normalizedMeter - lastMeterValue.current) > (Platform.OS === 'ios' ? 0.02 : 0.03)) {
-            lastMeterValue.current = normalizedMeter;
+          // Create new bar
+          const randomFactor = Platform.OS === 'ios'
+            ? (normalizedMeter > 0.8 
+              ? 0.7 + Math.random() * 0.6
+              : 0.4 + Math.random() * 1.2)
+            : 0.4 + Math.random() * 1.2;
+          
+          // Ensure minimum height of 1
+          const barHeight = Math.max(MIN_HEIGHT, MIN_HEIGHT + (normalizedMeter * (MAX_HEIGHT - MIN_HEIGHT) * randomFactor));
+          
+          // Create new bar data
+          const newBar: BarData = {
+            height: barHeight,
+            position: new Animated.Value(startX),
+            opacity: new Animated.Value(1)
+          };
 
-            if (animationTimeout.current) {
-              clearTimeout(animationTimeout.current);
-            }
+          // Add new bar to array
+          barsRef.current.push(newBar);
 
-            animatedBars.current.forEach((bar, index) => {
-              const delay = index * (Platform.OS === 'ios' ? 4 : 8);
-              // Reduce random variation for higher volumes on iOS
-              const randomFactor = Platform.OS === 'ios'
-                ? (normalizedMeter > 0.8 
-                  ? 0.7 + Math.random() * 0.6  // Less variation for loud sounds
-                  : 0.4 + Math.random() * 1.2)  // Normal variation for regular sounds
-                : 0.4 + Math.random() * 1.2;
-              
-              const targetHeight = MIN_HEIGHT + (normalizedMeter * (MAX_HEIGHT - MIN_HEIGHT) * randomFactor);
-
-              Animated.sequence([
-                Animated.delay(delay),
-                Animated.spring(bar, {
-                  toValue: targetHeight,
-                  useNativeDriver: false,
-                  stiffness: Platform.OS === 'ios' ? 300 : 200,
-                  damping: Platform.OS === 'ios' ? 15 : 12,
-                  mass: 0.3,
-                })
-              ]).start();
+          // If we exceed BAR_COUNT, remove the oldest bar
+          if (barsRef.current.length > BAR_COUNT) {
+            const oldestBar = barsRef.current[0];
+            // Fade out the oldest bar
+            Animated.timing(oldestBar.opacity, {
+              toValue: 0,
+              duration: 150,
+              useNativeDriver: true
+            }).start(() => {
+              // Remove the oldest bar from the array
+              barsRef.current = barsRef.current.slice(1);
             });
-
-            animationTimeout.current = setTimeout(() => {
-              animatedBars.current.forEach((bar) => {
-                Animated.spring(bar, {
-                  toValue: MIN_HEIGHT + (normalizedMeter < 0.2 ? 2 : 0),
-                  useNativeDriver: false,
-                  stiffness: 100,
-                  damping: 10,
-                  mass: 0.3,
-                }).start();
-              });
-            }, Platform.OS === 'ios' ? 80 : 100);
           }
+
+          // Animate all bars to the left
+          barsRef.current.forEach((bar, index) => {
+            const targetX = -TOTAL_BAR_WIDTH + (SCREEN_WIDTH - ((barsRef.current.length - 1 - index) * TOTAL_BAR_WIDTH));
+            Animated.spring(bar.position, {
+              toValue: targetX,
+              useNativeDriver: true,
+              stiffness: Platform.OS === 'ios' ? 300 : 200,
+              damping: Platform.OS === 'ios' ? 15 : 12,
+              mass: 0.3,
+            }).start();
+          });
         }
       });
     } else {
-      animatedBars.current.forEach((bar) => {
-        Animated.spring(bar, {
-          toValue: MIN_HEIGHT + Math.random() * 2,
-          useNativeDriver: false,
-          stiffness: 100,
-          damping: 10,
-          mass: 0.3,
-        }).start();
-      });
+      // Clear all bars when recording stops
+      barsRef.current = [];
     }
   }, [recording]);
 
   const renderBars = () => {
-    return animatedBars.current.map((bar, index) => (
+    return barsRef.current.map((bar, index) => (
       <Animated.View
         key={index}
         style={[
           styles.bar,
           {
-            height: bar,
             backgroundColor: Colors.blackWithOpacity(0.8),
-            marginHorizontal: BAR_SPACING / 2,
+            height: bar.height,
+            transform: [{ translateX: bar.position }],
+            opacity: bar.opacity,
           },
         ]}
       />
@@ -162,16 +161,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   waveformContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: '100%',
     height: MAX_HEIGHT,
-    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bar: {
-    width: 3,
-    borderRadius: 1.5,
+    position: 'absolute',
+    width: BAR_WIDTH,
+    borderRadius: BAR_WIDTH / 2,
   },
 });
 
