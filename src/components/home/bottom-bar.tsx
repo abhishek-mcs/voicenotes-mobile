@@ -183,7 +183,7 @@ useEffect(() => {
         ) : (
 <NoteRecorder
 // (!!token&&isBeliever)?'':'/01:00'
-        totalDuration={''}
+        totalDuration={(!!token&&isBeliever)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
         onStopRecord={onDoneClick}

@@ -3,18 +3,14 @@ import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import { View } from "react-native";
 import RecButton from "./rec-button";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 // import Waveform from "./waveform";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { useTheme } from "context";
 import { isSmallDevice } from "utils/common";
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import Waveform from "./waveform";
 
-const recordingTypes = ['Note']
-
-const NoteRecorder = ({
+export default ({
   onPause,
   onStopRecord = (v: any) => {},
   duration = 0,
@@ -26,7 +22,6 @@ const NoteRecorder = ({
   setPaused,
   isCanceling = false,
   setIsCanceling = (v: any) => {},
-  rec=null
 }: any) => {
   const formattedDuration = new Date(duration).toISOString().substring(14, 19);
   const { userDetails }: any = useSelector(
@@ -35,7 +30,6 @@ const NoteRecorder = ({
   const { Colors } = useTheme()
   const styles = useStyles()
   const bottomSvgIcons:any = bottomSvg;
-  const [noteType, setNoteType]=useState(0)
 
   const continueRecording = () => {
     setIsCanceling(false);
@@ -54,121 +48,78 @@ const NoteRecorder = ({
 
   if (!isCanceling)
     return (
-      <View style={{ height: 156, width: "100%", paddingVertical:8, justifyContent:'space-between' }}>
-        <View style={[styles.row, { justifyContent: "space-between" }]}>
-          {/* <View style={{ width: "20%" }} /> */}
-          {/* <SegmentedControl
-            style={{ width:132, height:32 }}
-            tintColor={Colors.bgColor2}
-            backgroundColor={Colors.bgColor7}
-            fontStyle={{color:Colors.text,fontFamily:'Primary',fontSize:12}}
-            activeFontStyle={{fontFamily:'Primary',fontSize:12,color:Colors.text12}}
-            values={recordingTypes}
-            selectedIndex={noteType}
-            onChange={(event) =>
-              setNoteType(event.nativeEvent.selectedSegmentIndex)
-            }
-          /> */}
-          <Text style={[styles.tabItemText,{marginLeft:12}]}>Recording...</Text>
-          <View style={[styles.row, { width: "20%" }]}>
-            <View
-              style={{
-                backgroundColor: "red",
-                height: 6,
-                width: 6,
-                borderRadius: 10,
-                marginRight: 8,
-              }}
-            />
-            <Text
-              style={styles.tabItemText}
-            >{`${formattedDuration}${totalDuration}`}</Text>
-          </View>
-        </View>
-        <View style={{width:'85%',alignSelf:'center',height:24}}>
-            <Waveform recording={rec}/>
-        </View>
-        <View
+      // <View style={{height:156,width:'100%',padding:16}}>
+      // {/* <View style={[styles.row,{justifyContent:'space-between'}]}>
+      //   <Text style={styles.tabItemText}>Recording...</Text>
+      //   <View style={[styles.row,{width:'20%'}]}>
+      //     <View style={{backgroundColor:'red',height:6,width:6,borderRadius:10,marginRight:8}}/>
+      //     <Text style={styles.tabItemText}>{`${formattedDuration}${totalDuration}`}</Text>
+      //   </View>
+      // </View> */}
+      // {/* <Waveform recording={rec}/> */}
+      <View
+        style={{
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "100%",
+        }}
+      >
+        <RecButton
+          title="Cancel"
+          bgColor={Colors.redWithOpacity(0.05)}
+          underlayColor={Colors.redWithOpacity(0.06)}
+          color={Colors.redWithOpacity(1)}
+          onPress={onCancelClick}
           style={{
-            alignItems: "center",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "85%",
-            alignSelf:'center'
+            paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
           }}
+        />
+        <View
+          style={[
+            styles.row,
+            { width: !userDetails?.subscription_status ? "auto" : "20%" },
+          ]}
         >
-          <RecButton
-            title="Cancel"
-            bgColor={Colors.redWithOpacity(0.05)}
-            underlayColor={Colors.redWithOpacity(0.06)}
-            color={Colors.redWithOpacity(1)}
-            onPress={onCancelClick}
+          <View
             style={{
-              paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
+              backgroundColor: Colors.redWithOpacity(1),
+              height: 6,
+              width: 6,
+              borderRadius: 10,
+              marginRight: 8,
             }}
           />
-          {/* <View
+          <Text
             style={[
-              styles.row,
-              { width: !userDetails?.subscription_status ? "auto" : "20%" },
+              styles.tabItemText,
+              !userDetails?.subscription_status ? { fontSize: 12 } : {},
             ]}
-          >
-            <View
-              style={{
-                backgroundColor: Colors.redWithOpacity(1),
-                height: 6,
-                width: 6,
-                borderRadius: 10,
-                marginRight: 8,
-              }}
-            />
-            <Text
-              style={[
-                styles.tabItemText,
-                !userDetails?.subscription_status ? { fontSize: 12 } : {},
-              ]}
-            >{`${formattedDuration}${totalDuration}`}</Text>
-          </View> */}
-          {onPause && (
-            <RecButton
-              icon={
-                !paused
-                  ? 
-                  bottomSvgIcons.pause?.replaceAll(
-                      "black",
-                      Colors.blackWithOpacity(1)
-                    )
-                  : bottomSvgIcons.play?.replaceAll(
-                      "black",
-                      Colors.blackWithOpacity(1)
-                    )
-              }
-              title={paused?"Resume":'Pause'}
-              underlayColor=""
-              onPress={onPause}
-              color={Colors.text}
-              bgColor={Colors.bottomBarButtonBg1}
-              style={{
-                paddingHorizontal: 12,
-                // marginRight: isSmallDevice ? -4 : -12,
-                borderRadius: 16,
-                height: 40,
-              }}
-            />
-          )}
-          <RecButton
-            title="Done"
-            icon={bottomSvg.done}
-            color={Colors.green}
-            bgColor={Colors.greenWithOpacity(0.2)}
-            underlayColor={Colors.greenWithOpacity(0.3)}
-            onPress={onStopRecord}
-            style={{
-              paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
-            }}
-          />
+          >{`${formattedDuration}${totalDuration}`}</Text>
         </View>
+        {onPause && (
+          <RecButton
+            icon={!paused ? bottomSvgIcons.pause?.replaceAll("black",Colors.blackWithOpacity(1)) : bottomSvgIcons.play?.replaceAll("black",Colors.blackWithOpacity(1))}
+            title=""
+            underlayColor=""
+            onPress={onPause}
+            bgColor={Colors.bottomBarButtonBg1}
+            style={{ paddingHorizontal: 12, marginRight:isSmallDevice?-4: -12,borderRadius:16,height:40 }}
+          />
+        )}
+        <RecButton
+          title="Done"
+          icon={bottomSvg.done}
+          color={Colors.green}
+          bgColor={Colors.greenWithOpacity(0.2)}
+          underlayColor={Colors.greenWithOpacity(0.3)}
+          onPress={onStopRecord}
+          style={{
+            paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
+          }}
+        />
       </View>
+      // </View>
     );
   else
     return (
@@ -246,5 +197,3 @@ const useStyles = () => {
   },
 }), [Colors]); // Recreate styles when Colors change
 };
-
-export default NoteRecorder
