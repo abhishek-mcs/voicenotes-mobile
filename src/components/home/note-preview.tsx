@@ -192,7 +192,7 @@ const NotePreview = forwardRef(
       setExpand(index)
       // Scroll to the specific component
       setTimeout(() => {
-        if (creationslistRef.current) {
+        if (creationslistRef.current&&!isNoteExpanded) {
           creationslistRef.current?.measure((fx:number, fy:number, width:number, height:number, px:number, py:number) => {
             // Scroll to the y position of the component
             console.log(py,fy)
@@ -490,14 +490,8 @@ const NotePreview = forwardRef(
            type: LayoutAnimation.Types.easeInEaseOut,
         }
        });
-      setExpand((i:any)=>{
-        if(index==i){
-          scrollRef.current?.scrollToIndex({animated:true,index})
-          return -1
-        }
-        else return index
-
-      });
+      setExpand((i:any)=>index==i?-1:index);
+      isNoteExpanded&&scrollRef.current?.scrollToIndex({animated:true,index})
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
     };

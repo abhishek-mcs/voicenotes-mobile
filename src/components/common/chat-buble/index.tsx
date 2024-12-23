@@ -92,9 +92,9 @@ const ChatBubble = ({
       numberOfLines={lines}
     />
     :isSummary?
-    <View>{
+    <View style={{height:lines<10?32:'auto',overflow:'hidden',}}>{
     message?.split('\n')?.map((m:any,i:number)=>(
-      <Text key={i} style={[style, {marginBottom:6}]} numberOfLines={lines}>
+      <Text key={i} style={[style, {marginTop:i==0?4:8}]}>
         {m}
       </Text>
     ))}
