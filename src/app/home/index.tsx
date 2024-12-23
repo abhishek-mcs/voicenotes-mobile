@@ -253,8 +253,9 @@ const Home = () => {
           } else if (teamSummaryId && status === RecordingStatus.MEETING_SUMMARY_GENERATED) {
             console.log('summary generation worked')
             updatedStatus = "processed";
-            await sleep(3000)
+            await sleep(5000)
             const updatedNote = await fetchSingleRecording(recordingId);
+            console.log(updatedNote?.data?.creations)
             dispatch(
               updateRecordingDetails({
                 recordingId,
