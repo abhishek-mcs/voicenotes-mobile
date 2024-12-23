@@ -1002,6 +1002,7 @@ const NotePreview = forwardRef(
                   <ChatBubble
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
+                    isSummary={note?.recording_type==2}
                     message={(
                       note?.recording_type==2?
                       note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
