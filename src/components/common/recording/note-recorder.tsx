@@ -54,8 +54,8 @@ const NoteRecorder = ({
 
   if (!isCanceling)
     return (
-      <View style={{ height: 156, width: "100%", paddingVertical:8, justifyContent:'space-between' }}>
-        <View style={[styles.row, { justifyContent: "space-between" }]}>
+      <View style={{ width: "100%", paddingVertical:8, justifyContent:'space-between' }}>
+        {/* <View style={[styles.row, { justifyContent: "space-between" }]}> */}
           {/* <View style={{ width: "20%" }} /> */}
           {/* <SegmentedControl
             style={{ width:132, height:32 }}
@@ -69,32 +69,21 @@ const NoteRecorder = ({
               setNoteType(event.nativeEvent.selectedSegmentIndex)
             }
           /> */}
-          <Text style={[styles.tabItemText,{marginLeft:12}]}>Recording...</Text>
-          <View style={[styles.row, { width: "20%" }]}>
-            <View
-              style={{
-                backgroundColor: "red",
-                height: 6,
-                width: 6,
-                borderRadius: 10,
-                marginRight: 8,
-              }}
-            />
-            <Text
-              style={styles.tabItemText}
-            >{`${formattedDuration}${totalDuration}`}</Text>
-          </View>
-        </View>
-        <View style={{width:'85%',alignSelf:'center',height:24}}>
+          {/* <Text style={[styles.tabItemText,{marginLeft:12}]}>Recording...</Text> */}
+          {/* <View style={[styles.row, { width: "20%" }]}>
+           
+        </View> */}
+        {/* <View style={{width:'85%',alignSelf:'center',height:24}}>
             <Waveform recording={rec}/>
-        </View>
+        </View> */}
         <View
           style={{
             alignItems: "center",
             flexDirection: "row",
             justifyContent: "space-between",
-            width: "85%",
-            alignSelf:'center'
+            width: "96%",
+            alignSelf:'center',
+            gap:10
           }}
         >
           <RecButton
@@ -107,7 +96,7 @@ const NoteRecorder = ({
               paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
             }}
           />
-          {/* <View
+          <View
             style={[
               styles.row,
               { width: !userDetails?.subscription_status ? "auto" : "20%" },
@@ -128,7 +117,7 @@ const NoteRecorder = ({
                 !userDetails?.subscription_status ? { fontSize: 12 } : {},
               ]}
             >{`${formattedDuration}${totalDuration}`}</Text>
-          </View> */}
+          </View>
           {onPause && (
             <RecButton
               icon={
@@ -143,7 +132,8 @@ const NoteRecorder = ({
                       Colors.blackWithOpacity(1)
                     )
               }
-              title={paused?"Resume":'Pause'}
+              // title={paused?"Resume":'Pause'}
+              title=""
               underlayColor=""
               onPress={onPause}
               color={Colors.text}

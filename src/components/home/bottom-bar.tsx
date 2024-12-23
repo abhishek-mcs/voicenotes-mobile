@@ -152,7 +152,7 @@ useEffect(() => {
         </View>
       )}
       <View style={[styles.tab,isCanceling?styles.alert:{}]}>
-        {!recEnabled ? (
+        {recEnabled ? (
           <>
             <RecButton
               onPress={onRecordStart}
@@ -183,7 +183,7 @@ useEffect(() => {
         ) : (
 <NoteRecorder
 // (!!token&&isBeliever)?'':'/01:00'
-        totalDuration={''}
+        totalDuration={(!!token&&isBeliever)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
         onStopRecord={onDoneClick}
