@@ -152,7 +152,7 @@ useEffect(() => {
         </View>
       )}
       <View style={[styles.tab,isCanceling?styles.alert:{}]}>
-        {recEnabled ? (
+        {!recEnabled ? (
           <>
             <RecButton
               onPress={onRecordStart}
