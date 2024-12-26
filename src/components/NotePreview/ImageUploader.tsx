@@ -20,11 +20,12 @@ import { useDialog } from "context/DialogContext";
 
 
 interface ImageUploaderProps {
-  noteId: string;
+  noteId?: string;
   showImagePicker: boolean;
   setShowImagePicker: Dispatch<SetStateAction<boolean>>;
   setAttachments: (v:any)=>void;
   onAttachmentUpdate: () => Promise<void>;
+  noteType?: number;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -33,6 +34,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   setShowImagePicker,
   setAttachments,
   onAttachmentUpdate,
+  noteType=1
 }) => {
   const { Colors, isLightMode } = useTheme()
   const queryClient = useQueryClient();
@@ -105,7 +107,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             is_uploading: true,
           },
         ]);
-        await uploadImage(newImage);
+        noteType!=3&&await uploadImage(newImage);
         await onAttachmentUpdate();
         setAttachments((prevAttachments:any) =>
           prevAttachments.filter((item:any) => item.id !== temporaryImageId)

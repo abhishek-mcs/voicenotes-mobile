@@ -1,7 +1,9 @@
 import dark from "assets/Colors/dark";
 import light from "assets/Colors/light";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useColorScheme } from "react-native";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { ImageStyle } from "react-native";
+import { TextStyle } from "react-native";
+import { StyleSheet, useColorScheme, ViewStyle } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setSavedTheme } from "redux/reducers/userDetails";
 import { RootState } from "redux/store/store";
@@ -35,3 +37,14 @@ export const ThemeProvider = ({ children }:any) => {
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
+type StylesFunction = (colors:any) => StyleSheet.NamedStyles<any>;
+
+export const createStyles = (styles: StylesFunction) => {
+  const { Colors } = useTheme();
+
+  return useMemo(
+    () => StyleSheet.create({ ...styles(Colors) }), // Pass finalColors to styles function
+    [Colors]
+  );
+};

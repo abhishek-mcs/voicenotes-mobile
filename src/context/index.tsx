@@ -1,6 +1,6 @@
 import React from 'react';
 import { NoteContext, NoteContextProvider } from './recording';
-import { ThemeProvider, useTheme } from './theme-context';
+import { ThemeProvider, useTheme, createStyles } from './theme-context';
 import { DialogProvider } from './DialogContext';
 
 const ContextProvider=({children}:any)=>{
@@ -14,4 +14,4 @@ const ContextProvider=({children}:any)=>{
         </ThemeProvider>
         )
 }
-export {NoteContext,NoteContextProvider,ContextProvider,useTheme}
+export {NoteContext,NoteContextProvider,ContextProvider,useTheme,createStyles}
