@@ -233,7 +233,7 @@ const useStyles = () => {
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 16,
+    bottom: isIOS?16:0,
     zIndex:10000,
     elevation: 4
   },
