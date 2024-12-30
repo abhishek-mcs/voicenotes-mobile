@@ -133,7 +133,7 @@ useEffect(() => {
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                {!canRecord?"Your daily recording limit has been exceeded. Please try again later.":recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
+                {(canRecord!=undefined&&canRecord==false)?"Your daily recording limit has been exceeded. Please try again later.":recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable

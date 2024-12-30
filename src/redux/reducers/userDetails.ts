@@ -16,7 +16,7 @@ const initialState: userState = {
   token: '',
   guestToken:'',
   userDetails:'',
-  canRecord:false,
+  canRecord:true,
   lang:'Detect language',
   savedTheme:'auto'
 }
