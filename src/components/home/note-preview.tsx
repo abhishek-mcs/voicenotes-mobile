@@ -146,6 +146,7 @@ const NotePreview = forwardRef(
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
     const creationslistRef:any = useRef<View>(null);
+    const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
@@ -191,15 +192,6 @@ const NotePreview = forwardRef(
       hideCreateOption();
       setExpand(index)
       // Scroll to the specific component
-      setTimeout(() => {
-        if (creationslistRef.current&&!isNoteExpanded) {
-          creationslistRef.current?.measure((fx:number, fy:number, width:number, height:number, px:number, py:number) => {
-            // Scroll to the y position of the component
-            console.log(py,fy)
-            scrollRef.current.scrollToOffset({ animated: true, offset: py+(height/1.3) });
-          });
-        }
-      }, 1000);
       await createAI.mutateAsync(
         { recording_id: note?.id, type },
         {
@@ -209,7 +201,22 @@ const NotePreview = forwardRef(
           onError: () => setCreationLoader(false),
         }
       );
-    },[note,index,creationslistRef]);
+
+    },[note,index]);
+
+    // useEffect(()=>{
+    //   (async function scrollTo(){
+    //     await sleep(2000)
+    //     if (creationslistRef.current&&creationLoader&&expand==index) {
+    //       creationslistRef.current?.measure((fx:number, fy:number, width:number, height:number, px:number, py:number) => {
+    //         // console.log(fy)
+    //           scrollRef&&scrollRef?.current?.scrollToOffset({ animated: true, offset:py});
+    //           creationslistRef.current = null;
+    //         // }, 1000);
+    //       });
+    //     }
+    //   })()
+    // },[creationslistRef,creationLoader,isNoteExpanded])
 
     const onGenerateTitle = async () => {
       hideMoreOption();
@@ -491,9 +498,11 @@ const NotePreview = forwardRef(
         }
        });
       setExpand((i:any)=>index==i?-1:index);
-      isNoteExpanded&&scrollRef.current?.scrollToIndex({animated:true,index})
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
+      
+      await sleep(200)
+      isNoteExpanded&&scrollRef&&scrollRef?.current?.scrollToIndex({animated:true,index})
     };
 
     useEffect(() => {
@@ -861,20 +870,16 @@ const NotePreview = forwardRef(
     };
 
     if (!note) return null;
-    const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
-    if (isNoteExpanded) {
-    }
 
     return (
-      <View style={[{borderColor:Colors.grey4WithOpacity(86.67),borderBottomWidth:0.5},isSubnote?{borderBottomWidth:0}:{paddingBottom:8}]}>
-      <View style={{borderLeftWidth:isSubnote?0.5:0,borderColor:Colors.grey4WithOpacity(86.67)}}>
+    <View>
+      <View style={{borderLeftWidth:isSubnote?0.5:0,borderLeftColor:Colors.grey4WithOpacity(86.67)}}>
         <Touchable
           onPress={onExpand}
           activeOpacity={1}
           style={[
             styles.container,
             isSubnote?{paddingRight:0}:{},
-            isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
           {/* {!isSubnote &&
@@ -991,7 +996,7 @@ const NotePreview = forwardRef(
                   </Text>
                 </View>
               )}
-              <View ref={creationslistRef}>
+              <View>
                 {note?.transcript && !note.is_transcript_loading && (
                   <ChatBubble
                     lines={expand == index ? 10000 : 4}
@@ -1145,6 +1150,7 @@ const NotePreview = forwardRef(
           />
         )}
       </View>
+      <View style={{backgroundColor:Colors.grey4WithOpacity(86.67),height:isSubnote?0:1,width:'100%',marginTop:isSubnote?0:8}}/>
     </View>
     );
   }

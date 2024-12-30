@@ -76,6 +76,8 @@ const ChatBubble = ({
       </View>
     );
   }
+
+  const summaryNotes = isSummary?message?.split('\n'):['']
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
 
@@ -92,10 +94,10 @@ const ChatBubble = ({
       numberOfLines={lines}
     />
     :isSummary?
-    <View style={{height:lines<10?32:'auto',overflow:'hidden',}}>{
-    message?.split('\n')?.map((m:any,i:number)=>(
+    <View >{
+    summaryNotes?.splice(0,lines<10?2:summaryNotes?.length-1)?.map((m:any,i:number)=>(
       <Text key={i} style={[style, {marginTop:i==0?4:8}]}>
-        {m}
+        {m}{lines<10&&i==1?'...':''}
       </Text>
     ))}
     </View>
