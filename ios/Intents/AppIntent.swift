@@ -86,7 +86,7 @@ struct TextNoteIntent: AppIntent {
   func perform() -> some IntentResult {
     if let bridge = RCTBridge.current(),
        let actionModule = bridge.module(for: ActionModule.self) as? ActionModule {
-      // Call the startRecord function on the module instance from the bridge
+      // Call the addToTextNote function on the module instance from the bridge
       actionModule.addToTextNote(content: noteContent)
     } else {
       print("Failed to get ActionModule")

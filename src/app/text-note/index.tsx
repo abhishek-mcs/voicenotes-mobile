@@ -150,10 +150,10 @@ console.log(attachments)
           ref={inputRef}
           style={{
             flex: 1,
-            borderColor: "gray",
+            borderColor: Colors.border,
             margin: 16,
             padding: 8,
-            color: "#fff",
+            color: Colors.text,
           }}
           multiline
           placeholder="Write your note here..."

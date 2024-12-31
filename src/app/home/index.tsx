@@ -340,8 +340,7 @@ const Home = () => {
 
     const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
       console.log("React Native: Text Note started");
-      const noteContent = event.body?.content;
-      console.warn(noteContent)
+      const noteContent = event?.content;
       router.push({
         pathname: "/text-note/",
         params: { content: noteContent }, // Pass the content as a parameter
