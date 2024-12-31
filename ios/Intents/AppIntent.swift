@@ -72,3 +72,27 @@ struct SearchIntent: AppIntent {
     return .result()
   }
 }
+
+@available(iOS 16, *)
+struct TextNoteIntent: AppIntent {
+  static let title: LocalizedStringResource = "Text Note"
+  static var openAppWhenRun: Bool = true
+
+  // Add a parameter to capture the text input
+  @Parameter(title: "Note Content")
+  var noteContent: String
+
+  @MainActor
+  func perform() -> some IntentResult {
+    if let bridge = RCTBridge.current(),
+       let actionModule = bridge.module(for: ActionModule.self) as? ActionModule {
+      // Call the startRecord function on the module instance from the bridge
+      actionModule.addToTextNote(content: noteContent)
+    } else {
+      print("Failed to get ActionModule")
+    }
+//    let appGroupModule = ActionModule()
+//    appGroupModule.searchNote()
+    return .result()
+  }
+}

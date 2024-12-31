@@ -15,7 +15,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import { useTheme } from "context";
@@ -32,9 +32,10 @@ import CircularLoader from "components/common/loaders/circular-loader";
 
 const TextNote = () => {
   const router = useRouter();
+  const {content}:any = useLocalSearchParams();
   const { Colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
-  const [textnote, setTextnote] = useState("");
+  const [textnote, setTextnote] = useState(content??"");
   const inputRef: any = useRef<TextInput>();
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [attachments, setAttachments] = useState([]);

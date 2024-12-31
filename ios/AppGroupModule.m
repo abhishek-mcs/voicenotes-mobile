@@ -19,6 +19,7 @@ RCT_EXTERN_METHOD(setValueInAppGroup:(NSString *)key value:(NSString *)value)
 RCT_EXTERN_METHOD(startRecord)
 RCT_EXTERN_METHOD(askAI)
 RCT_EXTERN_METHOD(searchNote)
+RCT_EXTERN_METHOD(addToTextNote)
 RCT_EXTERN_METHOD(sendToken)
 
 @end

@@ -338,10 +338,20 @@ const Home = () => {
       router.push("/search/");
     });
 
+    const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
+      console.log("React Native: Search Note started");
+      const noteContent = event.body?.content;
+      router.push({
+        pathname: "/text-note/",
+        params: { content: noteContent }, // Pass the content as a parameter
+      });
+    });
+
     return () => {
       startRecordSubscription.remove();
       askAISubscription.remove();
       searchNoteSubscription.remove();
+      textNoteSubscription.remove();
     };
   }, []);
 
