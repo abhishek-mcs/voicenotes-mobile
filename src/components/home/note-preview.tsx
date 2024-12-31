@@ -1086,6 +1086,7 @@ const NotePreview = forwardRef(
                       note={note}
                       createType={createType}
                       creationLoader={creationLoader}
+                      setLoader={setCreationLoader}
                     />
                     <RelatedNotesList
                       note={note}
