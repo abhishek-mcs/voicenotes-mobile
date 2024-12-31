@@ -1,11 +1,12 @@
 import { home } from "assets/svg/home";
-import { memo, useContext } from "react";
+import { memo, useCallback, useContext, useRef } from "react";
 import Touchable from "components/common/Touchable";
 import {
   Alert,
   Animated,
   LayoutAnimation,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -19,6 +20,7 @@ import {
   useAddTranscript,
   useCreate,
   useDeleteRecording,
+  useRegenerateTeamSummaryCreation,
   useSignedUrl,
 } from "queries/home";
 import { useQueryClient } from "react-query";
@@ -30,6 +32,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import {
   checkFileExists,
+  fetchSingleRecording,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
@@ -38,6 +41,7 @@ import { useUnpublishRecording } from "queries/home/share";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
+  setCurrentlyOpenedMeetingTranscript,
   updateRecordingDetails,
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
@@ -62,11 +66,13 @@ import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
-import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId, setRelatedNoteSummaryLoad, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
 import { useDialog } from "context/DialogContext";
+import * as Haptics from "expo-haptics";
+import { ATTACHMENT_TYPE } from "types";
 
 const NotePreview = forwardRef(
   (
@@ -94,6 +100,7 @@ const NotePreview = forwardRef(
         repeat: boolean | null;
       }) => {},
       isOffline = false,
+      scrollRef,
     }: any,
     ref
   ) => {
@@ -115,7 +122,7 @@ const NotePreview = forwardRef(
       id: string;
       url: string;
     } | null>(null);
-    const [attachments, setAttachments] = useState([]);
+    const [attachments, setAttachments] = useState(note?.attachments??[]);
     const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
     const {showDialog} = useDialog()
@@ -138,6 +145,8 @@ const NotePreview = forwardRef(
     const NetInfo = useNetInfo();
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+    const creationslistRef:any = useRef<View>(null);
+    const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
 
     const isUploadingFailed =
       !!note?.audio?.data?.url && note.isUploading == false;
@@ -177,11 +186,12 @@ const NotePreview = forwardRef(
       setCreationLoader(false);
     };
 
-    const onCreate = async (type = "summary") => {
+    const onCreate = useCallback(async (type = "summary") => {
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
       setExpand(index)
+      // Scroll to the specific component
       await createAI.mutateAsync(
         { recording_id: note?.id, type },
         {
@@ -191,7 +201,22 @@ const NotePreview = forwardRef(
           onError: () => setCreationLoader(false),
         }
       );
-    };
+
+    },[note,index]);
+
+    // useEffect(()=>{
+    //   (async function scrollTo(){
+    //     await sleep(2000)
+    //     if (creationslistRef.current&&creationLoader&&expand==index) {
+    //       creationslistRef.current?.measure((fx:number, fy:number, width:number, height:number, px:number, py:number) => {
+    //         // console.log(fy)
+    //           scrollRef&&scrollRef?.current?.scrollToOffset({ animated: true, offset:py});
+    //           creationslistRef.current = null;
+    //         // }, 1000);
+    //       });
+    //     }
+    //   })()
+    // },[creationslistRef,creationLoader,isNoteExpanded])
 
     const onGenerateTitle = async () => {
       hideMoreOption();
@@ -229,8 +254,10 @@ const NotePreview = forwardRef(
     const onReGenerateTranscript = async () => {
       hideMoreOption();
       await sleep(0.5);
+      note?.recording_type!=2&&
       dispatch(setRelatedNoteTranscriptLoad(note?.id))
-      continueProcessing(note, true);
+      await continueProcessing(note, true);
+      note?.recording_type==2&&onTranscriptOpen(true)
     };
 
     const togglePublish = () => {
@@ -244,21 +271,17 @@ const NotePreview = forwardRef(
           {
             onSuccess: async (r) => {
               try {
-                setShareVisible(false);
                 setTimeout(() => {
-                  if (wasPublic) {
-                    setIsNoteJustMadePrivate(true);
-                  } else {
-                    setIsNoteJustMadePrivate(false);
-                  }
-                  setIsPublished((t: any) => !t);
+                  setIsPublished((t:any)=>!t)
                 }, 50);
                 await queryClient.invalidateQueries("all-recording");
                 await queryClient.invalidateQueries("single-recording");
+                setShareVisible(false);
               } catch (e) {
                 console.info("error in toggle publish", e);
               } finally {
                 setPublishLoading(false);
+                setIsNoteJustMadePrivate(wasPublic)
                 setTimeout(() => {
                   setShareVisible(true);
                 }, 50);
@@ -271,14 +294,8 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onPrivateOk = () => {
-      setShareVisible(false);
-      setTimeout(() => {
-        setIsNoteJustMadePrivate(false);
-      }, 50);
-    };
-
-    const onShareNote = () => {
+    const onShareNote = async() => {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
       setTimeout(() => {
         setShareVisible(true);
@@ -287,14 +304,19 @@ const NotePreview = forwardRef(
 
     const onCopy = async (content = "") => {
       hideMoreOption();
-      const t:any=content
-      await setStringAsync(
-        t?.replaceAll(/\n/g, '')
-        ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-        ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-        ?.replaceAll(/<br\/?>/g, "\n\n")
-        ?.trimEnd()
-      );
+      let t:any=''
+      if(note?.recording_type==2)
+        t=note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data??''
+      else{
+        t=content
+          ?.replace(/\n/g, '')
+          ?.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+          ?.replace(/<br\s*\/?>\s+/g, '<br>')
+          ?.replace(/<br\/?>/g, "\n\n")
+          ?.trimEnd()
+        }
+      console.log(t)
+      await setStringAsync(t);
       setShareVisible(false);
     };
     const onDelete = (isCache=false) => {
@@ -478,6 +500,9 @@ const NotePreview = forwardRef(
       setExpand((i:any)=>index==i?-1:index);
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
+      
+      await sleep(200)
+      isNoteExpanded&&scrollRef&&scrollRef?.current?.scrollToIndex({animated:true,index})
     };
 
     useEffect(() => {
@@ -579,13 +604,7 @@ const NotePreview = forwardRef(
 
     const renderButtons = () => {
       const mainButtons = hashFilter == "shared" ?
-      [
-        {
-          text: "More",
-          type: "menu",
-          function: renderMoreSharedMenu,
-        },
-      ]:[];
+      []:[];
 
       const intermediateButtons = [
         {
@@ -651,29 +670,6 @@ const NotePreview = forwardRef(
       );
     };
 
-    const renderMoreSharedMenu = () => (
-      <Menu
-        visible={moreOption}
-        onRequestClose={hideMoreOption}
-        style={styles.menuShared}
-        anchor={
-          <NoteButtons
-            text="More"
-            style={{ marginLeft: 0 }}
-            onPress={showMoreOption}
-            icon={home.more}
-          />
-        }
-      >
-        <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
-          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.blackWithOpacity(1)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.whiteWithOpacity(1)}]} />
-        </MenuItem>
-        <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
-          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.grey2WithOpacity(0.05)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.darkWithOpacity(1)}]} />
-        </MenuItem>
-      </Menu>
-    );
-
     const openImagePicker = () => {
       setShowImagePicker(true);
       closeAddMenu();
@@ -684,169 +680,206 @@ const NotePreview = forwardRef(
       closeAddMenu();
     }
 
-    const options = [
+    const onTranscriptOpen = async(isRetry=false) =>{
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+      dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
+      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id)}})
+    }
+
+    const onReGenerateTeamSummary = async() => {
+      hideMoreOption();
+      dispatch(setRelatedNoteTranscriptLoad(note?.id))
+      const id = note?.creations?.find((t:any)=>t?.type=="team-summary")?.id??'' 
+      await continueProcessing(note, true,id)
+    }
+
+    const moreOptions = [
+      {
+        title: "Copy note",
+        systemIcon: "doc.text",
+        androidIcon: "content-copy",
+        onPress: () => onCopy(note?.recording_type==2?note:note?.transcript ?? ""),
+      },
+      ...((isSubnote||note?.recording_type!=1)
+        ? []
+        : [
+            {
+              title: "Record subnote",
+              androidIcon: "microphone-outline",
+              systemIcon: "mic",
+              onPress: onThreadNote,
+            },
+          ]),
+      ...(note?.recording_type==2?
+        []:[{
+        title: "Attach",
+        systemIcon: "photo.on.rectangle",
+        androidIcon: "folder-multiple-image",
+        actions: [
+          {
+            title: "Photo",
+            androidIcon: "image-area",
+            onPress: openImagePicker,
+          },
+          {
+            title: "Link",
+            androidIcon: "link-variant",
+            onPress: openLinkEditModal,
+          },
+        ],
+      }]),
+      ...(note?.recording_type==2?
+        []:[{
+        title: "Tag",
+        systemIcon: "number",
+        androidIcon: "pound",
+        onPress: onGotoAddTag,
+      }]),
+      // {
+      //   title:"Share",
+      //   systemIcon:'square.and.arrow.up',
+      //   androidIcon:'share-outline',
+      //   onPress:onShareNote
+      // },
+      // {
+      //   title:"Create",
+      //   systemIcon:'pencil.and.outline',
+      //   androidIcon:'circle-edit-outline',
+      //   actions:,
+      // },
+      ...(note?.recording_type == 3?
+        []:[{
+        title: "Download audio",
+        systemIcon: "arrow.down.circle",
+        androidIcon: "tray-arrow-down",
+        onPress: onDownloadAudio,
+      }]),
+      {
+        title: "Regenerate",
+        systemIcon: "arrow.clockwise",
+        androidIcon: "reload",
+        actions: isSubnote
+          ? [
+              {
+                title: "Regenerate transcript",
+                onPress: onReGenerateTranscript,
+              },
+            ]
+          : [
+              {
+                title: "Regenerate title",
+                onPress: onGenerateTitle,
+              },
+              ...(note?.recording_type != 3?[{
+                title: "Regenerate transcript",
+                onPress: onReGenerateTranscript,
+              }]:[]),
+              ...(note?.recording_type == 2
+                ? [
+                    {
+                      title: "Regenerate summary",
+                      onPress: onReGenerateTeamSummary,
+                    },
+                  ]
+                : []),
+            ],
+      },
+      {
+        title: "Edit",
+        systemIcon: "square.and.pencil",
+        androidIcon: "pencil-outline",
+        onPress: onEdit,
+      },
+      {
+        title: "Delete",
+        destructive: true,
+        systemIcon: "trash",
+        androidIcon: "delete-outline",
+        onPress: () => onDelete(),
+      },
+    ];
+
+    const shareOptions = [
       {
         title:"Copy note",
         systemIcon:'doc.text',
         androidIcon:'content-copy',
         onPress:()=>onCopy(note?.transcript ?? "")
       },
-      ...(isSubnote ? [] : [{
-        title:"Record subnote",
-        androidIcon:'microphone-outline',
-        systemIcon:'mic',
-        onPress:onThreadNote
-      }]),
+    ]
+
+    const createOptions = [
       {
-        title:"Attach",
-        systemIcon:'photo.on.rectangle',
-        androidIcon:'folder-multiple-image',
-        actions:[
-          {
-            title:"Photo",
-            androidIcon:'image-area',
-            onPress:openImagePicker
-          },
-          {
-            title:"Link",
-            androidIcon:'link-variant',
-            onPress:openLinkEditModal
-          }
-        ]
+        title:"Summary",
+        androidIcon:'bullseye-arrow',
+        systemIcon:'pencil.and.scribble',
+        onPress:()=>onCreate("summary")
       },
       {
-        title:"Tag",
-        systemIcon:'number',
-        androidIcon:'pound',
-        onPress:onGotoAddTag
+        title:"Main points",
+        androidIcon:'format-list-bulleted',
+        systemIcon:'list.bullet',
+        onPress:()=> onCreate("points")
       },
       {
-        title:"Share",
-        systemIcon:'square.and.arrow.up',
-        androidIcon:'share-outline',
-        onPress:onShareNote
+        title:"To-do list",
+        androidIcon:'checkbox-outline',
+        systemIcon:'checkmark.rectangle.stack',
+        onPress:()=> onCreate("todo")
       },
       {
-        title:"Create",
-        systemIcon:'pencil.and.outline',
-        androidIcon:'circle-edit-outline',
-        actions:[
-          {
-            title:"Summary",
-            androidIcon:'bullseye-arrow',
-            onPress:()=>onCreate("summary")
-          },
-          {
-            title:"Main points",
-            androidIcon:'format-list-bulleted',
-            onPress:()=> onCreate("points")
-          },
-          {
-            title:"To-do list",
-            androidIcon:'checkbox-outline',
-            onPress:()=> onCreate("todo")
-          },
-          {
-            title:"Blog post",
-            androidIcon:'fountain-pen',
-            onPress:()=>onCreate("blog")
-          },
-          {
-            title:"Tweet",
-            androidIcon:'bullhorn-variant-outline',
-            onPress:()=>onCreate("tweet")
-          },
-          {
-            title:"Email",
-            androidIcon:'email-outline',
-            onPress:()=>onCreate("email")
-          },
-          {
-            title:"Cleanup",
-            androidIcon:'broom',
-            onPress:()=>onCreate("tidy")
-          }
-        ],
+        title:"Tweet",
+        androidIcon:'bullhorn-variant-outline',
+        systemIcon:'megaphone',
+        onPress:()=>onCreate("tweet")
       },
       {
-        title:"Regenerate",
-        systemIcon:'arrow.clockwise',
-        androidIcon:'reload',
-        actions:isSubnote?[
-          {
-            title:"Regenerate transcript",
-            onPress:onReGenerateTranscript
-          }
-        ]:[
-          {
-            title:"Regenerate title",
-            onPress:onGenerateTitle
-          },
-          {
-            title:"Regenerate transcript",
-            onPress:onReGenerateTranscript
-          }
-        ]
+        title:"Blog post",
+        androidIcon:'fountain-pen',
+        systemIcon:'rectangle.and.pencil.and.ellipsis',
+        onPress:()=>onCreate("blog")
       },
       {
-        title:"Download audio",
-        systemIcon:"arrow.down.circle",
-        androidIcon:'tray-arrow-down',
-        onPress:onDownloadAudio
+        title:"Email",
+        androidIcon:'email-outline',
+        systemIcon:'envelope',
+        onPress:()=>onCreate("email")
       },
       {
-        title:"Edit",
-        systemIcon:'square.and.pencil',
-        androidIcon:'pencil-outline',
-        onPress:onEdit
-      },
-      {
-        title:"Delete",
-        destructive:true,
-        systemIcon:'trash',
-        androidIcon:'delete-outline',
-        onPress:()=>onDelete()
+        title:"Cleanup",
+        androidIcon:'broom',
+        systemIcon:'paintbrush',
+        onPress:()=>onCreate("tidy")
       }
     ]
-    // :[
-    //   {
-    //     title:"Retry",
-    //     systemIcon:'arrow.clockwise',
-    //     onPress:async()=>await syncUpNote(note).catch(()=>{})
-    //   },
-    //   {
-    //     title:"Download",
-    //     systemIcon:'arrow.down.circle',
-    //     onPress:()=>onCopy(note?.transcript ?? "")
-    //   },
-    //   {
-    //     title:"Delete",
-    //     destructive:true,
-    //     systemIcon:'trash',
-    //     onPress:()=>onDelete(true)
-    //   }
-    // ]
 
     const refreshNoteAfterAttachmentChange = async () => {
-      await queryClient.invalidateQueries("all-recording");
-      await queryClient.invalidateQueries("single-recording");
+      const recordingId = note?.id
+      const updatedStatus = "processed";
+      const updatedNote = await fetchSingleRecording(recordingId);
+      dispatch(
+        updateRecordingDetails({
+          recordingId,
+          data: {
+            ...updatedNote.data,
+            status: updatedStatus,
+            is_transcript_loading:false,
+          },
+        })
+      );
     };
 
     if (!note) return null;
-    const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
-    if (isNoteExpanded) {
-    }
 
     return (
-      <View style={[{borderColor:Colors.grey4WithOpacity(86.67),borderBottomWidth:0.5},isSubnote?{borderBottomWidth:0}:{paddingBottom:8}]}>
-      <View style={{borderLeftWidth:isSubnote?0.5:0,borderColor:Colors.grey4WithOpacity(86.67)}}>
+    <View>
+      <View style={{borderLeftWidth:isSubnote?0.5:0,borderLeftColor:Colors.grey4WithOpacity(86.67)}}>
         <Touchable
           onPress={onExpand}
           activeOpacity={1}
           style={[
             styles.container,
             isSubnote?{paddingRight:0}:{},
-            isNoteExpanded && !isSingle && styles.expandedContainer,
           ]}
         >
           {/* {!isSubnote &&
@@ -882,7 +915,7 @@ const NotePreview = forwardRef(
               >
                 {note?.is_title_loading==note?.id ? (
                   <AiLoader
-                    text="Creating title from your voice"
+                    text={`Creating title from your ${note?.recording_type==2?'meeting':note?.recording_type==3?'note':'voice'}`}
                     style={{ marginTop: -7 }}
                     size={14}
                   />
@@ -923,7 +956,10 @@ const NotePreview = forwardRef(
 
               {note?.is_transcript_loading==note?.id && (
                 <AiLoader
-                  text={`Creating transcript from your voice`}
+                  text={
+                    note?.recording_type==2?'Processing transcript with timestamps, speaker identification, and generating insights.':
+                    `Creating transcript from your voice`
+                  }
                   style={{ marginTop: 0 }}
                   size={14}
                 />
@@ -965,10 +1001,14 @@ const NotePreview = forwardRef(
                   <ChatBubble
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
-                    message={note?.transcript
+                    isSummary={note?.recording_type==2}
+                    message={(
+                      note?.recording_type==2?
+                      note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
+                      :note?.transcript
+                      ?.replaceAll(/\n/g, ''))
                       ?.replaceAll(/<b\/?>/g, '')
                       ?.replaceAll(/<\/b\/?>/g, '')
-                      ?.replaceAll(/\n/g, '')
                       ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
                       ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
                       ?.replaceAll(/<br\/?>/g, "\n\n")
@@ -996,12 +1036,12 @@ const NotePreview = forwardRef(
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
                 <View style={{flexDirection:'row',alignItems:'center'}}>
-                {note?.recording_type!=3&&<Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                {note?.recording_type!=3&&<Pressable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                   {audioLoading==index?
-                  <CircularLoader strokeWidth={3} width={15} height={15} color={Colors.black2}/>
-                  :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'}/>}
+                  <CircularLoader strokeWidth={3} width={15} height={15} color={Colors.whiteWithOpacity(1)}/>
+                  :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'} width={15}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
-                </Touchable>}
+                </Pressable>}
                 {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
                   <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
                     <SvgXml xml={home.subnote?.replace('#1C1B1F',Colors.askClose)}/>
@@ -1016,23 +1056,38 @@ const NotePreview = forwardRef(
                 } */}
                 </View>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
-                  <MoreOptions options={options} style={{height:30,width:30,position:'relative'}}>
+                <View style={[styles.row,{gap:8}]}>
+                  {note?.recording_type==2&&
+                  <Pressable onPress={()=>onTranscriptOpen()} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                      <SvgXml xml={home.transcript?.replace('#0D0D0D',Colors.more)}/>
+                  </Pressable>}
+                  <MoreOptions options={createOptions} style={{height:31,width:31,position:'relative'}}>
+                    <View style={{height:31,width:31,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                      <SvgXml xml={home.create1?.replace('#0D0D0D',Colors.more)}/>
+                    </View>
+                  </MoreOptions>
+                  {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
+                    <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                      <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
+                    </Pressable>
+                  {/* </MoreOptions> */}
+                  <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
-                    <SvgXml xml={home.moreNew?.replace('#3C3C43',Colors.more)}/>
-                  </View>
-                </MoreOptions>}
+                      <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+                    </View>
+                  </MoreOptions>
+                </View>}
                 </View>
 
                 {expand === index && (
                   <View style={{marginBottom:8}}>
                     {renderButtons()}
-                    {token && (
-                      <CreationsList
-                        note={note}
-                        createType={createType}
-                        creationLoader={creationLoader}
-                      />
-                    )}
+                    <CreationsList
+                      note={note}
+                      createType={createType}
+                      creationLoader={creationLoader}
+                      setLoader={setCreationLoader}
+                    />
                     <RelatedNotesList
                       note={note}
                       onPress={(id: any) => {
@@ -1082,7 +1137,7 @@ const NotePreview = forwardRef(
           isLoading={publishLoading}
           isNoteJustMadePrivate={isNoteJustMadePrivate}
           setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
-          hideModal={() => setShareVisible(false)}
+          hideModal={() => {setShareVisible(false);setIsNoteJustMadePrivate(false)}}
         />
 
         {note?.subnotes?.length > 0 && isNoteExpanded&& (
@@ -1096,6 +1151,7 @@ const NotePreview = forwardRef(
           />
         )}
       </View>
+      <View style={{backgroundColor:Colors.grey4WithOpacity(86.67),height:isSubnote?0:1,width:'100%',marginTop:isSubnote?0:8}}/>
     </View>
     );
   }

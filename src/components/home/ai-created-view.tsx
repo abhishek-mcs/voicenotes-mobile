@@ -49,6 +49,8 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     }
 
     useLayoutAnim([expand])
+    
+  if(type=="team-summary") return null;
 
   return (
     <Touchable style={container} onPress={()=>{setExpand(!expand)}} activeOpacity={0.6}>
@@ -58,7 +60,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
         </View> */}
         {working?<CircularLoader/>:<>
           <View style={[row,btw]}>
-            <Text style={txt}>{type=="team-summary"?"Summary":type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
+            <Text style={txt}>{type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
           </View>
           {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy"||type=="team-summary")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
           :(type=="points"||type=="todo")?

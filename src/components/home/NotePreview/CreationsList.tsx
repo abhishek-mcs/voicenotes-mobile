@@ -2,8 +2,12 @@ import AiLoader from 'components/common/loaders/ai-loader';
 import creationContent from 'utils/constants/creation-content';
 import AiCreatedView from '../ai-created-view';
 import { Note } from 'types';
+import { useEffect } from 'react';
 
-const CreationsList = ({note, creationLoader, createType}:{note:Note, creationLoader:boolean, createType:string}) => {
+const CreationsList = ({note, creationLoader, createType, setLoader }:{note:Note, creationLoader:boolean, createType:string,setLoader:(v:boolean)=>void}) => {
+      useEffect(()=>{
+        ()=>setLoader(false)
+      },[note])
       return (
         <>
           {creationLoader && (

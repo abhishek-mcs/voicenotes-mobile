@@ -144,7 +144,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
             {isLoading ? (
               <View style={{ alignSelf: "flex-end" }}>
                 <ThreeDotLoader
-                style={{}}
+                style={{marginTop:-16,marginRight:-8}}
                   colorFilters={[
                     { keypath: "Left", color: Colors.text },
                     { keypath: "Mid", color: Colors.text },

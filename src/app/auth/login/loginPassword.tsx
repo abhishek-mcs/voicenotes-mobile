@@ -196,7 +196,7 @@ const LoginPassword = () => {
         </Text>}
       </Pressable>
 
-      {/* <Pressable onPress={()=>router?.push('/auth/forgot-password/ForgotPassword')}>
+      <Pressable onPress={()=>router?.push('/auth/forgot-password/ForgotPassword')}>
         <Text
           style={{
             marginTop: 24,
@@ -209,7 +209,7 @@ const LoginPassword = () => {
         >
           Forgot password?
         </Text>
-      </Pressable> */}
+      </Pressable>
       <View style={{ flexDirection: "row", justifyContent: "center",marginBottom:32 }}>
         <Text
           style={{

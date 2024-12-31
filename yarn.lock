@@ -3099,6 +3099,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/database/-/database-21.0.0.tgz#4476e7243d54f59b9dfb68cac0ada01bcb0f1cd6"
   integrity sha512-5Lv/h43Hi9SBxysNM4JH3DwPnZ/QgCvqRCMW+/4x79NB0z50VZHmDOmvDDorIszV7yiCPcz0M0ztNwycDL0yGw==
 
+"@react-native-segmented-control/segmented-control@2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@react-native-segmented-control/segmented-control/-/segmented-control-2.4.1.tgz#ea612c8b12bfea7712c7ea456b7b98dfc6748485"
+  integrity sha512-c8Q7TP14CD6vJ38VO5SWoIcxfwLPIz/4zRKJnJOJ0xKkMxkrUu089m86Y0dSvo+T3c1NQyvBFRtKWrPqbqG6tg==
+
 "@react-native/assets-registry@0.73.1", "@react-native/assets-registry@~0.73.1":
   version "0.73.1"
   resolved "https://registry.yarnpkg.com/@react-native/assets-registry/-/assets-registry-0.73.1.tgz#e2a6b73b16c183a270f338dc69c36039b3946e85"
@@ -3440,13 +3445,6 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
   integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
-
-"@simform_solutions/react-native-audio-waveform@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@simform_solutions/react-native-audio-waveform/-/react-native-audio-waveform-2.0.0.tgz#a52c88905361561c2ef9c05d4bcf8cf1222b223a"
-  integrity sha512-ImkFXoOoec6rgrx0Bo1j/ag1/eXiUKbs2QK7oLBQ8BSRO5BGXJLIMc6OcV4bA//2ggK3UiTSxaRW9y0avnE5nQ==
-  dependencies:
-    lodash "^4.17.21"
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
@@ -6205,6 +6203,13 @@ expo-font@~11.10.3:
   integrity sha512-q1Td2zUvmLbCA9GV4OG4nLPw5gJuNY1VrPycsnemN1m8XWTzzs8nyECQQqrcBhgulCgcKZZJJ6U0kC2iuSoQHQ==
   dependencies:
     fontfaceobserver "^2.1.0"
+
+expo-gl@~13.6.0:
+  version "13.6.0"
+  resolved "https://registry.yarnpkg.com/expo-gl/-/expo-gl-13.6.0.tgz#b93c7dd2df8f2afe3823b043c37f898adda8ee92"
+  integrity sha512-hhRC2ZTDpc2YoElojutJTOYQsjSxX68lgL+2TSgWRrrvUXFeua1Ohz5DL/0iNCeoabs1earf/4qhxIdozkrhMA==
+  dependencies:
+    invariant "^2.2.4"
 
 expo-haptics@^12.8.1:
   version "12.8.1"
@@ -9841,6 +9846,23 @@ react-native-appsflyer@^6.15.1:
   version "6.15.1"
   resolved "https://registry.yarnpkg.com/react-native-appsflyer/-/react-native-appsflyer-6.15.1.tgz#7582f9368279c69910102e9b675e934a42d07792"
   integrity sha512-K1CDq8YSRnOWsw5eB9YpZiD1xUSN4XmNuA3uI2P425Zw573m6tf7kKfYU09TGbxnrbnWRYj+AX5t5/2WGSf4Jw==
+
+react-native-audio-analyzer@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-audio-analyzer/-/react-native-audio-analyzer-2.0.2.tgz#e8d12dafbca3e247fb026f7d4596d7af982f20b1"
+  integrity sha512-XhdUgHElay20g7ENQSIZk2Vehw5mx/oo9WLeC6vis1vkqnv+JtO3jj+45KuSPlVbgcM6eW/YYRNILtyPb+Ziaw==
+
+react-native-circular-progress@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/react-native-circular-progress/-/react-native-circular-progress-1.4.1.tgz#46d94e73e5973bb415937b912ba56ce1947f66b7"
+  integrity sha512-HEzvI0WPuWvsCgWE3Ff2HBTMgAEQB2GvTFw0KHyD/t1STAlDDRiolu0mEGhVvihKR3jJu3v3V4qzvSklY/7XzQ==
+  dependencies:
+    prop-types "^15.8.1"
+
+react-native-collapsible@^1.6.2:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/react-native-collapsible/-/react-native-collapsible-1.6.2.tgz#3b67fa402a6ba3c291022f5db8f345083862c3d8"
+  integrity sha512-MCOBVJWqHNjnDaGkvxX997VONmJeebh6wyJxnHEgg0L1PrlcXU1e/bo6eK+CDVFuMrCafw8Qh4DOv/C4V/+Iew==
 
 react-native-context-menu-view@^1.16.0:
   version "1.16.0"

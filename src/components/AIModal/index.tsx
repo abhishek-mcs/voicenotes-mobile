@@ -52,7 +52,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
 import { useTheme } from "context";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useDialog } from "context/DialogContext";
 import TypingLoader from "components/common/loaders/typing/TypingLoader";
 
@@ -64,9 +64,11 @@ type chatProps = {
 };
 type AIProps = {
   setHideBg?: (v: boolean) => void;
+  showHeader?: boolean;
+  meetingData?:any
 }
 
-export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
+export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingData=null}:AIProps, ref) => {
   const drawerRef=useRef<DrawerLayout>(null)
   const {userDetails,token} = useSelector(
     (state: any) => state.userDetails
@@ -80,10 +82,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
 
   const [visible, setVisible] = useState(false);
   const [suggLoaded, setSuggLoaded] = useState(false);
-  const [chatStarted, setChatStarted] = useState(false);
+  const [chatStarted, setChatStarted] = useState(meetingData??false);
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [input, setInput] = useState("");
-  const [chats, setChats] = useState<chatProps>(initChat);
+  const [chats, setChats] = useState<chatProps>(meetingData??initChat);
   const scrollRef = useRef<ScrollView>(null);
   const [suggIndex, setSuggIndex] = useState(-2);
   const [drawerIndex, setDrawerIndex] = useState(-10);
@@ -124,8 +126,17 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   }
   
   useEffect(() => {
+    if(!!meetingData){
+      if(meetingData?.isAudio){
+        onStopRecord(meetingData?.data?.duration,meetingData)
+      }else{
+        onSend(meetingData?.data?.question,meetingData)
+      }
+    }else{
+      getNewSugg()
+    }
     InteractionManager.runAfterInteractions(()=>{
-      textInputRef?.current&&textInputRef?.current?.focus();
+     !meetingData&&textInputRef?.current&&textInputRef?.current?.focus();
     })
     const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardShown(true)
@@ -135,7 +146,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
       isAndroid&&textInputRef?.current?.blur();
     }
     );
-    getNewSugg()
     return () => {
       keyboardShown.remove();
       keyboardHide.remove();
@@ -200,12 +210,12 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     scrollToEnd();
   }
   
-  const onSend = (question: string) => {
+  const onSend = (question: string,chatData=null) => {
     !chatStarted&&setChatStarted(true)
-    const tempChats = chats;
+    const tempChats = chatData??chats;
     tempChats?.related_messages?.push({ question, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    const data = chats?.id != 0 ? { question, id: chats.id } : { question };
+    const data = tempChats?.id != 0 ? { question, id: tempChats?.id } : { question };
     setInput("");
     scrollToEnd();
     setTimeout(() => {
@@ -248,9 +258,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   
   const renderDrawer = () => {
     return (
-      <View style={styles.history}>
+      // <View style={styles.history}>
         <FlatList
         data={askAIHistory}
+        contentContainerStyle={{height:'100%',paddingVertical:20}}
         ListHeaderComponent={()=><Text style={[styles.historyText,{paddingHorizontal:20}]}>History</Text>}
         keyExtractor={(item, index) => `${item?.id}-${index}`}
         renderItem={({ item,index }) => (
@@ -270,7 +281,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
         onEndReachedThreshold={0.5}
         onEndReached={()=>getAskHistory.hasNextPage&&getAskHistory.fetchNextPage()}
         />
-      </View>
+      // </View>
     );
   };
 
@@ -287,18 +298,17 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
     setRecEnabled(false);
   }
 
-  const onStopRecord = (d:number) => {
+  const onStopRecord = async(d:number,chatData:any=null) => {
     setIsRecording(false)
     // setDuration(d)
     deactivateKeepAwake()
-    const file = rec?.getURI()||"";
-    stopRecording(rec);
+    const file =!!chatData?chatData?.data?.audio: await stopRecording(rec);
     setRec(null);
     !chatStarted&&setChatStarted(true)
-    const tempChats = chats;
+    const tempChats = chatData??chats;
     tempChats?.related_messages?.push({ question:"Typing", answer: "", question_url:file });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    uploadRecord.mutate({audio:file,duration:d,id:chats?.id},{
+    uploadRecord.mutate({audio:file,duration:d,id:tempChats?.id},{
       onSuccess:(data)=>{
         const mes=data?.data?.related_messages
         const id=mes[mes.length-1]?.id
@@ -343,15 +353,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8}]}>
-        <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
-        <KeyboardAvoidingView
-          style={[{ flex: 1}]}
-          behavior={"padding"}
-          keyboardVerticalOffset={isIOS ? 64 :0} // Adjust based on header height
-        >        
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0}]}>
+        {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>}
           {!chatLoader ? (
-            <KeyboardAwareScrollView bottomOffset={62}
+            <KeyboardAwareScrollView
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
               automaticallyAdjustKeyboardInsets
@@ -359,7 +364,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
                 paddingVertical: 16
-              }}>
+              }}
+              extraKeyboardSpace={-200}>
                 {(chats?.related_messages||[])?.map((item:any, index:number) => (
                 <View key={`${index}`}>
                   {!!item?.question && (
@@ -446,15 +452,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <View
-              style={[
-                styles.inputContainer,
-                // {position:'absolute',bottom:0,zIndex:100,left:0,right:0},
-                keyboardShown ? { minHeight: 97 } : {},
-              ]}
-            >
+            <KeyboardStickyView style={styles.inputContainer} offset={{opened:isIOS?40:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
+                <View style={styles.inputContentContainer}>
                   <TextInput
                     ref={textInputRef}
                     onTouchStart={(e) => e?.stopPropagation()}
@@ -473,6 +474,32 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     onChangeText={(text) => setInput(text)}
                     onSubmitEditing={() => onSend(input)}
                   />
+
+                <Pressable
+                  style={[styles.send, { position: "absolute", right: 0, opacity: !input ? 0.5 : 1 }]}
+                  disabled={!input}
+                  onPress={() => onSend(input)}
+                >
+                  <SvgXml
+                    xml={AIModalSVG.send
+                      ?.replace("#0E3934", Colors.text6)
+                      ?.replace(
+                        'height="32"',
+                        'height="32" transform="rotate(-90, 16, 16)"'
+                      )
+                    }
+                    width={26}
+                    height={26}
+                  />
+                </Pressable>
+              </View>
+              <Pressable style={styles.send} onPress={() => onRecordStart()}>
+                <SvgXml
+                  xml={AIModalSVG.record?.replace("#1C1B1F", Colors.text)?.replace('#222222',Colors.bgColor3(0.1))}
+                  width={40}
+                  height={40}
+                />
+              </Pressable>
                   <Touchable
                     style={styles.send}
                     onPress={() => (!!input ? onSend(input) : onRecordStart())}
@@ -486,10 +513,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                 <View
                   style={{
                     width: "100%",
-                    marginLeft: -12,
+                    marginRight: -12,
                     marginTop: 0,
                     justifyContent: "center",
-                    height: 97,
+                    height: 60,
                   }}
                 >
                   <ChatRecorder
@@ -501,15 +528,15 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                   />
                 </View>
               )}
-            </View>
+            </KeyboardStickyView>
           <View
             style={{
               position: "absolute",
               flex: 1,
               zIndex: drawerIndex,
-              top: 0,
+              top: isIOS?0:93,
               width: "100%",
-              height: "100%",
+              height: isIOS?"90%":"88%",
             }}
           >
             <DrawerLayout
@@ -525,7 +552,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               drawerContainerStyle={styles.drawer}
             />
           </View>
-          </KeyboardAvoidingView>
           </SafeAreaView>
   );
 });
@@ -629,7 +655,7 @@ const useStyles = () => {
     justifyContent: "space-between",
     backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 24,
-    shadowColor: Colors.blackWithOpacity(0.15),
+    shadowColor: Colors.bgColor11,
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -674,29 +700,33 @@ const useStyles = () => {
     marginBottom: 12,
   },
   skeleton: { height: 34, borderRadius: 8, opacity: 0.2, marginTop: 12 },
+  inputContentContainer:{
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    width: "85%",
+    borderWidth: 1,
+    borderColor: Colors.border,
+    height: 40,
+    borderRadius: 1000,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.inputBg3,
+  },
   input: {
     // marginRight: 8,x
     fontSize: 16,
     fontFamily: "Primary",
     color: Colors.text5,
-    textAlignVertical: "top",
-    flexWrap: "wrap",
-    width: "80%",
-    // lineHeight: 24,
-    paddingTop: 16,
-    paddingBottom: 16,
-    minHeight: 24,
-    backgroundColor: Colors.bgColor4,
+    width: "85%",
   },
   inputContainer: {
-    minHeight: 60,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    paddingLeft: 24,
+    // paddingTop:16,
+    paddingLeft: 16,
+    paddingRight:8,
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.bgColor4,
+    backgroundColor: Colors.bgColor8,
   },
   send: {
     paddingVertical: 16,
@@ -751,7 +781,7 @@ const useStyles = () => {
   aiChat: { marginLeft: 16,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
   aiChatStyle:{
     backgroundColor:Colors.bgColor6,
-    shadowColor:Colors.blackWithOpacity(1),
+    shadowColor:Colors.bgColor11,
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -765,7 +795,7 @@ const useStyles = () => {
   header2: { marginBottom: 0, borderBottomWidth: 0 },
   lottie: { width:60,height:60,backgroundColor:'red',marginBottom:-200},
   drawer: {
-    shadowColor:Colors.blackWithOpacity(0.15),
+    shadowColor:Colors.bgColor11,
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -814,7 +844,7 @@ const useStyles = () => {
     padding:12,borderRadius:12,width:'85%',
   },
   shadow:{
-    shadowColor: Colors.blackWithOpacity(1),
+    shadowColor: Colors.bgColor11,
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },

@@ -7,13 +7,15 @@ export interface HashState {
   recordingCreateList: any[];
   tempRecordings: any;
   tempRecordingData:any;
+  currentlyOpenedMeetingTranscript:any
 }
 
 const initialState: HashState = {
   recordingList: [],
   recordingCreateList: [],
   tempRecordings: [],
-  tempRecordingData:{}
+  tempRecordingData:{},
+  currentlyOpenedMeetingTranscript:null
 };
 
 export const recordingStates = createSlice({
@@ -35,6 +37,9 @@ export const recordingStates = createSlice({
     setRelatedNotes: (state, action: PayloadAction<any>) => {
       state.recordingList[action.payload?.index].related_notes =
         action.payload?.related_notes;
+    },
+    setCurrentlyOpenedMeetingTranscript: (state, action: PayloadAction<any>) => {
+      state.currentlyOpenedMeetingTranscript =action.payload
     },
     updateTitle: (state, action: PayloadAction<any>) => {
       const list = state.recordingList;
@@ -124,7 +129,8 @@ export const {
   deleteRecordingsFromState,
   updateRecordingDetails,
   updateTempRecordingData,
-  setCreateRecordingList
+  setCreateRecordingList,
+  setCurrentlyOpenedMeetingTranscript
 } = recordingStates.actions;
 
 export default recordingStates.reducer;

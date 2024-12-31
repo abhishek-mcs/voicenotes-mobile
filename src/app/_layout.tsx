@@ -54,6 +54,10 @@ export default function Layout() {
                 options={{ presentation: "formSheet",animation:isIOS?"ios":"slide_from_bottom" }}
               />
               <Stack.Screen
+                name="transcript"
+                options={{ presentation: "formSheet",animation:isIOS?"ios":"slide_from_bottom" }}
+              />
+              <Stack.Screen
                 name="search/index"
                 options={{ animation: "fade" }}
               />

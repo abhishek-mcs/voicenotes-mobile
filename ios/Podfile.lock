@@ -111,6 +111,9 @@ PODS:
     - ExpoModulesCore
   - ExpoFileSystem (16.0.9):
     - ExpoModulesCore
+  - ExpoGL (13.6.0):
+    - ExpoModulesCore
+    - ReactCommon/turbomodule/core
   - ExpoHaptics (12.8.1):
     - ExpoModulesCore
   - ExpoHead (3.4.10):
@@ -187,6 +190,7 @@ PODS:
     - FBSDKCoreKit (= 17.0.3)
   - FBSDKShareKit (17.0.3):
     - FBSDKCoreKit (= 17.0.3)
+  - ffmpeg-kit-ios-audio (5.1)
   - Firebase/Analytics (11.2.0):
     - Firebase/Core
   - Firebase/Core (11.2.0):
@@ -350,7 +354,7 @@ PODS:
     - FBLazyVector (= 0.73.6)
     - RCTRequired (= 0.73.6)
     - React-Core (= 0.73.6)
-  - ReachabilitySwift (5.2.3)
+  - ReachabilitySwift (5.2.4)
   - React (0.73.6):
     - React-Core (= 0.73.6)
     - React-Core/DevSupport (= 0.73.6)
@@ -1198,7 +1202,8 @@ PODS:
   - react-native-appsflyer (6.15.1):
     - AppsFlyerFramework (= 6.15.1)
     - React
-  - react-native-audio-waveform (2.0.0):
+  - react-native-audio-analyzer (2.0.2):
+    - ffmpeg-kit-ios-audio (= 5.1)
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1228,6 +1233,8 @@ PODS:
   - react-native-render-html (6.3.4):
     - React-Core
   - react-native-safe-area-context (4.8.2):
+    - React-Core
+  - react-native-segmented-control (2.4.1):
     - React-Core
   - react-native-webview (13.6.4):
     - glog
@@ -1481,6 +1488,7 @@ DEPENDENCIES:
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoDevice (from `../node_modules/expo-device/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
+  - ExpoGL (from `../node_modules/expo-gl`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
@@ -1528,13 +1536,14 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
-  - "react-native-audio-waveform (from `../node_modules/@simform_solutions/react-native-audio-waveform`)"
+  - react-native-audio-analyzer (from `../node_modules/react-native-audio-analyzer`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
   - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -1579,6 +1588,7 @@ SPEC REPOS:
     - FBSDKGamingServicesKit
     - FBSDKLoginKit
     - FBSDKShareKit
+    - ffmpeg-kit-ios-audio
     - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -1656,6 +1666,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-device/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
+  ExpoGL:
+    :path: "../node_modules/expo-gl"
   ExpoHaptics:
     :path: "../node_modules/expo-haptics/ios"
   ExpoHead:
@@ -1745,8 +1757,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-appsflyer:
     :path: "../node_modules/react-native-appsflyer"
-  react-native-audio-waveform:
-    :path: "../node_modules/@simform_solutions/react-native-audio-waveform"
+  react-native-audio-analyzer:
+    :path: "../node_modules/react-native-audio-analyzer"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-fbsdk-next:
@@ -1759,6 +1771,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-render-html"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-segmented-control:
+    :path: "../node_modules/@react-native-segmented-control/segmented-control"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-nativeconfig:
@@ -1853,6 +1867,7 @@ SPEC CHECKSUMS:
   ExpoCrypto: b6428f48599c007676dc81a9b5f72c07e62fdccc
   ExpoDevice: 97307196d8cab694e245752b8a7afacc35c14e03
   ExpoFileSystem: 74cc0fae916f9f044248433971dcfc8c3befd057
+  ExpoGL: 085542f97b13f2428ac2edb077c9a90f4566944d
   ExpoHaptics: 28a771b630353cd6e8dcf1b1e3e693e38ad7c3c3
   ExpoHead: 89ffd324e60520751c2c285233fe45e875c91874
   ExpoImage: 8cf2d51de3d03b7e984e9b0ba8f19c0c22057001
@@ -1878,6 +1893,7 @@ SPEC CHECKSUMS:
   FBSDKGamingServicesKit: 599a63c235776b7c6288d5dfd7c02edab9a1d3b7
   FBSDKLoginKit: b4a4eba1d62eb452544411824f41689adabd5bd2
   FBSDKShareKit: eb1169eafe3c06f881dc6deed2d7979585b16959
+  ffmpeg-kit-ios-audio: 6eaf5a3c4249b767328502747a08bfd901a86d3d
   Firebase: 98e6bf5278170668a7983e12971a66b2cd57fc8c
   FirebaseAnalytics: c36efd5710c60c17558650fa58c2066eca7e9265
   FirebaseAppCheckInterop: 7789a8adfb09e905ce02a76540b94b059029ea81
@@ -1905,7 +1921,7 @@ SPEC CHECKSUMS:
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: ca1d7414aba0b27efcfa2ccd37637edb1ab77d96
   RCTTypeSafety: 678e344fb976ff98343ca61dc62e151f3a042292
-  ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   React: e296bcebb489deaad87326067204eb74145934ab
   React-callinvoker: d0b7015973fa6ccb592bb0363f6bc2164238ab8c
   React-Codegen: 627cd02719674bfc5612f2f8394b4da2bf03a7b2
@@ -1925,13 +1941,14 @@ SPEC CHECKSUMS:
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: d81d930c1b7f4db284e1d721fe7fdc99230ca108
   react-native-appsflyer: 84e6e37fe91b8ec22875bd10a50fb8baf9434567
-  react-native-audio-waveform: 30d8dc7d9d4ed0436c85e6ccc22360d82f4d37cb
+  react-native-audio-analyzer: 132cc7d334593618b1fe0a03d87cbfa51180f263
   react-native-context-menu-view: 30915369a9b5887904c571b616653acf3f1c8edb
   react-native-fbsdk-next: 84746ea062dc3b1a422154d7674ba4c5836b6d82
   react-native-keyboard-controller: d62ab67cf31cd9c774559225d84a5035b4c975ad
   react-native-netinfo: 3aa5637c18834966e0c932de8ae1ae56fea20a97
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
+  react-native-segmented-control: 0e4b5d93911e2234f110057df2b41738b326ab3e
   react-native-webview: ad868affda04ff2b204de83546193bc0325a8280
   React-nativeconfig: e700ac3ec3d66329076bd2c2787a204411815d43
   React-NativeModulesApple: f7fa541118d195ac850ca2ea460f338152ced167

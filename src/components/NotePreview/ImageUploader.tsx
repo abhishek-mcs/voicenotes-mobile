@@ -94,8 +94,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleImageSelection = useCallback(async (result: ImagePicker.ImagePickerResult) => {
     if (!result.canceled && result.assets?.length > 0) {
-      try {
-        const newImage = await validateAndConvertImage(result.assets[0].uri);
+      result.assets?.forEach(async(itm)=>{
+        const newImage = await validateAndConvertImage(itm?.uri);
         const temporaryImageId = Math.random();
         setAttachments((prevAttachments:any) => [
           ...prevAttachments,
@@ -107,6 +107,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             is_uploading: true,
           },
         ]);
+        handleSelectedImage(newImage,temporaryImageId)
+      })
+    }},[validateAndConvertImage, setAttachments])
+
+  const handleSelectedImage = useCallback(async (newImage:any,temporaryImageId:any) => {
+      try {
         noteType!=3&&await uploadImage(newImage);
         await onAttachmentUpdate();
         setAttachments((prevAttachments:any) =>
@@ -119,8 +125,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         console.log("Error in uploading image: " + error);
         showDialog("Error", "Failed to upload image. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
       }
-    }
-  }, [validateAndConvertImage, uploadImage, onAttachmentUpdate, setAttachments]);
+  }, [uploadImage, onAttachmentUpdate]);
 
   const launchImagePicker = useCallback(async (type: "library" | "camera") => {
     try{
@@ -134,6 +139,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         allowsEditing: false,
         aspect: [4, 3],
         quality: 1,
+        allowsMultipleSelection:true
       });
     } else {
       permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -142,6 +148,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         allowsEditing: false,
         aspect: [4, 3],
         quality: 1,
+        allowsMultipleSelection:true
       });
     }
 
@@ -162,13 +169,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       await sleep(300);
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ["Cancel", "Take Photo", "Choose from Library"],
+          options: ["Cancel",  "Choose from Library"],
           cancelButtonIndex: 0,
         },
         (buttonIndex) => {
           if (buttonIndex === 1) {
-            launchImagePicker("camera");
-          } else if (buttonIndex === 2) {
+          //   launchImagePicker("camera");
+          // } else if (buttonIndex === 2) {
             launchImagePicker("library");
           }
           setShowImagePicker(false);
@@ -201,14 +208,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             }}
           >
             <View style={{ backgroundColor: Colors.bgColor2, padding: 20}}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);
                   launchImagePicker("camera");
                 }}
               >
                 <Text style={{ fontSize: 18, padding: 10,color:Colors.text }}>Take Photo</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);

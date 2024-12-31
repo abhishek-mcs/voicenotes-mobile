@@ -110,6 +110,7 @@ useEffect(() => {
     !canRecord&&setCloseAlert(false)
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
+    setPaused(false)
     onRecord(newTemporaryRecordingId);
   };
 
@@ -136,7 +137,7 @@ useEffect(() => {
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.heading}>
-                {!canRecord?"Your daily recording limit has been exceeded. Please try again later.":recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
+                {(canRecord!=undefined&&canRecord==false)?"Your daily recording limit has been exceeded. Please try again later.":recordingParentNoteName ? `Adding to note "${recordingParentNoteName}"`: "Adding to the current note"}
               </Text>
             </View>
             <Touchable
@@ -193,6 +194,7 @@ useEffect(() => {
           </>
         ) : (
 <NoteRecorder
+// (!!token&&isBeliever)?'':'/01:00'
         totalDuration={(!!token&&isBeliever)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
@@ -219,16 +221,16 @@ const useStyles = () => {
     backgroundColor:Colors.bgColor17,
     minHeight: 56,
     borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 90,
+    // position: "absolute",
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 10,
     shadowColor: isIOS ?Colors.bgColor10(0.15) : Colors.bgColor10(0.7),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    zIndex: 10,
-    elevation: 4,
+    // zIndex: 10,
+    // elevation: 4,
     paddingHorizontal: 20,
     paddingVertical: 16,
     justifyContent: "center",
@@ -243,28 +245,9 @@ const useStyles = () => {
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 16,
-    zIndex:10000
-  },
-  parentNoteIndicator: {
-    flexDirection: "row",
-    backgroundColor:Colors.whiteWithOpacity(1),
-    height: 40,
-    borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 100,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
-    shadowOffset: { width: 0, height: 0.5 },
-    shadowOpacity: 0.9,
-    shadowRadius: 1.5,
-    elevation: 3,
-    zIndex: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    bottom: isIOS?16:0,
+    zIndex:10000,
+    elevation: 4
   },
   parentNoteText: {
     fontSize: 14,
@@ -284,7 +267,6 @@ const useStyles = () => {
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    elevation: 4,
     paddingHorizontal: "2%",
     paddingVertical: "2%",
     // height:74,

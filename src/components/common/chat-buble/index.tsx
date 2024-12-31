@@ -21,7 +21,8 @@ const ChatBubble = ({
   cursorSvg = '',
   status = "",
   showStatus = false,
-  showUpgrade= false
+  showUpgrade = false,
+  isSummary = false
 }: {
   delay?: number;
   message: string;
@@ -35,6 +36,7 @@ const ChatBubble = ({
   status?: string;
   showStatus?: boolean;
   showUpgrade?: boolean;
+  isSummary?:boolean;
 }) => {
   const [displayedMessage]: any = useState("");
   const containsHTML = (str: string) => {
@@ -74,6 +76,8 @@ const ChatBubble = ({
       </View>
     );
   }
+
+  const summaryNotes = isSummary?message?.split('\n'):['']
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
 
@@ -89,6 +93,14 @@ const ChatBubble = ({
       // splitter={(str) => str.split(/\s+/)}
       numberOfLines={lines}
     />
+    :isSummary?
+    <View >{
+    summaryNotes?.splice(0,lines<10?2:summaryNotes?.length-1)?.map((m:any,i:number)=>(
+      <Text key={i} style={[style, {marginTop:i==0?4:8}]}>
+        {m}{lines<10&&i==1?'...':''}
+      </Text>
+    ))}
+    </View>
     :<Text style={[style, {}]} numberOfLines={lines}>
         {message}
       </Text>}
