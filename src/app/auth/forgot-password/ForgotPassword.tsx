@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
@@ -35,6 +36,7 @@ const ForgotPassword = () => {
   };
 
   return (
+    <SafeAreaView style={{flex:1}}>
     <View style={styles.container}>
       <Pressable
         onPress={handleGoBack}
@@ -123,6 +125,7 @@ const ForgotPassword = () => {
         )}
       </Pressable>
     </View>
+    </SafeAreaView>
   );
 };
 

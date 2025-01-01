@@ -158,9 +158,10 @@ const Transcript = () => {
       router.push("/transcript/TranscriptAskAI");
     }, 600);
   };
-
+  
   const onCopy = async () => {
-    if (transcript) await setStringAsync(transcript);
+    const t=transcript?.replace(/<\/?b>/g, "")?.replace(/<br\/?>/g, "")
+    if (transcript) await setStringAsync(t);
   };
 
   useEffect(() => {

@@ -89,7 +89,7 @@ export function useCheckEmail(){
 
 export function useResetPassword(){
     return useMutation("reset-password", (p?:any)=>{
-        return axiosApi.post("/auth/reset-password",p)
+        return axios.post(API_URL+"/api/auth/reset-password",p)
     })
 }
 
