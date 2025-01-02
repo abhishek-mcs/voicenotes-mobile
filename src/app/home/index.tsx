@@ -51,7 +51,6 @@ import { setCanRecord } from "redux/reducers/userDetails";
 import BannerAlert from "components/common/banner-alert";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import { get, off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
 import { NewNote, Note } from "types";
@@ -69,14 +68,14 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { useLocalSearchParams } from "expo-router";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-import { NoteContext, useTheme } from "context";
-import database from '@react-native-firebase/database';
+import { NoteContext, useNoteContext, useTheme } from "context";
 import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
+import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -99,7 +98,6 @@ const Home = () => {
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
-  const [expandNote,setExpandNote] = useState(-1)
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
@@ -133,16 +131,16 @@ const Home = () => {
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
-  const relatedNotes = useGetRelatedRecording();
 
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
-  const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
+  const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote} = useNoteContext()
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
   const {showDialog}:any = useDialog()
 
+  const { listenToFirebaseStatus } = useFirebaseRecordingListener()
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
@@ -167,167 +165,6 @@ const Home = () => {
     }
   }, [getTags?.data?.data]);
 
-  const listenToFirebaseStatus = 
-   async(
-      recordingId: string | number,
-      temporaryRecordingId: string | null = null,
-      is_transcript_only=false,
-      teamSummaryId=null
-    ) => {
-      try{
-        
-      const firebasePath =  "processStatuses/recording"
-      const dbRef = database().ref(firebasePath).child(`${recordingId}`);
-      
-      console.log('firebase listen', firebasePath + recordingId)
-      
-      let isTitleGenerated=false||is_transcript_only;
-      let isTitleTriggered=false||is_transcript_only;
-      let isTranscriptTriggered=false;
-      let isProcessCompleted=false;
-
-      dbRef.on('value', async (snapshot) => {
-        console.log('firebase listen value')
-        if (!snapshot?.exists()) {
-          console.log("Snapshot does not exist");
-          return;
-        }
-
-        console.log('snapshot',snapshot?.exists())
-
-        if (snapshot?.exists()) {
-
-          const status = +snapshot.val();
-
-          if (isNaN(status)) {
-            console.error("Invalid status value");
-            return;
-          }
-          
-          console.log('firebase snapshot')
-          let updatedStatus = "uploading";
-          if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
-            updatedStatus = "processing";
-            console.log("audio uploaded");
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.UPLOADED_FAILED) {
-            updatedStatus = "upload_failed";
-            console.log("audio uploaded failed");
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
-            updatedStatus = "processing_failed";
-            console.log("title geneation failed;waiting",recordingId);
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.GENERATE_TRANSCRIPT_FAILED) {
-            updatedStatus = "processing_failed";
-            console.log("transcript geneation failed;waiting",recordingId);
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus,is_transcript_loading: false },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (teamSummaryId && status === RecordingStatus.MEETING_SUMMARY_GENERATED) {
-            console.log('summary generation worked')
-            updatedStatus = "processed";
-            await sleep(5000)
-            const updatedNote = await fetchSingleRecording(recordingId);
-            console.log(updatedNote?.data?.creations)
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: {
-                  ...updatedNote.data,
-                  status: updatedStatus,
-                  is_transcript_loading:false,
-                },
-              })
-            );
-            !isTranscriptTriggered&&setTriggerTypingTranscript(recordingId);
-            return ()=> {
-              dbRef.off('value');
-              dbRef.remove();
-            }
-          } else if ((status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED)&&!teamSummaryId) {
-            const isProcessOver = true;
-            updatedStatus = "processed";
-            console.log("formatted");
-            const updatedNote = await fetchSingleRecording(recordingId);
-            console.log("updated note: ",updatedNote.data.title)
-            isTitleGenerated=updatedNote?.data?.title!=null||is_transcript_only
-            isProcessCompleted=isTitleTriggered&&isTranscriptTriggered&&status === RecordingStatus.PROCESS_COMPLETED
-            !isProcessCompleted&&
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: {
-                  ...updatedNote.data,
-                  title:(!is_transcript_only&&status==RecordingStatus.TRANSCRIPT_GENERATED)?null:updatedNote?.data?.title,
-                  status: updatedStatus,
-                  is_transcript_loading:false,
-                },
-              })
-            );
-            !isTranscriptTriggered&&status==RecordingStatus.TRANSCRIPT_GENERATED&&setTriggerTypingTranscript(recordingId);
-            !isTitleTriggered&&isTitleGenerated&&setTriggerTypingTitle(recordingId);
-            isTitleTriggered=isTitleGenerated;
-            isTranscriptTriggered=status==RecordingStatus.TRANSCRIPT_GENERATED
-            status==RecordingStatus.TRANSCRIPT_GENERATED&&await queryClient.invalidateQueries('single-recording')
-            dispatch(updateTempRecordingData(updatedStatus));
-            dispatchCanRecord(updatedNote.data?.can_record_more);
-            isTitleGenerated&&dispatch(setRelatedNoteTitleLoad(false))
-            status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
-            is_transcript_only&&updatedNote.data?.recording_type==2&&dispatch(setCurrentlyOpenedMeetingTranscript(updatedNote.data?.transcript))
-            status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
-            console.log("removing firebase listener");
-            // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
-            status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
-              !updatedNote.data?.parent_id&&setExpandNote(0);
-              status === RecordingStatus.PROCESS_COMPLETED&&dbRef.off('value');
-              status === RecordingStatus.PROCESS_COMPLETED&&dbRef.remove();
-            }, 600);
-          }
-        } else {
-          console.log("Snapshot does not exist");
-        }
-      },(error) => {
-        console.error(error);
-      });
-    }catch(e){
-      console.log("Error processing snapshot:", e);
-      // Update UI to show error state if needed
-      dispatch(
-        updateRecordingDetails({
-          recordingId,
-          data: { status: "processing_failed" },
-          temporaryRecordingId,
-        })
-      );
-    }
-    }
 
   useEffect(() => {
     const tokenSubscription = actionEmitter.addListener('sendToken', () => {
@@ -686,7 +523,9 @@ const Home = () => {
       checkAndShowPremium()
       !recordingParentId&&setExpandNote(-1)
       setRecEnabled(false);
-      const uri = await stopRecording(rec);
+      let uri = await stopRecording(rec);
+      if(!!uri)
+        uri = rec?.getURI()
       setRec(null);
 
       const temporaryRecordingId = Math.random().toString(36).substring(7);
@@ -701,9 +540,6 @@ const Home = () => {
         status: "uploading",
         internalUrl: uri,
         parent_id: recordingParentId,
-        // isSubnote:splitCount>0,
-        // temp_id:temporaryRecordingId,
-        // temp_parent_id:recordingList[0]?.id??null
       };
 
       dispatch(setTempRecordingData(newTemporaryRecording))

@@ -25,6 +25,22 @@ export function useRecordings(tags?:string){
     })
 }
 
+export function usePostRecord(){
+    const queryClient = useQueryClient();
+    return useMutation('post-record', (p?:any) => {
+        return axiosApi.post(`/recordings/new`,p)
+    },
+    {   onSuccess:async()=>{
+            await queryClient.invalidateQueries('all-recording');
+            await queryClient.resetQueries('streaks');
+        },
+        onError:(error:any)=>{
+            alert('Something went wrong')
+            console.log(error?.response?.data?.message,'post record');
+        }
+    })
+}
+
 export function useToggleStar(recording_id:number){
     const queryClient = useQueryClient();
     return useMutation('toggle-star', (p?:any) => {

@@ -7,8 +7,9 @@ import { useMemo } from "react"
 import { Text } from "react-native"
 import { StyleSheet, View } from "react-native"
 import { SvgXml } from "react-native-svg"
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
-export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,onNewChat=()=>{},onDrawer=()=>{}})=>{
+export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=0,onNewChat=()=>{},onDrawer=()=>{},handleSegmentChange=(v:any)=>{}})=>{
     const router=useRouter()
     const styles = useStyles()
     const { Colors } = useTheme()
@@ -29,13 +30,13 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=-1,on
               <SvgXml xml={AIModalSVG.close?.replace("#1C1B1F",Colors.askClose)} />
             </Touchable>
           </View>
-          <Text style={styles.headerText}>{title}</Text>
-          {/* <SegmentedControl
+          {/* <Text style={styles.headerText}>{title}</Text> */}
+          <SegmentedControl
             values={["Ask", "Create"]}
             selectedIndex={selectedIndex}
             style={{width:132,height:32}}
             onChange={(event) => handleSegmentChange(event.nativeEvent.selectedSegmentIndex)}
-          /> */}
+          />
           {(type=="ask"&&selectedIndex==0)?<Touchable
             onPress={onDrawer}
             style={styles.rightContainer}

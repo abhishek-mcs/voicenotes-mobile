@@ -55,6 +55,7 @@ import { useTheme } from "context";
 import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useDialog } from "context/DialogContext";
 import TypingLoader from "components/common/loaders/typing/TypingLoader";
+import CreateModal from "components/CreateModal";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -354,8 +355,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
 
   return (
     <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0}]}>
-        {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>}
-          {!chatLoader ? (
+        {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer} handleSegmentChange={handleSegmentChange} />}
+          {selectedIndex==1?
+          <CreateModal/>
+          :!chatLoader ? (
             <KeyboardAwareScrollView
               ref={scrollRef}
               showsVerticalScrollIndicator={false}

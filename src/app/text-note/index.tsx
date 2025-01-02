@@ -29,6 +29,12 @@ import ImageUploader from "components/NotePreview/ImageUploader";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { usePostRecord } from "queries/home";
+import { NewNote } from "types";
+import { useDispatch, useSelector } from "react-redux";
+import { setRecordingList, setTempRecordingData } from "redux/reducers/recordingStates";
+import { RootState } from "redux/store/store";
+import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 
 const TextNote = () => {
   const router = useRouter();
@@ -40,6 +46,10 @@ const TextNote = () => {
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const styles = useStyles()
+  const textNoteMutation = usePostRecord()
+  const dispatch = useDispatch()
+  const { recordingList } = useSelector((state:RootState)=>state.recordingStates)
+  const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -49,8 +59,26 @@ const TextNote = () => {
 
   const onCancel = () => router?.back();
 
-  const onDone = () => {
-    router.back();
+  const onDone = async() => {
+    const temporaryRecordingId = Math.random().toString(36).substring(7);
+    const newTemporaryRecording: NewNote = {
+      id: temporaryRecordingId,
+      temp_id:temporaryRecordingId,
+      audio: { data: { url: null, duration:null } },
+      isUploading: true,
+      title: `New Recording`,
+      transcript: null,
+      recorded_at: new Date().getTime(),
+      status: "saving",
+      internalUrl: undefined,
+      parent_id: null,
+    };
+
+    dispatch(setTempRecordingData(newTemporaryRecording))
+    dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
+    textNoteMutation.mutate({recording_type:3,transcript:textnote});
+    listenToFirebaseStatus(temporaryRecordingId);
+    router.back()
   };
 
   const onWrite = (note: any) => {
@@ -58,11 +86,10 @@ const TextNote = () => {
   };
 
   const refreshNotesAfterAttachmentChange = async () => {};
-console.log(attachments)
+console.log(attachments)                                                                             
   const renderImageThumbnail = useCallback(
     (item:any,index:number) => (
-      <View key={index}>
-        <View style={[styles.thumbnailContainer]}>
+        <View style={[styles.thumbnailContainer]} key={index}>
           <Image
             source={{ uri: item.url }}
             style={styles.thumbnail}
@@ -76,9 +103,8 @@ console.log(attachments)
             </BlurView>
           )}
         </View>
-      </View>
     ),
-    []
+    [attachments]
   );
 
   return (
@@ -117,7 +143,7 @@ console.log(attachments)
           Write
         </Text>
         {isLoading ? (
-          <View style={{ width: "20%" }}>
+          <View style={{ width:'20%', alignItems:'flex-end' }}>
             <ThreeDotLoader
               colorFilters={[
                 { keypath: "Left", color: Colors.text },
