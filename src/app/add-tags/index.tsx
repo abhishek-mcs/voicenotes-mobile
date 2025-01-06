@@ -36,7 +36,7 @@ const AddTags = () => {
     const {Colors} = useTheme()
     
     const onSearch=useCallback((s:string)=>{
-      const q = s?.replace(/-/g, '');
+      const q = s?.replace(/-/g, '')?.replace(/\//g, '');
       setSearch(q);
       if(tags?.length>0)
         if(q=='')
