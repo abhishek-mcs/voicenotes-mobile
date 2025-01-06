@@ -29,7 +29,7 @@ export function useFirebaseRecordingListener() {
   const {showDialog} = useDialog();
   const {isLightMode} = useTheme();
 
-  const uploadImage = async (newImage: string,noteId:any) => {
+  const uploadImage = async (newImage: string,noteId:any,isLast:boolean) => {
     const identifier = generateRandomIdentifier();
 
     try {
@@ -47,8 +47,9 @@ export function useFirebaseRecordingListener() {
           "Content-Type": "multipart/form-data",
         },
       });
-      if(result){
-        queryClient.resetQueries("single-recording")
+      if(result&&isLast){
+        queryClient.invalidateQueries('all-recording')
+        queryClient.resetQueries('streaks');
         console.log('Upload successfull');
       }
       
@@ -65,7 +66,7 @@ export function useFirebaseRecordingListener() {
     const data = await axiosApi.post(`/recordings/new`,{recording_type:3,transcript:textnote})
     const noteId = data?.data?.recording?.id
     listenToFirebaseStatus(noteId,temporaryRecordingId);
-    images?.length>0&&images?.map(async(img,i)=>await uploadImage(img?.url,noteId))
+    images?.length>0&&images?.map(async(img,i)=>await uploadImage(img?.url,noteId,i==images?.length-1))
   }
 
   const listenToFirebaseStatus = async (

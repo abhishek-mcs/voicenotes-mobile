@@ -37,7 +37,7 @@ import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { DrawerLayout } from "react-native-gesture-handler";
 import { home } from "assets/svg/home";
-import { formatDate, isSameDay } from "utils/format-date";
+import { formatDate, formatDate2, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
 import AudioPlayer from "./AudioPlayer";
 import * as Haptics from 'expo-haptics';
@@ -392,7 +392,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                   )}
                 </View>
               ))}
-                {chats?.related_messages?.length==0&&
+                {/* {chats?.related_messages?.length==0&&
                 <View style={{ marginLeft: 20 }}>
                   <SvgXml
                     xml={AIModalSVG.askAILogo?.replace(/#0E3934/g,Colors.askLogo).replace('fill-opacity="0.1"',isLightMode?'fill-opacity="0.1"':'fill-opacity="0.3"')}
@@ -406,8 +406,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                   >
                     Ask about your notes.
                   </Text>
-                </View>}
-                {!chatStarted
+                </View>} */}
+                {/* {!chatStarted
                   ? getSuggestions.data?.data?.length > 0 && (
                       <View style={styles.suggestContainer}>
                         <View style={[styles.row, { marginBottom: 4 }]}>
@@ -443,7 +443,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                       </View>
                     )
                   : null
-              }
+              } */}
             </KeyboardAwareScrollView>
           ) : (
             <View
@@ -456,6 +456,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
+
+            {!chatStarted &&
+              <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:20}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.recordings_count} notes.</Text>
+            }
             <KeyboardStickyView style={styles.inputContainer} offset={{opened:isIOS?40:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
