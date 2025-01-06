@@ -129,30 +129,18 @@ const NotePreview = forwardRef(
 
     const dispatch = useDispatch();
 
-    const { token, userDetails }:{token:any,userDetails:any} = useSelector((state: RootState) => state.userDetails);
-    const { tempRecordings } = useSelector(
-      (state: RootState) => state.recordingStates
-    );
-
     const queryClient = useQueryClient();
-    const deleteRecord = useDeleteRecording(note?.id);
     // const addTitleRecord = useAddTitle();
     const getSignedURL = useSignedUrl();
     const createAI = useCreate();
-    const addTranscript = useAddTranscript();
     const unPublishRecording = useUnpublishRecording();
     const relatedNotes = useGetRelatedRecording();
-    const NetInfo = useNetInfo();
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
-    const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
-    const creationslistRef:any = useRef<View>(null);
     const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
-
-    const isUploadingFailed =
-      !!note?.audio?.data?.url && note.isUploading == false;
 
     useEffect(() => {
       setAttachments(note?.attachments);
+      console.log(note?.attachments)
     }, [note?.attachments]);
 
     const hideMoreOption = () => setMoreOption(false);
@@ -349,12 +337,12 @@ const NotePreview = forwardRef(
               if (
                 note.status == "uploading" ||
                 note.status == "upload_failed" ||
-                isCache
+                isCache ||  note?.status == "saving"
               ) {
                 // edge case
                 // await cancelUpload(note?.id);
-                dispatch(deleteRecording({ id: note?.id }));
                 dispatch(updateTempRecordingData('processed'))
+                dispatch(deleteRecording({ id: note?.id }));
                 // onDeleteCallBack();
               } else {
                 try {
@@ -607,11 +595,11 @@ const NotePreview = forwardRef(
       []:[];
 
       const intermediateButtons = [
-        {
+        ...(note?.recording_type!=3?[{
           text: "Download",
           onPress: onDownloadAudio,
           icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
-        },
+        }]:[]),
         { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete?.replace(/#0D0D0D/g,Colors.text) },
       ];
 
@@ -637,6 +625,7 @@ const NotePreview = forwardRef(
         switch (status) {
           case "uploading":
           case "processing":
+          case "saving":
             return intermediateButtons;
           case "failed":
             return failedButtons;
@@ -644,7 +633,7 @@ const NotePreview = forwardRef(
             return mainButtons;
         }
       };
-    if(note?.status=='processing'||note?.status=='uploading'||note?.status?.includes('failed'))
+    if(note?.status=='processing'||note?.status=='uploading'||note?.status=='saving'||note?.status?.includes('failed'))
       return (
         <ScrollView
           horizontal
@@ -929,7 +918,7 @@ const NotePreview = forwardRef(
                         cursorSvg={
                           note?.status == "processing"
                             ? notePreviewSVG.flower?.replace(/#0D0D0D/g,Colors.arrow)
-                            : note?.status == "uploading"
+                            : (note?.status == "uploading"|| note?.status == "saving")
                             ? notePreviewSVG.blackCircle?.replace(/#0D0D0D/g,Colors.arrow)
                             : ""
                         }

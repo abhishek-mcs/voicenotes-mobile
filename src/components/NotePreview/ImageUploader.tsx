@@ -107,13 +107,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             is_uploading: true,
           },
         ]);
-        handleSelectedImage(newImage,temporaryImageId)
+        noteType!=3?handleSelectedImage(newImage,temporaryImageId)
+        :await onAttachmentUpdate();
       })
-    }},[validateAndConvertImage, setAttachments])
+    }},[])
 
   const handleSelectedImage = useCallback(async (newImage:any,temporaryImageId:any) => {
       try {
-        noteType!=3&&await uploadImage(newImage);
+        await uploadImage(newImage);
         await onAttachmentUpdate();
         setAttachments((prevAttachments:any) =>
           prevAttachments.filter((item:any) => item.id !== temporaryImageId)
@@ -125,7 +126,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         console.log("Error in uploading image: " + error);
         showDialog("Error", "Failed to upload image. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
       }
-  }, [uploadImage, onAttachmentUpdate]);
+  }, []);
 
   const launchImagePicker = useCallback(async (type: "library" | "camera") => {
     try{

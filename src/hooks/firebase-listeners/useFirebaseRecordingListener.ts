@@ -7,7 +7,7 @@ import {
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
 import { fetchSingleRecording, sleep } from "utils/common";
-import { useNoteContext } from "context";
+import { useNoteContext, useTheme } from "context";
 import { setCanRecord } from "redux/reducers/userDetails";
 import {
   setRelatedNoteTitleLoad,
@@ -15,6 +15,10 @@ import {
 } from "redux/reducers/relatedNoteStates";
 import { useQueryClient } from "react-query";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
+import { usePostRecord } from "queries/home";
+import axiosApi from "services/api/axios-api";
+import { generateRandomIdentifier } from "utils/formatBigNumber";
+import { useDialog } from "context/DialogContext";
 
 export function useFirebaseRecordingListener() {
   const dispatch = useDispatch();
@@ -22,6 +26,47 @@ export function useFirebaseRecordingListener() {
     useNoteContext();
   const queryClient = useQueryClient();
   const relatedNotes = useGetRelatedRecording();
+  const {showDialog} = useDialog();
+  const {isLightMode} = useTheme();
+
+  const uploadImage = async (newImage: string,noteId:any) => {
+    const identifier = generateRandomIdentifier();
+
+    try {
+      const formData = new FormData();
+      formData.append("file", {
+        uri: newImage,
+        name: "photo.jpg",
+        type: "image/jpeg",
+      } as any);
+      formData.append("type", "2");
+      formData.append("identifier", identifier);
+
+      const result = await axiosApi.post(`/attachment/${noteId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if(result){
+        queryClient.resetQueries("single-recording")
+        console.log('Upload successfull');
+      }
+      
+    } catch (error) {
+      console.error("Upload error:", error);
+      showDialog(
+        "Upload Error",
+        "Failed to upload image. Please try again later."
+      ,[],{userInterfaceStyle:isLightMode?"light":"dark"});
+    }
+  };
+
+  const onTextNoteSave = async(textnote:string='',temporaryRecordingId:any,images:any[]=[]) => {
+    const data = await axiosApi.post(`/recordings/new`,{recording_type:3,transcript:textnote})
+    const noteId = data?.data?.recording?.id
+    listenToFirebaseStatus(noteId,temporaryRecordingId);
+    images?.length>0&&images?.map(async(img,i)=>await uploadImage(img?.url,noteId))
+  }
 
   const listenToFirebaseStatus = async (
     recordingId: string | number,
@@ -228,7 +273,7 @@ export function useFirebaseRecordingListener() {
       );
     }
   };
-  return {listenToFirebaseStatus}
+  return {listenToFirebaseStatus,onTextNoteSave}
 }
 
 // interface UseFirebaseRecordingListenerProps {

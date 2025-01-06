@@ -114,7 +114,7 @@ const ChatBubble = ({
             lineHeight: 20,
             marginLeft: 4,
           }}
-        >{status=="processing"?"Transcribing":status=="uploading"?"Uploading":""}</Text>
+        >{status=="processing"?"Transcribing":status=="uploading"?"Uploading":status=="saving"?"Saving":""}</Text>
       )}
     </View>
   );

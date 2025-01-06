@@ -19,7 +19,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import { useTheme } from "context";
-import { isIOS } from "utils/common";
+import { isIOS, sleep } from "utils/common";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import {
   KeyboardAwareScrollView,
@@ -35,6 +35,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setRecordingList, setTempRecordingData } from "redux/reducers/recordingStates";
 import { RootState } from "redux/store/store";
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
+import { commonSvg } from "assets/svg/commonSvg";
 
 const TextNote = () => {
   const router = useRouter();
@@ -46,10 +47,10 @@ const TextNote = () => {
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const styles = useStyles()
-  const textNoteMutation = usePostRecord()
   const dispatch = useDispatch()
   const { recordingList } = useSelector((state:RootState)=>state.recordingStates)
-  const { listenToFirebaseStatus } = useFirebaseRecordingListener()
+  const { onTextNoteSave } = useFirebaseRecordingListener()
+  const scrollRef:any = useRef<ScrollView>()
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -72,12 +73,12 @@ const TextNote = () => {
       status: "saving",
       internalUrl: undefined,
       parent_id: null,
+      recording_type:3
     };
 
+    onTextNoteSave(textnote,temporaryRecordingId,attachments)
     dispatch(setTempRecordingData(newTemporaryRecording))
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
-    textNoteMutation.mutate({recording_type:3,transcript:textnote});
-    listenToFirebaseStatus(temporaryRecordingId);
     router.back()
   };
 
@@ -85,23 +86,35 @@ const TextNote = () => {
     setTextnote(note);
   };
 
-  const refreshNotesAfterAttachmentChange = async () => {};
-console.log(attachments)                                                                             
+  const refreshNotesAfterAttachmentChange = async () => {
+    await sleep(1500);
+    scrollRef?.current?.scrollToEnd();
+  };
+
+  const removeAttachment = (i:number) =>{
+    const temp = [...attachments]
+    temp?.splice(i,1);
+    setAttachments([...temp])
+  }
+                                                                      
   const renderImageThumbnail = useCallback(
     (item:any,index:number) => (
         <View style={[styles.thumbnailContainer]} key={index}>
+        <Pressable style={styles.thumbnailClose} onPress={()=>removeAttachment(index)}>
+          <SvgXml xml={commonSvg.smallClose?.replace(/#717171/g,Colors.bgColor)} />
+        </Pressable>
           <Image
             source={{ uri: item.url }}
             style={styles.thumbnail}
-            contentFit="contain"
+            contentFit="cover"
             transition={300}
             cachePolicy="memory-disk"
           />
-          {item.is_uploading && (
+          {/* {item.is_uploading && (
             <BlurView intensity={50} style={styles.blurOverlay}>
               <CircularLoader color={Colors.whiteWithOpacity(1)} />
             </BlurView>
-          )}
+          )} */}
         </View>
     ),
     [attachments]
@@ -156,12 +169,13 @@ console.log(attachments)
           <Pressable
             onPress={onDone}
             style={{ padding: 12, width: "20%", alignItems: "flex-end" }}
+            disabled={textnote==''}
           >
             <Text
               style={{
                 fontFamily: "Primary-Semibold",
                 fontSize: 16,
-                color: Colors.blue,
+                color: textnote==''?Colors.text7:Colors.blue,
               }}
             >
               Save
@@ -202,30 +216,32 @@ console.log(attachments)
       />
       <KeyboardStickyView
         style={{
-          height: 60,
+          height: attachments?.length>0?'auto':60,
           justifyContent: "center",
+          alignItems:'center',
           backgroundColor: Colors.bgColor8,
+          paddingHorizontal: 18,
+          flexDirection:'row'
         }}
-        offset={{ opened: 34 }}
+        offset={{ opened:attachments?.length>0?24 :34 }}
       >
-        <ScrollView>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef} contentContainerStyle={{paddingVertical:12}}>
           {attachments.map(renderImageThumbnail)}
+        </ScrollView>
           <View
             style={{
-              flexDirection: "row",
               justifyContent: "flex-end",
               padding: 12,
               borderRadius: 100,
-              marginRight: 12,
               backgroundColor: Colors.border,
-              alignSelf: "flex-end",
+              alignSelf: attachments?.length>0?"center":"flex-end",
+              marginLeft:12
             }}
           >
             <Pressable onPress={() => setShowImagePicker(true)}>
               <SvgXml xml={home.img?.replace(/#0D0D0D/g, Colors.black2)} />
             </Pressable>
           </View>
-        </ScrollView>
       </KeyboardStickyView>
     </SafeAreaView>
   );
@@ -239,19 +255,19 @@ const useStyles = () => {
   return useMemo(
     () =>
       StyleSheet.create({
+        thumbnailClose:{position:'absolute',right:-5,top:-5,zIndex:10,backgroundColor:Colors.text,padding:4,borderRadius:12},
         thumbnailContainer: {
           position: "relative",
-          marginRight: 2.5,
+          marginRight: 8,
           width: 100,
           height: 100,
           borderRadius: 4,
           backgroundColor: Colors.inputBg2,
-          overflow: "hidden",
         },
         thumbnail: {
           width: 100,
           height: 100,
-          borderRadius: 2,
+          borderRadius: 6,
           backgroundColor: Colors.inputBg2,
         },
         blurOverlay: {

@@ -35,7 +35,6 @@ export function usePostRecord(){
             await queryClient.resetQueries('streaks');
         },
         onError:(error:any)=>{
-            alert('Something went wrong')
             console.log(error?.response?.data?.message,'post record');
         }
     })

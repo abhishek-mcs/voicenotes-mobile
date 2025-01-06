@@ -23,7 +23,8 @@ type BaseNote = {
   internalUrl?:string
   isSubnote?:boolean
   temp_id?:string
-  temp_parent_id?:string |null
+  temp_parent_id?:string |null,
+  recording_type?:number|null,
 };
 
 export type NewNote = BaseNote;

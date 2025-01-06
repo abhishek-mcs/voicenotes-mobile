@@ -48,6 +48,7 @@ const getStatusIcon = (status: string,Colors:any) => {
   switch (s) {
     case "processing":
     case "uploading":
+    case "saving":
       return <SvgXml style={{ marginLeft: 4 }} xml={notePreviewSVG.progress?.replace('black',Colors?.text)} />;
     case "failed":
       return (
