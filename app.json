@@ -2,8 +2,8 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.5.49",
-    "runtimeVersion": "1.5.49",
+    "version": "1.6.50",
+    "runtimeVersion": "1.6.50",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "147",
+      "buildNumber": "151",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -24,7 +24,7 @@
         "UIBackgroundModes": [
           "audio"
         ],
-        "NSSiriUsageDescription":"Use Siri to interact with Voicenote app for recording, searching, and AI queries.",
+        "NSSiriUsageDescription": "Use Siri to interact with Voicenote app for recording, searching, and AI queries.",
         "NSPrivacyAccessedAPICategoryUserDefaults": "This app requires access to user defaults for storing user preferences and settings securely on the device. AsyncStorage, a commonly used data persistence mechanism in React Native, utilizes user defaults to save and retrieve user-specific data such as preferences, settings, and user-generated content. Access to user defaults ensures a seamless and personalized user experience by preserving user preferences across app sessions.",
         "NSPrivacyAccessedAPICategorySystemBootTime": "This app requires access to system boot time for optimizing data retrieval and synchronization processes upon device boot. AsyncStorage may utilize system boot time to initialize data synchronization tasks or perform background data updates efficiently. Access to system boot time ensures that the app can maintain data consistency and provide up-to-date information to the user, enhancing the overall user experience.",
         "NSPrivacyAccessedAPICategoryDiskSpace": "This app requires access to disk space for storing and managing offline data and cached resources. AsyncStorage may utilize disk space to store locally cached data, downloaded content, or offline assets to provide uninterrupted access to essential app functionalities even when the device is offline. Access to disk space ensures that the app can efficiently manage storage resources and deliver a reliable offline experience to users.",
