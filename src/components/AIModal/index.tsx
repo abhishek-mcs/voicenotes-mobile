@@ -358,7 +358,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
         {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer} handleSegmentChange={handleSegmentChange} />}
           {selectedIndex==1?
           <CreateModal/>
-          :!chatLoader ? (
+          :<>
+          {!chatLoader ? (
             <KeyboardAwareScrollView
               ref={scrollRef}
               showsVerticalScrollIndicator={false}
@@ -555,6 +556,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               drawerContainerStyle={styles.drawer}
             />
           </View>
+          </>}
           </SafeAreaView>
   );
 });

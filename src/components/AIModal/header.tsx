@@ -32,6 +32,9 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=0,onN
           </View>
           {/* <Text style={styles.headerText}>{title}</Text> */}
           <SegmentedControl
+          tintColor={Colors.bgColor8}
+          activeFontStyle={{color:Colors.text}}
+          fontStyle={{color:Colors.text}}
             values={["Ask", "Create"]}
             selectedIndex={selectedIndex}
             style={{width:132,height:32}}
