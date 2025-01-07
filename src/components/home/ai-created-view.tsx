@@ -52,6 +52,8 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     
   if(type=="team-summary") return null;
 
+  console.log(content)
+
   return (
     <Touchable style={container} onPress={()=>{setExpand(!expand)}} activeOpacity={0.6}>
       <View style={{paddingVertical:4,paddingLeft:12,borderLeftWidth:2,borderLeftColor:Colors.brownWithOpacity(1)}}>
@@ -65,7 +67,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
           {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy"||type=="team-summary")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
           :(type=="points"||type=="todo")?
           <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>{(!!content&&content?.length>0)&&content.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}${content?.length-1==i?'':'\n'}`}</Text>)}</Text>
-          :type=="blog"?
+          :type=="blog" || type == "translate"?
           <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>
           {(!!content&&content?.length>0)&&content?.map((itm:string,i:number)=>
               <Text key={i} style={titleStyle}>{itm}</Text>
