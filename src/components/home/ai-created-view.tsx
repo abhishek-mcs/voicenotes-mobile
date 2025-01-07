@@ -52,8 +52,6 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     
   if(type=="team-summary") return null;
 
-  console.log(content)
-
   return (
     <Touchable style={container} onPress={()=>{setExpand(!expand)}} activeOpacity={0.6}>
       <View style={{paddingVertical:4,paddingLeft:12,borderLeftWidth:2,borderLeftColor:Colors.brownWithOpacity(1)}}>
