@@ -132,6 +132,7 @@ const NotePreview = forwardRef(
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
     const isShared = userDetails?.id!=note?.user_id && note?.is_shared
+    const isSameUserNoteShared = userDetails?.id==note?.user_id && note?.is_shared
 
     useEffect(() => {
       setAttachments(note?.attachments);
@@ -243,7 +244,7 @@ const NotePreview = forwardRef(
     };
 
     const togglePublish = () => {
-      const wasPublic = note?.public_slug;
+      const wasPublic = note?.is_shared;
 
       try {
         setPublishLoading(true);
@@ -1073,7 +1074,7 @@ const NotePreview = forwardRef(
                     </View>
                   </MoreOptions>}
                   {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
-                    {userDetails?.id==note?.user_id&&
+                    {isSameUserNoteShared&&
                     <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
                     </Pressable>}
@@ -1136,9 +1137,9 @@ const NotePreview = forwardRef(
         </Touchable>
 
         <PublishedModal
-          slug={note?.public_slug || ""}
+          slug={(isSameUserNoteShared?note?.id:note?.public_slug) || ""}
           visible={shareVisible}
-          isPublished={isPublished}
+          isPublished={isPublished||isSameUserNoteShared}
           onPressCancel={() => setShareVisible(false)}
           onPressDone={togglePublish}
           isLoading={publishLoading}
