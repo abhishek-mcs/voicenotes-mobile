@@ -386,9 +386,9 @@ const Home = () => {
         await syncUpNote(recording);
       }
       
-      if (recording.subnotes && Array.isArray(recording.subnotes)) {
-        for (const subnote of recording.subnotes) {
-          if (subnote.status !== "processed") {
+      if (recording?.subnotes && Array.isArray(recording?.subnotes)) {
+        for (const subnote of recording?.subnotes) {
+          if (subnote?.status !== "processed") {
             await syncUpNote(subnote); // Pass true to indicate it's a subnote
           }
         }
@@ -550,7 +550,7 @@ const Home = () => {
           if (recording.id === recordingParentId) {
             return {
               ...recording,
-              subnotes: [...(recording.subnotes || []), newTemporaryRecording],
+              subnotes: [...(recording?.subnotes || []), newTemporaryRecording],
             };
           }
           return recording;

@@ -309,7 +309,7 @@ const NotePreview = forwardRef(
     };
     const onDelete = (isCache=false) => {
       hideMoreOption();
-      if (note.subnotes?.length) {
+      if (note?.subnotes?.length) {
         showDialog(
           "",
           "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
@@ -1031,7 +1031,7 @@ const NotePreview = forwardRef(
                   :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'} width={15}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Pressable>}
-                {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
+                {!!note?.subnotes&&note?.subnotes?.length>0&&expand!=index&&
                   <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
                     <SvgXml xml={home.subnote?.replace('#1C1B1F',Colors.askClose)}/>
                     <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.text8(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
@@ -1129,7 +1129,7 @@ const NotePreview = forwardRef(
           hideModal={() => {setShareVisible(false);setIsNoteJustMadePrivate(false)}}
         />
 
-        {note?.subnotes?.length > 0 && isNoteExpanded&& (
+        {!!note?.subnotes&&note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote
             list={note?.subnotes}
             expand={expand}

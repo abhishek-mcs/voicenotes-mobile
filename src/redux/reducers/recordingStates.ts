@@ -60,8 +60,8 @@ export const recordingStates = createSlice({
           if (recording.id === recordingId) {
             return false; // Remove this recording
           }
-          if (recording.subnotes) {
-            recording.subnotes = filterRecordings(recording.subnotes);
+          if (recording?.subnotes) {
+            recording.subnotes = filterRecordings(recording?.subnotes);
           }
           return true;
         });
@@ -103,9 +103,9 @@ export const recordingStates = createSlice({
         }
 
         // If this recording has subnotes, check them too
-        if (recording.subnotes) {
-          const updatedSubnotes = recording.subnotes.map(updateRecording);
-          if (updatedSubnotes !== recording.subnotes) {
+        if (recording?.subnotes) {
+          const updatedSubnotes = recording?.subnotes.map(updateRecording);
+          if (updatedSubnotes !== recording?.subnotes) {
             return { ...recording, subnotes: updatedSubnotes };
           }
         }
