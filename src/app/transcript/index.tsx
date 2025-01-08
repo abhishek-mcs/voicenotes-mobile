@@ -329,7 +329,7 @@ const useStyles = () => {
         modalContainer: {
           flex: 1,
           backgroundColor: Colors.bgColor8,
-          paddingTop: 0,
+          paddingTop: isIOS?0:60,
         },
         inputContainer: {
           paddingVertical: 16,

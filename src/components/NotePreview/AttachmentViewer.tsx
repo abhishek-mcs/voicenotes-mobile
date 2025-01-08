@@ -35,12 +35,14 @@ interface AttachmentViewerProps {
   attachments: any;
   onAttachmentUpdate: () => void;
   onEditLink: (linkData: any) => void;
+  isShared: boolean;
 }
 
 const AttachmentViewer = ({ 
   attachments = [], 
   onAttachmentUpdate, 
-  onEditLink 
+  onEditLink ,
+  isShared=false
 }: AttachmentViewerProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
@@ -116,6 +118,7 @@ const AttachmentViewer = ({
           {item.description}
         </Text>
       </Pressable>
+      {!isShared&&
       <MoreOptions options={[
         {
           title:'Edit',
@@ -134,7 +137,7 @@ const AttachmentViewer = ({
           }}
         ]}>
           <SvgXml xml={notePreviewSVG.more} style={{paddingVertical:6, paddingHorizontal: 16}} />
-      </MoreOptions>
+      </MoreOptions>}
     </View>
   ), []);
 
@@ -240,12 +243,13 @@ const AttachmentViewer = ({
               }`}
             </Text>
             <View style={styles.headerButtons}>
+              {!isShared&&
               <Pressable
                 style={styles.deleteButton}
                 onPress={() => selectedImageIndex !== null&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
               >
                 <SvgXml xml={notePreviewSVG.delete}/>
-              </Pressable>
+              </Pressable>}
               <Pressable
                 style={styles.closeButton}
                 onPress={onClose}
