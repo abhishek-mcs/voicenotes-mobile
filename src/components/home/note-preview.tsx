@@ -728,12 +728,12 @@ const NotePreview = forwardRef(
         androidIcon: "pound",
         onPress: onGotoAddTag,
       }]),
-      {
+      ...(userDetails?.id==note?.user_id?[{
         title:"Share",
         systemIcon:'square.and.arrow.up',
         androidIcon:'share-outline',
         onPress:onShareNote
-      },
+      }]:[]),
       // {
       //   title:"Create",
       //   systemIcon:'pencil.and.outline',
