@@ -245,7 +245,7 @@ const NotePreview = forwardRef(
     };
 
     const togglePublish = () => {
-      const wasPublic = note?.is_shared;
+      const wasPublic = !!note?.public_slug;
 
       try {
         setPublishLoading(true);
@@ -1138,9 +1138,9 @@ const NotePreview = forwardRef(
         </Touchable>
 
         <PublishedModal
-          slug={(isSameUserNoteShared?note?.id:note?.public_slug) || ""}
+          slug={note?.public_slug || ""}
           visible={shareVisible}
-          isPublished={isPublished||isSameUserNoteShared}
+          isPublished={isPublished}
           onPressCancel={() => setShareVisible(false)}
           onPressDone={togglePublish}
           isLoading={publishLoading}
