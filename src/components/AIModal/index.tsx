@@ -518,6 +518,12 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     marginTop: 0,
                     justifyContent: "center",
                     height: 60,
+                    backgroundColor:Colors.bgColor,
+                    paddingHorizontal:10,
+                    borderRadius:20,
+                    borderWidth:1,
+                    borderColor:Colors.border,
+                    marginBottom:10
                   }}
                 >
                   <ChatRecorder
