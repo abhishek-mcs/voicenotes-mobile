@@ -1194,7 +1194,7 @@ const useStyles = () => {
     fontFamily: "Primary-Semibold",
     fontSize: 16,
     color: Colors.blackWithOpacity(1),
-    lineHeight: 19.09
+    lineHeight: 23
   },
   text: {
     fontFamily: "Primary",
