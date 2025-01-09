@@ -194,6 +194,9 @@ const TextNote = () => {
             margin: 16,
             padding: 8,
             color: Colors.text,
+            fontFamily: 'Primary',
+            fontSize: 14,
+            lineHeight: 24
           }}
           multiline
           placeholder="Write your note here..."

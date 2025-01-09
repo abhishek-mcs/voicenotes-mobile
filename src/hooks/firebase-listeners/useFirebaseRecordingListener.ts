@@ -80,7 +80,7 @@ export function useFirebaseRecordingListener() {
       const firebasePath = "processStatuses/recording";
       const dbRef = database().ref(firebasePath).child(`${recordingId}`);
 
-      console.log("firebase listen", firebasePath + recordingId);
+      console.log("firebase listen", firebasePath +'/' +recordingId);
 
     // Initialize flags to track the state of title and transcript generation
       let isTitleGenerated = false || is_transcript_only;
