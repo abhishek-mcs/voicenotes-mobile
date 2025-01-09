@@ -353,7 +353,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0},!showHeader?{borderTopWidth: 1,borderTopColor: Colors.border}:{}]}>
         {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>}
           {!chatLoader ? (
             <KeyboardAwareScrollView
@@ -452,7 +452,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <KeyboardStickyView style={styles.inputContainer} offset={{opened:isIOS?40:(screenHeight/100)}}>
+            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:(!!meetingData&&isIOS)?-16:0}]} offset={{opened:isIOS?40:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
@@ -649,7 +649,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => {
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:40 },
+  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:0 },
   modal: {
     height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
     justifyContent: "space-between",

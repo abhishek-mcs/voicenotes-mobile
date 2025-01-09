@@ -245,7 +245,7 @@ const useStyles = () => {
     flexDirection: "row",
     backgroundColor:Colors.bgColor14,
     borderWidth:1,
-    borderColor:Colors.bgColor13(0.1),
+    borderColor:Colors.blackWithOpacity(0.1),
     borderRadius: 24,
     marginHorizontal: 20,
     marginBottom: 20,

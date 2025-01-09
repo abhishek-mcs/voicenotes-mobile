@@ -13,20 +13,33 @@ export default function Layout() {
 
   return (
     <Stack screenOptions={{
-      headerStyle:styles.header1,
-      headerShown:false
+      headerStyle:styles.header1
     }}>
       {/* First Modal Screen */}
       <Stack.Screen
         name="index"
+        options={{
+          headerShown:false,
+        }}
       />
 
       {/* Nested Screens in Modal */}
       <Stack.Screen
         name="TranscriptAskAI"
         options={{
-          title: "Ask AI",
+          headerShown:true,
+          title:"Ask AI",
           animation: "slide_from_right",
+          headerTitle:"Ask AI",
+          headerTintColor:Colors.text,
+          headerBackTitleVisible:false,
+          headerShadowVisible:false,
+          // headerRight:()=>
+          //   <Pressable onPress={() => router?.back()} style={styles.rightContainer}>
+          //     <SvgXml
+          //       xml={AIModalSVG.close?.replace("#1C1B1F", Colors.askClose)}
+          //     />
+          //   </Pressable>
         }}
       />
   </Stack>

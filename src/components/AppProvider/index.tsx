@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "redux/store/store";
-import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 // Setup React Query
 const queryClient = new QueryClient();
@@ -15,15 +15,15 @@ interface AppProviderProps {
 
 const AppProvider: React.FC<AppProviderProps> = ({ children }) => (
   <Provider store={store}>
-    <KeyboardProvider statusBarTranslucent={true}>
-      <ContextProvider>
-        <PersistGate loading={null} persistor={persistor}>
+    <PersistGate loading={null} persistor={persistor}>
+      <KeyboardProvider statusBarTranslucent={true}>
+        <ContextProvider>
           <QueryClientProvider client={queryClient} contextSharing={true}>
             {children}
           </QueryClientProvider>
-        </PersistGate>
-      </ContextProvider>
-    </KeyboardProvider>
+        </ContextProvider>
+      </KeyboardProvider>
+    </PersistGate>
   </Provider>
 );
 

@@ -125,5 +125,6 @@ export default {
   back:'#FFFFFF',
   arrow:'#ffffff',
   status:'',
-  loader:(o:number)=>'#fff'
+  loader:(o:number)=>'#fff',
+  snack:tertiary,
 };

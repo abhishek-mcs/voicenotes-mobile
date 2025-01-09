@@ -28,6 +28,7 @@ import { RootState } from "redux/store/store";
 import {
   checkFileExists,
   fetchSingleRecording,
+  isIOS,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
@@ -666,7 +667,7 @@ const NotePreview = forwardRef(
     const onTranscriptOpen = async(isRetry=false) =>{
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
-      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id)}})
+      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id),isShared:isShared?'shared':''}})
     }
 
     const onReGenerateTeamSummary = async() => {
@@ -727,12 +728,12 @@ const NotePreview = forwardRef(
         androidIcon: "pound",
         onPress: onGotoAddTag,
       }]),
-      // {
-      //   title:"Share",
-      //   systemIcon:'square.and.arrow.up',
-      //   androidIcon:'share-outline',
-      //   onPress:onShareNote
-      // },
+      {
+        title:"Share",
+        systemIcon:'square.and.arrow.up',
+        androidIcon:'share-outline',
+        onPress:onShareNote
+      },
       // {
       //   title:"Create",
       //   systemIcon:'pencil.and.outline',
@@ -881,16 +882,16 @@ const NotePreview = forwardRef(
                   note?.recorded_at,
                   recordingList[index - 1]?.recorded_at
                 ))) && ( */}
-          <View style={{flexDirection:'row'}}>
+          <View style={{flexDirection:'row',alignItems:'center'}}>
             <Text style={styles.date}>
               {formatDateAndTimeNew(note?.recorded_at??note?.created_at)}
             </Text>
             {isShared&&
             <>
-            <View style={{borderRadius:20,width:14,height:14,marginHorizontal:4,overflow:'hidden',backgroundColor:Colors.grey11,justifyContent:'center',alignItems:'center'}}>
+            <View style={{borderRadius:20,width:14,height:14,marginHorizontal:4,overflow:'hidden',backgroundColor:Colors.grey11,justifyContent:'center',alignItems:'center',alignSelf:'flex-start',marginTop:isIOS?0:2}}>
               {!!note?.user_image?
               <Image source={{uri: note?.user_image}} style={{width:'100%',height:'100%'}} />
-              :<Text style={{fontFamily:'Primary-Semibold',fontSize:9,color:Colors.text6}}>{note?.user_name[0]}</Text>}
+              :<Text style={{fontFamily:'Primary-Semibold',fontSize:9,color:Colors.text6}}>{note?.user_name[0]?.toUpperCase()}</Text>}
             </View>
             <Text style={styles.date}>
               {note?.user_name}
@@ -1074,10 +1075,10 @@ const NotePreview = forwardRef(
                     </View>
                   </MoreOptions>}
                   {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
-                    {isSameUserNoteShared&&
+                    {/* {userDetails?.id==note?.user_id&&
                     <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
-                    </Pressable>}
+                    </Pressable>} */}
                   {/* </MoreOptions> */}
                   <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
