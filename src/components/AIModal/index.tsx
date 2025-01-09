@@ -261,7 +261,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
       // <View style={styles.history}>
         <FlatList
         data={askAIHistory}
-        contentContainerStyle={{height:'100%',paddingVertical:20}}
+        contentContainerStyle={{paddingVertical:20}}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={()=><Text style={[styles.historyText,{paddingHorizontal:20}]}>History</Text>}
         keyExtractor={(item, index) => `${item?.id}-${index}`}
         renderItem={({ item,index }) => (
@@ -452,7 +453,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:(!!meetingData&&isIOS)?-16:0}]} offset={{opened:isIOS?40:(screenHeight/100)}}>
+            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:isIOS?-16:0}]} offset={{opened:isIOS?40:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
@@ -536,7 +537,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               zIndex: drawerIndex,
               top: isIOS?0:93,
               width: "100%",
-              height: isIOS?"90%":"88%",
+              height: isIOS?"94.5%":"88%",
             }}
           >
             <DrawerLayout
@@ -726,7 +727,7 @@ const useStyles = () => {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.bgColor8,
+    backgroundColor: Colors.bgColor4,
   },
   send: {
     paddingVertical: 16,
