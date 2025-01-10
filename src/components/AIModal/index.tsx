@@ -130,7 +130,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
     if(!!meetingData){
       if(meetingData?.isAudio){
         onStopRecord(meetingData?.data?.duration,meetingData)
-      }else{
+      }else if(!!meetingData?.data?.question){
         onSend(meetingData?.data?.question,meetingData)
       }
     }else{

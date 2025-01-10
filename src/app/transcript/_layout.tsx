@@ -34,12 +34,12 @@ export default function Layout() {
           headerTintColor:Colors.text,
           headerBackTitleVisible:false,
           headerShadowVisible:false,
-          // headerRight:()=>
-          //   <Pressable onPress={() => router?.back()} style={styles.rightContainer}>
-          //     <SvgXml
-          //       xml={AIModalSVG.close?.replace("#1C1B1F", Colors.askClose)}
-          //     />
-          //   </Pressable>
+          headerRight:()=>
+            <Pressable onPress={() => {router?.back();router?.back();}} style={styles.rightContainer}>
+              <SvgXml
+                xml={AIModalSVG.close?.replace("#1C1B1F", Colors.askClose)}
+              />
+            </Pressable>
         }}
       />
   </Stack>
