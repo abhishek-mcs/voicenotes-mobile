@@ -1,5 +1,5 @@
 import { home } from "assets/svg/home";
-import { memo, useCallback, useContext } from "react";
+import { memo, useCallback, useContext, useRef } from "react";
 import Touchable from "components/common/Touchable";
 import {
   Animated,
@@ -29,6 +29,7 @@ import {
   checkFileExists,
   fetchSingleRecording,
   isIOS,
+  screenHeight,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
@@ -133,7 +134,7 @@ const NotePreview = forwardRef(
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
     const isShared = userDetails?.id!=note?.user_id && note?.is_shared
-    const isSameUserNoteShared = userDetails?.id==note?.user_id && note?.is_shared
+    const titleRef = useRef<View>(null);
 
     useEffect(() => {
       setAttachments(note?.attachments);
@@ -485,8 +486,13 @@ const NotePreview = forwardRef(
       if((!note?.related_notes||note?.related_notes?.length==0)&&note?.status=="processed")
         relatedNotes.mutate(note?.id)
       
-      await sleep(200)
-      isNoteExpanded&&scrollRef&&scrollRef?.current?.scrollToIndex({animated:true,index})
+      await sleep(200)      
+      isNoteExpanded&&
+      titleRef.current?.measure((x, y, width, height, pageX, pageY) => {
+        const windowHeight = screenHeight;
+        const isVisible = pageY >= 0 && pageY + height <= windowHeight;
+        !isVisible&&scrollRef&&scrollRef?.current?.scrollToIndex({animated:true,index})
+      })
     };
 
     useEffect(() => {
@@ -934,7 +940,7 @@ const NotePreview = forwardRef(
                   />
                 ) : (
                   <>
-                    <View style={{ flex: 1, marginRight: 10 }}>
+                    <View ref={titleRef} style={{ flex: 1, marginRight: 10 }}>
                       <ChatBubble
                         style={styles.title}
                         status={note?.status}
