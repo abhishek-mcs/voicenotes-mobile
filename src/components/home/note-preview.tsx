@@ -1064,7 +1064,7 @@ const NotePreview = forwardRef(
                 </View>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
                 <View style={[styles.row,{gap:8}]}>
-                  {note?.recording_type==2&&userDetails?.id==note?.user_id&&
+                  {note?.recording_type==2&&
                   <Pressable onPress={()=>onTranscriptOpen()} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.transcript?.replace('#0D0D0D',Colors.more)}/>
                   </Pressable>}
