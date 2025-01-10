@@ -137,7 +137,6 @@ const NotePreview = forwardRef(
 
     useEffect(() => {
       setAttachments(note?.attachments);
-      console.log(note?.attachments)
     }, [note?.attachments]);
 
     const hideMoreOption = () => setMoreOption(false);

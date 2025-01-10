@@ -93,7 +93,7 @@ const AttachmentViewer = ({
   }, []);
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
-    console.log(attachmentId,type)
+    // console.log(attachmentId,type)
     showDialog(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,
