@@ -7,6 +7,7 @@ import CircularLoader from "components/common/loaders/circular-loader"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import { useTheme } from "context"
+import { useDialog } from "context/DialogContext"
 
 type Props = {
     url?: string,
@@ -20,13 +21,14 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
     const [imageError, setImageError] = useState(false);
     const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
+    const {showDialog} = useDialog()
 
     const pickImage = async () => {
         setShowOverlay(true)
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (!permissionResult.granted) {
-            Alert.alert('Access denied', "You've refused to allow VoiceNotes to access your photos!",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+            showDialog('Access denied', "You've refused to allow VoiceNotes to access your photos!",[],{userInterfaceStyle:isLightMode?"light":"dark"});
             setShowOverlay(false)
             return;
         }
@@ -40,7 +42,7 @@ const ProfilePic: React.FC<Props> = ({ url, onChange }) => {
 
         if(!result.canceled) {
             setWorking(true)
-            let newURI = await uploadDP(result.assets[0].uri,isLightMode);
+            let newURI = await uploadDP(result.assets[0].uri,isLightMode,showDialog);
             setImage(newURI);
             onChange(newURI);
             setWorking(false)

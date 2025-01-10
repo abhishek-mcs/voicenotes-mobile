@@ -9,6 +9,7 @@ import { changeEmail } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
 import CircularLoader from "components/common/loaders/circular-loader"
 import { useTheme } from "context"
+import { useDialog } from "context/DialogContext"
 
 interface ComponentProps {
   value: string;
@@ -62,6 +63,7 @@ const Email: React.FC<Props> = (props) => {
     const [showOTP, setShowOTP] = useState(false);
     const [working, setWorking] = useState(false);
     const {isLightMode} = useTheme()
+    const {showDialog} = useDialog()
 
     const dispatch = useDispatch()
     
@@ -70,7 +72,7 @@ const Email: React.FC<Props> = (props) => {
       try {
         await changeEmail(email, otp)
         dispatch(setUserDetail({...userDetails, email}))
-        Alert.alert("Email updated", `Your email address has been updated to ${email}.`,[],{userInterfaceStyle:isLightMode?"light":"dark"})
+        showDialog("Email updated", `Your email address has been updated to ${email}.`,[],{userInterfaceStyle:isLightMode?"light":"dark"})
         props.onClose()
       } catch {}
       setWorking(false)
@@ -82,7 +84,7 @@ const Email: React.FC<Props> = (props) => {
         await changeEmail(email)
         setShowOTP(true)
       } catch(e) {
-        Alert.alert('Uh oh', "Voicenotes ran into an error trying to change your email. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
+        showDialog('Uh oh', "Voicenotes ran into an error trying to change your email. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
       }
       setWorking(false)
     }

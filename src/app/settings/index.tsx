@@ -26,6 +26,7 @@ import { deleteCounter } from "utils/counter";
 import { useTheme } from "context";
 import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";
+import { useDialog } from "context/DialogContext";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -162,6 +163,7 @@ const Settings = () => {
   const saveSettings=useSaveSettings()
   const dispatch=useDispatch()
   const queryClient = useQueryClient()
+  const {showDialog} = useDialog()
 
   const { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating } = useAnimatedScreens();
 
@@ -195,7 +197,7 @@ const Settings = () => {
 
   const onLogout = () =>{
     
-    Alert.alert('',"Are you sure you want to log out?",
+    showDialog('',"Are you sure you want to log out?",
     [{
       text:"Cancel",
       style:"cancel"
@@ -212,7 +214,7 @@ const Settings = () => {
   }
 
   const onDelete = () =>{
-    Alert.alert('',"Are you sure you wish to delete your account?",
+    showDialog('',"Are you sure you wish to delete your account?",
     [{
       text:"Cancel",
       style:"cancel"
@@ -303,7 +305,7 @@ const Settings = () => {
           items={[
             {title: 'Language', isMenu:true, data:Object.entries(languages), value:lang, onPressMenu:onSelectLang},
             {title:'Names to remember', value:'', onPress: () => showScreen('names'), rightIcon:settingsSvg.arrow},
-            {title:'Theme', data:[['auto','Auto','circle.lefthalf.fill'],['light','Day','sun.max'],['dark','Night','moon.zzz']], value:selectedTheme[theme], onPressMenu: onSelectTheme,isMenu:true},
+            {title:'Theme', data:[['auto','Auto',isIOS?'circle.lefthalf.fill':'circle-half-full'],['light','Day',isIOS?'sun.max':'white-balance-sunny'],['dark','Night',isIOS?'moon.zzz':'weather-night']], value:selectedTheme[theme], onPressMenu: onSelectTheme,isMenu:true},
             {title:'FAQ', value:'', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow}
           ]} 
         />
@@ -351,10 +353,10 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         </View>
         <View style={{flexDirection:'row',gap:4,alignSelf:'center',alignItems:"center",justifyContent:'flex-end'}}>
         {item?.isMenu?
-        <MoreOptions isNative={true} options={item?.data?.map((t: string, v: number) => ({
+        <MoreOptions options={item?.data?.map((t: string, v: number) => ({
           title: t[1],
           onPress: () => item?.onPressMenu(t[0]),
-          systemIcon:t[2]||''
+          ...(isIOS?{systemIcon:t[2]||''}:{androidIcon:t[2]||''})
         })) || []} 
         style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
           <View style={{flexDirection:'row',alignItems:'center',marginRight:-7}}>

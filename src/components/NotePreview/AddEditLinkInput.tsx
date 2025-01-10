@@ -122,6 +122,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
       <BottomSheet
         enableOverDrag={false}
         style={styles.bottomSheet}
+        backgroundStyle={{backgroundColor:Colors.bgColor8}}
         // backdropComponent={CustomBackdrop}
         ref={bottomSheetRef}
         index={isVisible ? 0 : -1}

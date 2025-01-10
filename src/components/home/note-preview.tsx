@@ -66,6 +66,7 @@ import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
+import { useDialog } from "context/DialogContext";
 
 const NotePreview = forwardRef(
   (
@@ -117,6 +118,7 @@ const NotePreview = forwardRef(
     const [attachments, setAttachments] = useState([]);
     const { Colors, isLightMode } = useTheme()
     const styles = useStyles()
+    const {showDialog} = useDialog()
 
     const dispatch = useDispatch();
 
@@ -298,7 +300,7 @@ const NotePreview = forwardRef(
     const onDelete = (isCache=false) => {
       hideMoreOption();
       if (note.subnotes?.length) {
-        Alert.alert(
+        showDialog(
           "",
           "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
           [
@@ -311,7 +313,7 @@ const NotePreview = forwardRef(
         return;
       }
 
-      Alert.alert(
+      showDialog(
         "",
         `Are you sure you want to delete?`,
         [
@@ -686,23 +688,28 @@ const NotePreview = forwardRef(
       {
         title:"Copy note",
         systemIcon:'doc.text',
+        androidIcon:'content-copy',
         onPress:()=>onCopy(note?.transcript ?? "")
       },
       ...(isSubnote ? [] : [{
         title:"Record subnote",
+        androidIcon:'microphone-outline',
         systemIcon:'mic',
         onPress:onThreadNote
       }]),
       {
         title:"Attach",
         systemIcon:'photo.on.rectangle',
+        androidIcon:'folder-multiple-image',
         actions:[
           {
             title:"Photo",
+            androidIcon:'image-area',
             onPress:openImagePicker
           },
           {
             title:"Link",
+            androidIcon:'link-variant',
             onPress:openLinkEditModal
           }
         ]
@@ -710,43 +717,53 @@ const NotePreview = forwardRef(
       {
         title:"Tag",
         systemIcon:'number',
+        androidIcon:'pound',
         onPress:onGotoAddTag
       },
       {
         title:"Share",
         systemIcon:'square.and.arrow.up',
+        androidIcon:'share-outline',
         onPress:onShareNote
       },
       {
         title:"Create",
         systemIcon:'pencil.and.outline',
+        androidIcon:'circle-edit-outline',
         actions:[
           {
             title:"Summary",
+            androidIcon:'bullseye-arrow',
             onPress:()=>onCreate("summary")
           },
           {
             title:"Main points",
+            androidIcon:'format-list-bulleted',
             onPress:()=> onCreate("points")
           },
           {
             title:"To-do list",
+            androidIcon:'checkbox-outline',
             onPress:()=> onCreate("todo")
           },
           {
             title:"Blog post",
+            androidIcon:'fountain-pen',
             onPress:()=>onCreate("blog")
           },
           {
             title:"Tweet",
+            androidIcon:'bullhorn-variant-outline',
             onPress:()=>onCreate("tweet")
           },
           {
             title:"Email",
+            androidIcon:'email-outline',
             onPress:()=>onCreate("email")
           },
           {
             title:"Cleanup",
+            androidIcon:'broom',
             onPress:()=>onCreate("tidy")
           }
         ],
@@ -754,6 +771,7 @@ const NotePreview = forwardRef(
       {
         title:"Regenerate",
         systemIcon:'arrow.clockwise',
+        androidIcon:'reload',
         actions:isSubnote?[
           {
             title:"Regenerate transcript",
@@ -773,17 +791,20 @@ const NotePreview = forwardRef(
       {
         title:"Download audio",
         systemIcon:"arrow.down.circle",
+        androidIcon:'tray-arrow-down',
         onPress:onDownloadAudio
       },
       {
         title:"Edit",
         systemIcon:'square.and.pencil',
+        androidIcon:'pencil-outline',
         onPress:onEdit
       },
       {
         title:"Delete",
         destructive:true,
         systemIcon:'trash',
+        androidIcon:'delete-outline',
         onPress:()=>onDelete()
       }
     ]

@@ -17,6 +17,7 @@ import { ImageBackground } from "expo-image"
 import * as webBrowser from "expo-web-browser"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTheme } from "context"
+import { useDialog } from "context/DialogContext"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
@@ -34,6 +35,7 @@ const Premium=(props:any) => {
   const queryClient=useQueryClient()
   const insets = useSafeAreaInsets()
   const iapSvgIcons:any = iapSvg
+  const {showDialog} = useDialog()
 
   useEffect(()=>{
     // const load=async()=>{
@@ -61,7 +63,7 @@ const Premium=(props:any) => {
 
       if (!pack || pack.length === 0) {
         console.error('No products available');
-        Alert.alert('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
+        showDialog('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
         setIsLoading(false);
         return;
       }
@@ -115,12 +117,12 @@ const Premium=(props:any) => {
     setIsLoading(true)
     const actives=await Purchases.restorePurchases();
     if(actives.activeSubscriptions.length==0||!userDetails?.subscription_status){
-      Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
+      showDialog('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
         // Updates.reloadAsync()
       }}],{userInterfaceStyle:isLightMode?"light":"dark"})
     }else{
       
-        Alert.alert(
+        showDialog(
           'Restored',
           'You have successfully restored your purchase',
           [{text:'OK',onPress:async()=>{
@@ -130,9 +132,13 @@ const Premium=(props:any) => {
     }
     setIsLoading(false)
   }
-  const priceMonthString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace('.00','')
-  const priceAnnualString=(pack[3]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace('.00','')
+  let priceMonthString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace(/\.0+$/, '')
+  let priceAnnualString=(pack[3]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace(/\.0+$/, '')
   const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
+  if (priceMonthString.startsWith('Rp')){
+    priceMonthString = priceMonthString+'ribu';
+    priceAnnualString = priceAnnualString+'ribu';
+  }
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: 2,
@@ -274,7 +280,7 @@ const Btn = ({
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  main: { flex: 1, backgroundColor: Colors.whiteWithOpacity(1) },
+  main: { flex: 1, backgroundColor: Colors.whiteWithOpacity(1),paddingTop:isIOS?0:50 },
   container: { flex: 1, marginTop: 14, paddingHorizontal: isIOS ? 0 : 5 },
   subContainer: {
     flex: 2,

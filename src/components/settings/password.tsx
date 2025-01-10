@@ -8,6 +8,7 @@ import { changePassword } from "queries/auth";
 import RecButton from "components/common/recording/rec-button";
 import { screenWidth } from "utils/common";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 
 interface ComponentProps {
     isPasswdSet: boolean,
@@ -78,18 +79,19 @@ const Password: React.FC<Props> = (props) => {
     const handleOldChange = useCallback((value: string) => setOld(value), []);
     const handleDefaultChange = useCallback((value: string) => setDefault(value), []);
     const handleConfirmChange = useCallback((value: string) => setConfirm(value), []);
+    const {showDialog} = useDialog()
 
     const handleSubmit = async() => {
-        if(defaulT !== confirm) Alert.alert('Oops!', "These passwords don't match.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
+        if(defaulT !== confirm) showDialog('Oops!', "These passwords don't match.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
         else {
           setWorking(true)
           try{
             if(!userDetails.is_password_set) await changePassword(defaulT, confirm, true)
             else await changePassword(defaulT, confirm, false, old)
-            Alert.alert('Changed!', "Your password has been changed. You can now use it to log in.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
+            showDialog('Changed!', "Your password has been changed. You can now use it to log in.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
             handleClose()
           } catch(e: any) {
-            Alert.alert('Oops!', e.message.replace(/\s*\([^)]*\)\s*$/, ''),[],{userInterfaceStyle:isLightMode?"light":"dark"})
+            showDialog('Oops!', e.message.replace(/\s*\([^)]*\)\s*$/, ''),[],{userInterfaceStyle:isLightMode?"light":"dark"})
           }
           setWorking(false)
         }

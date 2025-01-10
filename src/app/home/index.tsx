@@ -76,6 +76,7 @@ import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
+import { useDialog } from "context/DialogContext";
 
 
 const { height } = Dimensions.get("screen");
@@ -128,7 +129,7 @@ const Home = () => {
   );
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const queryClient = useQueryClient();
-  const bannerRef=useRef<any>(null)
+  // const bannerRef=useRef<any>(null)
   const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
@@ -141,13 +142,14 @@ const Home = () => {
   const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
+  const {showDialog}:any = useDialog()
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
   const dispatchCanRecord = (val: boolean) =>
-    dispatch(setCanRecord(val ?? true));
+    dispatch(setCanRecord((val)));
 
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
@@ -566,11 +568,10 @@ const Home = () => {
     AIModalRef.current?.close();
     // CreateModalRef.current?.close();
     if (!canRecord) {
-      bannerRef.current?.show();
       return;
     }
     setRecordingParentId(parent_id);
-    onRecord(setRec, setRecEnabled,isLightMode);
+    onRecord(setRec, setRecEnabled,isLightMode,showDialog);
     activateKeepAwakeAsync();
     analytics().logEvent("started_recording");
     setTriggerTypingTitle(null)
@@ -862,13 +863,13 @@ const Home = () => {
                 scrollY={scrollY}
                 scale={scale.current}
               />
-              <BannerAlert
+              {/* <BannerAlert
                 ref={bannerRef}
                 snackHeight={52}
                 onAction={() => bannerRef?.current?.close()}
                 actionText="Close"
                 message="Your daily recording limit has been exceeded. Please try again later."
-              />
+              /> */}
               {!!token && (
                 <Animated.View
                   style={{
@@ -921,7 +922,7 @@ const Home = () => {
                   onRefresh={onRefresh} 
                   refreshing={isRefreshing}
                   tintColor={Colors.refresh}
-                  colors={[Colors.refresh]}
+                  colors={[isIOS?Colors.refresh:Colors.refresh1]}
                   />
                 }
                 scrollEventThrottle={16}

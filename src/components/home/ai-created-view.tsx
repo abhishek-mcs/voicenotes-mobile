@@ -1,6 +1,7 @@
 import CircularLoader from "components/common/loaders/circular-loader";
 import Touchable from "components/common/Touchable";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 import { setStringAsync } from "expo-clipboard";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { useDeleteFormattedNote } from "queries/home";
@@ -17,6 +18,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const deleteNote=useDeleteFormattedNote(id)
     const { Colors, isLightMode } = useTheme()
     const { container,row,btw,txt,titleStyle,btn,btnTxt } = useStyles()
+    const {showDialog} = useDialog()
 
     const onCopy=async()=>{
       setCopied(true)
@@ -36,7 +38,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     }
 
     const onDelete=()=>{
-      Alert.alert('','Are you sure you want to delete this?',[
+      showDialog('','Are you sure you want to delete this?',[
         {text:'Cancel',style:'cancel'},
         {text:'Delete',onPress:async()=>{
           setWorking(true)

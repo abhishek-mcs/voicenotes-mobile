@@ -13,6 +13,7 @@ import { RootState } from "redux/store/store";
 import { capitalizeFirstLetter, screenWidth } from "utils/common";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "context";
+import { useDialog } from "context/DialogContext";
 
 export const TagButton = ({
   title = "",
@@ -96,11 +97,13 @@ export default function TagButtons({
   const dispatch = useDispatch();
   const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
+  const {showDialog} = useDialog()
 
   const options = [
     {
       title: !isDefaultHash?"Pin":"Unpin",
       systemIcon: !isDefaultHash?"mappin":"mappin.slash",
+      androidIcon: !isDefaultHash?"pin-outline":"pin-off-outline",
       onPress: () =>
         pinTagMutation.mutate(
           { is_pinned: !isDefaultHash },
@@ -113,8 +116,9 @@ export default function TagButtons({
       title: "Delete",
       destructive: true,
       systemIcon: "trash",
+      androidIcon:"delete-outline",
       onPress: () =>
-        Alert.alert("", "Are you sure you want to delete?", [
+        showDialog("", "Are you sure you want to delete?", [
           {
             text: "No",
             style: "cancel",

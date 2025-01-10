@@ -93,12 +93,12 @@ export function useResetPassword(){
     })
 }
 
-export async function uploadDP(file: string,isLightMode=true) {
+export async function uploadDP(file: string,isLightMode=true,showDialog: ((arg0: string, arg1: string, arg2: never[], arg3: { userInterfaceStyle: string; }) => void)) {
     const formData = new FormData();
     const filename = file.split('/').pop();
 
     if(!filename) {
-        Alert.alert('Unknown file', "VoiceNotes couldn't infer the filename of this photo. Please select another one.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
+        showDialog('Unknown file', "VoiceNotes couldn't infer the filename of this photo. Please select another one.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
         return
     }
 
