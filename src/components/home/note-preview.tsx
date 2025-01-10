@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import { memo, useContext } from "react";
 import Touchable from "components/common/Touchable";
@@ -9,7 +8,6 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -22,7 +20,6 @@ import {
   useCreate,
   useDeleteRecording,
   useSignedUrl,
-  useToggleStar,
 } from "queries/home";
 import { useQueryClient } from "react-query";
 import { setStringAsync } from "expo-clipboard";
@@ -33,17 +30,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import {
   checkFileExists,
-  isIOS,
-  screenWidth,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
-import { CreateModalSvg } from "assets/svg/CreateModal";
-import AiCreatedView from "./ai-created-view";
-import { setTagsFilter } from "redux/reducers/hashSlice";
 import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
-import * as wb from "expo-web-browser";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
@@ -55,16 +46,11 @@ import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
 import Subnote from "./subnote";
-import creationContent from "utils/constants/creation-content";
 import { useNetInfo } from "@react-native-community/netinfo";
-import LottieView from "lottie-react-native";
-import threeDotLoader2 from "assets/lottie/threeDotLoader2.json";
 import Toast from "react-native-toast-message";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
-import { Foundation } from "@expo/vector-icons";
-import { addMenu } from "assets/svg/AddMenu";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
 import AddEditLinkModal from "components/NotePreview/AddEditLinkInput";
@@ -78,8 +64,7 @@ import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
 import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
-import { NoteContext } from "context";
-import { StorageAccessFramework } from "expo-file-system";
+import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
 
 const NotePreview = forwardRef(
@@ -130,10 +115,12 @@ const NotePreview = forwardRef(
       url: string;
     } | null>(null);
     const [attachments, setAttachments] = useState([]);
+    const { Colors, isLightMode } = useTheme()
+    const styles = useStyles()
 
     const dispatch = useDispatch();
 
-    const { token } = useSelector((state: RootState) => state.userDetails);
+    const { token, userDetails }:{token:any,userDetails:any} = useSelector((state: RootState) => state.userDetails);
     const { tempRecordings } = useSelector(
       (state: RootState) => state.recordingStates
     );
@@ -319,7 +306,7 @@ const NotePreview = forwardRef(
               text: "Got It",
               style: "cancel",
             },
-          ]
+          ],{userInterfaceStyle:isLightMode?"light":"dark"}
         );
         return;
       }
@@ -356,7 +343,7 @@ const NotePreview = forwardRef(
               }
             },
           },
-        ]
+        ],{userInterfaceStyle:isLightMode?"light":"dark"}
       );
     };
     const onPlaybackStatusUpdate = async (status: any) => {
@@ -602,9 +589,9 @@ const NotePreview = forwardRef(
         {
           text: "Download",
           onPress: onDownloadAudio,
-          icon: home.download,
+          icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
         },
-        { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete },
+        { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete?.replace(/#0D0D0D/g,Colors.text) },
       ];
 
       const failedButtons = isOffline?
@@ -617,7 +604,7 @@ const NotePreview = forwardRef(
             await syncUpNote(note).catch(()=>{})
             // setRetryLoader(false);
           },
-          icon: home.repeat,
+          icon: home.repeat?.replace(/black/g,Colors.text),
           isLoading: !note?.status?.includes('failed'),
         },
         ...intermediateButtons,
@@ -677,10 +664,10 @@ const NotePreview = forwardRef(
         }
       >
         <MenuItem onPress={() => onCopy(MAIN_URL + '/s/' + note?.public_slug)} pressColor="transparent">
-          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#000'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#fff'}]} />
+          <MenuItemContent icon={home.shareCopy} text="Copy note" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.blackWithOpacity(1)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.whiteWithOpacity(1)}]} />
         </MenuItem>
         <MenuItem onPress={togglePublish} style={{marginTop:3}} pressColor="transparent">
-          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:'#0d0d0d0d'}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:'#222'}]} />
+          <MenuItemContent text="Unpublish" style={[styles.menuItemContentSharedStyle,{backgroundColor:Colors.grey2WithOpacity(0.05)}]} textStyle={[styles.menuItemContentSharedTextStyle,{color:Colors.darkWithOpacity(1)}]} />
         </MenuItem>
       </Menu>
     );
@@ -735,7 +722,7 @@ const NotePreview = forwardRef(
         systemIcon:'pencil.and.outline',
         actions:[
           {
-            title:"Summarize",
+            title:"Summary",
             onPress:()=>onCreate("summary")
           },
           {
@@ -831,7 +818,7 @@ const NotePreview = forwardRef(
 
     return (
       <View style={[{borderColor:Colors.grey4WithOpacity(86.67),borderBottomWidth:0.5},isSubnote?{borderBottomWidth:0}:{paddingBottom:8}]}>
-      <View style={{borderLeftWidth:0.5,borderColor:Colors.grey4WithOpacity(86.67)}}>
+      <View style={{borderLeftWidth:isSubnote?0.5:0,borderColor:Colors.grey4WithOpacity(86.67)}}>
         <Touchable
           onPress={onExpand}
           activeOpacity={1}
@@ -887,9 +874,9 @@ const NotePreview = forwardRef(
                         showStatus={!isNoteExpanded}
                         cursorSvg={
                           note?.status == "processing"
-                            ? notePreviewSVG.flower
+                            ? notePreviewSVG.flower?.replace(/#0D0D0D/g,Colors.arrow)
                             : note?.status == "uploading"
-                            ? notePreviewSVG.blackCircle
+                            ? notePreviewSVG.blackCircle?.replace(/#0D0D0D/g,Colors.arrow)
                             : ""
                         }
                         showCursorAtEnd={
@@ -958,16 +945,19 @@ const NotePreview = forwardRef(
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     message={note?.transcript
-                      ?.replaceAll(/<b\/?>/g,'')
-                      ?.replaceAll(/<\/b\/?>/g,'')
+                      ?.replaceAll(/<b\/?>/g, '')
+                      ?.replaceAll(/<\/b\/?>/g, '')
                       ?.replaceAll(/\n/g, '')
                       ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
                       ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
                       ?.replaceAll(/<br\/?>/g, "\n\n")
+                      ?.replace(/&amp;/g, '&')
+                      ?.replace(/&nbsp;/g, '&')
                       ?.trimEnd()}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
+                    // showUpgrade={note?.duration>60000&&!userDetails?.subscription_status}
                     disableGenerating={() =>setTriggerTypingTranscript(null)}
                   />
                 )}
@@ -985,16 +975,16 @@ const NotePreview = forwardRef(
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
                 <View style={{flexDirection:'row',alignItems:'center'}}>
-                <Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.grey2WithOpacity(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                {note?.recording_type!=3&&<Touchable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                   {audioLoading==index?
-                  <CircularLoader strokeWidth={3} width={15} height={15}/>
-                  :<SvgXml xml={isPlay == index ? home.pause : home.play} />}
+                  <CircularLoader strokeWidth={3} width={15} height={15} color={Colors.black2}/>
+                  :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
-                </Touchable>
+                </Touchable>}
                 {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
                   <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
-                    <SvgXml xml={home.subnote}/>
-                    <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.darkWithOpacity(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
+                    <SvgXml xml={home.subnote?.replace('#1C1B1F',Colors.askClose)}/>
+                    <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.text8(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
                   </View>
                 }
                 {/* {!!attachments&&attachments.length>0&&expand!=index&&
@@ -1006,8 +996,8 @@ const NotePreview = forwardRef(
                 </View>
                 {(note?.status=="processed"||isSingle||(isSubnote&&note?.transcript))&&
                   <MoreOptions options={options} style={{height:30,width:30,position:'relative'}}>
-                    <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.darkWithOpacity(0.05),justifyContent:"center",alignItems:'center'}}>
-                  <SvgXml xml={home.moreNew}/>
+                    <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+                    <SvgXml xml={home.moreNew?.replace('#3C3C43',Colors.more)}/>
                   </View>
                 </MoreOptions>}
                 </View>
@@ -1090,13 +1080,15 @@ const NotePreview = forwardRef(
   }
 );
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     paddingTop: 11,
     paddingHorizontal:17
   },
   expandedContainer: {
-    // backgroundColor: "#f7f7f7",
+    // backgroundColor: "f7f7f7",
     // borderRadius: 12,
   },
   row: {
@@ -1107,7 +1099,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   date: {
-    color: Colors.grey5WithOpacity(0.6),
+    color: Colors.text11,
     fontFamily: "Primary-Medium",
     fontSize: 12,
     marginBottom: 6,
@@ -1151,14 +1143,14 @@ const styles = StyleSheet.create({
   menuItemContentSharedStyle: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0d0d0d0d",
+    backgroundColor:Colors.grey2WithOpacity(0.05),
     borderRadius: 16,
     // padding: 12,
     width: 136,
     justifyContent: "center",
   },
   menuItemContentSharedTextStyle: {
-    color: "#fff",
+    color: Colors.whiteWithOpacity(1),
     fontFamily: "Primary-Medium",
     fontSize: 14,
   },
@@ -1168,7 +1160,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.darkWithOpacity(1),
   },
   timestamp: {
     color: Colors.grey3,
@@ -1202,12 +1194,13 @@ const styles = StyleSheet.create({
   },
   relatedNoteModal: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     width: "100%",
     height: "100%",
     margin: 0,
     zIndex:10,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default memo(NotePreview);

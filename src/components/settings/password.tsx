@@ -1,13 +1,13 @@
 import { Alert, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { changePassword } from "queries/auth";
 import RecButton from "components/common/recording/rec-button";
 import { screenWidth } from "utils/common";
-import Colors from "assets/Colors";
+import { useTheme } from "context";
 
 interface ComponentProps {
     isPasswdSet: boolean,
@@ -22,6 +22,8 @@ interface ComponentProps {
 const Component: React.FC<ComponentProps> = (props) => {
 
   const [show, setShow] = useState(false)
+  const { Colors } = useTheme()
+  const styles = useStyles()
   const toggleShow = () => {
     setShow(!show)
   }
@@ -52,8 +54,8 @@ const Component: React.FC<ComponentProps> = (props) => {
           title={show ? "Hide" : "Show"}
           onPress={toggleShow}
           underlayColor={Colors.blackWithOpacity(0.7)}
-          bgColor="#000"
-          color="#fff"
+          bgColor={Colors.blackWithOpacity(1)}
+          color={Colors.whiteWithOpacity(1)}
         />
         </View>
       </View>
@@ -66,6 +68,7 @@ type Props = {
 const Password: React.FC<Props> = (props) => {
 
     const { userDetails }: any = useSelector((state: RootState) => state.userDetails);
+    const { isLightMode } = useTheme()
 
     const [old, setOld] = useState('')
     const [defaulT, setDefault] = useState('')
@@ -77,16 +80,16 @@ const Password: React.FC<Props> = (props) => {
     const handleConfirmChange = useCallback((value: string) => setConfirm(value), []);
 
     const handleSubmit = async() => {
-        if(defaulT !== confirm) Alert.alert('Oops!', "These passwords don't match.");
+        if(defaulT !== confirm) Alert.alert('Oops!', "These passwords don't match.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
         else {
           setWorking(true)
           try{
             if(!userDetails.is_password_set) await changePassword(defaulT, confirm, true)
             else await changePassword(defaulT, confirm, false, old)
-            Alert.alert('Changed!', "Your password has been changed. You can now use it to log in.")
+            Alert.alert('Changed!', "Your password has been changed. You can now use it to log in.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
             handleClose()
           } catch(e: any) {
-            Alert.alert('Oops!', e.message.replace(/\s*\([^)]*\)\s*$/, ''))
+            Alert.alert('Oops!', e.message.replace(/\s*\([^)]*\)\s*$/, ''),[],{userInterfaceStyle:isLightMode?"light":"dark"})
           }
           setWorking(false)
         }
@@ -119,7 +122,9 @@ const Password: React.FC<Props> = (props) => {
     );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
         alignItems: 'center',
@@ -141,6 +146,7 @@ const styles = StyleSheet.create({
       marginTop: 10,
       width: screenWidth/4
     }
-})
+  }), [Colors]); // Recreate styles when Colors change
+};
 
 export default Password

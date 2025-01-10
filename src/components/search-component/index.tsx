@@ -1,8 +1,7 @@
 import { InteractionManager, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet, TextInput, TouchableHighlight, View, Animated } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
-import Colors from "assets/Colors";
 import { Text } from "react-native";
 import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
 import { useRouter } from "expo-router";
@@ -13,10 +12,11 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 import { RootState } from "redux/store/store";
 import { ShowMoreTagsButton, TagButton } from "components/home/tag-buttons";
+import { useTheme } from "context";
 
 const {debounce}=require("lodash")
 
-export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeight=40,searchTranslateY=0,from='home'}:any)=>{
+const SearchComponent = ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeight=40,searchTranslateY=0,from='home'}:any)=>{
     const [isFocused, setIsFocused] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -32,6 +32,8 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     const deleteSearchHistory=useDeleteSearchHistory()
     const getSearchData=useSearch(searchQuery);
     const dispatch=useDispatch()
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     const searchData=getSearchData.data?.data||[]
 
@@ -45,6 +47,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     const onFocusInput=()=>{
       setIsFocused(true);
       onFocus();
+      setVisibleTags(6)
     }
 
     const routerBack=()=>{
@@ -72,6 +75,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
       setSearchText('')
       setSearchQuery('')
       setHide(true)
+      setVisibleTags(6)
       Keyboard.dismiss()
     }
 
@@ -133,9 +137,10 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
       setSearchQuery("")
       setSearchText("")
       setSearchText("")
+      setVisibleTags(6)
     }
     return (
-        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:'#fff',}}>
+        <Animated.View style={{transform:[{translateY:searchTranslateY}],backgroundColor:Colors.inputBg}}>
           <Animated.View style={{flexDirection:'row',marginTop:10,alignItems:'center',marginBottom:4,height:searchHeight}}>
                 <SearchBarIOS
                   ref={ref}
@@ -157,16 +162,17 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                   autoCorrect={true}
                   value={searchText}
                   containerStyle={{backgroundColor:'transparent'}}
-                  inputContainerStyle={{backgroundColor:Colors.darkWithOpacity(0.05),borderRadius:12,height:40}}
+                  inputContainerStyle={{backgroundColor:Colors.inputBg2,borderRadius:12,height:40}}
+                  inputStyle={{color:Colors.text}}
                 />
           </Animated.View>
                   {(isFocused||isRouted)&&<ScrollView 
                     showsVerticalScrollIndicator={false} 
-                    style={{overflow:'hidden',paddingBottom:100,marginTop:8,height:screenHeight,backgroundColor:"#fff"}}
+                    style={{overflow:'hidden',paddingBottom:100,marginTop:8,height:screenHeight,backgroundColor:Colors.whiteWithOpacity(1)}}
                     contentContainerStyle={{paddingBottom:100}}
                     keyboardShouldPersistTaps="handled">
                     {((getSearchData?.isFetched&&searchData.length==0)||searchText=='')&&
-                    (searchText.length>0&&searchData?.length==0)&&
+                    (searchText.length>0&&searchData?.length==0)&&filteredHashTags?.length==0&&
                     <Text style={[styles.recent,{paddingTop:12}]}>
                       {'No results found.'}
                     </Text>}
@@ -190,7 +196,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                         key={i}>
                           <View style={{flexDirection:'row',alignItems:'center',height:40,justifyContent:'space-between'}}>
                             <View style={{flexDirection:'row',alignItems:'center',width:'85%'}}>
-                              <SvgXml xml={commonSvg.playSearchIcon?.replace('{color}','#222')} />
+                              <SvgXml xml={commonSvg.playSearchIcon?.replace('{color}',Colors.text1)} />
                               <Text style={styles.recentText} numberOfLines={1}>{itm?.title}</Text>
                             </View>
                             <Pressable style={{height:40,width:'15%',justifyContent:'center',alignItems:'center'}} onPress={(e)=>{e?.stopPropagation();onDeleteSearchHistory(itm?.id)}}>
@@ -206,7 +212,7 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
                     <TouchableHighlight onPress={()=>goto(itm?.recording_id)} style={styles.result} underlayColor={Colors.greyWithOpacity(0.1)} key={i}>
                       <View style={{overflow:'hidden'}}>
                       <View style={{flexDirection:'row',alignItems:'center'}}>
-                        <View style={{backgroundColor:'#222',width:6,height:6,borderRadius:9}}/>
+                        <View style={{backgroundColor:Colors.text1,width:6,height:6,borderRadius:9}}/>
                         <Text style={styles.title}>{itm?.title}</Text>
                       </View>
                       <Text style={[styles.txt,{width:screenWidth-50}]} numberOfLines={1}>...{itm?.transcript?.trimEnd()?.replaceAll(/<br\/?>/g, '\n')}</Text></View>
@@ -223,7 +229,9 @@ export default ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},searchHeig
     )
 }
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     container: {
         flexDirection:'row',
         alignItems:'center',
@@ -247,7 +255,7 @@ const styles=StyleSheet.create({
     //   flex:1,
     //   width:'100%',
     //   height:200,
-    //   backgroundColor:'#fff',
+    //   backgroundColor:Colors.whiteWithOpacity(1),
     //   position:'absolute',
     //   top:45,borderRadius:12,
     //   zIndex:100,
@@ -271,20 +279,23 @@ const styles=StyleSheet.create({
     },
     recentText:{
       fontFamily:'Primary',
-      color:Colors.darkWithOpacity(1),
+      color:Colors.text1,
       fontSize:16,
       marginLeft:8,
       width:'86%'
     },
-    title:{fontFamily:'Primary-Semibold',fontSize:16,color:'#222',marginLeft:8},
-    txt:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:4},
+    title:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.text1,marginLeft:8},
+    txt:{fontFamily:'Primary',fontSize:14,color:Colors.text1,marginTop:4},
     result:{paddingHorizontal:12,paddingVertical:16},
     noData:{
       fontFamily:'Primary-Semibold',
-      color:"#222",
+      color:Colors.text1,
       fontSize:16,
       textAlign:'center',
       marginTop:40,marginHorizontal:20
     },
     skeleton:{marginBottom:12,height:20,opacity:0.3}
-})
+  }), [Colors]); // Recreate styles when Colors change
+};
+
+export default SearchComponent;

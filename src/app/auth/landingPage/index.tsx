@@ -5,7 +5,6 @@ import { SplashScreen, useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
-import Colors from "assets/Colors"
 import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
 import * as AuthSession from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
@@ -20,17 +19,20 @@ import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import appsFlyer from "react-native-appsflyer"
+import { useTheme } from "context"
 
 WebBrowser.maybeCompleteAuthSession()
 
-export default () => {
+const LandingPage =() => {
   const router=useRouter()
   const [loginError, setLoginError] = useState()
   const queryClient=useQueryClient()
   const dispatch=useDispatch()
   const netInfo=useNetInfo()
+  const LandingSvgIcons:any=LandingSvg
 
   const {bounceValue,fadeAnim} = useAnimatedSlide()
+  const {Colors,isLightMode}=useTheme()
 
   const onLoginSuccess=(data:any)=>{
     if(!!data?.data){
@@ -121,15 +123,17 @@ const signInGoogle=(token:any,params:any)=>{
 //apple login end
 
   return (
-    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
+    <SafeAreaView style={{flex:1,backgroundColor:Colors.whiteWithOpacity(1)}}>
     <View
-      style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:'#fff',flex:1,justifyContent:'space-between'}}
+      style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >
-      <View>
-      <SvgXml xml={LandingSvg.logo} />
-      <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:'#000',marginTop:20}}>
-        A place to dump your thoughts.
-      </Text>
+      <View style={{marginTop:isIOS?0:50}}>
+        <View style={{borderRadius:8,height:55,width:55,overflow:'hidden'}}>
+          <SvgXml xml={LandingSvg.logo}/>
+        </View>
+        <Text style={{fontSize:48,fontFamily:'Primary-Medium',color:Colors.blackWithOpacity(1),marginTop:20}}>
+          A place to dump your thoughts.
+        </Text>
       </View>
       <Animated.View
         style={[
@@ -142,51 +146,40 @@ const signInGoogle=(token:any,params:any)=>{
       >
         <View style={{alignItems:'center'}} />
         {/* <TouchableOpacity
-          style={styles.button}
+          style=[{style.button,{backgroundColor:Colors.grey2WithOpacity(1)}]
           onPress={() => {}}
         ><Text style={styles.text}>Sign up</Text></TouchableOpacity> */}
         {(Platform.OS === "ios" || Platform.OS === "macos") && (
           <Btn
-            underlayColor={Colors.grey2WithOpacity(0.8)}
-            style={styles.button}
+            underlayColor={Colors.bgColor3(0.8)}
+            style={[styles.button,{backgroundColor:Colors.bgColor3(1)}]}
             onPress={signInAppleAsync}
             text="Continue with Apple"
-            color="#fff"
+            isLoading={loginApple?.isLoading||false}
+            color={Colors.text4}
             logo={LandingSvg.apple}
             />
         )}
           <Btn
-            underlayColor={Colors.grey2WithOpacity(0.3)}
-            style={styles.button2}
+            underlayColor={Colors.bgColor3(0.3)}
+            style={[styles.button2,{backgroundColor:Colors.bgColor3(0.1)}]}
             onPress={()=>{router.push('/auth/login/')}}
             text="Continue with Email"
-            isLoading={loginApple?.isLoading||false}
-            logo={LandingSvg.email}/>
+            logo={LandingSvgIcons.email?.replaceAll('#0D0D0D',Colors.text)}/>
           <Btn
-            underlayColor={Colors.grey2WithOpacity(0.3)}
-            style={styles.button2}
+            underlayColor={Colors.bgColor3(0.3)}
+            style={[styles.button2,{backgroundColor:Colors.bgColor3(0.1),}]}
             onPress={onGoogleLogin}
             text="Continue with Google"
             isLoading={loginGoogle?.isLoading||false}
             logo={LandingSvg.google}/>
-        {loginError && <Text style={{marginTop:8,color:'red'}}>{loginError}</Text>}
+        {loginError && <Text style={{marginTop:8,color:Colors.redWithOpacity(1)}}>{loginError}</Text>}
 
-        {/* <View style={{flexDirection:'row',marginTop:24,marginBottom:16,justifyContent:'center'}}>
-          <Pressable
-            // onPress={() => router.push('/auth/login')}
-          >
-            <Text style={{fontWeight:'bold',fontFamily:'Primary-Bold',fontSize:16,height:32,color:'#222'}}>
-              <Text style={{color:'#222'}}>Already have an account?</Text>
-
-              <Text style={{color : "#1A0FAB"}}> Log in</Text>
-              </Text>
-          </Pressable>
-        </View> */}
-        <Text style={{fontFamily:'Primary',fontSize:12,color:'#222',textAlign:'center',marginTop:16}}>
+        <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text1,textAlign:'center',marginTop:16}}>
           {`By signing up, you agree to our `}
           <Text onPress={()=>{}} style={[{fontFamily:'Primary',fontSize:12}]} >terms</Text>
           {` and `}
-          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy")} style={[{fontFamily:'Primary',fontSize:12,color : "#1A0FAB"}]}>privacy policy</Text>
+          <Text onPress={()=>WebBrowser.openBrowserAsync(MAIN_URL+"/privacy-policy",{toolbarColor:isLightMode?'#fff':'#000'})} style={[{fontFamily:'Primary',fontSize:12,color : Colors.blue}]}>privacy policy</Text>
           {`.`}
         </Text>
       </Animated.View>
@@ -195,22 +188,24 @@ const signInGoogle=(token:any,params:any)=>{
   )
 }
 
-const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=>(
+const Btn=({text,onPress,style,underlayColor,logo,color,isLoading=false}:Props)=>{
+  const {Colors}=useTheme()
+  return (
   <TouchableHighlight
   underlayColor={underlayColor}
   style={style}
   onPress={onPress}>
     {!isLoading?<>
       {logo&&<SvgXml xml={logo} style={{marginRight:8}}/>}
-      <Text style={[styles.text,color?{color}:{}]}>{text}</Text>
-    </>:<ActivityIndicator size={"small"} color={"#222"}/>}
+      <Text style={[styles.text,color?{color}:{color:Colors.grey2WithOpacity(1)}]}>{text}</Text>
+    </>:<ActivityIndicator size={"small"} color={Colors.text}/>}
 </TouchableHighlight>
-)
+)}
 
 const styles=StyleSheet.create({
-    text:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.grey2WithOpacity(1)},
-    button:{backgroundColor:Colors.grey2WithOpacity(1),height:48,justifyContent:'center',alignItems:'center',borderRadius:16,flexDirection:'row'},
-    button2:{marginTop:12,backgroundColor:Colors.grey2WithOpacity(0.1),borderRadius:16,height:48,justifyContent:'center',alignItems:'center',flexDirection:'row'}
+    text:{fontFamily:'Primary-Semibold',fontSize:16},
+    button:{height:48,justifyContent:'center',alignItems:'center',borderRadius:16,flexDirection:'row'},
+    button2:{marginTop:12,borderRadius:16,height:48,justifyContent:'center',alignItems:'center',flexDirection:'row'}
 })
 
 interface Props{
@@ -222,3 +217,5 @@ interface Props{
   color?:string
   isLoading?:boolean
 }
+
+export default LandingPage

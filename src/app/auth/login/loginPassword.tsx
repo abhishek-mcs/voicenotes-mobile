@@ -15,7 +15,6 @@ import { Redirect, useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails";
-import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { useLogin } from "queries/auth";
 import { useQueryClient } from "react-query";
@@ -28,8 +27,9 @@ import { analytics } from "../../../../firebaseConfig";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { setRecordingList } from "redux/reducers/recordingStates";
 import appsFlyer from "react-native-appsflyer";
+import { useTheme } from "context";
 
-export default () => {
+const LoginPassword = () => {
   const router = useRouter();
   const refPassword = useRef<TextInput>();
 
@@ -47,6 +47,7 @@ export default () => {
   const netInfo=useNetInfo()
 
   const inputRef = useRef<TextInput>(null);
+  const { Colors } = useTheme()
 
   // useEffect(() => {
   //   // Must run after animations for keyboard to automatically open
@@ -93,18 +94,18 @@ export default () => {
     return <Redirect href="/home/" />;
   }
   return (
-    <SafeAreaView style={{backgroundColor: "#f4f6f6",flex:1}}>
+    <SafeAreaView style={{backgroundColor: Colors.bgColor9,flex:1}}>
     <KeyboardAvoidingView
     behavior="padding"
       style={{
         paddingHorizontal: 32,
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "#f4f6f6",
+        backgroundColor: Colors.bgColor9,
       }}
     >
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?10:54,padding:16}}>
-          <SvgXml xml={commonSvg.back1}/>
+          <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>
         </Touchable>
         {/* <View style={{alignItems:'center',justifyContent:'center',marginBottom:32}}>
           <SvgXml xml={home.logo} /> 
@@ -113,7 +114,7 @@ export default () => {
       <Text
         style={{
           alignSelf: "center",
-          color: "#222",
+          color: Colors.text5,
           fontFamily: "Primary-Bold",
           fontSize: 24,
           fontWeight: "bold",
@@ -125,7 +126,7 @@ export default () => {
       <TextField
         forwardedRef={inputRef}
         style={{ marginTop: isIOS? 36: 24 }}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:'#fff'}}
+        inputStyle={{ height: 48, color:Colors.text, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.inputBg3}}
         value={emailText || ""}
         textContentType="emailAddress"
         // label={"Enter your email"}
@@ -135,12 +136,12 @@ export default () => {
         placeholder="Email Address"
         keyboardType="email-address"
         autoCapitalize="none"
-        placeholderTextColor={"rgba(34,34,34,0.25)"}
+        placeholderTextColor={Colors.grey6}
         autoCorrect={false}
       />
       {signInMutation.isError &&
         signInMutation.error.response.data.errors?.email && (
-          <Text style={{ marginTop: 4, color: "red" }}>
+          <Text style={{ marginTop: 4, color:Colors.redWithOpacity(1) }}>
             {signInMutation.error.response.data.errors.email[0]}
           </Text>
         )}
@@ -154,14 +155,14 @@ export default () => {
         returnKeyType={"next"}
         onSubmitEditing={continueClicked}
         placeholder="Password"
-        placeholderTextColor={"rgba(34,34,34,0.25)"}
+        placeholderTextColor={Colors.grey6}
         style={{ marginTop: 0}}
-        inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:'#fff' }}
+        inputStyle={{ height: 48, color:Colors.text, borderRadius: 8,marginTop:isIOS? 16: 16,backgroundColor:Colors.inputBg3 }}
         autoCapitalize="none"
       />
       {signInMutation.isError &&
         signInMutation.error.response.data.errors?.password && (
-          <Text style={{ marginTop: 4, color: "red" }}>
+          <Text style={{ marginTop: 4, color: Colors.redWithOpacity(1) }}>
             {signInMutation.error.response.data.errors.password[0]}
           </Text>
         )}
@@ -170,7 +171,7 @@ export default () => {
         testID="signInPasswordBtn"
         style={{
           alignSelf: "center",
-          backgroundColor: Colors.primary,
+          backgroundColor: Colors.primaryDark,
           marginBottom: 12,
           marginTop: 24,
           paddingVertical: 16,
@@ -182,19 +183,33 @@ export default () => {
         onPress={continueClicked}
       >
         {signInMutation.isLoading?
-        <ActivityIndicator size={"small"} color={"#fff"}/>
+        <ActivityIndicator size={"small"} color={Colors.text12}/>
         :<Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: "#fff",
+            color: Colors.text12,
           }}
         >
           Continue
         </Text>}
       </Pressable>
 
+      {/* <Pressable onPress={()=>router?.push('/auth/forgot-password/ForgotPassword')}>
+        <Text
+          style={{
+            marginTop: 24,
+            fontFamily: "Primary",
+            fontSize: 14,
+            textAlign: "center",
+            color: Colors.text1,
+            textDecorationLine:'underline'
+          }}
+        >
+          Forgot password?
+        </Text>
+      </Pressable> */}
       <View style={{ flexDirection: "row", justifyContent: "center",marginBottom:32 }}>
         <Text
           style={{
@@ -202,7 +217,7 @@ export default () => {
             fontFamily: "Primary",
             fontSize: 14,
             textAlign: "center",
-            color: "#222",
+            color: Colors.text1,
           }}
         >
           Don't have an account?
@@ -219,7 +234,7 @@ export default () => {
               fontSize: 14,
               textAlign: "center",
               fontWeight: "600",
-              color: Colors.primary,
+              color: Colors.primaryDark,
             }}
           >
             {" Sign Up"}
@@ -237,3 +252,5 @@ export default () => {
     </SafeAreaView>
   );
 };
+
+export default LoginPassword

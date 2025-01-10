@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextStyle, Animated } from "react-native";
-import { capitalizeFirstLetter, screenWidth } from "utils/common";
+import { useState } from "react";
+import { View, Text, TextStyle } from "react-native";
+import { screenWidth } from "utils/common";
 import { RenderHTML } from "react-native-render-html";
 import PulsatingCircle from "./PulsatingCircle";
-import Colors from "assets/Colors";
 import { TypeAnimation } from 'react-native-type-animation';
+import { useTheme } from "context";
+import { useRouter } from "expo-router";
+
+const TypeAnim:any=TypeAnimation
 
 const ChatBubble = ({
   delay = 30,
@@ -18,6 +21,7 @@ const ChatBubble = ({
   cursorSvg = '',
   status = "",
   showStatus = false,
+  showUpgrade= false
 }: {
   delay?: number;
   message: string;
@@ -30,12 +34,14 @@ const ChatBubble = ({
   cursorSvg?: string;
   status?: string;
   showStatus?: boolean;
+  showUpgrade?: boolean;
 }) => {
-  const [displayedMessage, setDisplayedMessage]: any = useState("");
+  const [displayedMessage]: any = useState("");
   const containsHTML = (str: string) => {
     const htmlPattern = /<[^>]+>/g;
     return htmlPattern.test(str);
   };
+  const { Colors } = useTheme()
 
   // useEffect(() => {
   //   let currentIndex = 0;
@@ -72,7 +78,7 @@ const ChatBubble = ({
     <View style={{ flexDirection: "row", alignItems: "center" }}>
 
       {triggerAnimation==2?
-      <TypeAnimation
+      <TypeAnim
       sequence={[
         { text: message },
       ]}
@@ -90,7 +96,7 @@ const ChatBubble = ({
       {showCursorAtEnd&&showStatus && (
         <Text
           style={{
-            color: Colors.grey3,
+            color: Colors.text10,
             fontFamily: "Primary",
             fontSize: 12,
             lineHeight: 20,

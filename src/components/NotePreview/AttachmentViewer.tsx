@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
   FlatList,
   Linking,
   Dimensions,
@@ -22,8 +21,9 @@ import { ATTACHMENT_TYPE } from "types";
 import { Portal } from "@gorhom/portal";
 import BottomSheet, { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { screenHeight } from "utils/common";
+import { useTheme } from "context";
 import { useQueryClient } from "react-query";
-import Colors from "assets/Colors";
+import MoreOptions from "components/common/more-options";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -33,6 +33,8 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [visibleMenu, setVisibleMenu] = useState(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const { Colors,isLightMode } = useTheme()
+  const styles = useStyles()
 
   const fullScreenListRef = useRef(null);
   const thumbnailListRef = useRef<FlatList>(null);
@@ -64,7 +66,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
-      Alert.alert("Error", "Failed to delete the attachment. Please try again.");
+      Alert.alert("Error", "Failed to delete the attachment. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     } finally {
       onAttachmentUpdate();
     }
@@ -78,7 +80,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
       [
         { text: "Cancel", style: "cancel" },
         { text: "Delete", onPress: () => deleteAttachment(attachmentId), style: "destructive" }
-      ]
+      ],{userInterfaceStyle:isLightMode?"light":"dark"}
     );
   }, [deleteAttachment]);
 
@@ -96,7 +98,7 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
           />
           {item.is_uploading && (
             <BlurView intensity={50} style={styles.blurOverlay}>
-              <CircularLoader color="#FFF"/>
+              <CircularLoader color={Colors.whiteWithOpacity(1)}/>
             </BlurView>
           )}
         </View>
@@ -117,24 +119,27 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
             {item.description}
           </Text>
         </TouchableOpacity>
-        <Menu
-          visible={visibleMenu === item.id}
-          anchor={
-            <TouchableOpacity onPress={() => setVisibleMenu(item.id)}>
-              <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
-            </TouchableOpacity>
-          }
-          onRequestClose={() => setVisibleMenu(null)}
-        >
-          <MenuItem onPress={() => {
+        <MoreOptions options={[
+          {
+            title:'Edit',
+            systemIcon:'square.and.pencil',
+            onPress:() => {
             onEditLink(item);
             setVisibleMenu(null);
-          }}>Edit</MenuItem>
-          <MenuItem onPress={() => {
-            handleDeletePress(item.id, 'link');
-            setVisibleMenu(null);
-          }}>Delete</MenuItem>
-        </Menu>
+          }},
+          {
+            title:'Delete',
+            destructive:true,
+            systemIcon:'trash',
+            onPress:() => {
+              handleDeletePress(item.id, 'link');
+              setVisibleMenu(null);
+            }}
+          ]}>
+          {/* <TouchableOpacity onPress={() => setVisibleMenu(item.id)}> */}
+            <SvgXml xml={notePreviewSVG.more} style={{padding: 6, paddingHorizontal: 10}} />
+          {/* </TouchableOpacity> */}
+        </MoreOptions>
       </View>
     ),
     [openLink, visibleMenu, handleDeletePress, onEditLink]
@@ -254,11 +259,13 @@ const AttachmentViewer = ({ attachments = [], onAttachmentUpdate = () => {}, onE
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors, isLightMode } = useTheme();
+  return useMemo(() => StyleSheet.create({
   bottomSheet: {
     flex:1,
     // height:screenHeight,
-    backgroundColor:'rgba(0,0,0,0.7)'
+    backgroundColor:Colors.bgColor10(0.7)
   },
   container: {
     flex:1,
@@ -300,7 +307,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    backgroundColor: Colors.bgColor10(0.9),
     justifyContent: "center",
     alignItems: "center",
   },
@@ -347,7 +354,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 14,
-    backgroundColor: '#222',
+    backgroundColor:Colors.darkWithOpacity(1),
     borderRadius: 50
   },
   loader: {
@@ -370,13 +377,13 @@ const styles = StyleSheet.create({
   deleteButton: {
     padding: 13,
     marginRight: 10,
-    backgroundColor: '#222',
+    backgroundColor:Colors.darkWithOpacity(1),
     borderRadius: 50
   },
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(0,113,176,0.05)",
+    backgroundColor: Colors.lightBlueWithOpacity(isLightMode?0.05:0.15),
     padding: 4,
     paddingHorizontal: 8,
     borderRadius: 8,
@@ -391,9 +398,10 @@ const styles = StyleSheet.create({
   },
   linkText: {
     marginLeft: 10,
-    color: "#0071b0",
+    color: Colors.lightBlueWithOpacity(0.8),
     flex: 1,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default AttachmentViewer;

@@ -1,7 +1,6 @@
-import Colors from 'assets/Colors';
 import CircularLoader from 'components/common/loaders/circular-loader';
 import Touchable from 'components/common/Touchable';
-// import { router } from 'expo-router';
+import { useTheme } from 'context';
 import { View, Text } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { setRelatedNoteId } from 'redux/reducers/relatedNoteStates';
@@ -12,6 +11,7 @@ import { sleep } from 'utils/Timer';
 
 const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:any)=>void}) => {
       if (!note?.related_notes?.length) return null;
+      const { Colors } = useTheme()
       const dispatch = useDispatch()
       return (
         note?.transcript && (
@@ -20,7 +20,7 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
               style={{
                 fontFamily: "Primary-Semibold",
                 fontSize: 12,
-                color: "#0D0D0D",
+                color:Colors.black2,
               }}
             >
               Related Notes
@@ -43,6 +43,7 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
                         dispatch(setRelatedNoteId(null))
                         await sleep(400)
                         dispatch(setRelatedNoteId(item?.id))
+                        // onPress(item?.id);
                         // router.push({
                         //   pathname: "/RelatedNotes/",
                         //   params: { id: item?.id },

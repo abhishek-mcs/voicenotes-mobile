@@ -1,5 +1,4 @@
 import { useNavigation } from "@react-navigation/native";
-import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { Animated, Image, Keyboard, LayoutAnimation, StyleSheet, Text, View } from "react-native";
@@ -7,22 +6,23 @@ import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS, isIOSSmall } from "utils/common";
-import { useGetUserData, useStreak } from "queries/home";
-import Streaks from "components/streaks";
+import { isIOS } from "utils/common";
+import { useGetUserData } from "queries/home";
 import formatBigNumber from "utils/formatBigNumber";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import * as Haptics from 'expo-haptics';
 import { iapSvg } from "assets/svg/iapSvg";
 import { commonSvg } from "assets/svg/commonSvg";
-import { MAIN_URL } from "services/api/api-constants";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
+import { useTheme } from "context";
 
-export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
+const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
+  const { Colors, isLightMode } = useTheme()
+  const styles = useStyles()
 
   const dispatch=useDispatch()
   const data=useGetUserData(token);
@@ -90,21 +90,21 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
         </View>} */}
         <View style={{  justifyContent: "center" }}>
      {isLogged?
-        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}} onTouchStart={(e)=>e?.stopPropagation()}>
+        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
         {/* upgrade button */}
         {!isBeliever&&
-        <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.green3WithOpacity(0.1),paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
-          <SvgXml xml={iapSvg.thunder} />
-          <Text style={{color:Colors.green3WithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
+        <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.upgradeBtn,paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
+          <SvgXml xml={iapSvg.thunder?.replace(/#0E3934/g,Colors.primaryDark)} />
+          <Text style={{color:Colors.primaryDark,fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
         {/* streak indicator */}
         <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
-          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)}/>
+          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)?.replace(/#717171/g,Colors.refresh)}/>
         </Touchable>
         <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
           {!!photo_url?
-          <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30}}/>
-          :<SvgXml xml={commonSvg.profileIcon}/>}
+          <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30,backgroundColor:Colors.bgColor3(0.1)}}/>
+          :<SvgXml xml={commonSvg.profileIcon?.replace(/#274F47/g,Colors.primaryDark)}/>}
         </Touchable>
         </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
@@ -122,21 +122,23 @@ export default ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
             onPress={() => {
               route.navigate("/auth/login/loginPassword");
             }}
-            style={{ alignSelf: "flex-end",backgroundColor:'#222',borderRadius:16,padding:12,paddingVertical:8,height:35 }}
-          ><Text style={{ color: '#fff',fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
+            style={{ alignSelf: "flex-end",backgroundColor:Colors.darkWithOpacity(1),borderRadius:16,padding:12,paddingVertical:8,height:35 }}
+          ><Text style={{ color: Colors.whiteWithOpacity(1),fontFamily:'Primary-Semibold',fontSize:14 }}>Log in</Text>
           </Touchable>
           </View>}
         </View>
       </View>
     </View>
-    <Animated.Text style={{width:'70%',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:hideBgColor?'transparent':'#0D0D0D',transform:[{translateY:titleTranslateY}]}}>
+    <Animated.Text style={{alignSelf:'flex-start',fontFamily:'Primary-Semibold',fontSize:fontSizeAnimate,color:Colors.black2,transform:[{translateY:titleTranslateY}]}}>
       Voicenotes
     </Animated.Text>
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center" },
   container: {
     flexDirection: "row",
@@ -155,4 +157,7 @@ const styles = StyleSheet.create({
     marginTop: -24,
   },
   streak:{padding:12,alignItems:'center',width:38,height:38,justifyContent:'center'}
-});
+}), [Colors]); // Recreate styles when Colors change
+};
+
+export default Header;

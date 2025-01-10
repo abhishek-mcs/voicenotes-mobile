@@ -1,4 +1,5 @@
-import React, { useImperativeHandle, forwardRef, useState, useRef, useEffect } from 'react';
+import { useTheme } from 'context';
+import React, { useImperativeHandle, forwardRef, useState, useRef, useEffect, useMemo } from 'react';
 import {
   Text,
   Animated,
@@ -16,6 +17,7 @@ interface CustomModalProps {
 const CustomModal = forwardRef(({ visible, children }:CustomModalProps, ref) => {
     const translateX = useRef(new Animated.Value(screenWidth)).current;
     const [isVisible, setIsVisible] = useState(visible);
+    const styles = useStyles()
   
     useEffect(() => {
       if (visible) {
@@ -58,7 +60,9 @@ const CustomModal = forwardRef(({ visible, children }:CustomModalProps, ref) => 
     );
   });
   
-  const styles = StyleSheet.create({
+  const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     modal: {
       position: 'absolute',
       top: 0,
@@ -67,10 +71,11 @@ const CustomModal = forwardRef(({ visible, children }:CustomModalProps, ref) => 
       bottom: 0,
       width: screenWidth,
       height: screenHeight+100,
-      backgroundColor: 'white',
+      backgroundColor:Colors.whiteWithOpacity(1),
       zIndex: 1000,flex:1,
       paddingTop:60
     },
-  });
+  }), [Colors]); // Recreate styles when Colors change
+};
   
   export default CustomModal;

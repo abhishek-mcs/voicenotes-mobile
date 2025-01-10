@@ -17,12 +17,14 @@ import CircularLoader from "../loaders/circular-loader"
 import { SvgXml } from "react-native-svg"
 import { AIModalSVG } from "assets/svg/AIModalSvg"
 import { commonSvg } from "assets/svg/commonSvg"
+import { useTheme } from "context"
 
 const isIos = Platform.OS === "ios"
 
 function ScreenWithoutScrolling(props: ScreenProps) {
 
   const insets = useSafeAreaInsets()
+  const { Colors } = useTheme()
   const preset = presets.fixed
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
@@ -46,15 +48,15 @@ function ScreenWithoutScrolling(props: ScreenProps) {
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none" ]}
     >
       <StatusBar
-        backgroundColor={props.statusBarColor ?? "#fff"}
+        backgroundColor={props.statusBarColor ?? Colors.whiteWithOpacity(1)}
         barStyle={props.statusBar || "dark-content"}
       />
       <View style={[preset.inner, insetStyle]}>
         {isConnected ? (
           <View />
         ) : (
-          <View style={{paddingHorizontal:16,paddingVertical:12,backgroundColor:'red',flex:1,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-            <Text style={{color:'#fff',fontFamily:'Primary-Bold',fontSize:14}}>Internet lost, retrying</Text>
+          <View style={{paddingHorizontal:16,paddingVertical:12,backgroundColor:Colors.redWithOpacity(1),flex:1,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+            <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Bold',fontSize:14}}>Internet lost, retrying</Text>
             <CircularLoader width={10} height={10} />
           </View>
         )}
@@ -84,6 +86,7 @@ function ScreenWithScrolling(props: ScreenProps) {
   const insetStyle = { paddingTop: props.unsafe ? 0 : insets.top }
   const navBarStyleBase:any ={flexDirection:'row',justifyContent:'center',marginHorizontal:32,paddingVertical:16}
   const [isConnected, setIsConnected] = React.useState(true)
+  const { Colors } = useTheme()
   
   React.useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state:any) => {
@@ -101,7 +104,7 @@ function ScreenWithScrolling(props: ScreenProps) {
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
       <StatusBar
-        backgroundColor={props.statusBar ?? '#fff'}
+        backgroundColor={props.statusBar ?? Colors.whiteWithOpacity(1)}
         barStyle={props.statusBar || "dark-content"}
       />
 
@@ -109,8 +112,8 @@ function ScreenWithScrolling(props: ScreenProps) {
         {isConnected ? (
           <View />
         ) : (
-          <View style={{paddingHorizontal:16,paddingVertical:12,backgroundColor:'red',flex:1,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-            <Text style={{color:'#fff',fontFamily:'Primary-Bold',fontSize:14}}>Internet lost, retrying</Text>
+          <View style={{paddingHorizontal:16,paddingVertical:12,backgroundColor:Colors.redWithOpacity(1),flex:1,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+            <Text style={{color:Colors.whiteWithOpacity(1),fontFamily:'Primary-Bold',fontSize:14}}>Internet lost, retrying</Text>
             <CircularLoader width={10} height={10}/>
           </View>
         )}

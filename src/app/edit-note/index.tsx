@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import {
@@ -40,8 +39,9 @@ import {
 import CircularLoader from "components/common/loaders/circular-loader";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
+import { useTheme } from "context";
 
-export default () => {
+const EditNote = () => {
     const router = useRouter();
     const params:any = useLocalSearchParams();
     const {editNoteRedux} = useSelector((state:RootState)=>state.editStates)
@@ -54,6 +54,8 @@ export default () => {
   const [isLoading, setIsLoading] = useState(false);
   const titleInputRef = useRef<TextInput>(null);
   const transcriptInputRef = useRef<TextInput>(null);
+  const { Colors, isLightMode } = useTheme()
+  const styles = useStyles()
 
   const handleTitleSubmit = () => {
     transcriptInputRef.current?.focus();
@@ -61,7 +63,7 @@ export default () => {
 
   const onSaveEdit = async () => {
     if (editNote?.transcript?.length === 0 || editNote?.title?.length === 0) {
-      return Alert.alert("", "Title and Transcript cannot be empty");
+      return Alert.alert("", "Title and Transcript cannot be empty",[],{userInterfaceStyle:isLightMode?"light":"dark"});
     }
     setIsLoading(true);
     const tags = editNote?.tags?.flatMap((tag: any) => tag?.name);
@@ -97,8 +99,11 @@ export default () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* <KeyboardAvoidingView behavior={"padding"} > */}
+    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor1 }}>
+      <KeyboardAvoidingView 
+        behavior={isIOS ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
       <View
         style={{
           flexDirection: "row",
@@ -121,7 +126,12 @@ export default () => {
         </Touchable>
         {isLoading ? (
           <View style={{ alignSelf: "flex-end" }}>
-            <ThreeDotLoader />
+            <ThreeDotLoader 
+                colorFilters={[
+                  {keypath:'Left',color:Colors.text},
+                  {keypath:'Mid',color:Colors.text},
+                  {keypath:'Right',color:Colors.text}
+                ]}/>
           </View>
         ) : (
           <Touchable
@@ -133,7 +143,7 @@ export default () => {
               style={{
                 fontFamily: "Primary-Semibold",
                 fontSize: 16,
-                color: "#007AFF",
+                color: Colors.blue,
               }}
             >
               Save
@@ -149,6 +159,9 @@ export default () => {
           autoCorrect={true}
           selectTextOnFocus={false}
           value={editNote?.title}
+          placeholder="Title"
+          multiline
+          placeholderTextColor={Colors.grey6}
           onChangeText={(txt) =>
             setEditNote((n: any) => {
               return { ...n, title: txt };
@@ -171,10 +184,14 @@ export default () => {
             autoCorrect={true}
             scrollEnabled={false}
             selectTextOnFocus={false}
+            placeholder="Transcript"
+            placeholderTextColor={Colors.grey6}
             value={editNote?.transcript
-              ?.replaceAll(/<b\/?>/g,'')
-              ?.replaceAll(/<\/b\/?>/g,'')
-              ?.replaceAll(/<br\/?>/g, "\n")}
+              ?.replaceAll(/<b\/?>/g, '')
+              ?.replaceAll(/<\/b\/?>/g, '')
+              ?.replaceAll(/<br\/?>/g, "\n")
+              ?.replace(/&amp;/g, '&')
+              ?.replace(/&nbsp;/g, '&')}
             onChangeText={(txt) =>
               setEditNote((n: any) => {
                 return { ...n, transcript: txt };
@@ -183,11 +200,14 @@ export default () => {
           />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   editContainer: {
     marginTop: 6,
     marginHorizontal: 12,
@@ -199,8 +219,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 28,
     fontWeight: "500",
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text5,
     marginBottom: 6,
+    flexWrap:'wrap'
   },
   textInput: {
     paddingHorizontal: 12,
@@ -212,6 +233,9 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     textAlignVertical: "top",
     textAlign: "left",
-    color: Colors.darkWithOpacity(0.9),
+    color: Colors.text5,
   },
-});
+}), [Colors]
+)}
+
+export default EditNote

@@ -1,10 +1,14 @@
 import Touchable from "components/common/Touchable";
+import { useTheme } from "context";
+import { useMemo } from "react";
 import { StyleSheet, Text } from "react-native";
 import { View } from "react-native";
 import { useDispatch } from "react-redux";
 import { setTagsFilter } from "redux/reducers/hashSlice";
 
 const TagsList = ({ note, onPress }: any) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   const dispatch = useDispatch();
   return (
     note?.tags?.length > 0 && (
@@ -23,14 +27,17 @@ const TagsList = ({ note, onPress }: any) => {
 
 export default TagsList;
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   tag: {
     fontSize: 14,
     lineHeight: 19,
     fontFamily: "Primary",
-    color: "#717171",
+    color: Colors.grey3,
     marginTop: 4,
     marginRight: 4,
     marginLeft: 0,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

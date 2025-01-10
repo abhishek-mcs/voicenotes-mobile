@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { setStringAsync } from "expo-clipboard";
@@ -14,6 +13,7 @@ import { screenWidth } from "utils/common";
 import LottieView from "lottie-react-native";
 import threeDotLoader from "assets/lottie/threeDotLoader.json";
 import threeDotLoader2 from "assets/lottie/threeDotLoader2.json";
+import { useTheme } from "context";
 
 export default ({
   visible,
@@ -27,6 +27,8 @@ export default ({
 }: PublishModalProps) => {
 
   const [copy, setCopy] = useState(false);
+  const { Colors } = useTheme()
+
   const onCopy = async () => {
     setCopy(true);
     await setStringAsync(MAIN_URL + "/s/" + slug);
@@ -53,20 +55,21 @@ export default ({
       <View
         style={{
           padding: 16,
-          backgroundColor: Colors.whiteWithOpacity(1),
+          backgroundColor: Colors.bgColor8,
           borderRadius: 12,
-          shadowColor: "rgba(0,0,0,0.5)",
+          shadowColor: Colors.blackWithOpacity(0.5),
+          shadowRadius:5
         }}
       >
         {isNoteJustMadePrivate ? (
           <View style={{ width: screenWidth / 1.2 }}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <SvgXml xml={CreateModalSvg.unlock} />
+              <SvgXml xml={CreateModalSvg.unlock?.replace('black',Colors.text)} />
               <Text
                 style={{
                   fontSize: 14,
                   fontFamily: "Primary-Semibold",
-                  color: Colors.darkWithOpacity(1),
+                  color: Colors.text5,
                   lineHeight: 19.2,
                   marginLeft: 8,
                   width: screenWidth / 1.2,
@@ -89,7 +92,7 @@ export default ({
                   setIsNoteJustMadePrivte(false);
                 }}
                 style={{
-                  backgroundColor: Colors.darkWithOpacity(1),
+                  backgroundColor: Colors.bgColor12,
                   alignSelf: "flex-start",
                   borderRadius: 12,
                   padding: 12,
@@ -98,7 +101,7 @@ export default ({
               >
                 <Text
                   style={{
-                    color: Colors.whiteWithOpacity(1),
+                    color: Colors.text4,
                     fontFamily: "Primary-Semibold",
                     fontSize: 12,
                     marginLeft: 4,
@@ -112,12 +115,12 @@ export default ({
         ) : slug?.length ? (
           <View style={{ width: screenWidth / 1.2 }}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <SvgXml xml={CreateModalSvg.unlock} />
+              <SvgXml xml={CreateModalSvg.unlock?.replace('black',Colors.blackWithOpacity(1))} />
               <Text
                 style={{
                   fontSize: 14,
                   fontFamily: "Primary-Semibold",
-                  color: Colors.darkWithOpacity(1),
+                  color: Colors.text5,
                   lineHeight: 19.2,
                   marginLeft: 8,
                 }}
@@ -129,7 +132,7 @@ export default ({
               style={{
                 fontSize: 14,
                 fontFamily: "Primary",
-                color: Colors.primary,
+                color: Colors.green2,
                 textDecorationLine: "underline",
                 marginTop: 4,
               }}
@@ -146,7 +149,7 @@ export default ({
               <TouchableHighlight
                 onPress={onCopy}
                 style={{
-                  backgroundColor: Colors.darkWithOpacity(1),
+                  backgroundColor: Colors.bgColor12,
                   alignSelf: "flex-start",
                   borderRadius: 12,
                   padding: 12,
@@ -158,7 +161,7 @@ export default ({
                   <SvgXml xml={CreateModalSvg.publishCopy} />
                   <Text
                     style={{
-                      color: Colors.whiteWithOpacity(1),
+                      color: Colors.text4,
                       fontFamily: "Primary-Semibold",
                       fontSize: 12,
                       marginLeft: 4,
@@ -190,7 +193,7 @@ export default ({
                 ) : (
                   <Text
                     style={{
-                      color: Colors.darkWithOpacity(1),
+                      color: Colors.text5,
                       fontFamily: "Primary-Semibold",
                       fontSize: 12,
                     }}
@@ -207,7 +210,7 @@ export default ({
               style={{
                 fontSize: 14,
                 fontFamily: "Primary-Semibold",
-                color: Colors.darkWithOpacity(1),
+                color: Colors.text5,
                 lineHeight: 19.2,
               }}
             >
@@ -223,7 +226,7 @@ export default ({
               <TouchableHighlight
                 onPress={onPressDone}
                 style={{
-                  backgroundColor: Colors.darkWithOpacity(1),
+                  backgroundColor: Colors.bgColor12,
                   alignSelf: "flex-start",
                   borderRadius: 12,
                   padding: 12,
@@ -241,7 +244,7 @@ export default ({
                 ) : (
                   <Text
                     style={{
-                      color: Colors.whiteWithOpacity(1),
+                      color: Colors.text4,
                       fontFamily: "Primary-Semibold",
                       fontSize: 12,
                     }}
@@ -264,7 +267,7 @@ export default ({
               >
                 <Text
                   style={{
-                    color: Colors.darkWithOpacity(1),
+                    color: Colors.text5,
                     fontFamily: "Primary-Semibold",
                     fontSize: 12,
                   }}

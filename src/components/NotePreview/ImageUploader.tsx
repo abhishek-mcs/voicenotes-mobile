@@ -11,10 +11,11 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { sleep } from "utils/Timer";
-import { Attachment, ATTACHMENT_TYPE } from "types";
+import { ATTACHMENT_TYPE } from "types";
 import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useQueryClient } from "react-query";
+import { useTheme } from "context";
 
 
 interface ImageUploaderProps {
@@ -32,6 +33,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   setAttachments,
   onAttachmentUpdate,
 }) => {
+  const { Colors, isLightMode } = useTheme()
   const queryClient = useQueryClient();
   const validateAndConvertImage = useCallback(async (uri: string) => {
     const fileExtension:string = uri?.split(".").pop()?.toLowerCase()??'';
@@ -82,7 +84,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       Alert.alert(
         "Upload Error",
         "Failed to upload image. Please try again later."
-      );
+      ,[],{userInterfaceStyle:isLightMode?"light":"dark"});
     }
   }, [noteId]);
 
@@ -111,7 +113,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         }
       } catch (error) {
         console.log("Error in uploading image: " + error);
-        Alert.alert("Error", "Failed to upload image. Please try again.");
+        Alert.alert("Error", "Failed to upload image. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
       }
     }
   }, [validateAndConvertImage, uploadImage, onAttachmentUpdate, setAttachments]);
@@ -140,14 +142,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
 
     if (permission?.status !== "granted") {
-      Alert.alert("Permission Denied", `Permission to access ${type} was denied`);
+      Alert.alert("Permission Denied", `Permission to access ${type} was denied`,[],{userInterfaceStyle:isLightMode?"light":"dark"});
       return;
     }
 
     const result = await launch();
     handleImageSelection(result);
   } catch (error) {
-    Alert.alert("", "Failed to access camera or library. Please try again later.");
+    Alert.alert("", "Failed to access camera or library. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
   }
   }, [handleImageSelection]);
 
@@ -191,17 +193,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             style={{
               flex: 1,
               justifyContent: "flex-end",
-              backgroundColor: "rgba(0,0,0,0.5)",
+              backgroundColor: Colors.bgColor10(0.5),
             }}
           >
-            <View style={{ backgroundColor: "white", padding: 20}}>
+            <View style={{ backgroundColor: Colors.bgColor2, padding: 20}}>
               <TouchableOpacity
                 onPress={() => {
                   setShowImagePicker(false);
                   launchImagePicker("camera");
                 }}
               >
-                <Text style={{ fontSize: 18, padding: 10 }}>Take Photo</Text>
+                <Text style={{ fontSize: 18, padding: 10,color:Colors.text }}>Take Photo</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -209,12 +211,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                   launchImagePicker("library");
                 }}
               >
-                <Text style={{ fontSize: 18, padding: 10 }}>
+                <Text style={{ fontSize: 18, padding: 10,color:Colors.text }}>
                   Choose from Library
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowImagePicker(false)}>
-                <Text style={{ fontSize: 18, padding: 10, color: "red" }}>
+                <Text style={{ fontSize: 18, padding: 10, color: Colors.redWithOpacity(1) }}>
                   Cancel
                 </Text>
               </TouchableOpacity>

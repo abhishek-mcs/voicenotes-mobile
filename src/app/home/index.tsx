@@ -4,6 +4,7 @@ import {
   Easing,
   FlatList,
   KeyboardAvoidingView,
+  RefreshControl,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
@@ -35,7 +36,6 @@ import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { Text } from "react-native";
-import Colors from "assets/Colors";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import {
@@ -68,8 +68,8 @@ import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { useLocalSearchParams } from "expo-router";
-import { useGetRelatedRecording, useGetSingleRecording } from "queries/home/relatedNote";
-import { NoteContext } from "context";
+import { useGetRelatedRecording } from "queries/home/relatedNote";
+import { NoteContext, useTheme } from "context";
 import database from '@react-native-firebase/database';
 import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
@@ -119,7 +119,6 @@ const Home = () => {
   const soundRef = useRef<any>(null);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
-  const [hideBackground, setHideBg] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [isOffline, setOffline] = useState(false);
   const [review, askReview] = useState(false)
@@ -140,6 +139,8 @@ const Home = () => {
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
+  const { Colors,isLightMode } = useTheme()
+  const styles = useStyles()
 
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
@@ -148,11 +149,11 @@ const Home = () => {
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord(val ?? true));
 
-
+  useEffect(()=>{
+    StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
+  },[isLightMode])
+  
   useEffect(() => {
-    StatusBar.setBarStyle('dark-content')
-    StatusBar.setHidden(false)
-    StatusBar.setTranslucent(true)
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
       const tags=(getTags?.data?.data?.filter((t: any) => t?.name !== 'starred') ?? [])
       dispatch(setHashTagsData(tags))
@@ -569,7 +570,7 @@ const Home = () => {
       return;
     }
     setRecordingParentId(parent_id);
-    onRecord(setRec, setRecEnabled);
+    onRecord(setRec, setRecEnabled,isLightMode);
     activateKeepAwakeAsync();
     analytics().logEvent("started_recording");
     setTriggerTypingTitle(null)
@@ -739,7 +740,7 @@ const Home = () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
-
+  
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
@@ -777,7 +778,7 @@ const Home = () => {
 
 
   const scrollY = useRef(new Animated.Value(0)).current;
-  const searchBarHeight = 30; // Adjust based on your search bar height
+  const searchBarHeight = 40; // Adjust based on your search bar height
   const headerHeight=50;
 
   const searchBarScale = scrollY.interpolate({
@@ -832,7 +833,7 @@ const Home = () => {
   if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
-      style={[styles.container, hideBackground ? styles.hideBg : {}]}
+      style={[styles.container]}
     >
       <Review visible={review} onClose={() => askReview(false)} />
       <KeyboardAvoidView
@@ -842,11 +843,11 @@ const Home = () => {
           setHideSearch(true);
         }}
       >
-        <View style={{ flex: 1,backgroundColor:Colors.whiteWithOpacity(1) }}>
-          <View style={[styles.wrapper, hideBackground ? styles.hideBg : {}]}>
+        <View style={{ flex: 1,backgroundColor:Colors.bgColor }}>
+          <View style={[styles.wrapper]}>
             <Animated.View
               style={{
-                backgroundColor: hideBackground ? "transparent" : "#fff",
+                backgroundColor:  Colors.bgColor,
                 paddingHorizontal: 12,
                 paddingBottom: 12,
                 borderBottomWidth: 0.3,
@@ -859,7 +860,6 @@ const Home = () => {
                 streaks={streaks}
                 streaksRef={streaksRef}
                 scrollY={scrollY}
-                hideBgColor={hideBackground}
                 scale={scale.current}
               />
               <BannerAlert
@@ -911,22 +911,28 @@ const Home = () => {
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} count={recordingList.length} tagsData={hashTagsData}/>
                 }
                 // bounces={false}
-                style={{ backgroundColor:Colors.whiteWithOpacity(1) }}
                 data={isRecordListLoading?[]:filteredRecordingList??[]}
                 onScroll={Animated.event(
                   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                   { useNativeDriver: false }
                 )}
+                refreshControl={
+                <RefreshControl 
+                  onRefresh={onRefresh} 
+                  refreshing={isRefreshing}
+                  tintColor={Colors.refresh}
+                  colors={[Colors.refresh]}
+                  />
+                }
                 scrollEventThrottle={16}
-                contentContainerStyle={{ paddingBottom: 300,backgroundColor:Colors.whiteWithOpacity(1) }}
+                style={{backgroundColor:Colors.bgColor}}
+                contentContainerStyle={{ paddingBottom: 300,backgroundColor:Colors.bgColor }}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(itm, i) => `${itm?.id + "-" + i?.toString()}`}
                 renderItem={renderItem}
                 onEndReachedThreshold={0.2}
                 onEndReached={fetchNextPage}
-                onRefresh={onRefresh}
                 initialNumToRender={3}
-                refreshing={isRefreshing}
                 ListFooterComponent={
                   !token && recordingQuery.isFetched ? (
                     <AboutProduct disable={false} />
@@ -936,7 +942,7 @@ const Home = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         marginTop: 20,
-                        backgroundColor:Colors.whiteWithOpacity(1)
+                        backgroundColor:Colors.bgColor
                       }}
                     >
                       <CircularLoader />
@@ -949,7 +955,7 @@ const Home = () => {
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        backgroundColor: Colors.darkWithOpacity(0.05),
+                        backgroundColor: Colors.bgColor,
                         paddingHorizontal: 24,
                         paddingVertical: 12,
                         // borderRadius: 12,
@@ -959,8 +965,8 @@ const Home = () => {
                       <SvgXml
                         xml={
                           hashFilter == "shared"
-                            ? home.share
-                            : home?.emptyStarred
+                            ? home.share?.replace("#0D0D0D",Colors.emptyShare)
+                            : home?.emptyStarred?.replace("#0D0D0D",Colors.emptyShare)
                         }
                       />
                       <View
@@ -973,7 +979,7 @@ const Home = () => {
                           style={{
                             fontFamily: "Primary-Medium",
                             fontSize: 14,
-                            color: Colors.darkWithOpacity(1),
+                            color: Colors.text1,
                             marginBottom: 4,
                           }}
                         >
@@ -985,7 +991,7 @@ const Home = () => {
                           style={{
                             fontFamily: "Primary",
                             fontSize: 12,
-                            color: Colors.darkWithOpacity(1),
+                            color: Colors.text1,
                             width: "70%",
                           }}
                         >
@@ -1002,7 +1008,7 @@ const Home = () => {
                         justifyContent: "center",
                         alignItems: "center",
                         marginTop: 50,
-                        backgroundColor:Colors.whiteWithOpacity(1)
+                        backgroundColor:Colors.bgColor
                       }}
                     >
                       <CircularLoader strokeWidth={3} />
@@ -1055,49 +1061,18 @@ const Home = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor:Colors.bgColor,
   },
   wrapper: {
-    paddingVertical: isIOS ? 0 : 32,backgroundColor:Colors.whiteWithOpacity(1)
+    paddingVertical: isIOS ? 0 : 32,
+    backgroundColor:Colors.bgColor
   },
-  tab: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    height: 64,
-    borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 60,
-    alignItems: "center",
-    shadowColor: "#00000026",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    shadowOpacity: 1,
-    zIndex: 10,
-    elevation: 5,
-    padding: 12,
-    justifyContent: "space-between",
-  },
-  tabItem: {
-    height: 40,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    backgroundColor: "#2222220D",
-    overflow: "hidden",
-  },
-  tabItemText: {
-    fontFamily: "Primary-Bold",
-    fontSize: 14,
-    color: "#000",
-    marginLeft: 8,
-    fontWeight: "700",
-  },
-  hideBg: { backgroundColor: "#F4F6F6" },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
+
 export default Home

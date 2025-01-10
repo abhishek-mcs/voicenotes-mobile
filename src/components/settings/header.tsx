@@ -1,7 +1,8 @@
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
-import Colors from "assets/Colors";
 import RecButton from "components/common/recording/rec-button";
 import CircularLoader from "components/common/loaders/circular-loader";
+import { useTheme } from "context";
+import { useMemo } from "react";
 
 type Props = {
     onCancel: () => void,
@@ -15,6 +16,8 @@ type Props = {
 
 const Header: React.FC<Props> = (props) => {
     const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     return (
         <View style={[styles.root, { paddingTop: statusBarHeight }]}>
@@ -22,17 +25,19 @@ const Header: React.FC<Props> = (props) => {
                 <View style={styles.action} >
                     <RecButton
                         title={props.cancelLabel || "Cancel"}
-                        underlayColor={Colors.blackWithOpacity(0.2)}
+                        underlayColor={Colors.bottomBarButtonBg1}
                         style={{ width: 'auto',alignSelf:'flex-start', paddingHorizontal: 16,height:40}}
                         onPress={props.onCancel}
+                        bgColor={Colors.bottomBarButtonBg1}
+                        color={Colors.bottomBarText1}
                     />
                 </View>
                 <View style={[styles.action, { alignItems: 'flex-end', justifyContent: props.working ? 'center' : 'flex-end', paddingHorizontal: props.working ? 20 : 10 }]} >
                     {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
                         title={props.submitLabel || "Save"}
-                        underlayColor={Colors.blackWithOpacity(0.7)}
-                        bgColor="#000"
-                        color="#fff"
+                        underlayColor={Colors.bottomBarButtonBg}
+                        bgColor={Colors.settingsBtnBg}
+                        color={Colors.settingsBtnText}
                         style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                         onPress={props.onSubmit}
                     />: null}
@@ -43,7 +48,9 @@ const Header: React.FC<Props> = (props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     root: { 
         flex: 1, 
         alignItems: 'center',
@@ -69,6 +76,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default Header;

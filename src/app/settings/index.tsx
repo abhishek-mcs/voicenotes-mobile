@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useNavigation, useRouter } from "expo-router";
@@ -6,7 +5,7 @@ import { useLogout } from "queries/auth";
 import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard, Linking } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { languages } from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
@@ -24,6 +23,9 @@ import Names from "components/settings/names";
 import Password from "components/settings/password";
 import ProfilePic from "components/settings/profilepic";
 import { deleteCounter } from "utils/counter";
+import { useTheme } from "context";
+import MoreOptions from "components/common/more-options";
+import { useQueryClient } from "react-query";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -148,9 +150,10 @@ const useAnimatedScreens = () => {
   return { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating };
 };
 
-export default () => {
+const Settings = () => {
   const router = useRouter();
   const navigation = useNavigation()
+  const { Colors, theme, switchTheme, isLightMode } = useTheme()
 
   const logout=useLogout()
   const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
@@ -158,6 +161,7 @@ export default () => {
   const settings:any=userDetails.settings
   const saveSettings=useSaveSettings()
   const dispatch=useDispatch()
+  const queryClient = useQueryClient()
 
   const { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating } = useAnimatedScreens();
 
@@ -175,7 +179,7 @@ export default () => {
             transform: [{ translateX: animation }],
             zIndex: isActive ? 2 : 0,
             elevation: isActive ? 2 : 0,
-            backgroundColor: '#F2F2F7',
+            backgroundColor: Colors.bgColor1,
             opacity: animation.interpolate({
               inputRange: [0, SCREEN_WIDTH],
               outputRange: [1, 0],
@@ -204,7 +208,7 @@ export default () => {
         dispatch(setTempIsIAPPurchased(false))
         router?.back();
     }
-    }])
+    }],{userInterfaceStyle:isLightMode?"light":"dark"})
   }
 
   const onDelete = () =>{
@@ -214,11 +218,11 @@ export default () => {
       style:"cancel"
     },{
       text:"Yes",
-      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey')
-    }])
+      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey',{toolbarColor:isLightMode?'#fff':'#000'})
+    }],{userInterfaceStyle:isLightMode?"light":"dark"})
   }
 
-  const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com')
+  const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com',{toolbarColor:isLightMode?'#fff':'#000'})
   const onSelectLang=(code='en')=>{
     dispatch(setLang(languages[code]))
     saveSettings.mutate({
@@ -264,15 +268,22 @@ export default () => {
     });
   }, [])
 
+  const onSelectTheme = (v:string) =>{
+    switchTheme(v)
+  }
+
+  const selectedTheme:any={auto:'Auto',light:'Day',dark:'Night'}
+  
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F2F2F7', paddingTop: isIOS ? 0 : 40 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bgColor1, paddingTop: isIOS ? 0 : 40 }}>
       <View style={{ flex: 1, zIndex: 1, elevation: 1 }} pointerEvents={activeScreen || isAnimating ? 'none' : 'auto'}>
         <Touchable onPress={() => router.back()} style={{padding:12, alignSelf:'flex-end', marginRight: 2}} activeOpacity={0.6}>
-          <SvgXml xml={settingsSvg.close} width={30} height={30} />
+          <SvgXml xml={settingsSvg.close?.replace("#0D0D0D",Colors.black2)} width={30} height={30} />
         </Touchable>
         <ProfilePic 
           url={userDetails?.photo_url}
           onChange={photo_url => {
+            queryClient.invalidateQueries('user-data')
             dispatch(setUserDetail({ ...userDetails, photo_url }))
           }}
         />
@@ -292,16 +303,17 @@ export default () => {
           items={[
             {title: 'Language', isMenu:true, data:Object.entries(languages), value:lang, onPressMenu:onSelectLang},
             {title:'Names to remember', value:'', onPress: () => showScreen('names'), rightIcon:settingsSvg.arrow},
-            {title:'FAQ', value:'', onPress: () => Linking.openURL('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions'), rightIcon:settingsSvg.arrow}
+            {title:'Theme', data:[['auto','Auto','circle.lefthalf.fill'],['light','Day','sun.max'],['dark','Night','moon.zzz']], value:selectedTheme[theme], onPressMenu: onSelectTheme,isMenu:true},
+            {title:'FAQ', value:'', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow}
           ]} 
         />
         <Grouped 
           title="MORE"
           items={[
-            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://help.voicenotes.com/en'), rightIcon:settingsSvg.arrow},
+            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://help.voicenotes.com/en',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow},
             {title:'Delete account', value:'', onPress:onDelete, rightIcon:settingsSvg.arrow},
             {title:'Share feedback', value:'', onPress:feedback, rightIcon:settingsSvg.arrow},
-            {title:'Sign out', value:'', onPress:onLogout, style:{color:'#FF453A'}, leftIcon:settingsSvg.signOut},
+            {title:'Sign out', value:'', onPress:onLogout, style:{color:Colors.redWithOpacity(1)}, leftIcon:settingsSvg.signOut},
           ]}
         />
         <View style={{alignSelf:'center'}}>
@@ -323,45 +335,33 @@ const Grouped=({title,items}:{title:string,items:any})=>{
   const [showMenu,setShowMenu]=useState(false)
   const onShowMenu=()=>setShowMenu(true)
   const onHideMenu=()=>setShowMenu(false)
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={{marginBottom:20}}>
     <Text style={{fontFamily:'Primary-Medium',fontSize:12,color:Colors.grey,marginLeft:32,marginBottom:8}}>{title}</Text>
-    <View style={{marginHorizontal:16,borderRadius:12,backgroundColor:'#fff',overflow:'hidden'}}>
+    <View style={{marginHorizontal:16,borderRadius:12,backgroundColor:Colors.bgColor2,overflow:'hidden'}}>
     {items?.map((item:any,index:number)=>
     <View key={index}>
     <TouchableHighlight onPress={item?.isMenu?onShowMenu:item?.onPress} underlayColor={Colors.greyWithOpacity(0.12)} style={{overflow:'hidden',padding:16,paddingBottom:index!=items?.length-1?12:16}}>
         <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
         <View style={{flexDirection:'row',flex:1}}>
         {!!item?.leftIcon&&<SvgXml xml={item?.leftIcon}  style={{marginRight:9}}/>}
-        <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:'#000'},item?.style??{}]}>{item.title}</Text>
+        <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:Colors.blackWithOpacity(1)},item?.style??{}]}>{item.title}</Text>
         </View>
         <View style={{flexDirection:'row',gap:4,alignSelf:'center',alignItems:"center",justifyContent:'flex-end'}}>
         {item?.isMenu?
-        <Menu visible={showMenu}
-        onRequestClose={onHideMenu}
-        anchor={
-        <View style={{flexDirection:'row',alignItems:'center',marginRight:-7}}>
-          <Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>
-          <SvgXml xml={settingsSvg.optionArrow}  />
-        </View>
-        }
-        style={{height:'40%',marginTop:36,right:0,width:'60%'}}
-        animationDuration={200}
-        >
-          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-          {item?.data?.map((t:string,v:number)=>
-          <View key={v}>
-            <MenuItem onPress={()=>{
-              onHideMenu()
-              item?.onPressMenu(t[0])
-              }} style={{paddingRight:60}}>
-              {t[1]}
-            </MenuItem>
-            {v<item?.data?.length&&<MenuDivider/>}
+        <MoreOptions isNative={true} options={item?.data?.map((t: string, v: number) => ({
+          title: t[1],
+          onPress: () => item?.onPressMenu(t[0]),
+          systemIcon:t[2]||''
+        })) || []} 
+        style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
+          <View style={{flexDirection:'row',alignItems:'center',marginRight:-7}}>
+             <Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>
+             <SvgXml xml={settingsSvg.optionArrow}  />
           </View>
-          )}
-            </ScrollView>
-        </Menu>
+        </MoreOptions>
         :
           item?.value && <Text style={[styles.rightTxt, {width: item?.value ? '75%' : screenWidth/2}]} numberOfLines={1}>{item?.value}</Text>
         }
@@ -369,17 +369,22 @@ const Grouped=({title,items}:{title:string,items:any})=>{
         </View>
       </View>
     </TouchableHighlight>
-    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:1,backgroundColor:'rgba(221, 221, 221, 0.87)',width:'100%'}}/></View>}
+    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:0.8,backgroundColor:Colors.border,width:'100%'}}/></View>}
     </View>)}
     </View>
 </View>
 )}
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   rightTxt:{
     fontFamily:'Primary-Medium',
     fontSize:14,
     color:Colors.grey,
     textAlign:'right'
   }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
+
+export default Settings;

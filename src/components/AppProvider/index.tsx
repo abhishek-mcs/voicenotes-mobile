@@ -13,15 +13,15 @@ interface AppProviderProps {
 }
 
 const AppProvider: React.FC<AppProviderProps> = ({ children }) => (
-  <ContextProvider>
-    <Provider store={store}>
+  <Provider store={store}>
+    <ContextProvider>
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient} contextSharing={true}>
           {children}
         </QueryClientProvider>
       </PersistGate>
-    </Provider>
-  </ContextProvider>
+    </ContextProvider>
+  </Provider>
 );
 
 export default AppProvider;

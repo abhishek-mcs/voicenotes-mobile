@@ -1,13 +1,16 @@
-import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import { TextField } from "components/common/text-field";
 import Touchable from "components/common/Touchable";
+import { useTheme } from "context";
+import { useMemo } from "react";
 import { StyleSheet, Text } from "react-native"
 import { View } from "react-native"
 import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
 
-export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomText=(v:string)=>{}})=>{
+const Suggestions = ({onPress=(v:string)=>{},type='summary',customText='',setCustomText=(v:string)=>{}})=>{
+  const { Colors } = useTheme()
+  const styles = useStyles()
     return (
         <View style={{paddingHorizontal:28,marginBottom:13}}>
           <View style={[styles.row,styles.btw]}>
@@ -35,32 +38,39 @@ export default ({onPress=(v:string)=>{},type='summary',customText='',setCustomTe
         {type=='custom'&&
         <TextField
           style={{marginTop:0,flexDirection:'column'}}
-          inputStyle={{ height: 42, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:'#fff',marginLeft:0}}
+          inputStyle={{ height: 42, color:Colors.text, borderRadius: 16,marginTop:isIOS? 8: 0,backgroundColor:Colors.inputBg3,marginLeft:0}}
           value={customText}
-          labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
+          labelStyle={{color:Colors.text5,fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
           onChangeText={(t:string)=>setCustomText(t)}
           placeholder="Enter your instructions here..."
+          placeholderTextColor={Colors.grey}
           autoCapitalize="none"
         />}
         </View>)
 }
 
 
-const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => (
+const Btns = ({ onPress = (v:string) => {}, title = "", icon = "", type="",selected=false ,style={}}) => {
+  const { Colors, isLightMode } = useTheme()
+  const styles = useStyles()
+  const regex = `${Colors.text12}`
+  return(
     <Touchable style={[styles.btn,style,selected?styles.selected:{}]} onPress={()=>onPress(type)} activeOpacity={0.8}>
-        {icon&&<SvgXml xml={icon?.replace(selected?/#000001/g:/#fff/g,selected?'#fff':'#000001')} />}
+        {icon&&<SvgXml xml={isLightMode?icon?.replace(/#000/g,selected?Colors.text12:Colors.text):icon?.replace(/#000/g,selected?Colors.text12:Colors.text)} />}
         <Text style={[styles.btnTxt,selected?styles.selected1:{}]}>{title}</Text>
     </Touchable>
-  );
+  )}
   
 
-const styles = StyleSheet.create({
+  const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     btn: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent:'center',
       height: 32,
-      backgroundColor: Colors.darkWithOpacity(0.05),
+      backgroundColor: Colors.bottomBarButtonBg1,
       borderRadius: 12,
       width:'47%',
       // paddingHorizontal: 12,
@@ -69,17 +79,21 @@ const styles = StyleSheet.create({
     btnTxt:{
       marginLeft:isIOS?8:6,
       fontSize:13,
-      fontFamily:'Primary-Medium'
+      fontFamily:'Primary-Medium',
+      color:Colors.text
     },
     title:{
       fontSize:14,
       fontFamily:"Primary-Semibold",
       marginBottom:32,
-      color:'#0d0d0d',
+      color:Colors.black2,
       marginLeft:-14
     },
     row:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',justifyContent:'space-between'},
     btw:{justifyContent:'space-between',marginTop:20},
-    selected:{backgroundColor:Colors.primary},
-    selected1:{color:'#fff'}
-  });
+    selected:{backgroundColor:Colors.primaryDark},
+    selected1:{color:Colors.text12}
+  }), [Colors]); // Recreate styles when Colors change
+};
+
+export default Suggestions

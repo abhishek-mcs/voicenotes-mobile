@@ -1,13 +1,14 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-
-import Colors from '../../assets/Colors'
 import { ExternalLink } from './ExternalLink';
 import { MonoText } from './StyledText';
 import { Text, View } from './Themed';
+import { useTheme } from 'context';
 
 
 export default function EditScreenInfo({ path }: { path: string }) {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <View>
       <View style={styles.getStartedContainer}>
@@ -46,7 +47,9 @@ export default function EditScreenInfo({ path }: { path: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   getStartedContainer: {
     alignItems: 'center',
     marginHorizontal: 50,
@@ -74,4 +77,5 @@ const styles = StyleSheet.create({
   helpLinkText: {
     textAlign: 'center',
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

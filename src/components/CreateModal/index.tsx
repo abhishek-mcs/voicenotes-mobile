@@ -1,6 +1,5 @@
-import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import ReactNativeModal from "react-native-modal";
+import { FlatList, Keyboard, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import Suggestions from "./suggestions";
 import Records from "./records";
 import AiLoader from "components/common/loaders/ai-loader";
@@ -11,14 +10,13 @@ import { RootState } from "redux/store/store";
 import { isIOS, screenHeight } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
-import { home } from "assets/svg/home";
-import Colors from "assets/Colors";
 import { CreateModalSvg } from "assets/svg/CreateModal";
 import listenAiCreate from "func/firebase/listen-ai-create";
 import Header from "components/AIModal/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "context";
 
-export default forwardRef(({}:createModalProps, ref) => {
+const CreateModal = forwardRef(({}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("suggestions");
   const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom' | 'tidy'>("summary");
@@ -30,6 +28,8 @@ export default forwardRef(({}:createModalProps, ref) => {
   const [noteId, setNoteId] = useState<number[]>([]);
   const [customText, setCustomText] = useState("");
   const {token}=useSelector((state:RootState)=>state.userDetails)
+  const styles = useStyles()
+  const {Colors} = useTheme()
 
   const aiCreate=useCreate()
   const getAiCreation=useGetAiCreation()
@@ -145,7 +145,7 @@ export default forwardRef(({}:createModalProps, ref) => {
       // onSwipeComplete={onClose}
     // > 
       <View style={[styles.modal,styles[preview], {paddingTop: isIOS ? 0 : insets.top}]}>
-        <Header title="Create"/>
+        <Header title="Create" type={preview=='note'?'notes':'create'} onNewChat={onReset}/>
         {/* {preview=="loader"&&<Text style={styles.heading}>Great!</Text>} */}
         {(preview === 'suggestions'||preview === 'records') ?
         <View style={{
@@ -166,7 +166,7 @@ export default forwardRef(({}:createModalProps, ref) => {
           {(noteId?.length>0&&(noteType !== 'custom'||(noteType=='custom'&&customText?.length>0)))&&
           <Touchable style={[styles.createBtn, {marginBottom: isIOS ? 16 : insets.bottom + 40 }] } onPress={onCreate}>
             <Text style={styles.createTxt}>Create</Text>
-            <SvgXml xml={CreateModalSvg.create} />
+            <SvgXml xml={CreateModalSvg.create?.replace('white',Colors.text12)} />
           </Touchable>}
         </View>
         :preview=="loader"? <AiLoader style={{marginTop:20,marginLeft:20}} text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
@@ -178,15 +178,16 @@ export default forwardRef(({}:createModalProps, ref) => {
   );
 });
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   modal: {
     // justifyContent: "center",
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    backgroundColor:Colors.bgColor8,
     paddingBottom: 0,
     // paddingTop:24,
     paddingHorizontal: 24,
-    shadowColor: "#00000026",
+    shadowColor: Colors.whiteWithOpacity(0.15),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
   createBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryDark,
     alignSelf: "center",
     paddingHorizontal: 16,
     height: 40,
@@ -223,18 +224,19 @@ const styles = StyleSheet.create({
   createTxt: {
     fontSize: 14,
     fontFamily: "Primary-Semibold",
-    color: "#fff",
+    color: Colors.text12,
     marginRight: 8,
   },
   drag: {
-    backgroundColor: "#D9D9D9",
+    backgroundColor: Colors.grey8,
     height: 5,
     width: 64,
     marginTop: -8,
     borderRadius: 14,
     alignSelf: "center",
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export interface createModalProps{
   recordingList?:any[],
@@ -244,3 +246,5 @@ export interface createModalProps{
   setHideBg?:(v:boolean)=>void
   selected?:any
 }
+
+export default CreateModal

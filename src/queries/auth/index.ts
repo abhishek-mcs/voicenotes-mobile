@@ -87,12 +87,18 @@ export function useCheckEmail(){
     })
 }
 
-export async function uploadDP(file: string) {
+export function useResetPassword(){
+    return useMutation("reset-password", (p?:any)=>{
+        return axiosApi.post("/auth/reset-password",p)
+    })
+}
+
+export async function uploadDP(file: string,isLightMode=true) {
     const formData = new FormData();
     const filename = file.split('/').pop();
 
     if(!filename) {
-        Alert.alert('Unknown file', "VoiceNotes couldn't infer the filename of this photo. Please select another one.")
+        Alert.alert('Unknown file', "VoiceNotes couldn't infer the filename of this photo. Please select another one.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
         return
     }
 

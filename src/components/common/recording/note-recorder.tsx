@@ -1,14 +1,14 @@
-import Colors from "assets/Colors";
 import { bottomSvg } from "assets/svg/bottomSvg";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text } from "react-native";
-import { Button, View } from "react-native";
+import { View } from "react-native";
 import RecButton from "./rec-button";
-import { useEffect, useState } from "react";
-import Waveform from "./waveform";
+import { useMemo } from "react";
+// import Waveform from "./waveform";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOSSmall, isSmallDevice } from "utils/common";
+import { useTheme } from "context";
+import { isSmallDevice } from "utils/common";
 
 export default ({
   onPause,
@@ -27,6 +27,9 @@ export default ({
   const { userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  const bottomSvgIcons:any = bottomSvg;
 
   const continueRecording = () => {
     setIsCanceling(false);
@@ -64,9 +67,9 @@ export default ({
       >
         <RecButton
           title="Cancel"
-          bgColor="#FF45380D"
-          underlayColor="#FF45380F"
-          color={"#FF4538"}
+          bgColor={Colors.redWithOpacity(0.05)}
+          underlayColor={Colors.redWithOpacity(0.06)}
+          color={Colors.redWithOpacity(1)}
           onPress={onCancelClick}
           style={{
             paddingHorizontal: !userDetails?.subscription_status ? 16 : 20,
@@ -80,7 +83,7 @@ export default ({
         >
           <View
             style={{
-              backgroundColor: "red",
+              backgroundColor: Colors.redWithOpacity(1),
               height: 6,
               width: 6,
               borderRadius: 10,
@@ -96,10 +99,11 @@ export default ({
         </View>
         {onPause && (
           <RecButton
-            icon={!paused ? bottomSvg.pause : bottomSvg.play}
+            icon={!paused ? bottomSvgIcons.pause?.replaceAll("black",Colors.blackWithOpacity(1)) : bottomSvgIcons.play?.replaceAll("black",Colors.blackWithOpacity(1))}
             title=""
             underlayColor=""
             onPress={onPause}
+            bgColor={Colors.bottomBarButtonBg1}
             style={{ paddingHorizontal: 12, marginRight:isSmallDevice?-4: -12,borderRadius:16,height:40 }}
           />
         )}
@@ -130,7 +134,7 @@ export default ({
         <Text
           style={{
             fontFamily: "Primary-Semibold",
-            color: "#000",
+            color: Colors.blackWithOpacity(1),
             fontSize: 14,
           }}
         >
@@ -147,9 +151,9 @@ export default ({
         >
           <RecButton
             title="Yes, cancel"
-            bgColor="#FF45380D"
-            underlayColor="#FF45380F"
-            color={"#FF4538"}
+            bgColor={Colors.redWithOpacity(0.05)}
+            underlayColor={Colors.redWithOpacity(0.06)}
+            color={Colors.redWithOpacity(1)}
             onPress={onCancel}
             style={{ paddingHorizontal: 20 }}
           />
@@ -157,23 +161,28 @@ export default ({
             title="No, continue"
             onPress={continueRecording}
             style={{ paddingHorizontal: 20, marginLeft: 12 }}
+            bgColor={Colors.bottomBarButtonBg1}
+            underlayColor={""}
+            color={Colors.text}
           />
         </View>
       </View>
     );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor:Colors.whiteWithOpacity(1),
   },
   tabItemText: {
     fontFamily: "Primary-Semibold",
     fontSize: 14,
-    color: "#0D0D0D",
+    color: Colors.black2,
     fontWeight: "600",
     lineHeight: 17,
   },
@@ -183,7 +192,8 @@ const styles = StyleSheet.create({
   },
   item: {
     width: 3,
-    backgroundColor: "blue",
+    backgroundColor: Colors.blue,
     marginHorizontal: 2,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

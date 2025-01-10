@@ -5,6 +5,8 @@ import { RecordingStatus } from 'expo-av/build/Audio';
 import Animated, { Easing, FadeInRight, ReduceMotion, SlideInRight, useAnimatedStyle, useSharedValue, withTiming, ZoomIn } from 'react-native-reanimated';
 import { StyleSheet, View } from 'react-native';
 import { screenWidth } from 'utils/common';
+import Colors from 'assets/Colors';
+import { useTheme } from 'context';
 
 interface Props {
   recording?: Audio.Recording | null;
@@ -16,6 +18,7 @@ const Waveform: React.FC<Props> = ({ recording,isAI=false}) => {
   const [temp, setTemp] = useState([0]);
   const tempRef = useRef({ temp: [0,], isPlaying: false })
   const width = useSharedValue(10);
+  const { Colors } = useTheme()
 
   const linear = Easing.linear
   const customEasing = (value: number) => {
@@ -66,7 +69,7 @@ const Waveform: React.FC<Props> = ({ recording,isAI=false}) => {
     <Animated.View style={{ backgroundColor: 'transparent', height: 25,width:screenWidth-200, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
     <Animated.View entering={FadeInRight} style={[{ display: 'flex', flexDirection: 'row', overflow: 'hidden', backgroundColor: 'transparent', gap: 1, alignItems: 'center' }, style]}>
       {temp.map(t => {
-        return <Animated.View entering={ZoomIn} style={{ height: t>25?25:t > 10 ? t : 1.15, borderWidth:2, borderRadius: 200, borderColor: '#222', }} />
+        return <Animated.View entering={ZoomIn} style={{ height: t>25?25:t > 10 ? t : 1.15, borderWidth:2, borderRadius: 200, borderColor: Colors.darkWithOpacity(1), }} />
       })}
     </Animated.View>
     </Animated.View>

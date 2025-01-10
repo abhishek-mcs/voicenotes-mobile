@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import {
   FlatList,
   Image,
@@ -52,6 +51,7 @@ import { setStringAsync } from "expo-clipboard";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
 import Header from "./header";
+import { useTheme } from "context";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -94,6 +94,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const soundRef = useRef<any>(null);
   const textInputRef = useRef<TextInput>(null);
   const swiperRef = useRef<Swiper>(null)
+  const { Colors, isLightMode } = useTheme()
+  const styles = useStyles()
 
   const getSuggestions = {data:{data:[aiSuggestions[suggIndex],aiSuggestions[suggIndex+1>=aiSuggestions.length?0:suggIndex+1]]}};
   // useSuggestions();
@@ -104,6 +106,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const deleteChatHistory = useDeleteAskHistory();
   const uploadRecord=useUploadChatRecord();
   const getAnswer=useVoiceChatResponse();
+  const AIModalSVGIcons:any = AIModalSVG 
   
   const getNewSugg = () => {
     setSuggLoaded(false)
@@ -270,7 +273,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   const onRecordStart = async() => {
     setIsRecording(true)
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-    onRecord(setRec, setRecEnabled);
+    onRecord(setRec, setRecEnabled,isLightMode);
     activateKeepAwakeAsync()
   }
   const onCancelRecord = async() => {
@@ -336,7 +339,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.lightGrey:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:'#fff'}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.whiteWithOpacity(1)},isIOS?{}:{backgroundColor:Colors.whiteWithOpacity(1)}]}>
         <Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>
         <KeyboardAvoidingView
           style={[{ flex: 1 ,paddingTop:isIOS?0:40}]}
@@ -379,7 +382,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                 {chats?.related_messages?.length==0&&
                 <View style={{ marginLeft: 20 }}>
                   <SvgXml
-                    xml={AIModalSVG.askAILogo}
+                    xml={AIModalSVG.askAILogo?.replace(/#0E3934/g,Colors.askLogo).replace('fill-opacity="0.1"',isLightMode?'fill-opacity="0.1"':'fill-opacity="0.3"')}
                     style={{ marginVertical: 16 }}
                   />
                   <Text
@@ -402,7 +405,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                             activeOpacity={1}
                           >
                             <SvgXml
-                              xml={AIModalSVG.refresh}
+                              xml={AIModalSVG.refresh?.replace('black',Colors.blackWithOpacity(1))}
                               style={{ marginBottom: 2 }}
                             />
                           </Touchable>
@@ -457,8 +460,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     style={styles.input}
                     scrollEnabled={false}
                     placeholder="Ask a question..."
-                    placeholderTextColor={Colors.grey}
-                    multiline
+                    placeholderTextColor={Colors.text11}
+                    multiline={false}
                     value={input}
                     enablesReturnKeyAutomatically={true}
                     returnKeyType="send"
@@ -473,7 +476,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
                     onPress={() => (!!input ? onSend(input) : onRecordStart())}
                   >
                     <SvgXml
-                      xml={!!input ? AIModalSVG.send : AIModalSVG.record}
+                      xml={!!input ? AIModalSVG.send : AIModalSVG.record?.replace('#1C1B1F',Colors.askClose)?.replace('#222222',Colors.text1)}
                     />
                   </Touchable>
                 </>
@@ -512,7 +515,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
               drawerWidth={200}
               drawerPosition={"left"}
               drawerType="front"
-              drawerBackgroundColor="#fff"
+              drawerBackgroundColor={Colors.whiteWithOpacity(1)}
               overlayColor="transparent"
               renderNavigationView={renderDrawer}
               contentContainerStyle={{ flex: 1 }}
@@ -526,6 +529,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{}}:AIProps, ref) => {
 });
 
 const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=[] }) => {
+  const { Colors, isLightMode } = useTheme()
+  const styles = useStyles()
   const [expand,setExpand]=useState(false)
   const [copy,setCopy]=useState('Copy')
   const dispatch=useDispatch()
@@ -546,11 +551,18 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   if(!!url){
   return (
   <Pressable onPress={()=>setExpand(!expand)} style={[styles.convoContentContainer,!isAI?{alignSelf:'flex-end',alignItems:'flex-end'}:{},{paddingHorizontal:16,marginBottom:13}]}>
-    {text=='Typing'?
-    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}/>
-    :<View style={[styles.audioChat,styles.shadow,{backgroundColor:isAI?Colors.primary:isIOS?Colors.whiteWithOpacity(0.5):Colors.whiteWithOpacity(1)}]}>
+    {text=="Typing"?
+    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
+    colorFilters={[
+      { keypath: 'Ellipse 1', color: Colors.bgColor6 },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor6 },
+      { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
+  ]}/>
+    :<View style={[styles.audioChat,styles.shadow,{backgroundColor:isAI?Colors.primaryDark2:isIOS?Colors.bgColor15(0.5):Colors.bgColor15(1)},isAI?{}:{borderWidth:isLightMode?0:1,borderColor:Colors.bgColor13(0.1)}]}>
       <AudioPlayer isAI={isAI} url={url}/>
-      <Text style={{color:isAI?Colors.whiteWithOpacity(0.5):Colors.grey,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
+      <Text style={{color:isAI?Colors.bgColor13(isLightMode?0.5:1):Colors.text9,fontFamily:'Primary', fontSize:14,lineHeight:19}} numberOfLines={expand?1000:2}>{text?.trimEnd()}</Text>
     </View>}
   </Pressable>
 )}
@@ -560,7 +572,12 @@ return (
     <View style={[styles.aiChat,isAI?styles.aiChatStyle:styles.userChatStyle,(text=="Typing"||text=='Searching')?{paddingVertical:8}:{}]}>
       <Text style={[styles.text,{position:"relative"}]}>
         {text}
-        {(text=="Typing"||text=='Searching')&&<View><LottieView source={typing} speed={0.8} autoPlay loop style={styles.lottie}/></View>}
+        {(text=="Typing"||text=='Searching')&&<View><LottieView source={typing} speed={0.8} autoPlay loop style={styles.lottie} colorFilters={[
+        { keypath: 'Shape Layer 1', color: Colors.text }, // Update the layer keypath and color
+        { keypath: 'Shape Layer 2', color: Colors.text },
+        { keypath: 'Shape Layer 3', color: Colors.text },
+        { keypath: 'Shape Layer 4', color: Colors.text },
+      ]} /></View>}
       </Text>
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
 
@@ -576,7 +593,7 @@ return (
       <View>
         {sources.map((source:any,index:number)=>(
           <Touchable key={index} activeOpacity={1} onPress={()=>goToSource(source?.id)} style={[styles.row,{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8}]}>
-            <SvgXml xml={AIModalSVG.source} style={{marginRight:8,marginTop:6}}/>
+            <SvgXml xml={AIModalSVG.source?.replace("#0D0D0D",Colors.arrow)} style={{marginRight:8,marginTop:6}}/>
             <Text style={[styles.text,{flexWrap:'wrap',width:'90%'}]}>{source?.title}</Text>
           </Touchable>
         ))}
@@ -584,13 +601,16 @@ return (
     </View>:null}
     </View>
    {isAI&&text!="Searching"&&text!="Typing"&&<Touchable onPress={onCopy} activeOpacity={1} style={[styles.aiChat,styles.aiChatStyle,styles.row,{alignSelf:'flex-start',paddingVertical:4}]}>
-      <SvgXml xml={AIModalSVG.copy} style={{marginRight:4}}/>
+      <SvgXml xml={AIModalSVG.copy?.replace('#0D0D0D',Colors.black2)} style={{marginRight:4}}/>
       <Text style={[styles.text]}>{copy}</Text>
     </Touchable>}
   </View>
 )}}
 
-const Btns = ({ txt = "", onPress = () => {} }) => (
+const Btns = ({ txt = "", onPress = () => {} }) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  return (
   <TouchableHighlight
     onPress={onPress}
     underlayColor={isIOS?Colors.darkWithOpacity(0.05):Colors.whiteWithOpacity(1)}
@@ -599,15 +619,18 @@ const Btns = ({ txt = "", onPress = () => {} }) => (
     <Text style={styles.btnTxt}>{txt}</Text>
   </TouchableHighlight>
 );
+}
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:40 },
   modal: {
     height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     borderRadius: 24,
-    shadowColor: "#00000026",
+    shadowColor: Colors.blackWithOpacity(0.15),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -636,12 +659,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     alignSelf: "flex-start",
-    shadowColor: "#000000",
+    shadowColor: Colors.text1,
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
-    backgroundColor:'#fff'
+    backgroundColor:Colors.bgColor2
   },
   btnTxt: { fontSize: 14, fontFamily: "Primary-Medium", lineHeight: 20,color:Colors.black2 },
   subTitle: {
@@ -656,7 +679,7 @@ const styles = StyleSheet.create({
     // marginRight: 8,x
     fontSize: 16,
     fontFamily: "Primary",
-    color: Colors.darkWithOpacity(0.9),
+    color: Colors.text5,
     textAlignVertical: "top",
     flexWrap: "wrap",
     width: "80%",
@@ -664,17 +687,17 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
     minHeight: 24,
-    backgroundColor: Colors.lightGrey,
+    backgroundColor: Colors.bgColor4,
   },
   inputContainer: {
     minHeight: 60,
     borderTopWidth: 1,
-    borderTopColor: Colors.darkWithOpacity(0.1),
+    borderTopColor: Colors.border,
     paddingLeft: 24,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    backgroundColor: Colors.lightGrey,
+    backgroundColor: Colors.bgColor4,
   },
   send: {
     paddingVertical: 16,
@@ -706,7 +729,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
-    color: Colors.darkWithOpacity(1),
+    color: Colors.text5,
     fontFamily: "Primary-Medium",
     lineHeight: 20,
   },
@@ -726,10 +749,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   suggestContainer: { marginBottom: 24, marginHorizontal: 16, marginTop: 20 },
-  aiChat: { marginLeft: 28,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
+  aiChat: { marginLeft: 16,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
   aiChatStyle:{
-    backgroundColor:Colors.whiteWithOpacity(1),
-    shadowColor: "#000000",
+    backgroundColor:Colors.bgColor6,
+    shadowColor:Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -738,12 +761,12 @@ const styles = StyleSheet.create({
     paddingVertical:12,paddingHorizontal:12
   },
   userChatStyle:{
-    backgroundColor:Colors.grey2WithOpacity(0.05)
+    backgroundColor:Colors.bgColor7
   },
   header2: { marginBottom: 0, borderBottomWidth: 0 },
   lottie: { width:40,height:20,marginBottom:-6,marginLeft:-14},
   drawer: {
-    shadowColor: "#00000026",
+    shadowColor:Colors.blackWithOpacity(0.15),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.75 },
     shadowRadius: 1.5,
@@ -757,25 +780,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 7,
-    backgroundColor: "#fff",
-    shadowColor: "#000000",
+    backgroundColor:Colors.bgColor2,
+    shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
   },
-  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color: "#000",width:'50%',textAlign:'center' },
+  headerText: { fontFamily: "Primary-Semibold", fontSize: 16, color: Colors.blackWithOpacity(1),width:'50%',textAlign:'center' },
   historyText: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.text1,
     maxWidth: "80%",
   },
   history: { paddingVertical: 20 },
   date: {
     fontFamily: "Primary",
     fontSize: 12,
-    color: Colors.darkWithOpacity(0.5),
+    color: Colors.text3,
     marginTop: 16,
     marginBottom: 12,
     paddingHorizontal: 20,
@@ -792,10 +815,11 @@ const styles = StyleSheet.create({
     padding:12,borderRadius:12,width:'85%',
   },
   shadow:{
-    shadowColor: "#000000",
+    shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
   }
-});
+}), [Colors]); // Recreate styles when Colors change
+};

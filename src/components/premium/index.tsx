@@ -1,8 +1,7 @@
-import Colors from "assets/Colors"
 import { iapSvg } from "assets/svg/iapSvg"
 import Touchable from "components/common/Touchable"
 import { useLocalSearchParams, useRouter } from "expo-router"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View } from "react-native"
 import Purchases from "react-native-purchases"
 import { SvgXml } from "react-native-svg"
@@ -17,11 +16,14 @@ import { AppEventsLogger } from "react-native-fbsdk-next"
 import { ImageBackground } from "expo-image"
 import * as webBrowser from "expo-web-browser"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useTheme } from "context"
 
 const premiumBg = require('../../assets/images/premiumBg.png')
 
 const Premium=(props:any) => {
   const router = useRouter()
+  const { Colors, isLightMode } = useTheme()
+  const styles = useStyles()
   const {from="home"}=useLocalSearchParams();
   const [isLoading,setIsLoading]=useState(false)
   const [selected, setSelected] = useState('believer')
@@ -31,6 +33,7 @@ const Premium=(props:any) => {
   const dispatch=useDispatch()
   const queryClient=useQueryClient()
   const insets = useSafeAreaInsets()
+  const iapSvgIcons:any = iapSvg
 
   useEffect(()=>{
     // const load=async()=>{
@@ -58,7 +61,7 @@ const Premium=(props:any) => {
 
       if (!pack || pack.length === 0) {
         console.error('No products available');
-        Alert.alert('Error', 'Unable to fetch product information. Please try again later.');
+        Alert.alert('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
         setIsLoading(false);
         return;
       }
@@ -114,7 +117,7 @@ const Premium=(props:any) => {
     if(actives.activeSubscriptions.length==0||!userDetails?.subscription_status){
       Alert.alert('No purchases found','You have no purchases to restore',[{text:'OK',onPress:()=>{
         // Updates.reloadAsync()
-      }}])
+      }}],{userInterfaceStyle:isLightMode?"light":"dark"})
     }else{
       
         Alert.alert(
@@ -123,7 +126,7 @@ const Premium=(props:any) => {
           [{text:'OK',onPress:async()=>{
             Updates.reloadAsync()
             await queryClient.invalidateQueries('user-data');
-          }}])
+          }}],{userInterfaceStyle:isLightMode?"light":"dark"})
     }
     setIsLoading(false)
   }
@@ -141,14 +144,14 @@ const Premium=(props:any) => {
   const originPrice=`${currencySymbol}${(formattedPrice)}`?.replace(/\.\d+$/, '.99');
   return (
     <View style={styles.main}>
-      <ImageBackground source={premiumBg} style={{height:screenHeight,width:'100%',flex:1}}>
+      <ImageBackground source={isLightMode?premiumBg:null} style={{height:screenHeight,backgroundColor:Colors.whiteWithOpacity(1),width:'100%',flex:1}}>
         <SafeAreaView style={{flex:1, paddingTop: insets.top}}>
           <Touchable style={styles.closeButton} onPress={()=>from=="home"?router?.back():freeUser()}>
-            <SvgXml xml={iapSvg.close}/>
+            <SvgXml xml={iapSvg.close?.replace("#222222",Colors.text1)}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
             <View style={{paddingLeft:32, marginBottom: 0}}>
-              <SvgXml xml={iapSvg.usersCount}/>
+              <SvgXml xml={iapSvgIcons.usersCount?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
             <View style={styles.container}>
               <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
@@ -173,19 +176,19 @@ const Premium=(props:any) => {
               </View>
               <View style={styles.subContainer}>
                 <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-                  <Btn type="believer" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} originPrice={originPrice} price={priceAnnualString} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay="#f9f9f9" title="Believer" isLoading={isLoading}/>  
-                  <Btn type="monthly" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} price={priceMonthString} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay="#f9f9f9" title="Monthly" isLoading={isLoading}/>             
+                  <Btn type="believer" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} originPrice={originPrice} price={priceAnnualString} selected={selected=='believer'} onPress={()=>setSelected('believer')} underlay={Colors.lightGrey} title="Believer" isLoading={isLoading}/>  
+                  <Btn type="monthly" isOverflow={((priceAnnualString+originPrice)?.length||0)>=14} price={priceMonthString} selected={selected=='monthly'} onPress={()=>setSelected('monthly')} underlay={Colors.lightGrey} title="Monthly" isLoading={isLoading}/>             
                 </View>
                 <Btn type="upgrade" onPress={onUpgrade} underlay={Colors.blackWithOpacity(0.8)} title={continueText} isLoading={isLoading}/>
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
         <View style={styles.footer}>
-          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
-            <Text style={[styles.footerText1,{color:'#000'}]}>Terms of Service</Text>
+          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
+            <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
           </Touchable>
-          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy')}>
-            <Text style={[styles.footerText1,{color:'#000',marginHorizontal:16}]}>Privacy Policy</Text>
+          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
+            <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
           </Touchable>
         </View>
               </View>
@@ -209,8 +212,11 @@ const Btn = ({
   isLoading = false,
   originPrice,
   isOverflow=false
-}: Props) => (
-  <TouchableHighlight
+}: Props) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  return(
+  <Touchable
     onPress={onPress}
     style={[
       styles.btn,
@@ -218,11 +224,11 @@ const Btn = ({
       type == "upgrade"
         ? styles.btnFilled
         : selected
-        ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.green2WithOpacity(0.05) }
+        ? { borderColor: Colors.green2, borderWidth: 2,backgroundColor:Colors.pricingSelected }
         : {},
         isOverflow?{alignItems:'flex-end'}:{alignItems:'center'}
     ]}
-    underlayColor={underlay}
+    activeOpacity={1}
   >
     {type == "monthly" || type == "believer" || type == "free" ? (
       <>
@@ -254,19 +260,21 @@ const Btn = ({
       <Text
         style={[
           styles.btnText,
-          { color: "#fff", fontSize: 16, fontFamily: "Primary-Semibold" },
+          { color: Colors.text12, fontSize: 16, fontFamily: "Primary-Semibold" },
         ]}
       >
         {title}
       </Text>
     ) : (
-      <ActivityIndicator size={"small"} color={"#fff"} />
+      <ActivityIndicator size={"small"} color={Colors.text12} />
     )}
-  </TouchableHighlight>
-);
+  </Touchable>
+)};
 
-const styles = StyleSheet.create({
-  main: { flex: 1, backgroundColor: "#fff" },
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
+  main: { flex: 1, backgroundColor: Colors.whiteWithOpacity(1) },
   container: { flex: 1, marginTop: 14, paddingHorizontal: isIOS ? 0 : 5 },
   subContainer: {
     flex: 2,
@@ -290,7 +298,7 @@ const styles = StyleSheet.create({
     marginLeft: 9,
     fontSize: 16,
     fontFamily: "Primary-Medium",
-    color: "#222",
+    color: Colors.text5,
     lineHeight: 22,
     marginTop: -4,
   },
@@ -298,7 +306,7 @@ const styles = StyleSheet.create({
   btnFilled: {
     minHeight: 58,
     width: "100%",
-    backgroundColor: Colors.black2,
+    backgroundColor: Colors.upgrade,
     justifyContent: "center",
     marginVertical: screenHeight > 690 ? 20 : 14,
     borderWidth: 0,
@@ -314,7 +322,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 16,
     marginTop: 12,
-    backgroundColor: Colors.darkWithOpacity(0.05),
+    backgroundColor: Colors.pricing,
     borderRadius: 12,
   },
   btnContent: { marginBottom: 5, flexDirection: "row", alignItems: "center" },
@@ -324,7 +332,7 @@ const styles = StyleSheet.create({
     color: Colors.black2,
   },
   offer: {
-    color: "#FF4538",
+    color: Colors.redWithOpacity(1),
     fontFamily: "Primary-Semibold",
     fontSize: 10,
     textAlignVertical: "center",
@@ -342,7 +350,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   footerText: {
-    color: "#9B9B9B",
+    color: Colors.grey,
     fontFamily: "Primary",
     fontSize: 14,
     lineHeight: 15,
@@ -350,7 +358,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   footerText1: {
-    color: "#9B9B9B",
+    color: Colors.grey,
     fontFamily: "Primary",
     fontSize: 12,
     lineHeight: 15,
@@ -365,7 +373,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: screenWidth / 8,
     fontFamily: "Secondary",
-    color: "#222",
+    color: Colors.text5,
     marginBottom: 20,
     alignSelf: "flex-start",
     lineHeight: 64,
@@ -407,10 +415,10 @@ const styles = StyleSheet.create({
     top: -12,
     alignSelf:'center',
     borderRadius: 10,
-    backgroundColor: Colors.whiteWithOpacity(1),
+    backgroundColor: Colors.bgColor6,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    left:'27%'
+    left:'25%'
   },
   shadow: {
     shadowColor: Colors.blackWithOpacity(1),
@@ -419,7 +427,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 2,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
 
 interface Props {
   type: string,

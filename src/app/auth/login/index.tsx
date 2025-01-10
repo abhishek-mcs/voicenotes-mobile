@@ -6,7 +6,6 @@ import { useRouter } from "expo-router"
 import { TextField } from "components/common/text-field"
 import { useDispatch } from "react-redux"
 import { setEmail } from "redux/reducers/userDetails"
-import Colors from "assets/Colors"
 import Touchable from "components/common/Touchable"
 import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
@@ -14,9 +13,10 @@ import { isIOS } from "utils/common"
 import { useCheckEmail } from "queries/auth"
 import { analytics } from "../../../../firebaseConfig"
 import appsFlyer from "react-native-appsflyer"
+import { useTheme } from "context"
 
 
-export default ()=> {
+const Login=()=> {
   const router=useRouter()
   const [emailText, setEmailText]:any = useState('')
   const [emailError, setEmailError]:any = useState('')
@@ -26,6 +26,7 @@ export default ()=> {
   const dispatch = useDispatch()
 
   const inputRef = useRef<TextInput>(null)
+  const {Colors} = useTheme()
 
   useEffect(() => {
     // Must run after animations for keyboard to automatically open
@@ -75,35 +76,36 @@ export default ()=> {
   return (
     <KeyboardAvoidingView 
     behavior="padding"
-    style={{flex:1,paddingHorizontal:24,backgroundColor: "#f4f6f6",paddingTop:150,justifyContent:'space-between'}}>
+    style={{flex:1,paddingHorizontal:24,backgroundColor: Colors.bgColor9,paddingTop:150,justifyContent:'space-between'}}>
         <Touchable onPress={()=>{router.back()}} style={{position:'absolute',flexDirection:'row',alignItems:'center',top:isIOS?54:54,padding:16}}>
-          <SvgXml xml={commonSvg.back1}/>
+          <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.back)}/>
         </Touchable>
       <View style={{marginTop:0}}>
 
         <TextField
           forwardedRef={inputRef}
           style={{marginTop:0,flexDirection:'column'}}
-          inputStyle={{ height: 48, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:'#fff'}}
+          inputStyle={{ height: 48, color:Colors.text, borderRadius: 8,marginTop:isIOS? 8: 0,backgroundColor:Colors.inputBg3}}
           value={emailText}
           label={"Enter your email"}
-          labelStyle={{color:'#222',fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
+          labelStyle={{color:Colors.text,fontFamily:'Primary-Semibold',fontSize:20,marginBottom:16}}
           returnKeyType="go"
           textContentType="emailAddress"
           onSubmitEditing={continueClicked}
           onChangeText={(text) =>{ setEmailText(text);setEmailError(null);setValidationError(false)}}
           placeholder="john@doe.com"
+          placeholderTextColor={Colors.grey10}
           autoComplete="email"
           keyboardType="email-address"
           autoCapitalize="none"
           autoFocus
         />
         {validationError && (
-          <Text style={{color:'red',fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
+          <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
         )}
         {emailError && (
           <Text style={{marginTop:8}}>
-            <Text style={{color:'red',fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
+            <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
             <Text
             suppressHighlighting={true}
               onPress={() => {
@@ -111,12 +113,12 @@ export default ()=> {
                 appsFlyer.logEvent('signup_redirected',{value:'signup_redirected'})
                 router.push("/auth/signup/")
               }}
-              style={{color:'red',fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
+              style={{color:Colors.redWithOpacity(1),fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
             >{` Sign up`}</Text>
           </Text>
         )}
         {captchaError && (
-          <Text style={{color:'red',fontFamily:'Primary',fontSize:14,marginTop:4}}>{captchaError}</Text>
+          <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:4}}>{captchaError}</Text>
         )}
       </View>
 
@@ -125,7 +127,7 @@ export default ()=> {
         testID="signInPasswordBtn"
         style={{
           alignSelf: "center",
-          backgroundColor: Colors.primary,
+          backgroundColor: Colors.primaryDark,
           marginBottom: 36,
           marginTop: 24,
           paddingVertical: 16,
@@ -136,14 +138,14 @@ export default ()=> {
         onPress={continueClicked}
       >
         {checkEmailMutation.isLoading?
-        <ActivityIndicator size={17} color={"#fff"}/>
+        <ActivityIndicator size={17} color={Colors.text12}/>
         :
         <Text
           style={{
             fontFamily: "Primary-Bold",
             fontSize: 14,
             fontWeight: "bold",
-            color: "#fff",
+            color: Colors.text12,
           }}
         >
           Continue
@@ -162,3 +164,5 @@ export default ()=> {
     </KeyboardAvoidingView>
   )
 }
+
+export default Login

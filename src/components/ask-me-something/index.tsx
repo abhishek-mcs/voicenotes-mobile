@@ -2,7 +2,7 @@ import { Keyboard, StyleSheet, useWindowDimensions, View } from "react-native"
 import { isIOS } from "utils/common"
 import { Text } from "react-native"
 import AiLoader from "components/common/loaders/ai-loader"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useAskSomething } from "queries/home"
 import ChatBuble from "components/common/chat-buble"
 import Colors from "assets/Colors"
@@ -10,6 +10,7 @@ import { SvgXml } from "react-native-svg"
 import { commonSvg } from "assets/svg/commonSvg"
 import Touchable from "components/common/Touchable"
 import askMeSuggestions from "utils/constants/ask-me-suggestions"
+import { useTheme } from "context"
 
 export default ({onClose=()=>{}})=>{
     const customSuggestions=askMeSuggestions
@@ -18,6 +19,9 @@ export default ({onClose=()=>{}})=>{
     const [keyboardShown,setKeyboardShown]=useState(false)
     const askSomething=useAskSomething()
     const textTimeout=useRef<any>()
+    const { Colors } = useTheme()
+    const {container,heading,question,caption} = useStyles()
+
     const onAsk=()=>{
         setLoading(true);
         askSomething.mutateAsync('',{
@@ -67,16 +71,18 @@ export default ({onClose=()=>{}})=>{
     )
 }
 
-const {container,heading,question,caption}=StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     container: {
-      backgroundColor: "#fff",
+      backgroundColor:Colors.whiteWithOpacity(1),
       minHeight: 56,
       borderRadius: 24,
       position: "absolute",
       left: 20,
       right: 20,
       bottom: 85,
-      shadowColor:isIOS?"#00000026":"rgba(0,0,0,0.7)",
+      shadowColor:isIOS?Colors.blackWithOpacity(0.15):Colors.blackWithOpacity(0.7),
           shadowOpacity: 0.9,
           shadowOffset: { width: 0, height:0.5 },
           shadowRadius: 1.5,
@@ -89,13 +95,13 @@ const {container,heading,question,caption}=StyleSheet.create({
     heading:{
         fontFamily:'Primary',
         fontSize:14,
-        color:'#222',
+        color:Colors.darkWithOpacity(1),
         textAlign:'left'
     },
     question:{
         fontFamily:'Primary-Medium',
         fontSize:15,
-        color:'#222',
+        color:Colors.darkWithOpacity(1),
         marginTop:12,
         textAlign:'left',
         lineHeight:20,
@@ -106,4 +112,5 @@ const {container,heading,question,caption}=StyleSheet.create({
         color:Colors.grey,
         marginTop:12
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};

@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Button, Text, Pressable } from 'react-native';
+import { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
-import { color, Slider } from '@rneui/base';
-import Colors from 'assets/Colors';
+import { Slider } from '@rneui/base';
 import { SvgXml } from 'react-native-svg';
 import { playerSvg } from 'assets/svg/playerSvg';
 import { useSignedUrlForChat } from 'queries/home';
 import CircularLoader from 'components/common/loaders/circular-loader';
+import { useTheme } from 'context';
 
-const { width } = Dimensions.get('window');
-
-export default ({isAI=false,url=''}) => {
+const AudioPlayer = ({isAI=false,url=''}) => {
   const [sound, setSound] = useState<Audio.SoundObject|any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(100);
   const [status, setStatus] = useState<any>('');
   const [position, setPosition] = useState(0);
   const signedURL=useSignedUrlForChat()
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useEffect(() => {
     const loadSound = async () => {
@@ -98,7 +98,7 @@ export default ({isAI=false,url=''}) => {
         {sound==null?
         <CircularLoader width={24} height={24} color={isAI?'white':Colors.primary}/>
         :<Pressable onPress={handlePlayPause}>
-            <SvgXml xml={!isPlaying?playerSvg.play?.replace("color",isAI?Colors.whiteWithOpacity(1):Colors.primary):playerSvg.pause?.replace("color",isAI?Colors.whiteWithOpacity(1):Colors.primary)} />
+            <SvgXml xml={!isPlaying?playerSvg.play?.replace("color",isAI?Colors.bgColor13(1):Colors.primaryDark):playerSvg.pause?.replace("color",isAI?Colors.bgColor13(1):Colors.primaryDark)} />
         </Pressable>}
       <View style={styles.sliderContainer}>
         <Slider
@@ -109,16 +109,18 @@ export default ({isAI=false,url=''}) => {
           value={position}
           onValueChange={handleSliderValueChange}
           onSlidingComplete={handleSliderSlidingComplete}
-          thumbStyle={[styles.thumb,isAI?{backgroundColor:'white'}:{}]}
-          minimumTrackTintColor={isAI?'white':Colors.primary}
-          maximumTrackTintColor={isAI?Colors.whiteWithOpacity(0.5):Colors.primaryWithOpacity(0.1)}
+          thumbStyle={[styles.thumb,isAI?{backgroundColor:Colors.bgColor13(1)}:{}]}
+          minimumTrackTintColor={isAI?'white':Colors.primaryDark}
+          maximumTrackTintColor={isAI?Colors.bgColor13(0.5):Colors.primaryDark3()}
         />
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -132,5 +134,8 @@ const styles = StyleSheet.create({
   slider: {
     width:'92%'
   },
-  thumb:{ backgroundColor: Colors.primary,width: 12, height: 12, borderRadius: 10}
-});
+  thumb:{ backgroundColor: Colors.primaryDark,width: 12, height: 12, borderRadius: 10}
+}), [Colors]); // Recreate styles when Colors change
+};
+
+export default AudioPlayer;

@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useMemo, forwardRef, useEffect, useImperativeHandle, } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   Animated,
-  Easing,
   Pressable,
+  Easing,
 } from 'react-native';
-import Colors from 'assets/Colors';
 import ReactNativeModal from "react-native-modal";
 import { formatDate } from "utils/format-date";
+import { useTheme } from 'context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { isIOS } from 'utils/common';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -21,13 +22,15 @@ interface Props {
   data: any;
 }
 
-export default forwardRef(({ data = null }: Props, ref) => {
+const Streaks = forwardRef(({ data = null }: Props, ref) => {
   const [shadowOpacity] = useState(new Animated.Value(0));
   const [visible, setVisible] = useState(false);
   const [tooltipData, setTooltipData] = useState({ visible: false, text: '', position: { x: 0, y: 0 } });
   const [monthLabels, setMonthLabels] = useState<string[]>([]);
 
   const weeks = useMemo(() => data?.weeks || [], [data]);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useEffect(() => {
     if (weeks.length > 0) {
@@ -91,8 +94,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
     if (x < 0) x = 0;
-    if (x + 150 > screenWidth) x = screenWidth - 180;
-    
+    if (x + (screenWidth/2.2) > screenWidth) x = screenWidth - (screenWidth/1.8);
     setTooltipData({
       visible: true,
       text: `${formatDate(item.date)} - ${item.recordings_count} notes`,
@@ -120,7 +122,7 @@ export default forwardRef(({ data = null }: Props, ref) => {
       coverScreen={false}
     >
       <View>
-        <View style={[styles.container, styles.shadow]}>
+        <LinearGradient colors={[Colors.streak1,Colors.streak2]} start={{x:0,y:0}} end={{x:1,y:1}} style={[styles.container, styles.shadow]}>
           <Text style={styles.rankText}>
             You rank {data?.rank} out of {data?.total_users} note-takers
           </Text>
@@ -158,27 +160,31 @@ export default forwardRef(({ data = null }: Props, ref) => {
               </Animated.View>
             )}
           </View>
-        </View>
+        </LinearGradient>
       </View>
     </ReactNativeModal>
   );
 });
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   modal: {
     justifyContent: "flex-start",
     position: 'relative',
     marginTop: isIOS?45:80
   },
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.bgColor,
     borderRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 20,
     alignSelf: "center",
+    borderColor: Colors.bgColor3(0.08),
+    borderWidth:1
   },
   shadow: {
-    shadowColor: "#000000",
+    shadowColor: Colors.blackWithOpacity(1),
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 40,
@@ -187,7 +193,7 @@ const styles = StyleSheet.create({
   rankText: {
     fontSize: 14,
     fontFamily: "Primary",
-    color: "#222",
+    color: Colors.text,
     marginBottom: 12,
     textAlign: 'left',
     width: '100%',
@@ -222,7 +228,7 @@ const styles = StyleSheet.create({
   },
   tooltip: {
     position: 'absolute',
-    backgroundColor: '#222',
+    backgroundColor:Colors.darkWithOpacity(1),
     padding: 8,
     borderRadius: 4,
     minWidth: 130,
@@ -230,7 +236,10 @@ const styles = StyleSheet.create({
   },
   tooltipText: {
     fontFamily: 'Primary',
-    color: '#fff',
+    color: Colors.text4,
     fontSize: 12,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
+
+export default Streaks

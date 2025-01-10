@@ -1,19 +1,22 @@
-import { Pressable, StyleSheet, View, } from 'react-native';
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, useColorScheme, } from 'react-native';
+import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import ContextMenu from "react-native-context-menu-view";
-import Touchable from '../Touchable';
 import * as Haptics from "expo-haptics";
-import Colors from 'assets/Colors';
-import { isIOS, screenWidth, sleep } from 'utils/common';
-import { Menu, MenuDivider, MenuItem } from 'react-native-material-menu';
+import { useTheme } from 'context';
+import { isIOS, screenHeight, screenWidth, sleep } from 'utils/common';
+import { Menu, MenuItem } from 'react-native-material-menu';
 import { Text } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { settingsSvg } from 'assets/svg/settingsSvg';
+import { View } from 'react-native';
 
-export default forwardRef(({options=[],children,style={}}:any,ref) => {
+export default forwardRef(({options=[],children,style={},isNative=false}:any,ref) => {
   const [visible, setVisible] = useState(false);
   const [visibleSubMenu, setVisibleSubMenu] = useState(false);
   const [subMenuOptions, setSubMenuOptions] = useState([]);
+  const {isLightMode,Colors} = useTheme()
+  const theme = isLightMode? "light" : "dark"
+
   useImperativeHandle(ref, () => {
     return {
       show(){setVisible(true)},
@@ -43,7 +46,7 @@ const onPress=async()=>
   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
     () => {}
   );
-  if(!isIOS){
+  if(!isIOS&&!isNative){
     return (
       <>
        {!visibleSubMenu? <Menu
@@ -52,10 +55,12 @@ const onPress=async()=>
           onRequestClose={hideMenu}
           anchor={<Pressable onPress={showMenu}>{children}</Pressable>}
           animationDuration={250}
+          style={{backgroundColor:Colors.bgColor6}}
         >
           {options.map((option:any, index:number) => (
             <MenuItem
               key={index}
+              pressColor={Colors.border}
               onPress={async(e) => {
                 if (option.actions) {
                   showSubMenu(option?.actions)
@@ -77,24 +82,28 @@ const onPress=async()=>
               visible={visibleSubMenu}
               onRequestClose={hideSubMenu}
               anchor={<Pressable onPress={showSubMenu}>{children}</Pressable>}
+              style={{backgroundColor:Colors.bgColor6}}
             >
               {!!subMenuOptions&&subMenuOptions?.map((itm:any, i:number) => (
                 <MenuItem
                   key={i}
+                  pressColor={Colors.border}
                   onPress={async() => {
                       hideSubMenu()
                       await sleep(500)
                       itm.onPress && itm.onPress();
                   }}
+                  textStyle={{color:Colors.text}}
                 >{itm.title}</MenuItem>
               ))}
-                </Menu>}
+          </Menu>}
         </>
     );
   }
   return (
     <Pressable onPress={onPress} onLongPress={()=>null}>
         <ContextMenu
+          theme={theme}
           actions={options}
           style={style}
           onPress={(e) => {
@@ -118,13 +127,16 @@ const onPress=async()=>
       );
 });
 
-const { button, buttonText } = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   button: {
     padding: 10,
-    backgroundColor: 'blue',
+    backgroundColor: Colors.blue,
     borderRadius: 5,
   },
   buttonText: {
-    color: 'white',
+    color: Colors.whiteWithOpacity(1),
   }
-})
+}), [Colors]); // Recreate styles when Colors change
+};

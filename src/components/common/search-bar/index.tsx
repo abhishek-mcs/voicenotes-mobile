@@ -1,20 +1,13 @@
-import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, TouchableHighlight, View } from "react-native"
+import { StyleSheet, TextInput } from "react-native"
 import { SvgXml } from "react-native-svg"
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { commonSvg } from "assets/svg/commonSvg";
-import Colors from "assets/Colors";
-import { Text } from "react-native";
-import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
-import { Skeleton } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import * as Animatable from "react-native-animatable"
-import CircularLoader from "../loaders/circular-loader";
-import { isIOS } from "utils/common";
-import { SearchBar } from "react-native-screens";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
-const {debounce}=require("lodash")
+import { useTheme } from "context";
+import Colors from "assets/Colors";
 
-const AnimSVG = Animatable.createAnimatableComponent(SvgXml);
 const AnimSearchBarIOS = Animatable.createAnimatableComponent(SearchBarIOS);
 export const heightIn = {
   from: {
@@ -53,6 +46,8 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter()
     const ref=useRef<TextInput>(null)
+    const { Colors } = useTheme()
+    const styles = useStyles()
 
     // const searchHistoryData=useSearchHistory()
     // const setSearchHistory=useSetSearchHistory()
@@ -124,7 +119,9 @@ export default ({hideView=true,setHide=(v:boolean)=>{},isSearchVisible=false,sty
     )
 }
 
-const styles=StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     container: {
         flexDirection:'row',
         alignItems:'center',
@@ -153,11 +150,11 @@ const styles=StyleSheet.create({
       flex:1,
       width:'100%',
       height:200,
-      backgroundColor:'#fff',
+      backgroundColor:Colors.whiteWithOpacity(1),
       position:'absolute',
       top:45,borderRadius:12,
       zIndex:100,
-      shadowColor: "#00000026",
+      shadowColor: Colors.blackWithOpacity(0.15),
       shadowOpacity: 1,
       shadowOffset: { width: 0, height: 0.5 },
       shadowRadius: 1.5,
@@ -183,15 +180,16 @@ const styles=StyleSheet.create({
       marginLeft:8,
       width:'86%'
     },
-    title:{fontFamily:'Primary-Semibold',fontSize:16,color:'#222',marginLeft:8},
-    txt:{fontFamily:'Primary',fontSize:14,color:'#222',marginTop:4},
+    title:{fontFamily:'Primary-Semibold',fontSize:16,color:Colors.darkWithOpacity(1),marginLeft:8},
+    txt:{fontFamily:'Primary',fontSize:14,color:Colors.darkWithOpacity(1),marginTop:4},
     result:{paddingHorizontal:20,paddingVertical:16},
     noData:{
       fontFamily:'Primary-Semibold',
-      color:"#222",
+      color:Colors.darkWithOpacity(1),
       fontSize:16,
       textAlign:'center',
       marginTop:40,marginHorizontal:20
     },
     skeleton:{marginBottom:12,height:20,opacity:0.3}
-})
+  }), [Colors]); // Recreate styles when Colors change
+};

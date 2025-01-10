@@ -1,8 +1,7 @@
-import Colors from "assets/Colors";
 import { drawerSvg } from "assets/svg/drawerSvg";
 import Touchable from "components/common/Touchable";
 import { useGetTags, useGetUserData } from "queries/home";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SvgXml } from "react-native-svg";
@@ -14,7 +13,7 @@ import { isIOS, screenHeight } from "utils/common";
 import { commonSvg } from "assets/svg/commonSvg";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
-import { iapSvg } from "assets/svg/iapSvg";
+import { useTheme } from "context";
 
 export default (props:any) => {
   const {hashTags,hashFilter} = useSelector((state: RootState) => state.hash);
@@ -28,6 +27,8 @@ export default (props:any) => {
   const getTags=useGetTags()
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
   useEffect(() => {
     if(!!token&&data?.data?.data){
@@ -88,7 +89,7 @@ export default (props:any) => {
               <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:8}}/>
               :<SvgXml xml={commonSvg.profileIcon}/>}
               <View style={{flexDirection:'row',alignItems:'center',maxWidth:'75%'}}>
-                <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#0d0d0d',maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
+                <Text style={{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:Colors.black2,maxWidth:'100%'}} numberOfLines={1}>{data?.data?.data?.name}</Text>
                 {(userDetails?.subscription_status||isTempIAPPurchased)&&<SvgXml xml={commonSvg.premiumTick} style={{marginLeft:4}}/>}
               </View>
               </View>
@@ -102,6 +103,8 @@ export default (props:any) => {
 };
 
 const Btn=({item,hashFilter,onPress}:any)=>{
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <TouchableHighlight onPress={onPress} style={[styles.btn,{
       backgroundColor: item==hashFilter?Colors.darkWithOpacity(0.1):'transparent'}]} underlayColor={Colors.darkWithOpacity(0.1)}>
@@ -124,12 +127,14 @@ const Btn=({item,hashFilter,onPress}:any)=>{
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
     marginTop:isIOS?0:20,
     padding: 20,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: Colors.lightGrey,
   },
   title: {
     fontSize: 20,
@@ -143,7 +148,7 @@ const styles = StyleSheet.create({
   postContainer: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: Colors.grey9,
   },
   btn: {
     paddingHorizontal: 13,
@@ -170,11 +175,12 @@ const styles = StyleSheet.create({
   menuItemTxt: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.darkWithOpacity(1),
     lineHeight: 24,
     marginLeft: 0,
   },
   upgrade:{flexDirection:'row',alignItems:'center',padding:12,borderRadius:8,marginVertical:20,backgroundColor:Colors.primaryWithOpacity(0.05),overflow:'hidden'},
-  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:'#222',width:screenHeight>690?'76%':'74%'},
-  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:'#222',marginTop:4,width:screenHeight>690?'76%':'74%'}
-});
+  upgradeTitle:{fontFamily:'Primary-Semibold',fontSize:14,marginLeft:8,color:Colors.darkWithOpacity(1),width:screenHeight>690?'76%':'74%'},
+  upgradeText:{fontFamily:'Primary',fontSize:12,marginLeft:8,color:Colors.darkWithOpacity(1),marginTop:4,width:screenHeight>690?'76%':'74%'}
+}), [Colors]); // Recreate styles when Colors change
+};

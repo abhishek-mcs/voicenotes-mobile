@@ -128,6 +128,8 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (12.8.2):
     - ExpoModulesCore
+  - ExpoLinearGradient (12.7.2):
+    - ExpoModulesCore
   - ExpoModulesCore (1.11.14):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1481,6 +1483,7 @@ DEPENDENCIES:
   - ExpoImageManipulator (from `../node_modules/expo-image-manipulator/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
+  - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoSharing (from `../node_modules/expo-sharing/ios`)
   - ExpoStoreReview (from `../node_modules/expo-store-review/ios`)
@@ -1660,6 +1663,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
+  ExpoLinearGradient:
+    :path: "../node_modules/expo-linear-gradient/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
   ExpoSharing:
@@ -1847,6 +1852,7 @@ SPEC CHECKSUMS:
   ExpoImageManipulator: c1d7cb865eacd620a35659f3da34c70531f10b59
   ExpoImagePicker: 66970181d1c838f444e5e1f81b804ab2d5ff49bd
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
+  ExpoLinearGradient: 4ad1449a2408e0435ac959076562b3921f2e32a1
   ExpoModulesCore: 0f9e3c49657f681cd06219d97c77c3108a67ca00
   ExpoSharing: 752ad6ae2b693de9cd4e7fddb78297bdc658b815
   ExpoStoreReview: 3911cdf5a416230a421af41f93e763595bd7a681
@@ -1962,4 +1968,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 9ec409c464f779f9633012b410a9583cabb1e64d
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

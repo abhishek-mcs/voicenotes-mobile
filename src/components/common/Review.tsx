@@ -1,5 +1,7 @@
 import { ReviewSvg } from "assets/svg/ReviewSvg";
+import { useTheme } from "context";
 import { useRouter } from "expo-router";
+import { useMemo } from "react";
 import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
@@ -11,6 +13,7 @@ type Props = {
 const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
 
     const router = useRouter()
+    const styles = useStyles()
     
     const onNegativeFeedback = () => {
         onClose()
@@ -68,15 +71,17 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
     </Modal>
 }
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+    const { Colors } = useTheme();
+    return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: Colors.bgColor10(0.5),
         justifyContent: 'center',
         alignItems: 'center'
     },
     box: {
-        backgroundColor: '#D8D8D8',
+        backgroundColor: Colors.bgColor16,
         borderRadius: 16,
         width: 280,
         height: 250
@@ -101,12 +106,12 @@ const styles = StyleSheet.create({
     actions: {
         flex: 1.5,
         borderTopWidth: 0.3,
-        borderColor: '#3C3C43',
+        borderColor: Colors.grey5WithOpacity(1),
         flexDirection: 'row'
     },
     heading: {
         fontFamily: 'Primary-Medium',
-        color: 'black',
+        color: Colors.text,
         fontSize: 16,
         fontWeight: '600',
         marginTop: 15
@@ -126,13 +131,14 @@ const styles = StyleSheet.create({
     },
     actionPressed: {
         opacity: 0.8,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: Colors.blackWithOpacity(0.1),
     },
     label: {
-        color: '#007AFF',
+        color: Colors.blue,
         fontWeight: '600',
         fontSize: 14
     }
-})
+}), [Colors]); // Recreate styles when Colors change
+};
 
 export default Review;

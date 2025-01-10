@@ -1,14 +1,14 @@
 import { Alert, StyleSheet, Text, View } from "react-native"
 import Header from "./header"
 import TextField from "./textfield"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
-import Colors from "assets/Colors"
 import RecButton from "components/common/recording/rec-button"
 import { changeEmail } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
 import CircularLoader from "components/common/loaders/circular-loader"
+import { useTheme } from "context"
 
 interface ComponentProps {
   value: string;
@@ -20,6 +20,8 @@ interface ComponentProps {
 }
 
 const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP, working }) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={styles.root}>
       <Text style={styles.heading}>Email</Text>
@@ -38,8 +40,8 @@ const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onS
         {working ? <CircularLoader /> : <RecButton
           title={isOTP ? "Confirm" : "Send"}
           underlayColor={Colors.blackWithOpacity(0.7)}
-          bgColor="#000"
-          color="#fff"
+          bgColor={Colors.settingsBtnBg}
+          color={Colors.settingsBtnText}
           style={{ flex: 1, paddingHorizontal: 15 }}
           onPress={onSubmit}
         />}
@@ -59,6 +61,7 @@ const Email: React.FC<Props> = (props) => {
     const [otp, setOTP] = useState('');
     const [showOTP, setShowOTP] = useState(false);
     const [working, setWorking] = useState(false);
+    const {isLightMode} = useTheme()
 
     const dispatch = useDispatch()
     
@@ -67,7 +70,7 @@ const Email: React.FC<Props> = (props) => {
       try {
         await changeEmail(email, otp)
         dispatch(setUserDetail({...userDetails, email}))
-        Alert.alert("Email updated", `Your email address has been updated to ${email}.`)
+        Alert.alert("Email updated", `Your email address has been updated to ${email}.`,[],{userInterfaceStyle:isLightMode?"light":"dark"})
         props.onClose()
       } catch {}
       setWorking(false)
@@ -79,7 +82,7 @@ const Email: React.FC<Props> = (props) => {
         await changeEmail(email)
         setShowOTP(true)
       } catch(e) {
-        Alert.alert('Uh oh', "Voicenotes ran into an error trying to change your email. Please try again later.")
+        Alert.alert('Uh oh', "Voicenotes ran into an error trying to change your email. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
       }
       setWorking(false)
     }
@@ -103,7 +106,9 @@ const Email: React.FC<Props> = (props) => {
     );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
     root: {
         flex: 1,
         alignItems: 'center',
@@ -114,13 +119,15 @@ const styles = StyleSheet.create({
     heading: {
       fontFamily: 'Primary-Bold',
       fontSize: 20,
-      textAlign: 'center'
+      textAlign: 'center',
+      color:Colors.blackWithOpacity(1)
     },
     description: {
         fontFamily: "Primary",
         fontSize: 15,
         textAlign: 'center',
         marginBottom: 10,
+        color:Colors.blackWithOpacity(1)
     },
     action: {
       width: '100%',
@@ -132,7 +139,9 @@ const styles = StyleSheet.create({
       fontFamily: "Primary",
       fontSize: 13,
       textAlign: 'center',
+      color:Colors.blackWithOpacity(1)
     }
-})
+  }), [Colors]); // Recreate styles when Colors change
+};
 
 export default Email

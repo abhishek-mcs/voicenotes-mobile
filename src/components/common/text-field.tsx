@@ -1,4 +1,4 @@
-import Colors from "assets/Colors"
+import { useTheme } from "context"
 import React from "react"
 import { ColorValue, TextInput, TextInputProps, TextStyle, View, ViewStyle,Text } from "react-native"
 
@@ -44,13 +44,14 @@ export function TextField(props: TextFieldProps) {
   } = props
 
   const [hasFocus, setHasFocus] = React.useState(false)
+  const { Colors } = useTheme()
   const containerStyle: ViewStyle = {flexDirection:'column'}
-  const inputStyle: TextStyle = {marginTop:8,color:'#222',borderWidth:1,borderRadius:16,fontFamily:'Primary',fontSize:16,paddingHorizontal:16};
+  const inputStyle: TextStyle = {marginTop:8,color:Colors.darkWithOpacity(1),borderWidth:1,borderRadius:16,fontFamily:'Primary',fontSize:16,paddingHorizontal:16};
   const actualPlaceholder = placeholderTx ? placeholderTx : placeholder
 
   return (
     <View style={[containerStyle, styleOverride]}>
-      {!!label&&<Text style={[{color:'#222',fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'},labelStyle]}>{label}</Text>}
+      {!!label&&<Text style={[{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Bold',fontSize:16,fontWeight:'bold'},labelStyle]}>{label}</Text>}
       <TextInput
         onFocus={(state) => setHasFocus(true)}
         onBlur={(state) => setHasFocus(false)}
@@ -60,12 +61,12 @@ export function TextField(props: TextFieldProps) {
         style={[
           inputStyle,
           inputStyleOverride,
-          hasFocus ? {borderColor:Colors.primary} : {borderColor:Colors.primaryWithOpacity(0.1)},
+          hasFocus ? {borderColor:Colors.primaryDark3(1)} : {borderColor:Colors.primaryWithOpacity(0.1)},
         ]}
         ref={forwardedRef}
       />
       {errorMessage && (
-        <Text style={{alignItems:'center',alignSelf:'center',marginTop:4,color:'red'}}>{errorMessage}</Text>
+        <Text style={{alignItems:'center',alignSelf:'center',marginTop:4,color:Colors.redWithOpacity(1)}}>{errorMessage}</Text>
       )}
     </View>
   )

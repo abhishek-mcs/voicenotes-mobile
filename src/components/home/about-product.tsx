@@ -1,4 +1,3 @@
-import Colors from "assets/Colors";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { router } from "expo-router";
@@ -7,9 +6,13 @@ import { SvgXml } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser"
 import ControlledTooltip from "components/common/ControlledTooltip";
 import { screenWidth } from "utils/common";
+import { useTheme } from "context";
+import { useMemo } from "react";
 
 export default ({disable=false}) => {
   return null
+  const { Colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={styles.container}>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
@@ -68,7 +71,9 @@ export default ({disable=false}) => {
   );
 };
 
-const Description = ({ highlight = "", text = "", text1="", icon = "",img="",text2="" }) => (
+const Description = ({ highlight = "", text = "", text1="", icon = "",img="",text2="" }) => {
+  const styles = useStyles()
+  return (
   <View style={{ flexDirection: "row", alignItems: "center" ,marginBottom:12}}>
     <SvgXml xml={icon} />
     <View style={{flexDirection:'row',alignItems:'center',flexWrap:'nowrap'}}>
@@ -84,32 +89,38 @@ const Description = ({ highlight = "", text = "", text1="", icon = "",img="",tex
     </Text>
     </View>
   </View>
-);
+)};
 
-const TextWithTooltip = ({text="",tooltip=""}) => (
+const TextWithTooltip = ({text="",tooltip=""}) => {
+  const { Colors } = useTheme()
+  const styles = useStyles()
+  return (
   <ControlledTooltip
     popover={
-      <Text style={{fontFamily:'Primary-Medium',color:'#fff',fontSize:12}}>{tooltip}</Text>}
+      <Text style={{fontFamily:'Primary-Medium',color:Colors.whiteWithOpacity(1),fontSize:12}}>{tooltip}</Text>}
     width={screenWidth/1.5}
     withPointer={false}
     height={110}
-    backgroundColor={'#000'}>
+    backgroundColor={Colors.blackWithOpacity(1)}>
       <Text style={[styles.highlights,{marginLeft:0,textDecorationLine:'underline'}]}>{text}</Text>
   </ControlledTooltip>
-);
+)};
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     marginTop: 24,
     borderRadius: 12,
     padding: 24,
   },
-  title: { fontFamily:'Primary-Medium',fontSize: 36, color: "#0D0D0D", fontWeight: "500" },
+  title: { fontFamily:'Primary-Medium',fontSize: 36, color: Colors.black2, fontWeight: "500" },
   highlights: {
     marginLeft: 26,
     fontFamily:'Primary-Medium',fontSize: 16,
     fontWeight: "400",
-    color: "#0D0D0D",
+    color: Colors.black2,
     lineHeight: 24,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};

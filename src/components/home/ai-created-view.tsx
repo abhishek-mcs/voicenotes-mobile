@@ -1,10 +1,10 @@
-import Colors from "assets/Colors";
 import CircularLoader from "components/common/loaders/circular-loader";
 import Touchable from "components/common/Touchable";
+import { useTheme } from "context";
 import { setStringAsync } from "expo-clipboard";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 import { useDeleteFormattedNote } from "queries/home";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { capitalizeFirstLetter } from "utils/common";
 import { formatDate } from "utils/format-date";
@@ -15,6 +15,8 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     const [working, setWorking]=useState(false)
     const dt=Date.now()
     const deleteNote=useDeleteFormattedNote(id)
+    const { Colors, isLightMode } = useTheme()
+    const { container,row,btw,txt,titleStyle,btn,btnTxt } = useStyles()
 
     const onCopy=async()=>{
       setCopied(true)
@@ -41,7 +43,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
           await deleteNote.mutateAsync(id)
           setWorking(false)
         }}
-      ])
+      ],{userInterfaceStyle:isLightMode?"light":"dark"})
     }
 
     useLayoutAnim([expand])
@@ -54,9 +56,9 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
         </View> */}
         {working?<CircularLoader/>:<>
           <View style={[row,btw]}>
-            <Text style={txt}>{type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
+            <Text style={txt}>{type=="team-summary"?"Summary":type=='tidy'?'Cleanup':`${capitalizeFirstLetter(type)} ${type=='blog'?'post':type=='todo'?'list':''}`}</Text>
           </View>
-          {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
+          {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy"||type=="team-summary")?<Text style={titleStyle} numberOfLines={expand?1000:1}>{content}</Text>
           :(type=="points"||type=="todo")?
           <Text numberOfLines={expand?1000:1} style={{marginTop:6}}>{(!!content&&content?.length>0)&&content.map((itm:string,i:number)=><Text key={i} style={titleStyle}>{`${type=="points"?'\u2022 ':i+1+'. '} ${itm}${content?.length-1==i?'':'\n'}`}</Text>)}</Text>
           :type=="blog"?
@@ -70,7 +72,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
           </Text>}
           {expand&&<View style={[row]}>
           <Touchable style={btn} onPress={onCopy}>
-            <Text style={[btnTxt,copied?{color:'#222'}:{}]}>{copied?'Copied':'Copy'}</Text>
+            <Text style={[btnTxt,copied?{color:Colors.darkWithOpacity(1)}:{}]}>{copied?'Copied':'Copy'}</Text>
           </Touchable>
           <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete}>
             <Text style={[btnTxt]}>Delete</Text>
@@ -84,7 +86,9 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
     </Touchable>
   );
 };
-const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   container: {
     marginTop: 4,
     // backgroundColor: Colors.darkWithOpacity(0.05),
@@ -97,8 +101,9 @@ const { container,row,btw,txt,titleStyle,btn,btnTxt } = StyleSheet.create({
     alignItems:'center',
   },
   btw:{justifyContent:'space-between'},
-  titleStyle:{fontFamily:'Primary',fontSize:12,color:'#222',marginTop:6},
-  txt:{color:Colors.darkWithOpacity(1),fontFamily:'Primary-Medium',fontSize:12},
+  titleStyle:{fontFamily:'Primary',fontSize:12,color:Colors.text5,marginTop:6},
+  txt:{color:Colors.text5,fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
   btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.grey}
-});
+}), [Colors]); // Recreate styles when Colors change
+};

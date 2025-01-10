@@ -1,5 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
-import Colors from "assets/Colors";
+import { Dispatch, SetStateAction, useEffect, useState,useRef, useMemo } from "react";
 import { home } from "assets/svg/home";
 import NoteRecorder from "components/common/recording/note-recorder";
 import RecButton from "components/common/recording/rec-button";
@@ -10,6 +9,7 @@ import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
+import { useTheme } from "context";
 
 interface Props {
   onRecord: (v:any) => void;
@@ -45,6 +45,7 @@ export default ({
   const [paused, setPaused] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
+  const homeIcons:any=home
   const { token, userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -55,6 +56,8 @@ export default ({
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375; // For small screend devices
   const [temporaryRecordingId, setTemporaryRecordingId] = useState<string | null>(null);
+  const { Colors } = useTheme()
+  const styles = useStyles()
 
 useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
@@ -64,12 +67,12 @@ useEffect(() => {
           const newDuration = prevDuration + 1000;
           if (
             newDuration >= 60000 &&
-            (!token || !isBeliever)
+            (!token || !userDetails?.subscription_status)
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 1800000 && !!token) {
-            onStopRecord(newDuration, true);
+          } else if (newDuration >= 2400000 && !!token) {
+            onStopRecord(newDuration, userDetails?.subscription_status);
             return 0;
           }
           return newDuration;
@@ -90,6 +93,7 @@ useEffect(() => {
     onStopRecord(duration);
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
+    setRecordingParentId(null)
     // setPaused(true);
   }
 
@@ -98,6 +102,7 @@ useEffect(() => {
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
     setIsCanceling(false);
+    setRecordingParentId(null)
   }
 
   const onRecordStart = () => {
@@ -144,22 +149,26 @@ useEffect(() => {
               onPress={onRecordStart}
               title="Record"
               icon={home.record}
-              underlayColor={Colors.blackWithOpacity(0.7)}
-              bgColor="#000"
-              color="#fff"
+              underlayColor={Colors.underlayColorBlack}
+              bgColor={Colors.bottomBarButtonBg}
+              color={Colors.bottomBarText}
               style={styles.button}
             />
             <RecButton
               onPress={onAsk}
               title={"Ask AI"}
-              icon={home.ask}
+              icon={homeIcons.ask?.replaceAll('#0D0D0D',Colors.black2)}
               style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
             />
             <RecButton
               onPress={onCreate}
               title="Create"
-              icon={home.create}
+              icon={homeIcons.create?.replaceAll('#0D0D0D',Colors.black2)}
               style={styles.button}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
             />
           </>
         ) : (
@@ -183,16 +192,18 @@ useEffect(() => {
 };
 
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
   addingContainer: {
-    backgroundColor: "#fff",
+    backgroundColor:Colors.bgColor17,
     minHeight: 56,
     borderRadius: 24,
     position: "absolute",
     left: 20,
     right: 20,
     bottom: 85,
-    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -205,7 +216,7 @@ const styles = StyleSheet.create({
   heading: {
     fontFamily: "Primary",
     fontSize: 14,
-    color: "#222",
+    color: Colors.text5,
     textAlign: "left",
   },
   container: {
@@ -217,7 +228,7 @@ const styles = StyleSheet.create({
   },
   parentNoteIndicator: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.whiteWithOpacity(1),
     height: 40,
     borderRadius: 24,
     position: "absolute",
@@ -226,7 +237,7 @@ const styles = StyleSheet.create({
     bottom: 100,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: isIOS ? "#00000026" : "rgba(0,0,0,0.7)",
+    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
     shadowOffset: { width: 0, height: 0.5 },
     shadowOpacity: 0.9,
     shadowRadius: 1.5,
@@ -237,17 +248,19 @@ const styles = StyleSheet.create({
   },
   parentNoteText: {
     fontSize: 14,
-    color: "#333",
+    color: Colors.darkWithOpacity(1),
   },
   tab: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor:Colors.bgColor14,
+    borderWidth:1,
+    borderColor:Colors.bgColor13(0.1),
     borderRadius: 24,
     marginHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",
     justifyContent:'space-between',
-    shadowColor:"#000000",
+    shadowColor:isIOS?Colors.blackWithOpacity(1):Colors.blackWithOpacity(0.2),
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
@@ -264,4 +277,5 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
   },
-});
+}), [Colors]); // Recreate styles when Colors change
+};
