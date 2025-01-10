@@ -16,7 +16,7 @@ const initialState: IAPState = {
 }
 
 export const IAPStates = createSlice({
-  name: 'IAP',
+  name: 'IAPStates',
   initialState,
   reducers: {
     setIAPOffering: (state, action: PayloadAction<object|null>) => {

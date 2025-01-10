@@ -1,8 +1,7 @@
 import { home } from "assets/svg/home";
-import { memo, useCallback, useContext, useRef } from "react";
+import { memo, useCallback, useContext } from "react";
 import Touchable from "components/common/Touchable";
 import {
-  Alert,
   Animated,
   LayoutAnimation,
   Platform,
@@ -12,15 +11,11 @@ import {
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDate, formatDateAndTimeNew, formatDateTime, isSameDay } from "utils/format-date";
-import { Menu, MenuItem } from "react-native-material-menu";
+import { formatDateAndTimeNew, formatDateTime } from "utils/format-date";
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
 import {
-  useAddTranscript,
   useCreate,
-  useDeleteRecording,
-  useRegenerateTeamSummaryCreation,
   useSignedUrl,
 } from "queries/home";
 import { useQueryClient } from "react-query";
@@ -33,10 +28,10 @@ import { RootState } from "redux/store/store";
 import {
   checkFileExists,
   fetchSingleRecording,
+  isIOS,
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
-import { MAIN_URL } from "services/api/api-constants";
 import { useUnpublishRecording } from "queries/home/share";
 import PublishedModal from "./published-modal";
 import {
@@ -50,10 +45,8 @@ import NoteButtons from "components/common/note-buttons";
 import { ScrollView } from "react-native";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
 import Subnote from "./subnote";
-import { useNetInfo } from "@react-native-community/netinfo";
 import Toast from "react-native-toast-message";
 import * as FileSystem from "expo-file-system";
-import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 import AttachmentViewer from "components/NotePreview/AttachmentViewer";
 import ImageUploader from "components/NotePreview/ImageUploader";
@@ -66,13 +59,14 @@ import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
 import { setEditNote } from "redux/reducers/editStates";
-import { setRelatedNoteId, setRelatedNoteSummaryLoad, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
 import { saveFileAndroid } from "utils/filesystem";
 import { useDialog } from "context/DialogContext";
 import * as Haptics from "expo-haptics";
-import { ATTACHMENT_TYPE } from "types";
+import { Image } from "expo-image";
+import { MAIN_URL } from "services/api/api-constants";
 
 const NotePreview = forwardRef(
   (
@@ -113,7 +107,6 @@ const NotePreview = forwardRef(
     const [isNoteJustMadePrivate, setIsNoteJustMadePrivate] = useState(false);
     const [creationLoader, setCreationLoader] = useState(false);
     const [createType, setCreateType] = useState("summary");
-    const [deleteLoading, setDeleteLoading] = useState(false);
     const [showAddMenu, setShowAddMenu] = useState(false);
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [showLinkEditModal, setShowLinkEditModal] = useState(false);
@@ -129,6 +122,8 @@ const NotePreview = forwardRef(
 
     const dispatch = useDispatch();
 
+    const { userDetails }:{token:any,userDetails:any} = useSelector((state: RootState) => state.userDetails);
+
     const queryClient = useQueryClient();
     // const addTitleRecord = useAddTitle();
     const getSignedURL = useSignedUrl();
@@ -137,6 +132,8 @@ const NotePreview = forwardRef(
     const relatedNotes = useGetRelatedRecording();
     const {setTriggerTypingTitle,setTriggerTypingTranscript,triggerTypingTranscript,triggerTypingTitle} = useContext(NoteContext)
     const isNoteExpanded = useMemo(() => expand === index, [index, expand]);
+    const isShared = userDetails?.id!=note?.user_id && note?.is_shared
+    const isSameUserNoteShared = userDetails?.id==note?.user_id && note?.is_shared
 
     useEffect(() => {
       setAttachments(note?.attachments);
@@ -249,7 +246,7 @@ const NotePreview = forwardRef(
     };
 
     const togglePublish = () => {
-      const wasPublic = note?.public_slug;
+      const wasPublic = !!note?.public_slug;
 
       try {
         setPublishLoading(true);
@@ -672,7 +669,7 @@ const NotePreview = forwardRef(
     const onTranscriptOpen = async(isRetry=false) =>{
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
-      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id)}})
+      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id),isShared:isShared?'shared':''}})
     }
 
     const onReGenerateTeamSummary = async() => {
@@ -681,8 +678,17 @@ const NotePreview = forwardRef(
       const id = note?.creations?.find((t:any)=>t?.type=="team-summary")?.id??'' 
       await continueProcessing(note, true,id)
     }
-
-    const moreOptions = [
+    
+    const moreOptions = isShared?
+    [
+      {
+        title: "Copy link",
+        systemIcon: "doc.text",
+        androidIcon: "content-copy",
+        onPress: async() => await setStringAsync(MAIN_URL + "/s/" + note?.id),
+      },
+    ]
+    :[
       {
         title: "Copy note",
         systemIcon: "doc.text",
@@ -724,12 +730,12 @@ const NotePreview = forwardRef(
         androidIcon: "pound",
         onPress: onGotoAddTag,
       }]),
-      // {
-      //   title:"Share",
-      //   systemIcon:'square.and.arrow.up',
-      //   androidIcon:'share-outline',
-      //   onPress:onShareNote
-      // },
+      ...(userDetails?.id==note?.user_id?[{
+        title:"Share",
+        systemIcon:'square.and.arrow.up',
+        androidIcon:'share-outline',
+        onPress:onShareNote
+      }]:[]),
       // {
       //   title:"Create",
       //   systemIcon:'pencil.and.outline',
@@ -878,9 +884,22 @@ const NotePreview = forwardRef(
                   note?.recorded_at,
                   recordingList[index - 1]?.recorded_at
                 ))) && ( */}
-          <Text style={styles.date}>
-            {formatDateAndTimeNew(note?.recorded_at??note?.created_at)}
-          </Text>
+          <View style={{flexDirection:'row',alignItems:'center'}}>
+            <Text style={styles.date}>
+              {formatDateAndTimeNew(note?.recorded_at??note?.created_at)}
+            </Text>
+            {isShared&&
+            <>
+            <View style={{borderRadius:20,width:14,height:14,marginHorizontal:4,overflow:'hidden',backgroundColor:Colors.grey11,justifyContent:'center',alignItems:'center',alignSelf:'flex-start',marginTop:isIOS?0:2}}>
+              {!!note?.user_image?
+              <Image source={{uri: note?.user_image}} style={{width:'100%',height:'100%'}} />
+              :<Text style={{fontFamily:'Primary-Semibold',fontSize:9,color:Colors.text6}}>{note?.user_name[0]?.toUpperCase()}</Text>}
+            </View>
+            <Text style={styles.date}>
+              {note?.user_name}
+            </Text>
+            </>}
+          </View>
           {/* )} */}
           <View style={styles.row}>
             {/* <View>
@@ -1021,6 +1040,7 @@ const NotePreview = forwardRef(
                       setShowLinkEditModal(true);
                       setEditingLink(linkItem);
                     }}
+                    isShared={isShared}
                   />
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
@@ -1050,15 +1070,17 @@ const NotePreview = forwardRef(
                   <Pressable onPress={()=>onTranscriptOpen()} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.transcript?.replace('#0D0D0D',Colors.more)}/>
                   </Pressable>}
+                  {userDetails?.id==note?.user_id&&
                   <MoreOptions options={createOptions} style={{height:31,width:31,position:'relative'}}>
                     <View style={{height:31,width:31,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.create1?.replace('#0D0D0D',Colors.more)}/>
                     </View>
-                  </MoreOptions>
+                  </MoreOptions>}
                   {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
+                    {/* {userDetails?.id==note?.user_id&&
                     <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
-                    </Pressable>
+                    </Pressable>} */}
                   {/* </MoreOptions> */}
                   <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
@@ -1174,7 +1196,7 @@ const useStyles = () => {
     fontFamily: "Primary-Semibold",
     fontSize: 16,
     color: Colors.blackWithOpacity(1),
-    lineHeight: 19.09
+    lineHeight: 23
   },
   text: {
     fontFamily: "Primary",

@@ -13,7 +13,7 @@ import relatedNoteStates from 'redux/reducers/relatedNoteStates';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist:['userDetails','IAPStates','recordingStates','hashSlice']
+  whitelist:['userDetails','IAPStates','recordingStates','hash']
 };
 
 const rootReducer = combineReducers({
@@ -31,7 +31,7 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware({
-    thunk: true,
+    thunk:true,
     serializableCheck: false,
     immutableCheck: false,
   }),

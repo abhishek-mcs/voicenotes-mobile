@@ -52,9 +52,10 @@ import { RootState } from "redux/store/store";
 import AiLoader from "components/common/loaders/ai-loader";
 import { setStringAsync } from "expo-clipboard";
 import Touchable from "components/common/Touchable";
+import Snackbar from "components/common/snackbar";
 
 const Transcript = () => {
-  const { recording_id = "" }: any = useLocalSearchParams();
+  const { recording_id = "", isShared= '' }: any = useLocalSearchParams();
   const styles = useStyles();
   const { Colors, isLightMode } = useTheme();
   const { currentlyOpenedMeetingTranscript } = useSelector(
@@ -71,6 +72,7 @@ const Transcript = () => {
   const soundRef = useRef<any>(null);
   const textInputRef = useRef<TextInput>(null);
   const { showDialog }: any = useDialog();
+  const snackRef:any = useRef();
 
   const meetingAskAI = useFetchMeetingAskChats();
   const { setMeetingAskAIData } = useNoteContext();
@@ -160,6 +162,7 @@ const Transcript = () => {
   };
   
   const onCopy = async () => {
+    snackRef?.current?.show()
     const t=transcript?.replace(/<\/?b>/g, "")?.replace(/<br\/?>/g, "")
     if (transcript) await setStringAsync(t);
   };
@@ -195,7 +198,7 @@ const Transcript = () => {
         <View style={{ width: "20%" }} />
         <Text style={styles.headerText}>Transcript</Text>
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <Touchable onPress={onCopy} style={styles.rightHeader} activeOpacity={0.6}>
+          <Touchable onPress={onCopy} style={[styles.rightHeader,{marginTop:2}]} activeOpacity={0.6}>
             <SvgXml xml={AIModalSVG.transcriptCopy} />
           </Touchable>
           <Pressable onPress={() => router?.back()} style={styles.rightHeader}>
@@ -224,6 +227,7 @@ const Transcript = () => {
         ) : (
           messages.map((message: any, index: number) => {
             // Split each message into speaker and content
+            const isSpeaker = message?.toLowerCase()?.includes('speaker')
             const [speaker, content] = message
               ?.replace(/<\/?b>/g, "") // Remove <b> tags
               ?.split(/:(.+)/) // Split on first colon only
@@ -233,15 +237,21 @@ const Transcript = () => {
             return (
               <View key={index} style={{}}>
                 <Text style={styles.messageText}>
+                  {isSpeaker?
+                  <>
                   <Text style={styles.speaker}>{speaker}: </Text>
                   <Text style={styles.content}>{content}</Text>
+                  </>
+                  :speaker
+                  }
                 </Text>
               </View>
             );
           })
         )}
       </KeyboardAwareScrollView>
-      <KeyboardStickyView
+      {isShared!='shared'&&
+        <KeyboardStickyView
         style={styles.inputContainer}
         offset={{ opened: isIOS ? 40 : screenHeight / 100 }}
       >
@@ -316,7 +326,11 @@ const Transcript = () => {
             />
           </View>
         )}
-      </KeyboardStickyView>
+      </KeyboardStickyView>}
+      <Snackbar
+        ref={snackRef}
+        message="Copied"
+      />
     </SafeAreaView>
   );
 };
@@ -329,10 +343,11 @@ const useStyles = () => {
         modalContainer: {
           flex: 1,
           backgroundColor: Colors.bgColor8,
-          paddingTop: 0,
+          paddingTop: isIOS?0:60,
         },
         inputContainer: {
-          paddingVertical: 16,
+          paddingTop: 16,
+          paddingBottom:isIOS?0:16,
           // borderTopWidth: 1,
           // borderTopColor: Colors.border,
           flexDirection: "row",
@@ -374,6 +389,7 @@ const useStyles = () => {
           fontSize: 14,
           color: Colors.text,
           lineHeight: 28,
+          fontFamily: 'Primary'
         },
         speaker: {
           fontFamily: "Primary-Bold",

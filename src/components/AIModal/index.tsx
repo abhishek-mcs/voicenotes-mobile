@@ -262,7 +262,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
       // <View style={styles.history}>
         <FlatList
         data={askAIHistory}
-        contentContainerStyle={{height:'100%',paddingVertical:20}}
+        contentContainerStyle={{paddingVertical:20}}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={()=><Text style={[styles.historyText,{paddingHorizontal:20}]}>History</Text>}
         keyExtractor={(item, index) => `${item?.id}-${index}`}
         renderItem={({ item,index }) => (
@@ -354,7 +355,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   };
 
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0}]}>
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0},!showHeader?{borderTopWidth: 1,borderTopColor: Colors.border}:{}]}>
         {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer} handleSegmentChange={handleSegmentChange} />}
           {selectedIndex==1?
           <CreateModal/>
@@ -460,7 +461,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
             {!chatStarted &&
               <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:20}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.recordings_count} notes.</Text>
             }
-            <KeyboardStickyView style={styles.inputContainer} offset={{opened:isIOS?40:(screenHeight/100)}}>
+            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:isIOS?-16:0}]} offset={{opened:isIOS?40:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
@@ -525,6 +526,12 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     marginTop: 0,
                     justifyContent: "center",
                     height: 60,
+                    backgroundColor:Colors.bgColor,
+                    paddingHorizontal:10,
+                    borderRadius:20,
+                    borderWidth:1,
+                    borderColor:Colors.border,
+                    marginBottom:10
                   }}
                 >
                   <ChatRecorder
@@ -544,7 +551,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               zIndex: drawerIndex,
               top: isIOS?0:93,
               width: "100%",
-              height: isIOS?"90%":"88%",
+              height: isIOS?"94.5%":"88%",
             }}
           >
             <DrawerLayout
@@ -658,7 +665,7 @@ const Btns = ({ txt = "", onPress = () => {} }) => {
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:40 },
+  modalContainer: { flex: 1, backgroundColor: Colors.lightGrey,paddingTop:isIOS?0:0 },
   modal: {
     height: isIOS ? (screenHeight > 690 ? "88%" : "80%") : "75%",
     justifyContent: "space-between",
@@ -735,7 +742,7 @@ const useStyles = () => {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.bgColor8,
+    backgroundColor: Colors.bgColor4,
   },
   send: {
     paddingVertical: 16,
