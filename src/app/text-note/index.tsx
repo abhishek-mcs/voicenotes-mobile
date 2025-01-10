@@ -204,7 +204,7 @@ const TextNote = () => {
           onChangeText={onWrite}
           value={textnote}
           onSubmitEditing={onDone}
-          returnKeyType="done"
+          returnKeyLabel="return"
           scrollEnabled={false}
           selectTextOnFocus={false}
         />
@@ -224,9 +224,10 @@ const TextNote = () => {
           alignItems:'center',
           backgroundColor: Colors.bgColor8,
           paddingHorizontal: 18,
-          flexDirection:'row'
+          flexDirection:'row',
+          paddingBottom:14 
         }}
-        offset={{ opened:attachments?.length>0?24 :34 }}
+        offset={{ opened:34 }}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef} contentContainerStyle={{paddingVertical:12}}>
           {attachments.map(renderImageThumbnail)}

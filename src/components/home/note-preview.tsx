@@ -804,47 +804,53 @@ const NotePreview = forwardRef(
 
     const createOptions = [
       {
-        title:"Summary",
-        androidIcon:'bullseye-arrow',
-        systemIcon:'pencil.and.scribble',
-        onPress:()=>onCreate("summary")
+        title: 'Create',
+        inlineChildren: true,
+        actions: [
+          {
+          title:"Summary",
+          androidIcon:'bullseye-arrow',
+          systemIcon:'pencil.and.scribble',
+          onPress:()=>onCreate("summary")
+        },
+        {
+          title:"Main points",
+          androidIcon:'format-list-bulleted',
+          systemIcon:'list.bullet',
+          onPress:()=> onCreate("points")
+        },
+        {
+          title:"To-do list",
+          androidIcon:'checkbox-outline',
+          systemIcon:'checkmark.rectangle.stack',
+          onPress:()=> onCreate("todo")
+        },
+        {
+          title:"Tweet",
+          androidIcon:'bullhorn-variant-outline',
+          systemIcon:'megaphone',
+          onPress:()=>onCreate("tweet")
+        },
+        {
+          title:"Blog post",
+          androidIcon:'fountain-pen',
+          systemIcon:'rectangle.and.pencil.and.ellipsis',
+          onPress:()=>onCreate("blog")
+        },
+        {
+          title:"Email",
+          androidIcon:'email-outline',
+          systemIcon:'envelope',
+          onPress:()=>onCreate("email")
+        },
+        {
+          title:"Cleanup",
+          androidIcon:'broom',
+          systemIcon:'paintbrush',
+          onPress:()=>onCreate("tidy")
+        }
+        ]
       },
-      {
-        title:"Main points",
-        androidIcon:'format-list-bulleted',
-        systemIcon:'list.bullet',
-        onPress:()=> onCreate("points")
-      },
-      {
-        title:"To-do list",
-        androidIcon:'checkbox-outline',
-        systemIcon:'checkmark.rectangle.stack',
-        onPress:()=> onCreate("todo")
-      },
-      {
-        title:"Tweet",
-        androidIcon:'bullhorn-variant-outline',
-        systemIcon:'megaphone',
-        onPress:()=>onCreate("tweet")
-      },
-      {
-        title:"Blog post",
-        androidIcon:'fountain-pen',
-        systemIcon:'rectangle.and.pencil.and.ellipsis',
-        onPress:()=>onCreate("blog")
-      },
-      {
-        title:"Email",
-        androidIcon:'email-outline',
-        systemIcon:'envelope',
-        onPress:()=>onCreate("email")
-      },
-      {
-        title:"Cleanup",
-        androidIcon:'broom',
-        systemIcon:'paintbrush',
-        onPress:()=>onCreate("tidy")
-      }
     ]
 
     const refreshNoteAfterAttachmentChange = async () => {

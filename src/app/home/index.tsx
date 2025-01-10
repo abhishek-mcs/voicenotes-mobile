@@ -76,6 +76,7 @@ import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
+import database from '@react-native-firebase/database';
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -346,7 +347,7 @@ const Home = () => {
       // else{
       // }
 
-      listenToFirebaseStatus(note.id,null,is_transcript_only,summary_id);
+      await listenToFirebaseStatus(note.id,null,is_transcript_only,summary_id);
     } catch (error) {
       console.log("error in queing new transcript: ", error);
     }
@@ -493,8 +494,7 @@ const Home = () => {
           })
         );
         dispatch(updateTempRecordingData("processing"));
-        await sleep(3000)
-        listenToFirebaseStatus(recordingId, temporaryRecordingId);
+        await listenToFirebaseStatus(recordingId, temporaryRecordingId);
       }).catch((e)=>{
         console.log(e,'audio upload failed. please check for error')
       });

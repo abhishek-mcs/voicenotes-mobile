@@ -187,7 +187,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   useEffect(() => {
     if (showImagePicker) {
-      openImagePickerMenu();
+      launchImagePicker("library");
+      setShowImagePicker(false)
     }
   }, [showImagePicker, openImagePickerMenu]);
 
