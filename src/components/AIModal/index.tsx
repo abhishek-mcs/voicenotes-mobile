@@ -453,7 +453,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:isIOS?-16:0}]} offset={{opened:isIOS?40:(screenHeight/100)}}>
+            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:isIOS?-16:0}]} offset={{opened:isIOS?24:(screenHeight/100)}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>
