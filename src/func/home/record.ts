@@ -1,7 +1,17 @@
 import { Audio } from "expo-av";
 import { openSettings } from "expo-linking";
 import { useEffect } from "react";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
+import * as KeepAwake from 'expo-keep-awake';
+import { startSilentBackgroundService, stopSilentBackgroundService } from "services/background";
+
+interface ExtendedRecording extends Audio.Recording {
+  _isDormant?: boolean;
+  _wakeLockActive?: boolean;
+  _appStateSubscription?: any;
+  _appStateChangeSubscription?: any;
+}
+
 const alertPermission=(isLightMode=true,showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{})=>{
   const txt = "Please enable microphone permission to continue";
         showDialog(
@@ -28,7 +38,7 @@ export const checkRecordPermission = async () => {
 }
 
 export const onRecord = async (
-  setRec = (v: Audio.Recording) => {},
+  setRec = (v: ExtendedRecording) => {},
   setRecEnabled = (v: boolean) => {},
   isLightMode=true,
   showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{}
@@ -50,6 +60,7 @@ export const onRecord = async (
         const { recording: recordingObject, status } = await Audio.Recording.createAsync({
           ...Audio.RecordingOptionsPresets.LOW_QUALITY,
           isMeteringEnabled: true,
+          keepAudioActiveHint: true,
           android:{
             extension: '.m4a',
             outputFormat: Audio.AndroidOutputFormat.MPEG_4,
@@ -69,8 +80,14 @@ export const onRecord = async (
             linearPCMIsFloat: false,
           },
         },()=>{},30);
-        setRec(recordingObject);
+        
+        await startSilentBackgroundService('recording');
+        const extendedRecording = recordingObject as ExtendedRecording;
+        
+        setRec(extendedRecording);
         setRecEnabled(true);
+        
+        await KeepAwake.activateKeepAwakeAsync();
       } else if (status.canAskAgain && status.status == "undetermined") {
         await Audio.requestPermissionsAsync().then(
           async ({ canAskAgain, status }) => {
@@ -89,6 +106,7 @@ export const onRecord = async (
               const { recording: recordingObject, status } = await Audio.Recording.createAsync({
                 ...Audio.RecordingOptionsPresets.LOW_QUALITY,
                 isMeteringEnabled: true,
+                keepAudioActiveHint: true
               },()=>{},10);
               setRec(recordingObject);
               setRecEnabled(true);
@@ -98,7 +116,8 @@ export const onRecord = async (
         }
         );
       } else if (!status.canAskAgain && status.status == "denied") {
-        alertPermission(isLightMode,showDialog)
+        alertPermission(isLightMode,showDialog);
+        return;
       }
     });
   } catch (err:any) {
@@ -107,22 +126,38 @@ export const onRecord = async (
   }
 };
 
-export const stopRecording = async (recording: Audio.Recording|any ) => {
+export const stopRecording = async (recording: ExtendedRecording|any ) => {
   try {
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    return uri
-
+    if (recording?._appStateSubscription) {
+      recording?._appStateSubscription.remove();
+    }
+    if (recording?._appStateChangeSubscription) {
+      recording?._appStateChangeSubscription.remove();
+    }
+    await recording?.stopAndUnloadAsync();
+    KeepAwake.deactivateKeepAwake();
+    await stopSilentBackgroundService();
+    return recording.getURI();
   } catch (error) {
     console.error("Failed to stop recording", error);
   }
 };
 
-export const cancelRecording = async (recording: Audio.Recording | null,soundRef:Audio.Sound|null) => {
+export const cancelRecording = async (recording: ExtendedRecording | null,soundRef:Audio.Sound|null) => {
   try {
+    if (recording) {
+      if (recording._appStateSubscription) {
+        recording._appStateSubscription.remove();
+      }
+      if (recording._appStateChangeSubscription) {
+        recording._appStateChangeSubscription.remove();
+      }
+    }
     await recording?.stopAndUnloadAsync();
     await recording?._cleanupForUnloadedRecorder()
     await soundRef?.unloadAsync();
+    KeepAwake.deactivateKeepAwake();
+    await stopSilentBackgroundService();
   } catch (error) {
     console.error("Failed to stop recording", error);
   }
@@ -136,8 +171,9 @@ export const setupAudioRec = (recording: Audio.Recording | null) => {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
+          shouldDuckAndroid: false,
           playThroughEarpieceAndroid: false,
+          staysActiveInBackground: true,
         });
       } catch (error) {
         console.error("Failed to set audio mode", error);

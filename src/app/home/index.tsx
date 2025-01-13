@@ -77,6 +77,7 @@ import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
+import { startSilentBackgroundService, stopSilentBackgroundService } from "services/background";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -614,6 +615,8 @@ const Home = () => {
   const uploadVoiceNote = async (note: NewNote, continueUpload = false) => {
     const temporaryRecordingId = note.id;
 
+    await startSilentBackgroundService('upload');
+
     dispatch(
       updateRecordingDetails({
         recordingId: note.id,
@@ -665,6 +668,8 @@ const Home = () => {
           temporaryRecordingId,
         })
       );
+    } finally {
+      await stopSilentBackgroundService();
     }
   };
 

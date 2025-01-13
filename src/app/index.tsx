@@ -7,6 +7,11 @@ import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates';
+import notifee from '@notifee/react-native';
+
+notifee.registerForegroundService(() => {
+  return new Promise(() => {});
+});
 
 LogBox.ignoreLogs(['Sending `onInstallConversionDataLoaded` with no listeners registered.']);
 LogBox.ignoreLogs(['Require cycle: src']);
