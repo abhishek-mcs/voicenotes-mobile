@@ -114,7 +114,6 @@ const Home = () => {
   const [isPlay, setIsPlay] = useState(-1);
   const [play, setPlay] = useState<Audio.Sound | null>();
   const [audioLoading, setAudioLoading] = useState(-1);
-  const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
@@ -136,7 +135,7 @@ const Home = () => {
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
-  const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote} = useNoteContext()
+  const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
   const {showDialog}:any = useDialog()
@@ -559,7 +558,7 @@ const Home = () => {
       }
 
       if (!repeat&&!recordingParentId) {
-        scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
+        noteListScrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
       }
       if(repeat) {
         // setSplitCount(splitCount+1);
@@ -637,7 +636,7 @@ const Home = () => {
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
-        scrollRef={scrollRef}
+        noteListScrollRef={noteListScrollRef}
       />
     ),
     [isPlay, play, audioLoading, expandNote,isOffline]
@@ -781,7 +780,7 @@ const Home = () => {
               )}
             </Animated.View>
             <Animated.FlatList
-                ref={scrollRef}
+                ref={noteListScrollRef}
                 ListHeaderComponent={
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
                 }

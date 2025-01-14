@@ -63,6 +63,7 @@ export function useFirebaseRecordingListener() {
   };
 
   const onTextNoteSave = async(textnote:string='',temporaryRecordingId:any,images:any[]=[]) => {
+    // const t = textnote?.replace(/\n/g, '<br>');
     const data = await axiosApi.post(`/recordings/new`,{recording_type:3,transcript:textnote})
     const noteId = data?.data?.recording?.id
     listenToFirebaseStatus(noteId,temporaryRecordingId);

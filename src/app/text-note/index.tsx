@@ -18,7 +18,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
-import { useTheme } from "context";
+import { useNoteContext, useTheme } from "context";
 import { isIOS, sleep } from "utils/common";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import {
@@ -51,6 +51,7 @@ const TextNote = () => {
   const { recordingList } = useSelector((state:RootState)=>state.recordingStates)
   const { onTextNoteSave } = useFirebaseRecordingListener()
   const scrollRef:any = useRef<ScrollView>()
+  const { noteListScrollRef } = useNoteContext()
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -79,6 +80,7 @@ const TextNote = () => {
     onTextNoteSave(textnote,temporaryRecordingId,attachments)
     dispatch(setTempRecordingData(newTemporaryRecording))
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
+    noteListScrollRef?.current?.scrollToIndex({index:0,animated:true})
     router.back()
   };
 
