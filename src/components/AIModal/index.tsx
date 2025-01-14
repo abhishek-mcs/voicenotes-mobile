@@ -469,9 +469,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     value={input}
                     enablesReturnKeyAutomatically={true}
                     returnKeyType="send"
-                    autoCorrect={true}
                     autoFocus={false}
-                    autoCapitalize="none"
+                    autoCapitalize="sentences"
                     onChangeText={(text) => setInput(text)}
                     onSubmitEditing={() => onSend(input)}
                   />
@@ -579,8 +578,9 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   }
 
   const goToSource=(id:string)=>{
+    console.log(id)
     dispatch(setRelatedNoteId(id))
-    router?.back()
+    // router?.back();
   }
 
   if(!!url){
