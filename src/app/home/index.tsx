@@ -180,7 +180,7 @@ const Home = () => {
       const firebasePath =  "processStatuses/recording"
       const dbRef = database().ref(firebasePath).child(`${recordingId}`);
       
-      console.log('firebase listen', firebasePath + recordingId)
+      // console.log('firebase listen', firebasePath + recordingId)
       
       let isTitleGenerated=false||is_transcript_only;
       let isTitleTriggered=false||is_transcript_only;
@@ -188,13 +188,13 @@ const Home = () => {
       let isProcessCompleted=false;
 
       dbRef.on('value', async (snapshot) => {
-        console.log('firebase listen value')
+        // console.log('firebase listen value')
         if (!snapshot?.exists()) {
-          console.log("Snapshot does not exist");
+          // console.log("Snapshot does not exist");
           return;
         }
 
-        console.log('snapshot',snapshot?.exists())
+        // console.log('snapshot',snapshot?.exists())
 
         if (snapshot?.exists()) {
 
@@ -205,11 +205,11 @@ const Home = () => {
             return;
           }
           
-          console.log('firebase snapshot')
+          // console.log('firebase snapshot')
           let updatedStatus = "uploading";
           if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
             updatedStatus = "processing";
-            console.log("audio uploaded");
+            // console.log("audio uploaded");
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -220,7 +220,7 @@ const Home = () => {
             dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.UPLOADED_FAILED) {
             updatedStatus = "upload_failed";
-            console.log("audio uploaded failed");
+            // console.log("audio uploaded failed");
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -231,7 +231,7 @@ const Home = () => {
             dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
             updatedStatus = "processing_failed";
-            console.log("title geneation failed;waiting",recordingId);
+            // console.log("title geneation failed;waiting",recordingId);
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -242,7 +242,7 @@ const Home = () => {
             dispatch(updateTempRecordingData(updatedStatus));
           } else if (status === RecordingStatus.GENERATE_TRANSCRIPT_FAILED) {
             updatedStatus = "processing_failed";
-            console.log("transcript geneation failed;waiting",recordingId);
+            // console.log("transcript geneation failed;waiting",recordingId);
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -252,11 +252,11 @@ const Home = () => {
             );
             dispatch(updateTempRecordingData(updatedStatus));
           } else if (teamSummaryId && status === RecordingStatus.MEETING_SUMMARY_GENERATED) {
-            console.log('summary generation worked')
+            // console.log('summary generation worked')
             updatedStatus = "processed";
             await sleep(5000)
             const updatedNote = await fetchSingleRecording(recordingId);
-            console.log(updatedNote?.data?.creations)
+            // console.log(updatedNote?.data?.creations)
             dispatch(
               updateRecordingDetails({
                 recordingId,
@@ -275,9 +275,9 @@ const Home = () => {
           } else if ((status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED)&&!teamSummaryId) {
             const isProcessOver = true;
             updatedStatus = "processed";
-            console.log("formatted");
+            // console.log("formatted");
             const updatedNote = await fetchSingleRecording(recordingId);
-            console.log("updated note: ",updatedNote.data.title)
+            // console.log("updated note: ",updatedNote.data.title)
             isTitleGenerated=updatedNote?.data?.title!=null||is_transcript_only
             isProcessCompleted=isTitleTriggered&&isTranscriptTriggered&&status === RecordingStatus.PROCESS_COMPLETED
             !isProcessCompleted&&
@@ -303,7 +303,7 @@ const Home = () => {
             status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
             is_transcript_only&&updatedNote.data?.recording_type==2&&dispatch(setCurrentlyOpenedMeetingTranscript(updatedNote.data?.transcript))
             status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
-            console.log("removing firebase listener");
+            // console.log("removing firebase listener");
             // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
             status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
               !updatedNote.data?.parent_id&&setExpandNote(0);
@@ -312,13 +312,13 @@ const Home = () => {
             }, 600);
           }
         } else {
-          console.log("Snapshot does not exist");
+          // console.log("Snapshot does not exist");
         }
       },(error) => {
         console.error(error);
       });
     }catch(e){
-      console.log("Error processing snapshot:", e);
+      // console.log("Error processing snapshot:", e);
       // Update UI to show error state if needed
       dispatch(
         updateRecordingDetails({
@@ -332,26 +332,26 @@ const Home = () => {
 
   useEffect(() => {
     const tokenSubscription = actionEmitter.addListener('sendToken', () => {
-      console.log("React Native: Send token started");
+      // console.log("React Native: Send token started");
       NativeModules.TokenBridge.sendTokenToWatch(token);
     });
 
     const startRecordSubscription = actionEmitter.addListener('onStartRecord', () => {
-      console.log("React Native: Recording started");
+      // console.log("React Native: Recording started");
       setTimeout(() => {
         onStartRecord({repeat: false, parent_id: recordingParentId});
       }, 500)
     });
 
     const askAISubscription = actionEmitter.addListener('askAI', () => {
-      console.log("React Native: AI asked");
+      // console.log("React Native: AI asked");
       setTimeout(() => {
         onAsk();
       }, 500)
     });
 
     const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
-      console.log("React Native: Search Note started");
+      // console.log("React Native: Search Note started");
       router.push("/search/");
     });
 
@@ -416,28 +416,28 @@ const Home = () => {
   const handleShortcutAction = (type: string) => {
     switch (type) {
       case 'askAI':
-        console.log('Performing action for Ask AI');
+        // console.log('Performing action for Ask AI');
         setTimeout(() => {
           onAsk();
         }, 500)
         break;
       case 'record':
-        console.log('Performing action for Recording');
+        // console.log('Performing action for Recording');
         setTimeout(() => {
           onStartRecord({repeat: false, parent_id: recordingParentId});
         }, 500)
         break;
       case 'search':
-        console.log('Performing action for Search');
+        // console.log('Performing action for Search');
         router.push("/search/");
         break;
       default:
-        console.log('No matching shortcut action');
+        // console.log('No matching shortcut action');
     }
   };
 
   useEffect(() => {
-    console.log(action);
+    // console.log(action);
     const actionName = (action || '')?.split('-')[0]
       switch (actionName) {
         case 'ask':
@@ -488,7 +488,7 @@ const Home = () => {
           data: isProcessFailed?{status:"processing",is_transcript_loading:false}:{ is_transcript_loading: note?.id },
         })
       );
-      console.log("making request");
+      // console.log("making request");
 
       if(!!summary_id){
         const resp = await axiosApi.post(`/ai-create/${summary_id}/regenerate`)
@@ -502,32 +502,32 @@ const Home = () => {
 
       listenToFirebaseStatus(note.id,null,is_transcript_only,summary_id);
     } catch (error) {
-      console.log("error in queing new transcript: ", error);
+      // console.log("error in queing new transcript: ", error);
     }
   };
 
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
-      console.log("retrying upload for note: ");
+      // console.log("retrying upload for note: ");
       await uploadVoiceNote(note).catch(()=>{});
     };
 
     const retryProcessing = async (note: Note) => {
-      console.log("retrying processing");
+      // console.log("retrying processing");
       if (!note.transcript) {
         continueProcessing(note);
       }
     };
-    console.log('retry',note.status)
+    // console.log('retry',note.status)
 
     if (
       note.status === "upload_failed" ||
       (note.status === "uploading" && (note.recorded_at ?? note.created_at) < Date.now() - 5 * 1000)
     ) {
-      console.log('retry uploading')
+      // console.log('retry uploading')
       retryUpload(note);
     } else if (note.status === "processing_failed"||note.status === "process_failed") {
-      console.log('retry processing')
+      // console.log('retry processing')
       retryProcessing(note);
     }
   };
@@ -585,7 +585,7 @@ const Home = () => {
       () => {}
     );
     if (recEnabled && !repeat) {
-      console.log("Recording already started.");
+      // console.log("Recording already started.");
       if (parent_id) setRecordingParentId(parent_id);
       return;
     }
@@ -605,17 +605,17 @@ const Home = () => {
   const onPause = async (paused: boolean) => {
     paused
       ? await rec?.pauseAsync().finally(() => {
-          console.log("paused");
+          // console.log("paused");
         })
       : await rec?.startAsync().finally(() => {
-          console.log("resumed");
+          // console.log("resumed");
         });
   };
 
   const uploadVoiceNote = async (note: NewNote, continueUpload = false) => {
     const temporaryRecordingId = note.id;
 
-    await startSilentBackgroundService('upload');
+    // await startSilentBackgroundService('upload');
 
     dispatch(
       updateRecordingDetails({
@@ -628,7 +628,7 @@ const Home = () => {
       // let parent_id = note.parent_id;
       // if(note?.isSubnote&&!note?.parent_id){
       //   parent_id=recordingList.find((rec)=>rec.temp_id==note.temp_parent_id)?.id??null;
-      //   console.log('parent_id: ',parent_id)
+      //   // console.log('parent_id: ',parent_id)
       // }
       await saveVoiceNote({
         audio: note.audio.data.url,
@@ -638,9 +638,9 @@ const Home = () => {
         temp_id:note.temp_id,
       }).then(async(response)=>{
         const recordingId = response.recording.id;
-        console.log(recordingId,'recording id')
+        // console.log(recordingId,'recording id')
         if(continueUpload && !recordingParentId) setRecordingParentId(recordingId)
-        console.log("audio uploaded waiting for process");
+        // console.log("audio uploaded waiting for process");
         dispatch(
           updateRecordingDetails({
             recordingId,
@@ -652,15 +652,15 @@ const Home = () => {
         await sleep(3000)
         listenToFirebaseStatus(recordingId, temporaryRecordingId);
       }).catch((e)=>{
-        console.log(e,'audio upload failed. please check for error')
+        // console.log(e,'audio upload failed. please check for error')
       });
       setTimeout(() => {
-        console.log("removing old recordings to save memory");
+        // console.log("removing old recordings to save memory");
         removeExtraOldAudios(recordingList, dispatch);
       }, 4000);
       await queryClient.resetQueries('streaks');
     } catch (error) {
-      console.log("Error in network upload");
+      // console.log("Error in network upload");
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
@@ -757,7 +757,7 @@ const Home = () => {
   const fetchNextPage = () => {
     // if(recordingList?.length>10){
       recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
-      recordingQuery.hasNextPage&&console.log("fetching next page");
+      // recordingQuery.hasNextPage&&console.log("fetching next page");
     // }
   };
 

@@ -3,7 +3,6 @@ import { openSettings } from "expo-linking";
 import { useEffect } from "react";
 import { Platform } from "react-native";
 import * as KeepAwake from 'expo-keep-awake';
-import { startSilentBackgroundService, stopSilentBackgroundService } from "services/background";
 
 interface ExtendedRecording extends Audio.Recording {
   _isDormant?: boolean;
@@ -81,7 +80,7 @@ export const onRecord = async (
           },
         },()=>{},30);
         
-        await startSilentBackgroundService('recording');
+        // await startSilentBackgroundService('recording');
         const extendedRecording = recordingObject as ExtendedRecording;
         
         setRec(extendedRecording);
@@ -136,7 +135,7 @@ export const stopRecording = async (recording: ExtendedRecording|any ) => {
     }
     await recording?.stopAndUnloadAsync();
     KeepAwake.deactivateKeepAwake();
-    await stopSilentBackgroundService();
+    // await stopSilentBackgroundService();
     return recording.getURI();
   } catch (error) {
     console.error("Failed to stop recording", error);
@@ -157,7 +156,7 @@ export const cancelRecording = async (recording: ExtendedRecording | null,soundR
     await recording?._cleanupForUnloadedRecorder()
     await soundRef?.unloadAsync();
     KeepAwake.deactivateKeepAwake();
-    await stopSilentBackgroundService();
+    // await stopSilentBackgroundService();
   } catch (error) {
     console.error("Failed to stop recording", error);
   }

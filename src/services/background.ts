@@ -1,31 +1,32 @@
 import notifee, { AndroidForegroundServiceType, AndroidImportance, AndroidVisibility } from "@notifee/react-native";
 import { AppState, Platform } from "react-native";
 
-const createNotificationChannel = async (type: 'upload' | 'recording') => {
+const createNotificationChannel = async () => {
     const channelId = await notifee.createChannel({
-        id: type,
-        name: type === 'upload' ? 'Background Activities' : 'Recording',
+        id: 'background',
+        name: 'Background Activities',
         importance: AndroidImportance.HIGH,
       });
     return channelId;
 };
 
-export const startSilentBackgroundService = async (type: 'upload' | 'recording') => {
+export const startSilentBackgroundService = async () => {
     await notifee.requestPermission();
-    const channelId = await createNotificationChannel(type);
+    const channelId = await createNotificationChannel();
       await notifee.displayNotification({
-        id: type,
-        title: type === 'upload' ? '' : 'Recording in progress',
-        body: type === 'upload' ? '' : 'Tap here and hit the DONE button to save your note.',
+        id: 'background',
+        title: 'Recording in progress',
+        body: 'Tap here and hit the DONE button to save your note.',
         android: {
           channelId,
           asForegroundService: true,
           ongoing: true,
           autoCancel: false,
           importance: AndroidImportance.HIGH,
-          visibility: type === 'upload' ? AndroidVisibility.SECRET : AndroidVisibility.PUBLIC,
+          visibility: AndroidVisibility.PUBLIC,
           foregroundServiceTypes: [
-            type === 'recording' ? AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_MICROPHONE : AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+            AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_MICROPHONE,
+            AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
           ],
           pressAction: {
             id: 'default',

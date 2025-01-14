@@ -10,6 +10,7 @@ import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useTheme } from "context";
+import { startSilentBackgroundService, stopSilentBackgroundService } from "services/background";
 
 interface Props {
   onRecord: (v:any) => void;
@@ -72,7 +73,7 @@ useEffect(() => {
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 2400000 && !!token) {
+          } else if (newDuration >= 120000 && !!token) {
             onStopRecord(newDuration, userDetails?.subscription_status);
             return 0;
           }
@@ -95,6 +96,7 @@ useEffect(() => {
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
     setRecordingParentId(null)
+    stopSilentBackgroundService();
     // setPaused(true);
   }
 
@@ -104,6 +106,7 @@ useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
     setIsCanceling(false);
     setRecordingParentId(null)
+    stopSilentBackgroundService();
   }
 
   const onRecordStart = () => {
@@ -111,6 +114,7 @@ useEffect(() => {
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
     setPaused(false)
+    startSilentBackgroundService();
     onRecord(newTemporaryRecordingId);
   };
 
