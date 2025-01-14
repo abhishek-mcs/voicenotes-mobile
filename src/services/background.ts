@@ -50,14 +50,7 @@ export const stopSilentBackgroundService = async () => {
 export const showCompletionNotification = async () => {
     try {
       if (AppState.currentState !== 'active') {
-        const channelId = await notifee.createChannel({
-          id: 'upload',
-          name: 'Upload Status',
-          importance: AndroidImportance.HIGH,
-          sound: 'default',
-          vibration: true,
-          lights: true
-        });
+        const channelId = await createNotificationChannel();
         await notifee.displayNotification({
           title: 'Note Ready',
           body: 'Your voice note has been transcribed and is ready to view.',

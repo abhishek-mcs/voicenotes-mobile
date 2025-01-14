@@ -310,6 +310,7 @@ const Home = () => {
               status === RecordingStatus.PROCESS_COMPLETED&&dbRef.off('value');
               status === RecordingStatus.PROCESS_COMPLETED&&dbRef.remove();
             }, 600);
+            showCompletionNotification();
           }
         } else {
           // console.log("Snapshot does not exist");
@@ -654,7 +655,6 @@ const Home = () => {
       }).catch((e)=>{
         // console.log(e,'audio upload failed. please check for error')
       });
-      await showCompletionNotification();
       setTimeout(() => {
         // console.log("removing old recordings to save memory");
         removeExtraOldAudios(recordingList, dispatch);
