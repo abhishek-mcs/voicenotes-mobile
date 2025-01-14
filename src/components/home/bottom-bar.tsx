@@ -73,7 +73,7 @@ useEffect(() => {
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 120000 && !!token) {
+          } else if (newDuration >= 2400000 && !!token) {
             onStopRecord(newDuration, userDetails?.subscription_status);
             return 0;
           }
