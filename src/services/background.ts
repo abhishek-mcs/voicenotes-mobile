@@ -57,8 +57,8 @@ export const showCompletionNotification = async () => {
       if (AppState.currentState !== 'active') {
         const channelId = await createNotificationChannel();
         await notifee.displayNotification({
-          title: 'Voicenote is ready',
-          body: 'Your voice has been transcribed and is ready to view.',
+          title: Platform.OS === 'ios' ? 'Voicenotes' : '',
+          body: 'Your note is now ready to view.',
           android: {
             channelId,
             importance: AndroidImportance.HIGH,
