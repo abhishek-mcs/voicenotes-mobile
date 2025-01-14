@@ -7,10 +7,21 @@ import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates';
-import notifee from '@notifee/react-native';
+import notifee, { EventType } from '@notifee/react-native';
 
 notifee.registerForegroundService(() => {
   return new Promise(() => {});
+});
+
+// use this handler to handle notification clicks in the future
+notifee.onBackgroundEvent(async ({ type, detail }) => {
+  if (type === EventType.PRESS) {
+    console.log('User pressed notification in background', detail.notification);
+  }
+  
+  if (type === EventType.DISMISSED) {
+    console.log('User dismissed notification in background', detail.notification);
+  }
 });
 
 LogBox.ignoreLogs(['Sending `onInstallConversionDataLoaded` with no listeners registered.']);
