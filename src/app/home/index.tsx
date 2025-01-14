@@ -77,7 +77,7 @@ import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
-import { startSilentBackgroundService, stopSilentBackgroundService } from "services/background";
+import { showCompletionNotification } from "services/background";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -654,6 +654,7 @@ const Home = () => {
       }).catch((e)=>{
         // console.log(e,'audio upload failed. please check for error')
       });
+      await showCompletionNotification();
       setTimeout(() => {
         // console.log("removing old recordings to save memory");
         removeExtraOldAudios(recordingList, dispatch);
@@ -668,8 +669,6 @@ const Home = () => {
           temporaryRecordingId,
         })
       );
-    } finally {
-      await stopSilentBackgroundService();
     }
   };
 

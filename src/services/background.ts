@@ -15,15 +15,15 @@ export const startSilentBackgroundService = async () => {
     const channelId = await createNotificationChannel();
       await notifee.displayNotification({
         id: 'background',
-        title: 'Recording in progress',
-        body: 'Tap here and hit the DONE button to save your note.',
+        title: '',
+        body: '',
         android: {
           channelId,
           asForegroundService: true,
           ongoing: true,
           autoCancel: false,
           importance: AndroidImportance.HIGH,
-          visibility: AndroidVisibility.PUBLIC,
+          visibility: AndroidVisibility.SECRET,
           foregroundServiceTypes: [
             AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_MICROPHONE,
             AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
