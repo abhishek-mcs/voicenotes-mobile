@@ -96,7 +96,8 @@ useEffect(() => {
     setDuration(0);
     timerId.current&&clearInterval(timerId.current);
     setRecordingParentId(null)
-    stopSilentBackgroundService();
+    await stopSilentBackgroundService();
+    await startSilentBackgroundService(true);
     // setPaused(true);
   }
 
@@ -109,12 +110,12 @@ useEffect(() => {
     stopSilentBackgroundService();
   }
 
-  const onRecordStart = () => {
+  const onRecordStart = async () => {
     !canRecord&&setCloseAlert(false)
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
     setPaused(false)
-    startSilentBackgroundService();
+    await startSilentBackgroundService();
     onRecord(newTemporaryRecordingId);
   };
 

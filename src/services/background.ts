@@ -5,12 +5,15 @@ const createNotificationChannel = async () => {
     const channelId = await notifee.createChannel({
         id: 'background',
         name: 'Background Activities',
-        importance: AndroidImportance.HIGH,
+        importance: AndroidImportance.MIN,
+        vibration: false,
+        lights: false,
+        sound: 'default'
       });
     return channelId;
 };
 
-export const startSilentBackgroundService = async () => {
+export const startSilentBackgroundService = async (upload: boolean = false) => {
     await notifee.requestPermission();
     const channelId = await createNotificationChannel();
       await notifee.displayNotification({
@@ -24,9 +27,11 @@ export const startSilentBackgroundService = async () => {
           autoCancel: false,
           importance: AndroidImportance.HIGH,
           visibility: AndroidVisibility.SECRET,
-          foregroundServiceTypes: [
+          foregroundServiceTypes: upload ? [
+            AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+          ] : [
             AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_MICROPHONE,
-            AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+            AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC
           ],
           pressAction: {
             id: 'default',
@@ -52,8 +57,8 @@ export const showCompletionNotification = async () => {
       if (AppState.currentState !== 'active') {
         const channelId = await createNotificationChannel();
         await notifee.displayNotification({
-          title: 'Note Ready',
-          body: 'Your voice note has been transcribed and is ready to view.',
+          title: 'Voicenote is ready',
+          body: 'Your voice has been transcribed and is ready to view.',
           android: {
             channelId,
             importance: AndroidImportance.HIGH,
