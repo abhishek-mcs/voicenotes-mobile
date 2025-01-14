@@ -953,9 +953,9 @@ const NotePreview = forwardRef(
                             : ""
                         }
                         showCursorAtEnd={
-                          note?.title === "New Recording" || !note?.title
+                          note?.title === "New note" || note?.title === "New Recording" || !note?.title
                         }
-                        message={!!note?.title?note?.title?.trimEnd():"New Recording"}
+                        message={!!note?.title?note?.title?.trimEnd():note?.recording_type!=3?"New Recording":"New note"}
                         triggerAnimation={
                           triggerTypingTitle == note?.id ? 2 : 0
                         }

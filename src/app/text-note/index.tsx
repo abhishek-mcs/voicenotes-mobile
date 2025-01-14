@@ -67,7 +67,7 @@ const TextNote = () => {
       temp_id:temporaryRecordingId,
       audio: { data: { url: null, duration:null } },
       isUploading: true,
-      title: `New Recording`,
+      title: `New note`,
       transcript: null,
       recorded_at: new Date().getTime(),
       status: "saving",
@@ -196,7 +196,8 @@ const TextNote = () => {
             color: Colors.text,
             fontFamily: 'Primary',
             fontSize: 14,
-            lineHeight: 24
+            lineHeight: textnote?.length>0?24:18,
+            marginTop: textnote?.length>0?16:18
           }}
           multiline
           placeholder="Write your note here..."
