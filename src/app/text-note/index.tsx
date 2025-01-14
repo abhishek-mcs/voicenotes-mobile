@@ -200,7 +200,7 @@ const TextNote = () => {
             marginTop: textnote?.length>0?16:18
           }}
           multiline
-          placeholder="Write your note here..."
+          placeholder="Write here..."
           placeholderTextColor={Colors.grey3}
           onChangeText={onWrite}
           value={textnote}
