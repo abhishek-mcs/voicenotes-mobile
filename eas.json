@@ -22,11 +22,17 @@
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "android": {
+        "resourceClass": "large"
+      }
     },
     "staging": {
       "autoIncrement": true,
-      "channel": "staging"
+      "channel": "staging",
+      "android": {
+        "resourceClass": "large"
+      }
     }
   },
   "submit": {
