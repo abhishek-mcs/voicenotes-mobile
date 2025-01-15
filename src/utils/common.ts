@@ -79,3 +79,14 @@ export async function checkFileExists(filePath: string) {
 
 export const getLanguageCode = (languageName: string): Language | undefined =>
     Object.entries(languages).find(([_, value]) => value === languageName)?.[0] as Language | undefined;
+
+export const formatTranscript = ( trascript: string ) => trascript
+?.replace(/\n/g, '')
+?.replace(/<b\/?>/g, '')
+?.replace(/<\/b\/?>/g, '')
+?.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+?.replace(/<br\s*\/?>\s+/g, '<br>')
+?.replace(/<br\/?>/g, "\n\n")
+?.replace(/&amp;/g, '&')
+?.replace(/&nbsp;/g, '&')
+?.trimEnd()

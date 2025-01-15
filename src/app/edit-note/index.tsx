@@ -21,6 +21,7 @@ import { TextInput } from "react-native";
 import { useQueryClient } from "react-query";
 import { useSaveAICreation, useSaveEditedNote } from "queries/home";
 import {
+  setCurrentlyOpenedMeetingTranscript,
   updateTitle,
   updateTranscript,
 } from "redux/reducers/recordingStates";
@@ -67,13 +68,14 @@ const EditNote = () => {
     const transcript = editNote?.transcript;
     const content = editNoteSummary?.replace(/\* /g,'');
     const recording_id = editNote?.recording_id
-    const data =editNote?.recording_type==2?{content,recording_id}:{transcript,tags} 
+    const data = editNote?.recording_type==2?{content,recording_id}:{transcript,tags} 
 
     await saveEditedNote.mutateAsync(
       {title:editNote?.title,...data},{
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
+          dispatch(setCurrentlyOpenedMeetingTranscript(editNote?.transcript))
           queryClient.resetQueries('all-recording')
           queryClient.resetQueries('single-recording')
           setIsLoading(false)
@@ -91,6 +93,7 @@ const EditNote = () => {
   };
 
   useEffect(() => {
+    console.log(editNote?.isEditMeetingTranscript)
     InteractionManager.runAfterInteractions(() => {
       titleInputRef.current?.focus();
     });
@@ -106,9 +109,11 @@ const EditNote = () => {
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
-          marginTop: 16,
-          marginHorizontal: 12,
+          paddingHorizontal: 12,
           paddingTop: isIOS ? 0 : 16,
+          borderBottomColor: Colors.border,
+          borderBottomWidth: 1,
+          height: 50,
         }}
       >
         <Touchable
@@ -150,6 +155,7 @@ const EditNote = () => {
         )}
       </View>
       <View style={styles.editContainer}>
+      {!editNote?.isEditMeetingTranscript&&
       <TextInput
           ref={titleInputRef}
           style={styles.titleInput}
@@ -167,7 +173,7 @@ const EditNote = () => {
           multiline
           onSubmitEditing={handleTitleSubmit}
           returnKeyType="next"
-        />
+        />}
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -185,7 +191,7 @@ const EditNote = () => {
             placeholder="Transcript"
             placeholderTextColor={Colors.grey6}
             value={
-              editNote?.recording_type==2?
+              (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
               editNoteSummary
               :editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
@@ -199,7 +205,7 @@ const EditNote = () => {
                 return { 
                   ...n, 
                   ...(
-                    editNote?.recording_type==2?
+                    editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript?
                     {
                       creation:[
                         ...n?.creations,

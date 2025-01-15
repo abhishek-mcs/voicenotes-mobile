@@ -28,6 +28,7 @@ import { RootState } from "redux/store/store";
 import {
   checkFileExists,
   fetchSingleRecording,
+  formatTranscript,
   isIOS,
   screenHeight,
   sleep,
@@ -154,6 +155,7 @@ const NotePreview = forwardRef(
         params: { index, id: note?.id },
       });
     };
+
     const onGotoAddTag = () => {
       hideMoreOption();
       setTimeout(() => {
@@ -674,7 +676,8 @@ const NotePreview = forwardRef(
     const onTranscriptOpen = async(isRetry=false) =>{
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
-      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id),isShared:isShared?'shared':''}})
+      dispatch(setEditNote({...note,isEditMeetingTranscript:true}))
+      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id),isShared:isShared?'shared':'',index}})
     }
 
     const onReGenerateTeamSummary = async() => {
@@ -1024,16 +1027,7 @@ const NotePreview = forwardRef(
                     message={(
                       note?.recording_type==2?
                       note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
-                      :note?.transcript
-                      ?.replaceAll(/\n/g, ''))
-                      ?.replaceAll(/<b\/?>/g, '')
-                      ?.replaceAll(/<\/b\/?>/g, '')
-                      ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-                      ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-                      ?.replaceAll(/<br\/?>/g, "\n\n")
-                      ?.replace(/&amp;/g, '&')
-                      ?.replace(/&nbsp;/g, '&')
-                      ?.trimEnd()}
+                      :formatTranscript(note?.transcript))}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }

@@ -28,20 +28,16 @@ import {
 import {
   router,
   useFocusEffect,
-  useGlobalSearchParams,
   useLocalSearchParams,
 } from "expo-router";
 import ChatRecorder from "components/common/recording/chat-recorder";
 import { SvgXml } from "react-native-svg";
 import { Audio } from "expo-av";
 import Swiper from "react-native-swiper";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { DrawerLayout } from "react-native-gesture-handler";
 import {
-  useAskAI,
   useFetchMeetingAskChats,
-  useUploadChatRecord,
-  useVoiceChatResponse,
 } from "queries/home";
 import * as Haptics from "expo-haptics";
 import { cancelRecording, onRecord, stopRecording } from "func/home/record";
@@ -53,9 +49,11 @@ import AiLoader from "components/common/loaders/ai-loader";
 import { setStringAsync } from "expo-clipboard";
 import Touchable from "components/common/Touchable";
 import Snackbar from "components/common/snackbar";
+import MoreOptions from "components/common/more-options";
+import { home } from "assets/svg/home";
 
 const Transcript = () => {
-  const { recording_id = "", isShared = "" }: any = useLocalSearchParams();
+  const { recording_id = "", isShared = "", index = 0 }: any = useLocalSearchParams();
   const styles = useStyles();
   const { Colors, isLightMode } = useTheme();
   const { currentlyOpenedMeetingTranscript } = useSelector(
@@ -73,6 +71,7 @@ const Transcript = () => {
   const textInputRef = useRef<TextInput>(null);
   const { showDialog }: any = useDialog();
   const snackRef: any = useRef();
+  const dispatch = useDispatch()
 
   const meetingAskAI = useFetchMeetingAskChats();
   const { setMeetingAskAIData, meetingAskAIData }:any = useNoteContext();
@@ -187,6 +186,13 @@ const Transcript = () => {
     }
   }, [isRecording, rec]);
 
+  const onEdit = () => {
+    router.navigate({
+      pathname: "/edit-note/",
+      params: { index, id: recording_id },
+    });
+  };
+
   const messages =
     transcript
       ?.split(/<br\s*\/?>\s*<br\s*\/?>/)
@@ -194,19 +200,39 @@ const Transcript = () => {
 
   const hasHistory = meetingAskAIData?.related_messages?.length>0
 
+  const moreOptions = [
+    {
+      title: "Edit",
+      systemIcon: "square.and.pencil",
+      androidIcon: "pencil-outline",
+      onPress: onEdit,
+    },
+    {
+      title: "Copy link",
+      systemIcon: "doc.text",
+      androidIcon: "content-copy",
+      onPress: onCopy,
+    },
+  ]
+
   return (
     <SafeAreaView style={styles.modalContainer}>
       <View style={styles.header}>
         <View style={{ width: "20%" }} />
         <Text style={styles.headerText}>Transcript</Text>
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <Touchable
+          {/* <Touchable
             onPress={onCopy}
             style={[styles.rightHeader, { marginTop: 2 }]}
             activeOpacity={0.6}
           >
             <SvgXml xml={AIModalSVG.transcriptCopy} />
-          </Touchable>
+          </Touchable> */}
+          <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
+            <View style={{height:29,width:29,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
+              <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+            </View>
+          </MoreOptions>
           <Pressable onPress={() => router?.back()} style={styles.rightHeader}>
             <SvgXml
               xml={AIModalSVG.close?.replace("#1C1B1F", Colors.askClose)}
@@ -260,7 +286,7 @@ const Transcript = () => {
       {isShared != "shared" && (
         <KeyboardStickyView
           style={styles.inputContainer}
-          offset={{ opened: isIOS ? 34 : screenHeight / 100 }}
+          offset={{ opened: isIOS ? 34 : screenHeight / 100 , closed: 16 }}
         >
           {!isRecording ? (
             <>
@@ -284,13 +310,12 @@ const Transcript = () => {
                   onSubmitEditing={() => onSend(input)}
                 />
 
+<View style={{flexDirection:'row', width: '100%',justifyContent:"flex-end", marginTop:8}}>
                 {hasHistory&&
                 <Pressable
                   style={[
                     styles.send,
                     {
-                      position: "absolute",
-                      right: 30,
                       opacity: 0.5,
                     },
                   ]}
@@ -303,16 +328,23 @@ const Transcript = () => {
                         'height="32"',
                         'height="32" transform="rotate(-90, 16, 16)"'
                       )}
-                    width={26}
-                    height={26}
+                    width={30}
+                    height={30}
                   />
                 </Pressable>}
+              <Pressable style={styles.send} onPress={() => onRecordStart()}>
+                <SvgXml
+                  xml={AIModalSVG.record
+                    ?.replace("#1C1B1F", Colors.text)
+                    ?.replace("#222222", Colors.bgColor3(0.1))}
+                  width={30}
+                  height={30}
+                />
+              </Pressable>
                 <Pressable
                   style={[
                     styles.send,
                     {
-                      position: "absolute",
-                      right: 0,
                       opacity: !input ? 0.5 : 1,
                     },
                   ]}
@@ -326,20 +358,12 @@ const Transcript = () => {
                         'height="32"',
                         'height="32" transform="rotate(-90, 16, 16)"'
                       )}
-                    width={26}
-                    height={26}
+                    width={30}
+                    height={30}
                   />
                 </Pressable>
+                </View>
               </View>
-              <Pressable style={styles.send} onPress={() => onRecordStart()}>
-                <SvgXml
-                  xml={AIModalSVG.record
-                    ?.replace("#1C1B1F", Colors.text)
-                    ?.replace("#222222", Colors.bgColor3(0.1))}
-                  width={40}
-                  height={40}
-                />
-              </Pressable>
             </>
           ) : (
             <View
@@ -378,41 +402,35 @@ const useStyles = () => {
           paddingTop: isIOS ? 0 : 60,
         },
         inputContainer: {
-          paddingTop: 16,
-          paddingBottom: 16,
-          // borderTopWidth: 1,
-          // borderTopColor: Colors.border,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingLeft: 14,
+          paddingHorizontal: 16,
+          paddingBottom: 16,
           backgroundColor: Colors.bgColor8,
         },
         inputContentContainer: {
-          justifyContent: "center",
-          alignItems: "center",
-          flexWrap: "wrap",
-          width: "85%",
-          borderWidth: 1,
-          borderColor: Colors.border,
-          height: 40,
-          borderRadius: 1000,
-          paddingHorizontal: 12,
-          backgroundColor: Colors.inputBg3,
+          justifyContent: "space-between",
+          flex: 1,
+          minHeight: 92,
+          borderRadius: 16,
+          paddingLeft: 12,
+          paddingRight: 4,
+          paddingBottom: 4,
+          paddingTop: 12,
+          backgroundColor: Colors.darkWithOpacity(0.05),
         },
         input: {
-          // marginRight: 8,x
+          maxHeight: 140,
+          paddingRight: 12,
           fontSize: 16,
           fontFamily: "Primary",
           color: Colors.text,
-          width: "85%",
         },
         send: {
-          // paddingVertical: 16,
+          padding: 8,
           alignItems: "center",
           justifyContent: "center",
-          paddingHorizontal: 8,
-          // alignSelf: "flex-end",
         },
         messageContainer: {
           marginBottom: 16,
