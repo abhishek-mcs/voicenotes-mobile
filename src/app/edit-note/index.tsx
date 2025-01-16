@@ -29,6 +29,7 @@ import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
 import { useTheme } from "context";
 import { useDialog } from "context/DialogContext";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const EditNote = () => {
     const router = useRouter();
@@ -100,12 +101,9 @@ const EditNote = () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8 }}>
-      <KeyboardAvoidingView 
-        behavior={isIOS ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-      <View
+    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8, paddingTop: isIOS?0:50 }}>
+
+<View
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
@@ -113,7 +111,7 @@ const EditNote = () => {
           paddingTop: isIOS ? 0 : 16,
           borderBottomColor: Colors.border,
           borderBottomWidth: 1,
-          height: 50,
+          height: isIOS? 50 : 60,
         }}
       >
         <Touchable
@@ -154,6 +152,10 @@ const EditNote = () => {
           </Touchable>
         )}
       </View>
+      <KeyboardAvoidingView 
+        behavior={isIOS ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
       <View style={styles.editContainer}>
       {!editNote?.isEditMeetingTranscript&&
       <TextInput
@@ -175,18 +177,18 @@ const EditNote = () => {
           returnKeyType="next"
         />}
 
-        <ScrollView
+        {/* <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets
           contentContainerStyle={{ paddingBottom: "50%" }}
-        >
+        > */}
           <TextInput
             ref={transcriptInputRef}
             style={styles.textInput}
             multiline
             autoComplete="off"
             autoCorrect={true}
-            scrollEnabled={false}
+            scrollEnabled={true}
             selectTextOnFocus={false}
             placeholder="Transcript"
             placeholderTextColor={Colors.grey6}
@@ -223,7 +225,7 @@ const EditNote = () => {
               setEditNoteSummary(txt)
             }}
           />
-        </ScrollView>
+        {/* </KeyboardAwareScrollView> */}
       </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

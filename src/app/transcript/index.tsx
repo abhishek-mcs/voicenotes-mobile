@@ -286,7 +286,7 @@ const Transcript = () => {
       {isShared != "shared" && (
         <KeyboardStickyView
           style={styles.inputContainer}
-          offset={{ opened: isIOS ? 34 : screenHeight / 100 , closed: 16 }}
+          offset={{ opened: isIOS ? 34 : screenHeight/4 , closed: isIOS? 16 : 0 }}
         >
           {!isRecording ? (
             <>

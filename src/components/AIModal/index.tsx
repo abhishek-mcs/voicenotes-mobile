@@ -374,8 +374,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
                 paddingVertical: 16
-              }}
-              extraKeyboardSpace={-200}>
+              }}>
                 {(chats?.related_messages||[])?.map((item:any, index:number) => (
                 <View key={`${index}`}>
                   {!!item?.question && (
@@ -466,7 +465,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
             {!chatStarted &&
               <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:20,marginBottom:8}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.recordings_count} notes.</Text>
             }
-            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS?34:(screenHeight/100), closed: 16}}>
+            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS?34:(screenHeight/100), closed: isIOS? 16 : 0}}>
               {!isRecording ? (
                 <>
                 <View style={styles.inputContentContainer}>

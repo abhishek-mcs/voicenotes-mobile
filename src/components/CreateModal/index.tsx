@@ -144,7 +144,7 @@ const CreateModal = forwardRef(({}:createModalProps, ref) => {
       // propagateSwipe={true}
       // onSwipeComplete={onClose}
     // > 
-      <View style={[styles.modal,styles[preview], {paddingTop: isIOS ? 0 : insets.top}]}>
+      <View style={[styles.modal,styles[preview], {}]}>
         {/* <Header title="Create" type={preview=='note'?'notes':'create'} onNewChat={onReset}/> */}
         {/* {preview=="loader"&&<Text style={styles.heading}>Great!</Text>} */}
         {(preview === 'suggestions'||preview === 'records') ?
