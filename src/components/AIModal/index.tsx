@@ -580,7 +580,7 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   const goToSource=(id:string)=>{
     console.log(id)
     dispatch(setRelatedNoteId(id))
-    // router?.back();
+    router?.back();
   }
 
   if(!!url){
