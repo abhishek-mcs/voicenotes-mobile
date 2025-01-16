@@ -481,9 +481,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     value={input}
                     enablesReturnKeyAutomatically={true}
                     returnKeyType="send"
-                    autoCorrect={true}
                     autoFocus={false}
-                    autoCapitalize="none"
+                    autoCapitalize="sentences"
                     onChangeText={onChangeText}
                     onSubmitEditing={() => onSend(input)}
                   />
