@@ -68,6 +68,7 @@ import { useDialog } from "context/DialogContext";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { MAIN_URL } from "services/api/api-constants";
+import { languages } from 'utils/constants/languages';
 
 const NotePreview = forwardRef(
   (
@@ -825,6 +826,18 @@ const NotePreview = forwardRef(
         androidIcon:'checkbox-outline',
         systemIcon:'checkmark.rectangle.stack',
         onPress:()=> onCreate("todo")
+      },
+      {
+        title: "Translate",
+        androidIcon:'translate',
+        systemIcon:'globe',
+        actions: Object.entries(languages)
+          .filter(([code]) => code !== '')
+          .map(([code, name]) => ({
+            title: name as string,
+            onPress: () => onCreate(`translate-${code}`),
+            searchable: true
+          }))
       },
       {
         title:"Tweet",
