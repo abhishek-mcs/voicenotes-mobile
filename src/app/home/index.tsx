@@ -77,7 +77,7 @@ import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
-import { showCompletionNotification } from "services/background";
+import { showCompletionNotification, stopSilentBackgroundService } from "services/background";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -310,7 +310,10 @@ const Home = () => {
               status === RecordingStatus.PROCESS_COMPLETED&&dbRef.off('value');
               status === RecordingStatus.PROCESS_COMPLETED&&dbRef.remove();
             }, 600);
-            showCompletionNotification();
+            if(isTitleGenerated || status == RecordingStatus.PROCESS_COMPLETED){
+              await showCompletionNotification();
+              await stopSilentBackgroundService();
+            }
           }
         } else {
           // console.log("Snapshot does not exist");

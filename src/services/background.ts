@@ -15,11 +15,12 @@ const createNotificationChannel = async () => {
 
 export const startSilentBackgroundService = async (upload: boolean = false) => {
     await notifee.requestPermission();
-    const channelId = await createNotificationChannel();
+    if(Platform.OS === 'android'){
+      const channelId = await createNotificationChannel();
       await notifee.displayNotification({
         id: 'background',
-        title: '',
-        body: '',
+        title: upload ? 'Uploading note' : 'Recording in progress',
+        body: upload ? 'Please wait until your note is uploaded & processed.' : 'You can continue using your device normally.',
         android: {
           channelId,
           asForegroundService: true,
@@ -38,44 +39,58 @@ export const startSilentBackgroundService = async (upload: boolean = false) => {
           },
         }
       });
+    }
 };
 
 export const stopSilentBackgroundService = async () => {
     if (Platform.OS === 'android') {
       await notifee.stopForegroundService();
     }
-
-    try {
-        await notifee.cancelAllNotifications();
-    } catch (error) {
-        console.warn('Failed to dismiss notifications:', error);
-    }
 };
 
 export const showCompletionNotification = async () => {
     try {
       if (AppState.currentState !== 'active') {
-        const channelId = await createNotificationChannel();
-        await notifee.displayNotification({
-          title: Platform.OS === 'ios' ? 'Voicenotes' : '',
-          body: 'Your note is now ready to view.',
-          android: {
-            channelId,
+        // Get all displayed notifications
+        const displayedNotifications = await notifee.getDisplayedNotifications();
+        
+        // Check if there's already a notification with the 'completion' channel
+        const hasCompletionNotification = displayedNotifications.some(
+          notification => notification.notification.android?.channelId === 'completion'
+        );
+
+        // Only proceed if no completion notification exists
+        if (!hasCompletionNotification) {
+          const channelId = await notifee.createChannel({
+            id: 'completion',
+            name: 'Note status',
             importance: AndroidImportance.HIGH,
-            visibility: AndroidVisibility.PUBLIC,
-            pressAction: {
-              id: 'default',
+            vibration: true,
+            lights: true,
+            sound: 'default'
+          });
+
+          await notifee.displayNotification({
+            title: 'Voicenotes',
+            body: 'Your note is now ready to view.',
+            android: {
+              channelId,
+              importance: AndroidImportance.HIGH,
+              visibility: AndroidVisibility.PUBLIC,
+              pressAction: {
+                id: 'default',
+              },
             },
-          },
-          ios: {
-            foregroundPresentationOptions: {
-              badge: true,
-              sound: true,
-              banner: true,
-              list: true,
+            ios: {
+              foregroundPresentationOptions: {
+                badge: true,
+                sound: true,
+                banner: true,
+                list: true,
+              },
             },
-          },
-        });
+          });
+        }
       }
     } catch (error) {
       console.warn('Failed to show completion notification:', error);
