@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  DeviceEventEmitter,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDateAndTimeNew, formatDateTime } from "utils/format-date";
@@ -68,7 +69,6 @@ import { useDialog } from "context/DialogContext";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { MAIN_URL } from "services/api/api-constants";
-import { languages } from 'utils/constants/languages';
 
 const NotePreview = forwardRef(
   (
@@ -96,7 +96,7 @@ const NotePreview = forwardRef(
         repeat: boolean | null;
       }) => {},
       isOffline = false,
-      scrollRef,
+      scrollRef
     }: any,
     ref
   ) => {
@@ -831,13 +831,12 @@ const NotePreview = forwardRef(
         title: "Translate",
         androidIcon:'translate',
         systemIcon:'globe',
-        actions: Object.entries(languages)
-          .filter(([code]) => code !== '')
-          .map(([code, name]) => ({
-            title: name as string,
-            onPress: () => onCreate(`translate-${code}`),
-            searchable: true
-          }))
+        onPress: () => {
+          router.push({
+            pathname: '/translate/',
+            params: { noteId: note?.id }
+          });
+        }
       },
       {
         title:"Tweet",
@@ -880,6 +879,17 @@ const NotePreview = forwardRef(
         })
       );
     };
+
+    useEffect(() => {
+      const subscription = DeviceEventEmitter.addListener('translateNote', (data) => {
+        if (data.noteId === note?.id) {
+          console.log("Translation event received for note:", data);
+          onCreate(data.code);
+        }
+      });
+
+      return () => subscription.remove();
+    }, [note?.id]);
 
     if (!note) return null;
 

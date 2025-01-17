@@ -111,6 +111,13 @@ export default function Layout() {
                   name="review/index"
                   options={{ presentation: "formSheet" }}
                 />
+                <Stack.Screen
+                  name="translate/index"
+                  options={{
+                    presentation: "formSheet",
+                    animation: isIOS ? "ios" : "slide_from_bottom",
+                  }}
+                />
               </Stack>
             </BottomSheetModalProvider>
           </PortalProvider>
