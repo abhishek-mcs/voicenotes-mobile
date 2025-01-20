@@ -118,6 +118,13 @@ export default function Layout() {
                     animation: isIOS ? "ios" : "slide_from_bottom",
                   }}
                 />
+                <Stack.Screen
+                  name="translate/index"
+                  options={{
+                    presentation: "formSheet",
+                    animation: isIOS ? "ios" : "slide_from_bottom",
+                  }}
+                />
               </Stack>
             </BottomSheetModalProvider>
           </PortalProvider>

@@ -60,3 +60,9 @@ export const languages:any = {
     'vi': 'Vietnamese',
     'cy': 'Welsh',
 }
+
+export type Language = {
+    code: string;
+    name: string | unknown;
+}
+export const languagesList: Language[] = Object.entries(languages).map(([code, name]) => ({ code, name }));

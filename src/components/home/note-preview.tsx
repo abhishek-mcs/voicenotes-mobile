@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  DeviceEventEmitter,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDateAndTimeNew, formatDateTime } from "utils/format-date";
@@ -96,7 +97,7 @@ const NotePreview = forwardRef(
         repeat: boolean | null;
       }) => {},
       isOffline = false,
-      scrollRef,
+      scrollRef
     }: any,
     ref
   ) => {
@@ -173,14 +174,14 @@ const NotePreview = forwardRef(
       setCreationLoader(false);
     };
 
-    const onCreate = useCallback(async (type = "summary") => {
+    const onCreate = useCallback(async (type = "summary", language?: string) => {
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
       setExpand(index)
       // Scroll to the specific component
       await createAI.mutateAsync(
-        { recording_id: note?.id, type },
+        { recording_id: note?.id, type, language },
         {
           onSuccess: async (r) => {
             await listenAiCreate({ id: r?.data?.id, getCreation });
@@ -877,6 +878,16 @@ const NotePreview = forwardRef(
         })
       );
     };
+
+    useEffect(() => {
+      const subscription = DeviceEventEmitter.addListener('translateNote', (data) => {
+        if (data.noteId === note?.id) {
+          onCreate('translate', data.code);
+        }
+      });
+
+      return () => subscription.remove();
+    }, [note?.id]);
 
     if (!note) return null;
 
