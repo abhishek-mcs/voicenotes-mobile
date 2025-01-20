@@ -94,7 +94,6 @@ const NotePreview = forwardRef(
         parent_id: string | null;
         repeat: boolean | null;
       }) => {},
-      isOffline = false,
       scrollRef,
     }: any,
     ref
@@ -605,9 +604,7 @@ const NotePreview = forwardRef(
         { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete?.replace(/#0D0D0D/g,Colors.text) },
       ];
 
-      const failedButtons = isOffline?
-      [...intermediateButtons]
-      :[
+      const failedButtons = [
         {
           text: "Retry",
           onPress: async ()=>{
