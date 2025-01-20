@@ -23,7 +23,7 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=0,onN
                 onPress={onNewChat}
                 style={{ padding: 4, marginLeft: 12 }}
               >
-                <SvgXml xml={AIModalSVG.newChat?.replace('#1C1B1F',Colors.askClose)} />
+                <SvgXml xml={AIModalSVG.newChat?.replace('black',Colors.askClose)} />
               </Touchable>
             )}
             <Touchable onPress={onClose} style={{ padding: 4, marginLeft: 12 }}>
@@ -50,7 +50,7 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=0,onN
             onPress={onNewChat}
             style={styles.rightContainer}
           >
-            <SvgXml xml={commonSvg.back1?.replace('#1C1B1F',Colors.askClose)} />
+            <SvgXml xml={commonSvg.back1?.replace('black',Colors.askClose)} />
             {/* <Text style={{fontFamily:'Primary',color:'#222',fontSize:14,marginLeft:8}}>History</Text> */}
           </Touchable>:
           <View style={{width: "25%"}}/>}

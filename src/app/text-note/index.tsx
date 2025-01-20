@@ -14,6 +14,7 @@ import {
   InteractionManager,
   ScrollView,
   StyleSheet,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
@@ -191,14 +192,13 @@ const TextNote = () => {
         <TextInput
           ref={inputRef}
           style={{
-            flex: 1,
             borderColor: Colors.border,
             margin: 16,
             padding: 8,
             color: Colors.text,
             fontFamily: 'Primary',
             fontSize: 14,
-            lineHeight: textnote?.length>0?24:18,
+            // lineHeight: textnote?.length>0?20:18,
             marginTop: textnote?.length>0?16:18
           }}
           multiline
@@ -211,7 +211,7 @@ const TextNote = () => {
           scrollEnabled={false}
           selectTextOnFocus={false}
         />
-      </KeyboardAwareScrollView>
+        </KeyboardAwareScrollView>
 
       <ImageUploader
         showImagePicker={showImagePicker}
