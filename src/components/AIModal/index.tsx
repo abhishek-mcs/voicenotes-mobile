@@ -217,12 +217,12 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   
   const onSend = (question: string,chatData=null) => {
     Keyboard.dismiss()
+    setInput("");
     !chatStarted&&setChatStarted(true)
     const tempChats = chatData??chats;
     tempChats?.related_messages?.push({ question, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
     const data = tempChats?.id != 0 ? { question, id: tempChats?.id } : { question };
-    setInput("");
     scrollToEnd();
     setTimeout(() => {
       tempChats.related_messages[tempChats?.related_messages?.length-1].answer="Typing"
@@ -620,10 +620,18 @@ return (
   <View style={[styles.convoContentContainer,{alignSelf:isAI?'flex-start':'flex-end'}]}>
     <View style={[styles.aiChat,isAI?styles.aiChatStyle:styles.userChatStyle,(text=="Typing"||text=='Searching')?{paddingVertical:8}:{}]}>
       <View style={{flexDirection:'row'}}>
+      {(text=='Searching'|| text=="Typing")?
+    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
+    colorFilters={[
+      { keypath: 'Ellipse 1', color: Colors.bgColor6 },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor6 },
+      { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
+      ]}/>:
       <Text style={[styles.text,{position:"relative"}]}>
         {text}
-      </Text>
-      {(text=='Typing'||text=='Searching')&&<TypingLoader/>}
+      </Text>}
       </View>
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
 
