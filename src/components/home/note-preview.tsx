@@ -829,8 +829,8 @@ const NotePreview = forwardRef(
       },
       {
         title: "Translate",
-        androidIcon:'translate',
-        systemIcon:'globe',
+        androidIcon:'translate-variant',
+        systemIcon:'translate',
         onPress: () => {
           router.push({
             pathname: '/translate/',
