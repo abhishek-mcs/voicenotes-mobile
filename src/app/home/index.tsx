@@ -29,9 +29,9 @@ import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fetchSingleRecording, isAndroid, isIOS, screenHeight } from "utils/common";
+import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
 // import AskMeSomething from "components/ask-me-something";
-import { Redirect, router, useFocusEffect } from "expo-router";
+import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
@@ -48,12 +48,10 @@ import {
 } from "redux/reducers/recordingStates";
 import NetInfo from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
-import BannerAlert from "components/common/banner-alert";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import { get, off, onValue, ref, remove, update } from "firebase/database";
 import {  RecordingStatus,} from "func/firebase/recording-event-listener";
-import axiosApi, { setAuthToken } from "services/api/axios-api";
+import axiosApi from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
@@ -77,7 +75,7 @@ import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
-import { showCompletionNotification, stopSilentBackgroundService } from "services/background";
+import { stopSilentBackgroundService } from "services/background";
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -311,7 +309,6 @@ const Home = () => {
               status === RecordingStatus.PROCESS_COMPLETED&&dbRef.remove();
             }, 600);
             if(isTitleGenerated || status == RecordingStatus.PROCESS_COMPLETED){
-              await showCompletionNotification();
               await stopSilentBackgroundService();
             }
           }
