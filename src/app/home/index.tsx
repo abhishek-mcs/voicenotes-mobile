@@ -495,7 +495,13 @@ const Home = () => {
         dispatch(updateTempRecordingData("processing"));
         await listenToFirebaseStatus(recordingId, temporaryRecordingId);
       }).catch((e)=>{
-        console.log(e,'audio upload failed. please check for error')
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { status: "upload_failed" },
+            temporaryRecordingId,
+          })
+        );
       });
       setTimeout(() => {
         console.log("removing old recordings to save memory");
@@ -503,7 +509,6 @@ const Home = () => {
       }, 4000);
       await queryClient.resetQueries('streaks');
     } catch (error) {
-      console.log("Error in network upload");
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,

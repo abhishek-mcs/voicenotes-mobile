@@ -297,9 +297,9 @@ const NotePreview = forwardRef(
       if(note?.recording_type==2)
         t=note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data??''
       else if(note?.recording_type==3)
-        t=formatTranscript2(note?.transcript);
+        t=formatTranscript2(content)
       else
-        t=formatTranscript(content);
+        t=formatTranscript(content)
       console.log(t)
       await setStringAsync(t);
       setShareVisible(false);
@@ -605,9 +605,7 @@ const NotePreview = forwardRef(
         { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete?.replace(/#0D0D0D/g,Colors.text) },
       ];
 
-      const failedButtons = isOffline?
-      [...intermediateButtons]
-      :[
+      const failedButtons = [
         {
           text: "Retry",
           onPress: async ()=>{
@@ -1032,11 +1030,12 @@ const NotePreview = forwardRef(
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     isSummary={note?.recording_type==2}
-                    message={(
+                    message={
                       note?.recording_type==2?
                       note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
-                      :note?.recording_type==3?formatTranscript2(note?.transcript)
-                      :formatTranscript(note?.transcript))}
+                      :note?.recording_type==3?
+                      formatTranscript2(note?.transcript)
+                      :formatTranscript(note?.transcript)}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }

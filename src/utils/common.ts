@@ -88,16 +88,17 @@ export const formatTranscript = ( trascript: string ) => trascript
 ?.replace(/<br\s*\/?>\s+/g, '<br>')
 ?.replace(/<br\/?>/g, "\n\n")
 ?.replace(/&amp;/g, '&')
-?.replace(/&nbsp;/g, '&')
+?.replace(/&nbsp;/g, ' ')
 ?.replace(/<\/?div>/g, '')
 ?.trimEnd()
 
-export const formatTranscript2 = ( trascript: string ) => trascript
-?.replace(/<br>/g, '\n') // Convert <br> to newlines first
-?.replace(/<div><br>/g, '\n\n') // Handle div-br combinations
+export const formatTranscript2 = ( trascript: string ) => trascript      
+?.replace(/<div><br><\/div>|<div><br\s*\/?><\/div>/g, '\n') // Replace <div><br></div> with double newline
+?.replace(/<br\s*\/?>/g, '\n')
 ?.replace(/<div>\s*/g, '\n') // Opening div with whitespace
 ?.replace(/\s*<\/div>/g, '') // Closing div with whitespace
-?.replace(/<div>/g, '\n') // Any remaining divs
+?.replace(/<div>/g, '') // Any remaining divs
 ?.replace(/<\/div>/g, '')
-?.replace(/\n\s*\n/g, '\n\n') // Convert multiple newlines to double newlines
+?.replace(/&amp;/g, '&')
+?.replace(/&nbsp;/g, ' ')
 ?.trim();
