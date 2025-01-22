@@ -82,6 +82,7 @@
     "react-native-gesture-handler": "~2.14.0",
     "react-native-ios-kit": "^0.0.22",
     "react-native-keyboard-controller": "^1.14.5",
+    "react-native-markdown-display": "^7.0.2",
     "react-native-material-menu": "^2.0.0",
     "react-native-modal": "^13.0.1",
     "react-native-purchases": "^7.26.2",

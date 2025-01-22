@@ -14,7 +14,7 @@ import {
   InteractionManager,
 } from "react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { isIOS } from "utils/common";
+import { formatTranscript2, isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { TextInput } from "react-native";
@@ -195,6 +195,8 @@ const EditNote = () => {
             value={
               (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
               editNoteSummary
+              :editNote?.recording_type==3?
+              formatTranscript2(editNote?.transcript)
               :editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
               ?.replaceAll(/<\/b\/?>/g, '')

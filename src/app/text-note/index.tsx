@@ -20,7 +20,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import { useNoteContext, useTheme } from "context";
-import { isIOS, sleep } from "utils/common";
+import { isIOS, screenHeight, sleep } from "utils/common";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import {
   KeyboardAwareScrollView,
@@ -37,12 +37,14 @@ import { setRecordingList, setTempRecordingData } from "redux/reducers/recording
 import { RootState } from "redux/store/store";
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { commonSvg } from "assets/svg/commonSvg";
+import { useDialog } from "context/DialogContext";
 
 const TextNote = () => {
   const router = useRouter();
   const {content}:any = useLocalSearchParams();
-  const { Colors } = useTheme();
+  const { Colors, isLightMode } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const [limitAlert, setLimitAlert] = useState(false);
   const [textnote, setTextnote] = useState(content??"");
   const inputRef: any = useRef<TextInput>();
   const [showImagePicker, setShowImagePicker] = useState(false);
@@ -53,6 +55,14 @@ const TextNote = () => {
   const { onTextNoteSave } = useFirebaseRecordingListener()
   const scrollRef:any = useRef<ScrollView>()
   const { noteListScrollRef } = useNoteContext()
+  const { userDetails }: any = useSelector(
+    (state: RootState) => state.userDetails
+  );
+  const { isTempIAPPurchased }: any = useSelector(
+    (state: RootState) => state.IAPStates
+  );
+  const isBeliever = userDetails?.subscription_status||isTempIAPPurchased
+  const { showDialog } = useDialog()
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -63,6 +73,7 @@ const TextNote = () => {
   const onCancel = () => router?.back();
 
   const onDone = async() => {
+    setIsLoading(true)
     const temporaryRecordingId = Math.random().toString(36).substring(7);
     const newTemporaryRecording: NewNote = {
       id: temporaryRecordingId,
@@ -83,10 +94,19 @@ const TextNote = () => {
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
     noteListScrollRef?.current?.scrollToIndex({index:0,animated:true})
     router.back()
+    setIsLoading(false)
   };
 
   const onWrite = (note: any) => {
-    setTextnote(note);
+    let n: string = note
+    if(!isBeliever&&note?.length>=1500&&!limitAlert){
+      setLimitAlert(true)
+      showDialog('', "Please enter a maximum of 1500 characters. It's fair usage policy, but contact us for more.",[{
+        onPress:()=>setLimitAlert(false),
+        text:"Ok"
+      }],{userInterfaceStyle:isLightMode?"light":"dark"})
+    }
+    setTextnote(n);
   };
 
   const refreshNotesAfterAttachmentChange = async () => {
@@ -172,7 +192,7 @@ const TextNote = () => {
           <Pressable
             onPress={onDone}
             style={{ padding: 12, width: "20%", alignItems: "flex-end" }}
-            disabled={textnote==''}
+            disabled={textnote==''||isLoading}
           >
             <Text
               style={{
@@ -188,38 +208,34 @@ const TextNote = () => {
       </View>
 
       {/* Text Input Area */}
-      <KeyboardAwareScrollView>
+      {/* <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={false}
+      focusable={false}
+      scrollsToTop={false}
+      > */}
+        <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{padding:16}} contentInset={{bottom:300}}>
         <TextInput
           ref={inputRef}
           style={{
-            borderColor: Colors.border,
-            margin: 16,
-            padding: 8,
             color: Colors.text,
             fontFamily: 'Primary',
             fontSize: 14,
-            // lineHeight: textnote?.length>0?20:18,
-            marginTop: textnote?.length>0?16:18
+            lineHeight: textnote?.length>0?20:18,
           }}
           multiline
           placeholder="Write here..."
           placeholderTextColor={Colors.grey3}
           onChangeText={onWrite}
           value={textnote}
-          onSubmitEditing={onDone}
           returnKeyLabel="return"
           scrollEnabled={false}
           selectTextOnFocus={false}
+          {...(isBeliever?{}:{maxLength:1500})}
         />
-        </KeyboardAwareScrollView>
+        </ScrollView>
 
-      <ImageUploader
-        showImagePicker={showImagePicker}
-        setShowImagePicker={setShowImagePicker}
-        setAttachments={setAttachments}
-        onAttachmentUpdate={refreshNotesAfterAttachmentChange}
-        noteType={3}
-      />
       <KeyboardStickyView
         style={{
           height: attachments?.length>0?'auto':60,
@@ -250,6 +266,14 @@ const TextNote = () => {
             </Pressable>
           </View>
       </KeyboardStickyView>
+
+      <ImageUploader
+        showImagePicker={showImagePicker}
+        setShowImagePicker={setShowImagePicker}
+        setAttachments={setAttachments}
+        onAttachmentUpdate={refreshNotesAfterAttachmentChange}
+        noteType={3}
+      />
     </SafeAreaView>
   );
 };

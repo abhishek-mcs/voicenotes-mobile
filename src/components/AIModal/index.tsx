@@ -31,7 +31,7 @@ import { useDispatch, useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
 import chatLoader from "assets/lottie/chatLoader.json";
-import { formatTranscript, isAndroid, isIOS, screenHeight, screenWidth } from "utils/common";
+import { formatTranscript, isAndroid, isIOS, screenHeight, screenWidth, sleep } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
@@ -215,25 +215,28 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
     scrollToEnd();
   }
   
-  const onSend = (question: string,chatData=null) => {
+  const onSend = async(question: string,chatData=null) => {
     Keyboard.dismiss()
-    setInput("");
     !chatStarted&&setChatStarted(true)
     const tempChats = chatData??chats;
-    tempChats?.related_messages?.push({ question, answer: "Searching" });
+    tempChats?.related_messages?.push({ question:input, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    const data = tempChats?.id != 0 ? { question, id: tempChats?.id } : { question };
-    scrollToEnd();
-    setTimeout(() => {
-      tempChats.related_messages[tempChats?.related_messages?.length-1].answer="Typing"
-      setChats({...tempChats})
+    const data = tempChats?.id != 0 ? { question:input, id: tempChats?.id } : { question: input };
+    scrollToEnd();  
+    setInput('');    
+    textInputRef.current?.clear();
+    // setTimeout(() => {
+      // tempChats.related_messages[tempChats?.related_messages?.length-1].answer="Typing"
+      // setChats({...tempChats})
       askAI.mutate(data, {
         onSuccess: onSuccessSendChat,
         onError:()=>{
           tempChats?.related_messages?.pop();
         }
       });
-    }, 1000);
+      await sleep(700)
+      setInput('');
+    // }, 1000);
   };
 
   const onHistoryPress = async(id:any) => {
@@ -360,6 +363,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   };
 
   const onChangeText = useCallback((text:string) => {
+    console.log(text)
     setInput(text);
   }, []);
 
@@ -470,7 +474,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
             </View>
           )}
 
-            <KeyboardStickyView style={[styles.inputContainer,(!keyboardShown&&input?.length==0)?{paddingBottom: 16}:{}]} offset={{opened:isIOS? 34: (screenHeight/100)}}>
+            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS? 44: (screenHeight/100),closed:34}}>
               {!isRecording ? (
                 <View style={{backgroundColor: Colors.bgColor8, paddingBottom: 32, paddingTop: 8}}>
                 {!chatStarted &&
@@ -493,7 +497,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     autoFocus={false}
                     autoCapitalize="sentences"
                     onChangeText={onChangeText}
-                    onSubmitEditing={() => onSend(input)}
                   />
               <View style={[styles.sendButtonView,(!keyboardShown&&input?.length==0)?styles.sendButtonView2:{}]}>
               <Pressable style={styles.send} onPress={() => onRecordStart()}>
@@ -603,8 +606,8 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
     {text=="Typing"?
     <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
     colorFilters={[
-      { keypath: 'Ellipse 1', color: Colors.bgColor6 },
-      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor6 },
+      { keypath: 'Ellipse 1', color: Colors.bgColor18(0.08) },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor18(0.08) },
       { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
       { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
       { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
@@ -623,8 +626,8 @@ return (
       {(text=='Searching'|| text=="Typing")?
     <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
     colorFilters={[
-      { keypath: 'Ellipse 1', color: Colors.bgColor6 },
-      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor6 },
+      { keypath: 'Ellipse 1', color: Colors.bgColor18(0.08) },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor18(0.08) },
       { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
       { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
       { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
@@ -729,7 +732,8 @@ const useStyles = () => {
   skeleton: { height: 34, borderRadius: 8, opacity: 0.2, marginTop: 12 },
   inputContentContainer:{
     justifyContent: "space-between",
-    flex: 1,
+    // flex: 1,
+
     minHeight: 92,
     borderRadius: 16,
     paddingLeft: 12,
@@ -755,9 +759,8 @@ const useStyles = () => {
   },
   inputContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 52,
     justifyContent: "space-between",
-    backgroundColor: Colors.bgColor8
+    backgroundColor: Colors.bgColor8,
   },
   sendButtonView:{
     flexDirection:'row', width: '100%',justifyContent:"flex-end", marginTop:8,
