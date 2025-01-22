@@ -26,7 +26,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
       if(type=="email")
         txtCopy=`Subject: ${content.subject}\n\n${content.body}`
       else if(type=="points"||type=="todo")
-        txtCopy=content.join('\n')
+        txtCopy='• '+content.join('\n• ')
       else if(type=="blog")
         txtCopy=content.join('\n')
       else

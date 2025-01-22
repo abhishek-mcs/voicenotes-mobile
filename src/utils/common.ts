@@ -79,3 +79,26 @@ export async function checkFileExists(filePath: string) {
 
 export const getLanguageCode = (languageName: string): Language | undefined =>
     Object.entries(languages).find(([_, value]) => value === languageName)?.[0] as Language | undefined;
+
+export const formatTranscript = ( trascript: string ) => trascript
+?.replace(/\n/g, '')
+?.replace(/<b\/?>/g, '')
+?.replace(/<\/b\/?>/g, '')
+?.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+?.replace(/<br\s*\/?>\s+/g, '<br>')
+?.replace(/<br\/?>/g, "\n\n")
+?.replace(/&amp;/g, '&')
+?.replace(/&nbsp;/g, ' ')
+?.replace(/<\/?div>/g, '')
+?.trimEnd()
+
+export const formatTranscript2 = ( trascript: string ) => trascript      
+?.replace(/<div><br><\/div>|<div><br\s*\/?><\/div>/g, '\n') // Replace <div><br></div> with double newline
+?.replace(/<br\s*\/?>/g, '\n')
+?.replace(/<div>\s*/g, '\n') // Opening div with whitespace
+?.replace(/\s*<\/div>/g, '') // Closing div with whitespace
+?.replace(/<div>/g, '') // Any remaining divs
+?.replace(/<\/div>/g, '')
+?.replace(/&amp;/g, '&')
+?.replace(/&nbsp;/g, ' ')
+?.trim();
