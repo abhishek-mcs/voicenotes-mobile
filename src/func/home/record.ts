@@ -2,6 +2,8 @@ import { Audio } from "expo-av";
 import { openSettings } from "expo-linking";
 import { useEffect } from "react";
 import { Alert, Platform } from "react-native";
+import * as Sentry from '@sentry/react-native';
+
 const alertPermission=(isLightMode=true,showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{})=>{
   const txt = "Please enable microphone permission to continue";
         showDialog(
@@ -83,8 +85,9 @@ export const onRecord = async (
       }
     });
   } catch (err:any) {
-    console.error("Failed to start recording", err);
+    console.log("Failed to start recording", err);
     //getting error here
+    Sentry.captureMessage("Failed to start recording: " + err, "error")
   }
 };
 
@@ -95,7 +98,8 @@ export const stopRecording = async (recording: Audio.Recording|any ) => {
     return uri
 
   } catch (error) {
-    console.error("Failed to stop recording", error);
+    console.log("Failed to stop recording", error);
+    Sentry.captureMessage("Failed to stop recording: " + error, "error")
   }
 };
 

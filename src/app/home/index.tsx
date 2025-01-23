@@ -641,6 +641,7 @@ const Home = () => {
           temporaryRecordingId,
         })
       );
+      Sentry.captureMessage("Network fail or upload issue: "+ error,"error")
     }
   };
 
