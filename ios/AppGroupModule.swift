@@ -31,7 +31,7 @@ class ActionModule: RCTEventEmitter {
   }
 
   override func supportedEvents() -> [String]! {
-    return ["onStartRecord", "askAI", "searchNote", "sendToken"]
+    return ["onStartRecord", "askAI", "searchNote", "sendToken", "addToTextNote"]
   }
 
   @objc func startRecord() {
@@ -44,6 +44,10 @@ class ActionModule: RCTEventEmitter {
 
   @objc func searchNote() {
     sendEvent(withName: "searchNote", body: nil)
+  }
+
+  @objc func addToTextNote(content: String) {
+    sendEvent(withName: "addToTextNote", body: ["content": content])
   }
 
   @objc func sendToken() {

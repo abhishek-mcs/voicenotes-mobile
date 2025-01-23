@@ -6,6 +6,7 @@ import PulsatingCircle from "./PulsatingCircle";
 import { TypeAnimation } from 'react-native-type-animation';
 import { useTheme } from "context";
 import { useRouter } from "expo-router";
+import { TextComponent } from "./text-component";
 
 const TypeAnim:any=TypeAnimation
 
@@ -21,7 +22,8 @@ const ChatBubble = ({
   cursorSvg = '',
   status = "",
   showStatus = false,
-  showUpgrade= false
+  showUpgrade = false,
+  isSummary = false
 }: {
   delay?: number;
   message: string;
@@ -35,6 +37,7 @@ const ChatBubble = ({
   status?: string;
   showStatus?: boolean;
   showUpgrade?: boolean;
+  isSummary?:boolean;
 }) => {
   const [displayedMessage]: any = useState("");
   const containsHTML = (str: string) => {
@@ -74,6 +77,8 @@ const ChatBubble = ({
       </View>
     );
   }
+
+  const summaryNotes = isSummary?message?.split('\n'):['']
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
 
@@ -89,9 +94,15 @@ const ChatBubble = ({
       // splitter={(str) => str.split(/\s+/)}
       numberOfLines={lines}
     />
-    :<Text style={[style, {}]} numberOfLines={lines}>
-        {message}
-      </Text>}
+    :isSummary?
+    <View >{
+    summaryNotes?.splice(0,lines<10?2:summaryNotes?.length-1)?.map((m:any,i:number)=>(
+      <Text key={i} style={[style, {marginTop:i==0?4:8}]}>
+        {m}{lines<10&&i==1?'...':''}
+      </Text>
+    ))}
+    </View>
+    :<TextComponent text={message} style={style} numberOfLines={lines}/>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (
         <Text
@@ -102,7 +113,7 @@ const ChatBubble = ({
             lineHeight: 20,
             marginLeft: 4,
           }}
-        >{status=="processing"?"Transcribing":status=="uploading"?"Uploading":""}</Text>
+        >{status=="processing"?"Transcribing":status=="uploading"?"Uploading":status=="saving"?"Saving":""}</Text>
       )}
     </View>
   );

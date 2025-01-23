@@ -541,10 +541,8 @@ final class ContentViewModel: ObservableObject {
     recordAudioViewModel.recordButtonTapped()
   }
   
-  
   func askAIButton() {
     showAIRecordView = true
-    let subscriptionStatus = userDataModel?.subscriptionStatus ?? false
     aiRecordingViewModel.recordButtonTapped()
   }
   

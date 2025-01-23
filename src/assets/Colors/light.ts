@@ -48,6 +48,7 @@ export default {
   grey8:'#D9D9D9',
   grey9:'#ccc',
   grey10:'#bfbfbf',
+  grey11:'#bfbfbf',
   brownWithOpacity: (opacity:number) => `rgba(214,162,67,${opacity})`,
   black2:`#0d0d0d`,
   blue:'#007AFF',
@@ -76,6 +77,7 @@ export default {
   bgColor15:(opacity:number)=>`rgba(255,255,255,${opacity})`,
   bgColor16:'#D8D8D8',
   bgColor17:'#fff',
+  bgColor18:(o:number)=>`rgba(34, 34, 34,${o})`,
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#fff',
   streak2:'#fff',
@@ -102,7 +104,7 @@ export default {
   settingsBtnText:'#fff',
   bottomBarText:'#fff',
   bottomBarText1:'#000',
-  more:'#3C3C43',
+  more:'#0D0D0D',
   underlayColorBlack:"rgba(0,0,0,0.7)",
   refresh:'#717171',
   refresh1:'#000',
@@ -121,5 +123,6 @@ export default {
   pricingSelected:'rgba(73, 144, 53,0.05)',
   back:'#1C1B1F',
   arrow:'#0d0d0d',
-  loader:(o:number)=>`rgba(130, 130, 130,${o})`
+  loader:(o:number)=>`rgba(130, 130, 130,${o})`,
+  snack:'#0d0d0d',
 };

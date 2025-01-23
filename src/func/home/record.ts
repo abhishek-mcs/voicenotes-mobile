@@ -45,13 +45,31 @@ export const onRecord = async (
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
           interruptionModeAndroid: 1,
-          playThroughEarpieceAndroid: false,
+          playThroughEarpieceAndroid: true,
           staysActiveInBackground:true,
         });
 
         const { recording: recordingObject, status } = await Audio.Recording.createAsync({
-          ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+          ...Audio.RecordingOptionsPresets.LOW_QUALITY,
           isMeteringEnabled: true,
+          android:{
+            extension: '.m4a',
+            outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+            audioEncoder: Audio.AndroidAudioEncoder.AAC,
+            sampleRate: 16000, // Lower sample rate for low quality
+            numberOfChannels: 1, // Mono
+            bitRate: 64000, // Lower bit rate
+          },
+          ios: {
+            extension: '.m4a',
+            audioQuality: Audio.IOSAudioQuality.LOW,
+            sampleRate: 16000, // Lower sample rate
+            numberOfChannels: 1, // Mono
+            bitRate: 64000, // Lower bit rate
+            linearPCMBitDepth: 16,
+            linearPCMIsBigEndian: false,
+            linearPCMIsFloat: false,
+          },
         },()=>{},30);
         setRec(recordingObject);
         setRecEnabled(true);
@@ -67,10 +85,11 @@ export const onRecord = async (
                 shouldDuckAndroid: true,
                 interruptionModeAndroid: 1,
                 playThroughEarpieceAndroid: true,
+                staysActiveInBackground:true,
               });
 
               const { recording: recordingObject, status } = await Audio.Recording.createAsync({
-                ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+                ...Audio.RecordingOptionsPresets.LOW_QUALITY,
                 isMeteringEnabled: true,
               },()=>{},10);
               setRec(recordingObject);

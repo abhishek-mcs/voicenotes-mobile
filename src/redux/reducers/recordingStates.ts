@@ -7,13 +7,15 @@ export interface HashState {
   recordingCreateList: any[];
   tempRecordings: any;
   tempRecordingData:any;
+  currentlyOpenedMeetingTranscript:any
 }
 
 const initialState: HashState = {
   recordingList: [],
   recordingCreateList: [],
   tempRecordings: [],
-  tempRecordingData:{}
+  tempRecordingData:{},
+  currentlyOpenedMeetingTranscript:null
 };
 
 export const recordingStates = createSlice({
@@ -36,6 +38,9 @@ export const recordingStates = createSlice({
       state.recordingList[action.payload?.index].related_notes =
         action.payload?.related_notes;
     },
+    setCurrentlyOpenedMeetingTranscript: (state, action: PayloadAction<any>) => {
+      state.currentlyOpenedMeetingTranscript =action.payload
+    },
     updateTitle: (state, action: PayloadAction<any>) => {
       const list = state.recordingList;
       list[action.payload?.index].title = action.payload?.title;
@@ -55,8 +60,8 @@ export const recordingStates = createSlice({
           if (recording.id === recordingId) {
             return false; // Remove this recording
           }
-          if (recording.subnotes) {
-            recording.subnotes = filterRecordings(recording.subnotes);
+          if (recording?.subnotes) {
+            recording.subnotes = filterRecordings(recording?.subnotes);
           }
           return true;
         });
@@ -98,9 +103,9 @@ export const recordingStates = createSlice({
         }
 
         // If this recording has subnotes, check them too
-        if (recording.subnotes) {
-          const updatedSubnotes = recording.subnotes.map(updateRecording);
-          if (updatedSubnotes !== recording.subnotes) {
+        if (recording?.subnotes) {
+          const updatedSubnotes = recording?.subnotes.map(updateRecording);
+          if (updatedSubnotes !== recording?.subnotes) {
             return { ...recording, subnotes: updatedSubnotes };
           }
         }
@@ -124,7 +129,8 @@ export const {
   deleteRecordingsFromState,
   updateRecordingDetails,
   updateTempRecordingData,
-  setCreateRecordingList
+  setCreateRecordingList,
+  setCurrentlyOpenedMeetingTranscript
 } = recordingStates.actions;
 
 export default recordingStates.reducer;

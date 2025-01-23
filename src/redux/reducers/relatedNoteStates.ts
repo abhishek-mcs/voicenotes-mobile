@@ -1,39 +1,49 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface HashState {
-  relatedNoteId: any,
-  relatedNoteLoaders:{
-    transcript:false
-    title:false
-  }
+  relatedNoteId: any;
+  relatedNoteLoaders: {
+    transcript: false;
+    title: false;
+    summary: false;
+  };
 }
 
 const initialState: HashState = {
   relatedNoteId: null,
-  relatedNoteLoaders:{
-    transcript:false,
-    title:false
-  }
-}
+  relatedNoteLoaders: {
+    transcript: false,
+    title: false,
+    summary: false,
+  },
+};
 
 export const relatedNoteStates = createSlice({
-  name: 'relatedNote',
+  name: "relatedNote",
   initialState,
   reducers: {
     setRelatedNoteId: (state, action: PayloadAction<any>) => {
-      state.relatedNoteId = action.payload
+      state.relatedNoteId = action.payload;
     },
     setRelatedNoteTitleLoad: (state, action: PayloadAction<any>) => {
-      state.relatedNoteLoaders.title = action.payload
+      state.relatedNoteLoaders.title = action.payload;
     },
     setRelatedNoteTranscriptLoad: (state, action: PayloadAction<any>) => {
-      state.relatedNoteLoaders.transcript = action.payload
+      state.relatedNoteLoaders.transcript = action.payload;
+    },
+    setRelatedNoteSummaryLoad: (state, action: PayloadAction<any>) => {
+      state.relatedNoteLoaders.summary = action.payload;
     },
   },
-})
+});
 
 // Action creators are generated for each case reducer function
-export const { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } = relatedNoteStates.actions
+export const {
+  setRelatedNoteId,
+  setRelatedNoteTitleLoad,
+  setRelatedNoteTranscriptLoad,
+  setRelatedNoteSummaryLoad,
+} = relatedNoteStates.actions;
 
-export default relatedNoteStates.reducer
+export default relatedNoteStates.reducer;

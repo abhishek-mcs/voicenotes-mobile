@@ -29,6 +29,7 @@ export const saveVoiceNote = async (data: {
   const fileInfo = await FileSystem.getInfoAsync(uri);
   if (!fileInfo.exists) {
     Sentry.captureMessage("File does not exist", "error");
+    console.log("File does not exist")
     throw new Error("File does not exist");
   }
 

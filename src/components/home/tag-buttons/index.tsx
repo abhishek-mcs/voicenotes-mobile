@@ -78,14 +78,12 @@ export default function TagButtons({
   pinnedTags = [],
   pinnedTagsData = [],
   isDefaultHash = true,
-  count=0,
   tagsData=[]
 }: {
   hashFilter: any;
   pinnedTags: any;
   pinnedTagsData: any;
   isDefaultHash: boolean;
-  count: number,
   tagsData:any
 }) {
   const isPinned = pinnedTags?.length > 0;
@@ -98,6 +96,8 @@ export default function TagButtons({
   const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
   const {showDialog} = useDialog()
+  const count =
+  (isDefaultHash ? pinnedTagsData : tagsData)?.find((v: any) => v?.name === hashFilter)?.recordings_count || null;
 
   const options = [
     {

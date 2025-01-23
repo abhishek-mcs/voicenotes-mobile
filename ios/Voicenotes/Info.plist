@@ -21,7 +21,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.5.48</string>
+    <string>1.6.50</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -47,7 +47,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>138</string>
+    <string>159</string>
     <key>FacebookAdvertiserIDCollectionEnabled</key>
     <true/>
     <key>FacebookAppID</key>
@@ -94,8 +94,25 @@
     <string>This app requires access to system boot time for optimizing data retrieval and synchronization processes upon device boot. AsyncStorage may utilize system boot time to initialize data synchronization tasks or perform background data updates efficiently. Access to system boot time ensures that the app can maintain data consistency and provide up-to-date information to the user, enhancing the overall user experience.</string>
     <key>NSPrivacyAccessedAPICategoryUserDefaults</key>
     <string>This app requires access to user defaults for storing user preferences and settings securely on the device. AsyncStorage, a commonly used data persistence mechanism in React Native, utilizes user defaults to save and retrieve user-specific data such as preferences, settings, and user-generated content. Access to user defaults ensures a seamless and personalized user experience by preserving user preferences across app sessions.</string>
+    <key>NSSiriUsageDescription</key>
+    <string>Use Siri to interact with Voicenote app for recording, searching, and AI queries.</string>
     <key>NSUserActivityTypes</key>
     <array>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>

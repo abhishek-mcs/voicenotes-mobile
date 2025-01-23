@@ -7,7 +7,6 @@ import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { languages } from "utils/constants/languages";
-import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
 import { isIOS, screenWidth } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";

@@ -42,7 +42,7 @@ const SearchComponent = ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},s
 
     const debouncedSearch = debounce((q:string) => {
       setSearchQuery(q);
-    }, 500); 
+    }, 1000); 
 
     const onFocusInput=()=>{
       setIsFocused(true);

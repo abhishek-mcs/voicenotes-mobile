@@ -49,7 +49,8 @@ export default {
   grey7: '#4d4d4d', // Adjusted darker shade
   grey8: '#3b3b3b', // Darker grey for background elements
   grey9: '#888888', // Lighter grey for dark mode text
-  grey10: '#6d6d6d', // Darker shade of grey for muted elements
+  grey10: '#6d6d6d', // Darker shade of grey for muted elements,
+  grey11:'#d9d9d9',
   brownWithOpacity: (opacity:number) => `rgba(140, 97, 50, ${opacity})`, // Darker brown
   black2: `#f5f5f5`, // Inverted to light color for text readability
   blue: '#5397FF', // Slightly lighter blue for dark mode accents
@@ -78,6 +79,7 @@ export default {
   bgColor15:()=>tertiary,
   bgColor16:tertiary,
   bgColor17:'#1d1d1d',
+  bgColor18: (opacity:number) => tertiary,
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',
@@ -124,5 +126,6 @@ export default {
   back:'#FFFFFF',
   arrow:'#ffffff',
   status:'',
-  loader:(o:number)=>'#fff'
+  loader:(o:number)=>'#fff',
+  snack:tertiary,
 };

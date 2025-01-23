@@ -10,6 +10,7 @@ import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useTheme } from "context";
+import { router } from "expo-router";
 
 interface Props {
   onRecord: (v:any) => void;
@@ -46,7 +47,6 @@ export default ({
   const [closeAlert, setCloseAlert] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
-  const homeIcons:any=home
   const { token, userDetails, canRecord }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -110,8 +110,13 @@ useEffect(() => {
     !canRecord&&setCloseAlert(false)
     const newTemporaryRecordingId = Math.random().toString(36).substring(7);
     setTemporaryRecordingId(newTemporaryRecordingId);
+    setPaused(false)
     onRecord(newTemporaryRecordingId);
   };
+
+  const onTextNote = () => {
+    router.push('/text-note/')
+  }
 
   const onCloseAlert = () => {
     canRecord?
@@ -154,6 +159,22 @@ useEffect(() => {
         {!recEnabled ? (
           <>
             <RecButton
+              onPress={onAsk}
+              title={"Ask AI"}
+              icon={home.ask?.replace(/#0D0D0D/g,Colors.black2)}
+              style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
+            />
+            <RecButton
+              onPress={onTextNote}
+              title="Note"
+              icon={home.note?.replace(/#0D0D0D/g,Colors.black2)}
+              style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
+            />
+            <RecButton
               onPress={onRecordStart}
               title="Record"
               icon={home.record}
@@ -162,25 +183,18 @@ useEffect(() => {
               color={Colors.bottomBarText}
               style={styles.button}
             />
-            <RecButton
-              onPress={onAsk}
-              title={"Ask AI"}
-              icon={homeIcons.ask?.replaceAll('#0D0D0D',Colors.black2)}
-              style={{...styles.button}}
-              bgColor={Colors.bottomBarButtonBg1}
-              color={Colors.bottomBarText1}
-            />
-            <RecButton
+            {/* <RecButton
               onPress={onCreate}
               title="Create"
               icon={homeIcons.create?.replaceAll('#0D0D0D',Colors.black2)}
               style={styles.button}
               bgColor={Colors.bottomBarButtonBg1}
               color={Colors.bottomBarText1}
-            />
+            /> */}
           </>
         ) : (
 <NoteRecorder
+// (!!token&&isBeliever)?'':'/01:00'
         totalDuration={(!!token&&isBeliever)?'':'/01:00'}
         duration={duration}
         onCancel={onCancelClick}
@@ -207,16 +221,16 @@ const useStyles = () => {
     backgroundColor:Colors.bgColor17,
     minHeight: 56,
     borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 90,
+    // position: "absolute",
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 10,
     shadowColor: isIOS ?Colors.bgColor10(0.15) : Colors.bgColor10(0.7),
     shadowOpacity: 0.9,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    zIndex: 10,
-    elevation: 4,
+    // zIndex: 10,
+    // elevation: 4,
     paddingHorizontal: 20,
     paddingVertical: 16,
     justifyContent: "center",
@@ -231,28 +245,9 @@ const useStyles = () => {
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 16,
-    zIndex:10000
-  },
-  parentNoteIndicator: {
-    flexDirection: "row",
-    backgroundColor:Colors.whiteWithOpacity(1),
-    height: 40,
-    borderRadius: 24,
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 100,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: isIOS ?Colors.blackWithOpacity(0.15) : Colors.blackWithOpacity(0.7),
-    shadowOffset: { width: 0, height: 0.5 },
-    shadowOpacity: 0.9,
-    shadowRadius: 1.5,
-    elevation: 3,
-    zIndex: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    bottom: isIOS?16:0,
+    zIndex:10000,
+    elevation: 4
   },
   parentNoteText: {
     fontSize: 14,
@@ -262,7 +257,7 @@ const useStyles = () => {
     flexDirection: "row",
     backgroundColor:Colors.bgColor14,
     borderWidth:1,
-    borderColor:Colors.bgColor13(0.1),
+    borderColor:Colors.blackWithOpacity(0.1),
     borderRadius: 24,
     marginHorizontal: 20,
     marginBottom: 20,
@@ -272,7 +267,6 @@ const useStyles = () => {
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 0.5 },
     shadowRadius: 1.5,
-    elevation: 4,
     paddingHorizontal: "2%",
     paddingVertical: "2%",
     // height:74,
