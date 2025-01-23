@@ -542,7 +542,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               zIndex: drawerIndex,
               top: isIOS?0:93,
               width: "100%",
-              height: isIOS?"94.5%":"88%",
+              height: isIOS?"94.5%":"93%",
             }}
           >
             <DrawerLayout
