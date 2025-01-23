@@ -6,6 +6,7 @@ import PulsatingCircle from "./PulsatingCircle";
 import { TypeAnimation } from 'react-native-type-animation';
 import { useTheme } from "context";
 import { useRouter } from "expo-router";
+import { TextComponent } from "./text-component";
 
 const TypeAnim:any=TypeAnimation
 
@@ -101,9 +102,7 @@ const ChatBubble = ({
       </Text>
     ))}
     </View>
-    :<Text style={[style, {}]} numberOfLines={lines}>
-        {message}
-      </Text>}
+    :<TextComponent text={message} style={style} numberOfLines={lines}/>}
       {showCursorAtEnd&&!!cursorSvg && <PulsatingCircle svg={cursorSvg} status={status} />}
       {showCursorAtEnd&&showStatus && (
         <Text

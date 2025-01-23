@@ -178,7 +178,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
     console.log("formatted");
     const updatedNote = await fetchSingleRecording(recordingId);
     console.log("updated note: ", updatedNote.data.title);
-    isProcessCompleted = isTitleTriggered && isTranscriptTriggered 
+    isProcessCompleted = (isTitleTriggered && isTranscriptTriggered)
     !isProcessCompleted &&
       dispatch(
         updateRecordingDetails({
@@ -197,12 +197,11 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       );
     if (!isTranscriptTriggered && (status == RecordingStatus.TRANSCRIPT_GENERATED || updatedNote?.data?.transcript != null )){
       setTriggerTypingTranscript(recordingId);
-      isTranscriptTriggered =true;
+      isTranscriptTriggered = true;
       dispatch(setRelatedNoteTranscriptLoad(false));
       relatedNotes.mutate(recordingId);
     }
-    isTitleGenerated =
-      updatedNote?.data?.title != null || is_transcript_only;
+    isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     if(!isTitleTriggered && isTitleGenerated){
       setTriggerTypingTitle(recordingId);
       isTitleTriggered = true;
@@ -217,14 +216,14 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
           updatedNote.data?.transcript
         )
       );
-    console.log("removing firebase listener");
-    if(isProcessCompleted)
+    if(isTitleTriggered||RecordingStatus.PROCESS_COMPLETED){
       setTimeout(() => {
-        if(!updatedNote?.data?.parent_id) setExpandNote(0);
-        
+        console.log("removing firebase listener");
+        setExpandNote(0);
         dbRef.off("value",dbListener);
         dbRef.remove();
-      }, 600);
+      }, 1000);
+    }
   }
 
 }

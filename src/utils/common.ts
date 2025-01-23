@@ -101,4 +101,3 @@ export const formatTranscript2 = ( trascript: string ) => trascript
 ?.replace(/<\/div>/g, '')
 ?.replace(/&amp;/g, '&')
 ?.replace(/&nbsp;/g, ' ')
-?.trim();
