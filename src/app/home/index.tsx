@@ -77,7 +77,7 @@ import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/counter";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
-
+import * as Sentry from '@sentry/react-native';
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -314,6 +314,7 @@ const Home = () => {
     }
 
   useEffect(() => {
+    Sentry.setUser({ email: userDetails?.email });
     const tokenSubscription = actionEmitter.addListener('sendToken', () => {
       console.log("React Native: Send token started");
       NativeModules.TokenBridge.sendTokenToWatch(token);

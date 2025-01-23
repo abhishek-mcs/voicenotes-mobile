@@ -100,6 +100,14 @@
       [
         "react-native-appsflyer",
         {}
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "voicenotes-expo",
+          "organization": "voicenotes-04"
+        }
       ]
     ],
     "experiments": {

@@ -8,8 +8,25 @@ import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { isIOS } from "utils/common";
+import * as Sentry from '@sentry/react-native';
 
-export default function Layout() {
+Sentry.init({
+  dsn: process.env?.EXPO_PUBLIC_SENTRY_DSN,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 0.2,
+  enableCaptureFailedRequests:true,
+  integrations: [
+    Sentry.mobileReplayIntegration({
+      maskAllText: true,
+      maskAllImages: true,
+      maskAllVectors: true,
+    })
+  ],
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
+
+function Layout() {
   const [fontsLoaded,error] = useFonts({
     "Primary-Bold": require('../assets/fonts/Inter-Bold.ttf'),
     "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
@@ -94,3 +111,5 @@ export default function Layout() {
     </>
   );
 }
+
+export default Sentry.wrap(Layout)
