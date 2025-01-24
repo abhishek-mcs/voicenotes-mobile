@@ -95,7 +95,7 @@ const ChatBubble = ({
     />
     :isSummary?
     <View >{
-    summaryNotes?.splice(0,lines<10?2:summaryNotes?.length-1)?.map((m:any,i:number)=>(
+    summaryNotes?.splice(0,lines<10?2:summaryNotes?.length)?.map((m:any,i:number)=>(
       <Text key={i} style={[style, {marginTop:i==0?4:8}]}>
         {m}{lines<10&&i==1?'...':''}
       </Text>

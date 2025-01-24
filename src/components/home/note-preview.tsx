@@ -810,6 +810,12 @@ const NotePreview = forwardRef(
         onPress:()=>onCreate("summary")
       },
       {
+        title:"Meeting report",
+        androidIcon:'file-document-outline',
+        systemIcon:'doc.text',
+        onPress:()=>onCreate("meeting-report")
+      },
+      {
         title:"Main points",
         androidIcon:'format-list-bulleted',
         systemIcon:'list.bullet',

@@ -15,11 +15,12 @@ import listenAiCreate from "func/firebase/listen-ai-create";
 import Header from "components/AIModal/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "context";
+import creationContent from "utils/constants/creation-content";
 
 const CreateModal = forwardRef(({}:createModalProps, ref) => {
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<'suggestions' | 'records' | 'note' | 'loader'>("suggestions");
-  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom' | 'tidy'>("summary");
+  const [noteType, setNoteType] = useState<'summary' | 'points' | 'todo' | 'blog' | 'tweet' | 'email' | 'custom' | 'tidy' | 'meeting-report'>("summary");
   const {recordingCreateList}=useSelector((state:RootState)=>state.recordingStates)
   const recordingList=recordingCreateList
   const [result, setResult] = useState({id:recordingList[0]?.id||null,result:null})
@@ -169,7 +170,7 @@ const CreateModal = forwardRef(({}:createModalProps, ref) => {
             <SvgXml xml={CreateModalSvg.create?.replace('white',Colors.text12)} />
           </Touchable>}
         </View>
-        :preview=="loader"? <AiLoader style={{marginTop:20,marginLeft:20}} text={noteType=="custom"?'AI is writing based on your custom instructions':noteType=="tidy"?'Creating a cleaned-up version of your note':`AI is writing your ${noteType}`}/>
+        :preview=="loader"? <AiLoader style={{marginTop:20,marginLeft:20}} text={creationContent[noteType]}/>
         :
         <Notes key={result?.id} type={noteType} result={result?.result} title={title} onEdit={()=>setPreview("suggestions")} onClose={onClose} id={result?.id} onRetry={onCreate} />
         }

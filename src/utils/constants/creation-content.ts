@@ -5,6 +5,8 @@ const creationContent: any = {
     tweet:"Creating a tweet from your note",
     blog:"Creating a blog post from your note",
     email:"Creating an email from your note",
-    tidy:"Creating a cleaned-up version of your note"
+    tidy:"Creating a cleaned-up version of your note",
+    custom:"Creating based on your custom instructions",
+    "meeting-report":"Creating meeting report from your note"
 }
 export default creationContent;
