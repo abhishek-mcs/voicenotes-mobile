@@ -19,7 +19,7 @@ const Notes = (
     const [copy,setCopy]=useState('Copy')
     const onCopy = async()=>{
         setCopy('Copied')
-        let copy=Array.isArray(result)?result.join('\n'):result;
+        let copy=Array.isArray(result)?result.join('\n'):result?.replace(/^- /gm,'• ');
         if(type=="email"){
             copy=`Subject: ${result?.subject}\nBody: ${result?.body}`
         }
@@ -44,8 +44,8 @@ const Notes = (
             style={{marginVertical:20}}
             contentContainerStyle={{paddingHorizontal:32}}
             showsVerticalScrollIndicator={false}>
-                {(type=="summary"||type=="tweet"||type=="custom"||type=="tidy")?
-                <Text onPress={()=>{}} suppressHighlighting style={text}>{result}</Text>
+                {(type=="summary"||type=="meeting-report"||type=="tweet"||type=="custom"||type=="tidy")?
+                <Text onPress={()=>{}} suppressHighlighting style={text}>{result?.replace(/^- /gm,'• ')}</Text>
                 :(type=="points"||type=="todo")?
                 result?.map((itm:string,i:number)=>
                     <Text onPress={()=>{}} suppressHighlighting key={i} style={text}>
