@@ -831,6 +831,17 @@ const NotePreview = forwardRef(
           onPress:()=> onCreate("todo")
         },
         {
+          title: "Translate",
+          androidIcon:'translate-variant',
+          systemIcon:'translate',
+          onPress: () => {
+            router.push({
+              pathname: '/translate/',
+              params: { noteId: note?.id }
+            });
+          }
+        },
+        {
           title:"Tweet",
           androidIcon:'bullhorn-variant-outline',
           systemIcon:'megaphone',
