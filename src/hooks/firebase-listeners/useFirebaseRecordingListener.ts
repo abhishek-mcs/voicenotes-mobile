@@ -163,8 +163,8 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
     setTimeout(() => {
       if(!updatedNote?.data?.parent_id) setExpandNote(0);
       
-      dbRef.off("value",dbListener);
-      dbRef.remove();
+      if(!!dbRef&&!!dbListener) dbRef?.off("value",dbListener);
+      if(!!dbRef) dbRef?.remove();
     }, 600);
   } else if (
     (status === RecordingStatus.PROCESS_COMPLETED ||
@@ -220,8 +220,8 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       setTimeout(() => {
         console.log("removing firebase listener");
         setExpandNote(0);
-        dbRef.off("value",dbListener);
-        dbRef.remove();
+        if(!!dbRef&&!!dbListener) dbRef?.off("value",dbListener);
+        if(!!dbRef) dbRef?.remove();
       }, 1000);
     }
   }
