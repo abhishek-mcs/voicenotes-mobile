@@ -156,25 +156,25 @@ const Premium=(props:any) => {
             <SvgXml xml={iapSvg.close?.replace("#222222",Colors.text1)}/>
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-            <View style={{paddingLeft:32, marginBottom: 0}}>
+            <View style={{paddingLeft: 22, marginBottom: 0}}>
               <SvgXml xml={iapSvgIcons.usersCount?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
             <View style={styles.container}>
               <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
               <View style={styles.descView}>
-                <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
+                <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
                 <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
               </View>
               <View style={styles.descView}>
-              <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
+              <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
                 <Text style={styles.desc}>Human-level transcription in 100+ languages.</Text>
               </View>
               <View style={styles.descView}>
-              <SvgXml xml={iapSvg.done} style={{marginTop:3.5}}/>
+              <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
                 <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
               </View>
               <View style={styles.descView}>
-                <SvgXml xml={iapSvg.done} style={styles.doneIcon} />
+                <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={styles.doneIcon} />
                 <View style={styles.descTextContainer}>
                   <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
                   <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />

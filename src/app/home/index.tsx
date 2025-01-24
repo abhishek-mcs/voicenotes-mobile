@@ -605,7 +605,7 @@ const Home = () => {
   const fetchNextPage = () => {
     // if(recordingList?.length>10){
       recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
-      recordingQuery.hasNextPage&&console.log("fetching next page");
+      recordingQuery.hasNextPage && console.log("fetching next page");
     // }
   };
 
