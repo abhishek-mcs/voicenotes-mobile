@@ -25,7 +25,9 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
       let txtCopy=''
       if(type=="email")
         txtCopy=`Subject: ${content.subject}\n\n${content.body}`
-      else if(type=="points"||type=="todo")
+      else if(type=="todo")
+        txtCopy=content.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')
+      else if(type=="points")
         txtCopy='• '+content.join('\n• ')
       else if(type=="blog")
         txtCopy=content.join('\n')
