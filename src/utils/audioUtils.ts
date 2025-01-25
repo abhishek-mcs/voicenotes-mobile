@@ -69,7 +69,8 @@ export const removeExtraOldAudios = async (recordingList: Note[], dispatch: any)
       i >= MAX_NOTES_STORAGE_LIMIT_IN_DEVICE;
       i--
     ) {
-      if (!recordingList[i].status.includes("failed")) {
+      const status:string = recordingList[i].status
+      if (!status||status?.includes("processed")) {
         recordsToRemoveFromCache.push(recordingList[i]);
       }
     }

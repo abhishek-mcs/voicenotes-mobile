@@ -3,6 +3,7 @@ import { openSettings } from "expo-linking";
 import { useEffect } from "react";
 import { Alert, Platform } from "react-native";
 import * as Sentry from '@sentry/react-native';
+import * as FileSystem from 'expo-file-system';
 
 const alertPermission=(isLightMode=true,showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{})=>{
   const txt = "Please enable microphone permission to continue";
@@ -114,7 +115,8 @@ export const stopRecording = async (recording: Audio.Recording|any ) => {
   try {
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
-    return uri
+    const newLoc = await saveRecording(uri)?? uri;
+    return newLoc;
 
   } catch (error) {
     console.log("Failed to stop recording", error);
@@ -155,3 +157,15 @@ export const setupAudioRec = (recording: Audio.Recording | null) => {
     };
   }, []);
 };
+
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
+
+const saveRecording = async (uri: string = "") => {  // Recording.getURI()
+  // Get just the name and extension of the recording file created from the URI path. eg) ephisa-wjfwanjdn.m4a 
+  const fileName = 'Voicenotes'+Date?.now(); // 
+  const moveTo = `${DOCUMENT_FOLDER}${fileName}`
+
+  // Move the file that were in the old URI to the Documents folder.
+  await FileSystem.moveAsync({ from: uri, to:  moveTo }); // /Documents/ephisa-wjfwanjdn.m4a 
+  return moveTo;
+}
