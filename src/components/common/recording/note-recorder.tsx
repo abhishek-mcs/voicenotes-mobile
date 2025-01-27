@@ -23,7 +23,7 @@ export default ({
   isCanceling = false,
   setIsCanceling = (v: any) => {},
 }: any) => {
-  const formattedDuration = new Date(duration).toISOString().substring(14, 19);
+  const formattedDuration = new Date(duration).toISOString().substring(11, 19);
   const { userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
