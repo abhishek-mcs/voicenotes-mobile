@@ -455,7 +455,7 @@ const NotePreview = forwardRef(
     const formattedDuration = useMemo(
       () =>
         audioDuration
-          ? new Date(audioDuration).toISOString().substring(14, 19)
+          ? new Date(audioDuration).toISOString().substring(audioDuration>3600000?11:14, 19)
           : "",
       [audioDuration]
     );
