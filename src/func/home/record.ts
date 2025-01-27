@@ -162,10 +162,10 @@ const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
 const saveRecording = async (uri: string = "") => {  // Recording.getURI()
   // Get just the name and extension of the recording file created from the URI path. eg) ephisa-wjfwanjdn.m4a 
-  const fileName = 'Voicenotes'+Date?.now(); // 
-  const moveTo = `${DOCUMENT_FOLDER}${fileName}`
+  const fileName = uri?.split('/')?.pop();
+  const moveTo = `${DOCUMENT_FOLDER}${fileName}`;
 
   // Move the file that were in the old URI to the Documents folder.
-  await FileSystem.moveAsync({ from: uri, to:  moveTo }); // /Documents/ephisa-wjfwanjdn.m4a 
+  await FileSystem.copyAsync({ from: uri, to:  moveTo }); // /Documents/ephisa-wjfwanjdn.m4a 
   return moveTo;
 }
