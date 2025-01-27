@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "postinstall": "patch-package",
-    "prepare": "yarn && npx expo prebuild && npx pod-install",
+    "setup": "yarn && npx expo prebuild && npx pod-install",
     "staging:android": "yarn prepare && eas build --platform android --profile staging --auto-submit",
     "staging:ios": "yarn prepare && eas build --platform ios --profile staging --auto-submit",
     "staging:all": "yarn prepare && eas build --platform all --profile staging --auto-submit",
