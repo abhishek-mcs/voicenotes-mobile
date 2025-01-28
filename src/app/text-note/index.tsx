@@ -159,7 +159,7 @@ const TextNote = () => {
           paddingHorizontal: 8,
         }}
       >
-        <Pressable onPress={onCancel} style={{ padding: 12, width: "20%" }}>
+        <Pressable onPress={onCancel} style={{ padding: 12, width: "30%" }}>
           <Text
             style={{ fontFamily: "Primary", fontSize: 16, color: Colors.grey }}
           >
@@ -172,14 +172,14 @@ const TextNote = () => {
             fontFamily: "Primary-Semibold",
             fontSize: 16,
             color: Colors.text,
-            width: "20%",
+            width: "30%",
             textAlign: "center",
           }}
         >
           Write
         </Text>
         {isLoading ? (
-          <View style={{ width:'20%', alignItems:'flex-end' }}>
+          <View style={{ width:'30%', alignItems:'flex-end' }}>
             <ThreeDotLoader
               colorFilters={[
                 { keypath: "Left", color: Colors.text },
@@ -191,7 +191,7 @@ const TextNote = () => {
         ) : (
           <Pressable
             onPress={onDone}
-            style={{ padding: 12, width: "20%", alignItems: "flex-end" }}
+            style={{ padding: 12, width: "30%", alignItems: "flex-end" }}
             disabled={textnote==''||isLoading}
           >
             <Text

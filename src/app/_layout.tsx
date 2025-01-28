@@ -15,6 +15,8 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 0.2,
   enableCaptureFailedRequests:true,
+  enableAutoSessionTracking: true,
+  sessionTrackingIntervalMillis:10000,
   integrations: [
     Sentry.mobileReplayIntegration({
       maskAllText: true,
