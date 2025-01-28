@@ -5,7 +5,7 @@ import RecButton from "components/common/recording/rec-button";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { isIOS, isSmallDevice } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
@@ -247,7 +247,7 @@ const useStyles = () => {
     borderWidth:1,
     borderColor:Colors.blackWithOpacity(0.1),
     borderRadius: 24,
-    marginHorizontal: 20,
+    marginHorizontal: isSmallDevice? 10 : 20,
     marginBottom: 20,
     alignItems: "center",
     justifyContent:'space-between',

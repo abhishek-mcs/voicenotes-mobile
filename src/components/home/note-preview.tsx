@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDateAndTimeNew, formatDateTime } from "utils/format-date";
+import { formatDateAndTimeNew, formatDateTime, formattedDurations } from "utils/format-date";
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
 import {
@@ -455,7 +455,7 @@ const NotePreview = forwardRef(
     const formattedDuration = useMemo(
       () =>
         audioDuration
-          ? new Date(audioDuration).toISOString().substring(audioDuration>3600000?11:14, 19)
+          ? formattedDurations(audioDuration)
           : "",
       [audioDuration]
     );

@@ -55,3 +55,5 @@ export  const isSameDay = (d1:any, d2:any) => {
   );
 }else return false;
 };
+
+export const formattedDurations = ( d:number = 0 ) => new Date(d).toISOString().substring(11, 19)
