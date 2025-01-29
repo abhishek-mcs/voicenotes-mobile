@@ -127,7 +127,7 @@ const signInGoogle=(token:any,params:any)=>{
     <View
       style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >
-    <ScrollView>
+    <ScrollView style={{flex:1}} contentContainerStyle={{flexGrow:1,justifyContent:'space-between'}}>
       <View style={{marginTop:isIOS?0:50}}>
         <View style={{borderRadius:8,height:55,width:55,overflow:'hidden'}}>
           <SvgXml xml={LandingSvg.logo}/>
