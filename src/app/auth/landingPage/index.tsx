@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator, InteractionManager } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator, InteractionManager, ScrollView } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { SplashScreen, useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
@@ -127,6 +127,7 @@ const signInGoogle=(token:any,params:any)=>{
     <View
       style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >
+    <ScrollView>
       <View style={{marginTop:isIOS?0:50}}>
         <View style={{borderRadius:8,height:55,width:55,overflow:'hidden'}}>
           <SvgXml xml={LandingSvg.logo}/>
@@ -183,7 +184,8 @@ const signInGoogle=(token:any,params:any)=>{
           {`.`}
         </Text>
       </Animated.View>
-      </View>
+    </ScrollView>
+    </View>
     </SafeAreaView>
   )
 }
