@@ -42,7 +42,6 @@ const About: React.FC<Props> = (props) => {
         onCancel={props.onClose}
         onSubmit={handleSubmit}
         working={working}
-        label="About"
       >
         <View style={styles.root}>
           <Text style={styles.heading}>About</Text>

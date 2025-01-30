@@ -106,7 +106,6 @@ const Password: React.FC<Props> = (props) => {
   
     return (
       <Header
-        label="Change password"
         onCancel={handleClose}
         onSubmit={handleSubmit}
         working={working}

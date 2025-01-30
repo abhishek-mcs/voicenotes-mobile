@@ -73,7 +73,6 @@ const Names: React.FC<Props> = (props) => {
       <Header
         onCancel={props.onClose}
         onSubmit={updateNames}
-        label="Names to remember"
         working={working}
       >
         <View style={styles.root}>

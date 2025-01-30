@@ -94,7 +94,6 @@ const Email: React.FC<Props> = (props) => {
 
     return (
       <Header
-        label="Change Email"
         onCancel={props.onClose}
       >
         <EmailInput

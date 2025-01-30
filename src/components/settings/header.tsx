@@ -1,4 +1,4 @@
-import { Platform, StatusBar, StyleSheet, View } from "react-native";
+import { Platform, StatusBar, StyleSheet, View, Text } from "react-native";
 import RecButton from "components/common/recording/rec-button";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { useTheme } from "context";
@@ -32,7 +32,10 @@ const Header: React.FC<Props> = (props) => {
                         color={Colors.bottomBarText1}
                     />
                 </View>
-                <View style={[styles.action, { alignItems: 'flex-end', justifyContent: props.working ? 'center' : 'flex-end', paddingHorizontal: props.working ? 20 : 10 }]} >
+                {props.label && <View style={{flex:1,alignItems:'center', justifyContent:'center'}}>
+                    <Text style={styles.label}>{props.label}</Text>
+                    </View>}
+                <View style={[styles.action, { alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: props.working ? 20 : 10 }]} >
                     {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
                         title={props.submitLabel || "Save"}
                         underlayColor={Colors.bgColor12}
@@ -66,9 +69,14 @@ const useStyles = () => {
     },
     action: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
         paddingVertical: 10,
         paddingHorizontal: 10,
+    },
+    label: {
+        fontFamily:'Primary-Medium',
+        fontSize:16,
+        color:Colors.blackWithOpacity(1),
     },
     content: {
         flex: 10,
