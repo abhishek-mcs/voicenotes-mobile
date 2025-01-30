@@ -22,7 +22,7 @@ import Email from "components/settings/email";
 import Names from "components/settings/names";
 import Password from "components/settings/password";
 import ProfilePic from "components/settings/profilepic";
-import { deleteCounter } from "utils/counter";
+import { deleteCounter } from "utils/cache";
 import { useTheme } from "context";
 import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";

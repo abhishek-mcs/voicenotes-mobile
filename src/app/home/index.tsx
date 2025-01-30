@@ -72,7 +72,7 @@ import database from '@react-native-firebase/database';
 import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
-import { incrementCounter, shouldPromptNow } from "utils/counter";
+import { incrementCounter, shouldPromptNow } from "utils/cache";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import { stopSilentBackgroundService } from "services/background";

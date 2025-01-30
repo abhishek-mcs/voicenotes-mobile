@@ -1,11 +1,24 @@
-import { View, Text, StyleSheet, Pressable, Modal, Animated, PanResponder } from "react-native";
-import { useMemo, useState, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable, Modal, Animated, PanResponder, Platform, Alert } from "react-native";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useTheme } from "context";
 import { Switch } from "@rneui/themed";
 import { SvgXml } from "react-native-svg";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Picker from "react-native-date-picker";
 import Header from "./header";
+import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType } from "@notifee/react-native";
+import { deleteNotificationTime, getNotificationByType, getNotificationTime, setNotificationTime } from "utils/cache";
+
+const captions = {
+    morning: {
+        title: 'Morning intention',
+        description: 'Start your day with a quick voicenote to set your intention and get ready to tackle the day.'
+    },
+    night: {
+        title: 'Evening reflection',
+        description: 'Wrap up the day with a voicenote. Share your highlights or just relfect before bed.'
+    }
+}
 
 type Props = {
     onClose: () => void
@@ -16,7 +29,14 @@ const Reminders: React.FC<Props> = (props) => {
     const { Colors, theme } = useTheme()
 
     const [timePicker, setTimePicker] = useState(false)
+    const [morningTime, setMorningTime] = useState<Date | null>(null)
+    const [eveningTime, setEveningTime] = useState<Date | null>(null)
+    const [active, setActive] = useState<{morning: boolean, night: boolean}>({ morning: false, night: false })
+    const [working, setWorking] = useState<'morning' | 'night' | null>(null)
     const translateY = useState(new Animated.Value(0))[0]
+
+    const notificationChannel = useRef<string | undefined>(undefined)
+    const activeType = useRef<'morning' | 'night' | null>(null)
 
     const panResponder = useMemo(() => PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -45,8 +65,8 @@ const Reminders: React.FC<Props> = (props) => {
     }), [])
 
     const TimePicker = () => {
-        const [date, setDate] = useState(new Date())
 
+        const [time, setTime] = useState(activeType.current === 'morning' ? morningTime : eveningTime)
         useEffect(() => {
             if (timePicker) {
                 translateY.setValue(300)
@@ -57,13 +77,12 @@ const Reminders: React.FC<Props> = (props) => {
             }
         }, [timePicker])
 
-        const saveTime = (time: string) => {
+        const saveTime = () => {
+            const secureDate = getNextValidTime(time)
+            if (activeType.current === 'morning') setMorningTime(secureDate)
+            else setEveningTime(secureDate)
             setTimePicker(false)
         }
-
-        useEffect(() => {
-            console.log(theme)
-        }, [theme])
 
         return (
             <Modal
@@ -80,14 +99,14 @@ const Reminders: React.FC<Props> = (props) => {
                         </View>
                         <View style={styles.choose}>
                             <Picker
-                                date={date}
-                                onDateChange={setDate}
+                                date={time || new Date()}
+                                onDateChange={setTime}
                                 mode="time"
                                 theme={theme !== 'auto' ? theme as 'light' | 'dark' : undefined}
                             />
                         </View>
                         <View style={styles.save}>
-                            <Pressable onPress={() => saveTime('09:00 AM')} style={styles.saveButton}>
+                            <Pressable onPress={saveTime} style={styles.saveButton}>
                                 <Text style={styles.saveButtonText}>Save</Text>
                             </Pressable>
                         </View>
@@ -97,8 +116,139 @@ const Reminders: React.FC<Props> = (props) => {
         )
     }
 
+    const getNextValidTime = (date?: Date | null): Date => {
+        if(!date) return new Date()
+        const now = new Date()
+        const targetTime = new Date(date)
+        
+        // Set both dates to the current date to compare only times
+        const todayTarget = new Date(date)
+        todayTarget.setFullYear(now.getFullYear(), now.getMonth(), now.getDate())
+        
+        // If today's target time hasn't passed yet, return original date
+        if (todayTarget > now) {
+            return date
+        }
+        
+        // If time has passed, set to tomorrow's date
+        targetTime.setDate(targetTime.getDate() + 1)
+        return targetTime
+    }
+
+    const checkAndroidPermissions = async (): Promise<boolean> => {
+        if(Platform.OS !== 'android') return true
+        const settings = await notifee.getNotificationSettings();
+        if (settings.android.alarm == AndroidNotificationSetting.ENABLED) {
+            return true
+        } else {
+            Alert.alert(
+                'Alarm permission required',
+                'Voicenotes requires alarm permission to send your reminders in this device. Please enable it in the settings.',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Open settings', onPress: () => notifee.openAlarmPermissionSettings() }
+                ]
+            )
+            return false
+        }
+    }
+
     const chooseTime = (type: 'morning' | 'night') => {
+        activeType.current = type
         setTimePicker(true)
+    }
+
+    const createNotificationChannel = async (): Promise<string> => {
+        await notifee.requestPermission();
+        if(Platform.OS !== 'android') return ''
+        if(notificationChannel.current) return notificationChannel.current
+        return await notifee.createChannel({
+            id: 'reminders',
+            name: 'Reminders',
+            importance: AndroidImportance.DEFAULT,
+            vibration: true,
+            lights: true,
+            sound: 'default'
+        });
+    }
+
+    const scheduleNotification = async (type: 'morning' | 'night') => {
+        setWorking(type)
+        if(!await checkAndroidPermissions()) {
+            setWorking(null)
+            return
+        }
+
+        const time = getNextValidTime(type === 'morning' ? morningTime : eveningTime) || new Date()
+        const trigger: TimestampTrigger = {
+            type: TriggerType.TIMESTAMP,
+            timestamp: time.getTime(),
+            repeatFrequency: RepeatFrequency.DAILY,
+            alarmManager: {
+                allowWhileIdle: true,
+            }
+        };
+
+        const id = await notifee.createTriggerNotification(
+            {
+                id: `${type}-${time.getTime()}-notification`,
+                title: 'Voicenotes',
+                body: captions[type].description,
+                android: {
+                    channelId: notificationChannel.current,
+                },
+            },
+            trigger
+        )
+
+        setNotificationTime(time, type, id)
+        setActive({ ...active, [type]: true })
+        setWorking(null)
+    }
+
+    const cancelNotification = async (type: 'morning' | 'night') => {
+        const id = await getNotificationByType(type)
+        if(id) {
+            await notifee.cancelNotification(id)
+            deleteNotificationTime(type)
+        }
+        setActive({ ...active, [type]: false })
+    }
+    useEffect(() => {
+        createNotificationChannel().then(channel => notificationChannel.current = channel)
+        getNotificationTime('morning').then(setMorningTime)
+        getNotificationTime('night').then(setEveningTime)
+        setActive({ morning: morningTime !== null, night: eveningTime !== null })
+    }, [])
+
+    const Notification = ({time, type, border}: {time: Date | null, type: 'morning' | 'night', border?: boolean}) => {
+        return <View style={[styles.reminder, border ? { borderBottomWidth: 1, borderBottomColor: Colors.blackWithOpacity(0.1) } : {}]}>
+            <View style={styles.heading}>
+                <View style={styles.label}>
+                    <View style={{ flexDirection: 'row', gap: 5 }}>
+                        <SvgXml xml={settingsSvg[type].replaceAll('{color}', Colors.blackWithOpacity(1))} />
+                        <Text style={styles.labelText}>{captions[type].title}</Text>
+                    </View>
+                    <Pressable style={styles.time} onPress={() => chooseTime(type)}>
+                        <Text style={{ color: Colors.blackWithOpacity(1) }}>{time ? time.toLocaleTimeString("en-US", { timeStyle: 'short' }) : new Date().toLocaleTimeString("en-US", { timeStyle: 'short' })}</Text>
+                    </Pressable>
+                </View>
+                <View style={{ paddingLeft: 2 }}>
+                    <Switch
+                        value={active[type] || working === type}
+                        onValueChange={(value) => {
+                            if(value) scheduleNotification(type)
+                            else cancelNotification(type)
+                        }}
+                        style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
+                        trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
+                    />
+                </View>
+            </View>
+            <View style={styles.description}>
+                <Text style={styles.descriptionText}>{captions[type].description}</Text>
+            </View>
+        </View>
     }
     
     return (
@@ -115,54 +265,8 @@ const Reminders: React.FC<Props> = (props) => {
                 </View>
                 <View style={styles.body}>
                     <View style={styles.content}>
-                        <View style={[styles.reminder, { borderBottomWidth: 1, borderBottomColor: Colors.blackWithOpacity(0.1) }]}>
-                            <View style={styles.heading}>
-                                <View style={styles.label}>
-                                    <View style={{ flexDirection: 'row', gap: 5}}>
-                                        <SvgXml xml={settingsSvg.morning.replaceAll('{color}', Colors.blackWithOpacity(1))} />
-                                        <Text style={styles.labelText}>Morning intention</Text>
-                                    </View>
-                                    <Pressable style={styles.time} onPress={() => chooseTime('morning')}>
-                                        <Text style={{ color: Colors.blackWithOpacity(1) }}>09:00 AM</Text>
-                                    </Pressable>
-                                </View>
-                                <View style={{ paddingLeft: 2, alignSelf: 'flex-end' }}>
-                                    <Switch
-                                        value={true}
-                                        onValueChange={() => {}}
-                                        style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
-                                        trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
-                                    />
-                                </View>
-                            </View>
-                            <View style={styles.description}>
-                                <Text style={styles.descriptionText}>Start your day with a quick voicenote to set your intention and get ready to tackle the day.</Text>
-                            </View>
-                        </View>
-                        <View style={styles.reminder}>
-                            <View style={styles.heading}>
-                                <View style={styles.label}>
-                                    <View style={{ flexDirection: 'row', gap: 5 }}>
-                                        <SvgXml xml={settingsSvg.night.replaceAll('{color}', Colors.blackWithOpacity(1))} />
-                                        <Text style={styles.labelText}>Evening reflection</Text>
-                                    </View>
-                                    <Pressable style={styles.time} onPress={() => chooseTime('night')}>
-                                        <Text style={{ color: Colors.blackWithOpacity(1) }}>10:00 PM</Text>
-                                    </Pressable>
-                                </View>
-                                <View style={{ paddingLeft: 2 }}>
-                                    <Switch
-                                        value={false}
-                                        onValueChange={() => {}}
-                                        style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
-                                        trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
-                                    />
-                                </View>
-                            </View>
-                            <View style={styles.description}>
-                                <Text style={styles.descriptionText}>Wrap up the day with a voicenote. Share your highlights or just relfect before bed.</Text>
-                            </View>
-                        </View>
+                        <Notification time={morningTime} type="morning" border />
+                        <Notification time={eveningTime} type="night" />
                     </View>
                 </View>
             </View>
