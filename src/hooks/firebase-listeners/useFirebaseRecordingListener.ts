@@ -15,7 +15,6 @@ import {
 } from "redux/reducers/relatedNoteStates";
 import { useQueryClient } from "react-query";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-import { usePostRecord } from "queries/home";
 import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useDialog } from "context/DialogContext";
@@ -172,7 +171,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       status === RecordingStatus.TRANSCRIPT_GENERATED) &&
     !teamSummaryId
   ) {
-    console.log(status)
+    console.log('status',status)
     const isProcessOver = true;
     updatedStatus = "processed";
     console.log("formatted");
@@ -201,13 +200,13 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       dispatch(setRelatedNoteTranscriptLoad(false));
       relatedNotes.mutate(recordingId);
     }
-    isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     if(!isTitleTriggered && isTitleGenerated){
       setTriggerTypingTitle(recordingId);
       isTitleTriggered = true;
       dispatch(setRelatedNoteTitleLoad(false));
       queryClient.invalidateQueries("single-recording");
     }
+    isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     dispatch(updateTempRecordingData(updatedStatus));
     dispatch(setCanRecord(updatedNote?.data?.can_record_more));
     if(is_transcript_only && updatedNote?.data?.recording_type == 2)
@@ -216,7 +215,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
           updatedNote.data?.transcript
         )
       );
-    if(isTitleTriggered||RecordingStatus.PROCESS_COMPLETED){
+    if(isTitleTriggered||RecordingStatus.PROCESS_COMPLETED==status){
       setTimeout(() => {
         console.log("removing firebase listener");
         setExpandNote(0);
@@ -297,11 +296,18 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
           console.log("Firebase listener error:", error);
         }
       );
+      await sleep(5000);
       if(!isListenerTriggered&&!isNaN(onceSnap.val())){
-        await sleep(5000)
-        const onceSnap2 = await dbRef.once('value');
-        console.log('updating note with firebase once triggering method',onceSnap2.val())
-        updateNoteBasedOnStatus({status:onceSnap2.val(),dbRef,recordingId,temporaryRecordingId,teamSummaryId,isTitleGenerated,isTitleTriggered,isTranscriptTriggered,isProcessCompleted,is_transcript_only,dbListener})
+        const dbRef2 = database().ref(firebasePath).child(`${recordingId}`);
+        const onceSnap2 = await dbRef2.once('value');
+        const snapVal = onceSnap2?.val()
+        console.log('updating note with firebase once triggering method',snapVal)
+        await updateNoteBasedOnStatus({status:snapVal,dbRef,recordingId,temporaryRecordingId,teamSummaryId,isTitleGenerated,isTitleTriggered,isTranscriptTriggered,isProcessCompleted,is_transcript_only,dbListener})
+        console.log('triggered once value is:',snapVal,'if less than 10 trigger again as a fallback');
+        if(snapVal<10){
+          console.log('triggering once again as a fallback')
+          setupValueListener();
+        }
       }
     }
     } catch (e) {
