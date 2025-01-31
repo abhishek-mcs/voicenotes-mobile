@@ -660,7 +660,7 @@ return (
               {source?.title}
             </Text>
             <Collapsible collapsed={isSourceCollapsed!=source?.id} style={{marginTop: 4, paddingBottom: 12}}>
-              <Text style={[styles.text,{color:Colors.text10}]}>{formatDate2(source?.recorded_at)}</Text>
+              <Text style={[styles.text,{color:Colors.text10}]}>{formatDate2(source?.recorded_at??source?.created_at)}</Text>
               <TextInput 
               style={[styles.text,{lineHeight: 20,maxHeight:200,paddingBottom:12}]}
               scrollEnabled
@@ -756,6 +756,8 @@ const useStyles = () => {
     fontSize: 16,
     fontFamily: "Primary",
     color: Colors.text5,
+    // backgroundColor:'red',
+    minWidth:'70%'
   },
   inputContainer: {
     paddingHorizontal: 16,

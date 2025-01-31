@@ -1,6 +1,6 @@
 import * as Application from "expo-application"
 
-const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 50; // number of audio notes to be cached in device at any given time
+const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 10; // number of audio notes to be cached in device at any given time
 
 enum Environment {
   local = "local",
@@ -60,7 +60,7 @@ const ENVURLSet: ENVURLs = {
 //     : Environment.production
 
 const currentENV = Environment.production;
-const ota=".3"
+const ota=".7"
 const currentVersion = Application.nativeApplicationVersion+ota
 
 

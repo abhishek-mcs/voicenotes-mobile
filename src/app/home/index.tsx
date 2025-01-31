@@ -356,7 +356,8 @@ const Home = () => {
 
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
-      console.log("retrying upload for note: ");
+      console.log("retrying upload for note: ", note.audio.data.url);
+      Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
       await uploadVoiceNote(note).catch(()=>{});
     };
 
@@ -531,8 +532,6 @@ const Home = () => {
       !recordingParentId&&setExpandNote(-1)
       setRecEnabled(false);
       let uri = await stopRecording(rec);
-      if(!!uri)
-        uri = rec?.getURI()
       setRec(null);
 
       const temporaryRecordingId = Math.random().toString(36).substring(7);
