@@ -58,10 +58,15 @@ const AddTags = () => {
         const currentTags = tagsList.current || []
         if(!isDuplicate){
           setTags([{name},...currentTags])
-          tagsList.current=[{name},...tags]
+          tagsList.current=[{name},...currentTags]
         }else{
-          tagsList.current=[...tags]
+          setTags([...currentTags])
+          tagsList.current=[...currentTags]
         }
+      } else {
+        setSearch('')
+        const currentTags = tagsList.current || []
+        setTags([...currentTags])
       }
     }
 

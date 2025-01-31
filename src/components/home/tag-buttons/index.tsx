@@ -175,7 +175,7 @@ export default function TagButtons({
           <View style={styles.tagPreview}>
             <View>
               <Text style={styles.tagName} numberOfLines={1}>{capitalizeFirstLetter(hashFilter)}</Text>
-              <Text style={styles.tagNoteCount} numberOfLines={1}>{`${count} ${count>1?'notes':'note'}`}.</Text>
+              <Text style={styles.tagNoteCount} numberOfLines={1}>{`${count ? count : '0'} ${count > 1 || !count ? 'notes' : 'note'}`}.</Text>
             </View>
             <MoreOptions options={options}>
               <SvgXml xml={home.moreRounded?.replace(/black/g,Colors.blackWithOpacity(1))} />
