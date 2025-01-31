@@ -296,7 +296,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
           console.log("Firebase listener error:", error);
         }
       );
-      await sleep(5000);
+      await sleep(4000);
       if(!isListenerTriggered&&!isNaN(onceSnap.val())){
         const dbRef2 = database().ref(firebasePath).child(`${recordingId}`);
         const onceSnap2 = await dbRef2.once('value');
