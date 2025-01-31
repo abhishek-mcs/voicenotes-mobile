@@ -223,10 +223,16 @@ const Reminders: React.FC<Props> = (props) => {
     const clearNotification = async (type: 'morning' | 'night') => {
         const notification = await getNotification(type)
         if(notification) {
-            await notifee.cancelNotification(notification.id)
+            notifee.getTriggerNotificationIds().then(ids => {
+                for(const id of ids) {
+                    if(id.includes(type)) {
+                        notifee.cancelNotification(id)
+                    }
+                }
+            })
             await cancelNotification(notification)
             setActive(prev => ({ ...prev, [type]: false }))
-        }
+        } else console.warn('No notification found for', type)
     }
     useEffect(() => {
         const getNextMinute = () => {
