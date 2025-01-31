@@ -709,8 +709,7 @@ const NotePreview = forwardRef(
               onPress: onThreadNote,
             },
           ]),
-      ...(note?.recording_type==2?
-        []:[{
+          {
         title: "Attach",
         systemIcon: "photo.on.rectangle",
         androidIcon: "folder-multiple-image",
@@ -726,14 +725,13 @@ const NotePreview = forwardRef(
             onPress: openLinkEditModal,
           },
         ],
-      }]),
-      ...(note?.recording_type==2?
-        []:[{
+        },
+        {
         title: "Tag",
         systemIcon: "number",
         androidIcon: "pound",
         onPress: onGotoAddTag,
-      }]),
+        },
       ...(userDetails?.id==note?.user_id?[{
         title:"Share",
         systemIcon:'square.and.arrow.up',

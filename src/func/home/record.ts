@@ -127,7 +127,6 @@ export const stopRecording = async (recording: Audio.Recording|any ) => {
 export const cancelRecording = async (recording: Audio.Recording | null,soundRef:Audio.Sound|null) => {
   try {
     await recording?.stopAndUnloadAsync();
-    await recording?._cleanupForUnloadedRecorder()
     await soundRef?.unloadAsync();
   } catch (error) {
     console.error("Failed to stop recording", error);
@@ -166,6 +165,6 @@ const saveRecording = async (uri: string = "") => {  // Recording.getURI()
   const moveTo = `${DOCUMENT_FOLDER}${fileName}`;
 
   // Move the file that were in the old URI to the Documents folder.
-  await FileSystem.copyAsync({ from: uri, to:  moveTo }); // /Documents/ephisa-wjfwanjdn.m4a 
+  await FileSystem.copyAsync({ from: uri, to:  moveTo, }); // /Documents/ephisa-wjfwanjdn.m4a 
   return moveTo;
 }
