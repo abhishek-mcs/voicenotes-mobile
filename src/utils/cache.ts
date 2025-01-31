@@ -36,28 +36,33 @@ export const deleteCounter = async () => {
 }
 
 // cache to keep track of notification times
-const NOTIFICATION_TIMES = 'voicenotes_notification_times'
 
-export const setNotificationTime = async (time: Date, type: 'morning' | 'night', id: string) => {
-    await AsyncStorage.setItem(NOTIFICATION_TIMES, JSON.stringify({ time, type, id }))
+export type Notification = {
+    time: Date
+    type: 'morning' | 'night'
+    id: string,
+    active: boolean
 }
 
-export const getNotificationTime = async (type: 'morning' | 'night'): Promise<Date | null> => {
-    const value = await AsyncStorage.getItem(NOTIFICATION_TIMES)
+export const setNotification = async (notification: Notification) => {
+    await AsyncStorage.setItem(`vn-${notification.type}-notification`, JSON.stringify(notification))
+}
+
+export const getNotification = async (type: 'morning' | 'night'): Promise<Notification | null> => {
+    const value = await AsyncStorage.getItem(`vn-${type}-notification`)
     if(!value) return null
     const data = JSON.parse(value)
     if(data.type !== type) return null
-    return new Date(data.time)
+    return data
 }
 
-export const getNotificationByType = async (type: 'morning' | 'night'): Promise<string | null> => {
-    const value = await AsyncStorage.getItem(NOTIFICATION_TIMES)
-    if(!value) return null
+export const cancelNotification = async (notification: Notification) => {
+    const value = await AsyncStorage.getItem(`vn-${notification.type}-notification`)
+    if(!value) return
     const data = JSON.parse(value)
-    if(data.type !== type) return null
-    return data.id
+    await AsyncStorage.setItem(`vn-${notification.type}-notification`, JSON.stringify({ ...data, active: false }))
 }
 
-export const deleteNotificationTime = async (type: 'morning' | 'night') => {
-    await AsyncStorage.removeItem(NOTIFICATION_TIMES)
+export const deleteNotification = async (type: 'morning' | 'night') => {
+    await AsyncStorage.removeItem(`vn-${type}-notification`)
 }

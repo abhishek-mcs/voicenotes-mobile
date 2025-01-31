@@ -7,7 +7,7 @@ import { settingsSvg } from "assets/svg/settingsSvg";
 import Picker from "react-native-date-picker";
 import Header from "./header";
 import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType } from "@notifee/react-native";
-import { deleteNotificationTime, getNotificationByType, getNotificationTime, setNotificationTime } from "utils/cache";
+import { cancelNotification, getNotification, setNotification } from "utils/cache";
 
 const captions = {
     morning: {
@@ -26,7 +26,7 @@ type Props = {
 
 const Reminders: React.FC<Props> = (props) => {
     const styles = useStyles()
-    const { Colors, theme } = useTheme()
+    const { Colors, theme, isLightMode } = useTheme()
 
     const [timePicker, setTimePicker] = useState(false)
     const [morningTime, setMorningTime] = useState<Date | null>(null)
@@ -116,23 +116,30 @@ const Reminders: React.FC<Props> = (props) => {
         )
     }
 
-    const getNextValidTime = (date?: Date | null): Date => {
+    const getNextValidTime = (date?: Date | null, prompt: boolean = false): Date => {
         if(!date) return new Date()
         const now = new Date()
-        const targetTime = new Date(date)
         
         // Set both dates to the current date to compare only times
-        const todayTarget = new Date(date)
-        todayTarget.setFullYear(now.getFullYear(), now.getMonth(), now.getDate())
+        const todayTarget = new Date()
+        todayTarget.setHours(date.getHours(), date.getMinutes(), 0, 0)
+        now.setSeconds(0, 0)  // Reset seconds and milliseconds for accurate comparison
         
-        // If today's target time hasn't passed yet, return original date
-        if (todayTarget > now) {
-            return date
+        // If today's target time is more than a minute in the future, use it
+        if (todayTarget.getTime() > now.getTime() + 30000) {
+            const result = new Date()
+            result.setHours(date.getHours(), date.getMinutes(), 0, 0)
+            return result
         }
         
-        // If time has passed, set to tomorrow's date
-        targetTime.setDate(targetTime.getDate() + 1)
-        return targetTime
+        // Otherwise schedule for tomorrow
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        tomorrow.setHours(date.getHours(), date.getMinutes(), 0, 0)
+        if(prompt) {
+            Alert.alert('Time has passed', 'Since this time has passed for today, your reminder will start from tomorrow.')
+        }
+        return tomorrow
     }
 
     const checkAndroidPermissions = async (): Promise<boolean> => {
@@ -143,7 +150,7 @@ const Reminders: React.FC<Props> = (props) => {
         } else {
             Alert.alert(
                 'Alarm permission required',
-                'Voicenotes requires alarm permission to send your reminders in this device. Please enable it in the settings.',
+                'Voicenotes requires alarm permission to send your reminders in this device. Please grant it from settings.',
                 [
                     { text: 'Cancel', style: 'cancel' },
                     { text: 'Open settings', onPress: () => notifee.openAlarmPermissionSettings() }
@@ -174,51 +181,72 @@ const Reminders: React.FC<Props> = (props) => {
 
     const scheduleNotification = async (type: 'morning' | 'night') => {
         setWorking(type)
-        if(!await checkAndroidPermissions()) {
-            setWorking(null)
-            return
-        }
-
-        const time = getNextValidTime(type === 'morning' ? morningTime : eveningTime) || new Date()
-        const trigger: TimestampTrigger = {
-            type: TriggerType.TIMESTAMP,
-            timestamp: time.getTime(),
-            repeatFrequency: RepeatFrequency.DAILY,
-            alarmManager: {
-                allowWhileIdle: true,
+        try {
+            if(!await checkAndroidPermissions()) {
+                setWorking(null)
+                return
             }
-        };
 
-        const id = await notifee.createTriggerNotification(
-            {
-                id: `${type}-${time.getTime()}-notification`,
-                title: 'Voicenotes',
-                body: captions[type].description,
-                android: {
-                    channelId: notificationChannel.current,
+            const time = getNextValidTime(type === 'morning' ? morningTime : eveningTime, true)
+            const trigger: TimestampTrigger = {
+                type: TriggerType.TIMESTAMP,
+                timestamp: time.getTime(),
+                repeatFrequency: RepeatFrequency.DAILY,
+                alarmManager: {
+                    allowWhileIdle: true,
+                }
+            };
+
+            const id = await notifee.createTriggerNotification(
+                {
+                    id: `${type}-${time.getTime()}-notification`,
+                    title: 'Voicenotes',
+                    body: captions[type].description,
+                    android: {
+                        channelId: notificationChannel.current,
+                    },
                 },
-            },
-            trigger
-        )
-
-        setNotificationTime(time, type, id)
-        setActive({ ...active, [type]: true })
-        setWorking(null)
+                trigger
+            )
+    
+            await setNotification({ time, type, id, active: true })
+            setActive(prev => ({ ...prev, [type]: true }))
+        } catch(error) {
+            setActive(prev => ({ ...prev, [type]: false }))
+            Alert.alert('Oops', 'Failed to schedule notification since this time has likely passed for today. Please try again with a different time.')
+            console.error(error)
+        } finally {
+            setWorking(null)
+        }
     }
 
-    const cancelNotification = async (type: 'morning' | 'night') => {
-        const id = await getNotificationByType(type)
-        if(id) {
-            await notifee.cancelNotification(id)
-            deleteNotificationTime(type)
+    const clearNotification = async (type: 'morning' | 'night') => {
+        const notification = await getNotification(type)
+        if(notification) {
+            await notifee.cancelNotification(notification.id)
+            await cancelNotification(notification)
+            setActive(prev => ({ ...prev, [type]: false }))
         }
-        setActive({ ...active, [type]: false })
     }
     useEffect(() => {
+        const getNextMinute = () => {
+            const now = new Date()
+            const nextMinute = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0)
+            return nextMinute
+        }
         createNotificationChannel().then(channel => notificationChannel.current = channel)
-        getNotificationTime('morning').then(setMorningTime)
-        getNotificationTime('night').then(setEveningTime)
-        setActive({ morning: morningTime !== null, night: eveningTime !== null })
+        getNotification('morning').then(notification => {
+            if(notification) {
+                setMorningTime(new Date(notification.time))
+                setActive(prev => ({ ...prev, morning: notification.active }))
+            } else setMorningTime(getNextMinute())
+        })
+        getNotification('night').then(notification => {
+            if(notification) {
+                setEveningTime(new Date(notification.time))
+                setActive(prev => ({ ...prev, night: notification.active }))
+            } else setEveningTime(getNextMinute())
+        })
     }, [])
 
     const Notification = ({time, type, border}: {time: Date | null, type: 'morning' | 'night', border?: boolean}) => {
@@ -238,10 +266,11 @@ const Reminders: React.FC<Props> = (props) => {
                         value={active[type] || working === type}
                         onValueChange={(value) => {
                             if(value) scheduleNotification(type)
-                            else cancelNotification(type)
+                            else clearNotification(type)
                         }}
                         style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
                         trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
+                        thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
                     />
                 </View>
             </View>
