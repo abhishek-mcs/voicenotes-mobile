@@ -29,7 +29,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const blurhash = 'LaC*Ibx]xvtRu6W@f+S2NGX8RiWA';
+const blurhash = 'LeLh6+t7~qofNFt7D%of?Hofayof';
 
 interface AttachmentViewerProps {
   attachments: any;
@@ -93,7 +93,7 @@ const AttachmentViewer = ({
   }, []);
 
   const handleDeletePress = useCallback((attachmentId: string, type: string) => {
-    console.log(attachmentId,type)
+    // console.log(attachmentId,type)
     showDialog(
       "Delete Attachment",
       `Are you sure you want to delete this ${type}?`,

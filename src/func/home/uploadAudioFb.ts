@@ -5,6 +5,7 @@ import * as Application from "expo-application";
 import * as FileSystem from "expo-file-system";
 import axios from "axios";
 import {Buffer} from "buffer"
+import * as Sentry from '@sentry/react-native';
 
 export const saveVoiceNote = async (data: {
   audio: any;
@@ -27,6 +28,7 @@ export const saveVoiceNote = async (data: {
   const uri = audio;
   const fileInfo = await FileSystem.getInfoAsync(uri);
   if (!fileInfo.exists) {
+    Sentry.captureMessage("File does not exist", "error");
     console.log("File does not exist")
     throw new Error("File does not exist");
   }
@@ -78,6 +80,7 @@ export const saveVoiceNote = async (data: {
     return response.data;
   } catch (error) {
     console.warn("Error uploading file:", error);
+    Sentry.captureMessage("Failed to upload file: "+ error,"error")
     throw error;
   }
 };

@@ -6,7 +6,6 @@ import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
 import { ScreenWidth } from "@rneui/base";
 import { useCallback, useRef, useState } from "react";
-import {languages} from "utils/constants/languages";
 import { Menu, MenuDivider, MenuItem } from "react-native-material-menu";
 import { useSaveSettings } from "queries/settings";
 import { isIOS } from "utils/common";
@@ -36,7 +35,7 @@ const AddTags = () => {
     const {Colors} = useTheme()
     
     const onSearch=useCallback((s:string)=>{
-      const q = s?.replace(/-/g, '');
+      const q = s?.replace(/-/g, '')?.replace(/\//g, '');
       setSearch(q);
       if(tags?.length>0)
         if(q=='')

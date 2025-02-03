@@ -20,11 +20,12 @@ import { useDialog } from "context/DialogContext";
 
 
 interface ImageUploaderProps {
-  noteId: string;
+  noteId?: string;
   showImagePicker: boolean;
   setShowImagePicker: Dispatch<SetStateAction<boolean>>;
   setAttachments: (v:any)=>void;
   onAttachmentUpdate: () => Promise<void>;
+  noteType?: number;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -33,6 +34,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   setShowImagePicker,
   setAttachments,
   onAttachmentUpdate,
+  noteType=1
 }) => {
   const { Colors, isLightMode } = useTheme()
   const queryClient = useQueryClient();
@@ -105,9 +107,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             is_uploading: true,
           },
         ]);
-        handleSelectedImage(newImage,temporaryImageId)
+        noteType!=3?handleSelectedImage(newImage,temporaryImageId)
+        :await onAttachmentUpdate();
       })
-    }},[validateAndConvertImage, setAttachments])
+    }},[])
 
   const handleSelectedImage = useCallback(async (newImage:any,temporaryImageId:any) => {
       try {
@@ -123,7 +126,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         console.log("Error in uploading image: " + error);
         showDialog("Error", "Failed to upload image. Please try again.",[],{userInterfaceStyle:isLightMode?"light":"dark"});
       }
-  }, [uploadImage, onAttachmentUpdate]);
+  }, []);
 
   const launchImagePicker = useCallback(async (type: "library" | "camera") => {
     try{
@@ -184,7 +187,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   useEffect(() => {
     if (showImagePicker) {
-      openImagePickerMenu();
+      launchImagePicker("library");
+      setShowImagePicker(false)
     }
   }, [showImagePicker, openImagePickerMenu]);
 

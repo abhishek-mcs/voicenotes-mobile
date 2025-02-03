@@ -5,11 +5,12 @@ import RecButton from "components/common/recording/rec-button";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { isIOS, isSmallDevice } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { SvgXml } from "react-native-svg";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useTheme } from "context";
+import { router } from "expo-router";
 import { startSilentBackgroundService, stopSilentBackgroundService } from "services/background";
 
 interface Props {
@@ -47,7 +48,6 @@ export default ({
   const [closeAlert, setCloseAlert] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const timerId = useRef<NodeJS.Timeout>();
-  const homeIcons:any=home
   const { token, userDetails, canRecord }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -73,7 +73,7 @@ useEffect(() => {
           ) {
             onStopRecord(newDuration);
             return 0;
-          } else if (newDuration >= 2400000 && !!token) {
+          } else if (newDuration >= 5400000 && !!token) {
             onStopRecord(newDuration, userDetails?.subscription_status);
             return 0;
           }
@@ -119,6 +119,10 @@ useEffect(() => {
     onRecord(newTemporaryRecordingId);
   };
 
+  const onTextNote = () => {
+    router.push('/text-note/')
+  }
+
   const onCloseAlert = () => {
     canRecord?
     setRecordingParentId(null)
@@ -160,6 +164,22 @@ useEffect(() => {
         {!recEnabled ? (
           <>
             <RecButton
+              onPress={onAsk}
+              title={"Ask AI"}
+              icon={home.ask?.replace(/#0D0D0D/g,Colors.black2)}
+              style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
+            />
+            <RecButton
+              onPress={onTextNote}
+              title="Note"
+              icon={home.note?.replace(/#0D0D0D/g,Colors.black2)}
+              style={{...styles.button}}
+              bgColor={Colors.bottomBarButtonBg1}
+              color={Colors.bottomBarText1}
+            />
+            <RecButton
               onPress={onRecordStart}
               title="Record"
               icon={home.record}
@@ -168,22 +188,14 @@ useEffect(() => {
               color={Colors.bottomBarText}
               style={styles.button}
             />
-            <RecButton
-              onPress={onAsk}
-              title={"Ask AI"}
-              icon={homeIcons.ask?.replaceAll('#0D0D0D',Colors.black2)}
-              style={{...styles.button}}
-              bgColor={Colors.bottomBarButtonBg1}
-              color={Colors.bottomBarText1}
-            />
-            <RecButton
+            {/* <RecButton
               onPress={onCreate}
               title="Create"
               icon={homeIcons.create?.replaceAll('#0D0D0D',Colors.black2)}
               style={styles.button}
               bgColor={Colors.bottomBarButtonBg1}
               color={Colors.bottomBarText1}
-            />
+            /> */}
           </>
         ) : (
 <NoteRecorder
@@ -252,7 +264,7 @@ const useStyles = () => {
     borderWidth:1,
     borderColor:Colors.blackWithOpacity(0.1),
     borderRadius: 24,
-    marginHorizontal: 20,
+    marginHorizontal: isSmallDevice? 10 : 20,
     marginBottom: 20,
     alignItems: "center",
     justifyContent:'space-between',

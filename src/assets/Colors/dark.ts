@@ -79,6 +79,7 @@ export default {
   bgColor15:()=>tertiary,
   bgColor16:tertiary,
   bgColor17:'#1d1d1d',
+  bgColor18: (opacity:number) => tertiary,
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',

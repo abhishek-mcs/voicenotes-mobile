@@ -1446,6 +1446,13 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNSentry (6.5.0):
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - React-hermes
+    - Sentry/HybridSDK (= 8.43.0)
   - RNSVG (14.1.0):
     - React-Core
   - RNVectorIcons (10.2.0):
@@ -1465,6 +1472,7 @@ PODS:
   - SDWebImageWebPCoder (0.13.0):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
+  - Sentry/HybridSDK (8.43.0)
   - SocketRocket (0.6.1)
   - sqlite3 (3.42.0):
     - sqlite3/common (= 3.42.0)
@@ -1583,6 +1591,7 @@ DEPENDENCIES:
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
@@ -1625,6 +1634,7 @@ SPEC REPOS:
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
     - SDWebImageWebPCoder
+    - Sentry
     - SocketRocket
     - sqlite3
 
@@ -1846,6 +1856,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -2002,6 +2014,7 @@ SPEC CHECKSUMS:
   SDWebImageAVIFCoder: 8348fef6d0ec69e129c66c9fe4d74fbfbf366112
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: af09429398d99d524cae2fe00f6f0f6e491ed102
+  Sentry: 532b281a53b1b45a523fd592f608956fb36e577c
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   sqlite3: f163dbbb7aa3339ad8fc622782c2d9d7b72f7e9c
   Yoga: 805bf71192903b20fc14babe48080582fee65a80

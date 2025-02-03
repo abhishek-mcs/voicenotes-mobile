@@ -31,13 +31,13 @@ import { useDispatch, useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import typing from "assets/lottie/typing.json";
 import chatLoader from "assets/lottie/chatLoader.json";
-import { isAndroid, isIOS, screenHeight, screenWidth } from "utils/common";
+import { formatTranscript, isAndroid, isIOS, screenHeight, screenWidth, sleep } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
 import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { DrawerLayout } from "react-native-gesture-handler";
 import { home } from "assets/svg/home";
-import { formatDate, isSameDay } from "utils/format-date";
+import { formatDate, formatDate2, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
 import AudioPlayer from "./AudioPlayer";
 import * as Haptics from 'expo-haptics';
@@ -50,11 +50,14 @@ import { router } from "expo-router";
 import { setStringAsync } from "expo-clipboard";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
+import Collapsible from 'react-native-collapsible';
 import Header from "./header";
 import { useTheme } from "context";
 import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useDialog } from "context/DialogContext";
 import TypingLoader from "components/common/loaders/typing/TypingLoader";
+import CreateModal from "components/CreateModal";
+import useLayoutAnim from "hooks/anim/useLayoutAnim";
 
 type chatItemProps={ id?:number,question?: string; answer?: string; answer2?: string | undefined,question_url?:string,answer_url?:string }
 type chatProps = {
@@ -129,7 +132,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
     if(!!meetingData){
       if(meetingData?.isAudio){
         onStopRecord(meetingData?.data?.duration,meetingData)
-      }else{
+      }else if(!!meetingData?.data?.question){
         onSend(meetingData?.data?.question,meetingData)
       }
     }else{
@@ -138,8 +141,9 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
     InteractionManager.runAfterInteractions(()=>{
      !meetingData&&textInputRef?.current&&textInputRef?.current?.focus();
     })
-    const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>
+    const keyboardShown = Keyboard.addListener("keyboardWillShow", () =>{
       setKeyboardShown(true)
+    }
     );
     const keyboardHide = Keyboard.addListener("keyboardWillHide", () =>{
       setKeyboardShown(false)
@@ -192,6 +196,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
   };
 
   const onDrawer = () => {
+    Keyboard.dismiss();
     setDrawerIndex(10)
     drawerRef.current?.openDrawer()
   }
@@ -210,24 +215,28 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
     scrollToEnd();
   }
   
-  const onSend = (question: string,chatData=null) => {
+  const onSend = async(question: string,chatData=null) => {
+    Keyboard.dismiss()
     !chatStarted&&setChatStarted(true)
     const tempChats = chatData??chats;
-    tempChats?.related_messages?.push({ question, answer: "Searching" });
+    tempChats?.related_messages?.push({ question:input, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    const data = tempChats?.id != 0 ? { question, id: tempChats?.id } : { question };
-    setInput("");
-    scrollToEnd();
-    setTimeout(() => {
-      tempChats.related_messages[tempChats?.related_messages?.length-1].answer="Typing"
-      setChats({...tempChats})
+    const data = tempChats?.id != 0 ? { question:input, id: tempChats?.id } : { question: input };
+    scrollToEnd();  
+    setInput('');    
+    textInputRef.current?.clear();
+    // setTimeout(() => {
+      // tempChats.related_messages[tempChats?.related_messages?.length-1].answer="Typing"
+      // setChats({...tempChats})
       askAI.mutate(data, {
         onSuccess: onSuccessSendChat,
         onError:()=>{
           tempChats?.related_messages?.pop();
         }
       });
-    }, 1000);
+      await sleep(700)
+      setInput('');
+    // }, 1000);
   };
 
   const onHistoryPress = async(id:any) => {
@@ -353,9 +362,19 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
     }, 0);
   };
 
+  const onChangeText = useCallback((text:string) => {
+    console.log(text)
+    setInput(text);
+  }, []);
+
+  useLayoutAnim([keyboardShown])
+
   return (
-    <SafeAreaView style={[styles.modalContainer,{backgroundColor:selectedIndex==0?Colors.bgColor4:Colors.bgColor8},isIOS?{}:{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0},!showHeader?{borderTopWidth: 1,borderTopColor: Colors.border}:{}]}>
-        {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer}/>}
+    <SafeAreaView style={[styles.modalContainer,{backgroundColor:Colors.bgColor8},{paddingTop:isAndroid&&showHeader?40:0},!showHeader?{borderTopWidth: 1,borderTopColor: Colors.border}:{}]}>
+        {showHeader&&<Header type="ask" title="Ask AI" chatStarted={chatStarted} selectedIndex={selectedIndex} onNewChat={onNewChat} onDrawer={onDrawer} handleSegmentChange={handleSegmentChange} />}
+          {selectedIndex==1?
+          <CreateModal/>
+          :<>
           {!chatLoader ? (
             <KeyboardAwareScrollView
               ref={scrollRef}
@@ -364,9 +383,10 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
-                paddingVertical: 16
+                paddingVertical: 16,
               }}
-              extraKeyboardSpace={-200}>
+              extraKeyboardSpace={-200}
+              >
                 {(chats?.related_messages||[])?.map((item:any, index:number) => (
                 <View key={`${index}`}>
                   {!!item?.question && (
@@ -389,7 +409,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                   )}
                 </View>
               ))}
-                {chats?.related_messages?.length==0&&
+                {/* {chats?.related_messages?.length==0&&
                 <View style={{ marginLeft: 20 }}>
                   <SvgXml
                     xml={AIModalSVG.askAILogo?.replace(/#0E3934/g,Colors.askLogo).replace('fill-opacity="0.1"',isLightMode?'fill-opacity="0.1"':'fill-opacity="0.3"')}
@@ -403,8 +423,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                   >
                     Ask about your notes.
                   </Text>
-                </View>}
-                {!chatStarted
+                </View>} */}
+                {/* {!chatStarted
                   ? getSuggestions.data?.data?.length > 0 && (
                       <View style={styles.suggestContainer}>
                         <View style={[styles.row, { marginBottom: 4 }]}>
@@ -440,7 +460,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                       </View>
                     )
                   : null
-              }
+              } */}
             </KeyboardAwareScrollView>
           ) : (
             <View
@@ -453,31 +473,41 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               <CircularLoader width={25} height={25} strokeWidth={3} />
             </View>
           )}
-            <KeyboardStickyView style={[styles.inputContainer,{marginBottom:isIOS?-16:0}]} offset={{opened:isIOS?24:(screenHeight/100)}}>
+
+            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS? 44: (screenHeight/100),closed:34}}>
               {!isRecording ? (
-                <>
-                <View style={styles.inputContentContainer}>
+                <View style={{backgroundColor: Colors.bgColor8, paddingBottom: 32, paddingTop: 8}}>
+                {!chatStarted &&
+                  <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:4,marginBottom:8}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.recordings_count} notes.</Text>
+                }
+                <View style={[styles.inputContentContainer,(!keyboardShown&&input?.length==0)?styles.inputContentContainer2:!keyboardShown?{paddingBottom:8}:{}]}>
                   <TextInput
                     ref={textInputRef}
                     onTouchStart={(e) => e?.stopPropagation()}
                     onFocus={() => scrollToEnd()}
                     style={styles.input}
-                    scrollEnabled={false}
-                    placeholder="Ask a question..."
+                    scrollEnabled={true}
+                    placeholder="Ask a question"
                     placeholderTextColor={Colors.text11}
-                    multiline={false}
+                    multiline={true}
                     value={input}
                     enablesReturnKeyAutomatically={true}
-                    returnKeyType="send"
-                    autoCorrect={true}
+                    returnKeyType="default"
+                    returnKeyLabel="return"
                     autoFocus={false}
-                    autoCapitalize="none"
-                    onChangeText={(text) => setInput(text)}
-                    onSubmitEditing={() => onSend(input)}
+                    autoCapitalize="sentences"
+                    onChangeText={onChangeText}
                   />
-
+              <View style={[styles.sendButtonView,(!keyboardShown&&input?.length==0)?styles.sendButtonView2:{}]}>
+              <Pressable style={styles.send} onPress={() => onRecordStart()}>
+                <SvgXml
+                  xml={AIModalSVG.record?.replace("#1C1B1F", Colors.text)?.replace('#222222',Colors.bgColor3(0.1))}
+                  width={30}
+                  height={30}
+                />
+              </Pressable>
                 <Pressable
-                  style={[styles.send, { position: "absolute", right: 0, opacity: !input ? 0.5 : 1 }]}
+                  style={[styles.send]}
                   disabled={!input}
                   onPress={() => onSend(input)}
                 >
@@ -489,27 +519,13 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                         'height="32" transform="rotate(-90, 16, 16)"'
                       )
                     }
-                    width={26}
-                    height={26}
+                    width={30}
+                    height={30}
                   />
                 </Pressable>
+                </View>
               </View>
-              <Pressable style={styles.send} onPress={() => onRecordStart()}>
-                <SvgXml
-                  xml={AIModalSVG.record?.replace("#1C1B1F", Colors.text)?.replace('#222222',Colors.bgColor3(0.1))}
-                  width={40}
-                  height={40}
-                />
-              </Pressable>
-                  <Touchable
-                    style={styles.send}
-                    onPress={() => (!!input ? onSend(input) : onRecordStart())}
-                  >
-                    <SvgXml
-                      xml={!!input ? AIModalSVG.send : AIModalSVG.record?.replace('#1C1B1F',Colors.askClose)?.replace('#222222',Colors.text1)}
-                    />
-                  </Touchable>
-                </>
+              </View>
               ) : (
                 <View
                   style={{
@@ -543,7 +559,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               zIndex: drawerIndex,
               top: isIOS?0:93,
               width: "100%",
-              height: isIOS?"94.5%":"88%",
+              height: isIOS?"94.5%":"93%",
             }}
           >
             <DrawerLayout
@@ -559,6 +575,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               drawerContainerStyle={styles.drawer}
             />
           </View>
+          </>}
           </SafeAreaView>
   );
 });
@@ -567,6 +584,7 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   const { Colors, isLightMode } = useTheme()
   const styles = useStyles()
   const [expand,setExpand]=useState(false)
+  const [isSourceCollapsed,setCollapseSource]=useState<any>(null)
   const [copy,setCopy]=useState('Copy')
   const dispatch=useDispatch()
 
@@ -579,8 +597,7 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
   }
 
   const goToSource=(id:string)=>{
-    dispatch(setRelatedNoteId(id))
-    router?.back()
+    setCollapseSource((prev:any)=>!!prev?null:id)
   }
 
   if(!!url){
@@ -589,8 +606,8 @@ const ChatItem = ({ text = "", text2 = "", url="", isAI = true,photo='',sources=
     {text=="Typing"?
     <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
     colorFilters={[
-      { keypath: 'Ellipse 1', color: Colors.bgColor6 },
-      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor6 },
+      { keypath: 'Ellipse 1', color: Colors.bgColor18(0.08) },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor18(0.08) },
       { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
       { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
       { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
@@ -606,52 +623,58 @@ return (
   <View style={[styles.convoContentContainer,{alignSelf:isAI?'flex-start':'flex-end'}]}>
     <View style={[styles.aiChat,isAI?styles.aiChatStyle:styles.userChatStyle,(text=="Typing"||text=='Searching')?{paddingVertical:8}:{}]}>
       <View style={{flexDirection:'row'}}>
+      {(text=='Searching'|| text=="Typing")?
+    <LottieView source={chatLoader} autoPlay loop style={{width:40,height:40,bottom:-25,transform:[{scaleX:isAI?1:-1}]}}
+    colorFilters={[
+      { keypath: 'Ellipse 1', color: Colors.bgColor18(0.08) },
+      { keypath: "chat 3 dots three loading message bubble", color: Colors.bgColor18(0.08) },
+      { keypath: 'chat 3 dots three loading message bubble.First', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Second', color: Colors.text5 },
+      { keypath: 'chat 3 dots three loading message bubble.Last', color: Colors.text5 },
+      ]}/>:
       <Text style={[styles.text,{position:"relative"}]}>
         {text}
-      </Text>
-      {(text=='Typing'||text=='Searching')&&<TypingLoader/>}
+      </Text>}
       </View>
       {!!text2 && <Text style={[styles.text, { marginTop: 8 }]}>{text2}</Text>}
 
    {!isAI? <View style={{position:'absolute',bottom:-8,right:-8}}>
-      <View style={{backgroundColor:Colors.grey2WithOpacity(0.05),width:10,height:10,borderRadius:7}}/>
-      <View style={{backgroundColor:Colors.grey2WithOpacity(0.05),width:6,height:6,borderRadius:4,marginLeft:8}}/>
+      {/* <View style={{backgroundColor:Colors.grey2WithOpacity(0.05),width:10,height:10,borderRadius:7}}/>
+      <View style={{backgroundColor:Colors.grey2WithOpacity(0.05),width:6,height:6,borderRadius:4,marginLeft:8}}/> */}
     </View>:
     sources?.length>0?<View style={{marginBottom:12}}>
-      <View style={[styles.row,{paddingVertical:12}]}>
+    {isAI&&text!="Searching"&&text!="Typing"&&
+    <Touchable onPress={onCopy} activeOpacity={1} style={[styles.row,{alignSelf:'flex-start',paddingTop:8, marginLeft: -2}]}>
+       <SvgXml xml={AIModalSVG.copy?.replace('#1C1B1F',Colors.black2)} style={{marginRight:4,marginBottom:-4}}/>
+       <Text style={[styles.text,{fontFamily:'Primary-Semibold'}]}>{copy}</Text>
+     </Touchable>}
+      <View style={[styles.row,{paddingTop:12, paddingBottom: 8}]}>
         <Text style={[styles.text,{color:Colors.grey}]}>Sources</Text>
         <View style={{flex:1,height:1,backgroundColor:Colors.grey2WithOpacity(0.1),marginLeft:8}}/>
       </View>
       <View>
         {sources.map((source:any,index:number)=>(
-          <Touchable key={index} activeOpacity={1} onPress={()=>goToSource(source?.id)} style={[styles.row,{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8}]}>
-            <SvgXml xml={AIModalSVG.source?.replace("#0D0D0D",Colors.arrow)} style={{marginRight:8,marginTop:6}}/>
-            <Text style={[styles.text,{flexWrap:'wrap',width:'90%'}]}>{source?.title}</Text>
+          <Touchable key={index} activeOpacity={1} onPress={()=>goToSource(source?.id)} style={[{flexWrap:'nowrap',alignItems:'flex-start',marginBottom:8},isSourceCollapsed==source?.id?{paddingBottom: 0, borderBottomWidth:0.6,borderBottomColor:Colors.border}:{}]}>
+            {/* <SvgXml xml={AIModalSVG.source?.replace("#0D0D0D",Colors.arrow)} style={{marginRight:8,marginTop:6, transform:[{rotate:'45deg'}]}}/> */}
+            <Text style={[styles.text,{flexWrap:'wrap',width:'90%',lineHeight:20},isSourceCollapsed==source?.id?{fontFamily:'Primary-Bold'}:{color:Colors.text10}]}>
+              {source?.title}
+            </Text>
+            <Collapsible collapsed={isSourceCollapsed!=source?.id} style={{marginTop: 4, paddingBottom: 12}}>
+              <Text style={[styles.text,{color:Colors.text10}]}>{formatDate2(source?.recorded_at??source?.created_at)}</Text>
+              <TextInput 
+              style={[styles.text,{lineHeight: 20,maxHeight:200,paddingBottom:12}]}
+              scrollEnabled
+              multiline
+              editable={false}
+              value={formatTranscript(source?.transcript)}/>
+            </Collapsible>
           </Touchable>
         ))}
       </View>
     </View>:null}
     </View>
-   {isAI&&text!="Searching"&&text!="Typing"&&<Touchable onPress={onCopy} activeOpacity={1} style={[styles.aiChat,styles.aiChatStyle,styles.row,{alignSelf:'flex-start',paddingVertical:4}]}>
-      <SvgXml xml={AIModalSVG.copy?.replace('#0D0D0D',Colors.black2)} style={{marginRight:4}}/>
-      <Text style={[styles.text]}>{copy}</Text>
-    </Touchable>}
   </View>
 )}}
-
-const Btns = ({ txt = "", onPress = () => {} }) => {
-  const { Colors } = useTheme()
-  const styles = useStyles()
-  return (
-  <TouchableHighlight
-    onPress={onPress}
-    underlayColor={isIOS?Colors.darkWithOpacity(0.05):Colors.whiteWithOpacity(1)}
-    style={styles.btn}
-  >
-    <Text style={styles.btnTxt}>{txt}</Text>
-  </TouchableHighlight>
-);
-}
 
 const useStyles = () => {
   const { Colors } = useTheme();
@@ -708,39 +731,50 @@ const useStyles = () => {
   },
   skeleton: { height: 34, borderRadius: 8, opacity: 0.2, marginTop: 12 },
   inputContentContainer:{
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-    width: "85%",
-    borderWidth: 1,
-    borderColor: Colors.border,
-    height: 40,
-    borderRadius: 1000,
-    paddingHorizontal: 12,
-    backgroundColor: Colors.inputBg3,
+    justifyContent: "space-between",
+    // flex: 1,
+
+    minHeight: 92,
+    borderRadius: 16,
+    paddingLeft: 12,
+    paddingRight: 4,
+    paddingTop: 8,
+    paddingBottom: 16,
+    backgroundColor: Colors.bgColor18(0.05),
+  },
+  inputContentContainer2:{
+    alignItems:'center',
+    minHeight: 50,
+    flexDirection:'row',
+    paddingTop: 0,
+    paddingBottom: 8
   },
   input: {
     // marginRight: 8,x
+    maxHeight: 140,
+    paddingRight: 12,
     fontSize: 16,
     fontFamily: "Primary",
     color: Colors.text5,
-    width: "85%",
+    // backgroundColor:'red',
+    minWidth:'70%'
   },
   inputContainer: {
-    // paddingTop:16,
-    paddingLeft: 16,
-    paddingRight:8,
-    flexDirection: "row",
-    alignItems: "center",
+    paddingHorizontal: 16,
     justifyContent: "space-between",
-    backgroundColor: Colors.bgColor4,
+    backgroundColor: Colors.bgColor8,
+  },
+  sendButtonView:{
+    flexDirection:'row', width: '100%',justifyContent:"flex-end", marginTop:8,
+  },
+  sendButtonView2:{
+    width: 'auto',
+    justifyContent:'center'
   },
   send: {
-    paddingVertical: 16,
+    padding: 8,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 12,
-    alignSelf:'flex-end'
   },
   convoBar: {
     paddingVertical: 24,
@@ -767,7 +801,7 @@ const useStyles = () => {
     fontSize: 14,
     color: Colors.text5,
     fontFamily: "Primary-Medium",
-    lineHeight: 20,
+    lineHeight: 24,
   },
   suggest: {
     fontFamily: "Primary-Medium",
@@ -787,14 +821,14 @@ const useStyles = () => {
   suggestContainer: { marginBottom: 24, marginHorizontal: 16, marginTop: 20 },
   aiChat: { marginLeft: 16,marginRight:16,paddingVertical:8,paddingHorizontal:12,borderRadius:12,marginBottom:13 },
   aiChatStyle:{
-    backgroundColor:Colors.bgColor6,
-    shadowColor:Colors.bgColor11,
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0.5 },
-    shadowRadius: 1.5,
-    zIndex: 10,
-    elevation: 2,
-    paddingVertical:12,paddingHorizontal:12
+    // backgroundColor:Colors.bgColor6,
+    // shadowColor:Colors.bgColor11,
+    // shadowOpacity: 0.2,
+    // shadowOffset: { width: 0, height: 0.5 },
+    // shadowRadius: 1.5,
+    // zIndex: 10,
+    // elevation: 2,
+    // paddingVertical:12,paddingHorizontal:12
   },
   userChatStyle:{
     backgroundColor:Colors.bgColor7

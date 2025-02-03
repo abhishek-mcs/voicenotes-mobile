@@ -21,18 +21,21 @@ const Suggestions = ({onPress=(v:string)=>{},type='summary',customText='',setCus
           </View>
           <View style={styles.row}>
               <Btns onPress={onPress} type="summary" title="Summary" icon={CreateModalSvg.summary} selected={type=='summary'}/>
+              <Btns onPress={onPress} type="meeting-report" title="Meeting report" icon={CreateModalSvg.points} selected={type=='meeting-report'}/>
+          </View>
+          <View style={styles.row}>
               <Btns onPress={onPress} type="points" title="List points" icon={CreateModalSvg.points} selected={type=='points'}/>
-          </View>
-          <View style={styles.row}>
               <Btns onPress={onPress} type="todo" title="To-do list" icon={CreateModalSvg.todo} selected={type=='todo'}/>
+          </View>
+          <View style={styles.row}>
               <Btns onPress={onPress} type="tweet" title="Tweet" icon={CreateModalSvg.tweet} selected={type=='tweet'}/>
-          </View>
-          <View style={styles.row}>
               <Btns onPress={onPress} type="email" title="Email" icon={CreateModalSvg.email} selected={type=='email'}/>
-              <Btns onPress={onPress} type="blog" title="Blog post" icon={CreateModalSvg.blog} selected={type=='blog'}/>
           </View>
           <View style={styles.row}>
+              <Btns onPress={onPress} type="blog" title="Blog post" icon={CreateModalSvg.blog} selected={type=='blog'}/>
               <Btns onPress={onPress} type="tidy" title="Cleanup" icon={CreateModalSvg.cleanup} selected={type=='tidy'}/>
+          </View>
+          <View style={styles.row}>
               <Btns onPress={onPress} type="custom" title="+ Custom" selected={type=='custom'} />
           </View>
         {type=='custom'&&

@@ -40,3 +40,4 @@ yarn-error.*
 expo-env.d.ts
 # @end expo-cli
 voicenotes-play-417609-192e3b0af574.json
+.env.local

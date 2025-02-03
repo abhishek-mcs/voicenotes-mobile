@@ -67,15 +67,16 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { useLocalSearchParams } from "expo-router";
 import { useGetRelatedRecording } from "queries/home/relatedNote";
-import { NoteContext, useTheme } from "context";
-import database from '@react-native-firebase/database';
+import { NoteContext, useNoteContext, useTheme } from "context";
 import { sleep } from "utils/Timer";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/cache";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
-import { stopSilentBackgroundService } from "services/background";
+import * as Sentry from '@sentry/react-native';
+import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
+import database from '@react-native-firebase/database';
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -98,7 +99,6 @@ const Home = () => {
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
-  const [expandNote,setExpandNote] = useState(-1)
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
@@ -114,7 +114,6 @@ const Home = () => {
   const [isPlay, setIsPlay] = useState(-1);
   const [play, setPlay] = useState<Audio.Sound | null>();
   const [audioLoading, setAudioLoading] = useState(-1);
-  const scrollRef = useRef<FlatList>(null);
   const soundRef = useRef<any>(null);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
@@ -132,16 +131,16 @@ const Home = () => {
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
-  const relatedNotes = useGetRelatedRecording();
 
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
-  const {setTriggerTypingTitle,setTriggerTypingTranscript} = useContext(NoteContext)
+  const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
   const {showDialog}:any = useDialog()
 
+  const { listenToFirebaseStatus } = useFirebaseRecordingListener()
   useGuestCreate(token, guestToken, createGuestUser, dispatch);
   useWatchNetInfo()
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
@@ -166,172 +165,9 @@ const Home = () => {
     }
   }, [getTags?.data?.data]);
 
-  const listenToFirebaseStatus = 
-   async(
-      recordingId: string | number,
-      temporaryRecordingId: string | null = null,
-      is_transcript_only=false,
-      teamSummaryId=null
-    ) => {
-      try{
-        
-      const firebasePath =  "processStatuses/recording"
-      const dbRef = database().ref(firebasePath).child(`${recordingId}`);
-      
-      // console.log('firebase listen', firebasePath + recordingId)
-      
-      let isTitleGenerated=false||is_transcript_only;
-      let isTitleTriggered=false||is_transcript_only;
-      let isTranscriptTriggered=false;
-      let isProcessCompleted=false;
-
-      dbRef.on('value', async (snapshot) => {
-        // console.log('firebase listen value')
-        if (!snapshot?.exists()) {
-          // console.log("Snapshot does not exist");
-          return;
-        }
-
-        // console.log('snapshot',snapshot?.exists())
-
-        if (snapshot?.exists()) {
-
-          const status = +snapshot.val();
-
-          if (isNaN(status)) {
-            console.error("Invalid status value");
-            return;
-          }
-          
-          // console.log('firebase snapshot')
-          let updatedStatus = "uploading";
-          if (status === RecordingStatus.AUDIO_UPLOADED||status === RecordingStatus.PROCESSING_AUDIO) {
-            updatedStatus = "processing";
-            // console.log("audio uploaded");
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.UPLOADED_FAILED) {
-            updatedStatus = "upload_failed";
-            // console.log("audio uploaded failed");
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.GENERATE_TITLE_FAILED) {
-            updatedStatus = "processing_failed";
-            // console.log("title geneation failed;waiting",recordingId);
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (status === RecordingStatus.GENERATE_TRANSCRIPT_FAILED) {
-            updatedStatus = "processing_failed";
-            // console.log("transcript geneation failed;waiting",recordingId);
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: { status: updatedStatus,is_transcript_loading: false },
-                temporaryRecordingId,
-              })
-            );
-            dispatch(updateTempRecordingData(updatedStatus));
-          } else if (teamSummaryId && status === RecordingStatus.MEETING_SUMMARY_GENERATED) {
-            // console.log('summary generation worked')
-            updatedStatus = "processed";
-            await sleep(5000)
-            const updatedNote = await fetchSingleRecording(recordingId);
-            // console.log(updatedNote?.data?.creations)
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: {
-                  ...updatedNote.data,
-                  status: updatedStatus,
-                  is_transcript_loading:false,
-                },
-              })
-            );
-            !isTranscriptTriggered&&setTriggerTypingTranscript(recordingId);
-            return ()=> {
-              dbRef.off('value');
-              dbRef.remove();
-            }
-          } else if ((status === RecordingStatus.PROCESS_COMPLETED||status===RecordingStatus.TITLE_GENERATED||RecordingStatus.TRANSCRIPT_GENERATED)&&!teamSummaryId) {
-            const isProcessOver = true;
-            updatedStatus = "processed";
-            // console.log("formatted");
-            const updatedNote = await fetchSingleRecording(recordingId);
-            // console.log("updated note: ",updatedNote.data.title)
-            isTitleGenerated=updatedNote?.data?.title!=null||is_transcript_only
-            isProcessCompleted=isTitleTriggered&&isTranscriptTriggered&&status === RecordingStatus.PROCESS_COMPLETED
-            !isProcessCompleted&&
-            dispatch(
-              updateRecordingDetails({
-                recordingId,
-                data: {
-                  ...updatedNote.data,
-                  title:(!is_transcript_only&&status==RecordingStatus.TRANSCRIPT_GENERATED)?null:updatedNote?.data?.title,
-                  status: updatedStatus,
-                  is_transcript_loading:false,
-                },
-              })
-            );
-            !isTranscriptTriggered&&status==RecordingStatus.TRANSCRIPT_GENERATED&&setTriggerTypingTranscript(recordingId);
-            !isTitleTriggered&&isTitleGenerated&&setTriggerTypingTitle(recordingId);
-            isTitleTriggered=isTitleGenerated;
-            isTranscriptTriggered=status==RecordingStatus.TRANSCRIPT_GENERATED
-            status==RecordingStatus.TRANSCRIPT_GENERATED&&await queryClient.invalidateQueries('single-recording')
-            dispatch(updateTempRecordingData(updatedStatus));
-            dispatchCanRecord(updatedNote.data?.can_record_more);
-            isTitleGenerated&&dispatch(setRelatedNoteTitleLoad(false))
-            status==RecordingStatus.TRANSCRIPT_GENERATED&&dispatch(setRelatedNoteTranscriptLoad(false))
-            is_transcript_only&&updatedNote.data?.recording_type==2&&dispatch(setCurrentlyOpenedMeetingTranscript(updatedNote.data?.transcript))
-            status==RecordingStatus.TRANSCRIPT_GENERATED&&await relatedNotes.mutateAsync(recordingId)
-            // console.log("removing firebase listener");
-            // status===RecordingStatus.TITLE_GENERATED&&off(statusRef);
-            status === RecordingStatus.PROCESS_COMPLETED&&setTimeout(() => {
-              !updatedNote.data?.parent_id&&setExpandNote(0);
-              status === RecordingStatus.PROCESS_COMPLETED&&dbRef.off('value');
-              status === RecordingStatus.PROCESS_COMPLETED&&dbRef.remove();
-            }, 600);
-            if(isTitleGenerated || status == RecordingStatus.PROCESS_COMPLETED){
-              await stopSilentBackgroundService();
-            }
-          }
-        } else {
-          // console.log("Snapshot does not exist");
-        }
-      },(error) => {
-        console.error(error);
-      });
-    }catch(e){
-      // console.log("Error processing snapshot:", e);
-      // Update UI to show error state if needed
-      dispatch(
-        updateRecordingDetails({
-          recordingId,
-          data: { status: "processing_failed" },
-          temporaryRecordingId,
-        })
-      );
-    }
-    }
 
   useEffect(() => {
+    Sentry.setUser({ email: userDetails?.email });
     const tokenSubscription = actionEmitter.addListener('sendToken', () => {
       // console.log("React Native: Send token started");
       NativeModules.TokenBridge.sendTokenToWatch(token);
@@ -356,10 +192,20 @@ const Home = () => {
       router.push("/search/");
     });
 
+    const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
+      console.log("React Native: Text Note started");
+      const noteContent = event?.content;
+      router.push({
+        pathname: "/text-note/",
+        params: { content: noteContent }, // Pass the content as a parameter
+      });
+    });
+
     return () => {
       startRecordSubscription.remove();
       askAISubscription.remove();
       searchNoteSubscription.remove();
+      textNoteSubscription.remove();
     };
   }, []);
 
@@ -501,7 +347,7 @@ const Home = () => {
       // else{
       // }
 
-      listenToFirebaseStatus(note.id,null,is_transcript_only,summary_id);
+      await listenToFirebaseStatus(note.id,null,is_transcript_only,summary_id);
     } catch (error) {
       // console.log("error in queing new transcript: ", error);
     }
@@ -509,7 +355,8 @@ const Home = () => {
 
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
-      // console.log("retrying upload for note: ");
+      console.log("retrying upload for note: ", note.audio.data.url);
+      Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
       await uploadVoiceNote(note).catch(()=>{});
     };
 
@@ -541,9 +388,9 @@ const Home = () => {
         await syncUpNote(recording);
       }
       
-      if (recording.subnotes && Array.isArray(recording.subnotes)) {
-        for (const subnote of recording.subnotes) {
-          if (subnote.status !== "processed") {
+      if (recording?.subnotes && Array.isArray(recording?.subnotes)) {
+        for (const subnote of recording?.subnotes) {
+          if (subnote?.status !== "processed") {
             await syncUpNote(subnote); // Pass true to indicate it's a subnote
           }
         }
@@ -650,10 +497,15 @@ const Home = () => {
           })
         );
         dispatch(updateTempRecordingData("processing"));
-        await sleep(3000)
-        listenToFirebaseStatus(recordingId, temporaryRecordingId);
+        await listenToFirebaseStatus(recordingId, temporaryRecordingId);
       }).catch((e)=>{
-        // console.log(e,'audio upload failed. please check for error')
+        dispatch(
+          updateRecordingDetails({
+            recordingId: note.id,
+            data: { status: "upload_failed" },
+            temporaryRecordingId,
+          })
+        );
       });
       setTimeout(() => {
         // console.log("removing old recordings to save memory");
@@ -661,7 +513,6 @@ const Home = () => {
       }, 4000);
       await queryClient.resetQueries('streaks');
     } catch (error) {
-      // console.log("Error in network upload");
       dispatch(
         updateRecordingDetails({
           recordingId: note.id,
@@ -669,6 +520,7 @@ const Home = () => {
           temporaryRecordingId,
         })
       );
+      Sentry.captureMessage("Network fail or upload issue: "+ error,"error")
     }
   };
 
@@ -680,7 +532,7 @@ const Home = () => {
       checkAndShowPremium()
       !recordingParentId&&setExpandNote(-1)
       setRecEnabled(false);
-      const uri = await stopRecording(rec);
+      let uri = await stopRecording(rec);
       setRec(null);
 
       const temporaryRecordingId = Math.random().toString(36).substring(7);
@@ -695,9 +547,6 @@ const Home = () => {
         status: "uploading",
         internalUrl: uri,
         parent_id: recordingParentId,
-        // isSubnote:splitCount>0,
-        // temp_id:temporaryRecordingId,
-        // temp_parent_id:recordingList[0]?.id??null
       };
 
       dispatch(setTempRecordingData(newTemporaryRecording))
@@ -708,7 +557,7 @@ const Home = () => {
           if (recording.id === recordingParentId) {
             return {
               ...recording,
-              subnotes: [...(recording.subnotes || []), newTemporaryRecording],
+              subnotes: [...(recording?.subnotes || []), newTemporaryRecording],
             };
           }
           return recording;
@@ -717,7 +566,7 @@ const Home = () => {
       }
 
       if (!repeat&&!recordingParentId) {
-        scrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
+        noteListScrollRef.current?.scrollToOffset({ animated: true, offset: 0 });
       }
       if(repeat) {
         // setSplitCount(splitCount+1);
@@ -756,7 +605,7 @@ const Home = () => {
   const fetchNextPage = () => {
     // if(recordingList?.length>10){
       recordingQuery.hasNextPage && recordingQuery.fetchNextPage();
-      // recordingQuery.hasNextPage&&console.log("fetching next page");
+      recordingQuery.hasNextPage && console.log("fetching next page");
     // }
   };
 
@@ -795,7 +644,7 @@ const Home = () => {
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
-        scrollRef={scrollRef}
+        noteListScrollRef={noteListScrollRef}
       />
     ),
     [isPlay, play, audioLoading, expandNote,isOffline]
@@ -939,7 +788,7 @@ const Home = () => {
               )}
             </Animated.View>
             <Animated.FlatList
-                ref={scrollRef}
+                ref={noteListScrollRef}
                 ListHeaderComponent={
                   <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
                 }

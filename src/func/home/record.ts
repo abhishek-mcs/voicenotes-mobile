@@ -1,15 +1,9 @@
 import { Audio } from "expo-av";
 import { openSettings } from "expo-linking";
 import { useEffect } from "react";
-import { Platform } from "react-native";
-import * as KeepAwake from 'expo-keep-awake';
-
-interface ExtendedRecording extends Audio.Recording {
-  _isDormant?: boolean;
-  _wakeLockActive?: boolean;
-  _appStateSubscription?: any;
-  _appStateChangeSubscription?: any;
-}
+import { Alert, Platform } from "react-native";
+import * as Sentry from '@sentry/react-native';
+import * as FileSystem from 'expo-file-system';
 
 const alertPermission=(isLightMode=true,showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{})=>{
   const txt = "Please enable microphone permission to continue";
@@ -120,25 +114,22 @@ export const onRecord = async (
       }
     });
   } catch (err:any) {
-    console.error("Failed to start recording", err);
+    console.log("Failed to start recording", err);
     //getting error here
+    Sentry.captureMessage("Failed to start recording: " + err, "error")
   }
 };
 
 export const stopRecording = async (recording: ExtendedRecording|any ) => {
   try {
-    if (recording?._appStateSubscription) {
-      recording?._appStateSubscription.remove();
-    }
-    if (recording?._appStateChangeSubscription) {
-      recording?._appStateChangeSubscription.remove();
-    }
-    await recording?.stopAndUnloadAsync();
-    KeepAwake.deactivateKeepAwake();
-    // await stopSilentBackgroundService();
-    return recording.getURI();
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+    const newLoc = await saveRecording(uri)?? uri;
+    return newLoc;
+
   } catch (error) {
-    console.error("Failed to stop recording", error);
+    console.log("Failed to stop recording", error);
+    Sentry.captureMessage("Failed to stop recording: " + error, "error")
   }
 };
 
@@ -153,7 +144,6 @@ export const cancelRecording = async (recording: ExtendedRecording | null,soundR
       }
     }
     await recording?.stopAndUnloadAsync();
-    await recording?._cleanupForUnloadedRecorder()
     await soundRef?.unloadAsync();
     KeepAwake.deactivateKeepAwake();
     // await stopSilentBackgroundService();
@@ -186,3 +176,15 @@ export const setupAudioRec = (recording: Audio.Recording | null) => {
     };
   }, []);
 };
+
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
+
+const saveRecording = async (uri: string = "") => {  // Recording.getURI()
+  // Get just the name and extension of the recording file created from the URI path. eg) ephisa-wjfwanjdn.m4a 
+  const fileName = uri?.split('/')?.pop();
+  const moveTo = `${DOCUMENT_FOLDER}${fileName}`;
+
+  // Move the file that were in the old URI to the Documents folder.
+  await FileSystem.copyAsync({ from: uri, to:  moveTo, }); // /Documents/ephisa-wjfwanjdn.m4a 
+  return moveTo;
+}

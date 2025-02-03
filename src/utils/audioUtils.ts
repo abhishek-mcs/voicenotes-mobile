@@ -21,11 +21,11 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
       const existingNote = existing.find((note) => note.id === newOne.id);
       //for subnotes
       const offlineSubnoteList:any = existingNote?.subnotes?.filter((note) => note.status?.includes("upload_failed")||note.status=="uploading")??[];
-      const newSubnoteIds = new Set(newOne.subnotes.map(subnote => subnote.id));// Only add offline subnotes that aren't already in newOne.subnotes
+      const newSubnoteIds = new Set(newOne?.subnotes?.map(subnote => subnote.id));// Only add offline subnotes that aren't already in newOne.subnotes
       const uniqueOfflineSubnotes = offlineSubnoteList.filter(
         (subnote:any) => !newSubnoteIds.has(subnote.id)
       );
-      newOne.subnotes=[...newOne.subnotes,...uniqueOfflineSubnotes].sort(
+      newOne.subnotes=[...newOne?.subnotes??[],...uniqueOfflineSubnotes].sort(
         (a:any, b:any) =>a.recorded_at - b.recorded_at 
       );
       finalList.push({ ...existingNote, ...newOne });
@@ -37,10 +37,10 @@ export const combineRecordings = (existing: Note[], newOnes: Note[]) => {
     ...rec,
     status: !!rec?.transcript?"processed":rec.status=="processing"?"processing_failed":(rec?.status ?? "processed"),
     recorded_at: rec.recorded_at ?? rec.created_at,
-    subnotes: rec.subnotes.map((subnote: Subnote) => ({
+    subnotes: rec?.subnotes?.map((subnote: Subnote) => ({
       ...subnote,
       status:  !!subnote?.transcript?"processed":subnote.status=="processing"?"processing_failed":(subnote?.status ?? "processed"),
-      recorded_at: subnote.recorded_at ?? subnote.created_at,
+      recorded_at: subnote?.recorded_at ?? subnote?.created_at,
     })),
   }));
 
@@ -69,7 +69,8 @@ export const removeExtraOldAudios = async (recordingList: Note[], dispatch: any)
       i >= MAX_NOTES_STORAGE_LIMIT_IN_DEVICE;
       i--
     ) {
-      if (!recordingList[i].status.includes("failed")) {
+      const status:string = recordingList[i].status
+      if (!status||status?.includes("processed")) {
         recordsToRemoveFromCache.push(recordingList[i]);
       }
     }

@@ -8,16 +8,36 @@ import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { isIOS } from "utils/common";
+import * as Sentry from '@sentry/react-native';
 
-export default function Layout() {
-  const [fontsLoaded, error] = useFonts({
-    "Primary-Bold": require("../assets/fonts/Inter-Bold.ttf"),
-    "Primary-Medium": require("../assets/fonts/Inter-Medium.ttf"),
-    Primary: require("../assets/fonts/Inter-Regular.ttf"),
-    "Primary-Semibold": require("../assets/fonts/Inter-SemiBold.ttf"),
-    "Primary-Italic": require("../assets/fonts/Inter-Italic.ttf"),
-    Secondary: require("../assets/fonts/InstrumentSerif-Regular.ttf"),
-    "Secondary-Italic": require("../assets/fonts/InstrumentSerif-Italic.ttf"),
+Sentry.init({
+  dsn: process.env?.EXPO_PUBLIC_SENTRY_DSN,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 0.2,
+  enableCaptureFailedRequests:true,
+  enableAutoSessionTracking: true,
+  sessionTrackingIntervalMillis:10000,
+  environment: "production",
+  integrations: [
+    Sentry.mobileReplayIntegration({
+      maskAllText: true,
+      maskAllImages: true,
+      maskAllVectors: true,
+    })
+  ],
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
+
+function Layout() {
+  const [fontsLoaded,error] = useFonts({
+    "Primary-Bold": require('../assets/fonts/Inter-Bold.ttf'),
+    "Primary-Medium": require('../assets/fonts/Inter-Medium.ttf'),
+    "Primary": require('../assets/fonts/Inter-Regular.ttf'),
+    "Primary-Semibold": require('../assets/fonts/Inter-SemiBold.ttf'),
+    "Primary-Italic": require('../assets/fonts/Inter-Italic.ttf'),
+    "Secondary": require('../assets/fonts/InstrumentSerif-Regular.ttf'),
+    "Secondary-Italic": require('../assets/fonts/InstrumentSerif-Italic.ttf'),
     ...FontAwesome.font,
   });
   if (!fontsLoaded) {
@@ -93,7 +113,7 @@ export default function Layout() {
                 />
                 <Stack.Screen
                   name="edit-note/index"
-                  options={{ presentation: "fullScreenModal" }}
+                  options={{ presentation: "formSheet" }}
                 />
                 <Stack.Screen
                   name="plan/index"
@@ -111,6 +131,20 @@ export default function Layout() {
                   name="review/index"
                   options={{ presentation: "formSheet" }}
                 />
+                <Stack.Screen
+                  name="text-note/index"
+                  options={{
+                    presentation: "formSheet",
+                    animation: isIOS ? "ios" : "slide_from_bottom",
+                  }}
+                />
+                <Stack.Screen
+                  name="translate/index"
+                  options={{
+                    presentation: "formSheet",
+                    animation: isIOS ? "ios" : "slide_from_bottom",
+                  }}
+                />
               </Stack>
             </BottomSheetModalProvider>
           </PortalProvider>
@@ -120,3 +154,5 @@ export default function Layout() {
     </>
   );
 }
+
+export default Sentry.wrap(Layout)

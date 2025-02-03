@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { useTheme } from "context";
 import { isSmallDevice } from "utils/common";
+import { formattedDurations } from "utils/format-date";
 
 export default ({
   onPause,
@@ -23,7 +24,6 @@ export default ({
   isCanceling = false,
   setIsCanceling = (v: any) => {},
 }: any) => {
-  const formattedDuration = new Date(duration).toISOString().substring(14, 19);
   const { userDetails }: any = useSelector(
     (state: RootState) => state.userDetails
   );
@@ -95,7 +95,7 @@ export default ({
               styles.tabItemText,
               !userDetails?.subscription_status ? { fontSize: 12 } : {},
             ]}
-          >{`${formattedDuration}${totalDuration}`}</Text>
+          >{`${formattedDurations(duration)}${totalDuration}`}</Text>
         </View>
         {onPause && (
           <RecButton

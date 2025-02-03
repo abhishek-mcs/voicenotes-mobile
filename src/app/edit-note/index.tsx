@@ -14,13 +14,14 @@ import {
   InteractionManager,
 } from "react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { isIOS } from "utils/common";
+import { formatTranscript2, isIOS } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { TextInput } from "react-native";
 import { useQueryClient } from "react-query";
 import { useSaveAICreation, useSaveEditedNote } from "queries/home";
 import {
+  setCurrentlyOpenedMeetingTranscript,
   updateTitle,
   updateTranscript,
 } from "redux/reducers/recordingStates";
@@ -28,6 +29,7 @@ import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import { useGetSingleRecording } from "queries/home/relatedNote";
 import { useTheme } from "context";
 import { useDialog } from "context/DialogContext";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const EditNote = () => {
     const router = useRouter();
@@ -67,13 +69,14 @@ const EditNote = () => {
     const transcript = editNote?.transcript;
     const content = editNoteSummary?.replace(/\* /g,'');
     const recording_id = editNote?.recording_id
-    const data =editNote?.recording_type==2?{content,recording_id}:{transcript,tags} 
+    const data = editNote?.recording_type==2?{content,recording_id}:{transcript,tags} 
 
     await saveEditedNote.mutateAsync(
       {title:editNote?.title,...data},{
         onSuccess:(e:any)=>{
           dispatch(updateTitle({index:params?.index,title:editNote?.title}))
           dispatch(updateTranscript({index:params?.index,transcript:editNote?.transcript}))
+          dispatch(setCurrentlyOpenedMeetingTranscript(editNote?.transcript))
           queryClient.resetQueries('all-recording')
           queryClient.resetQueries('single-recording')
           setIsLoading(false)
@@ -91,24 +94,24 @@ const EditNote = () => {
   };
 
   useEffect(() => {
+    console.log(editNote?.isEditMeetingTranscript)
     InteractionManager.runAfterInteractions(() => {
       titleInputRef.current?.focus();
     });
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8 }}>
-      <KeyboardAvoidingView 
-        behavior={isIOS ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-      <View
+    <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8, paddingTop: isIOS?0:50 }}>
+
+<View
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
-          marginTop: 16,
-          marginHorizontal: 12,
+          paddingHorizontal: 12,
           paddingTop: isIOS ? 0 : 16,
+          borderBottomColor: Colors.border,
+          borderBottomWidth: 1,
+          height: isIOS? 50 : 60,
         }}
       >
         <Touchable
@@ -149,7 +152,12 @@ const EditNote = () => {
           </Touchable>
         )}
       </View>
+      <KeyboardAvoidingView 
+        behavior={isIOS ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
       <View style={styles.editContainer}>
+      {!editNote?.isEditMeetingTranscript&&
       <TextInput
           ref={titleInputRef}
           style={styles.titleInput}
@@ -167,26 +175,28 @@ const EditNote = () => {
           multiline
           onSubmitEditing={handleTitleSubmit}
           returnKeyType="next"
-        />
+        />}
 
-        <ScrollView
+        {/* <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets
           contentContainerStyle={{ paddingBottom: "50%" }}
-        >
+        > */}
           <TextInput
             ref={transcriptInputRef}
             style={styles.textInput}
             multiline
             autoComplete="off"
             autoCorrect={true}
-            scrollEnabled={false}
+            scrollEnabled={true}
             selectTextOnFocus={false}
             placeholder="Transcript"
             placeholderTextColor={Colors.grey6}
             value={
-              editNote?.recording_type==2?
+              (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
               editNoteSummary
+              :editNote?.recording_type==3?
+              formatTranscript2(editNote?.transcript)
               :editNote?.transcript
               ?.replaceAll(/<b\/?>/g, '')
               ?.replaceAll(/<\/b\/?>/g, '')
@@ -199,7 +209,7 @@ const EditNote = () => {
                 return { 
                   ...n, 
                   ...(
-                    editNote?.recording_type==2?
+                    editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript?
                     {
                       creation:[
                         ...n?.creations,
@@ -217,7 +227,7 @@ const EditNote = () => {
               setEditNoteSummary(txt)
             }}
           />
-        </ScrollView>
+        {/* </KeyboardAwareScrollView> */}
       </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

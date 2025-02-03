@@ -30,6 +30,14 @@ export const formatDateTime = (date = Date.now()) => {
   return `${time} \u00B7 ${month} ${day}, ${year}`;
 };
 
+export const formatDate2 = (date = Date.now()) => {
+  const dateToFormat = new Date(date);
+  const day = dateToFormat.toLocaleDateString("en-US", { day: "2-digit" });
+  const month = dateToFormat.toLocaleDateString("en-US", { month:"long" });
+  const year = dateToFormat.toLocaleDateString("en-US", { year:'numeric' });
+  return `${month} ${day}, ${year}`;
+};
+
 export function getLastSixMonths() {
   const months = [];
   const currentDate = new Date();
@@ -55,3 +63,5 @@ export  const isSameDay = (d1:any, d2:any) => {
   );
 }else return false;
 };
+
+export const formattedDurations = ( d:number = 0 ) => new Date(d).toISOString().substring(d>3600000?11:14, 19)

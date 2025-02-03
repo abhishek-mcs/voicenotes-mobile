@@ -9,9 +9,10 @@ import {
   StyleSheet,
   Text,
   View,
+  DeviceEventEmitter,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { formatDateAndTimeNew, formatDateTime } from "utils/format-date";
+import { formatDateAndTimeNew, formatDateTime, formattedDurations } from "utils/format-date";
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Audio } from "expo-av";
 import {
@@ -28,6 +29,8 @@ import { RootState } from "redux/store/store";
 import {
   checkFileExists,
   fetchSingleRecording,
+  formatTranscript,
+  formatTranscript2,
   isIOS,
   screenHeight,
   sleep,
@@ -95,7 +98,7 @@ const NotePreview = forwardRef(
         repeat: boolean | null;
       }) => {},
       isOffline = false,
-      scrollRef,
+      scrollRef
     }: any,
     ref
   ) => {
@@ -154,6 +157,7 @@ const NotePreview = forwardRef(
         params: { index, id: note?.id },
       });
     };
+
     const onGotoAddTag = () => {
       hideMoreOption();
       setTimeout(() => {
@@ -171,14 +175,14 @@ const NotePreview = forwardRef(
       setCreationLoader(false);
     };
 
-    const onCreate = useCallback(async (type = "summary") => {
+    const onCreate = useCallback(async (type = "summary", language?: string) => {
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
       setExpand(index)
       // Scroll to the specific component
       await createAI.mutateAsync(
-        { recording_id: note?.id, type },
+        { recording_id: note?.id, type, language },
         {
           onSuccess: async (r) => {
             await listenAiCreate({ id: r?.data?.id, getCreation });
@@ -292,21 +296,17 @@ const NotePreview = forwardRef(
       let t:any=''
       if(note?.recording_type==2)
         t=note?.creations?.find((t:any)=>t?.type=="team-summary")?.content?.data??''
-      else{
-        t=content
-          ?.replace(/\n/g, '')
-          ?.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-          ?.replace(/<br\s*\/?>\s+/g, '<br>')
-          ?.replace(/<br\/?>/g, "\n\n")
-          ?.trimEnd()
-        }
+      else if(note?.recording_type==3)
+        t=formatTranscript2(content)
+      else
+        t=formatTranscript(content)
       console.log(t)
       await setStringAsync(t);
       setShareVisible(false);
     };
     const onDelete = (isCache=false) => {
       hideMoreOption();
-      if (note.subnotes?.length) {
+      if (note?.subnotes?.length) {
         showDialog(
           "",
           "This main note has subnotes attached. To proceed with deletion, ensure all subnotes are deleted first.",
@@ -334,12 +334,12 @@ const NotePreview = forwardRef(
               if (
                 note.status == "uploading" ||
                 note.status == "upload_failed" ||
-                isCache
+                isCache ||  note?.status == "saving"
               ) {
                 // edge case
                 // await cancelUpload(note?.id);
-                dispatch(deleteRecording({ id: note?.id }));
                 dispatch(updateTempRecordingData('processed'))
+                dispatch(deleteRecording({ id: note?.id }));
                 // onDeleteCallBack();
               } else {
                 try {
@@ -458,7 +458,7 @@ const NotePreview = forwardRef(
     const formattedDuration = useMemo(
       () =>
         audioDuration
-          ? new Date(audioDuration).toISOString().substring(14, 19)
+          ? formattedDurations(audioDuration)
           : "",
       [audioDuration]
     );
@@ -597,17 +597,15 @@ const NotePreview = forwardRef(
       []:[];
 
       const intermediateButtons = [
-        {
+        ...(note?.recording_type!=3?[{
           text: "Download",
           onPress: onDownloadAudio,
           icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
-        },
+        }]:[]),
         { text: "Delete", onPress: ()=>onDelete(true), icon: home.delete?.replace(/#0D0D0D/g,Colors.text) },
       ];
 
-      const failedButtons = isOffline?
-      [...intermediateButtons]
-      :[
+      const failedButtons = [
         {
           text: "Retry",
           onPress: async ()=>{
@@ -627,6 +625,7 @@ const NotePreview = forwardRef(
         switch (status) {
           case "uploading":
           case "processing":
+          case "saving":
             return intermediateButtons;
           case "failed":
             return failedButtons;
@@ -634,7 +633,7 @@ const NotePreview = forwardRef(
             return mainButtons;
         }
       };
-    if(note?.status=='processing'||note?.status=='uploading'||note?.status?.includes('failed'))
+    if(note?.status=='processing'||note?.status=='uploading'||note?.status=='saving'||note?.status?.includes('failed'))
       return (
         <ScrollView
           horizontal
@@ -673,7 +672,8 @@ const NotePreview = forwardRef(
     const onTranscriptOpen = async(isRetry=false) =>{
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       dispatch(setCurrentlyOpenedMeetingTranscript(isRetry?null:note?.transcript))
-      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id),isShared:isShared?'shared':''}})
+      dispatch(setEditNote({...note,isEditMeetingTranscript:true}))
+      router?.push({pathname:'/transcript/',params:{recording_id:JSON.stringify(note?.recording_id),isShared:isShared?'shared':'',index}})
     }
 
     const onReGenerateTeamSummary = async() => {
@@ -709,8 +709,7 @@ const NotePreview = forwardRef(
               onPress: onThreadNote,
             },
           ]),
-      ...(note?.recording_type==2?
-        []:[{
+          {
         title: "Attach",
         systemIcon: "photo.on.rectangle",
         androidIcon: "folder-multiple-image",
@@ -726,14 +725,13 @@ const NotePreview = forwardRef(
             onPress: openLinkEditModal,
           },
         ],
-      }]),
-      ...(note?.recording_type==2?
-        []:[{
+        },
+        {
         title: "Tag",
         systemIcon: "number",
         androidIcon: "pound",
         onPress: onGotoAddTag,
-      }]),
+        },
       ...(userDetails?.id==note?.user_id?[{
         title:"Share",
         systemIcon:'square.and.arrow.up',
@@ -809,47 +807,70 @@ const NotePreview = forwardRef(
 
     const createOptions = [
       {
-        title:"Summary",
-        androidIcon:'bullseye-arrow',
-        systemIcon:'pencil.and.scribble',
-        onPress:()=>onCreate("summary")
+        title: 'Create',
+        inlineChildren: true,
+        actions: [
+          {
+          title:"Summary",
+          androidIcon:'bullseye-arrow',
+          systemIcon:'pencil.and.scribble',
+          onPress:()=>onCreate("summary")
+        },
+        {
+          title:"Meeting report",
+          androidIcon:'file-document-outline',
+          systemIcon:'doc.text',
+          onPress:()=>onCreate("meeting-report")
+        },
+        {
+          title:"Main points",
+          androidIcon:'format-list-bulleted',
+          systemIcon:'list.bullet',
+          onPress:()=> onCreate("points")
+        },
+        {
+          title:"To-do list",
+          androidIcon:'checkbox-outline',
+          systemIcon:'checkmark.rectangle.stack',
+          onPress:()=> onCreate("todo")
+        },
+        {
+          title: "Translate",
+          androidIcon:'translate-variant',
+          systemIcon:'translate',
+          onPress: () => {
+            router.push({
+              pathname: '/translate/',
+              params: { noteId: note?.id }
+            });
+          }
+        },
+        {
+          title:"Tweet",
+          androidIcon:'bullhorn-variant-outline',
+          systemIcon:'megaphone',
+          onPress:()=>onCreate("tweet")
+        },
+        {
+          title:"Blog post",
+          androidIcon:'fountain-pen',
+          systemIcon:'rectangle.and.pencil.and.ellipsis',
+          onPress:()=>onCreate("blog")
+        },
+        {
+          title:"Email",
+          androidIcon:'email-outline',
+          systemIcon:'envelope',
+          onPress:()=>onCreate("email")
+        },
+        {
+          title:"Cleanup",
+          androidIcon:'broom',
+          systemIcon:'paintbrush',
+          onPress:()=>onCreate("tidy")
+        }
+        ]
       },
-      {
-        title:"Main points",
-        androidIcon:'format-list-bulleted',
-        systemIcon:'list.bullet',
-        onPress:()=> onCreate("points")
-      },
-      {
-        title:"To-do list",
-        androidIcon:'checkbox-outline',
-        systemIcon:'checkmark.rectangle.stack',
-        onPress:()=> onCreate("todo")
-      },
-      {
-        title:"Tweet",
-        androidIcon:'bullhorn-variant-outline',
-        systemIcon:'megaphone',
-        onPress:()=>onCreate("tweet")
-      },
-      {
-        title:"Blog post",
-        androidIcon:'fountain-pen',
-        systemIcon:'rectangle.and.pencil.and.ellipsis',
-        onPress:()=>onCreate("blog")
-      },
-      {
-        title:"Email",
-        androidIcon:'email-outline',
-        systemIcon:'envelope',
-        onPress:()=>onCreate("email")
-      },
-      {
-        title:"Cleanup",
-        androidIcon:'broom',
-        systemIcon:'paintbrush',
-        onPress:()=>onCreate("tidy")
-      }
     ]
 
     const refreshNoteAfterAttachmentChange = async () => {
@@ -867,6 +888,16 @@ const NotePreview = forwardRef(
         })
       );
     };
+
+    useEffect(() => {
+      const subscription = DeviceEventEmitter.addListener('translateNote', (data) => {
+        if (data.noteId === note?.id) {
+          onCreate('translate', data.code);
+        }
+      });
+
+      return () => subscription.remove();
+    }, [note?.id]);
 
     if (!note) return null;
 
@@ -941,14 +972,14 @@ const NotePreview = forwardRef(
                         cursorSvg={
                           note?.status == "processing"
                             ? notePreviewSVG.flower?.replace(/#0D0D0D/g,Colors.arrow)
-                            : note?.status == "uploading"
+                            : (note?.status == "uploading"|| note?.status == "saving")
                             ? notePreviewSVG.blackCircle?.replace(/#0D0D0D/g,Colors.arrow)
                             : ""
                         }
                         showCursorAtEnd={
-                          note?.title === "New Recording" || !note?.title
+                          note?.title === "New note" || note?.title === "New Recording" || !note?.title
                         }
-                        message={!!note?.title?note?.title?.trimEnd():"New Recording"}
+                        message={!!note?.title?note?.title?.trimEnd():note?.recording_type!=3?"New Recording":"New note"}
                         triggerAnimation={
                           triggerTypingTitle == note?.id ? 2 : 0
                         }
@@ -1014,19 +1045,12 @@ const NotePreview = forwardRef(
                     lines={expand == index ? 10000 : 4}
                     style={{...styles.text,color:isNoteExpanded?Colors.black2:Colors.grey2WithOpacity(0.5)}}
                     isSummary={note?.recording_type==2}
-                    message={(
+                    message={
                       note?.recording_type==2?
                       note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
-                      :note?.transcript
-                      ?.replaceAll(/\n/g, ''))
-                      ?.replaceAll(/<b\/?>/g, '')
-                      ?.replaceAll(/<\/b\/?>/g, '')
-                      ?.replaceAll(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-                      ?.replaceAll(/<br\s*\/?>\s+/g, '<br>')
-                      ?.replaceAll(/<br\/?>/g, "\n\n")
-                      ?.replace(/&amp;/g, '&')
-                      ?.replace(/&nbsp;/g, '&')
-                      ?.trimEnd()}
+                      :note?.recording_type==3?
+                      formatTranscript2(note?.transcript)
+                      :formatTranscript(note?.transcript)}
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
@@ -1055,7 +1079,7 @@ const NotePreview = forwardRef(
                   :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'} width={15}/>}
                   <Text style={{fontFamily:'Primary-Semibold',fontSize:14,color:Colors.blackWithOpacity(1),marginLeft:6}}>{formattedDuration}</Text>
                 </Pressable>}
-                {!!note?.subnotes&&note?.subnotes.length>0&&expand!=index&&
+                {!!note?.subnotes&&note?.subnotes?.length>0&&expand!=index&&
                   <View style={{flexDirection:'row',alignItems:'center',marginLeft:8}}>
                     <SvgXml xml={home.subnote?.replace('#1C1B1F',Colors.askClose)}/>
                     <Text style={[styles.text,{marginTop:0,marginLeft:2,color:Colors.text8(0.9),fontSize:13}]}>+{note?.subnotes?.length}</Text>
@@ -1155,7 +1179,7 @@ const NotePreview = forwardRef(
           hideModal={() => {setShareVisible(false);setIsNoteJustMadePrivate(false)}}
         />
 
-        {note?.subnotes?.length > 0 && isNoteExpanded&& (
+        {!!note?.subnotes&&note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote
             list={note?.subnotes}
             expand={expand}
