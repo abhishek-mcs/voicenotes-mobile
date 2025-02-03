@@ -1,9 +1,21 @@
 import { Audio } from "expo-av";
 import { openSettings } from "expo-linking";
 import { useEffect } from "react";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 import * as Sentry from '@sentry/react-native';
 import * as FileSystem from 'expo-file-system';
+import * as KeepAwake from 'expo-keep-awake'
+
+type ExtendedRecording = Audio.Recording & {
+  _appStateSubscription?: {
+    remove: () => void;
+  };
+  _appStateChangeSubscription?: {
+    remove: () => void;
+  };
+  getURI: () => string | null;
+  stopAndUnloadAsync: () => Promise<void>;
+};
 
 const alertPermission=(isLightMode=true,showDialog=(p0?: string, p1?: string, p2?: ({ text: string; style: string; onPress?: undefined; } | { text: string; onPress: () => Promise<void>; style?: undefined; })[], p3?: { userInterfaceStyle: string; })=>{})=>{
   const txt = "Please enable microphone permission to continue";

@@ -2,14 +2,13 @@ import {
   Animated,
   DeviceEventEmitter,
   Easing,
-  FlatList,
   KeyboardAvoidingView,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
 } from "react-native";
 import { View } from "../../components/common/Themed";
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "components/home/header";
@@ -29,7 +28,7 @@ import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fetchSingleRecording, isIOS, screenHeight } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
 // import AskMeSomething from "components/ask-me-something";
 import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
@@ -40,7 +39,6 @@ import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import {
   setCreateRecordingList,
-  setCurrentlyOpenedMeetingTranscript,
   setRecordingList,
   setTempRecordingData,
   updateRecordingDetails,
@@ -50,14 +48,13 @@ import NetInfo from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import {  RecordingStatus,} from "func/firebase/recording-event-listener";
 import axiosApi from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
 import RelatedNotes from "app/RelatedNotes";
-import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
+import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 import TagButtons from "components/home/tag-buttons";
@@ -66,9 +63,7 @@ import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { useLocalSearchParams } from "expo-router";
-import { useGetRelatedRecording } from "queries/home/relatedNote";
-import { NoteContext, useNoteContext, useTheme } from "context";
-import { sleep } from "utils/Timer";
+import { useNoteContext, useTheme } from "context";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
 import { incrementCounter, shouldPromptNow } from "utils/cache";
@@ -76,7 +71,6 @@ import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
-import database from '@react-native-firebase/database';
 
 const { height } = Dimensions.get("screen");
 const fadeIn = {
@@ -553,7 +547,7 @@ const Home = () => {
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
-        const newRecordingList = recordingList.map((recording) => {
+        const newRecordingList = recordingList.map((recording: any) => {
           if (recording.id === recordingParentId) {
             return {
               ...recording,
