@@ -20,6 +20,11 @@ const captions = {
     }
 }
 
+const motivators = {
+    morning: "Good morning! Take a moment for a quick brain dump and clear your mind for what's ahead.",
+    night: "How did your day go? Any story-worthy moments, or plans for tomorrow?"
+}
+
 type Props = {
     onClose: () => void
 }
@@ -201,7 +206,7 @@ const Reminders: React.FC<Props> = (props) => {
                 {
                     id: `${type}-${time.getTime()}-notification`,
                     title: 'Voicenotes',
-                    body: captions[type].description,
+                    body: motivators[type],
                     android: {
                         channelId: notificationChannel.current,
                     },
