@@ -14,8 +14,8 @@
     "staging:ios": "yarn prepare && eas build --platform ios --profile staging --auto-submit",
     "staging:all": "yarn prepare && eas build --platform all --profile staging --auto-submit",
     "build:android": "yarn prepare && eas build --platform android --profile production --auto-submit",
-    "build:ios":"yarn prepare && eas build --platform ios --profile production --auto-submit",
-    "build:all":"yarn prepare && eas build --platform all --profile production --auto-submit"
+    "build:ios": "yarn prepare && eas build --platform ios --profile production --auto-submit",
+    "build:all": "yarn prepare && eas build --platform all --profile production --auto-submit"
   },
   "jest": {
     "preset": "jest-expo"
@@ -81,7 +81,6 @@
     "react-native": "0.73.6",
     "react-native-animatable": "^1.4.0",
     "react-native-appsflyer": "^6.15.1",
-    "react-native-audio-analyzer": "^2.0.2",
     "react-native-circular-progress": "^1.4.1",
     "react-native-collapsible": "^1.6.2",
     "react-native-context-menu-view": "^1.16.0",
