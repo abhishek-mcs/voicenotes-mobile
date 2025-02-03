@@ -190,7 +190,6 @@ PODS:
     - FBSDKCoreKit (= 17.0.3)
   - FBSDKShareKit (17.0.3):
     - FBSDKCoreKit (= 17.0.3)
-  - ffmpeg-kit-ios-audio (5.1)
   - Firebase/Analytics (11.2.0):
     - Firebase/Core
   - Firebase/Core (11.2.0):
@@ -1202,11 +1201,6 @@ PODS:
   - react-native-appsflyer (6.15.1):
     - AppsFlyerFramework (= 6.15.1)
     - React
-  - react-native-audio-analyzer (2.0.2):
-    - ffmpeg-kit-ios-audio (= 5.1)
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
   - react-native-context-menu-view (1.16.0):
     - React
   - react-native-date-picker (5.0.9):
@@ -1551,7 +1545,6 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
-  - react-native-audio-analyzer (from `../node_modules/react-native-audio-analyzer`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
@@ -1606,7 +1599,6 @@ SPEC REPOS:
     - FBSDKGamingServicesKit
     - FBSDKLoginKit
     - FBSDKShareKit
-    - ffmpeg-kit-ios-audio
     - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -1776,8 +1768,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-appsflyer:
     :path: "../node_modules/react-native-appsflyer"
-  react-native-audio-analyzer:
-    :path: "../node_modules/react-native-audio-analyzer"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-date-picker:
@@ -1918,7 +1908,6 @@ SPEC CHECKSUMS:
   FBSDKGamingServicesKit: 599a63c235776b7c6288d5dfd7c02edab9a1d3b7
   FBSDKLoginKit: b4a4eba1d62eb452544411824f41689adabd5bd2
   FBSDKShareKit: eb1169eafe3c06f881dc6deed2d7979585b16959
-  ffmpeg-kit-ios-audio: 6eaf5a3c4249b767328502747a08bfd901a86d3d
   Firebase: 98e6bf5278170668a7983e12971a66b2cd57fc8c
   FirebaseAnalytics: c36efd5710c60c17558650fa58c2066eca7e9265
   FirebaseAppCheckInterop: 347aa09a805219a31249b58fc956888e9fcb314b
@@ -1966,7 +1955,6 @@ SPEC CHECKSUMS:
   React-logger: 55764cd993880c6f887505854581c9faf68feff2
   React-Mapbuffer: 0cc88310e28eba4f864893221b238ea3bdfd8a43
   react-native-appsflyer: 24c078b1fec256fb6d9a9bf520c87e1c15f5368c
-  react-native-audio-analyzer: 7be3ea90ce6ea84c2244b6dc9ab3e0fc37f29adf
   react-native-context-menu-view: 3bb7e1aa97c897e26a027d23895a60066f7e4e17
   react-native-date-picker: 8504514d3f83c35252cc13b256712ae37ce25169
   react-native-fbsdk-next: 495b829e8b30c90f56b852100f44c99047f7c2e2
@@ -2007,6 +1995,7 @@ SPEC CHECKSUMS:
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReanimated: aae10ea1f0f783e51646ec569babcd9ba3ad2dc9
   RNScreens: 1174f55dd2f72abe45a4e48bf20e552feb051600
+  RNSentry: 1bc6707d8e6f6f308e0a49b74c1592996712bdb8
   RNSVG: 6d5ed33b6635ed6d6ecb50744dcf127580c39ed5
   RNVectorIcons: 692434715e99ea48fa4d5dcf28758a604b097d7e
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
