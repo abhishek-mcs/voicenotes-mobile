@@ -3,7 +3,7 @@
     "name": "Voicenotes",
     "slug": "voicenotes",
     "version": "1.6.51",
-    "runtimeVersion": "1.5.50",
+    "runtimeVersion": "1.6.51",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "150",
+      "buildNumber": "152",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
