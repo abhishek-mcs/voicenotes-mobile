@@ -3,6 +3,7 @@ import RecButton from "components/common/recording/rec-button";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { useTheme } from "context";
 import { useMemo } from "react";
+import React from "react";
 
 type Props = {
     onCancel: () => void,
@@ -14,7 +15,7 @@ type Props = {
     working?: boolean
 }
 
-const Header: React.FC<Props> = (props) => {
+const Header = React.memo<Props>((props) => {
     const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
     const { Colors } = useTheme()
     const styles = useStyles()
@@ -23,33 +24,50 @@ const Header: React.FC<Props> = (props) => {
         <View style={[styles.root, { paddingTop: statusBarHeight }]}>
             <View style={styles.header}>
                 <View style={styles.action} >
-                    <RecButton
+                    <ActionButton
                         title={props.cancelLabel || "Cancel"}
-                        underlayColor={Colors.grey10}
-                        style={{ width: 'auto',alignSelf:'flex-start', paddingHorizontal: 16,height:40}}
                         onPress={props.onCancel}
-                        bgColor={Colors.bottomBarButtonBg1}
-                        color={Colors.bottomBarText1}
+                        style={{ width: 'auto',alignSelf:'flex-start', paddingHorizontal: 16,height:40}}
+                        working={props.working}
                     />
                 </View>
                 {props.label && <View style={{flex:1,alignItems:'center', justifyContent:'center'}}>
                     <Text style={styles.label}>{props.label}</Text>
                     </View>}
                 <View style={[styles.action, { alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: props.working ? 20 : 10 }]} >
-                    {props.onSubmit ? props.working ? <CircularLoader /> : <RecButton
+                    {props.onSubmit ? props.working ? <CircularLoader /> : <ActionButton
                         title={props.submitLabel || "Save"}
-                        underlayColor={Colors.bgColor12}
-                        bgColor={Colors.settingsBtnBg}
-                        color={Colors.settingsBtnText}
-                        style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                         onPress={props.onSubmit}
+                        style={{ width: 'auto',alignSelf:'flex-end', paddingHorizontal: 15,height:40 }}
                     />: null}
                 </View>
             </View>
             <View style={styles.content}>{props.children}</View>
         </View>
     )
-}
+})
+
+const ActionButton = React.memo<{
+  title: string,
+  onPress: () => void,
+  style?: any,
+  working?: boolean
+}>(({ title, onPress, style, working }) => {
+  const { Colors } = useTheme();
+  
+  if (working) return <CircularLoader />;
+  
+  return (
+    <RecButton
+      title={title}
+      underlayColor={Colors.grey10}
+      style={[{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40 }, style]}
+      onPress={onPress}
+      bgColor={Colors.bottomBarButtonBg1}
+      color={Colors.bottomBarText1}
+    />
+  );
+});
 
 const useStyles = () => {
     const { Colors } = useTheme();

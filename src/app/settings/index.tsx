@@ -62,22 +62,17 @@ const useAnimatedScreens = () => {
   };
 
   const showScreen = useCallback((screen: string) => {
-    if (isAnimating) {
-      return;
-    }
-    if (activeScreen === screen) {
-      return;
-    }
-  
+    if (isAnimating || activeScreen === screen) return;
+    
     setIsAnimating(true);
     const animation = getAnimation(screen);
-  
     setActiveScreen(screen);
-    Animated.spring(animation, {
+    
+    // Use timing instead of spring for better performance
+    Animated.timing(animation, {
       toValue: 0,
+      duration: 300,
       useNativeDriver: true,
-      tension: 40,
-      friction: 8,
     }).start(() => {
       resetTimeout();
       setIsAnimating(false);
@@ -85,22 +80,17 @@ const useAnimatedScreens = () => {
   }, [getAnimation, activeScreen, isAnimating]);
   
   const hideScreen = useCallback(() => {
-    if (isAnimating) {
-      return;
-    }
-  
+    if (isAnimating || !activeScreen) return;
+    
     Keyboard.dismiss();
     setIsAnimating(true);
-    // if (!activeScreen) {
-    //   return;
-    // }
-    const animation = getAnimation(activeScreen??'');
-  
-    Animated.spring(animation, {
+    const animation = getAnimation(activeScreen);
+    
+    // Use timing instead of spring for better performance
+    Animated.timing(animation, {
       toValue: SCREEN_WIDTH,
+      duration: 300,
       useNativeDriver: true,
-      tension: 40,
-      friction: 8,
     }).start(() => {
       setActiveScreen(null);
       resetTimeout();
@@ -325,6 +315,12 @@ const Settings = () => {
         </View>
         </ScrollView>
       </View>
+      
+      {/* {activeScreen === 'reminders' && (
+        <View style={StyleSheet.absoluteFill}>
+          <Reminders onClose={hideScreen} />
+        </View>
+      )} */}
       
       {renderScreen('name', Name)}
       {renderScreen('about', About)}
