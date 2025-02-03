@@ -9852,11 +9852,6 @@ react-native-appsflyer@^6.15.1:
   resolved "https://registry.yarnpkg.com/react-native-appsflyer/-/react-native-appsflyer-6.15.1.tgz#7582f9368279c69910102e9b675e934a42d07792"
   integrity sha512-K1CDq8YSRnOWsw5eB9YpZiD1xUSN4XmNuA3uI2P425Zw573m6tf7kKfYU09TGbxnrbnWRYj+AX5t5/2WGSf4Jw==
 
-react-native-audio-analyzer@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/react-native-audio-analyzer/-/react-native-audio-analyzer-2.0.2.tgz#e8d12dafbca3e247fb026f7d4596d7af982f20b1"
-  integrity sha512-XhdUgHElay20g7ENQSIZk2Vehw5mx/oo9WLeC6vis1vkqnv+JtO3jj+45KuSPlVbgcM6eW/YYRNILtyPb+Ziaw==
-
 react-native-circular-progress@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/react-native-circular-progress/-/react-native-circular-progress-1.4.1.tgz#46d94e73e5973bb415937b912ba56ce1947f66b7"
