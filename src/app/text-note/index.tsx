@@ -28,7 +28,6 @@ import {
 } from "react-native-keyboard-controller";
 import ImageUploader from "components/NotePreview/ImageUploader";
 import { Image } from "expo-image";
-import { BlurView } from "expo-blur";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { usePostRecord } from "queries/home";
 import { NewNote } from "types";
