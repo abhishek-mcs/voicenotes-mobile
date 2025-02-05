@@ -8,6 +8,8 @@ import Picker from "react-native-date-picker";
 import Header from "./header";
 import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType } from "@notifee/react-native";
 import { cancelNotification, getNotification, setNotification } from "utils/cache";
+import SwitchAndroid from "components/common/SwitchAndroid";
+import { isIOS } from "utils/common";
 
 const captions = {
     morning: {
@@ -273,7 +275,7 @@ const Reminders: React.FC<Props> = (props) => {
                     </Pressable>
                 </View>
                 <View style={{ paddingLeft: 2 }}>
-                    <Switch
+                    {isIOS && <Switch
                         value={active[type] || working === type}
                         onValueChange={(value) => {
                             if(value) scheduleNotification(type)
@@ -281,6 +283,16 @@ const Reminders: React.FC<Props> = (props) => {
                         }}
                         style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
                         trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
+                        thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
+                    />}
+                    <SwitchAndroid
+                        value={active[type] || working === type}
+                        onValueChange={(value) => {
+                            if(value) scheduleNotification(type)
+                            else clearNotification(type)
+                        }}
+                        style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
+                        trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(0.2) }}
                         thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
                     />
                 </View>
