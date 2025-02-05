@@ -253,7 +253,7 @@ const useStyles = () => {
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingBottom: 0,
+    paddingBottom: isIOS?0:32,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,

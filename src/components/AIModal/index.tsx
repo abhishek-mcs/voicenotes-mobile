@@ -212,17 +212,15 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
       // temp.related_messages[temp?.related_messages?.length-1].answer=res?.data.answer;
       // setChats({...temp,related_messages: [...temp?.related_messages]});
     }
-    scrollToEnd();
   }
   
   const onSend = async(question: string,chatData=null) => {
     Keyboard.dismiss()
     !chatStarted&&setChatStarted(true)
     const tempChats = chatData??chats;
-    tempChats?.related_messages?.push({ question:input, answer: "Searching" });
+    tempChats?.related_messages?.push({ question:!!meetingData?question:input, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    const data = tempChats?.id != 0 ? { question:input, id: tempChats?.id } : { question: input };
-    scrollToEnd();  
+    const data = tempChats?.id != 0 ? { question:!!meetingData?question:input, id: tempChats?.id } : { question: !!meetingData?question : input }; 
     setInput('');    
     textInputRef.current?.clear();
     // setTimeout(() => {
@@ -324,7 +322,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
         const id=mes[mes.length-1]?.id
         tempChats.related_messages[tempChats?.related_messages?.length-1]={ id:mes[mes?.length-1]?.id,question:mes[mes?.length-1]?.question, question_url:mes[mes?.length-1]?.question_url, answer: "Typing" ,answer_url:'file://'}
         setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-        scrollToEnd()
         getAnswer.mutate({id},{
           onSuccess:(data)=>{
             onSuccessSendChat(data)
@@ -383,7 +380,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
-                paddingVertical: 16,
+                paddingTop: 16,
+                paddingBottom: isIOS?16:200,
               }}
               extraKeyboardSpace={-200}
               >
@@ -474,7 +472,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
             </View>
           )}
 
-            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS? 44: (screenHeight/100),closed:34}}>
+            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS? 44: (screenHeight/100),closed:isIOS?34:0}}>
               {!isRecording ? (
                 <View style={{backgroundColor: Colors.bgColor8, paddingBottom: 32, paddingTop: 8}}>
                 {!chatStarted &&
@@ -661,12 +659,15 @@ return (
             </Text>
             <Collapsible collapsed={isSourceCollapsed!=source?.id} style={{marginTop: 4, paddingBottom: 12}}>
               <Text style={[styles.text,{color:Colors.text10}]}>{formatDate2(source?.recorded_at??source?.created_at)}</Text>
-              <TextInput 
+              {isIOS?<TextInput 
               style={[styles.text,{lineHeight: 20,maxHeight:200,paddingBottom:12}]}
               scrollEnabled
               multiline
               editable={false}
               value={formatTranscript(source?.transcript)}/>
+              :<Text style={[styles.text,{lineHeight: 20,paddingBottom:12}]}>
+                {formatTranscript(source?.transcript)}
+              </Text>}
             </Collapsible>
           </Touchable>
         ))}

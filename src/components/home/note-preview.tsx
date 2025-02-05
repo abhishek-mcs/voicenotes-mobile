@@ -805,72 +805,74 @@ const NotePreview = forwardRef(
       },
     ]
 
-    const createOptions = [
+    const createActions =[
       {
+      title:"Summary",
+      androidIcon:'bullseye-arrow',
+      systemIcon:'pencil.and.scribble',
+      onPress:()=>onCreate("summary")
+    },
+    {
+      title:"Meeting report",
+      androidIcon:'file-document-outline',
+      systemIcon:'doc.text',
+      onPress:()=>onCreate("meeting-report")
+    },
+    {
+      title:"Main points",
+      androidIcon:'format-list-bulleted',
+      systemIcon:'list.bullet',
+      onPress:()=> onCreate("points")
+    },
+    {
+      title:"To-do list",
+      androidIcon:'checkbox-outline',
+      systemIcon:'checkmark.rectangle.stack',
+      onPress:()=> onCreate("todo")
+    },
+    {
+      title: "Translate",
+      androidIcon:'translate',
+      systemIcon:'translate',
+      onPress: () => {
+        router.push({
+          pathname: '/translate/',
+          params: { noteId: note?.id }
+        });
+      }
+    },
+    {
+      title:"Tweet",
+      androidIcon:'bullhorn-variant-outline',
+      systemIcon:'megaphone',
+      onPress:()=>onCreate("tweet")
+    },
+    {
+      title:"Blog post",
+      androidIcon:'fountain-pen',
+      systemIcon:'rectangle.and.pencil.and.ellipsis',
+      onPress:()=>onCreate("blog")
+    },
+    {
+      title:"Email",
+      androidIcon:'email-outline',
+      systemIcon:'envelope',
+      onPress:()=>onCreate("email")
+    },
+    {
+      title:"Cleanup",
+      androidIcon:'broom',
+      systemIcon:'paintbrush',
+      onPress:()=>onCreate("tidy")
+    }
+    ]
+
+    const createOptions = [
+      ...(isIOS?[{
         title: 'Create',
         inlineChildren: true,
-        actions: [
-          {
-          title:"Summary",
-          androidIcon:'bullseye-arrow',
-          systemIcon:'pencil.and.scribble',
-          onPress:()=>onCreate("summary")
-        },
-        {
-          title:"Meeting report",
-          androidIcon:'file-document-outline',
-          systemIcon:'doc.text',
-          onPress:()=>onCreate("meeting-report")
-        },
-        {
-          title:"Main points",
-          androidIcon:'format-list-bulleted',
-          systemIcon:'list.bullet',
-          onPress:()=> onCreate("points")
-        },
-        {
-          title:"To-do list",
-          androidIcon:'checkbox-outline',
-          systemIcon:'checkmark.rectangle.stack',
-          onPress:()=> onCreate("todo")
-        },
-        {
-          title: "Translate",
-          androidIcon:'translate-variant',
-          systemIcon:'translate',
-          onPress: () => {
-            router.push({
-              pathname: '/translate/',
-              params: { noteId: note?.id }
-            });
-          }
-        },
-        {
-          title:"Tweet",
-          androidIcon:'bullhorn-variant-outline',
-          systemIcon:'megaphone',
-          onPress:()=>onCreate("tweet")
-        },
-        {
-          title:"Blog post",
-          androidIcon:'fountain-pen',
-          systemIcon:'rectangle.and.pencil.and.ellipsis',
-          onPress:()=>onCreate("blog")
-        },
-        {
-          title:"Email",
-          androidIcon:'email-outline',
-          systemIcon:'envelope',
-          onPress:()=>onCreate("email")
-        },
-        {
-          title:"Cleanup",
-          androidIcon:'broom',
-          systemIcon:'paintbrush',
-          onPress:()=>onCreate("tidy")
-        }
-        ]
-      },
+        actions: createActions
+      }]:createActions),
     ]
 
     const refreshNoteAfterAttachmentChange = async () => {

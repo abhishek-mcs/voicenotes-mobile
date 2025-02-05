@@ -55,7 +55,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
   if(type=="team-summary") return null;
 
   return (
-    <Touchable style={container} onPress={()=>{setExpand(!expand)}} activeOpacity={0.6}>
+    <Touchable style={container} onPress={()=>{setExpand(!expand)}} activeOpacity={1}>
       <View style={{paddingVertical:4,paddingLeft:12,borderLeftWidth:2,borderLeftColor:Colors.brownWithOpacity(1)}}>
         {/* <View style={{position:'absolute',right:0,top:0,padding:8,paddingHorizontal:12,zIndex:10}}>
             <SvgXml xml={commonSvg.smallArrow}  style={{transform:[{rotate:!expand?'180deg':'360deg'}]}}/>
@@ -77,10 +77,10 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
             <Text style={titleStyle}>{'\n\n'}{content?.body}</Text>
           </Text>}
           {expand&&<View style={[row]}>
-          <Touchable style={btn} onPress={onCopy}>
-            <Text style={[btnTxt,copied?{color:Colors.darkWithOpacity(1)}:{}]}>{copied?'Copied':'Copy'}</Text>
+          <Touchable style={btn} onPress={onCopy} activeOpacity={1}>
+            <Text style={[btnTxt,{color:Colors.text1}]}>{copied?'Copied':'Copy'}</Text>
           </Touchable>
-          <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete}>
+          <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete} activeOpacity={1}>
             <Text style={[btnTxt]}>Delete</Text>
           </Touchable>
           <Text style={[btnTxt,{flex:1,textAlign:'right'}]}>
@@ -110,6 +110,6 @@ const useStyles = () => {
   titleStyle:{fontFamily:'Primary',fontSize:12,color:Colors.text5,marginTop:6},
   txt:{color:Colors.text5,fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
-  btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.grey}
+  btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.text1}
 }), [Colors]); // Recreate styles when Colors change
 };
