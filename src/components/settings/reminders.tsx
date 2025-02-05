@@ -6,7 +6,7 @@ import { SvgXml } from "react-native-svg";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Picker from "react-native-date-picker";
 import Header from "./header";
-import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType } from "@notifee/react-native";
+import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType, AndroidStyle } from "@notifee/react-native";
 import { cancelNotification, getNotification, setNotification } from "utils/cache";
 import SwitchAndroid from "components/common/SwitchAndroid";
 import { isIOS } from "utils/common";
@@ -211,6 +211,10 @@ const Reminders: React.FC<Props> = (props) => {
                     body: motivators[type],
                     android: {
                         channelId: notificationChannel.current,
+                        style: {
+                            type: AndroidStyle.BIGTEXT,
+                            text: motivators[type]
+                        },
                     },
                 },
                 trigger
