@@ -39,7 +39,7 @@ export const deleteCounter = async () => {
 
 export type Notification = {
     time: Date
-    type: 'morning' | 'night'
+    type: 'morning' | 'evening'
     id: string,
     active: boolean
 }
@@ -48,7 +48,7 @@ export const setNotification = async (notification: Notification) => {
     await AsyncStorage.setItem(`vn-${notification.type}-notification`, JSON.stringify(notification))
 }
 
-export const getNotification = async (type: 'morning' | 'night'): Promise<Notification | null> => {
+export const getNotification = async (type: 'morning' | 'evening'): Promise<Notification | null> => {
     const value = await AsyncStorage.getItem(`vn-${type}-notification`)
     if(!value) return null
     const data = JSON.parse(value)
@@ -63,6 +63,6 @@ export const cancelNotification = async (notification: Notification) => {
     await AsyncStorage.setItem(`vn-${notification.type}-notification`, JSON.stringify({ ...data, active: false }))
 }
 
-export const deleteNotification = async (type: 'morning' | 'night') => {
+export const deleteNotification = async (type: 'morning' | 'evening') => {
     await AsyncStorage.removeItem(`vn-${type}-notification`)
 }

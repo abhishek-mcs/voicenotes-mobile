@@ -11,20 +11,9 @@ import { cancelNotification, getNotification, setNotification } from "utils/cach
 import SwitchAndroid from "components/common/SwitchAndroid";
 import { isIOS } from "utils/common";
 
-const captions = {
-    morning: {
-        title: 'Morning intention',
-        description: 'Start your day with a quick voicenote to set your intention and get ready to tackle the day.'
-    },
-    night: {
-        title: 'Evening reflection',
-        description: 'Wrap up the day with a voicenote. Share your highlights or just relfect before bed.'
-    }
-}
-
 const motivators = {
     morning: "Good morning! Take a moment for a quick brain dump and clear your mind for what's ahead.",
-    night: "How did your day go? Any story-worthy moments, or plans for tomorrow?"
+    evening: "How did your day go? Any story-worthy moments, or plans for tomorrow?"
 }
 
 type Props = {
@@ -38,12 +27,12 @@ const Reminders: React.FC<Props> = (props) => {
     const [timePicker, setTimePicker] = useState(false)
     const [morningTime, setMorningTime] = useState<Date | null>(null)
     const [eveningTime, setEveningTime] = useState<Date | null>(null)
-    const [active, setActive] = useState<{morning: boolean, night: boolean}>({ morning: false, night: false })
-    const [working, setWorking] = useState<'morning' | 'night' | null>(null)
+    const [active, setActive] = useState<{morning: boolean, evening: boolean}>({ morning: false, evening: false })
+    const [working, setWorking] = useState<'morning' | 'evening' | null>(null)
     const translateY = useState(new Animated.Value(0))[0]
 
     const notificationChannel = useRef<string | undefined>(undefined)
-    const activeType = useRef<'morning' | 'night' | null>(null)
+    const activeType = useRef<'morning' | 'evening' | null>(null)
 
     const panResponder = useMemo(() => PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -167,7 +156,7 @@ const Reminders: React.FC<Props> = (props) => {
         }
     }
 
-    const chooseTime = (type: 'morning' | 'night') => {
+    const chooseTime = (type: 'morning' | 'evening') => {
         activeType.current = type
         setTimePicker(true)
     }
@@ -186,7 +175,7 @@ const Reminders: React.FC<Props> = (props) => {
         });
     }
 
-    const scheduleNotification = async (type: 'morning' | 'night') => {
+    const scheduleNotification = async (type: 'morning' | 'evening') => {
         setWorking(type)
         try {
             if(!await checkAndroidPermissions()) {
@@ -231,7 +220,7 @@ const Reminders: React.FC<Props> = (props) => {
         }
     }
 
-    const clearNotification = async (type: 'morning' | 'night') => {
+    const clearNotification = async (type: 'morning' | 'evening') => {
         const notification = await getNotification(type)
         if(notification) {
             notifee.getTriggerNotificationIds().then(ids => {
@@ -258,51 +247,46 @@ const Reminders: React.FC<Props> = (props) => {
                 setActive(prev => ({ ...prev, morning: notification.active }))
             } else setMorningTime(getNextMinute())
         })
-        getNotification('night').then(notification => {
+        getNotification('evening').then(notification => {
             if(notification) {
                 setEveningTime(new Date(notification.time))
-                setActive(prev => ({ ...prev, night: notification.active }))
+                setActive(prev => ({ ...prev, evening: notification.active }))
             } else setEveningTime(getNextMinute())
         })
     }, [])
 
-    const Notification = ({time, type, border}: {time: Date | null, type: 'morning' | 'night', border?: boolean}) => {
+    const Notification = ({time, type, border}: {time: Date | null, type: 'morning' | 'evening', border?: boolean}) => {
         return <View style={[styles.reminder, border ? { borderBottomWidth: 1, borderBottomColor: Colors.blackWithOpacity(0.1) } : {}]}>
-            <View style={styles.heading}>
-                <View style={styles.label}>
-                    <View style={{ flexDirection: 'row', gap: 5 }}>
-                        <SvgXml xml={settingsSvg[type].replaceAll('{color}', Colors.blackWithOpacity(1))} />
-                        <Text style={styles.labelText}>{captions[type].title}</Text>
-                    </View>
-                    <Pressable style={styles.time} onPress={() => chooseTime(type)}>
-                        <Text style={{ color: Colors.blackWithOpacity(1) }}>{time ? time.toLocaleTimeString("en-US", { timeStyle: 'short' }) : new Date().toLocaleTimeString("en-US", { timeStyle: 'short' })}</Text>
-                    </Pressable>
+            <View style={styles.label}>
+                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                    <SvgXml xml={settingsSvg[type].replaceAll('{color}', Colors.blackWithOpacity(1))} />
+                    <Text style={styles.labelText}>{String(type).charAt(0).toUpperCase() + String(type).slice(1)}</Text>
                 </View>
-                <View style={{ paddingLeft: 2 }}>
-                    {isIOS && <Switch
-                        value={active[type] || working === type}
-                        onValueChange={(value) => {
-                            if(value) scheduleNotification(type)
-                            else clearNotification(type)
-                        }}
-                        style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
-                        trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
-                        thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
-                    />}
-                    <SwitchAndroid
-                        value={active[type] || working === type}
-                        onValueChange={(value) => {
-                            if(value) scheduleNotification(type)
-                            else clearNotification(type)
-                        }}
-                        style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
-                        trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(0.2) }}
-                        thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
-                    />
-                </View>
+                <Pressable style={styles.time} onPress={() => chooseTime(type)}>
+                    <Text style={{ color: Colors.blackWithOpacity(1) }}>{time ? time.toLocaleTimeString("en-US", { timeStyle: 'short' }) : new Date().toLocaleTimeString("en-US", { timeStyle: 'short' })}</Text>
+                </Pressable>
             </View>
-            <View style={styles.description}>
-                <Text style={styles.descriptionText}>{captions[type].description}</Text>
+            <View style={{ paddingLeft: 2 }}>
+                {isIOS && <Switch
+                    value={active[type] || working === type}
+                    onValueChange={(value) => {
+                        if(value) scheduleNotification(type)
+                        else clearNotification(type)
+                    }}
+                    style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
+                    trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(1) }}
+                    thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
+                />}
+                <SwitchAndroid
+                    value={active[type] || working === type}
+                    onValueChange={(value) => {
+                        if(value) scheduleNotification(type)
+                        else clearNotification(type)
+                    }}
+                    style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
+                    trackColor={{ true: Colors.blackWithOpacity(1), false: Colors.grey2WithOpacity(0.2) }}
+                    thumbColor={(!isLightMode && active[type]) ? 'black' : 'white'}
+                />
             </View>
         </View>
     }
@@ -322,7 +306,7 @@ const Reminders: React.FC<Props> = (props) => {
                 <View style={styles.body}>
                     <View style={styles.content}>
                         <Notification time={morningTime} type="morning" border />
-                        <Notification time={eveningTime} type="night" />
+                        <Notification time={eveningTime} type="evening" />
                     </View>
                 </View>
             </View>
@@ -362,10 +346,7 @@ const useStyles = () => {
             padding: 5,
             paddingVertical: 15,
             gap: 5,
-        },
-        heading: {
             flexDirection: 'row',
-            gap: 5
         },
         time: {
             alignItems: 'center',
