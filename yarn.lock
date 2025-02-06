@@ -10075,6 +10075,11 @@ react-native-helmet-async@2.0.4:
     react-fast-compare "^3.2.2"
     shallowequal "^1.1.0"
 
+react-native-image-viewing@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/react-native-image-viewing/-/react-native-image-viewing-0.2.2.tgz#fb26e57d7d3d9ce4559a3af3d244387c0367242b"
+  integrity sha512-osWieG+p/d2NPbAyonOMubttajtYEYiRGQaJA54slFxZ69j1V4/dCmcrVQry47ktVKy8/qpFwCpW1eT6MH5T2Q==
+
 react-native-ios-kit@^0.0.22:
   version "0.0.22"
   resolved "https://registry.yarnpkg.com/react-native-ios-kit/-/react-native-ios-kit-0.0.22.tgz#302ce2948c4b76cce11289ac67e83cfd2f6636a4"

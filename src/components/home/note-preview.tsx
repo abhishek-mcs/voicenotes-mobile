@@ -193,20 +193,6 @@ const NotePreview = forwardRef(
 
     },[note,index]);
 
-    // useEffect(()=>{
-    //   (async function scrollTo(){
-    //     await sleep(2000)
-    //     if (creationslistRef.current&&creationLoader&&expand==index) {
-    //       creationslistRef.current?.measure((fx:number, fy:number, width:number, height:number, px:number, py:number) => {
-    //         // console.log(fy)
-    //           scrollRef&&scrollRef?.current?.scrollToOffset({ animated: true, offset:py});
-    //           creationslistRef.current = null;
-    //         // }, 1000);
-    //       });
-    //     }
-    //   })()
-    // },[creationslistRef,creationLoader,isNoteExpanded])
-
     const onGenerateTitle = async () => {
       hideMoreOption();
       await sleep(0.5);

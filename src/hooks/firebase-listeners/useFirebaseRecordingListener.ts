@@ -237,6 +237,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
     // Define the Firebase path for recording statuses
       const firebasePath = "processStatuses/recording";
       let isListenerTriggered = false;
+      let retry = 0;
       const dbRef = database().ref(firebasePath).child(`${recordingId}`);
 
       console.log("firebase listen", firebasePath +'/' +recordingId);
@@ -297,7 +298,8 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
         }
       );
       await sleep(4000);
-      if(!isListenerTriggered&&!isNaN(onceSnap.val())){
+      if(!isListenerTriggered&&!isNaN(onceSnap.val())&&retry<5){
+        retry++;
         const dbRef2 = database().ref(firebasePath).child(`${recordingId}`);
         const onceSnap2 = await dbRef2.once('value');
         const snapVal = onceSnap2?.val()

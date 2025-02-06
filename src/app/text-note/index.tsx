@@ -211,6 +211,8 @@ const TextNote = () => {
         <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{padding:16,paddingBottom:isIOS?0:300}}
+        extraKeyboardSpace={-200}
+        keyboardDismissMode="interactive"
         >
         <TextInput
           ref={inputRef}

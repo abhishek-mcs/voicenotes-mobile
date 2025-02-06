@@ -208,7 +208,7 @@ const Transcript = () => {
       onPress: onEdit,
     },
     {
-      title: "Copy link",
+      title: "Copy note",
       systemIcon: "doc.text",
       androidIcon: "content-copy",
       onPress: onCopy,
@@ -246,7 +246,7 @@ const Transcript = () => {
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16, paddingBottom:isIOS?300:16}}
-        extraKeyboardSpace={-200}
+        extraKeyboardSpace={-(200)}
       >
         {!transcript ? (
           <AiLoader

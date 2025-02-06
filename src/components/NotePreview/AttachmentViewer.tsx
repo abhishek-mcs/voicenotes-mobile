@@ -26,6 +26,7 @@ import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
 import { useDialog } from "context/DialogContext";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import ImageView from "react-native-image-viewing";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -44,8 +45,10 @@ const AttachmentViewer = ({
   onEditLink ,
   isShared=false
 }: AttachmentViewerProps) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<any>(null);
+  const [imageIndex, setImageIndex] = useState<number>(0);
   const [visibleMenu, setVisibleMenu] = useState(null);
+  const [imageVisible, setImageVisible] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
@@ -57,7 +60,10 @@ const AttachmentViewer = ({
 
   // Memoize filtered attachments
   const imageAttachments = useMemo(() => 
-    attachments.filter((a:any) => a.type === ATTACHMENT_TYPE.IMAGE),
+    attachments.map((a:any) => {
+      if(a.type === ATTACHMENT_TYPE.IMAGE)
+        return {...a, uri: a?.url}
+      }),
     [attachments]
   );
   
@@ -168,7 +174,10 @@ const AttachmentViewer = ({
     // setSelectedImageIndex(slideIndex);
   }, []);
 
-  const onClose=() =>{ setSelectedImageIndex(null);bottomSheetRef?.current?.close()}
+  const onClose=() =>{ 
+    setSelectedImageIndex(null);
+    setImageVisible(false)
+  }
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
@@ -183,7 +192,10 @@ const AttachmentViewer = ({
     <ImageThumbnail 
       item={item} 
       index={index} 
-      setSelectedImageIndex={setSelectedImageIndex}
+      setSelectedImageIndex={(i:any)=>{
+        setSelectedImageIndex(i)
+        setImageVisible(true)
+      }}
     />
 
   return (
@@ -206,41 +218,21 @@ const AttachmentViewer = ({
           {linkAttachments.map((item:any, index:number) => renderLinkItem({ item, index }))}
         </View>
       )}
-
-      <Portal>
-      <BottomSheet
-        style={styles.bottomSheet}
-        ref={bottomSheetRef}
-        handleComponent={null}
-        backgroundComponent={(props: BottomSheetBackdropProps) => <View/>}
-        index={selectedImageIndex !== null ? 0:-1}
-        snapPoints={isAndroid?[screenHeight+40]:[screenHeight]}
-        onChange={handleSheetChanges}
-        enablePanDownToClose
-        onClose={()=>setSelectedImageIndex(null)}
-      >
-        <View style={styles.modalContainer}>
-          <FlatList
-            ref={fullScreenListRef}
-            data={imageAttachments}
-            renderItem={renderFullScreenImage}
-            keyExtractor={(item:any) => item?.id.toString()}
-            horizontal
-            pagingEnabled
-            initialScrollIndex={selectedImageIndex}
-            getItemLayout={(data, index) => ({
-              length: SCREEN_WIDTH,
-              offset: SCREEN_WIDTH * index,
-              index,
-            })}
-            onScroll={handleFullScreenScroll}
-            onMomentumScrollEnd={handleFullScreenScroll}
-          />
-          <View style={styles.modalHeader}>
+          <ImageView
+            images={imageAttachments}
+            imageIndex={selectedImageIndex}
+            visible={imageVisible}
+            onRequestClose={() => {
+              setSelectedImageIndex(null)
+              setImageVisible(false)
+            }}
+            presentationStyle="fullScreen"
+            animationType="slide"
+            onImageIndexChange={(i)=>setImageIndex(i)}
+            HeaderComponent={()=>(
+              <View style={styles.modalHeader}>
             <Text style={styles.imageCounter}>
-              {`${selectedImageIndex !== null ? selectedImageIndex + 1 : 1} / ${
-                imageAttachments.length
-              }`}
+              {`${ imageIndex + 1 } / ${ imageAttachments.length }`}
             </Text>
             <View style={styles.headerButtons}>
               {!isShared&&
@@ -257,10 +249,9 @@ const AttachmentViewer = ({
                 <SvgXml xml={notePreviewSVG.close}/>
               </Pressable>
             </View>
-          </View>
-        </View>
-      </BottomSheet>
-      </Portal>
+          </View> 
+            )}
+          />
     </ScrollView>
   );
 };
@@ -290,7 +281,7 @@ const AttachmentViewer = ({
       <Pressable onPress={handlePress}>
         <View style={styles.thumbnailContainer}>
           <ImageBackground
-            source={{ uri: item.url }}
+            source={{ uri: item?.uri }}
             style={styles.thumbnail}
             contentFit="cover"
             transition={0}
@@ -407,7 +398,7 @@ const useStyles = () => {
   },
   modalHeader: {
     position: "absolute",
-    top: 40,
+    top: 20,
     left: 0,
     right: 0,
     flexDirection: "row",

@@ -14,8 +14,8 @@
     "staging:ios": "yarn prepare && eas build --platform ios --profile staging --auto-submit",
     "staging:all": "yarn prepare && eas build --platform all --profile staging --auto-submit",
     "build:android": "yarn prepare && eas build --platform android --profile production --auto-submit",
-    "build:ios":"yarn prepare && eas build --platform ios --profile production --auto-submit",
-    "build:all":"yarn prepare && eas build --platform all --profile production --auto-submit"
+    "build:ios": "yarn prepare && eas build --platform ios --profile production --auto-submit",
+    "build:all": "yarn prepare && eas build --platform all --profile production --auto-submit"
   },
   "jest": {
     "preset": "jest-expo"
@@ -88,6 +88,7 @@
     "react-native-dialog": "^9.3.0",
     "react-native-fbsdk-next": "^13.0.0",
     "react-native-gesture-handler": "~2.14.0",
+    "react-native-image-viewing": "^0.2.2",
     "react-native-ios-kit": "^0.0.22",
     "react-native-keyboard-controller": "^1.14.5",
     "react-native-markdown-display": "^7.0.2",
