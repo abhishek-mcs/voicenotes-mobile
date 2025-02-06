@@ -1,12 +1,10 @@
 import { useNetInfo } from "@react-native-community/netinfo";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
 import { useMutation, useQueryClient } from "react-query";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "redux/reducers/hashSlice";
 import { setToken } from "redux/reducers/userDetails";
-import { RootState } from "redux/store/store";
 import { API_URL } from "services/api/api-constants";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
 
@@ -52,13 +50,12 @@ export function signInWithApple() {
 }
 
 export function useLogout(){
-    const {guestToken} = useSelector((state: RootState) => state.userDetails);
     const dispatch=useDispatch()
     const queryClient=useQueryClient()
     const route = useRouter()
     const netInfo=useNetInfo()
     const logout=()=>{
-        setAuthToken(guestToken,true,netInfo)
+        setAuthToken('',false,netInfo)
         queryClient.clear()
         dispatch(setToken(''))
         dispatch(setPinnedTags([]))

@@ -23,7 +23,6 @@ import {
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
-import useGuestCreate from "hooks/auth/useGuestCreate";
 import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
@@ -124,8 +123,9 @@ const Home = () => {
   const {showDialog}:any = useDialog()
 
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
-  useGuestCreate(token, guestToken, createGuestUser, dispatch);
+
   useWatchNetInfo()
+  
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
   const dispatchCanRecord = (val: boolean) =>

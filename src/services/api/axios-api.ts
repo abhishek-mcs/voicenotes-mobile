@@ -67,7 +67,7 @@ function sendTokenToWatchIOS(token: string | void) {
   );
 }
 
-export function setAuthToken(token: string | void, isGuest: boolean, netInfo: any) {
+export function setAuthToken(token: string | void, isGuest: boolean=false, netInfo: any) {
   // Використовуємо watchEvents з react-native-watch-connectivity
   isIOS&&watchEvents.addListener('reachability', (reachable: boolean) => {
     console.log('Watch is reachable:', reachable);
@@ -86,7 +86,7 @@ export function setAuthToken(token: string | void, isGuest: boolean, netInfo: an
   if (!isGuest && token) {
     axiosApi.defaults.baseURL = `${API_URL}/api`;
     axiosApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    console.log("setAuthToken", token);
+    // console.log("setAuthToken", token);
     
     if (isIOS) {
       checkWatchStatus(token);
