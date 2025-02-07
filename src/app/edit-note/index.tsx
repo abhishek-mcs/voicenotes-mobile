@@ -7,10 +7,7 @@ import {
   SafeAreaView,
   Text,
   View,
-  Alert,
   StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
   InteractionManager,
 } from "react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -100,6 +97,16 @@ const EditNote = () => {
     });
   }, []);
 
+  const KeyboardWrapper = ({children}:any) => isIOS?
+  children:(
+    <KeyboardAwareScrollView
+    automaticallyAdjustKeyboardInsets
+    bottomOffset={0}
+    >
+      {children}
+    </KeyboardAwareScrollView>
+  )
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8, paddingTop: isIOS?0:50 }}>
 
@@ -152,10 +159,6 @@ const EditNote = () => {
           </Touchable>
         )}
       </View>
-      <KeyboardAvoidingView 
-        behavior={isIOS ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
         <View style={styles.editContainer}>
           {!editNote?.isEditMeetingTranscript&&
           <TextInput
@@ -176,18 +179,17 @@ const EditNote = () => {
             onSubmitEditing={handleTitleSubmit}
             returnKeyType="next"
           />}
-
-          <KeyboardAvoidingView
-            contentContainerStyle={{paddingBottom:isIOS?0:200}}
-          >
+          <KeyboardWrapper>
             <TextInput
               ref={transcriptInputRef}
               style={styles.textInput}
+              editable={true}
+              selectTextOnFocus={false}
               multiline
+              enablesReturnKeyAutomatically
               autoComplete="off"
               autoCorrect={true}
-              // scrollEnabled={false}
-              selectTextOnFocus={false}
+              scrollEnabled={isIOS}
               placeholder="Transcript"
               placeholderTextColor={Colors.grey6}
               value={
@@ -225,9 +227,8 @@ const EditNote = () => {
                 setEditNoteSummary(txt)
               }}
             />
-          </KeyboardAvoidingView>
+          </KeyboardWrapper>
         </View>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -251,7 +252,7 @@ const useStyles = () => {
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingBottom: isIOS?0:32,
+    paddingBottom: isIOS? screenHeight/1.6:screenHeight/4,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,

@@ -398,7 +398,7 @@ const useStyles = () => {
   },
   modalHeader: {
     position: "absolute",
-    top: 20,
+    top: isIOS? 40 :20,
     left: 0,
     right: 0,
     flexDirection: "row",

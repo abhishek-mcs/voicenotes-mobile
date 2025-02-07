@@ -1,19 +1,24 @@
 import { useTheme } from "context"
-import { TextInput, Dimensions } from "react-native"
+import { TextInput, Dimensions, KeyboardTypeOptions, TextInputProps } from "react-native"
 
-type Props = {
+type CustomProps = {
     value: string,
     onValueChange: (value: string) => void,
     placeholder?: string,
     multiline?: boolean,
-    notPassword?: boolean
+    notPassword?: boolean,
+    keyboardType?: KeyboardTypeOptions
 }
+
+type Props = CustomProps & TextInputProps
+
 const TextField: React.FC<Props> = (props) => {
 
     const width = Dimensions.get('window').width
     const { Colors } = useTheme()
 
     return <TextInput
+        {...props}
         placeholder={props.placeholder || ''}
         value={props.value}
         onChangeText={text => props.onValueChange(text)}
@@ -28,6 +33,7 @@ const TextField: React.FC<Props> = (props) => {
             minHeight: props.multiline ? 150 : 40,
             color:Colors.blackWithOpacity(1)
         }}
+        keyboardType={props?.keyboardType??"default"}
         placeholderTextColor={Colors.grey3}
         multiline={props.multiline || false}
         secureTextEntry={props.notPassword || false}

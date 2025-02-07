@@ -23,12 +23,12 @@ export function useSaveSettings() {
   );
 }
 
-export async function changeEmail(email: string, otp?: string) {
+export async function changeEmail({email="",password="", otp=""}) {
   try {
       const response = await axiosApi.patch(otp ? '/settings/email/update' : '/settings/email/change', {
           email,
-          otp: otp || "",
-          password: ""
+          otp,
+          password
       });
       return response.data;
   } catch (error) {

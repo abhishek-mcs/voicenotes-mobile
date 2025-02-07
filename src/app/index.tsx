@@ -53,7 +53,7 @@ export default function App() {
   }, []);
 
   useEffect(()=>{
-    if(token){
+    if(!!token){
       setAuthToken(token,false,netinfo)
     }
   },[token])

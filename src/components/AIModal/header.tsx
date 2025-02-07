@@ -8,6 +8,7 @@ import { Text } from "react-native"
 import { StyleSheet, View } from "react-native"
 import { SvgXml } from "react-native-svg"
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { isIOS } from "utils/common"
 
 export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=0,onNewChat=()=>{},onDrawer=()=>{},handleSegmentChange=(v:any)=>{}})=>{
     const router=useRouter()
@@ -37,7 +38,7 @@ export default ({type="ask",title="Ask AI",chatStarted=false,selectedIndex=0,onN
             fontStyle={{color:Colors.text}}
             values={["Ask", "Create"]}
             selectedIndex={selectedIndex}
-            style={{width:132,height:32,backgroundColor:Colors.bgColor}}
+            style={{width:132,height:32,...(isIOS?{}:{backgroundColor:Colors.bgColor9})}}
             onChange={(event) => handleSegmentChange(event.nativeEvent.selectedSegmentIndex)}
           />
           {(type=="ask"&&selectedIndex==0)?<Touchable

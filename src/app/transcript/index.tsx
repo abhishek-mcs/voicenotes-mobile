@@ -244,9 +244,9 @@ const Transcript = () => {
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         automaticallyAdjustKeyboardInsets
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 16, paddingBottom:isIOS?300:16}}
-        extraKeyboardSpace={-(200)}
+        keyboardDismissMode="interactive"
+        contentContainerStyle={{ padding: 16, paddingBottom:isIOS?0:300}}
+        extraKeyboardSpace={-200}
       >
         {!transcript ? (
           <AiLoader
@@ -296,18 +296,17 @@ const Transcript = () => {
                   onTouchStart={(e) => e?.stopPropagation()}
                   onFocus={() => scrollToEnd()}
                   scrollEnabled={false}
-                  style={[styles.input,{width:hasHistory?'80%':'85%'},isIOS?{}:{flex:1}]}
+                  style={[styles.input,(!keyboardShown&&input?.length==0)?{width: '60%'}:{width:'100%'}]}
                   placeholder="Ask a question..."
                   placeholderTextColor={Colors.text11}
-                  multiline={false}
+                  multiline
                   value={input}
                   enablesReturnKeyAutomatically={true}
-                  returnKeyType="send"
+                  returnKeyType="default"
                   autoCorrect={true}
                   autoFocus={false}
                   autoCapitalize="none"
                   onChangeText={(text) => setInput(text)}
-                  onSubmitEditing={() => onSend(input)}
                 />
 
               <View style={[styles.sendButtonView,(!keyboardShown&&input?.length==0)?styles.sendButtonView2:{}]}>
@@ -411,7 +410,7 @@ const useStyles = () => {
           justifyContent: "space-between",
           paddingHorizontal: 16,
           paddingBottom: 16,
-          paddingTop: isIOS?0:16,
+          paddingTop: 8,
           backgroundColor: Colors.bgColor8,
           width:'100%'
         },
