@@ -14,8 +14,8 @@
     "staging:ios": "yarn prepare && eas build --platform ios --profile staging --auto-submit",
     "staging:all": "yarn prepare && eas build --platform all --profile staging --auto-submit",
     "build:android": "yarn prepare && eas build --platform android --profile production --auto-submit",
-    "build:ios":"yarn prepare && eas build --platform ios --profile production --auto-submit",
-    "build:all":"yarn prepare && eas build --platform all --profile production --auto-submit"
+    "build:ios": "yarn prepare && eas build --platform ios --profile production --auto-submit",
+    "build:all": "yarn prepare && eas build --platform all --profile production --auto-submit"
   },
   "jest": {
     "preset": "jest-expo"
@@ -103,6 +103,7 @@
     "react-native-shadow-2": "^7.0.8",
     "react-native-svg": "14.1.0",
     "react-native-swiper": "^1.6.0",
+    "react-native-switch-toggle": "^2.2.1",
     "react-native-three-dots-loader": "^1.0.1",
     "react-native-toast-message": "^2.2.0",
     "react-native-type-animation": "^0.4.0",
