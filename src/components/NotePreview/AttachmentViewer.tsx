@@ -27,6 +27,7 @@ import MoreOptions from "components/common/more-options";
 import { useDialog } from "context/DialogContext";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import ImageView from "react-native-image-viewing";
+import {SwipeDownDismissibleView} from "components/common/swipe-down-dismissible-view";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -54,41 +55,42 @@ const AttachmentViewer = ({
   const styles = useStyles()
   const {showDialog} = useDialog()
 
-  const fullScreenListRef = useRef(null);
+  const fullScreenListRef = useRef<FlatList>(null);
   const thumbnailListRef = useRef<FlatList>(null);
   const queryClient = useQueryClient()
 
   // Memoize filtered attachments
   const imageAttachments = useMemo(() => 
-    attachments.map((a:any) => {
-      if(a.type === ATTACHMENT_TYPE.IMAGE)
+    attachments?.flatMap((a:any) => {
+      if(a?.type === ATTACHMENT_TYPE?.IMAGE)
         return {...a, uri: a?.url}
+      return []
       }),
     [attachments]
   );
   
   const linkAttachments = useMemo(() => 
-    attachments.filter((a:any)=> a.type === ATTACHMENT_TYPE.LINK),
+    attachments?.filter((a:any)=> a?.type === ATTACHMENT_TYPE?.LINK),
     [attachments]
   );
 
   useEffect(() => {
-    if (imageAttachments.some((img:any) => img?.is_uploading) && thumbnailListRef.current) {
+    if (imageAttachments?.some((img:any) => img?.is_uploading) && thumbnailListRef?.current) {
       thumbnailListRef?.current?.scrollToEnd({ animated: true });
     }
   }, [imageAttachments]);
 
   const openLink = useCallback((url: string) => {
-    Linking.openURL(url).catch((err) =>
+    Linking?.openURL(url)?.catch((err) =>
       console.error("An error occurred", err)
     );
   }, []);
 
   const deleteAttachment = useCallback(async (attachmentId: string) => {
     try {
-      await axiosApi.delete(`/attachment/${attachmentId}`);
+      await axiosApi?.delete(`/attachment/${attachmentId}`);
       setSelectedImageIndex(null);
-      queryClient.invalidateQueries('single-recording')
+      queryClient?.invalidateQueries('single-recording')
       onClose()
     } catch (error) {
       console.error("Error deleting attachment:", error);
@@ -114,14 +116,14 @@ const AttachmentViewer = ({
 
 
   const renderLinkItem = useCallback(({ item, index }: any) => (
-    <View style={styles.linkContainer} key={`${item.id}-${index}`}>
+    <View style={styles.linkContainer} key={`${item?.id}-${index}`}>
       <Pressable
         style={styles.linkContent}
-        onPress={() => openLink(item.url)}
+        onPress={() => openLink(item?.url)}
       >
         <SvgXml xml={notePreviewSVG.link} />
         <Text style={styles.linkText} numberOfLines={1} ellipsizeMode="tail">
-          {item.description}
+          {item?.description}
         </Text>
       </Pressable>
       {!isShared&&
@@ -138,7 +140,7 @@ const AttachmentViewer = ({
           destructive:true,
           systemIcon:'trash',
           onPress:() => {
-            handleDeletePress(item.id, 'link');
+            handleDeletePress(item?.id, 'link');
             setVisibleMenu(null);
           }}
         ]}>
@@ -151,7 +153,7 @@ const AttachmentViewer = ({
     ({ item }:any) => (
       <View style={styles.fullScreenImageContainer}>
         <Image
-          source={{ uri: item.url }}
+          source={{ uri: item?.url }}
           style={styles.fullScreenImage}
           contentFit="contain"
           transition={300}
@@ -169,14 +171,14 @@ const AttachmentViewer = ({
 
   const handleFullScreenScroll = useCallback((event:any) => {
     const slideIndex = Math.round(
-      event.nativeEvent.contentOffset.x / SCREEN_WIDTH
+      event?.nativeEvent?.contentOffset?.x / SCREEN_WIDTH
     );
-    // setSelectedImageIndex(slideIndex);
+    setSelectedImageIndex(slideIndex);
   }, []);
 
   const onClose=() =>{ 
     setSelectedImageIndex(null);
-    setImageVisible(false)
+    bottomSheetRef?.current?.close()
   }
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -194,19 +196,25 @@ const AttachmentViewer = ({
       index={index} 
       setSelectedImageIndex={(i:any)=>{
         setSelectedImageIndex(i)
-        setImageVisible(true)
+        setImageIndex(i)
       }}
     />
 
   return (
-    <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="never">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      contentInsetAdjustmentBehavior="never"
+    >
       {imageAttachments.length > 0 && (
         <View>
           <FlatList
             ref={thumbnailListRef}
             data={imageAttachments}
             renderItem={renderImageThumbnail}
-            keyExtractor={useCallback((item:any) => item.id.toString(), [])}
+            keyExtractor={useCallback(
+              (item: any, index: number) => (item?.id ?? index)?.toString(),
+              []
+            )}
             horizontal
             showsHorizontalScrollIndicator={false}
           />
@@ -215,43 +223,68 @@ const AttachmentViewer = ({
 
       {linkAttachments.length > 0 && (
         <View style={styles.linkSection}>
-          {linkAttachments.map((item:any, index:number) => renderLinkItem({ item, index }))}
+          {linkAttachments?.map((item: any, index: number) =>
+            renderLinkItem({ item, index })
+          )}
         </View>
       )}
-          <ImageView
-            images={imageAttachments}
-            imageIndex={selectedImageIndex}
-            visible={imageVisible}
-            onRequestClose={() => {
-              setSelectedImageIndex(null)
-              setImageVisible(false)
-            }}
-            presentationStyle="fullScreen"
-            animationType="slide"
-            onImageIndexChange={(i)=>setImageIndex(i)}
-            HeaderComponent={()=>(
-              <View style={styles.modalHeader}>
+      <Portal>
+      <BottomSheet
+        style={styles.bottomSheet}
+        ref={bottomSheetRef}
+        handleComponent={null}
+        backgroundComponent={(props: BottomSheetBackdropProps) => <View/>}
+        index={selectedImageIndex !== null ? 0:-1}
+        snapPoints={isAndroid?[screenHeight+40]:[screenHeight]}
+        // onChange={handleSheetChanges}
+        enablePanDownToClose
+        onClose={onClose}
+      >
+        <View style={styles.modalContainer}>
+          <FlatList
+            key={imageIndex}
+            ref={fullScreenListRef}
+            data={imageAttachments}
+            renderItem={renderFullScreenImage}
+            keyExtractor={(item:any,i) => item?.id?.toString()}
+            horizontal
+            pagingEnabled
+            initialScrollIndex={imageIndex}
+            getItemLayout={(data, index) => ({
+              length: SCREEN_WIDTH,
+              offset: SCREEN_WIDTH * index,
+              index,
+            })}
+            onScroll={handleFullScreenScroll}
+            onMomentumScrollEnd={handleFullScreenScroll}
+          />
+          <View style={styles.modalHeader}>
             <Text style={styles.imageCounter}>
-              {`${ imageIndex + 1 } / ${ imageAttachments.length }`}
+              {`${selectedImageIndex + 1} / ${imageAttachments?.length}`}
             </Text>
             <View style={styles.headerButtons}>
-              {!isShared&&
-              <Pressable
-                style={styles.deleteButton}
-                onPress={() => selectedImageIndex !== null&&handleDeletePress(imageAttachments[selectedImageIndex]?.id, 'image')}
-              >
-                <SvgXml xml={notePreviewSVG.delete}/>
-              </Pressable>}
-              <Pressable
-                style={styles.closeButton}
-                onPress={onClose}
-              >
-                <SvgXml xml={notePreviewSVG.close}/>
+              {!isShared && (
+                <Pressable
+                  style={styles.deleteButton}
+                  onPress={() =>
+                    selectedImageIndex !== null &&
+                    handleDeletePress(
+                      imageAttachments[selectedImageIndex]?.id,
+                      "image"
+                    )
+                  }
+                >
+                  <SvgXml xml={notePreviewSVG.delete} />
+                </Pressable>
+              )}
+              <Pressable style={styles.closeButton} onPress={onClose}>
+                <SvgXml xml={notePreviewSVG.close} />
               </Pressable>
             </View>
-          </View> 
-            )}
-          />
+          </View>
+        </View>
+      </BottomSheet>
+      </Portal>
     </ScrollView>
   );
 };
@@ -266,11 +299,11 @@ const AttachmentViewer = ({
 
     // Memoize getCombinedProgress
     const getCombinedProgress = useCallback(() => {
-      if (item.is_uploading|| imageLoading) {
+      if (item?.is_uploading|| imageLoading) {
         return loadProgress * 95;
       } 
       return 100;
-    }, [item.is_uploading, imageLoading, loadProgress]);
+    }, [item?.is_uploading, imageLoading, loadProgress]);
 
     // Memoize onPress handler
     const handlePress = useCallback(() => {
@@ -299,7 +332,7 @@ const AttachmentViewer = ({
               setLoadProgress(1);
             }}
           />
-          {(item.is_uploading ) && (
+          {(item?.is_uploading ) && (
             <BlurView intensity={50} style={styles.blurOverlay}>
               <AnimatedCircularProgress
                 size={25}
@@ -322,7 +355,7 @@ const useStyles = () => {
   bottomSheet: {
     flex:1,
     // height:screenHeight,
-    backgroundColor:Colors.bgColor10(0.7)
+    backgroundColor:Colors?.bgColor10(0.7)
   },
   container: {
     flex:1,
@@ -365,7 +398,7 @@ const useStyles = () => {
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.bgColor10(0.9),
+    backgroundColor: Colors?.bgColor10(0.9),
     justifyContent: "center",
     alignItems: "center",
   },
@@ -412,7 +445,7 @@ const useStyles = () => {
   },
   closeButton: {
     padding: 14,
-    backgroundColor:Colors.darkWithOpacity(1),
+    backgroundColor:Colors?.darkWithOpacity(1),
     borderRadius: 50
   },
   loader: {
@@ -436,13 +469,13 @@ const useStyles = () => {
   deleteButton: {
     padding: 13,
     marginRight: 10,
-    backgroundColor:Colors.darkWithOpacity(1),
+    backgroundColor:Colors?.darkWithOpacity(1),
     borderRadius: 50
   },
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.lightBlueWithOpacity(isLightMode?0.05:0.15),
+    backgroundColor: Colors?.lightBlueWithOpacity(isLightMode?0.05:0.15),
     borderRadius: 8,
     justifyContent: 'space-between',
   },
@@ -455,7 +488,7 @@ const useStyles = () => {
   },
   linkText: {
     marginLeft: 10,
-    color: Colors.lightBlueWithOpacity(0.8),
+    color: Colors?.lightBlueWithOpacity(0.8),
     flex: 1,
   },
 }), [Colors]); // Recreate styles when Colors change

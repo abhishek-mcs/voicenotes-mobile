@@ -1048,7 +1048,7 @@ const NotePreview = forwardRef(
                 )}
 
                 <TagsList note={note} />
-                {attachments?.length > 0 && (
+                {!!attachments && attachments?.length > 0 && (
                   <AttachmentViewer
                     attachments={attachments}
                     onAttachmentUpdate={refreshNoteAfterAttachmentChange}
