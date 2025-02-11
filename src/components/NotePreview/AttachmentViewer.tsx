@@ -26,8 +26,6 @@ import { useQueryClient } from "react-query";
 import MoreOptions from "components/common/more-options";
 import { useDialog } from "context/DialogContext";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import ImageView from "react-native-image-viewing";
-import {SwipeDownDismissibleView} from "components/common/swipe-down-dismissible-view";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
