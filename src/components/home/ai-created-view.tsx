@@ -80,7 +80,7 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
           </Text>}
           {expand&&<View style={[row]}>
           <Touchable style={btn} onPress={onCopy} activeOpacity={1}>
-            <Text style={[btnTxt,{color:Colors.text1}]}>{copied?'Copied':'Copy'}</Text>
+            <Text style={[btnTxt,{color:copied?Colors.text:Colors.text7}]}>{copied?'Copied':'Copy'}</Text>
           </Touchable>
           <Touchable style={[btn,{marginLeft:8}]} onPress={onDelete} activeOpacity={1}>
             <Text style={[btnTxt]}>Delete</Text>
@@ -112,6 +112,6 @@ const useStyles = () => {
   titleStyle:{fontFamily:'Primary',fontSize:12,color:Colors.text5,marginTop:6},
   txt:{color:Colors.text5,fontFamily:'Primary-Medium',fontSize:12},
   btn:{paddingRight:8,paddingVertical:8},
-  btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.text1}
+  btnTxt:{fontFamily:'Primary',fontSize:11,color:Colors.text7}
 }), [Colors]); // Recreate styles when Colors change
 };

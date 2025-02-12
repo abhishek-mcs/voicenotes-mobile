@@ -230,7 +230,7 @@ const AttachmentViewer = ({
         handleComponent={null}
         backgroundComponent={(props: BottomSheetBackdropProps) => <View/>}
         index={selectedImageIndex !== null ? 0:-1}
-        snapPoints={isAndroid?[screenHeight+40]:[screenHeight]}
+        snapPoints={isAndroid?[screenHeight+60]:[screenHeight]}
         // onChange={handleSheetChanges}
         enablePanDownToClose
         onClose={onClose}

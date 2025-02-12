@@ -47,7 +47,7 @@ const AddEditLinkBottomSheet: React.FC<AddEditLinkBottomSheetProps> = ({
   const [isSaving, setIsSaving] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const textInputRef = useRef<TextInput>(null);
-  const snapPoints = useMemo(() => [ isIOS ?  '94%' : '95%'], []);
+  const snapPoints = useMemo(() => [ isIOS ?  '94%' : '99%'], []);
   const { Colors } = useTheme()
   const styles = useStyles()
 
