@@ -31,6 +31,8 @@ export default ({content,date=undefined,type="Summary",id}:{content:any,date:any
         txtCopy='• '+content.join('\n• ')
       else if(type=="blog")
         txtCopy=content.join('\n')
+      else if(type=='translate')
+        txtCopy=content[0]
       else
         txtCopy=content?.replace(/^- /gm,'• ')
       await setStringAsync(txtCopy||'');
