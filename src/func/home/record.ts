@@ -51,27 +51,27 @@ export const onRecord = async (
         });
 
         const { recording: recordingObject, status } = await Audio.Recording.createAsync({
-          ...Audio.RecordingOptionsPresets.LOW_QUALITY,
-          isMeteringEnabled: true,
-          android:{
-            extension: '.m4a',
-            outputFormat: Audio.AndroidOutputFormat.MPEG_4,
-            audioEncoder: Audio.AndroidAudioEncoder.AAC,
-            sampleRate: 16000, // Lower sample rate for low quality
-            numberOfChannels: 1, // Mono
-            bitRate: 64000, // Lower bit rate
-          },
-          ios: {
-            extension: '.m4a',
-            audioQuality: Audio.IOSAudioQuality.LOW,
-            sampleRate: 16000, // Lower sample rate
-            numberOfChannels: 1, // Mono
-            bitRate: 64000, // Lower bit rate
-            linearPCMBitDepth: 16,
-            linearPCMIsBigEndian: false,
-            linearPCMIsFloat: false,
-          },
-        },()=>{},30);
+          ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+          // isMeteringEnabled: true,
+          // android:{
+          //   extension: '.m4a',
+          //   outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+          //   audioEncoder: Audio.AndroidAudioEncoder.AAC,
+          //   sampleRate: 16000, // Lower sample rate for low quality
+          //   numberOfChannels: 1, // Mono
+          //   bitRate: 64000, // Lower bit rate
+          // },
+          // ios: {
+          //   extension: '.m4a',
+          //   audioQuality: Audio.IOSAudioQuality.LOW,
+          //   sampleRate: 16000, // Lower sample rate
+          //   numberOfChannels: 1, // Mono
+          //   bitRate: 64000, // Lower bit rate
+          //   linearPCMBitDepth: 16,
+          //   linearPCMIsBigEndian: false,
+          //   linearPCMIsFloat: false,
+          // },
+        });
         setRec(recordingObject);
         setRecEnabled(true);
       } else if (status.canAskAgain && status.status == "undetermined") {
@@ -90,7 +90,7 @@ export const onRecord = async (
               });
 
               const { recording: recordingObject, status } = await Audio.Recording.createAsync({
-                ...Audio.RecordingOptionsPresets.LOW_QUALITY,
+                ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
                 isMeteringEnabled: true,
               },()=>{},10);
               setRec(recordingObject);
