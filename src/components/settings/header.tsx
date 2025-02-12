@@ -77,7 +77,8 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        height: '100%'
+        height: '100%',
+        backgroundColor: Colors.bgColor1
     },
     header: {
         flex: 1,

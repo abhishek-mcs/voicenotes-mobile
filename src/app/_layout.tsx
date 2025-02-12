@@ -72,7 +72,7 @@ function Layout() {
                 <Stack.Screen name="auth/signup/premium" />
                 <Stack.Screen name="RelatedNotes/index" />
                 <Stack.Screen
-                  name="settings/index"
+                  name="settings"
                   options={{
                     presentation: "formSheet",
                     animation: isIOS ? "ios" : "slide_from_bottom",
