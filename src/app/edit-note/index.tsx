@@ -10,7 +10,7 @@ import {
   StyleSheet,
   InteractionManager,
 } from "react-native";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatTranscript2, isIOS, screenHeight } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
@@ -97,7 +97,7 @@ const EditNote = () => {
     });
   }, []);
 
-  const KeyboardWrapper = ({children}:any) => isIOS?
+  const KeyboardWrapper = useCallback(({children}:any) => isIOS?
   children:(
     <KeyboardAwareScrollView
     automaticallyAdjustKeyboardInsets
@@ -105,7 +105,7 @@ const EditNote = () => {
     >
       {children}
     </KeyboardAwareScrollView>
-  )
+  ),[])
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8, paddingTop: isIOS?0:50 }}>

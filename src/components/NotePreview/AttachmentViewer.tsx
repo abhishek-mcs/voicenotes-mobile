@@ -209,10 +209,7 @@ const AttachmentViewer = ({
             ref={thumbnailListRef}
             data={imageAttachments}
             renderItem={renderImageThumbnail}
-            keyExtractor={useCallback(
-              (item: any, index: number) => (item?.id ?? index)?.toString(),
-              []
-            )}
+            keyExtractor={(item: any, index: number) => index?.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
           />
