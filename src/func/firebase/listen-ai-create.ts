@@ -5,6 +5,7 @@ export default async ({ id = "", getCreation = async (v: any) => {} }) => {
   const firebasePath = "processStatuses/aicreate/" + id;
   const dbRef = database().ref(firebasePath);
   let isListenerTriggered = false;
+  let retry = 0;
 
   async function statusCheck(status: number, listener: any) {
     if (status == 1) {
@@ -46,14 +47,17 @@ export default async ({ id = "", getCreation = async (v: any) => {} }) => {
       if (snapshot.exists()) {
         const status = snapshot.val();
         console.log("creation status", status);
-        statusCheck(status, listener);
+        await statusCheck(status, listener);
       }
     });
-    if (!isListenerTriggered && !isNaN(onceSnap.val())) {
-      await sleep(5000);
+    await sleep(4000);
+    if (!isListenerTriggered && !isNaN(onceSnap.val())&&retry<5) {
+      retry++
       const onceSnap2 = await dbRef.once('value');
-          console.log("creation status", onceSnap2.val());
-          statusCheck(onceSnap2.val(), listener);
-      }
+      console.log("creation status", onceSnap2.val());
+      await statusCheck(onceSnap2.val(), listener);
+      await sleep(2000);
+      await setupValueListener();
+    }
   }
 };

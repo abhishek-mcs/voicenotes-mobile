@@ -8,6 +8,8 @@ import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates';
 import notifee, { EventType } from '@notifee/react-native';
+import { setAuthToken } from 'services/api/axios-api';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 notifee.registerForegroundService(() => {
   return new Promise(() => {});
@@ -48,6 +50,7 @@ export default function App() {
   const {token} = useSelector((state: RootState) => state.userDetails);
   // const [isLoading,setIsLoading]=useState(true)
   const dispatch = useDispatch()
+  const netinfo = useNetInfo()
   
   useFBEventTracking()
   useIAPSetup()
@@ -64,6 +67,12 @@ export default function App() {
       WebBrowser.coolDownAsync();
     };
   }, []);
+
+  useEffect(()=>{
+    if(!!token){
+      setAuthToken(token,false,netinfo)
+    }
+  },[token])
 
   if (token) {
     return <Redirect href="/home/" />;

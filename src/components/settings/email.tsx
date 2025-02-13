@@ -16,16 +16,19 @@ interface ComponentProps {
   email: string,
   onValueChange: (value: string) => void;
   onSubmit: () => void;
-  isOTP: boolean,
-  working?: boolean
+  isOTP: boolean;
+  working?: boolean;
+  isPasswordSet?: boolean;
+  password?: string;
+  onPasswordChange: (value: string) => void;
 }
 
-const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP, working }) => {
+const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onSubmit, isOTP, working, isPasswordSet, password='', onPasswordChange }) => {
   const { Colors } = useTheme()
   const styles = useStyles()
   return (
     <View style={styles.root}>
-      <Text style={styles.heading}>Email</Text>
+      <Text style={styles.heading}>Change email</Text>
       <Text style={styles.description}>
         {isOTP ?
           "Enter the OTP you just received in this email address."
@@ -36,7 +39,16 @@ const EmailInput: React.FC<ComponentProps> = ({ value, email, onValueChange, onS
         value={value}
         onValueChange={onValueChange}
         placeholder={isOTP ? "Enter OTP" : "Enter new email"}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
+      {isPasswordSet&&!isOTP&&
+      <TextField
+        value={password}
+        onValueChange={onPasswordChange}
+        placeholder={"Confirm Password"}
+        notPassword={true}
+      />}
       <View style={styles.action}>
         {working ? <CircularLoader /> : <RecButton
           title={isOTP ? "Confirm" : "Send"}
@@ -61,16 +73,19 @@ const Email: React.FC<Props> = (props) => {
     const [email, setEmail] = useState('');
     const [otp, setOTP] = useState('');
     const [showOTP, setShowOTP] = useState(false);
+    const [password, setPassword] = useState('');
     const [working, setWorking] = useState(false);
     const {isLightMode} = useTheme()
     const {showDialog} = useDialog()
 
     const dispatch = useDispatch()
+
+    const isPasswordSet=userDetails?.is_password_set??false
     
     const handleOTPSubmit = async () => {
       setWorking(true)
       try {
-        await changeEmail(email, otp)
+        await changeEmail({email, otp})
         dispatch(setUserDetail({...userDetails, email}))
         showDialog("Email updated", `Your email address has been updated to ${email}.`,[],{userInterfaceStyle:isLightMode?"light":"dark"})
         props.onClose()
@@ -81,7 +96,7 @@ const Email: React.FC<Props> = (props) => {
     const handleEmailSubmit = async () => {
       setWorking(true)
       try {
-        await changeEmail(email)
+        await changeEmail(isPasswordSet?{email,password}:{email})
         setShowOTP(true)
       } catch(e) {
         showDialog('Uh oh', "Voicenotes ran into an error trying to change your email. Please try again later.",[],{userInterfaceStyle:isLightMode?"light":"dark"})
@@ -91,12 +106,16 @@ const Email: React.FC<Props> = (props) => {
 
     const handleEmailChange = useCallback((value: string) => { setEmail(value); }, [])
     const handleOTPChange = useCallback((value: string) => { setOTP(value); }, [])
+    const handlePasswordChange = useCallback((value: string) => { setPassword(value); }, [])
 
     return (
       <Header
         onCancel={props.onClose}
       >
         <EmailInput
+          isPasswordSet={isPasswordSet}
+          password={password}
+          onPasswordChange={handlePasswordChange}
           isOTP={showOTP} 
           value={showOTP ? otp : email} 
           email={userDetails?.email || ''} onValueChange={showOTP ? handleOTPChange : handleEmailChange} 

@@ -212,17 +212,15 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
       // temp.related_messages[temp?.related_messages?.length-1].answer=res?.data.answer;
       // setChats({...temp,related_messages: [...temp?.related_messages]});
     }
-    scrollToEnd();
   }
   
   const onSend = async(question: string,chatData=null) => {
     Keyboard.dismiss()
     !chatStarted&&setChatStarted(true)
     const tempChats = chatData??chats;
-    tempChats?.related_messages?.push({ question:input, answer: "Searching" });
+    tempChats?.related_messages?.push({ question:!!meetingData?question:input, answer: "Searching" });
     setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-    const data = tempChats?.id != 0 ? { question:input, id: tempChats?.id } : { question: input };
-    scrollToEnd();  
+    const data = tempChats?.id != 0 ? { question:!!meetingData?question:input, id: tempChats?.id } : { question: !!meetingData?question : input }; 
     setInput('');    
     textInputRef.current?.clear();
     // setTimeout(() => {
@@ -324,7 +322,6 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
         const id=mes[mes.length-1]?.id
         tempChats.related_messages[tempChats?.related_messages?.length-1]={ id:mes[mes?.length-1]?.id,question:mes[mes?.length-1]?.question, question_url:mes[mes?.length-1]?.question_url, answer: "Typing" ,answer_url:'file://'}
         setChats({ ...tempChats, related_messages: tempChats?.related_messages || [] });
-        scrollToEnd()
         getAnswer.mutate({id},{
           onSuccess:(data)=>{
             onSuccessSendChat(data)
@@ -383,7 +380,8 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 justifyContent: chatStarted ? "flex-end" : "flex-start",
-                paddingVertical: 16,
+                paddingTop: 16,
+                paddingBottom: isIOS?16:200,
               }}
               extraKeyboardSpace={-200}
               >
@@ -474,9 +472,9 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
             </View>
           )}
 
-            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS? 44: (screenHeight/100),closed:34}}>
+            <KeyboardStickyView style={[styles.inputContainer]} offset={{opened:isIOS? 34: (screenHeight/100), closed:isIOS?8:0}}>
               {!isRecording ? (
-                <View style={{backgroundColor: Colors.bgColor8, paddingBottom: 32, paddingTop: 8}}>
+                <View style={{backgroundColor: Colors.bgColor8, flex: 1 }}>
                 {!chatStarted &&
                   <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:4,marginBottom:8}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.recordings_count} notes.</Text>
                 }
@@ -485,7 +483,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     ref={textInputRef}
                     onTouchStart={(e) => e?.stopPropagation()}
                     onFocus={() => scrollToEnd()}
-                    style={styles.input}
+                    style={[styles.input,(!keyboardShown&&input?.length==0)?{width: '70%'}:{width:'100%'}]}
                     scrollEnabled={true}
                     placeholder="Ask a question"
                     placeholderTextColor={Colors.text11}
@@ -498,7 +496,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
                     autoCapitalize="sentences"
                     onChangeText={onChangeText}
                   />
-              <View style={[styles.sendButtonView,(!keyboardShown&&input?.length==0)?styles.sendButtonView2:{}]}>
+              <View style={[styles.sendButtonView]}>
               <Pressable style={styles.send} onPress={() => onRecordStart()}>
                 <SvgXml
                   xml={AIModalSVG.record?.replace("#1C1B1F", Colors.text)?.replace('#222222',Colors.bgColor3(0.1))}
@@ -559,7 +557,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               zIndex: drawerIndex,
               top: isIOS?0:93,
               width: "100%",
-              height: isIOS?"94.5%":"93%",
+              height: isIOS?"100%":"93%",
             }}
           >
             <DrawerLayout
@@ -661,12 +659,15 @@ return (
             </Text>
             <Collapsible collapsed={isSourceCollapsed!=source?.id} style={{marginTop: 4, paddingBottom: 12}}>
               <Text style={[styles.text,{color:Colors.text10}]}>{formatDate2(source?.recorded_at??source?.created_at)}</Text>
-              <TextInput 
+              {isIOS?<TextInput 
               style={[styles.text,{lineHeight: 20,maxHeight:200,paddingBottom:12}]}
               scrollEnabled
               multiline
               editable={false}
               value={formatTranscript(source?.transcript)}/>
+              :<Text style={[styles.text,{lineHeight: 20,paddingBottom:12}]}>
+                {formatTranscript(source?.transcript)}
+              </Text>}
             </Collapsible>
           </Touchable>
         ))}
@@ -731,45 +732,38 @@ const useStyles = () => {
   },
   skeleton: { height: 34, borderRadius: 8, opacity: 0.2, marginTop: 12 },
   inputContentContainer:{
-    justifyContent: "space-between",
-    // flex: 1,
-
+    justifyContent:'space-between',
     minHeight: 92,
     borderRadius: 16,
     paddingLeft: 12,
     paddingRight: 4,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingVertical: 8,
     backgroundColor: Colors.bgColor18(0.05),
+    width:'100%'
   },
   inputContentContainer2:{
     alignItems:'center',
     minHeight: 50,
     flexDirection:'row',
-    paddingTop: 0,
-    paddingBottom: 8
   },
   input: {
-    // marginRight: 8,x
     maxHeight: 140,
     paddingRight: 12,
     fontSize: 16,
     fontFamily: "Primary",
     color: Colors.text5,
-    // backgroundColor:'red',
-    minWidth:'70%'
+    minHeight: 34,
   },
   inputContainer: {
+    flexDirection: "row",
     paddingHorizontal: 16,
-    justifyContent: "space-between",
+    paddingTop: 16,
+    paddingBottom: isIOS? 8:16,
     backgroundColor: Colors.bgColor8,
   },
   sendButtonView:{
-    flexDirection:'row', width: '100%',justifyContent:"flex-end", marginTop:8,
-  },
-  sendButtonView2:{
-    width: 'auto',
-    justifyContent:'center'
+    flexDirection:'row',
+    justifyContent:'flex-end'
   },
   send: {
     padding: 8,

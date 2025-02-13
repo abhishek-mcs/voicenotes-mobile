@@ -208,7 +208,7 @@ const Transcript = () => {
       onPress: onEdit,
     },
     {
-      title: "Copy link",
+      title: "Copy note",
       systemIcon: "doc.text",
       androidIcon: "content-copy",
       onPress: onCopy,
@@ -244,8 +244,8 @@ const Transcript = () => {
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         automaticallyAdjustKeyboardInsets
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 16 }}
+        keyboardDismissMode="interactive"
+        contentContainerStyle={{ padding: 16, paddingBottom:isIOS?0:300}}
         extraKeyboardSpace={-200}
       >
         {!transcript ? (
@@ -286,31 +286,30 @@ const Transcript = () => {
       {isShared != "shared" && (
         <KeyboardStickyView
           style={styles.inputContainer}
-          offset={{ opened: isIOS ? 34 : screenHeight/4 , closed: isIOS? 16 : 0 }}
+          offset={{ opened: isIOS ? 34 : screenHeight/100 , closed: isIOS? 16 : 0 }}
         >
           {!isRecording ? (
             <>
-              <View style={styles.inputContentContainer}>
+              <View style={[styles.inputContentContainer,(!keyboardShown&&input?.length==0)?styles.inputContentContainer2:!keyboardShown?{paddingBottom:8}:{}]}>
                 <TextInput
                   ref={textInputRef}
                   onTouchStart={(e) => e?.stopPropagation()}
                   onFocus={() => scrollToEnd()}
                   scrollEnabled={false}
-                  style={[styles.input,{width:hasHistory?'80%':'85%'}]}
+                  style={[styles.input,(!keyboardShown&&input?.length==0)?{width: '60%'}:{width:'100%'}]}
                   placeholder="Ask a question..."
                   placeholderTextColor={Colors.text11}
-                  multiline={false}
+                  multiline
                   value={input}
                   enablesReturnKeyAutomatically={true}
-                  returnKeyType="send"
+                  returnKeyType="default"
                   autoCorrect={true}
                   autoFocus={false}
                   autoCapitalize="none"
                   onChangeText={(text) => setInput(text)}
-                  onSubmitEditing={() => onSend(input)}
                 />
 
-<View style={{flexDirection:'row', width: '100%',justifyContent:"flex-end", marginTop:8}}>
+              <View style={[styles.sendButtonView,(!keyboardShown&&input?.length==0)?styles.sendButtonView2:{}]}>
                 {hasHistory&&
                 <Pressable
                   style={[
@@ -323,7 +322,7 @@ const Transcript = () => {
                 >
                   <SvgXml
                     xml={AIModalSVG.history
-                      ?.replace("#0E3934", Colors.text6)
+                      ?.replace("#1C1B1F", Colors.text)
                       ?.replace(
                         'height="32"',
                         'height="32" transform="rotate(-90, 16, 16)"'
@@ -344,9 +343,6 @@ const Transcript = () => {
                 <Pressable
                   style={[
                     styles.send,
-                    {
-                      opacity: !input ? 0.5 : 1,
-                    },
                   ]}
                   disabled={!input}
                   onPress={() => onSend(input)}
@@ -401,13 +397,22 @@ const useStyles = () => {
           backgroundColor: Colors.bgColor8,
           paddingTop: isIOS ? 0 : 60,
         },
+        sendButtonView:{
+          flexDirection:'row',justifyContent:"flex-end", marginTop:8,
+        },
+        sendButtonView2:{
+          width: 'auto',
+          justifyContent:'center'
+        },
         inputContainer: {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           paddingHorizontal: 16,
           paddingBottom: 16,
+          paddingTop: 8,
           backgroundColor: Colors.bgColor8,
+          width:'100%'
         },
         inputContentContainer: {
           justifyContent: "space-between",
@@ -418,15 +423,23 @@ const useStyles = () => {
           paddingRight: 4,
           paddingBottom: 4,
           paddingTop: 12,
-          backgroundColor: Colors.darkWithOpacity(0.05),
+          backgroundColor: Colors.inputBg2,
+        },
+        inputContentContainer2:{
+          alignItems:'center',
+          minHeight: 50,
+          flexDirection:'row',
+          paddingTop: 0,
+          paddingBottom: 8
         },
         input: {
           maxHeight: 140,
           paddingRight: 12,
           fontSize: 16,
           fontFamily: "Primary",
-          color: Colors.text,
+          color: Colors.text
         },
+        flex1:{ flex:1 },
         send: {
           padding: 8,
           alignItems: "center",

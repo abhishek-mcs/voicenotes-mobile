@@ -23,13 +23,10 @@ import {
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
-import useGuestCreate from "hooks/auth/useGuestCreate";
 import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIOS, screenHeight } from "utils/common";
-// import AskMeSomething from "components/ask-me-something";
 import { Redirect, router } from "expo-router";
 import useIAPInfo from "hooks/iap/useIAPInfo";
 import * as Haptics from "expo-haptics";
@@ -73,21 +70,12 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 
 const { height } = Dimensions.get("screen");
-const fadeIn = {
-  from: { opacity: 0 },
-  to: { opacity: 1 },
-};
-const fadeOut = {
-  from: { opacity: 1 },
-  to: { opacity: 0 },
-};
 
 const KeyboardAvoidView:any = KeyboardAvoidingView;
 
 const Home = () => {
   const { ActionModule } = NativeModules;
   const actionEmitter = new NativeEventEmitter(ActionModule);
-  const insets = useSafeAreaInsets();
   const notePreviewRef = useRef<any>();
   const {hashFilter,pinnedTags,pinnedTagsData,hashTagsData} = useSelector((state: RootState) => state.hash);
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
@@ -135,8 +123,9 @@ const Home = () => {
   const {showDialog}:any = useDialog()
 
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
-  useGuestCreate(token, guestToken, createGuestUser, dispatch);
+
   useWatchNetInfo()
+  
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
   const dispatchCanRecord = (val: boolean) =>
@@ -638,7 +627,7 @@ const Home = () => {
         onStartRecord={onStartRecord}
         listenToFirebaseStatus={listenToFirebaseStatus}
         isOffline={isOffline}
-        noteListScrollRef={noteListScrollRef}
+        scrollRef={noteListScrollRef}
       />
     ),
     [isPlay, play, audioLoading, expandNote,isOffline]

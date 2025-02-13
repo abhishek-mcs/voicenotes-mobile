@@ -109,7 +109,7 @@ export const onRecord = async (
               });
 
               const { recording: recordingObject, status } = await Audio.Recording.createAsync({
-                ...Audio.RecordingOptionsPresets.LOW_QUALITY,
+                ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
                 isMeteringEnabled: true,
                 keepAudioActiveHint: true
               },()=>{},10);

@@ -115,16 +115,6 @@ export default forwardRef(({options=[],children,style={},isNative=false}:MenuPro
                         option.onPress && option.onPress();
                     }}
                   >
-                  <MenuItem style={{height: 60}} pressColor="transparent">
-                    <TextInput
-                      placeholder="Search languages..."
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                      style={styles.searchInput}
-                      placeholderTextColor={Colors.text2}
-                      autoFocus
-                    />
-                  </MenuItem>
                   <View style={[{flexDirection:'row',alignItems:'center'},screenWidth<500?{minWidth:screenWidth/3.5}:{}]}>
                       {option?.androidIcon&&<Icon name={option?.androidIcon} solid={false} type='material-community' color={option.title=="Delete"?Colors.redWithOpacity(1):Colors.text5} size={16} style={{marginRight:8}}/>}
                       <Text style={[{fontFamily:'Primary',fontSize:14,color:Colors.blackWithOpacity(1)},option.title=="Delete"?{color:Colors.redWithOpacity(1)}:{}]}>{option.title}</Text>

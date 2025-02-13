@@ -30,18 +30,20 @@ const AddTags = () => {
     const queryClient=useQueryClient()
     const tagsQuery:any=queryClient.getQueryData('all-tags')||[]
     let tagsList=useRef((tagsQuery?.data||[]).filter((f:any)=>f?.name!="starred"));
-    const [tags,setTags]=useState([{name:'starred'},...tagsList.current]||[])
+    const [tags,setTags]=useState([{name:'starred'},...tagsList.current])
     const [addedTags,setAddedTags]:any=useState(JSON.parse(tagsArray)||[])
     const {Colors} = useTheme()
     
     const onSearch=useCallback((s:string)=>{
       const q = s?.replace(/-/g, '')?.replace(/\//g, '');
+      const list = tagsList.current;
       setSearch(q);
       if(tags?.length>0)
-        if(q=='')
-          setTags([{name:'starred'},...tagsList.current]||[])
+        if(q=='') {
+          setTags([{name:'starred'},...list])
+        }
         else{
-          const temp=tagsList.current?.filter((f:any)=>f?.name?.toLowerCase().includes(q?.toLowerCase()))||[]
+          const temp = list?.filter((f:any)=>f?.name?.toLowerCase().includes(q?.toLowerCase()))||[]
           setTags(temp)
         }
     },[tagsList.current])
@@ -53,12 +55,18 @@ const AddTags = () => {
       if(addNew){
         setSearch('')
         const isDuplicate = tags.some((tag: any) => tag.name === name);
+        const currentTags = tagsList.current || []
         if(!isDuplicate){
-          setTags([{name},...tags])
-          tagsList.current=[{name},...tags]
+          setTags([{name},...currentTags])
+          tagsList.current=[{name},...currentTags]
         }else{
-          tagsList.current=[...tags]
+          setTags([...currentTags])
+          tagsList.current=[...currentTags]
         }
+      } else {
+        setSearch('')
+        const currentTags = tagsList.current || []
+        setTags([...currentTags])
       }
     }
 

@@ -91,7 +91,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 238
         versionName "1.6.51"
-
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())
     }
     signingConfigs {

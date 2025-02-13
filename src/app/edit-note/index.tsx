@@ -7,14 +7,11 @@ import {
   SafeAreaView,
   Text,
   View,
-  Alert,
   StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
   InteractionManager,
 } from "react-native";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { formatTranscript2, isIOS } from "utils/common";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { formatTranscript2, isIOS, screenHeight } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { TextInput } from "react-native";
@@ -100,6 +97,16 @@ const EditNote = () => {
     });
   }, []);
 
+  const KeyboardWrapper = useCallback(({children}:any) => isIOS?
+  children:(
+    <KeyboardAwareScrollView
+    automaticallyAdjustKeyboardInsets
+    bottomOffset={0}
+    >
+      {children}
+    </KeyboardAwareScrollView>
+  ),[])
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor:Colors.bgColor8, paddingTop: isIOS?0:50 }}>
 
@@ -152,84 +159,76 @@ const EditNote = () => {
           </Touchable>
         )}
       </View>
-      <KeyboardAvoidingView 
-        behavior={isIOS ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-      <View style={styles.editContainer}>
-      {!editNote?.isEditMeetingTranscript&&
-      <TextInput
-          ref={titleInputRef}
-          style={styles.titleInput}
-          autoComplete="off"
-          autoCorrect={true}
-          selectTextOnFocus={false}
-          value={editNote?.title}
-          placeholder="Title"
-          placeholderTextColor={Colors.grey6}
-          onChangeText={(txt) =>
-            setEditNote((n: any) => {
-              return { ...n, title: txt };
-            })
-          }
-          multiline
-          onSubmitEditing={handleTitleSubmit}
-          returnKeyType="next"
-        />}
-
-        {/* <KeyboardAwareScrollView
-          showsVerticalScrollIndicator={false}
-          automaticallyAdjustKeyboardInsets
-          contentContainerStyle={{ paddingBottom: "50%" }}
-        > */}
+        <View style={styles.editContainer}>
+          {!editNote?.isEditMeetingTranscript&&
           <TextInput
-            ref={transcriptInputRef}
-            style={styles.textInput}
-            multiline
+            ref={titleInputRef}
+            style={styles.titleInput}
             autoComplete="off"
             autoCorrect={true}
-            scrollEnabled={true}
             selectTextOnFocus={false}
-            placeholder="Transcript"
+            value={editNote?.title}
+            placeholder="Title"
             placeholderTextColor={Colors.grey6}
-            value={
-              (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
-              editNoteSummary
-              :editNote?.recording_type==3?
-              formatTranscript2(editNote?.transcript)
-              :editNote?.transcript
-              ?.replaceAll(/<b\/?>/g, '')
-              ?.replaceAll(/<\/b\/?>/g, '')
-              ?.replaceAll(/<br\/?>/g, "\n")
-              ?.replace(/&amp;/g, '&')
-              ?.replace(/&nbsp;/g, '&')
-            }
-            onChangeText={(txt) =>{
+            onChangeText={(txt) =>
               setEditNote((n: any) => {
-                return { 
-                  ...n, 
-                  ...(
-                    editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript?
-                    {
-                      creation:[
-                        ...n?.creations,
-                        {
-                          ...n?.creations?.find((t:any)=>t?.type=="team-summary"),
-                          content:{
-                            data:txt
-                          }
-                        }
-                      ]
-                    }
-                    :{transcript: txt}
-                )};
+                return { ...n, title: txt };
               })
-              setEditNoteSummary(txt)
-            }}
-          />
-        {/* </KeyboardAwareScrollView> */}
-      </View>
-      </KeyboardAvoidingView>
+            }
+            multiline
+            onSubmitEditing={handleTitleSubmit}
+            returnKeyType="next"
+          />}
+          <KeyboardWrapper>
+            <TextInput
+              ref={transcriptInputRef}
+              style={styles.textInput}
+              editable={true}
+              selectTextOnFocus={false}
+              multiline
+              enablesReturnKeyAutomatically
+              autoComplete="off"
+              autoCorrect={true}
+              scrollEnabled={isIOS}
+              placeholder="Transcript"
+              placeholderTextColor={Colors.grey6}
+              value={
+                // (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
+                // editNoteSummary:
+                editNote?.recording_type==3?
+                formatTranscript2(editNote?.transcript)
+                :editNote?.transcript
+                ?.replaceAll(/<b\/?>/g, '')
+                ?.replaceAll(/<\/b\/?>/g, '')
+                ?.replaceAll(/<br\/?>/g, "\n")
+                ?.replace(/&amp;/g, '&')
+                ?.replace(/&nbsp;/g, '&')
+              }
+              onChangeText={(txt) =>{
+                setEditNote((n: any) => {
+                  return { 
+                    ...n, 
+                    ...(
+                      editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript?
+                      {
+                        creation:[
+                          ...n?.creations,
+                          {
+                            ...n?.creations?.find((t:any)=>t?.type=="team-summary"),
+                            content:{
+                              data:txt
+                            }
+                          }
+                        ]
+                      }
+                      :{transcript: txt}
+                  )};
+                })
+                setEditNoteSummary(txt)
+              }}
+            />
+          </KeyboardWrapper>
+        </View>
     </SafeAreaView>
   );
 };
@@ -253,7 +252,7 @@ const useStyles = () => {
   },
   textInput: {
     paddingHorizontal: 12,
-    paddingBottom: 0,
+    paddingBottom: isIOS? screenHeight/1.6:screenHeight/4,
     minHeight: 100,
     fontFamily: "Primary",
     fontSize: 14,

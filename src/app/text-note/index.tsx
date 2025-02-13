@@ -143,7 +143,7 @@ const TextNote = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bgColor8 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bgColor8, paddingTop:isIOS?0:50}}>
       {/* Header */}
 
       <View
@@ -207,14 +207,12 @@ const TextNote = () => {
       </View>
 
       {/* Text Input Area */}
-      {/* <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      focusable={false}
-      scrollsToTop={false}
-      > */}
-        <ScrollView 
+        <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{padding:16}} contentInset={{bottom:300}}>
+        contentContainerStyle={{padding:16,paddingBottom:isIOS?0:300}}
+        extraKeyboardSpace={-200}
+        keyboardDismissMode="interactive"
+        >
         <TextInput
           ref={inputRef}
           style={{
@@ -233,7 +231,7 @@ const TextNote = () => {
           selectTextOnFocus={false}
           {...(isBeliever?{}:{maxLength:1500})}
         />
-        </ScrollView>
+        </KeyboardAwareScrollView>
 
       <KeyboardStickyView
         style={{
@@ -245,7 +243,7 @@ const TextNote = () => {
           flexDirection:'row',
           paddingBottom:14 
         }}
-        offset={{ opened:34 }}
+        offset={{ opened:isIOS?34:0 }}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef} contentContainerStyle={{paddingVertical:12}}>
           {attachments.map(renderImageThumbnail)}

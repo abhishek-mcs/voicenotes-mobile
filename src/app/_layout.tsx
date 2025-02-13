@@ -11,7 +11,7 @@ import { isIOS } from "utils/common";
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
-  dsn: process.env?.EXPO_PUBLIC_SENTRY_DSN,
+  dsn: 'https://794cc208d64f43a4069e118c7521c135@o4508691521863680.ingest.us.sentry.io/4508691555942400',
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 0.2,
   enableCaptureFailedRequests:true,
