@@ -68,6 +68,7 @@ import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
+import { stopSilentBackgroundService } from "services/background";
 
 const { height } = Dimensions.get("screen");
 
@@ -495,6 +496,7 @@ const Home = () => {
         removeExtraOldAudios(recordingList, dispatch);
       }, 4000);
       await queryClient.resetQueries('streaks');
+      if(!continueUpload) await stopSilentBackgroundService()
     } catch (error) {
       dispatch(
         updateRecordingDetails({

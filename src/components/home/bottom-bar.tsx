@@ -97,7 +97,7 @@ useEffect(() => {
     timerId.current&&clearInterval(timerId.current);
     setRecordingParentId(null)
     await stopSilentBackgroundService();
-    await startSilentBackgroundService(true);
+    // await startSilentBackgroundService(true);
     // setPaused(true);
   }
 
