@@ -68,7 +68,7 @@ const OtpScreen = () => {
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
               analytics().logEvent('sign_up_success').catch(()=>{})
-              appsFlyer.logEvent('signup_success',{value:'af_success'})
+              appsFlyer?.logEvent('signup_success',{value:'af_success'})
               router.replace({ pathname: `/auth/signup/premium`, params: { from:"signup",email } });
             // }})
           }

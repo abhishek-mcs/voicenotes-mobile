@@ -79,8 +79,8 @@ const LoginPassword = () => {
             queryClient.resetQueries('user-data')
             router.dismissAll();
             router.replace("/home/");
-            analytics().logEvent('sign_in_success').catch(()=>{})
-            appsFlyer.logEvent('af_login',{value:'af_success'})
+            analytics()?.logEvent('sign_in_success').catch(()=>{})
+            appsFlyer?.logEvent('af_login',{value:'af_success'})
           }
         },
         onError: (error: any) => {

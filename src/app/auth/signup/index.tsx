@@ -55,7 +55,7 @@ const Signup = () => {
         onSuccess: async (response: any, _variables: any, _context: any) => {
           analytics().logEvent('sign_up_initiated').catch(e=>{})
             router.push({pathname:"/auth/signup/otp-screen",params:{email:emailText,password:passwordText,name:name}});
-            appsFlyer.logEvent('signup_initiated',{value:'success'})
+            appsFlyer?.logEvent('signup_initiated',{value:'success'})
         },
         onError: (error: any) => {
           console.log(error)
