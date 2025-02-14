@@ -47,17 +47,15 @@ export const saveVoiceNote = async (data: {
     //   type: `audio/${filetype}`,
     // });
 
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
+    await FileSystem.uploadAsync(signedURL, uri, {
+      httpMethod: 'PUT',
+      uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+      headers: {
+        'Content-Type': `audio/${filetype}`,
+        'Connection': 'Keep-Alive',
+      }
     });
 
-    const buffer = Buffer.from(base64, "base64");
-    // // Make the POST request using axios
-    await axios.put(signedURL, buffer, {
-      headers: {
-        'Content-Type': `audio/${filetype}`,   // Ensure to set the correct MIME type
-      },
-    });
     const formData1:any = new FormData();
     formData1.append("upload_id", upload_id);
     formData1.append("recording_identifier", temp_id);
