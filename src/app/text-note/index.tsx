@@ -92,6 +92,7 @@ const TextNote = () => {
     onTextNoteSave(textnote,temporaryRecordingId,attachments)
     dispatch(setTempRecordingData(newTemporaryRecording))
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
+    recordingList?.length>0&&
     noteListScrollRef?.current?.scrollToIndex({index:0,animated:true})
     router.back()
     setIsLoading(false)

@@ -39,7 +39,7 @@ export default function App() {
   useFBEventTracking()
   useIAPSetup()
   useEffect(() => {
-    WebBrowser.warmUpAsync();
+    WebBrowser?.warmUpAsync();
     // InteractionManager.runAfterInteractions(()=>{
       // setTimeout(async() => {
       //   await SplashScreen.hideAsync()
@@ -48,7 +48,7 @@ export default function App() {
     // })
     dispatch(setTempIsIAPPurchased(false))
     return () => {
-      WebBrowser.coolDownAsync();
+      WebBrowser?.coolDownAsync();
     };
   }, []);
 

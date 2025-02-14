@@ -81,11 +81,10 @@ export const removeExtraOldAudios = async (recordingList: Note[], dispatch: any)
 
     const removeAudioFileFromCache = async (rec: Note) => {
       let path = rec.internalUrl ?? rec.audio?.data?.url;
-      if (!path) path = rec.audio?.data?.url;
 
       if (!path) return;
       try {
-        await FileSystem.deleteAsync(path, { idempotent: false });
+        await FileSystem?.deleteAsync(path, { idempotent: false });
         console.log(`Deleted file at ${path}`);
       } catch (error) {
         console.info(`Error deleting file at ${path}:`, error);

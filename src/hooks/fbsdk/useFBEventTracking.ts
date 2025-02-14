@@ -14,8 +14,8 @@ const useFBEventTracking = () => {
     Settings.setAppID('2337501396452912')
 
     if (status === "granted") {
-      await Settings.setAdvertiserTrackingEnabled(true);
-      appsFlyer.initSdk(
+      await Settings?.setAdvertiserTrackingEnabled(true);
+      appsFlyer?.initSdk(
         {
           devKey: '6w7BzziHtFcH3bdy4Gy5dm',
           isDebug: false,
@@ -25,7 +25,7 @@ const useFBEventTracking = () => {
           timeToWaitForATTUserAuthorization: 10 //for iOS 14.5
         },
         (result) => {
-          appsFlyer.startSdk();
+          appsFlyer?.startSdk();
         },
         (error) => {
         }
