@@ -6,8 +6,8 @@ import {
   RefreshControl,
   SafeAreaView,
   StyleSheet,
+  View
 } from "react-native";
-import { View } from "../../components/common/Themed";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";

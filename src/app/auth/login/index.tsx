@@ -109,8 +109,8 @@ const Login=()=> {
             <Text
             suppressHighlighting={true}
               onPress={() => {
-                analytics().logEvent('sign_up_redirected').catch(e=>{})
-                appsFlyer.logEvent('signup_redirected',{value:'signup_redirected'})
+                analytics()?.logEvent('sign_up_redirected').catch(e=>{})
+                appsFlyer?.logEvent('signup_redirected',{value:'signup_redirected'})
                 router.push("/auth/signup/")
               }}
               style={{color:Colors.redWithOpacity(1),fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}

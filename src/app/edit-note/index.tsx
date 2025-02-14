@@ -115,10 +115,9 @@ const EditNote = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           paddingHorizontal: 12,
-          paddingTop: isIOS ? 0 : 16,
           borderBottomColor: Colors.border,
           borderBottomWidth: 1,
-          height: isIOS? 50 : 60,
+          height:  50,
         }}
       >
         <Touchable
