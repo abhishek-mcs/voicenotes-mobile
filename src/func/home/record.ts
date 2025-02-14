@@ -5,6 +5,7 @@ import { Platform } from "react-native";
 import * as Sentry from '@sentry/react-native';
 import * as FileSystem from 'expo-file-system';
 import * as KeepAwake from 'expo-keep-awake'
+import { isIOS } from "utils/common";
 
 type ExtendedRecording = Audio.Recording & {
   _appStateSubscription?: {
@@ -108,7 +109,7 @@ export const onRecord = async (
                 staysActiveInBackground:true,
               });
 
-              const { recording: recordingObject, status } = await Audio.Recording.createAsync({
+              const { recording: recordingObject, status }:any = await Audio.Recording.createAsync({
                 ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
                 isMeteringEnabled: true,
                 keepAudioActiveHint: true
@@ -135,9 +136,10 @@ export const onRecord = async (
 export const stopRecording = async (recording: ExtendedRecording|any ) => {
   try {
     await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    const newLoc = await saveRecording(uri)?? uri;
-    return newLoc;
+    let uri = recording.getURI();
+    if(isIOS)
+      uri = await saveRecording(uri)?? uri;
+    return uri;
 
   } catch (error) {
     console.log("Failed to stop recording", error);
@@ -192,11 +194,20 @@ export const setupAudioRec = (recording: Audio.Recording | null) => {
 const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
 const saveRecording = async (uri: string = "") => {  // Recording.getURI()
-  // Get just the name and extension of the recording file created from the URI path. eg) ephisa-wjfwanjdn.m4a 
-  const fileName = uri?.split('/')?.pop();
-  const moveTo = `${DOCUMENT_FOLDER}${fileName}`;
-
-  // Move the file that were in the old URI to the Documents folder.
-  await FileSystem.copyAsync({ from: uri, to:  moveTo, }); // /Documents/ephisa-wjfwanjdn.m4a 
-  return moveTo;
+  try {
+    // Get just the name and extension of the recording file created from the URI path
+    const fileName = uri?.split('/')?.pop();
+    const moveTo = `${DOCUMENT_FOLDER}${fileName}`;
+    
+    // Move the file and wait for completion
+    await FileSystem.moveAsync({ 
+      from: uri, 
+      to: moveTo 
+    });
+    
+    return moveTo;  // Return the new location if successful
+  } catch (error) {
+    console.error('Error moving recording:', error);
+    return null;  // Return null if move failed
+  }
 }
