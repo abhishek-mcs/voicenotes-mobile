@@ -10043,11 +10043,6 @@ react-native-context-menu-view@^1.16.0:
   resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.16.0.tgz#50e376ce30bc9b9aa07c0a5b66f1280befcf98f8"
   integrity sha512-zqeOAizM7MVV9o6h/quS0REQikBq3J4BkIRLFygY6RiCjr6rwuzSGkif7JRCHpAQQumSKlLqYl4N2h3AdoIHVg==
 
-react-native-date-picker@^5.0.9:
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-5.0.9.tgz#385e359024b285c2c31e9bccb69a754cf45df659"
-  integrity sha512-Ws/fw17/SGvmQ4rU2A8NMFLk7XReUupK0+SE7JwpWJmNyEDDG420kYI17CRkkmSKhajRKqrr8klG3NZ7jihXcA==
-
 react-native-dialog@^9.3.0:
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/react-native-dialog/-/react-native-dialog-9.3.0.tgz#9d745cc51653a1e2ae08076b46f11d99723c47f6"
