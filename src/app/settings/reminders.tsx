@@ -4,7 +4,6 @@ import { useTheme } from "context";
 import { Switch } from "@rneui/themed";
 import { SvgXml } from "react-native-svg";
 import { settingsSvg } from "assets/svg/settingsSvg";
-import Picker from "react-native-date-picker";
 import Header from "components/settings/header";
 import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType, AndroidStyle } from "@notifee/react-native";
 import { cancelNotification, getNotification, setNotification } from "utils/cache";
