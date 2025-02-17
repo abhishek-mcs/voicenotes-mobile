@@ -72,8 +72,7 @@ const Reminders: React.FC = () => {
 
         const saveTime = () => {
             const secureDate = getNextValidTime(time)
-            if (activeType.current === 'morning') setMorningTime(secureDate)
-            else setEveningTime(secureDate)
+            activeType.current === 'morning' ? setMorningTime(secureDate) : setEveningTime(secureDate)
             setTimePicker(false)
         }
 
@@ -230,39 +229,68 @@ const Reminders: React.FC = () => {
             setActive(prev => ({ ...prev, [type]: false }))
         } else console.warn('No notification found for', type)
     }
+
+    const updateNotification = async (type: 'morning' | 'evening') => {
+        await clearNotification(type)
+        await scheduleNotification(type)
+    }
+
+    useEffect(() => {
+        if (!morningTime || !active.morning) return;
+
+        getNotification('morning').then(notification => {
+            if (!notification) return;
+            
+            const storedTime = new Date(notification.time);
+            if (
+                storedTime.getHours() !== morningTime.getHours() ||
+                storedTime.getMinutes() !== morningTime.getMinutes()
+            ) {
+                updateNotification('morning');
+            }
+        });
+    }, [morningTime]);
+
+    useEffect(() => {
+        if (!eveningTime || !active.evening) return;
+
+        getNotification('evening').then(notification => {
+            if (!notification) return;
+            
+            const storedTime = new Date(notification.time);
+            if (
+                storedTime.getHours() !== eveningTime.getHours() ||
+                storedTime.getMinutes() !== eveningTime.getMinutes()
+            ) {
+                updateNotification('evening');
+            }
+        });
+    }, [eveningTime]);
+
     useEffect(() => {
         const getDefaultTime = (type: 'morning' | 'evening') => {
             const now = new Date()
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 
-                type === 'morning' ? 9 : 19,  // 9 AM or 7 PM
-                0,
-                0,
-                0
-            )
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), type === 'morning' ? 9 : 19, 0, 0, 0)
+        }
+
+        const checkNotification = (type: 'morning' | 'evening') => {
+            const setTime = (time: Date) => type === 'morning' ? setMorningTime(time) : setEveningTime(time)
+            getNotification(type).then(notification => {
+                if(notification) {
+                    setTime(new Date(notification.time))
+                    setActive(prev => ({ ...prev, [type]: notification.active }))
+                } else {
+                    const defaultTime = getDefaultTime(type)
+                    setTime(defaultTime)
+                    scheduleNotification(type, getNextValidTime(defaultTime))
+                }
+            })
         }
     
-        createNotificationChannel().then(channel => notificationChannel.current = channel)
-        
-        getNotification('morning').then(notification => {
-            if(notification) {
-                setMorningTime(new Date(notification.time))
-                setActive(prev => ({ ...prev, morning: notification.active }))
-            } else {
-                const defaultTime = getDefaultTime('morning')
-                setMorningTime(defaultTime)
-                scheduleNotification('morning', defaultTime)
-            }
-        })
-        
-        getNotification('evening').then(notification => {
-            if(notification) {
-                setEveningTime(new Date(notification.time))
-                setActive(prev => ({ ...prev, evening: notification.active }))
-            } else {
-                const defaultTime = getDefaultTime('evening')
-                setEveningTime(defaultTime)
-                scheduleNotification('evening', defaultTime)
-            }
+        createNotificationChannel().then(channel => {
+            notificationChannel.current = channel;
+            checkNotification('morning')
+            checkNotification('evening')
         })
     }, [])
 
