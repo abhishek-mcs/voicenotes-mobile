@@ -62,13 +62,15 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
 
   // Initial scroll
   useEffect(() => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        y: selectedIndex * itemHeight,
-        animated: false,
-      });
-    }
-  }, []);
+    requestAnimationFrame(() => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({
+          y: selectedIndex * itemHeight,
+          animated: false,
+        });
+      }
+    });
+  }, [selectedIndex]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
     const y = event.nativeEvent.contentOffset.y;
@@ -90,13 +92,6 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
 
   return (
     <View style={styles.wheelContainer}>
-      <View style={[
-        styles.wheelHighlight, 
-        { 
-          height: itemHeight,
-          backgroundColor: Colors.blackWithOpacity(0.05)
-        }
-      ]} />
       <ScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
@@ -117,6 +112,13 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
           />
         ))}
       </ScrollView>
+      <View style={[
+        styles.wheelHighlight, 
+        { 
+          height: itemHeight,
+          backgroundColor: Colors.blackWithOpacity(0.05)
+        }
+      ]} pointerEvents='none' />
     </View>
   );
 };
@@ -130,12 +132,23 @@ interface CustomTimePickerProps {
 const CustomTimePicker: React.FC<CustomTimePickerProps> = ({ date, onDateChange, style }) => {
   const { Colors } = useTheme();
   const { hours, minutes, periods } = generateTimeArray();
-  const [selectedHour, setSelectedHour] = useState(() => {
-    const hour = date.getHours();
-    return hour % 12 === 0 ? 11 : (hour % 12) - 1;
-  });
+  
+  // Calculate initial indices based on the provided date
+  const getInitialHourIndex = (hours: number): number => {
+    const hour12 = hours % 12;
+    return hour12 === 0 ? 11 : hour12 - 1;
+  };
+
+  const [selectedHour, setSelectedHour] = useState(() => getInitialHourIndex(date.getHours()));
   const [selectedMinute, setSelectedMinute] = useState(() => date.getMinutes());
   const [selectedPeriod, setSelectedPeriod] = useState(() => date.getHours() >= 12 ? 1 : 0);
+
+  // Update indices when date prop changes
+  useEffect(() => {
+    setSelectedHour(getInitialHourIndex(date.getHours()));
+    setSelectedMinute(date.getMinutes());
+    setSelectedPeriod(date.getHours() >= 12 ? 1 : 0);
+  }, [date]);
 
   const updateDate = (hour: number, minute: number, period: number): void => {
     const newDate = new Date(date);
@@ -224,7 +237,7 @@ const styles = StyleSheet.create<Styles>({
     position: 'absolute',
     top: PICKER_HEIGHT / 2 - ITEM_HEIGHT / 2,
     width: '100%',
-    zIndex: 1,
+    // zIndex: 1,
   },
   wheelItem: {
     justifyContent: 'center',

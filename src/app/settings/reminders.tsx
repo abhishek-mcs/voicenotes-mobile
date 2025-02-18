@@ -4,7 +4,6 @@ import { useTheme } from "context";
 import { Switch } from "@rneui/themed";
 import { SvgXml } from "react-native-svg";
 import { settingsSvg } from "assets/svg/settingsSvg";
-import Picker from "react-native-date-picker";
 import Header from "components/settings/header";
 import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType, AndroidStyle } from "@notifee/react-native";
 import { cancelNotification, getNotification, setNotification } from "utils/cache";
@@ -172,15 +171,15 @@ const Reminders: React.FC = () => {
         });
     }
 
-    const scheduleNotification = async (type: 'morning' | 'evening') => {
+    const scheduleNotification = async (type: 'morning' | 'evening', dateObject?: Date) => {
         setWorking(type)
         try {
             if(!await checkAndroidPermissions()) {
                 setWorking(null)
                 return
             }
-
-            const time = getNextValidTime(type === 'morning' ? morningTime : eveningTime, true)
+    
+            const time = dateObject || getNextValidTime(type === 'morning' ? morningTime : eveningTime, true)
             const trigger: TimestampTrigger = {
                 type: TriggerType.TIMESTAMP,
                 timestamp: time.getTime(),
@@ -189,7 +188,7 @@ const Reminders: React.FC = () => {
                     allowWhileIdle: true,
                 }
             };
-
+    
             const id = await notifee.createTriggerNotification(
                 {
                     id: `${type}-${time.getTime()}-notification`,
@@ -232,23 +231,38 @@ const Reminders: React.FC = () => {
         } else console.warn('No notification found for', type)
     }
     useEffect(() => {
-        const getNextMinute = () => {
+        const getDefaultTime = (type: 'morning' | 'evening') => {
             const now = new Date()
-            const nextMinute = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0)
-            return nextMinute
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 
+                type === 'morning' ? 9 : 19,  // 9 AM or 7 PM
+                0,
+                0,
+                0
+            )
         }
+    
         createNotificationChannel().then(channel => notificationChannel.current = channel)
+        
         getNotification('morning').then(notification => {
             if(notification) {
                 setMorningTime(new Date(notification.time))
                 setActive(prev => ({ ...prev, morning: notification.active }))
-            } else setMorningTime(getNextMinute())
+            } else {
+                const defaultTime = getDefaultTime('morning')
+                setMorningTime(defaultTime)
+                scheduleNotification('morning', defaultTime)
+            }
         })
+        
         getNotification('evening').then(notification => {
             if(notification) {
                 setEveningTime(new Date(notification.time))
                 setActive(prev => ({ ...prev, evening: notification.active }))
-            } else setEveningTime(getNextMinute())
+            } else {
+                const defaultTime = getDefaultTime('evening')
+                setEveningTime(defaultTime)
+                scheduleNotification('evening', defaultTime)
+            }
         })
     }, [])
 

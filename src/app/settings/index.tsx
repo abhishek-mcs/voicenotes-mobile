@@ -61,11 +61,11 @@ const useAnimatedScreens = () => {
 
   const showScreen = useCallback((screen: string) => {
     if (isAnimating || activeScreen === screen) return;
-    
+
     setIsAnimating(true);
     const animation = getAnimation(screen);
     setActiveScreen(screen);
-    
+
     // Use timing instead of spring for better performance
     Animated.timing(animation, {
       toValue: 0,
@@ -76,14 +76,14 @@ const useAnimatedScreens = () => {
       setIsAnimating(false);
     });
   }, [getAnimation, activeScreen, isAnimating]);
-  
+
   const hideScreen = useCallback(() => {
     if (isAnimating || !activeScreen) return;
-    
+
     Keyboard.dismiss();
     setIsAnimating(true);
     const animation = getAnimation(activeScreen);
-    
+
     // Use timing instead of spring for better performance
     Animated.timing(animation, {
       toValue: SCREEN_WIDTH,
@@ -145,14 +145,14 @@ const Settings = () => {
   const navigation = useNavigation()
   const { Colors, theme, switchTheme, isLightMode } = useTheme()
 
-  const logout=useLogout()
-  const {userDetails,lang}:any=useSelector((state: RootState) => state.userDetails);
-  const {isTempIAPPurchased}=useSelector((state: RootState) => state.IAPStates);
-  const settings:any=userDetails.settings
-  const saveSettings=useSaveSettings()
-  const dispatch=useDispatch()
+  const logout = useLogout()
+  const { userDetails, lang }: any = useSelector((state: RootState) => state.userDetails);
+  const { isTempIAPPurchased } = useSelector((state: RootState) => state.IAPStates);
+  const settings: any = userDetails.settings
+  const saveSettings = useSaveSettings()
+  const dispatch = useDispatch()
   const queryClient = useQueryClient()
-  const {showDialog} = useDialog()
+  const { showDialog } = useDialog()
 
   const { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating } = useAnimatedScreens();
 
@@ -184,54 +184,54 @@ const Settings = () => {
     );
   };
 
-  const onLogout = () =>{
-    
-    showDialog('',"Are you sure you want to log out?",
-    [{
-      text:"Cancel",
-      style:"cancel"
-    },{
-      text:"Yes",
-      onPress:async()=>{
-        await AsyncStorage.removeItem('isLoggedIn');
-        await deleteCounter()
-        await logout.mutateAsync('').catch(()=>{})
-        dispatch(setTempIsIAPPurchased(false))
-        router?.back();
-    }
-    }],{userInterfaceStyle:isLightMode?"light":"dark"})
+  const onLogout = () => {
+
+    showDialog('', "Are you sure you want to log out?",
+      [{
+        text: "Cancel",
+        style: "cancel"
+      }, {
+        text: "Yes",
+        onPress: async () => {
+          await AsyncStorage.removeItem('isLoggedIn');
+          await deleteCounter()
+          await logout.mutateAsync('').catch(() => { })
+          dispatch(setTempIsIAPPurchased(false))
+          router?.back();
+        }
+      }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
   }
 
-  const onDelete = () =>{
-    showDialog('',"Are you sure you wish to delete your account?",
-    [{
-      text:"Cancel",
-      style:"cancel"
-    },{
-      text:"Yes",
-      onPress:async()=>Wb.openBrowserAsync('https://tally.so/r/3xpBey',{toolbarColor:isLightMode?'#fff':'#000'})
-    }],{userInterfaceStyle:isLightMode?"light":"dark"})
+  const onDelete = () => {
+    showDialog('', "Are you sure you wish to delete your account?",
+      [{
+        text: "Cancel",
+        style: "cancel"
+      }, {
+        text: "Yes",
+        onPress: async () => Wb.openBrowserAsync('https://tally.so/r/3xpBey', { toolbarColor: isLightMode ? '#fff' : '#000' })
+      }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
   }
 
-  const feedback = () =>Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com',{toolbarColor:isLightMode?'#fff':'#000'})
-  const onSelectLang=(code='en')=>{
+  const feedback = () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com', { toolbarColor: isLightMode ? '#fff' : '#000' })
+  const onSelectLang = (code = 'en') => {
     dispatch(setLang(languages[code]))
     saveSettings.mutate({
-      language:code,
-      about:settings?.about,
-      remember_words:settings?.remember_words||[],
-      name:userDetails?.name,
-      fix_punctuation:settings?.fix_punctuation,
+      language: code,
+      about: settings?.about,
+      remember_words: settings?.remember_words || [],
+      name: userDetails?.name,
+      fix_punctuation: settings?.fix_punctuation,
     })
   }
-  
+
   useEffect(() => {
-    if(!!userDetails?.settings?.language){
+    if (!!userDetails?.settings?.language) {
       dispatch(setLang(languages[userDetails?.settings?.language]))
-    }else{
+    } else {
       dispatch(setLang(languages['']))
     }
-  },[userDetails?.settings])
+  }, [userDetails?.settings])
 
   // for android back button only
   useEffect(() => {
@@ -247,7 +247,7 @@ const Settings = () => {
 
     return () => backHandler.remove();
   }, [activeScreen, isAnimating, hideScreen]);
-  
+
   // in case the user tries to navigate back using the device back button
   // not for android
   useEffect(() => {
@@ -259,19 +259,19 @@ const Settings = () => {
     });
   }, [])
 
-  const onSelectTheme = (v:string) =>{
+  const onSelectTheme = (v: string) => {
     switchTheme(v)
   }
 
-  const selectedTheme:any={auto:'Auto',light:'Day',dark:'Night'}
-  
+  const selectedTheme: any = { auto: 'Auto', light: 'Day', dark: 'Night' }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bgColor1, paddingTop: isIOS ? 0 : 40 }}>
       <View style={{ flex: 1, zIndex: 1, elevation: 1 }} pointerEvents={activeScreen || isAnimating ? 'none' : 'auto'}>
-        <Touchable onPress={() => router.back()} style={{padding:12, alignSelf:'flex-end', marginRight: 2}} activeOpacity={0.6}>
-          <SvgXml xml={settingsSvg.close?.replace("#0D0D0D",Colors.black2)} width={30} height={30} />
+        <Touchable onPress={() => router.back()} style={{ padding: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+          <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable>
-        <ProfilePic 
+        <ProfilePic
           url={userDetails?.photo_url}
           onChange={photo_url => {
             queryClient.invalidateQueries('user-data')
@@ -279,47 +279,47 @@ const Settings = () => {
           }}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
-        <Grouped 
-          title="ACCOUNT"
-          items={[
-            {title:'Name', onPress: () => showScreen('name'), value:userDetails?.name||'', rightIcon:settingsSvg.arrow},
-            {title:'About', onPress: () => showScreen('about'), value:userDetails?.about||'', rightIcon:settingsSvg.arrow},
-            {title:'Email', onPress: () => showScreen('email'), value:userDetails?.email||'', rightIcon:settingsSvg.arrow},
-            {title:'Change password', onPress: () => showScreen('password'), value:'', rightIcon:settingsSvg.arrow},
-            ...(!isTempIAPPurchased?[{title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan??'Free', rightIcon:settingsSvg.arrow}]:[])
-          ]}
-        />
-        <Grouped
-          title="APP"
-          items={[
-            {title: 'Language', isMenu:true, data:Object.entries(languages), value:lang, onPressMenu:onSelectLang},
-            {title:'Names to remember', value:'', onPress: () => showScreen('names'), rightIcon:settingsSvg.arrow},
-            {title:'Theme', data:[['auto','Auto',isIOS?'circle.lefthalf.fill':'circle-half-full'],['light','Day',isIOS?'sun.max':'white-balance-sunny'],['dark','Night',isIOS?'moon.zzz':'weather-night']], value:selectedTheme[theme], onPressMenu: onSelectTheme,isMenu:true},
-            // {title: 'Notifications', value:'', onPress: () => router.push('/settings/reminders'), rightIcon:settingsSvg.arrow},
-            {title:'FAQ', value:'', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow}
-          ]} 
-        />
-        <Grouped 
-          title="MORE"
-          items={[
-            {title:'Get support', value:'', onPress:()=>Wb.openBrowserAsync('https://help.voicenotes.com/en',{toolbarColor:isLightMode?'#fff':'#000'}), rightIcon:settingsSvg.arrow},
-            {title:'Delete account', value:'', onPress:onDelete, rightIcon:settingsSvg.arrow},
-            {title:'Share feedback', value:'', onPress:feedback, rightIcon:settingsSvg.arrow},
-            {title:'Sign out', value:'', onPress:onLogout, style:{color:Colors.redWithOpacity(1)}, leftIcon:settingsSvg.signOut},
-          ]}
-        />
-        <View style={{alignSelf:'center'}}>
-          <Text style={{fontFamily:'Primary-Medium', fontSize:14, color:Colors.grey}}>Version {currentVersion}</Text>
-        </View>
+          <Grouped
+            title="ACCOUNT"
+            items={[
+              { title: 'Name', onPress: () => showScreen('name'), value: userDetails?.name || '', rightIcon: settingsSvg.arrow },
+              { title: 'About', onPress: () => showScreen('about'), value: userDetails?.about || '', rightIcon: settingsSvg.arrow },
+              { title: 'Email', onPress: () => showScreen('email'), value: userDetails?.email || '', rightIcon: settingsSvg.arrow },
+              { title: 'Change password', onPress: () => showScreen('password'), value: '', rightIcon: settingsSvg.arrow },
+              ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : [])
+            ]}
+          />
+          <Grouped
+            title="APP"
+            items={[
+              { title: 'Language', isMenu: true, data: Object.entries(languages), value: lang, onPressMenu: onSelectLang },
+              { title: 'Names to remember', value: '', onPress: () => showScreen('names'), rightIcon: settingsSvg.arrow },
+              { title: 'Theme', data: [['auto', 'Auto', isIOS ? 'circle.lefthalf.fill' : 'circle-half-full'], ['light', 'Day', isIOS ? 'sun.max' : 'white-balance-sunny'], ['dark', 'Night', isIOS ? 'moon.zzz' : 'weather-night']], value: selectedTheme[theme], onPressMenu: onSelectTheme, isMenu: true },
+              { title: 'Notifications', value: '', onPress: () => router.push('/settings/reminders'), rightIcon: settingsSvg.arrow },
+              { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow }
+            ]}
+          />
+          <Grouped
+            title="MORE"
+            items={[
+              { title: 'Get support', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow },
+              { title: 'Share feedback', value: '', onPress: feedback, rightIcon: settingsSvg.arrow },
+              { title: 'Sign out', value: '', onPress: onLogout, style: { color: Colors.redWithOpacity(1) }, leftIcon: settingsSvg.signOut },
+            ]}
+          />
+          <View style={{ alignSelf: 'center' }}>
+            <Text style={{ fontFamily: 'Primary-Medium', fontSize: 14, color: Colors.grey }}>Version {currentVersion}</Text>
+          </View>
         </ScrollView>
       </View>
-      
+
       {/* {activeScreen === 'reminders' && (
         <View style={StyleSheet.absoluteFill}>
           <Reminders onClose={hideScreen} />
         </View>
       )} */}
-      
+
       {renderScreen('name', Name)}
       {renderScreen('about', About)}
       {renderScreen('email', Email)}
@@ -329,60 +329,61 @@ const Settings = () => {
   );
 }
 
-const Grouped=({title,items}:{title:string,items:any})=>{
-  const [showMenu,setShowMenu]=useState(false)
-  const onShowMenu=()=>setShowMenu(true)
-  const onHideMenu=()=>setShowMenu(false)
+const Grouped = ({ title, items }: { title: string, items: any }) => {
+  const [showMenu, setShowMenu] = useState(false)
+  const onShowMenu = () => setShowMenu(true)
+  const onHideMenu = () => setShowMenu(false)
   const { Colors } = useTheme()
   const styles = useStyles()
   return (
-    <View style={{marginBottom:20}}>
-    <Text style={{fontFamily:'Primary-Medium',fontSize:12,color:Colors.grey,marginLeft:32,marginBottom:8}}>{title}</Text>
-    <View style={{marginHorizontal:16,borderRadius:12,backgroundColor:Colors.bgColor2,overflow:'hidden'}}>
-    {items?.map((item:any,index:number)=>
-    <View key={index}>
-    <TouchableHighlight onPress={item?.isMenu?onShowMenu:item?.onPress} underlayColor={Colors.greyWithOpacity(0.12)} style={{overflow:'hidden',padding:16,paddingBottom:index!=items?.length-1?12:16}}>
-        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-        <View style={{flexDirection:'row',flex:1}}>
-        {!!item?.leftIcon&&<SvgXml xml={item?.leftIcon}  style={{marginRight:9}}/>}
-        <Text style={[{fontFamily:'Primary-Medium',fontSize:14,color:Colors.blackWithOpacity(1)},item?.style??{}]}>{item.title}</Text>
-        </View>
-        <View style={{flexDirection:'row',gap:4,alignSelf:'center',alignItems:"center",justifyContent:'flex-end'}}>
-        {item?.isMenu?
-        <MoreOptions options={item?.data?.map((t: string, v: number) => ({
-          title: t[1],
-          onPress: () => item?.onPressMenu(t[0]),
-          ...(isIOS?{systemIcon:t[2]||''}:{androidIcon:t[2]||''})
-        })) || []} 
-        style={{height:30,paddingHorizontal:15, paddingLeft: 30, marginRight:-12,justifyContent:"center",alignItems:'center'}}>
-          <View style={{flexDirection:'row',alignItems:'center',marginRight:-7}}>
-             <Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>
-             <SvgXml xml={settingsSvg.optionArrow}  />
-          </View>
-        </MoreOptions>
-        :
-          item?.value && <Text style={[styles.rightTxt, {width: item?.value ? '75%' : screenWidth/2}]} numberOfLines={1}>{item?.value}</Text>
-        }
-        {item?.rightIcon && <SvgXml xml={item?.rightIcon} />}
-        </View>
+    <View style={{ marginBottom: 20 }}>
+      <Text style={{ fontFamily: 'Primary-Medium', fontSize: 12, color: Colors.grey, marginLeft: 32, marginBottom: 8 }}>{title}</Text>
+      <View style={{ marginHorizontal: 16, borderRadius: 12, backgroundColor: Colors.bgColor2, overflow: 'hidden' }}>
+        {items?.map((item: any, index: number) =>
+          <View key={index}>
+            <TouchableHighlight onPress={item?.isMenu ? onShowMenu : item?.onPress} underlayColor={Colors.greyWithOpacity(0.12)} style={{ overflow: 'hidden', padding: 16, paddingBottom: index != items?.length - 1 ? 12 : 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', flex: 1 }}>
+                  {!!item?.leftIcon && <SvgXml xml={item?.leftIcon} style={{ marginRight: 9 }} />}
+                  <Text style={[{ fontFamily: 'Primary-Medium', fontSize: 14, color: Colors.blackWithOpacity(1) }, item?.style ?? {}]}>{item.title}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 4, alignSelf: 'center', alignItems: "center", justifyContent: 'flex-end' }}>
+                  {item?.isMenu ?
+                    <MoreOptions options={item?.data?.map((t: string, v: number) => ({
+                      title: t[1],
+                      onPress: () => item?.onPressMenu(t[0]),
+                      ...(isIOS ? { systemIcon: t[2] || '' } : { androidIcon: t[2] || '' })
+                    })) || []}
+                      style={{ height: 30, paddingHorizontal: 15, paddingLeft: 30, marginRight: -12, justifyContent: "center", alignItems: 'center' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: -7 }}>
+                        <Text style={styles.rightTxt} numberOfLines={1}>{item?.value}</Text>
+                        <SvgXml xml={settingsSvg.optionArrow} />
+                      </View>
+                    </MoreOptions>
+                    :
+                    item?.value && <Text style={[styles.rightTxt, { width: item?.value ? '75%' : screenWidth / 2 }]} numberOfLines={1}>{item?.value}</Text>
+                  }
+                  {item?.rightIcon && <SvgXml xml={item?.rightIcon} />}
+                </View>
+              </View>
+            </TouchableHighlight>
+            {index != items?.length - 1 && <View style={{ marginHorizontal: 16 }}><View style={{ height: 0.8, backgroundColor: Colors.border, width: '100%' }} /></View>}
+          </View>)}
       </View>
-    </TouchableHighlight>
-    {index!=items?.length-1&&<View style={{marginHorizontal:16}}><View style={{height:0.8,backgroundColor:Colors.border,width:'100%'}}/></View>}
-    </View>)}
     </View>
-</View>
-)}
+  )
+}
 
 const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
-  rightTxt:{
-    fontFamily:'Primary-Medium',
-    fontSize:14,
-    color:Colors.grey,
-    textAlign:'right'
-  }
-}), [Colors]); // Recreate styles when Colors change
+    rightTxt: {
+      fontFamily: 'Primary-Medium',
+      fontSize: 14,
+      color: Colors.grey,
+      textAlign: 'right'
+    }
+  }), [Colors]); // Recreate styles when Colors change
 };
 
 export default Settings;
