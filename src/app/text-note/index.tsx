@@ -20,7 +20,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
 import { home } from "assets/svg/home";
 import { useNoteContext, useTheme } from "context";
-import { isIOS, screenHeight, sleep } from "utils/common";
+import { isIOS, isSmallDevice, screenHeight, sleep } from "utils/common";
 import ThreeDotLoader from "components/common/loaders/three-dot-loader";
 import {
   KeyboardAwareScrollView,
@@ -211,8 +211,7 @@ const TextNote = () => {
         <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{padding:16,paddingBottom:isIOS?0:300}}
-        extraKeyboardSpace={-200}
-        keyboardDismissMode="interactive"
+        extraKeyboardSpace={isIOS?-screenHeight*2:-200}
         >
         <TextInput
           ref={inputRef}
@@ -221,6 +220,7 @@ const TextNote = () => {
             fontFamily: 'Primary',
             fontSize: 14,
             lineHeight: textnote?.length>0?20:18,
+            paddingBottom:isIOS?60:0
           }}
           multiline
           placeholder="Write here..."
@@ -244,12 +244,13 @@ const TextNote = () => {
           flexDirection:'row',
           paddingBottom:14 
         }}
-        offset={{ opened:isIOS?34:0 }}
+        offset={{ opened:isIOS?isSmallDevice?4:34:0 }}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef} contentContainerStyle={{paddingVertical:12}}>
           {attachments.map(renderImageThumbnail)}
         </ScrollView>
-          <View
+          <Pressable
+            onPress={() => setShowImagePicker(true)}
             style={{
               justifyContent: "flex-end",
               padding: 12,
@@ -259,10 +260,8 @@ const TextNote = () => {
               marginLeft:12
             }}
           >
-            <Pressable onPress={() => setShowImagePicker(true)}>
-              <SvgXml xml={home.img?.replace(/#0D0D0D/g, Colors.black2)} />
-            </Pressable>
-          </View>
+            <SvgXml xml={home.img?.replace(/#0D0D0D/g, Colors.black2)} />
+          </Pressable>
       </KeyboardStickyView>
 
       <ImageUploader
