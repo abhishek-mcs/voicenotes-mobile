@@ -282,7 +282,6 @@ const Reminders: React.FC = () => {
                 } else {
                     const defaultTime = getDefaultTime(type)
                     setTime(defaultTime)
-                    scheduleNotification(type, getNextValidTime(defaultTime))
                 }
             })
         }
