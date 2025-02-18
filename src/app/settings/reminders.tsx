@@ -172,6 +172,9 @@ const Reminders: React.FC = () => {
 
     const scheduleNotification = async (type: 'morning' | 'evening', dateObject?: Date) => {
         setWorking(type)
+        createNotificationChannel().then(channel => {
+            notificationChannel.current = channel;
+        })
         try {
             if(!await checkAndroidPermissions()) {
                 setWorking(null)
@@ -285,12 +288,9 @@ const Reminders: React.FC = () => {
                 }
             })
         }
-    
-        createNotificationChannel().then(channel => {
-            notificationChannel.current = channel;
-            checkNotification('morning')
-            checkNotification('evening')
-        })
+
+        checkNotification('morning')
+        checkNotification('evening')
     }, [])
 
     const Notification = ({time, type, border}: {time: Date | null, type: 'morning' | 'evening', border?: boolean}) => {
