@@ -41,11 +41,11 @@ import {
   updateRecordingDetails,
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
-import NetInfo from "@react-native-community/netinfo";
+import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
 import { setCanRecord } from "redux/reducers/userDetails";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
-import axiosApi from "services/api/axios-api";
+import axiosApi, { setAuthToken } from "services/api/axios-api";
 import { NewNote, Note } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
@@ -68,6 +68,7 @@ import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { height } = Dimensions.get("screen");
 
@@ -639,6 +640,14 @@ const Home = () => {
     setRefreshing(false);
   };
 
+  const netinfo = useNetInfo()
+
+  useEffect(()=>{
+    if(!!token){
+      setAuthToken(token,false,netinfo)
+      AsyncStorage.setItem('authToken', token)??''
+    }
+  },[])
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const searchBarHeight = 40; // Adjust based on your search bar height
@@ -795,7 +804,7 @@ const Home = () => {
                 renderItem={renderItem}
                 onEndReachedThreshold={0.2}
                 onEndReached={fetchNextPage}
-                initialNumToRender={3}
+                initialNumToRender={10}
                 ListFooterComponent={
                   !token && recordingQuery.isFetched ? (
                     <AboutProduct disable={false} />
