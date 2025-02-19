@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
@@ -33,6 +34,7 @@ export const userDetails = createSlice({
     },
     setToken: (state, action: PayloadAction<string>)=>{
         state.token = action.payload
+        AsyncStorage?.setItem('authToken',action.payload)
     },
     setGuestToken: (state, action: PayloadAction<string>)=>{
         state.guestToken = action.payload

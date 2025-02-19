@@ -237,11 +237,10 @@ const useStyles = () => {
   return useMemo(() => StyleSheet.create({
   editContainer: {
     marginTop: 6,
-    marginHorizontal: 12,
   },
   row: { flexDirection: "row", alignItems: "center" },
   titleInput: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     fontFamily: "Primary-Bold",
     fontSize: 16,
     lineHeight: 28,
@@ -250,7 +249,7 @@ const useStyles = () => {
     marginBottom: 6,
   },
   textInput: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingBottom: isIOS? screenHeight/1.6:screenHeight/4,
     minHeight: 100,
     fontFamily: "Primary",
