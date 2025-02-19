@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StyleSheet, ViewStyle, TextStyle, Vibration } from 'react-native';
 import { useTheme } from 'context';
+import Haptics from 'expo-haptics'
 
 const ITEM_HEIGHT = 40;
 const VISIBLE_ITEMS = 5;
@@ -61,6 +62,7 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
   const [currentIndex, setCurrentIndex] = useState(selectedIndex);
   const isScrollingRef = useRef(false);
   const lastScrollY = useRef(0);
+  const lastHapticIndex = useRef(selectedIndex);
 
   // Initial scroll
   useEffect(() => {
@@ -74,9 +76,23 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
     });
   }, [selectedIndex]);
 
+  const triggerHapticFeedback = async () => {
+    try {
+      await Haptics.selectionAsync();
+    } catch (error) {
+      Vibration.vibrate(1);
+    }
+  };
+
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
     const y = event.nativeEvent.contentOffset.y;
     lastScrollY.current = y;
+
+    const currentVisibleIndex = Math.round(y / itemHeight);
+    if (currentVisibleIndex !== lastHapticIndex.current) {
+      triggerHapticFeedback();
+      lastHapticIndex.current = currentVisibleIndex;
+    }
     
     if (!isScrollingRef.current) {
       const index = Math.round(y / itemHeight);
@@ -120,7 +136,7 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
         onMomentumScrollEnd={handleMomentumScrollEnd}
         scrollEventThrottle={16}
         decelerationRate="normal"
-        style={{ height: PICKER_HEIGHT }}
+        style={{ height: PICKER_HEIGHT, width: '100%' }}
         contentContainerStyle={{ paddingVertical: PICKER_HEIGHT / 2 - itemHeight / 2 }}
       >
         {items.map((item, index) => (
