@@ -57,16 +57,16 @@ const AddTags = () => {
         const isDuplicate = tags.some((tag: any) => tag.name === name);
         const currentTags = tagsList.current || []
         if(!isDuplicate){
-          setTags([{name},...currentTags])
+          setTags([{name:'starred'},{name},...currentTags])
           tagsList.current=[{name},...currentTags]
         }else{
-          setTags([...currentTags])
+          setTags([{name:'starred'},...currentTags])
           tagsList.current=[...currentTags]
         }
       } else {
         setSearch('')
         const currentTags = tagsList.current || []
-        setTags([...currentTags])
+        setTags([{name:'starred'},...currentTags])
       }
     }
 
@@ -111,17 +111,19 @@ const AddTags = () => {
           {search!=''&&<Btn Colors={Colors} title={'+Add '+search} onPress={()=>onAddTag(search,true)} isAdded={false} style={{marginTop:8, marginHorizontal:8}}/>}
           {tags.length>0&&
           <Text style={{fontFamily:'Primary',color:Colors.grey,fontSize:12,marginBottom:4,marginTop:12,marginHorizontal:24}}>Suggested</Text>}
-          <FlatList
-            data={tags}
-            style={{}}
-            contentContainerStyle={{margin:8,paddingBottom:200}}
-            keyExtractor={(item, index) => index.toString()}
-            showsVerticalScrollIndicator={false}
-            renderItem={({item,index})=>{
-              const isAdded=addedTags?.includes(item?.name)
-              return (
-                <Btn Colors={Colors} title={item?.name} isAdded={isAdded} style={{marginTop:2}} onPress={onAddTag}/>
-            )}}
+          <TagsListComponent
+            tags={tags?.filter(t=>!addedTags?.includes(t?.name))}
+            Colors={Colors}
+            onAddTag={onAddTag}
+            Header={()=>(
+              <TagsListComponent
+              tags={addedTags}
+              scrollEnabled={true}
+              isAdded={true}
+              Colors={Colors}
+              onAddTag={onAddTag}
+              />
+            )}
           />
           </KeyboardAvoidingView>
         </SafeAreaView>
@@ -142,6 +144,20 @@ const Btn=({onPress=(v:any)=>{},title,isAdded,style={},Colors}:any)=>(
   </TouchableHighlight>
 );
 
+const TagsListComponent: React.FC<TagsListComponentProps> = ({tags=[],Header=null,isAdded=false,Colors={},onAddTag=(v:any,x:any)=>{},scrollEnabled=true}) =>(<FlatList
+  data={tags}
+  style={{}}
+  scrollEnabled={scrollEnabled}
+  ListHeaderComponent={Header}
+  contentContainerStyle={{margin:8,paddingBottom:200}}
+  keyExtractor={(item, index) => index.toString()}
+  showsVerticalScrollIndicator={false}
+  renderItem={({item,index}:any)=>{
+    return (
+      <Btn Colors={Colors} title={item?.name??item} isAdded={isAdded} style={{marginTop:2}} onPress={onAddTag}/>
+  )}}
+/>)
+
 const styles=StyleSheet.create({
   rightTxt:{
     fontFamily:'Primary-Medium',
@@ -151,5 +167,19 @@ const styles=StyleSheet.create({
     textAlign:'right'
   }
 })
+
+interface Tag {
+  id: string; // or whatever type your tag ID is
+  name: string; // or whatever type your tag name is
+}
+
+interface TagsListComponentProps {
+  tags: Tag[];
+  Header?: () => React.ReactNode;
+  isAdded?: boolean;
+  Colors?: any; // Adjust based on your color structure
+  onAddTag?: (value: any, extra: any) => void;
+  scrollEnabled?: boolean;
+}
 
 export default AddTags;
