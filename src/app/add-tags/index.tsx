@@ -152,6 +152,9 @@ const TagsListComponent: React.FC<TagsListComponentProps> = ({tags=[],Header=nul
   contentContainerStyle={{margin:8,paddingBottom:200}}
   keyExtractor={(item, index) => index.toString()}
   showsVerticalScrollIndicator={false}
+  keyboardShouldPersistTaps="always"
+  keyboardDismissMode="on-drag"
+  automaticallyAdjustKeyboardInsets
   renderItem={({item,index}:any)=>{
     return (
       <Btn Colors={Colors} title={item?.name??item} isAdded={isAdded} style={{marginTop:2}} onPress={onAddTag}/>
