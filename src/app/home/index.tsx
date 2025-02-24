@@ -341,7 +341,7 @@ const Home = () => {
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
       console.log("retrying upload for note: ", note.audio.data.url);
-      Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
+      !note?.audio?.data?.url&&Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
       await uploadVoiceNote(note).catch(()=>{});
     };
 
@@ -506,7 +506,6 @@ const Home = () => {
           temporaryRecordingId,
         })
       );
-      Sentry.captureMessage("Network fail or upload issue: "+ error,"error")
     }
   };
 
