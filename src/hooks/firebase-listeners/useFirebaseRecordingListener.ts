@@ -19,6 +19,7 @@ import axiosApi from "services/api/axios-api";
 import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useDialog } from "context/DialogContext";
 import { useEffect } from "react";
+import { deviceInfo } from "services/api/api-constants";
 
 export function useFirebaseRecordingListener() {
   const dispatch = useDispatch();
@@ -64,7 +65,7 @@ export function useFirebaseRecordingListener() {
 
   const onTextNoteSave = async(textnote:string='',temporaryRecordingId:any,images:any[]=[]) => {
     // const t = textnote?.replace(/\n/g, '<br>');
-    const data = await axiosApi.post(`/recordings/new`,{recording_type:3,transcript:textnote})
+    const data = await axiosApi.post(`/recordings/new`,{recording_type:3,transcript:textnote,device_info:JSON.stringify(deviceInfo)},{timeout:3000,timeoutErrorMessage:'Time out! Not able to save text note'})
     const noteId = data?.data?.recording?.id
     listenToFirebaseStatus(noteId,temporaryRecordingId);
     images?.length>0&&images?.map(async(img,i)=>await uploadImage(img?.url,noteId,i==images?.length-1))

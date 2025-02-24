@@ -1,4 +1,6 @@
 import * as Application from "expo-application"
+import { Platform } from "react-native";
+import * as Device from "expo-device";
 
 const MAX_NOTES_STORAGE_LIMIT_IN_DEVICE = 10; // number of audio notes to be cached in device at any given time
 
@@ -60,7 +62,7 @@ const ENVURLSet: ENVURLs = {
 //     : Environment.production
 
 const currentENV = Environment.production;
-const ota=".18"
+const ota=".19"
 const currentVersion = Application.nativeApplicationVersion+ota
 
 
@@ -78,6 +80,16 @@ const expoClientID = "364915655162-e0bq980v7askj6mu61pqp1soiv3utm5s.apps.googleu
 
 const facebookAPPID = "471960279833154"
 
+const deviceInfo = {
+    platform: Platform.OS,
+    manufacturer: Device.manufacturer,
+    modelName: Device.modelName,
+    deviceType:
+      Device.deviceType === null ? null : Device.DeviceType[Device.deviceType],
+    osVersion: Device.osVersion,
+    appVersion: currentVersion,
+};
+
 export {
   MAIN_URL,
   API_URL,
@@ -89,5 +101,6 @@ export {
   facebookAPPID,
   currentENV,
   currentVersion,
-  MAX_NOTES_STORAGE_LIMIT_IN_DEVICE
+  MAX_NOTES_STORAGE_LIMIT_IN_DEVICE,
+  deviceInfo
 }
