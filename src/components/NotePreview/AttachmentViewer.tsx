@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo, memo } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,12 @@ import {
   Linking,
   Dimensions,
   ScrollView,
-  Alert,
   StyleSheet,
+  ImageBackground,
 } from "react-native";
 import { BlurView } from "expo-blur"; 
 import axiosApi from "services/api/axios-api";
-import { Image, ImageBackground } from 'expo-image'; 
+import { Image } from 'expo-image'; 
 import { Menu, MenuItem } from "react-native-material-menu";
 import { SvgXml } from "react-native-svg";
 import { notePreviewSVG } from "assets/svg/notePreviewSVG";
@@ -36,13 +36,15 @@ interface AttachmentViewerProps {
   onAttachmentUpdate: () => void;
   onEditLink: (linkData: any) => void;
   isShared: boolean;
+  localImages?: any;
 }
 
 const AttachmentViewer = ({ 
   attachments = [], 
   onAttachmentUpdate, 
   onEditLink ,
-  isShared=false
+  isShared=false,
+  localImages = null
 }: AttachmentViewerProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<any>(null);
   const [imageIndex, setImageIndex] = useState<number>(0);
@@ -59,7 +61,7 @@ const AttachmentViewer = ({
 
   // Memoize filtered attachments
   const imageAttachments = useMemo(() => 
-    attachments?.flatMap((a:any) => {
+    (localImages??attachments)?.flatMap((a:any) => {
       if(a?.type === ATTACHMENT_TYPE?.IMAGE)
         return {...a, uri: a?.url}
       return []
@@ -190,7 +192,8 @@ const AttachmentViewer = ({
   // ... inside AttachmentViewer component ...
   const renderImageThumbnail = ({item, index}:any) => 
     <ImageThumbnail 
-      item={item} 
+      item={item}
+      defaultImage={!!localImages?localImages[index]?.url:null}
       index={index} 
       setSelectedImageIndex={(i:any)=>{
         setSelectedImageIndex(i)
@@ -203,11 +206,11 @@ const AttachmentViewer = ({
       contentContainerStyle={styles.container}
       contentInsetAdjustmentBehavior="never"
     >
-      {imageAttachments.length > 0 && (
+      {imageAttachments?.length > 0 && (
         <View>
           <FlatList
             ref={thumbnailListRef}
-            data={imageAttachments}
+            data={imageAttachments??[]}
             renderItem={renderImageThumbnail}
             keyExtractor={(item: any, index: number) => index?.toString()}
             horizontal
@@ -216,7 +219,7 @@ const AttachmentViewer = ({
         </View>
       )}
 
-      {linkAttachments.length > 0 && (
+      {linkAttachments?.length > 0 && (
         <View style={styles.linkSection}>
           {linkAttachments?.map((item: any, index: number) =>
             renderLinkItem({ item, index })
@@ -286,7 +289,7 @@ const AttachmentViewer = ({
 
 
   // Memoize ImageThumbnail component
-  const ImageThumbnail = ({ item, index, setSelectedImageIndex }:any) => {
+  const ImageThumbnail = ({ item, index, setSelectedImageIndex, defaultImage=null }:any) => {
     const [imageLoading, setImageLoading] = useState(false);
     const [loadProgress, setLoadProgress] = useState(0);
     const styles = useStyles();
@@ -309,17 +312,15 @@ const AttachmentViewer = ({
       <Pressable onPress={handlePress}>
         <View style={styles.thumbnailContainer}>
           <ImageBackground
-            source={{ uri: item?.uri }}
+            source={{ uri: item?.url }}
             style={styles.thumbnail}
-            contentFit="cover"
-            transition={0}
-            cachePolicy={"disk"}
-            placeholder={blurhash}
+            resizeMode="cover"
+            defaultSource={{uri:defaultImage??item?.url}}
             onLoadStart={() => {
               setImageLoading(true);
               setLoadProgress(0);
             }}
-            onProgress={({ loaded, total }) => {
+            onProgress={({ loaded, total }:any) => {
               setLoadProgress(loaded / total);
             }}
             onLoadEnd={() => {

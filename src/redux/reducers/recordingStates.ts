@@ -94,7 +94,6 @@ export const recordingStates = createSlice({
           recording.id === recordingId ||
           recording.id === temporaryRecordingId
         ) {
-          recording?.title
           return {
             ...recording,
             ...data,

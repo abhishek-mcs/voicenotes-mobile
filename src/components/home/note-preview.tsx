@@ -1048,9 +1048,10 @@ const NotePreview = forwardRef(
                 )}
 
                 <TagsList note={note} />
-                {!!attachments && attachments?.length > 0 && (
+                {((!!attachments && attachments?.length > 0)||(!!note?.imageAttachments && note?.imageAttachments?.length > 0)) && (
                   <AttachmentViewer
                     attachments={attachments}
+                    localImages={note?.imageAttachments??null}
                     onAttachmentUpdate={refreshNoteAfterAttachmentChange}
                     onEditLink={(linkItem: any) => {
                       setShowLinkEditModal(true);
