@@ -59,6 +59,9 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
   const scrollViewRef = useRef<ScrollView>(null);
   const { Colors } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(selectedIndex);
+  const isScrollingRef = useRef(false);
+  const lastScrollY = useRef(0);
+  const lastHapticIndex = useRef(selectedIndex);
 
   // Initial scroll
   useEffect(() => {
@@ -74,20 +77,43 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
     const y = event.nativeEvent.contentOffset.y;
-    const index = Math.round(y / itemHeight);
-    if (index !== currentIndex) {
-      setCurrentIndex(index);
-      onValueChange(index);
+    lastScrollY.current = y;
+
+    const currentVisibleIndex = Math.round(y / itemHeight);
+    if (currentVisibleIndex !== lastHapticIndex.current) {
+      // if you have to add haptic feedback to the scroll action, simply add vibration here
+      lastHapticIndex.current = currentVisibleIndex;
+    }
+    
+    if (!isScrollingRef.current) {
+      const index = Math.round(y / itemHeight);
+      if (index !== currentIndex && index >= 0 && index < items.length) {
+        setCurrentIndex(index);
+      }
     }
   };
 
+  const handleScrollBeginDrag = (): void => {
+    isScrollingRef.current = true;
+  };
+
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
-    const y = event.nativeEvent.contentOffset.y;
+    isScrollingRef.current = false;
+    const y = lastScrollY.current;
     const index = Math.round(y / itemHeight);
-    scrollViewRef.current?.scrollTo({
-      y: index * itemHeight,
-      animated: true,
-    });
+    
+    if (index >= 0 && index < items.length) {
+      setCurrentIndex(index);
+      onValueChange(index);
+      
+      // Ensure we snap to the exact position
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollTo({
+          y: index * itemHeight,
+          animated: true,
+        });
+      });
+    }
   };
 
   return (
@@ -97,10 +123,11 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
         showsVerticalScrollIndicator={false}
         snapToInterval={itemHeight}
         onScroll={handleScroll}
+        onScrollBeginDrag={handleScrollBeginDrag}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         scrollEventThrottle={16}
-        decelerationRate="fast"
-        style={{ height: PICKER_HEIGHT }}
+        decelerationRate="normal"
+        style={{ height: PICKER_HEIGHT, width: '100%' }}
         contentContainerStyle={{ paddingVertical: PICKER_HEIGHT / 2 - itemHeight / 2 }}
       >
         {items.map((item, index) => (
