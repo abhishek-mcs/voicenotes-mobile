@@ -25,6 +25,8 @@ type BaseNote = {
   temp_id?:string
   temp_parent_id?:string |null,
   recording_type?:number|null,
+  text_note?:string|null,
+  imageAttachments?: any[]
 };
 
 export type NewNote = BaseNote;

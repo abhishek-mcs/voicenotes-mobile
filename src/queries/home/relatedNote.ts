@@ -23,7 +23,7 @@ export function useGetRelatedRecording(index?:number){
     {
         onSuccess:async(data:any)=>{
             // dispatch(setRelatedNotes({related_notes:relatedNotes,index}));
-            await queryClient.resetQueries('all-recording')
+            // await queryClient.resetQueries('all-recording')
         },
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);

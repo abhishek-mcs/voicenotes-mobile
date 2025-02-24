@@ -123,7 +123,7 @@ const Home = () => {
   const styles = useStyles()
   const {showDialog}:any = useDialog()
 
-  const { listenToFirebaseStatus } = useFirebaseRecordingListener()
+  const { listenToFirebaseStatus, onTextNoteSave } = useFirebaseRecordingListener()
 
   useWatchNetInfo()
   
@@ -340,8 +340,11 @@ const Home = () => {
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
       console.log("retrying upload for note: ", note.audio.data.url);
-      Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
-      await uploadVoiceNote(note).catch(()=>{});
+      !note?.audio?.data?.url && Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
+      if(note?.recording_type == 3)
+        await onTextNoteSave(note);
+      else
+        await uploadVoiceNote(note).catch(()=>{});
     };
 
     const retryProcessing = async (note: Note) => {

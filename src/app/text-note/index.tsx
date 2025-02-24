@@ -38,6 +38,7 @@ import { RootState } from "redux/store/store";
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useDialog } from "context/DialogContext";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 const TextNote = () => {
   const router = useRouter();
@@ -64,6 +65,8 @@ const TextNote = () => {
   const isBeliever = userDetails?.subscription_status||isTempIAPPurchased
   const { showDialog } = useDialog()
 
+  const netinfo = useNetInfo()
+
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
@@ -83,13 +86,15 @@ const TextNote = () => {
       title: `New note`,
       transcript: null,
       recorded_at: new Date().getTime(),
-      status: "saving",
+      status: netinfo?.isConnected?"saving":"upload_failed",
       internalUrl: undefined,
       parent_id: null,
-      recording_type:3
+      recording_type:3,
+      text_note: textnote,
+      imageAttachments: attachments
     };
 
-    onTextNoteSave(textnote,temporaryRecordingId,attachments)
+    onTextNoteSave(newTemporaryRecording)
     dispatch(setTempRecordingData(newTemporaryRecording))
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
     recordingList?.length>0&&
@@ -233,6 +238,14 @@ const TextNote = () => {
           selectTextOnFocus={false}
           {...(isBeliever?{}:{maxLength:1500})}
         />
+
+      <ImageUploader
+        showImagePicker={showImagePicker}
+        setShowImagePicker={setShowImagePicker}
+        setAttachments={setAttachments}
+        onAttachmentUpdate={refreshNotesAfterAttachmentChange}
+        noteType={3}
+      />
         </KeyboardAwareScrollView>
 
       <KeyboardStickyView
@@ -265,13 +278,6 @@ const TextNote = () => {
           </Pressable>
       </KeyboardStickyView>
 
-      <ImageUploader
-        showImagePicker={showImagePicker}
-        setShowImagePicker={setShowImagePicker}
-        setAttachments={setAttachments}
-        onAttachmentUpdate={refreshNotesAfterAttachmentChange}
-        noteType={3}
-      />
     </SafeAreaView>
   );
 };
