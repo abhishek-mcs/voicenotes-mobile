@@ -128,8 +128,6 @@ export const onRecord = async (
     });
   } catch (err:any) {
     console.log("Failed to start recording", err);
-    //getting error here
-    Sentry.captureMessage("Failed to start recording: " + err, "error")
   }
 };
 
@@ -143,7 +141,6 @@ export const stopRecording = async (recording: ExtendedRecording|any ) => {
 
   } catch (error) {
     console.log("Failed to stop recording", error);
-    Sentry.captureMessage("Failed to stop recording: " + error, "error")
   }
 };
 

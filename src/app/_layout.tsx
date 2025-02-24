@@ -16,7 +16,7 @@ Sentry.init({
   replaysOnErrorSampleRate: 0,
   enableCaptureFailedRequests:true,
   enableAutoSessionTracking: false,
-  environment: "production"
+  environment: "production",
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
 });
