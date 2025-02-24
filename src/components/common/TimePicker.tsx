@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StyleSheet, ViewStyle, TextStyle, Vibration } from 'react-native';
+import { View, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { useTheme } from 'context';
-import Haptics from 'expo-haptics'
 
 const ITEM_HEIGHT = 40;
 const VISIBLE_ITEMS = 5;
@@ -76,21 +75,13 @@ const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
     });
   }, [selectedIndex]);
 
-  const triggerHapticFeedback = async () => {
-    try {
-      await Haptics.selectionAsync();
-    } catch (error) {
-      Vibration.vibrate(1);
-    }
-  };
-
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
     const y = event.nativeEvent.contentOffset.y;
     lastScrollY.current = y;
 
     const currentVisibleIndex = Math.round(y / itemHeight);
     if (currentVisibleIndex !== lastHapticIndex.current) {
-      triggerHapticFeedback();
+      // if you have to add haptic feedback to the scroll action, simply add vibration here
       lastHapticIndex.current = currentVisibleIndex;
     }
     
