@@ -105,7 +105,7 @@ const Reminders: React.FC = () => {
         )
     }
 
-    const getNextValidTime = (date?: Date | null, prompt: boolean = false): Date => {
+    const getNextValidTime = (date?: Date | null): Date => {
         if(!date) return new Date()
         const now = new Date()
         
@@ -122,9 +122,6 @@ const Reminders: React.FC = () => {
         const tomorrow = new Date()
         tomorrow.setDate(tomorrow.getDate() + 1)
         tomorrow.setHours(date.getHours(), date.getMinutes(), 0, 0)
-        if(prompt) {
-            Alert.alert('Time has passed', 'Since this time has passed for today, your reminder will start from tomorrow.')
-        }
         return tomorrow
     }
 
@@ -176,7 +173,7 @@ const Reminders: React.FC = () => {
                 return
             }
     
-            const time = dateObject || getNextValidTime(type === 'morning' ? morningTime : eveningTime, true)
+            const time = dateObject || getNextValidTime(type === 'morning' ? morningTime : eveningTime)
             const trigger: TimestampTrigger = {
                 type: TriggerType.TIMESTAMP,
                 timestamp: time.getTime(),
