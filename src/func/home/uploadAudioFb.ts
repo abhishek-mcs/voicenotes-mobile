@@ -1,11 +1,7 @@
 import axiosApi from "services/api/axios-api";
-import { Platform } from "react-native";
-import * as Device from "expo-device";
-import * as Application from "expo-application";
 import * as FileSystem from "expo-file-system";
-import axios from "axios";
-import {Buffer} from "buffer"
 import * as Sentry from '@sentry/react-native';
+import { deviceInfo } from "services/api/api-constants";
 
 export const saveVoiceNote = async (data: {
   audio: any;
@@ -15,15 +11,6 @@ export const saveVoiceNote = async (data: {
   temp_id:any
 }) => {
   const { audio, duration, parent_id, recorded_at=Date.now(),temp_id } = data;
-  const deviceInfo = {
-    platform: Platform.OS,
-    manufacturer: Device.manufacturer,
-    modelName: Device.modelName,
-    deviceType:
-      Device.deviceType === null ? null : Device.DeviceType[Device.deviceType],
-    osVersion: Device.osVersion,
-    appVersion: Application.nativeApplicationVersion,
-  };
 
   const uri = audio;
   const fileInfo = await FileSystem.getInfoAsync(uri);
