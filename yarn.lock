@@ -6367,7 +6367,7 @@ expo-gl@~13.6.0:
   dependencies:
     invariant "^2.2.4"
 
-expo-haptics@^12.8.1:
+expo-haptics@~12.8.1:
   version "12.8.1"
   resolved "https://registry.yarnpkg.com/expo-haptics/-/expo-haptics-12.8.1.tgz#42b996763be33d661bd33bbc3b3958c3f2734b9d"
   integrity sha512-ntLsHkfle8K8w9MW8pZEw92ZN3sguaGUSSIxv30fPKNeQFu7Cq/h47Qv3tONv2MO3wU48N9FbKnant6XlfptpA==
@@ -10042,11 +10042,6 @@ react-native-context-menu-view@^1.16.0:
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.16.0.tgz#50e376ce30bc9b9aa07c0a5b66f1280befcf98f8"
   integrity sha512-zqeOAizM7MVV9o6h/quS0REQikBq3J4BkIRLFygY6RiCjr6rwuzSGkif7JRCHpAQQumSKlLqYl4N2h3AdoIHVg==
-
-react-native-date-picker@^5.0.9:
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-5.0.9.tgz#385e359024b285c2c31e9bccb69a754cf45df659"
-  integrity sha512-Ws/fw17/SGvmQ4rU2A8NMFLk7XReUupK0+SE7JwpWJmNyEDDG420kYI17CRkkmSKhajRKqrr8klG3NZ7jihXcA==
 
 react-native-dialog@^9.3.0:
   version "9.3.0"

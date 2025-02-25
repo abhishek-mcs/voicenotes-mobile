@@ -1203,8 +1203,6 @@ PODS:
     - React
   - react-native-context-menu-view (1.16.0):
     - React
-  - react-native-date-picker (5.0.9):
-    - React-Core
   - react-native-fbsdk-next (13.0.0):
     - React-Core
     - react-native-fbsdk-next/Core (= 13.0.0)
@@ -1546,7 +1544,6 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
-  - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
   - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -1770,8 +1767,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-appsflyer"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
-  react-native-date-picker:
-    :path: "../node_modules/react-native-date-picker"
   react-native-fbsdk-next:
     :path: "../node_modules/react-native-fbsdk-next"
   react-native-keyboard-controller:
@@ -1956,7 +1951,6 @@ SPEC CHECKSUMS:
   React-Mapbuffer: d81d930c1b7f4db284e1d721fe7fdc99230ca108
   react-native-appsflyer: 84e6e37fe91b8ec22875bd10a50fb8baf9434567
   react-native-context-menu-view: 30915369a9b5887904c571b616653acf3f1c8edb
-  react-native-date-picker: 6a8ed0e65b4a05feb31776e24e7ad97502263439
   react-native-fbsdk-next: 84746ea062dc3b1a422154d7674ba4c5836b6d82
   react-native-keyboard-controller: d62ab67cf31cd9c774559225d84a5035b4c975ad
   react-native-netinfo: 3aa5637c18834966e0c932de8ae1ae56fea20a97
