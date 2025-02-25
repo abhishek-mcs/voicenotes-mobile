@@ -583,7 +583,7 @@ const NotePreview = forwardRef(
       []:[];
 
       const intermediateButtons = [
-        ...(note?.recording_type!=3?[{
+        ...([0,1,2,4]?.includes(note?.recording_type)?[{
           text: "Download",
           onPress: onDownloadAudio,
           icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
@@ -753,7 +753,7 @@ const NotePreview = forwardRef(
                 title: "Regenerate title",
                 onPress: onGenerateTitle,
               },
-              ...(note?.recording_type != 3?[{
+              ...([0,1,2,4]?.includes(note?.recording_type)?[{
                 title: "Regenerate transcript",
                 onPress: onReGenerateTranscript,
               }]:[]),
@@ -1061,7 +1061,7 @@ const NotePreview = forwardRef(
                 )}
                 <View style={{flexDirection:'row',alignItems:'center',marginVertical:6,justifyContent:'space-between'}}>
                 <View style={{flexDirection:'row',alignItems:'center'}}>
-                {note?.recording_type!=3&&<Pressable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                {[0,1,2,4].includes(note?.recording_type)&&<Pressable onPress={onPlay} style={{height:32,paddingHorizontal:12,alignSelf:'flex-start',borderRadius:32,backgroundColor:Colors.bgColor3(0.05),flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                   {audioLoading==index?
                   <CircularLoader strokeWidth={3} width={15} height={15} color={Colors.whiteWithOpacity(1)}/>
                   :<SvgXml xml={isPlay == index ? home.pause?.replace("black",Colors.blackWithOpacity(1)) : home.play?.replace("black",Colors.blackWithOpacity(1))} fill={'#fff'} width={15}/>}
