@@ -144,6 +144,7 @@ const Reminders: React.FC = () => {
     }
 
     const chooseTime = (type: 'morning' | 'evening') => {
+        if(!active[type]) return
         activeType.current = type
         setTimePicker(true)
     }
