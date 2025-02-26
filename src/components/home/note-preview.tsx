@@ -946,7 +946,7 @@ const NotePreview = forwardRef(
               >
                 {note?.is_title_loading==note?.id ? (
                   <AiLoader
-                    text={`Creating title from your ${note?.recording_type==2?'meeting':note?.recording_type==3?'note':'voice'}`}
+                    text={`Creating title from your ${note?.recording_type==2?'meeting':note?.recording_type==3 || note?.recording_type===5?'note':'voice'}`}
                     style={{ marginTop: -7 }}
                     size={14}
                   />
