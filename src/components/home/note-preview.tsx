@@ -31,6 +31,7 @@ import {
   fetchSingleRecording,
   formatTranscript,
   formatTranscript2,
+  formatTranscript5,
   isIOS,
   screenHeight,
   sleep,
@@ -1038,7 +1039,10 @@ const NotePreview = forwardRef(
                       note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
                       :note?.recording_type==3?
                       formatTranscript2(note?.transcript)
-                      :formatTranscript(note?.transcript)}
+                      : note?.recording_type==5 ?
+                        formatTranscript5(note?.transcript)
+                      : formatTranscript(note?.transcript)
+                    }
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
