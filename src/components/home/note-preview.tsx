@@ -180,19 +180,33 @@ const NotePreview = forwardRef(
       setCreateType(type);
       setCreationLoader(true);
       hideCreateOption();
-      setExpand(index)
-      // Scroll to the specific component
-      await createAI.mutateAsync(
-        { recording_id: note?.id, type, language },
-        {
-          onSuccess: async (r) => {
-            await listenAiCreate({ id: r?.data?.id, getCreation });
-          },
-          onError: () => setCreationLoader(false),
-        }
-      );
-
-    },[note,index]);
+      setExpand(index);
+    
+      try {
+        const response = await createAI.mutateAsync(
+          { recording_id: note?.id, type, language },
+          {
+            onSuccess: async (r) => {
+              await listenAiCreate({ 
+                id: r?.data?.id, 
+                getCreation: async () => {
+                  // Invalidate queries to refresh data
+                  await queryClient.invalidateQueries("all-recording");
+                  isSingle && await queryClient.invalidateQueries("single-recording");
+                  // Only turn off loader after data is refreshed
+                  setTimeout(() => setCreationLoader(false), 100);
+                }
+              });
+            },
+            onError: () => {
+              setCreationLoader(false);
+            },
+          }
+        );
+      } catch (error) {
+        setCreationLoader(false);
+      }
+    }, [note, index, queryClient]);
 
     const onGenerateTitle = async () => {
       hideMoreOption();
