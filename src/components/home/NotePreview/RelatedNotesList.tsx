@@ -23,7 +23,7 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
                 color:Colors.black2,
               }}
             >
-              Related Notes
+              {note?.recording_type === 5 ? 'Parent Note' : 'Related Notes'}
             </Text>
             <View
               style={{

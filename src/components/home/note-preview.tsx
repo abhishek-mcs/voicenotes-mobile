@@ -31,6 +31,7 @@ import {
   fetchSingleRecording,
   formatTranscript,
   formatTranscript2,
+  formatTranscript5,
   isIOS,
   screenHeight,
   sleep,
@@ -730,7 +731,7 @@ const NotePreview = forwardRef(
       //   androidIcon:'circle-edit-outline',
       //   actions:,
       // },
-      ...(note?.recording_type == 3?
+      ...([3, 5].includes(note?.recording_type)?
         []:[{
         title: "Download audio",
         systemIcon: "arrow.down.circle",
@@ -946,7 +947,7 @@ const NotePreview = forwardRef(
               >
                 {note?.is_title_loading==note?.id ? (
                   <AiLoader
-                    text={`Creating title from your ${note?.recording_type==2?'meeting':note?.recording_type==3?'note':'voice'}`}
+                    text={`Creating title from your ${note?.recording_type==2?'meeting':note?.recording_type==3 || note?.recording_type===5?'note':'voice'}`}
                     style={{ marginTop: -7 }}
                     size={14}
                   />
@@ -1038,7 +1039,10 @@ const NotePreview = forwardRef(
                       note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
                       :note?.recording_type==3?
                       formatTranscript2(note?.transcript)
-                      :formatTranscript(note?.transcript)}
+                      : note?.recording_type==5 ?
+                        formatTranscript5(note?.transcript)
+                      : formatTranscript(note?.transcript)
+                    }
                     triggerAnimation={
                       triggerTypingTranscript == note?.id ? 2 : 0
                     }
