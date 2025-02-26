@@ -730,7 +730,7 @@ const NotePreview = forwardRef(
       //   androidIcon:'circle-edit-outline',
       //   actions:,
       // },
-      ...(note?.recording_type == 3?
+      ...([3, 5].includes(note?.recording_type)?
         []:[{
         title: "Download audio",
         systemIcon: "arrow.down.circle",
