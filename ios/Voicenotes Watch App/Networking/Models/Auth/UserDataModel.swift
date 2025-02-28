@@ -26,7 +26,7 @@ struct UserDataModel: Codable {
         case isPasswordSet = "is_password_set"
         case subscriptionStatus = "subscription_status"
         case canRecordMore = "can_record_more"
-        case recordingsCount = "recordings_count"
+        case recordingsCount = "non_creation_recordings_count"
         case publicRecordingsCount = "public_recordings_count"
     }
 }
