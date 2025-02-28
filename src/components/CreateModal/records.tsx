@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import { Text, View, FlatList, StyleSheet, TouchableHighlight } from "react-native"
 import { createModalProps } from "."
-import { formatTranscript, screenHeight } from "utils/common"
+import { formatTranscript, formatTranscript5, screenHeight } from "utils/common"
 import { SvgXml } from "react-native-svg"
 import { CreateModalSvg } from "assets/svg/CreateModal"
 import { useTheme } from "context"
@@ -26,7 +26,7 @@ const Records = ({recordingList=[],fetchNextPage=()=>{},onSelect=(id:number,v:st
                         <View style={{flex:1}}>
                         <Text style={titleStyle} numberOfLines={1}>{item?.title}</Text>
                         <Text style={text} numberOfLines={1}>{
-                        formatTranscript(item?.transcript)
+                         item?.recording_type === 5 ? formatTranscript5(item?.transcript) : formatTranscript(item?.transcript)
                         }</Text>
                         </View>
                         {isSelected(item?.id)&&<SvgXml xml={CreateModalSvg.check} style={{width:24,flex:1,marginRight:-4,marginLeft:8}} />}
