@@ -97,7 +97,7 @@ const Streaks = forwardRef(({ data = null }: Props, ref) => {
     if (x + (screenWidth/2.2) > screenWidth) x = screenWidth - (screenWidth/1.8);
     setTooltipData({
       visible: true,
-      text: `${formatDate(item.date)} - ${item.non_creation_recordings_count} notes`,
+      text: `${formatDate(item.date)} - ${item.recordings_count} notes`,
       position: { x, y }
     });
   };
@@ -137,12 +137,12 @@ const Streaks = forwardRef(({ data = null }: Props, ref) => {
             <View style={[styles.streaksContainer, { transform: [{ scale }] }]}>
               {weeks.map((week: any[], weekIndex: React.Key | null | undefined) => (
                 <View key={weekIndex} style={styles.weekColumn}>
-                  {week.map((day: { non_creation_recordings_count: number; }, dayIndex: React.Key | null | undefined) => (
+                  {week.map((day: { recordings_count: number; }, dayIndex: React.Key | null | undefined) => (
                     <Pressable
                       key={dayIndex}
                       style={[
                         styles.dayRect,
-                        { backgroundColor: getOpacity(day.non_creation_recordings_count) }
+                        { backgroundColor: getOpacity(day.recordings_count) }
                       ]}
                       onPress={(e) => showTooltip(day, e)}
                     />

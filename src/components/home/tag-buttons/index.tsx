@@ -97,7 +97,7 @@ export default function TagButtons({
   const styles = useStyles()
   const {showDialog} = useDialog()
   const count =
-  (isDefaultHash ? pinnedTagsData : tagsData)?.find((v: any) => v?.name === hashFilter)?.non_creation_recordings_count || null;
+  (isDefaultHash ? pinnedTagsData : tagsData)?.find((v: any) => v?.name === hashFilter)?.recordings_count || null;
 
   const options = [
     {
