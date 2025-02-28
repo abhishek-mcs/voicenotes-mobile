@@ -6,58 +6,72 @@ export default async ({ id = "", getCreation = async (v: any) => {} }) => {
   const dbRef = database().ref(firebasePath);
   let isListenerTriggered = false;
   let retry = 0;
+  let pathExistsListener: any = null;
 
   async function statusCheck(status: number, listener: any) {
-    if (status == 1) {
+    if (status === 1) {
       await getCreation(id);
-      if(!!dbRef&&!!listener) dbRef?.off("value", listener);
-      if(!!dbRef) dbRef?.remove();
+      // Clean up listeners
+      if (!!dbRef && !!listener) dbRef?.off("value", listener);
+      if (!!pathExistsListener) database().ref("processStatuses/aicreate").off("child_added", pathExistsListener);
+      if (!!dbRef) dbRef?.remove();
     }
   }
 
-  // First check if the path exists
-  const onceSnap = await dbRef.once("value");
-  if (!onceSnap.exists()) {
-    console.log("Path doesn't exist yet, waiting...");
-    // Set up a listener for child added
-    const pathExistsListener = database()
-      .ref(firebasePath)
-      .on("child_added", (snapshot) => {
-        if (snapshot.key === id?.toString()) {
-          // Path now exists, set up the value listener
-          console.log("Path now exists, set up the value listener");
-          setupValueListener();
-          // Remove the child_added listener
-          database().ref(firebasePath).off("child_added", pathExistsListener);
-        }
-      });
-  } else {
-    // Path exists, set up the value listener directly
-    console.log(
-      "Path exists, set up the value listener directly",
-      onceSnap.val()
-    );
-    setupValueListener();
-  }
-
   async function setupValueListener() {
-    console.log('creation firebase listening')
+    console.log('Setting up creation value listener');
     const listener = dbRef.on("value", async (snapshot) => {
       isListenerTriggered = true;
       if (snapshot.exists()) {
         const status = snapshot.val();
-        console.log("creation status", status);
+        console.log("Creation status:", status);
         await statusCheck(status, listener);
       }
     });
+
+    // Add timeout to check if listener was triggered
     await sleep(4000);
-    if (!isListenerTriggered && !isNaN(onceSnap.val())&&retry<5) {
-      retry++
-      const onceSnap2 = await dbRef.once('value');
-      console.log("creation status", onceSnap2.val());
-      await statusCheck(onceSnap2.val(), listener);
-      await sleep(2000);
-      await setupValueListener();
+    if (!isListenerTriggered && retry < 5) {
+      retry++;
+      console.log(`Retry attempt ${retry} for creation status`);
+      const retrySnap = await dbRef.once('value');
+      if (retrySnap.exists()) {
+        await statusCheck(retrySnap.val(), listener);
+      }
+      if (retry < 5) {
+        await sleep(2000);
+        await setupValueListener();
+      }
     }
+  }
+
+  // Initial path check
+  const onceSnap = await dbRef.once("value");
+  if (!onceSnap.exists()) {
+    console.log("AI Creation path doesn't exist, setting up child_added listener");
+    
+    // Listen at the parent level for new children
+    pathExistsListener = database()
+      .ref("processStatuses/aicreate")
+      .on("child_added", async (snapshot) => {
+        if (snapshot.key === id) {
+          console.log("AI Creation path now exists, setting up value listener");
+          // Remove child_added listener before setting up value listener
+          database().ref("processStatuses/aicreate").off("child_added", pathExistsListener);
+          await setupValueListener();
+        }
+      });
+
+    // Add a timeout to check path again in case we missed the child_added event
+    setTimeout(async () => {
+      const recheckSnap = await dbRef.once("value");
+      if (recheckSnap.exists() && !isListenerTriggered) {
+        console.log("Path found on recheck, setting up value listener");
+        await setupValueListener();
+      }
+    }, 2000);
+  } else {
+    console.log("AI Creation path exists, setting up value listener directly");
+    await setupValueListener();
   }
 };

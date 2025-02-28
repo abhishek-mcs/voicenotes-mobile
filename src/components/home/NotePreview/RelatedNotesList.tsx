@@ -11,6 +11,9 @@ import { sleep } from 'utils/Timer';
 
 const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:any)=>void}) => {
       if (!note?.related_notes?.length) return null;
+
+      const related_notes = note?.recording_type === 5 ? note?.related_notes.slice(0, 3) : note?.related_notes;
+
       const { Colors } = useTheme()
       const dispatch = useDispatch()
       return (
@@ -23,20 +26,20 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
                 color:Colors.black2,
               }}
             >
-              Related Notes
+              {note?.recording_type === 5 ? 'Parent Note' : 'Related Notes'}
             </Text>
             <View
               style={{
                 marginTop:
-                  note?.related_notes?.length == 0 
+                  related_notes.length == 0 
                     ? 8
                     : 3,
               }}
             >
-              {note?.related_notes?.length == 0  ? (
+              {related_notes.length == 0  ? (
                 <CircularLoader width={16} height={16} />
               ) : (
-                note?.related_notes?.map((item: any,v:number) => {
+                related_notes.map((item: any,v:number) => {
                   return (
                     <Touchable
                       onPress={async() => {
