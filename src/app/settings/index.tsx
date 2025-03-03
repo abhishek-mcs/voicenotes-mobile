@@ -168,11 +168,11 @@ const Help = ({ onClose }: { onClose: () => void }) => {
             items={[
               { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
               { title: 'Contact support', value: '', onPress: () => Linking.openURL('mailto:team@voicenotes.com'), rightIcon: settingsSvg.arrow },
-              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow },
               { title: 'Share feedback', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
               { title: 'Report an issue', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
               { title: 'Reddit', value: '', onPress: () => Wb.openBrowserAsync('https://www.reddit.com/r/Voicenotesai/', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
               { title: 'Twitter', value: '', onPress: () => Wb.openBrowserAsync('https://x.com/voicenotesai', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow }
             ]}
           />
         </View>
@@ -364,7 +364,7 @@ const Grouped = ({ title, items }: { title: string, items: any }) => {
   const styles = useStyles()
   return (
     <View style={{ marginBottom: 20 }}>
-      <Text style={{ fontFamily: 'Primary-Medium', fontSize: 12, color: Colors.grey, marginLeft: 32, marginBottom: 8 }}>{title}</Text>
+      {title && <Text style={{ fontFamily: 'Primary-Medium', fontSize: 12, color: Colors.grey, marginLeft: 32, marginBottom: 8 }}>{title}</Text>}
       <View style={{ marginHorizontal: 16, borderRadius: 12, backgroundColor: Colors.bgColor2, overflow: 'hidden' }}>
         {items?.map((item: any, index: number) =>
           <View key={index}>
