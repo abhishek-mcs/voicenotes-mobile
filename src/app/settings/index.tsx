@@ -302,9 +302,10 @@ const Settings = () => {
             title="MORE"
             items={[
               { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Get support', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Contact support', value: '', onPress: () => Linking.openURL('mailto:team@voicenotes.com'), rightIcon: settingsSvg.arrow },
               { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow },
               { title: 'Share feedback', value: '', onPress: feedback, rightIcon: settingsSvg.arrow },
+              { title: 'Report an issue', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
               { title: 'Sign out', value: '', onPress: onLogout, style: { color: Colors.redWithOpacity(1) }, leftIcon: settingsSvg.signOut },
             ]}
           />
