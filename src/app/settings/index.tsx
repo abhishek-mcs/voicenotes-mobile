@@ -284,6 +284,7 @@ const Settings = () => {
             items={[
               { title: 'Name', onPress: () => showScreen('name'), value: userDetails?.name || '', rightIcon: settingsSvg.arrow },
               { title: 'About', onPress: () => showScreen('about'), value: userDetails?.about || '', rightIcon: settingsSvg.arrow },
+              { title: 'Theme', data: [['auto', 'Auto', isIOS ? 'circle.lefthalf.fill' : 'circle-half-full'], ['light', 'Day', isIOS ? 'sun.max' : 'white-balance-sunny'], ['dark', 'Night', isIOS ? 'moon.zzz' : 'weather-night']], value: selectedTheme[theme], onPressMenu: onSelectTheme, isMenu: true },
               { title: 'Email', onPress: () => showScreen('email'), value: userDetails?.email || '', rightIcon: settingsSvg.arrow },
               { title: 'Change password', onPress: () => showScreen('password'), value: '', rightIcon: settingsSvg.arrow },
               ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : [])
@@ -294,7 +295,6 @@ const Settings = () => {
             items={[
               { title: 'Language', isMenu: true, data: Object.entries(languages), value: lang, onPressMenu: onSelectLang },
               { title: 'Names to remember', value: '', onPress: () => showScreen('names'), rightIcon: settingsSvg.arrow },
-              { title: 'Theme', data: [['auto', 'Auto', isIOS ? 'circle.lefthalf.fill' : 'circle-half-full'], ['light', 'Day', isIOS ? 'sun.max' : 'white-balance-sunny'], ['dark', 'Night', isIOS ? 'moon.zzz' : 'weather-night']], value: selectedTheme[theme], onPressMenu: onSelectTheme, isMenu: true },
               // { title: 'Notifications', value: '', onPress: () => router.push('/settings/reminders'), rightIcon: settingsSvg.arrow },
               { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow }
             ]}
