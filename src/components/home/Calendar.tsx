@@ -96,9 +96,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   
   // Handle month change - properly changes to ANY month
   const changeMonth = (direction: number): void => {
-    const newMonth = new Date(currentMonth);
-    newMonth.setMonth(currentMonth.getMonth() + direction);
-    setCurrentMonth(newMonth);
+    setCurrentMonth(prevMonth => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(prevMonth.getMonth() + direction);
+      return newMonth;
+    });
     
     // Reset selection when changing months
     setSelectedDate(null);
@@ -106,7 +108,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     setExpandedHeight(0);
   };
   
-  // Pan responder for swipe gestures
+  // Create a handler for swipe detection
+  const handleSwipe = (direction: number) => {
+    changeMonth(direction);
+  };
+  
+  // Re-create the panResponder when needed
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -117,13 +124,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       },
       onPanResponderRelease: (_, gestureState: PanResponderGestureState) => {
         if (gestureState.dx > 50) {
-            console.log('swipe right');
           // Swipe right - go to previous month
-          changeMonth(-1);
+          handleSwipe(-1);
         } else if (gestureState.dx < -50) {
-            console.log('swipe left');
           // Swipe left - go to next month
-          changeMonth(1);
+          handleSwipe(1);
         }
       },
     })
