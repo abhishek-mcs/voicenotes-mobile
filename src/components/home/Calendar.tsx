@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,41 +7,54 @@ import {
   TouchableOpacity,
   Animated,
   PanResponder,
+  PanResponderGestureState,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
 const CALENDAR_WIDTH = width * 0.9;
 
-const ExpandableCalendar = () => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [expandedHeight, setExpandedHeight] = useState(0);
-  const [expandedRowIndex, setExpandedRowIndex] = useState(null);
-  const [additionalInfo, setAdditionalInfo] = useState('');
-  
-  // Animation value for swipe transition
-  const positionX = useRef(new Animated.Value(0)).current;
+// TypeScript interfaces
+interface CalendarDay {
+  day: number | string;
+  date?: Date;
+  empty: boolean;
+}
+
+interface ExpandableCalendarProps {
+  initialDate?: Date;
+  onDateSelect?: (date: Date) => void;
+}
+
+const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
+  initialDate = new Date(),
+  onDateSelect,
+}) => {
+  const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [expandedHeight, setExpandedHeight] = useState<number>(0);
+  const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
+  const [additionalInfo, setAdditionalInfo] = useState<string>('');
   
   // Get days in month
-  const getDaysInMonth = (date) => {
+  const getDaysInMonth = (date: Date): number => {
     const year = date.getFullYear();
     const month = date.getMonth();
     return new Date(year, month + 1, 0).getDate();
   };
   
   // Get the first day of the month (0 = Sunday, 1 = Monday, etc.)
-  const getFirstDayOfMonth = (date) => {
+  const getFirstDayOfMonth = (date: Date): number => {
     const year = date.getFullYear();
     const month = date.getMonth();
     return new Date(year, month, 1).getDay();
   };
   
   // Generate calendar days for current month view
-  const generateCalendarDays = () => {
+  const generateCalendarDays = (): CalendarDay[][] => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDayOfMonth = getFirstDayOfMonth(currentMonth);
     
-    const days = [];
+    const days: CalendarDay[] = [];
     
     // Add empty cells for days before the first day of month
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -58,8 +71,8 @@ const ExpandableCalendar = () => {
     }
     
     // Arrange days into rows (weeks)
-    const rows = [];
-    let cells = [];
+    const rows: CalendarDay[][] = [];
+    let cells: CalendarDay[] = [];
     
     days.forEach((day, index) => {
       if (index % 7 === 0 && index > 0) {
@@ -71,66 +84,53 @@ const ExpandableCalendar = () => {
     
     // Push the last row
     if (cells.length > 0) {
-      rows.push(cells);
-      
       // Fill the last row with empty cells if needed
       while (cells.length < 7) {
         cells.push({ day: '', empty: true });
       }
+      rows.push(cells);
     }
     
     return rows;
   };
   
-  // Handle month change
-  const changeMonth = (direction) => {
+  // Handle month change - properly changes to ANY month
+  const changeMonth = (direction: number): void => {
     const newMonth = new Date(currentMonth);
-    newMonth.setMonth(newMonth.getMonth() + direction);
+    newMonth.setMonth(currentMonth.getMonth() + direction);
+    setCurrentMonth(newMonth);
     
-    // Animate the transition
-    Animated.timing(positionX, {
-      toValue: -direction * CALENDAR_WIDTH,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setCurrentMonth(newMonth);
-      positionX.setValue(0);
-      // Reset selection when changing months
-      setSelectedDate(null);
-      setExpandedRowIndex(null);
-      setExpandedHeight(0);
-    });
+    // Reset selection when changing months
+    setSelectedDate(null);
+    setExpandedRowIndex(null);
+    setExpandedHeight(0);
   };
   
   // Pan responder for swipe gestures
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => 
+      onMoveShouldSetPanResponder: (_, gestureState: PanResponderGestureState) => 
         Math.abs(gestureState.dx) > 10,
-      onPanResponderMove: (_, gestureState) => {
-        positionX.setValue(gestureState.dx);
+      onPanResponderMove: () => {
+        // No animation during move
       },
-      onPanResponderRelease: (_, gestureState) => {
+      onPanResponderRelease: (_, gestureState: PanResponderGestureState) => {
         if (gestureState.dx > 50) {
+            console.log('swipe right');
           // Swipe right - go to previous month
           changeMonth(-1);
         } else if (gestureState.dx < -50) {
+            console.log('swipe left');
           // Swipe left - go to next month
           changeMonth(1);
-        } else {
-          // Return to current position
-          Animated.spring(positionX, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
         }
       },
     })
   ).current;
   
   // Handle date selection
-  const handleDateSelect = (date, rowIndex) => {
+  const handleDateSelect = (date: Date, rowIndex: number): void => {
     if (selectedDate && 
         selectedDate.getDate() === date.getDate() && 
         selectedDate.getMonth() === date.getMonth() && 
@@ -153,12 +153,17 @@ const ExpandableCalendar = () => {
         month: 'long',
         day: 'numeric',
       });
-      setAdditionalInfo(`Details for ${dateString}`);
+      setAdditionalInfo(`Details for ${dateString}. You can add any content here that you want to display when a date is selected. This area will expand to fit the content.`);
+      
+      // Call onDateSelect callback if provided
+      if (onDateSelect) {
+        onDateSelect(date);
+      }
     }
   };
   
   // Render weekday headers
-  const renderWeekdays = () => {
+  const renderWeekdays = (): JSX.Element => {
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return (
       <View style={styles.weekdayContainer}>
@@ -172,7 +177,7 @@ const ExpandableCalendar = () => {
   };
   
   // Render month navigation
-  const renderMonthHeader = () => {
+  const renderMonthHeader = (): JSX.Element => {
     const monthName = currentMonth.toLocaleDateString('en-US', {
       month: 'long',
       year: 'numeric',
@@ -194,7 +199,7 @@ const ExpandableCalendar = () => {
   };
   
   // Render calendar rows
-  const renderCalendarDays = () => {
+  const renderCalendarDays = (): JSX.Element[] => {
     const calendarRows = generateCalendarDays();
     
     return calendarRows.map((row, rowIndex) => (
@@ -208,20 +213,24 @@ const ExpandableCalendar = () => {
                 item.empty ? styles.emptyDay : null,
                 selectedDate && 
                 !item.empty && 
-                selectedDate.getDate() === item.day && 
-                selectedDate.getMonth() === currentMonth.getMonth() ? 
+                item.date &&
+                selectedDate.getDate() === item.date.getDate() && 
+                selectedDate.getMonth() === item.date.getMonth() && 
+                selectedDate.getFullYear() === item.date.getFullYear() ? 
                   styles.selectedDay : null
               ]}
               disabled={item.empty}
-              onPress={() => item.empty ? null : handleDateSelect(item.date, rowIndex)}
+              onPress={() => item.empty || !item.date ? null : handleDateSelect(item.date, rowIndex)}
             >
               <Text 
                 style={[
                   styles.calendarDayText,
                   selectedDate && 
                   !item.empty && 
-                  selectedDate.getDate() === item.day && 
-                  selectedDate.getMonth() === currentMonth.getMonth() ? 
+                  item.date &&
+                  selectedDate.getDate() === item.date.getDate() && 
+                  selectedDate.getMonth() === item.date.getMonth() && 
+                  selectedDate.getFullYear() === item.date.getFullYear() ? 
                     styles.selectedDayText : null
                 ]}
               >
@@ -246,24 +255,20 @@ const ExpandableCalendar = () => {
   };
 
   return (
-    <Animated.View 
-      style={[
-        styles.container,
-        {transform: [{ translateX: positionX }]}
-      ]}
+    <View 
+      style={styles.container}
       {...panResponder.panHandlers}
     >
       {renderMonthHeader()}
       {renderWeekdays()}
       {renderCalendarDays()}
-    </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     width: CALENDAR_WIDTH,
-    height: '25%',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
