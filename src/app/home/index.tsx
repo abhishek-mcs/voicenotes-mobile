@@ -3,6 +3,7 @@ import {
   DeviceEventEmitter,
   Easing,
   KeyboardAvoidingView,
+  Modal,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -70,6 +71,7 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ExpandableCalendar from "components/home/Calendar";
 
 const { height } = Dimensions.get("screen");
 
@@ -932,6 +934,14 @@ const Home = () => {
           syncUpNote={syncUpNote}
         />
       </CustomModal>
+      <Modal
+        transparent
+        visible
+      >
+        <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'}}>
+          <ExpandableCalendar />
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
