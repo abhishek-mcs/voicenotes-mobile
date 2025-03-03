@@ -26,6 +26,7 @@ import { useTheme } from "context";
 import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";
 import { useDialog } from "context/DialogContext";
+import Header from "components/settings/header";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -140,6 +141,46 @@ const useAnimatedScreens = () => {
   return { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating };
 };
 
+const Help = ({ onClose }: { onClose: () => void }) => {
+  const { isLightMode } = useTheme()
+  const { showDialog } = useDialog()
+  const onDelete = () => {
+    showDialog('', "Are you sure you wish to delete your account?",
+      [{
+        text: "Cancel",
+        style: "cancel"
+      }, {
+        text: "Yes",
+        onPress: async () => Wb.openBrowserAsync('https://tally.so/r/3xpBey', { toolbarColor: isLightMode ? '#fff' : '#000' })
+      }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
+  }
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Header
+        label="Help"
+        cancelLabel="Back" 
+        onCancel={onClose} 
+      >
+        <View style={{ flex: 1, width: '95%' }}>
+        <Grouped
+            title=""
+            items={[
+              { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Contact support', value: '', onPress: () => Linking.openURL('mailto:team@voicenotes.com'), rightIcon: settingsSvg.arrow },
+              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow },
+              { title: 'Share feedback', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Report an issue', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Reddit', value: '', onPress: () => Wb.openBrowserAsync('https://www.reddit.com/r/Voicenotesai/', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Twitter', value: '', onPress: () => Wb.openBrowserAsync('https://x.com/voicenotesai', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+            ]}
+          />
+        </View>
+      </Header>
+    </View>
+  );
+}
+
 const Settings = () => {
   const router = useRouter();
   const navigation = useNavigation()
@@ -202,18 +243,6 @@ const Settings = () => {
       }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
   }
 
-  const onDelete = () => {
-    showDialog('', "Are you sure you wish to delete your account?",
-      [{
-        text: "Cancel",
-        style: "cancel"
-      }, {
-        text: "Yes",
-        onPress: async () => Wb.openBrowserAsync('https://tally.so/r/3xpBey', { toolbarColor: isLightMode ? '#fff' : '#000' })
-      }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
-  }
-
-  const feedback = () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com', { toolbarColor: isLightMode ? '#fff' : '#000' })
   const onSelectLang = (code = 'en') => {
     dispatch(setLang(languages[code]))
     saveSettings.mutate({
@@ -301,11 +330,7 @@ const Settings = () => {
           <Grouped
             title="MORE"
             items={[
-              { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Contact support', value: '', onPress: () => Linking.openURL('mailto:team@voicenotes.com'), rightIcon: settingsSvg.arrow },
-              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow },
-              { title: 'Share feedback', value: '', onPress: feedback, rightIcon: settingsSvg.arrow },
-              { title: 'Report an issue', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Help', onPress: () => showScreen('help'), value: '', rightIcon: settingsSvg.arrow },
               { title: 'Sign out', value: '', onPress: onLogout, style: { color: Colors.redWithOpacity(1) }, leftIcon: settingsSvg.signOut },
             ]}
           />
@@ -326,6 +351,7 @@ const Settings = () => {
       {renderScreen('email', Email)}
       {renderScreen('names', Names)}
       {renderScreen('password', Password)}
+      {renderScreen('help', Help)}
     </SafeAreaView>
   );
 }
