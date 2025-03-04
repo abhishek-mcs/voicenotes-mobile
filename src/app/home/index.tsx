@@ -163,7 +163,7 @@ const Home = () => {
         }else{
           setTimeout(() => {
             checkAndShowPremium()
-          }, 2000);
+          }, 1000);
         }
       }
     })()
