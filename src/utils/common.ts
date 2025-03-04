@@ -101,3 +101,9 @@ export const formatTranscript2 = ( trascript: string ) => trascript
 ?.replace(/<\/div>/g, '')
 ?.replace(/&amp;/g, '&')
 ?.replace(/&nbsp;/g, ' ')
+
+export const formatTranscript5 = (transcript: string | undefined) => transcript
+  ?.replace(/- /g, '• ') // Convert hyphens to bullet points
+  ?.replace(/\*\*/g, '') // Remove asterisks
+  ?.replace(/\n/g, '\n') // Handle line breaks
+  ?.trimEnd() ?? '';

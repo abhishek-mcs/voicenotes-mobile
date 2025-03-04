@@ -476,7 +476,7 @@ export default forwardRef(({setHideBg=(v:boolean)=>{},showHeader=true,meetingDat
               {!isRecording ? (
                 <View style={{backgroundColor: Colors.bgColor8, flex: 1 }}>
                 {!chatStarted &&
-                  <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:4,marginBottom:8}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.recordings_count} notes.</Text>
+                  <Text style={{fontFamily:'Primary',fontSize:12,color:Colors.text7,paddingHorizontal:4,marginBottom:8}}>Ask anything about your notes. Since {formatDate2(userDetails?.created_at)}, you’ve recorded a total of {userDetails?.non_creation_recordings_count} notes.</Text>
                 }
                 <View style={[styles.inputContentContainer,(!keyboardShown&&input?.length==0)?styles.inputContentContainer2:!keyboardShown?{paddingBottom:8}:{}]}>
                   <TextInput

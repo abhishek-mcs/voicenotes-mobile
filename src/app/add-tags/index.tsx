@@ -57,19 +57,19 @@ const AddTags = () => {
         const isDuplicate = tags.some((tag: any) => tag.name === name);
         const currentTags = tagsList.current || []
         if(!isDuplicate){
-          setTags([{name:'starred'},{name},...currentTags])
-          tagsList.current=[{name},...currentTags]
+          setTags([{name:'starred'}, {name}, ...currentTags])
+          tagsList.current=[{name}, ...currentTags]
         }else{
-          setTags([{name:'starred'},...currentTags])
+          setTags([{name:'starred'}, ...currentTags])
           tagsList.current=[...currentTags]
         }
       } else {
         setSearch('')
         const currentTags = tagsList.current || []
-        setTags([{name:'starred'},...currentTags])
+        setTags([{name:'starred'}, ...currentTags])
       }
     }
-
+    
     const onDone=async()=>{
       await saveTags.mutateAsync({tags:addedTags},{
         onSuccess:()=>{
