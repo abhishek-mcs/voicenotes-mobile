@@ -211,7 +211,7 @@ const TextNote = () => {
         <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{padding:16,paddingBottom:isIOS?0:300}}
-        extraKeyboardSpace={isIOS?-screenHeight*2:-200}
+        extraKeyboardSpace={-200}
         >
         <TextInput
           ref={inputRef}
@@ -220,7 +220,7 @@ const TextNote = () => {
             fontFamily: 'Primary',
             fontSize: 14,
             lineHeight: textnote?.length>0?20:18,
-            paddingBottom:isIOS?60:0
+            paddingBottom:isIOS?200:0
           }}
           multiline
           placeholder="Write here..."
