@@ -20,6 +20,7 @@ import {
   cancelRecording,
   checkRecordPermission,
   onRecord,
+  saveRecording,
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
@@ -42,7 +43,7 @@ import {
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
 import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
-import { setCanRecord } from "redux/reducers/userDetails";
+import { setCanRecord, setToken } from "redux/reducers/userDetails";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
@@ -70,6 +71,8 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createTempRecDetails } from "utils/createTempRecDetails";
+import { useGetToken } from "hooks/auth/useGetToken";
 
 const { height } = Dimensions.get("screen");
 
@@ -117,7 +120,7 @@ const Home = () => {
   const streaks=useStreak(token)
 
   const getTags=useGetTags()
-  const { action }:any = useLocalSearchParams();
+  const { action, file }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
   const { Colors,isLightMode } = useTheme()
@@ -136,6 +139,35 @@ const Home = () => {
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
   },[isLightMode])
+
+  useEffect(() => {
+    (async function(){
+      if (!!file) {
+        setAuthToken(token,false,netinfo)
+        console.log("Received shared file:", decodeURIComponent(file));
+        // Handle file processing (e.g., upload or play audio)
+        const fileURI = await saveRecording(file,true)
+        console.log("moved file to cache", fileURI)
+        const { sound } = await Audio.Sound.createAsync({ uri:file });
+        const status = await sound.getStatusAsync();
+        let d:number = 0;
+        if (status?.isLoaded&&status?.durationMillis) {
+          console.log("Audio duration (ms):", status.durationMillis);
+          d = status.durationMillis;
+        }
+        if(fileURI&&isBeliever){
+          const tempRecordingDetails = createTempRecDetails({uri:fileURI,duration:d})
+          dispatch(setTempRecordingData(tempRecordingDetails))
+          dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
+          uploadVoiceNote(tempRecordingDetails)
+        }else{
+          setTimeout(() => {
+            checkAndShowPremium()
+          }, 1000);
+        }
+      }
+    })()
+  }, [file]);
   
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
@@ -174,14 +206,14 @@ const Home = () => {
 
     const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
       // console.log("React Native: Search Note started");
-      router.push("/search/");
+      router.push("/search");
     });
 
     const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
       console.log("React Native: Text Note started");
       const noteContent = event?.content;
       router.push({
-        pathname: "/text-note/",
+        pathname: "/text-note",
         params: { content: noteContent }, // Pass the content as a parameter
       });
     });
@@ -261,7 +293,7 @@ const Home = () => {
         break;
       case 'search':
         // console.log('Performing action for Search');
-        router.push("/search/");
+        router.push("/search");
         break;
       default:
         // console.log('No matching shortcut action');
@@ -286,7 +318,7 @@ const Home = () => {
           break;
         case 'searchDeeplink':
           if (recEnabled) break; 
-          router.push("/search/")
+          router.push("/search")
           break;
       }
   }, [action]);
@@ -401,13 +433,13 @@ const Home = () => {
     // CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
-    router.push("/ask-my-ai/");
+    router.push("/ask-my-ai");
   };
   const onCreate = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    router.push('/create/')
+    router.push('/create')
     // CreateModalRef.current?.onReset();
     // AIModalRef?.current?.close();
     // CreateModalRef.current?.toggle();
@@ -523,19 +555,7 @@ const Home = () => {
       let uri = await stopRecording(rec);
       setRec(null);
 
-      const temporaryRecordingId = Math.random().toString(36).substring(7);
-      const newTemporaryRecording: NewNote = {
-        id: temporaryRecordingId,
-        temp_id:temporaryRecordingId,
-        audio: { data: { url: uri, duration } },
-        isUploading: true,
-        title: `New Recording`,
-        transcript: null,
-        recorded_at: new Date().getTime(),
-        status: "uploading",
-        internalUrl: uri,
-        parent_id: recordingParentId,
-      };
+      const newTemporaryRecording: NewNote = createTempRecDetails({uri,duration,parentId:recordingParentId})
 
       dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
@@ -648,12 +668,7 @@ const Home = () => {
 
   const netinfo = useNetInfo()
 
-  useEffect(()=>{
-    if(!!token){
-      setAuthToken(token,false,netinfo)
-      AsyncStorage.setItem('authToken', token)??''
-    }
-  },[])
+  // useGetToken()
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const searchBarHeight = 40; // Adjust based on your search bar height
@@ -708,7 +723,7 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
-  if (!token) return <Redirect href="/auth/landingPage/" />;
+  if (!token) return <Redirect href="/auth/landingPage" />;
   return (
     <SafeAreaView
       style={[styles.container]}

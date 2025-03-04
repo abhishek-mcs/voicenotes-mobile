@@ -10,7 +10,7 @@ export const saveVoiceNote = async (data: {
   recorded_at: number| undefined;
   temp_id:any
 }) => {
-  const { audio, duration, parent_id, recorded_at=Date.now(),temp_id } = data;
+  const { audio, duration = 0, parent_id, recorded_at=Date.now(),temp_id } = data;
 
   const uri = audio;
   const fileInfo = await FileSystem.getInfoAsync(uri);
@@ -49,7 +49,7 @@ export const saveVoiceNote = async (data: {
       console.log("appending parent id: ", parent_id);
       formData1.append("parent_id", parent_id);
     }
-    formData1.append("duration", duration.toString());
+    formData1.append("duration", (duration??0).toString());
     formData1.append("device_info", JSON.stringify(deviceInfo));
     formData1.append("recorded_at", recorded_at.toString());
 

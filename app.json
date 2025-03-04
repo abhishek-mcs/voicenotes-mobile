@@ -2,19 +2,16 @@
   "expo": {
     "name": "Voicenotes",
     "slug": "voicenotes",
-    "version": "1.6.51",
-    "runtimeVersion": "1.6.51",
+    "version": "1.6.52",
+    "runtimeVersion": "1.6.52",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.jpg",
     "scheme": "voicenotes",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "200",
+      "buildNumber": "201",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
@@ -23,6 +20,13 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
+        ],
+        "LSApplicationQueriesSchemes": [
+          "files",
+          "whatsapp",
+          "audio",
+          "music",
+          "voicenotes"
         ],
         "NSSiriUsageDescription": "Use Siri to interact with Voicenote app for recording, searching, and AI queries.",
         "NSPrivacyAccessedAPICategoryUserDefaults": "This app requires access to user defaults for storing user preferences and settings securely on the device. AsyncStorage, a commonly used data persistence mechanism in React Native, utilizes user defaults to save and retrieve user-specific data such as preferences, settings, and user-generated content. Access to user defaults ensures a seamless and personalized user experience by preserving user preferences across app sessions.",
@@ -42,7 +46,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-      "versionCode": 242,
+      "versionCode": 244,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -109,7 +113,9 @@
           "project": "voicenotes-expo",
           "organization": "voicenotes-04"
         }
-      ]
+      ],
+      "expo-font",
+      "./plugins/withAudioImport.js"
     ],
     "experiments": {
       "typedRoutes": true,
