@@ -70,9 +70,8 @@ import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createTempRecDetails } from "utils/createTempRecDetails";
-import { useGetToken } from "hooks/auth/useGetToken";
+import * as FileSystem from "expo-file-system";
 
 const { height } = Dimensions.get("screen");
 
@@ -144,10 +143,16 @@ const Home = () => {
     (async function(){
       if (!!file) {
         setAuthToken(token,false,netinfo)
-        console.log("Received shared file:", decodeURIComponent(file));
         // Handle file processing (e.g., upload or play audio)
-        const fileURI = await saveRecording(file,true)
+        const fileURI = await saveRecording(file,true)??''
         console.log("moved file to cache", fileURI)
+        const MAX_SIZE_MB = 35 * 1024 * 1024;
+        const fileInfo:any = await FileSystem.getInfoAsync(fileURI);
+        if (fileInfo?.size > MAX_SIZE_MB ) {
+          console.warn(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
+          showDialog('','Your file is too large (over 35 MB). Please choose a smaller file to continue.')
+          return;
+        }
         const { sound } = await Audio.Sound.createAsync({ uri:file });
         const status = await sound.getStatusAsync();
         let d:number = 0;
