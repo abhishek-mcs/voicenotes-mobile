@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -33,7 +33,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [expandedHeight, setExpandedHeight] = useState<number>(0);
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
-  const [additionalInfo, setAdditionalInfo] = useState<string>('');
+  const [additionalInfo, setAdditionalInfo] = useState<{ date: string, items: Array<{time: string, title: string}> }>({
+    date: '',
+    items: []
+  });
   
   // Get days in month
   const getDaysInMonth = (date: Date): number => {
@@ -144,21 +147,30 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       setSelectedDate(null);
       setExpandedRowIndex(null);
       setExpandedHeight(0);
-      setAdditionalInfo('');
+      setAdditionalInfo({ date: '', items: [] });
     } else {
       // Expand with new date
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
-      setExpandedHeight(80); // Height of expanded area
+      setExpandedHeight(150); // Height of expanded area
       
-      // Generate some example additional info
+      // Format the date like "Friday - 7 Feb 2025"
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
-        year: 'numeric',
-        month: 'long',
         day: 'numeric',
+        month: 'short',
+        year: 'numeric',
       });
-      setAdditionalInfo(`Details for ${dateString}. You can add any content here that you want to display when a date is selected. This area will expand to fit the content.`);
+      
+      // Sample items for the selected date
+      setAdditionalInfo({ 
+        date: dateString,
+        items: [
+          { time: '9:38 PM', title: 'Birthday gift for mom' },
+          { time: '12:11 PM', title: 'Workout routine reminder' },
+          { time: '8:30 AM', title: 'Lyric idea for new track' }
+        ]
+      });
       
       // Call onDateSelect callback if provided
       if (onDateSelect) {
@@ -169,7 +181,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   
   // Render weekday headers
   const renderWeekdays = (): JSX.Element => {
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     return (
       <View style={styles.weekdayContainer}>
         {weekdays.map((day, index) => (
@@ -185,20 +197,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const renderMonthHeader = (): JSX.Element => {
     const monthName = currentMonth.toLocaleDateString('en-US', {
       month: 'long',
-      year: 'numeric',
     });
     
     return (
       <View style={styles.monthHeader}>
         <Text style={styles.monthText}>{monthName}</Text>
-        <View style={styles.monthNavigation}>
-          <TouchableOpacity onPress={() => changeMonth(-1)}>
-            <Text style={styles.navigationButton}>{'<'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => changeMonth(1)}>
-            <Text style={styles.navigationButton}>{'>'}</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.highlightsButton}>
+          <Text style={styles.highlightsText}>View highlights</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -252,11 +258,28 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
               { height: expandedHeight }
             ]}
           >
-            <Text style={styles.additionalInfoText}>{additionalInfo}</Text>
+            <Text style={styles.dateHeaderText}>{additionalInfo.date}</Text>
+            {additionalInfo.items.map((item, index) => (
+              <View key={index} style={styles.eventItem}>
+                <Text style={styles.eventTime}>{item.time}</Text>
+                <Text style={styles.eventTitle}>{item.title}</Text>
+              </View>
+            ))}
           </Animated.View>
         )}
       </View>
     ));
+  };
+
+  // Render the streak footer
+  const renderStreakFooter = (): JSX.Element => {
+    return (
+      <View style={styles.streakContainer}>
+        <Text style={styles.streakText}>
+          🔥 You are on a 15-day streak and rank 111 globally.
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -267,6 +290,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       {renderMonthHeader()}
       {renderWeekdays()}
       {renderCalendarDays()}
+      {renderStreakFooter()}
     </View>
   );
 };
@@ -275,62 +299,67 @@ const styles = StyleSheet.create({
   container: {
     width: CALENDAR_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 25,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 2,
   },
   monthHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    paddingBottom: 20,
   },
   monthText: {
-    fontSize: 16,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#000',
   },
-  monthNavigation: {
+  highlightsButton: {
+    backgroundColor: '#f0f8f0',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  navigationButton: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-    paddingHorizontal: 10,
+  highlightsText: {
+    color: '#3d8c40',
+    fontSize: 14,
+    fontWeight: '500',
   },
   weekdayContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 8,
+    paddingBottom: 16,
   },
   weekdayText: {
-    fontSize: 12,
-    color: '#666',
-    width: (CALENDAR_WIDTH - 20) / 7,
+    fontSize: 15,
+    color: '#000',
+    width: (CALENDAR_WIDTH - 32) / 7,
     textAlign: 'center',
+    fontWeight: '500',
   },
   calendarRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 5,
+    marginBottom: 12,
   },
   calendarDay: {
-    width: (CALENDAR_WIDTH - 20) / 7,
-    height: (CALENDAR_WIDTH - 20) / 7 * 0.8,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
+    backgroundColor: '#f5f5f5',
   },
   calendarDayText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#000',
+    fontWeight: '500',
   },
   emptyDay: {
     backgroundColor: 'transparent',
@@ -340,16 +369,47 @@ const styles = StyleSheet.create({
   },
   selectedDayText: {
     color: '#fff',
+    fontWeight: 'bold',
   },
   expandedContainer: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-    marginVertical: 5,
-    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginVertical: 8,
+    padding: 16,
     overflow: 'hidden',
+    borderColor: '#f0f0f0',
+    borderWidth: 1,
   },
-  additionalInfoText: {
+  dateHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
     color: '#000',
+  },
+  eventItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  eventTime: {
+    width: 80,
+    fontSize: 14,
+    color: '#888',
+  },
+  eventTitle: {
+    fontSize: 14,
+    color: '#000',
+    fontWeight: '500',
+  },
+  streakContainer: {
+    marginTop: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  streakText: {
+    fontSize: 13,
+    color: '#555',
   },
 });
 
