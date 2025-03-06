@@ -4,6 +4,7 @@ import {
   Easing,
   KeyboardAvoidingView,
   Modal,
+  Pressable,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -72,6 +73,8 @@ import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFireba
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpandableCalendar from "components/home/Calendar";
+import { BlurView } from "expo-blur";
+import RecButton from "components/common/recording/rec-button";
 
 const { height } = Dimensions.get("screen");
 
@@ -938,9 +941,13 @@ const Home = () => {
         transparent
         visible
       >
-        <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'}}>
-          <ExpandableCalendar />
-        </View>
+        <BlurView style={{ flex: 1 }} tint="light" intensity={50}>
+          <View style={{flex: 1}}></View>
+          <View style={{flex: 5, alignItems: 'center'}}>
+            <ExpandableCalendar />
+          </View>
+          <View style={{flex: 1}} />
+        </BlurView>
       </Modal>
     </SafeAreaView>
   );
