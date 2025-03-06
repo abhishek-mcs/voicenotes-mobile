@@ -79,10 +79,10 @@ export default function App() {
   },[])
 
   if (token) {
-    return <Redirect href="/home/" />;
+    return <Redirect href="/home" />;
   }else{
     return (
-      <Redirect href="/auth/landingPage/" />
+      <Redirect href="/auth/landingPage" />
     );
   }
 }
