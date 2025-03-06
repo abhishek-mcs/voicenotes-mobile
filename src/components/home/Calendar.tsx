@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   PanResponder,
   PanResponderGestureState,
-  ScrollView,
   Animated,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
@@ -423,14 +422,19 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     );
   };
 
-  return (
-    <View style={styles.container} {...panResponder.panHandlers}>
+  // Modify the return statement in the component
+return (
+  <View style={styles.container} {...panResponder.panHandlers}>
+    <View style={styles.headerSection}>
       {renderMonthHeader()}
       {renderWeekdays()}
-      {renderCalendarDays()}
-      {renderStreakFooter()}
     </View>
-  );
+    <View style={styles.calendarContentWrapper}>
+      {renderCalendarDays()}
+    </View>
+    {renderStreakFooter()}
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -456,6 +460,15 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '500',
     color: '#000',
+  },
+  calendarContentWrapper: {
+    position: 'relative',
+    zIndex: 1,
+  },
+  headerSection: {
+    position: 'relative',
+    zIndex: 2,
+    backgroundColor: '#fff',
   },
   daysContainer: {
     // Container for the animated days grid
