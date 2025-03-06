@@ -16,6 +16,8 @@ const { width } = Dimensions.get('window');
 const CALENDAR_WIDTH = width * 0.9;
 const EVENT_ITEM_HEIGHT = 25;
 const MAX_VISIBLE_ITEMS = 3;
+const EXPAND_ANIMATION_DURATION = 200;
+const EXPAND_HEIGHT = 10;
 
 // Utility functions remain the same
 const generateRandomDatesForMonth = (date: Date): Date[] => {
@@ -79,7 +81,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   // Animation values
   const calendarAnimation = useRef(new Animated.Value(0)).current;
   const calendarOpacity = useRef(new Animated.Value(1)).current;
-  
+  const expandAnimation = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     const newActiveDates = generateRandomDatesForMonth(currentMonth);
     setActiveEventDates(newActiveDates);
@@ -164,12 +167,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     Animated.parallel([
       Animated.timing(calendarOpacity, {
         toValue: 0,
-        duration: 150,
+        duration: 30,
         useNativeDriver: true,
       }),
       Animated.timing(calendarAnimation, {
         toValue: direction > 0 ? -100 : 100, // Move up or down based on direction
-        duration: 150,
+        duration: 30,
         useNativeDriver: true,
       })
     ]).start(() => {
@@ -192,12 +195,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       Animated.parallel([
         Animated.timing(calendarOpacity, {
           toValue: 1,
-          duration: 150,
+          duration: 30,
           useNativeDriver: true,
         }),
         Animated.timing(calendarAnimation, {
           toValue: 0,
-          duration: 150,
+          duration: 30,
           useNativeDriver: true,
         })
       ]).start();
@@ -229,10 +232,17 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       selectedDate.getMonth() === date.getMonth() &&
       selectedDate.getFullYear() === date.getFullYear()
     ) {
-      setSelectedDate(null);
-      setExpandedRowIndex(null);
-      setAdditionalInfo({ date: '', items: [] });
-      setShowAllEvents(false);
+      // Collapse animation
+      Animated.timing(expandAnimation, {
+        toValue: 0,
+        duration: EXPAND_ANIMATION_DURATION,
+        useNativeDriver: true,
+      }).start(() => {
+        setSelectedDate(null);
+        setExpandedRowIndex(null);
+        setAdditionalInfo({ date: '', items: [] });
+        setShowAllEvents(false);
+      });
     } else {
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
@@ -245,7 +255,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         year: 'numeric',
       });
 
-      // Generate more items to test scrolling (5-8 items)
       const numberOfItems = Math.floor(Math.random() * 4) + 5;
       const items = Array.from({ length: numberOfItems }, (_, i) => ({
         time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
@@ -260,6 +269,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         date: dateString,
         items,
       });
+
+      // Expand animation
+      expandAnimation.setValue(0);
+      Animated.timing(expandAnimation, {
+        toValue: 1,
+        duration: EXPAND_ANIMATION_DURATION,
+        useNativeDriver: true,
+      }).start();
 
       if (onDateSelect) {
         onDateSelect(date);
@@ -334,7 +351,20 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       >
         {calendarRows.map((row, rowIndex) => (
           <View key={rowIndex}>
-            <View style={styles.calendarRow}>
+            <Animated.View 
+              style={[
+                styles.calendarRow,
+                expandedRowIndex !== null && 
+                rowIndex > expandedRowIndex && {
+                  transform: [{
+                    translateY: expandAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, EXPAND_HEIGHT],
+                    }),
+                  }],
+                },
+              ]}
+            >
               {row.map((item, dayIndex) => (
                 <TouchableOpacity
                   key={dayIndex}
@@ -369,16 +399,30 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                   </Text>
                 </TouchableOpacity>
               ))}
-            </View>
+            </Animated.View>
             
             {expandedRowIndex === rowIndex && (
-              <View style={styles.expandedContainer}>
+              <Animated.View
+                style={[
+                  styles.expandedContainer,
+                  {
+                    opacity: expandAnimation,
+                    transform: [
+                      {
+                        translateY: expandAnimation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-10, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
                 <Text style={styles.dateHeaderText}>{additionalInfo.date}</Text>
                 
                 {additionalInfo.items.length > 0 && (
                   <View>
                     <View style={styles.eventsContainer}>
-                      {/* Show only first 3 items if not showing all */}
                       {additionalInfo.items
                         .slice(0, showAllEvents ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
                         .map((item, index) => (
@@ -390,7 +434,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                       }
                     </View>
                     
-                    {/* Show "See all events" button if there are more than MAX_VISIBLE_ITEMS events */}
                     {additionalInfo.items.length > MAX_VISIBLE_ITEMS && (
                       <TouchableOpacity
                         style={styles.seeAllButton}
@@ -403,7 +446,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                     )}
                   </View>
                 )}
-              </View>
+              </Animated.View>
             )}
           </View>
         ))}
@@ -432,7 +475,9 @@ return (
     <View style={styles.calendarContentWrapper}>
       {renderCalendarDays()}
     </View>
-    {renderStreakFooter()}
+    <View style={styles.footerSection}>
+      {renderStreakFooter()}
+    </View>
   </View>
 );
 };
@@ -466,6 +511,11 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   headerSection: {
+    position: 'relative',
+    zIndex: 2,
+    backgroundColor: '#fff',
+  },
+  footerSection: {
     position: 'relative',
     zIndex: 2,
     backgroundColor: '#fff',
