@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import { home } from 'assets/svg/home';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,16 +9,36 @@ import {
   Animated,
   PanResponder,
   PanResponderGestureState,
+  ScrollView,
 } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 const CALENDAR_WIDTH = width * 0.9;
+const EVENT_ITEM_HEIGHT = 20; // Approximate height of a single event item
+const MAX_VISIBLE_ITEMS = 3;
 
-// TypeScript interfaces
+// Utility function to generate random dates for the current month
+const generateRandomDatesForMonth = (date: Date): Date[] => {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const numberOfDates = Math.floor(Math.random() * 6) + 5;
+  const dates: Date[] = [];
+  
+  for (let i = 0; i < numberOfDates; i++) {
+    const day = Math.floor(Math.random() * daysInMonth) + 1;
+    dates.push(new Date(year, month, day));
+  }
+  
+  return dates;
+};
+
 interface CalendarDay {
   day: number | string;
   date?: Date;
   empty: boolean;
+  hasEvent?: boolean;
 }
 
 interface ExpandableCalendarProps {
@@ -31,52 +52,70 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
 }) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [expandedHeight, setExpandedHeight] = useState<number>(0);
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
-  const [additionalInfo, setAdditionalInfo] = useState<{ date: string, items: Array<{time: string, title: string}> }>({
+  const [showHighlights, setShowHighlights] = useState(false);
+  const [activeEventDates, setActiveEventDates] = useState<Date[]>([]);
+  const [additionalInfo, setAdditionalInfo] = useState<{
+    date: string;
+    items: Array<{ time: string; title: string }>;
+  }>({
     date: '',
-    items: []
+    items: [],
   });
-  
-  // Get days in month
+
+  useEffect(() => {
+    const newActiveDates = generateRandomDatesForMonth(currentMonth);
+    setActiveEventDates(newActiveDates);
+  }, [currentMonth]);
+
+  const isDateActive = (date?: Date): boolean => {
+    if (!date || !activeEventDates.length) return false;
+    return activeEventDates.some(
+      (activeDate) =>
+        activeDate.getDate() === date.getDate() &&
+        activeDate.getMonth() === date.getMonth() &&
+        activeDate.getFullYear() === date.getFullYear()
+    );
+  };
+
   const getDaysInMonth = (date: Date): number => {
     const year = date.getFullYear();
     const month = date.getMonth();
     return new Date(year, month + 1, 0).getDate();
   };
-  
-  // Get the first day of the month (0 = Sunday, 1 = Monday, etc.)
+
   const getFirstDayOfMonth = (date: Date): number => {
     const year = date.getFullYear();
     const month = date.getMonth();
     return new Date(year, month, 1).getDay();
   };
-  
-  // Generate calendar days for current month view
+
   const generateCalendarDays = (): CalendarDay[][] => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDayOfMonth = getFirstDayOfMonth(currentMonth);
-    
     const days: CalendarDay[] = [];
-    
-    // Add empty cells for days before the first day of month
+
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push({ day: '', empty: true });
     }
-    
-    // Add actual days of the month
+
     for (let i = 1; i <= daysInMonth; i++) {
-      days.push({ 
-        day: i, 
-        date: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i),
-        empty: false 
+      const currentDate = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        i
+      );
+      days.push({
+        day: i,
+        date: currentDate,
+        empty: false,
+        hasEvent: isDateActive(currentDate),
       });
     }
-    
-    // Arrange days into rows (weeks)
+
     const rows: CalendarDay[][] = [];
     let cells: CalendarDay[] = [];
-    
+
     days.forEach((day, index) => {
       if (index % 7 === 0 && index > 0) {
         rows.push(cells);
@@ -84,102 +123,87 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       }
       cells.push(day);
     });
-    
-    // Push the last row
-    if (cells.length > 0) {
-      // Fill the last row with empty cells if needed
-      while (cells.length < 7) {
-        cells.push({ day: '', empty: true });
-      }
-      rows.push(cells);
+
+    while (cells.length < 7) {
+      cells.push({ day: '', empty: true });
     }
-    
+    rows.push(cells);
+
     return rows;
   };
-  
-  // Handle month change - properly changes to ANY month
+
   const changeMonth = (direction: number): void => {
     setCurrentMonth(prevMonth => {
       const newMonth = new Date(prevMonth);
       newMonth.setMonth(prevMonth.getMonth() + direction);
       return newMonth;
     });
-    
-    // Reset selection when changing months
     setSelectedDate(null);
     setExpandedRowIndex(null);
-    setExpandedHeight(0);
   };
-  
-  // Create a handler for swipe detection
+
   const handleSwipe = (direction: number) => {
     changeMonth(direction);
   };
-  
-  // Re-create the panResponder when needed
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (_, gestureState: PanResponderGestureState) => 
         Math.abs(gestureState.dx) > 10,
-      onPanResponderMove: () => {
-        // No animation during move
-      },
+      onPanResponderMove: () => {},
       onPanResponderRelease: (_, gestureState: PanResponderGestureState) => {
         if (gestureState.dx > 50) {
-          // Swipe right - go to previous month
           handleSwipe(-1);
         } else if (gestureState.dx < -50) {
-          // Swipe left - go to next month
           handleSwipe(1);
         }
       },
     })
   ).current;
-  
-  // Handle date selection
+
   const handleDateSelect = (date: Date, rowIndex: number): void => {
-    if (selectedDate && 
-        selectedDate.getDate() === date.getDate() && 
-        selectedDate.getMonth() === date.getMonth() && 
-        selectedDate.getFullYear() === date.getFullYear()) {
-      // Collapse if selecting the same date
+    if (
+      selectedDate &&
+      selectedDate.getDate() === date.getDate() &&
+      selectedDate.getMonth() === date.getMonth() &&
+      selectedDate.getFullYear() === date.getFullYear()
+    ) {
       setSelectedDate(null);
       setExpandedRowIndex(null);
-      setExpandedHeight(0);
       setAdditionalInfo({ date: '', items: [] });
     } else {
-      // Expand with new date
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
-      setExpandedHeight(150); // Height of expanded area
-      
-      // Format the date like "Friday - 7 Feb 2025"
+
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
         day: 'numeric',
         month: 'short',
         year: 'numeric',
       });
-      
-      // Sample items for the selected date
-      setAdditionalInfo({ 
+
+      const numberOfItems = Math.floor(Math.random() * 4) + 2;
+      const items = Array.from({ length: numberOfItems }, (_, i) => ({
+        time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
+          Math.random() * 60
+        )
+          .toString()
+          .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+        title: `Event ${i + 1} for ${dateString}`,
+      }));
+
+      setAdditionalInfo({
         date: dateString,
-        items: [
-          { time: '9:38 PM', title: 'Birthday gift for mom' },
-          { time: '12:11 PM', title: 'Workout routine reminder' },
-          { time: '8:30 AM', title: 'Lyric idea for new track' }
-        ]
+        items,
       });
-      
-      // Call onDateSelect callback if provided
+
       if (onDateSelect) {
         onDateSelect(date);
       }
     }
   };
-  
-  // Render weekday headers
+
   const renderWeekdays = (): JSX.Element => {
     const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     return (
@@ -192,24 +216,48 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       </View>
     );
   };
-  
-  // Render month navigation
+
   const renderMonthHeader = (): JSX.Element => {
     const monthName = currentMonth.toLocaleDateString('en-US', {
       month: 'long',
     });
-    
+
     return (
-      <View style={styles.monthHeader}>
-        <Text style={styles.monthText}>{monthName}</Text>
-        <TouchableOpacity style={styles.highlightsButton}>
-          <Text style={styles.highlightsText}>View highlights</Text>
-        </TouchableOpacity>
+      <View>
+        <View style={styles.monthHeader}>
+          <Text style={styles.monthText}>{monthName}</Text>
+          <TouchableOpacity
+            style={styles.highlightsButton}
+            onPress={() => setShowHighlights(!showHighlights)}
+          >
+            <SvgXml xml={home.highlights} />
+            <Text style={styles.highlightsText}>
+              {showHighlights ? 'Hide highlights' : 'View highlights'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {showHighlights && (
+          <View style={styles.expandedContainer}>
+            <Text>Highlights</Text>
+            <ScrollView style={{ maxHeight: 150 }}>
+              {activeEventDates.map((date, index) => (
+                <View key={index} style={styles.eventItem}>
+                  <Text style={styles.eventTime}>
+                    {date.toLocaleDateString('en-US', {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                  </Text>
+                  <Text style={styles.eventTitle}>Has events planned</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </View>
     );
   };
-  
-  // Render calendar rows
+
   const renderCalendarDays = (): JSX.Element[] => {
     const calendarRows = generateCalendarDays();
     
@@ -222,6 +270,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
               style={[
                 styles.calendarDay,
                 item.empty ? styles.emptyDay : null,
+                item.hasEvent ? styles.activeDay : null,
                 selectedDate && 
                 !item.empty && 
                 item.date &&
@@ -230,8 +279,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                 selectedDate.getFullYear() === item.date.getFullYear() ? 
                   styles.selectedDay : null
               ]}
-              disabled={item.empty}
-              onPress={() => item.empty || !item.date ? null : handleDateSelect(item.date, rowIndex)}
+              disabled={item.empty || !item.hasEvent}
+              onPress={() => item.empty || !item.date || !item.hasEvent ? null : handleDateSelect(item.date, rowIndex)}
             >
               <Text 
                 style={[
@@ -252,41 +301,55 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         </View>
         
         {expandedRowIndex === rowIndex && (
-          <Animated.View 
-            style={[
-              styles.expandedContainer, 
-              { height: expandedHeight }
-            ]}
-          >
+          <View style={[
+            styles.expandedContainer,
+            // No need for additional height styles here, handled in the StyleSheet
+          ]}>
             <Text style={styles.dateHeaderText}>{additionalInfo.date}</Text>
-            {additionalInfo.items.map((item, index) => (
-              <View key={index} style={styles.eventItem}>
-                <Text style={styles.eventTime}>{item.time}</Text>
-                <Text style={styles.eventTitle}>{item.title}</Text>
+            {additionalInfo.items.length <= MAX_VISIBLE_ITEMS ? (
+              // If 3 or fewer items, render them directly without ScrollView
+              <View style={styles.eventsList}>
+                {additionalInfo.items.map((item, index) => (
+                  <View key={index} style={styles.eventItem}>
+                    <Text style={styles.eventTime}>{item.time}</Text>
+                    <Text style={styles.eventTitle}>{item.title}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </Animated.View>
+            ) : (
+              // If more than 3 items, use ScrollView with limited height
+              <ScrollView 
+                style={[styles.expandedScrollView, { height: EVENT_ITEM_HEIGHT * MAX_VISIBLE_ITEMS }]}
+                contentContainerStyle={styles.expandedScrollContent}
+                showsVerticalScrollIndicator={true}
+              >
+                {additionalInfo.items.map((item, index) => (
+                  <View key={index} style={styles.eventItem}>
+                    <Text style={styles.eventTime}>{item.time}</Text>
+                    <Text style={styles.eventTitle}>{item.title}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
         )}
       </View>
     ));
   };
 
-  // Render the streak footer
   const renderStreakFooter = (): JSX.Element => {
     return (
       <View style={styles.streakContainer}>
+        <SvgXml xml={home.fire} />
         <Text style={styles.streakText}>
-          🔥 You are on a 15-day streak and rank 111 globally.
+          You are on a 15-day streak and rank 111 globally.
         </Text>
       </View>
     );
   };
 
   return (
-    <View 
-      style={styles.container}
-      {...panResponder.panHandlers}
-    >
+    <View style={styles.container} {...panResponder.panHandlers}>
       {renderMonthHeader()}
       {renderWeekdays()}
       {renderCalendarDays()}
@@ -315,16 +378,17 @@ const styles = StyleSheet.create({
   },
   monthText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: '#000',
   },
   highlightsButton: {
-    backgroundColor: '#f0f8f0',
+    backgroundColor: '#006F300D',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 5
   },
   highlightsText: {
     color: '#3d8c40',
@@ -354,7 +418,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'transparent',
   },
   calendarDayText: {
     fontSize: 15,
@@ -363,6 +427,9 @@ const styles = StyleSheet.create({
   },
   emptyDay: {
     backgroundColor: 'transparent',
+  },
+  activeDay: {
+    backgroundColor: '#f5f5f5',
   },
   selectedDay: {
     backgroundColor: '#000',
@@ -376,20 +443,43 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginVertical: 8,
     padding: 16,
-    overflow: 'hidden',
     borderColor: '#f0f0f0',
-    borderWidth: 1,
+    borderWidth: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    // Remove fixed maxHeight to let it size naturally for ≤3 items
   },
-  dateHeaderText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#000',
+  
+  eventsList: {
+    // This will be used for ≤3 items, natural height
   },
+  
+  expandedScrollView: {
+    // Height will be set dynamically based on EVENT_ITEM_HEIGHT * MAX_VISIBLE_ITEMS
+  },
+  
+  expandedScrollContent: {
+    paddingVertical: 4,
+  },
+  
   eventItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginTop: 8,
+    height: EVENT_ITEM_HEIGHT, // Fixed height for consistent sizing
+  },
+  
+  dateHeaderText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 5,
+    color: '#000',
   },
   eventTime: {
     width: 80,
@@ -405,7 +495,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingVertical: 8,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 5
   },
   streakText: {
     fontSize: 13,
