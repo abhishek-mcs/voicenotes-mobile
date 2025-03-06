@@ -200,11 +200,11 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       dispatch(setRelatedNoteTranscriptLoad(false));
       relatedNotes.mutate(recordingId);
     }
+    queryClient.resetQueries("single-recording");
     if(!isTitleTriggered && isTitleGenerated){
       setTriggerTypingTitle(recordingId);
       isTitleTriggered = true;
       dispatch(setRelatedNoteTitleLoad(false));
-      queryClient.invalidateQueries("single-recording");
     }
     isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     dispatch(updateTempRecordingData(updatedStatus));

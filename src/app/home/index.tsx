@@ -86,7 +86,7 @@ const Home = () => {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
-  const { recordingList,tempRecordingData } = useSelector(
+  const { recordingList } = useSelector(
     (state: RootState) => state.recordingStates
   );
   const createGuestUser = useGuestToken();
@@ -174,14 +174,14 @@ const Home = () => {
 
     const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
       // console.log("React Native: Search Note started");
-      router.push("/search/");
+      router.push("/search");
     });
 
     const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
       console.log("React Native: Text Note started");
       const noteContent = event?.content;
       router.push({
-        pathname: "/text-note/",
+        pathname: "/text-note",
         params: { content: noteContent }, // Pass the content as a parameter
       });
     });
@@ -261,7 +261,7 @@ const Home = () => {
         break;
       case 'search':
         // console.log('Performing action for Search');
-        router.push("/search/");
+        router.push("/search");
         break;
       default:
         // console.log('No matching shortcut action');
@@ -286,7 +286,7 @@ const Home = () => {
           break;
         case 'searchDeeplink':
           if (recEnabled) break; 
-          router.push("/search/")
+          router.push("/search")
           break;
       }
   }, [action]);
@@ -398,13 +398,13 @@ const Home = () => {
     // CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
-    router.push("/ask-my-ai/");
+    router.push("/ask-my-ai");
   };
   const onCreate = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    router.push('/create/')
+    router.push('/create')
     // CreateModalRef.current?.onReset();
     // AIModalRef?.current?.close();
     // CreateModalRef.current?.toggle();
@@ -534,7 +534,6 @@ const Home = () => {
         parent_id: recordingParentId,
       };
 
-      dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
@@ -547,6 +546,7 @@ const Home = () => {
           }
           return recording;
         });
+        dispatch(setTempRecordingData(newTemporaryRecording));
         dispatch(setRecordingList(newRecordingList));
       }
 
@@ -705,7 +705,7 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
-  if (!token) return <Redirect href="/auth/landingPage/" />;
+  if (!token) return <Redirect href="/auth/landingPage" />;
   return (
     <SafeAreaView
       style={[styles.container]}
