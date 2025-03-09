@@ -18,6 +18,8 @@ const EVENT_ITEM_HEIGHT = 25;
 const MAX_VISIBLE_ITEMS = 3;
 const EXPAND_ANIMATION_DURATION = 200;
 const EXPAND_HEIGHT = 10;
+const SNAP_ANIMATION_DURATION = 200; // Increased for smoother transitions
+const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
 
 // Utility functions remain the same
 const generateRandomDatesForMonth = (date: Date): Date[] => {
@@ -54,6 +56,12 @@ interface CalendarDay {
   hasEvent?: boolean;
 }
 
+interface MonthData {
+  date: Date;
+  days: CalendarDay[][];
+  eventDates: Date[];
+}
+
 interface ExpandableCalendarProps {
   initialDate?: Date;
   onDateSelect?: (date: Date) => void;
@@ -67,7 +75,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
   const [showHighlights, setShowHighlights] = useState(false);
-  const [activeEventDates, setActiveEventDates] = useState<Date[]>([]);
   const [highlights, setHighlights] = useState<string[]>([]);
   const [showAllEvents, setShowAllEvents] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState<{
@@ -77,25 +84,48 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     date: '',
     items: [],
   });
+
+  // State for carousel-like months
+  const [monthsData, setMonthsData] = useState<MonthData[]>([]);
+  const [monthIndex, setMonthIndex] = useState<number>(1); // Index 1 is the current month (middle of 3)
   
   // Animation values
-  const calendarAnimation = useRef(new Animated.Value(0)).current;
-  const calendarOpacity = useRef(new Animated.Value(1)).current;
+  const monthsAnimation = useRef(new Animated.Value(0)).current;
   const expandAnimation = useRef(new Animated.Value(0)).current;
+  const isAnimating = useRef(false);
 
+  // Generate months data (prev, current, next)
   useEffect(() => {
-    const newActiveDates = generateRandomDatesForMonth(currentMonth);
-    setActiveEventDates(newActiveDates);
+    const generateMonthsData = (baseMonth: any) => {
+      const prevMonth = new Date(baseMonth);
+      prevMonth.setMonth(baseMonth.getMonth() - 1);
+      
+      const nextMonth = new Date(baseMonth);
+      nextMonth.setMonth(baseMonth.getMonth() + 1);
+      
+      const months = [prevMonth, baseMonth, nextMonth];
+      return months.map(month => {
+        const eventDates = generateRandomDatesForMonth(month);
+        return {
+          date: new Date(month),
+          days: generateCalendarDays(month, eventDates),
+          eventDates
+        };
+      });
+    };
     
-    // Generate highlights for this month
-    const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long' });
-    setHighlights(generateHighlights(monthName));
-  }, [currentMonth]);
+    // Initial setup, only run once
+    if (monthsData.length === 0) {
+      setMonthsData(generateMonthsData(currentMonth));
+      const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long' });
+      setHighlights(generateHighlights(monthName));
+    }
+  }, []);
 
-  // Existing utility functions remain the same
-  const isDateActive = (date?: Date): boolean => {
-    if (!date || !activeEventDates.length) return false;
-    return activeEventDates.some(
+  // Utility functions
+  const isDateActive = (date: Date | undefined, activeDates: Date[]): boolean => {
+    if (!date || !activeDates.length) return false;
+    return activeDates.some(
       (activeDate) =>
         activeDate.getDate() === date.getDate() &&
         activeDate.getMonth() === date.getMonth() &&
@@ -117,9 +147,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     return dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday=0 to Sunday=6
   };
 
-  const generateCalendarDays = (): CalendarDay[][] => {
-    const daysInMonth = getDaysInMonth(currentMonth);
-    const firstDayOfMonth = getFirstDayOfMonth(currentMonth);
+  const generateCalendarDays = (date: Date, activeDates: Date[]): CalendarDay[][] => {
+    const daysInMonth = getDaysInMonth(date);
+    const firstDayOfMonth = getFirstDayOfMonth(date);
     const days: CalendarDay[] = [];
 
     // Add empty days for the start of the month (adjusted for Monday-based weeks)
@@ -130,15 +160,15 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     // Add the actual days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       const currentDate = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth(),
+        date.getFullYear(),
+        date.getMonth(),
         i
       );
       days.push({
         day: i,
         date: currentDate,
         empty: false,
-        hasEvent: isDateActive(currentDate),
+        hasEvent: isDateActive(currentDate, activeDates),
       });
     }
 
@@ -163,47 +193,56 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const changeMonth = (direction: number): void => {
-    // Start animation for transition
-    Animated.parallel([
-      Animated.timing(calendarOpacity, {
-        toValue: 0,
-        duration: 30,
-        useNativeDriver: true,
-      }),
-      Animated.timing(calendarAnimation, {
-        toValue: direction > 0 ? -100 : 100, // Move up or down based on direction
-        duration: 30,
-        useNativeDriver: true,
-      })
-    ]).start(() => {
-      // Update month once animation is complete
+    if (isAnimating.current) return;
+    isAnimating.current = true;
+    
+    // Reset selection states when changing month
+    setSelectedDate(null);
+    setExpandedRowIndex(null);
+    setShowAllEvents(false);
+    
+    // Animate the transition
+    const toValue = direction > 0 ? -TRANSITION_OFFSET : TRANSITION_OFFSET;
+    
+    Animated.timing(monthsAnimation, {
+      toValue,
+      duration: SNAP_ANIMATION_DURATION,
+      useNativeDriver: true,
+    }).start(() => {
+      // Update both related states together
       setCurrentMonth(prevMonth => {
         const newMonth = new Date(prevMonth);
         newMonth.setMonth(prevMonth.getMonth() + direction);
+        
+        // Update months data based on the new month
+        const prevOfNew = new Date(newMonth);
+        prevOfNew.setMonth(newMonth.getMonth() - 1);
+        
+        const nextOfNew = new Date(newMonth);
+        nextOfNew.setMonth(newMonth.getMonth() + 1);
+        
+        const months = [prevOfNew, newMonth, nextOfNew];
+        const newMonthsData = months.map(month => {
+          const eventDates = generateRandomDatesForMonth(month);
+          return {
+            date: new Date(month),
+            days: generateCalendarDays(month, eventDates),
+            eventDates
+          };
+        });
+        
+        setMonthsData(newMonthsData);
+        
+        // Generate highlights for the new month
+        const monthName = newMonth.toLocaleDateString('en-US', { month: 'long' });
+        setHighlights(generateHighlights(monthName));
+        
         return newMonth;
       });
       
-      // Reset states
-      setSelectedDate(null);
-      setExpandedRowIndex(null);
-      setShowAllEvents(false);
-      
-      // Reset animation values
-      calendarAnimation.setValue(direction > 0 ? 100 : -100);
-      
-      // Animate back in with new month
-      Animated.parallel([
-        Animated.timing(calendarOpacity, {
-          toValue: 1,
-          duration: 30,
-          useNativeDriver: true,
-        }),
-        Animated.timing(calendarAnimation, {
-          toValue: 0,
-          duration: 30,
-          useNativeDriver: true,
-        })
-      ]).start();
+      // Reset animation value without animation
+      monthsAnimation.setValue(0);
+      isAnimating.current = false;
     });
   };
 
@@ -214,12 +253,26 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       onMoveShouldSetPanResponder: (_, gestureState: PanResponderGestureState) => 
         Math.abs(gestureState.dy) > 10 && 
         Math.abs(gestureState.dy) > Math.abs(gestureState.dx),
-      onPanResponderMove: () => {},
+      onPanResponderMove: (_, gestureState: PanResponderGestureState) => {
+        // Respond directly to user's swipe for more fluid interaction
+        if (!isAnimating.current) {
+          monthsAnimation.setValue(gestureState.dy);
+        }
+      },
       onPanResponderRelease: (_, gestureState: PanResponderGestureState) => {
+        if (isAnimating.current) return;
+        
         if (gestureState.dy > 50) {
           changeMonth(-1); // Swipe down for previous month
         } else if (gestureState.dy < -50) {
           changeMonth(1); // Swipe up for next month
+        } else {
+          // If swipe wasn't far enough, animate back to initial position
+          Animated.spring(monthsAnimation, {
+            toValue: 0,
+            useNativeDriver: true,
+            friction: 5,
+          }).start();
         }
       },
     })
@@ -336,35 +389,19 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     );
   };
 
-  const renderCalendarDays = (): JSX.Element => {
-    const calendarRows = generateCalendarDays();
-    
+  const renderCalendarMonth = (monthData: MonthData, monthOffset: number): JSX.Element => {
     return (
-      <Animated.View
+      <View 
         style={[
-          styles.daysContainer,
-          {
-            transform: [{ translateY: calendarAnimation }],
-            opacity: calendarOpacity,
+          styles.monthContainer,
+          { 
+            transform: [{ translateY: monthOffset }]
           }
         ]}
       >
-        {calendarRows.map((row, rowIndex) => (
+        {monthData.days.map((row, rowIndex) => (
           <View key={rowIndex}>
-            <Animated.View 
-              style={[
-                styles.calendarRow,
-                expandedRowIndex !== null && 
-                rowIndex > expandedRowIndex && {
-                  transform: [{
-                    translateY: expandAnimation.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, EXPAND_HEIGHT],
-                    }),
-                  }],
-                },
-              ]}
-            >
+            <View style={styles.calendarRow}>
               {row.map((item, dayIndex) => (
                 <TouchableOpacity
                   key={dayIndex}
@@ -399,9 +436,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                   </Text>
                 </TouchableOpacity>
               ))}
-            </Animated.View>
+            </View>
             
-            {expandedRowIndex === rowIndex && (
+            {expandedRowIndex === rowIndex && 
+             monthData.date.getMonth() === currentMonth.getMonth() &&
+             monthData.date.getFullYear() === currentMonth.getFullYear() && (
               <Animated.View
                 style={[
                   styles.expandedContainer,
@@ -450,6 +489,38 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             )}
           </View>
         ))}
+      </View>
+    );
+  };
+
+  const renderCalendarDays = (): JSX.Element => {
+    if (monthsData.length < 3) {
+      return <View />; // Return empty view while initializing
+    }
+    
+    return (
+      <Animated.View
+        style={[
+          styles.monthsWrapper,
+          {
+            transform: [{ translateY: monthsAnimation }],
+          }
+        ]}
+      >
+        {monthsData.map((monthData, index) => {
+          const offset = (index - 1) * TRANSITION_OFFSET; // Position months vertically (-300, 0, 300)
+          return (
+            <View
+              key={`month-${monthData.date.getMonth()}-${monthData.date.getFullYear()}`}
+              style={[
+                styles.absoluteMonth,
+                { top: offset }
+              ]}
+            >
+              {renderCalendarMonth(monthData, 0)}
+            </View>
+          );
+        })}
       </Animated.View>
     );
   };
@@ -465,21 +536,20 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     );
   };
 
-  // Modify the return statement in the component
-return (
-  <View style={styles.container} {...panResponder.panHandlers}>
-    <View style={styles.headerSection}>
-      {renderMonthHeader()}
-      {renderWeekdays()}
+  return (
+    <View style={styles.container} {...panResponder.panHandlers}>
+      <View style={styles.headerSection}>
+        {renderMonthHeader()}
+        {renderWeekdays()}
+      </View>
+      <View style={styles.calendarContentWrapper}>
+        {renderCalendarDays()}
+      </View>
+      <View style={styles.footerSection}>
+        {renderStreakFooter()}
+      </View>
     </View>
-    <View style={styles.calendarContentWrapper}>
-      {renderCalendarDays()}
-    </View>
-    <View style={styles.footerSection}>
-      {renderStreakFooter()}
-    </View>
-  </View>
-);
+  );
 };
 
 const styles = StyleSheet.create({
@@ -509,6 +579,8 @@ const styles = StyleSheet.create({
   calendarContentWrapper: {
     position: 'relative',
     zIndex: 1,
+    height: 260, // Fixed height to prevent layout shifts
+    overflow: 'hidden',
   },
   headerSection: {
     position: 'relative',
@@ -520,8 +592,17 @@ const styles = StyleSheet.create({
     zIndex: 2,
     backgroundColor: '#fff',
   },
-  daysContainer: {
-    // Container for the animated days grid
+  monthsWrapper: {
+    position: 'relative',
+    height: 260, // Match container height
+  },
+  absoluteMonth: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  monthContainer: {
+    width: '100%',
   },
   highlightsButton: {
     backgroundColor: '#e8f5e9',
