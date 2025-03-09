@@ -76,7 +76,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
   const [showHighlights, setShowHighlights] = useState(false);
   const [highlights, setHighlights] = useState<string[]>([]);
-  const [showAllEvents, setShowAllEvents] = useState(false);
+  const [showAllNotes, setShowAllNotes] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState<{
     date: string;
     items: Array<{ time: string; title: string }>;
@@ -199,7 +199,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     // Reset selection states when changing month
     setSelectedDate(null);
     setExpandedRowIndex(null);
-    setShowAllEvents(false);
+    setShowAllNotes(false);
     
     // Animate the transition
     const toValue = direction > 0 ? -TRANSITION_OFFSET : TRANSITION_OFFSET;
@@ -294,12 +294,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         setSelectedDate(null);
         setExpandedRowIndex(null);
         setAdditionalInfo({ date: '', items: [] });
-        setShowAllEvents(false);
+        setShowAllNotes(false);
       });
     } else {
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
-      setShowAllEvents(false);
+      setShowAllNotes(false);
 
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
@@ -337,8 +337,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     }
   };
 
-  const toggleShowAllEvents = () => {
-    setShowAllEvents(!showAllEvents);
+  const toggleShowAllNotes = () => {
+    setShowAllNotes(!showAllNotes);
   };
 
   const renderWeekdays = (): JSX.Element => {
@@ -461,9 +461,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                 
                 {additionalInfo.items.length > 0 && (
                   <View>
-                    <View style={styles.eventsContainer}>
+                    <View style={styles.notesContainer}>
                       {additionalInfo.items
-                        .slice(0, showAllEvents ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
+                        .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
                         .map((item, index) => (
                           <View key={index} style={styles.eventItem}>
                             <Text style={styles.eventTime}>{item.time}</Text>
@@ -476,10 +476,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                     {additionalInfo.items.length > MAX_VISIBLE_ITEMS && (
                       <TouchableOpacity
                         style={styles.seeAllButton}
-                        onPress={toggleShowAllEvents}
+                        onPress={toggleShowAllNotes}
                       >
                         <Text style={styles.seeAllText}>
-                          {showAllEvents ? 'Show less' : 'See all events'}
+                          {showAllNotes ? 'Show less' : 'See all notes'}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#000',
   },
-  eventsContainer: {
+  notesContainer: {
     borderRadius: 8,
     backgroundColor: '#fafafa',
     paddingVertical: 5,
