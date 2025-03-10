@@ -281,71 +281,146 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     })
   ).current;
 
-  const handleDateSelect = (date: Date, rowIndex: number): void => {
-    if (
-      selectedDate &&
-      selectedDate.getDate() === date.getDate() &&
-      selectedDate.getMonth() === date.getMonth() &&
-      selectedDate.getFullYear() === date.getFullYear()
-    ) {
-      // Collapse animation
-      Animated.timing(expandAnimation, {
-        toValue: 0,
-        duration: EXPAND_ANIMATION_DURATION,
-        useNativeDriver: true,
-      }).start(() => {
-        setSelectedDate(null);
-        setExpandedRowIndex(null);
-        setHeight(prev => prev - EXPAND_HEIGHT)
-        setExpandedHeight(0);
-        setAdditionalInfo({ date: '', items: [] });
-        setShowAllNotes(false);
-      });
-    } else {
-      setSelectedDate(date);
-      setExpandedRowIndex(rowIndex);
+
+// Modify the handleDateSelect function to ensure animation works on first tap
+const handleDateSelect = (date: Date, rowIndex: number): void => {
+  // Case 1: User clicks on the already selected date (collapse)
+  if (
+    selectedDate &&
+    selectedDate.getDate() === date.getDate() &&
+    selectedDate.getMonth() === date.getMonth() &&
+    selectedDate.getFullYear() === date.getFullYear()
+  ) {
+    // Collapse animation
+    Animated.timing(expandAnimation, {
+      toValue: 0,
+      duration: EXPAND_ANIMATION_DURATION,
+      useNativeDriver: true,
+    }).start(() => {
+      setSelectedDate(null);
+      setExpandedRowIndex(null);
+      setHeight(prev => prev - 200);
+      setExpandedHeight(0);
+      setAdditionalInfo({ date: '', items: [] });
       setShowAllNotes(false);
+    });
+  } 
+  // Case 2: User clicks on a new date while another date is already expanded
+  else if (selectedDate !== null) {
+    // Keep expanded state but change the data
+    setSelectedDate(date);
+    setExpandedRowIndex(rowIndex);
+    setShowAllNotes(false);
 
-      const dateString = date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
+    const dateString = date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
 
-      const numberOfItems = Math.floor(Math.random() * 4) + 5;
-      const items = Array.from({ length: numberOfItems }, (_, i) => ({
-        time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
-          Math.random() * 60
-        )
-          .toString()
-          .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-        title: `Event ${i + 1} for ${dateString}`,
-      }));
+    const numberOfItems = Math.floor(Math.random() * 4) + 5;
+    const items = Array.from({ length: numberOfItems }, (_, i) => ({
+      time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
+        Math.random() * 60
+      )
+        .toString()
+        .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+      title: `Event ${i + 1} for ${dateString}`,
+    }));
+    
+    // Calculate height adjustment if we're switching from showing all notes
+    if (showAllNotes) {
+      const currentVisibleItems = additionalInfo.items.length;
+      const newVisibleItems = Math.min(MAX_VISIBLE_ITEMS, items.length);
+      const heightAdjustment = (newVisibleItems - currentVisibleItems) * EVENT_ITEM_HEIGHT;
+      
+      setHeight(prev => prev + heightAdjustment);
+      setExpandedHeight(prev => prev + heightAdjustment);
+    }
 
-      setAdditionalInfo({
-        date: dateString,
-        items,
-      });
+    setAdditionalInfo({
+      date: dateString,
+      items,
+    });
 
-      // Expand animation
-      expandAnimation.setValue(0);
+    if (onDateSelect) {
+      onDateSelect(date);
+    }
+  }
+  // Case 3: User clicks on a date when nothing is expanded
+  else {
+    // First, prepare all the data
+    const dateString = date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    const numberOfItems = Math.floor(Math.random() * 4) + 5;
+    const items = Array.from({ length: numberOfItems }, (_, i) => ({
+      time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
+        Math.random() * 60
+      )
+        .toString()
+        .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+      title: `Event ${i + 1} for ${dateString}`,
+    }));
+
+    // Set data first before animation starts
+    setAdditionalInfo({
+      date: dateString,
+      items,
+    });
+    
+    // Important: Update these states before starting the animation
+    setSelectedDate(date);
+    setExpandedRowIndex(rowIndex);
+    setHeight(prev => prev + 200);
+    setExpandedHeight(200);
+    
+    // Reset animation value to ensure it starts from 0
+    expandAnimation.setValue(0);
+    
+    // Use requestAnimationFrame to ensure state updates have been applied
+    requestAnimationFrame(() => {
+      // Now start the animation
       Animated.timing(expandAnimation, {
         toValue: 1,
         duration: EXPAND_ANIMATION_DURATION,
         useNativeDriver: true,
       }).start();
-      setHeight(prev => prev + EXPAND_HEIGHT)
-      setExpandedHeight(EXPAND_HEIGHT);
+    });
 
-      if (onDateSelect) {
-        onDateSelect(date);
-      }
+    if (onDateSelect) {
+      onDateSelect(date);
     }
-  };
+  }
+};
 
   const toggleShowAllNotes = () => {
+    // Calculate the current visible items and the total items
+    const visibleItems = showAllNotes 
+      ? additionalInfo.items.length 
+      : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length);
+    
+    // Calculate the number of items that will be shown after toggle
+    const newVisibleItems = !showAllNotes
+      ? additionalInfo.items.length
+      : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length);
+    
+    // Calculate the height difference based on the change in visible items
+    const itemsHeightDifference = (newVisibleItems - visibleItems) * EVENT_ITEM_HEIGHT;
+    
+    // Toggle the state
     setShowAllNotes(!showAllNotes);
+    
+    // Only adjust heights if there's a difference in the number of visible items
+    if (itemsHeightDifference !== 0) {
+      setHeight(prev => prev + itemsHeightDifference);
+      setExpandedHeight(prev => prev + itemsHeightDifference);
+    }
   };
 
   const renderWeekdays = (): JSX.Element => {
