@@ -19,7 +19,8 @@
       "usesAppleSignIn": true,
       "infoPlist": {
         "UIBackgroundModes": [
-          "audio"
+          "audio",
+          "fetch"
         ],
         "LSApplicationQueriesSchemes": [
           "files",
