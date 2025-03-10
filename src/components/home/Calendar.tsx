@@ -17,7 +17,7 @@ const CALENDAR_WIDTH = width * 0.9;
 const EVENT_ITEM_HEIGHT = 25;
 const MAX_VISIBLE_ITEMS = 3;
 const EXPAND_ANIMATION_DURATION = 200;
-const EXPAND_HEIGHT = 10;
+const EXPAND_HEIGHT = 200;
 const SNAP_ANIMATION_DURATION = 200; // Increased for smoother transitions
 const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
 
@@ -73,6 +73,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
 }) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [expandedHeight, setExpandedHeight] = useState(0);
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
   const [showHighlights, setShowHighlights] = useState(false);
   const [highlights, setHighlights] = useState<string[]>([]);
@@ -84,10 +85,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     date: '',
     items: [],
   });
+  const [height, setHeight] = useState(260);
 
   // State for carousel-like months
   const [monthsData, setMonthsData] = useState<MonthData[]>([]);
-  const [monthIndex, setMonthIndex] = useState<number>(1); // Index 1 is the current month (middle of 3)
   
   // Animation values
   const monthsAnimation = useRef(new Animated.Value(0)).current;
@@ -222,11 +223,13 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         nextOfNew.setMonth(newMonth.getMonth() + 1);
         
         const months = [prevOfNew, newMonth, nextOfNew];
-        const newMonthsData = months.map(month => {
+        const newMonthsData = months.map((month, index) => {
           const eventDates = generateRandomDatesForMonth(month);
+          const days = generateCalendarDays(month, eventDates);
+          if(index === 1) setHeight(days.length > 5 ? 300 : 260);
           return {
             date: new Date(month),
-            days: generateCalendarDays(month, eventDates),
+            days,
             eventDates
           };
         });
@@ -293,6 +296,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       }).start(() => {
         setSelectedDate(null);
         setExpandedRowIndex(null);
+        setHeight(prev => prev - EXPAND_HEIGHT)
+        setExpandedHeight(0);
         setAdditionalInfo({ date: '', items: [] });
         setShowAllNotes(false);
       });
@@ -330,6 +335,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         duration: EXPAND_ANIMATION_DURATION,
         useNativeDriver: true,
       }).start();
+      setHeight(prev => prev + EXPAND_HEIGHT)
+      setExpandedHeight(EXPAND_HEIGHT);
 
       if (onDateSelect) {
         onDateSelect(date);
@@ -508,7 +515,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         ]}
       >
         {monthsData.map((monthData, index) => {
-          const offset = (index - 1) * TRANSITION_OFFSET; // Position months vertically (-300, 0, 300)
+          let offset = (index - 1) * TRANSITION_OFFSET; 
+        
+          // Apply additional offset for the next month (index 2) when current month is expanded
+          if (index === 2 && expandedHeight > 0) {
+            offset += expandedHeight;
+          }
           return (
             <View
               key={`month-${monthData.date.getMonth()}-${monthData.date.getFullYear()}`}
@@ -542,7 +554,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         {renderMonthHeader()}
         {renderWeekdays()}
       </View>
-      <View style={styles.calendarContentWrapper}>
+      <View style={[styles.calendarContentWrapper, { height: height }]}>
         {renderCalendarDays()}
       </View>
       <View style={styles.footerSection}>
@@ -579,7 +591,6 @@ const styles = StyleSheet.create({
   calendarContentWrapper: {
     position: 'relative',
     zIndex: 1,
-    height: 260, // Fixed height to prevent layout shifts
     overflow: 'hidden',
   },
   headerSection: {
