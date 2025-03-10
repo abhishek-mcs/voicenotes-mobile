@@ -20,6 +20,7 @@ const EXPAND_ANIMATION_DURATION = 200;
 const EXPAND_HEIGHT = 200;
 const SNAP_ANIMATION_DURATION = 200; // Increased for smoother transitions
 const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
+const HEIGHT_ANIMATION_DURATION = 100; // Duration for height animations
 
 // Utility functions remain the same
 const generateRandomDatesForMonth = (date: Date): Date[] => {
@@ -64,12 +65,10 @@ interface MonthData {
 
 interface ExpandableCalendarProps {
   initialDate?: Date;
-  onDateSelect?: (date: Date) => void;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
-  onDateSelect,
 }) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -85,10 +84,18 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     date: '',
     items: [],
   });
-  const [height, setHeight] = useState(260);
+  
+  // Base height for the calendar without any expansions
+  const [baseHeight, setBaseHeight] = useState(260);
+  
+  // Replace static height with animated height
+  const animatedHeight = useRef(new Animated.Value(260)).current;
 
   // State for carousel-like months
   const [monthsData, setMonthsData] = useState<MonthData[]>([]);
+
+  const highlightsContainerRef = useRef<View>(null);
+  const [highlightsHeight, setHighlightsHeight] = useState(0);
   
   // Animation values
   const monthsAnimation = useRef(new Animated.Value(0)).current;
@@ -105,11 +112,17 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       nextMonth.setMonth(baseMonth.getMonth() + 1);
       
       const months = [prevMonth, baseMonth, nextMonth];
-      return months.map(month => {
+      return months.map((month, index) => {
         const eventDates = generateRandomDatesForMonth(month);
+        const days = generateCalendarDays(month, eventDates);
+        if(index === 1) {
+          // Animate to the new base height instead of immediately setting it
+          const newBaseHeight = days.length > 5 ? 300 : 260;
+          setBaseHeight(newBaseHeight);
+        }
         return {
           date: new Date(month),
-          days: generateCalendarDays(month, eventDates),
+          days,
           eventDates
         };
       });
@@ -122,6 +135,15 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       setHighlights(generateHighlights(monthName));
     }
   }, []);
+
+  // Update animatedHeight when baseHeight changes
+  useEffect(() => {
+    Animated.timing(animatedHeight, {
+      toValue: baseHeight + expandedHeight,
+      duration: HEIGHT_ANIMATION_DURATION,
+      useNativeDriver: false, // Height animations can't use native driver
+    }).start();
+  }, [baseHeight, expandedHeight]);
 
   // Utility functions
   const isDateActive = (date: Date | undefined, activeDates: Date[]): boolean => {
@@ -202,6 +224,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     setExpandedRowIndex(null);
     setShowAllNotes(false);
     
+    // Smoothly animate height back to base height when changing month
+    setExpandedHeight(0);
+    
     // Animate the transition
     const toValue = direction > 0 ? -TRANSITION_OFFSET : TRANSITION_OFFSET;
     
@@ -226,7 +251,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         const newMonthsData = months.map((month, index) => {
           const eventDates = generateRandomDatesForMonth(month);
           const days = generateCalendarDays(month, eventDates);
-          if(index === 1) setHeight(days.length > 5 ? 300 : 260);
+          if(index === 1) {
+            // Animate to the new base height instead of immediately setting it
+            const newBaseHeight = days.length > 5 ? 300 : 260;
+            setBaseHeight(newBaseHeight);
+          }
           return {
             date: new Date(month),
             days,
@@ -281,123 +310,110 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     })
   ).current;
 
-
-// Modify the handleDateSelect function to ensure animation works on first tap
-const handleDateSelect = (date: Date, rowIndex: number): void => {
-  // Case 1: User clicks on the already selected date (collapse)
-  if (
-    selectedDate &&
-    selectedDate.getDate() === date.getDate() &&
-    selectedDate.getMonth() === date.getMonth() &&
-    selectedDate.getFullYear() === date.getFullYear()
-  ) {
-    // Collapse animation
-    Animated.timing(expandAnimation, {
-      toValue: 0,
-      duration: EXPAND_ANIMATION_DURATION,
-      useNativeDriver: true,
-    }).start(() => {
-      setSelectedDate(null);
-      setExpandedRowIndex(null);
-      setHeight(prev => prev - 200);
-      setExpandedHeight(0);
-      setAdditionalInfo({ date: '', items: [] });
+  // Modify the handleDateSelect function to ensure animation works on first tap
+  const handleDateSelect = (date: Date, rowIndex: number): void => {
+    // Case 1: User clicks on the already selected date (collapse)
+    if (
+      selectedDate &&
+      selectedDate.getDate() === date.getDate() &&
+      selectedDate.getMonth() === date.getMonth() &&
+      selectedDate.getFullYear() === date.getFullYear()
+    ) {
+      // Collapse animation
+      Animated.timing(expandAnimation, {
+        toValue: 0,
+        duration: EXPAND_ANIMATION_DURATION,
+        useNativeDriver: true,
+      }).start(() => {
+        // Animate height reduction
+        setExpandedHeight(0);
+        setSelectedDate(null);
+        setExpandedRowIndex(null);
+        setAdditionalInfo({ date: '', items: [] });
+        setShowAllNotes(false);
+      });
+    } 
+    // Case 2: User clicks on a new date while another date is already expanded
+    else if (selectedDate !== null) {
+      // Keep expanded state but change the data
+      setSelectedDate(date);
+      setExpandedRowIndex(rowIndex);
       setShowAllNotes(false);
-    });
-  } 
-  // Case 2: User clicks on a new date while another date is already expanded
-  else if (selectedDate !== null) {
-    // Keep expanded state but change the data
-    setSelectedDate(date);
-    setExpandedRowIndex(rowIndex);
-    setShowAllNotes(false);
 
-    const dateString = date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+      const dateString = date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
 
-    const numberOfItems = Math.floor(Math.random() * 4) + 5;
-    const items = Array.from({ length: numberOfItems }, (_, i) => ({
-      time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
-        Math.random() * 60
-      )
-        .toString()
-        .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-      title: `Event ${i + 1} for ${dateString}`,
-    }));
-    
-    // Calculate height adjustment if we're switching from showing all notes
-    if (showAllNotes) {
-      const currentVisibleItems = additionalInfo.items.length;
-      const newVisibleItems = Math.min(MAX_VISIBLE_ITEMS, items.length);
-      const heightAdjustment = (newVisibleItems - currentVisibleItems) * EVENT_ITEM_HEIGHT;
+      const numberOfItems = Math.floor(Math.random() * 4) + 5;
+      const items = Array.from({ length: numberOfItems }, (_, i) => ({
+        time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
+          Math.random() * 60
+        )
+          .toString()
+          .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+        title: `Event ${i + 1} for ${dateString}`,
+      }));
       
-      setHeight(prev => prev + heightAdjustment);
-      setExpandedHeight(prev => prev + heightAdjustment);
+      // Calculate height adjustment if switching from showing all notes
+      if (showAllNotes) {
+        const currentVisibleItems = additionalInfo.items.length;
+        const newVisibleItems = Math.min(MAX_VISIBLE_ITEMS, items.length);
+        const heightAdjustment = (newVisibleItems - currentVisibleItems) * EVENT_ITEM_HEIGHT;
+        
+        // Animate to new height
+        setExpandedHeight(EXPAND_HEIGHT + heightAdjustment);
+      }
+
+      setAdditionalInfo({
+        date: dateString,
+        items,
+      });
     }
+    // Case 3: User clicks on a date when nothing is expanded
+    else {
+      // First, prepare all the data
+      const dateString = date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
 
-    setAdditionalInfo({
-      date: dateString,
-      items,
-    });
+      const numberOfItems = Math.floor(Math.random() * 4) + 5;
+      const items = Array.from({ length: numberOfItems }, (_, i) => ({
+        time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
+          Math.random() * 60
+        )
+          .toString()
+          .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+        title: `Event ${i + 1} for ${dateString}`,
+      }));
 
-    if (onDateSelect) {
-      onDateSelect(date);
-    }
-  }
-  // Case 3: User clicks on a date when nothing is expanded
-  else {
-    // First, prepare all the data
-    const dateString = date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-
-    const numberOfItems = Math.floor(Math.random() * 4) + 5;
-    const items = Array.from({ length: numberOfItems }, (_, i) => ({
-      time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
-        Math.random() * 60
-      )
-        .toString()
-        .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-      title: `Event ${i + 1} for ${dateString}`,
-    }));
-
-    // Set data first before animation starts
-    setAdditionalInfo({
-      date: dateString,
-      items,
-    });
-    
-    // Important: Update these states before starting the animation
-    setSelectedDate(date);
-    setExpandedRowIndex(rowIndex);
-    setHeight(prev => prev + 200);
-    setExpandedHeight(200);
-    
-    // Reset animation value to ensure it starts from 0
-    expandAnimation.setValue(0);
-    
-    // Use requestAnimationFrame to ensure state updates have been applied
-    requestAnimationFrame(() => {
+      // Set data first before animation starts
+      setAdditionalInfo({
+        date: dateString,
+        items,
+      });
+      
+      // Important: Update these states before starting the animation
+      setSelectedDate(date);
+      setExpandedRowIndex(rowIndex);
+      setExpandedHeight(EXPAND_HEIGHT);
+      
+      // Reset animation value to ensure it starts from 0
+      expandAnimation.setValue(0);
+      
       // Now start the animation
       Animated.timing(expandAnimation, {
         toValue: 1,
         duration: EXPAND_ANIMATION_DURATION,
         useNativeDriver: true,
       }).start();
-    });
-
-    if (onDateSelect) {
-      onDateSelect(date);
     }
-  }
-};
+  };
 
   const toggleShowAllNotes = () => {
     // Calculate the current visible items and the total items
@@ -418,8 +434,7 @@ const handleDateSelect = (date: Date, rowIndex: number): void => {
     
     // Only adjust heights if there's a difference in the number of visible items
     if (itemsHeightDifference !== 0) {
-      setHeight(prev => prev + itemsHeightDifference);
-      setExpandedHeight(prev => prev + itemsHeightDifference);
+      setExpandedHeight(prevHeight => prevHeight + itemsHeightDifference);
     }
   };
 
@@ -448,7 +463,10 @@ const handleDateSelect = (date: Date, rowIndex: number): void => {
           <Text style={styles.monthText}>{monthName}</Text>
           <TouchableOpacity
             style={styles.highlightsButton}
-            onPress={() => setShowHighlights(!showHighlights)}
+            onPress={() => {
+              setExpandedHeight(showHighlights ? 0 : highlightsHeight + 10);
+              setShowHighlights(!showHighlights);
+            }}
           >
             <SvgXml xml={home.highlights} />
             <Text style={styles.highlightsText}>
@@ -457,7 +475,10 @@ const handleDateSelect = (date: Date, rowIndex: number): void => {
           </TouchableOpacity>
         </View>
         {showHighlights && (
-          <View style={styles.highlightsContainer}>
+          <View style={styles.highlightsContainer} onLayout={(event) => {
+            const { height } = event.nativeEvent.layout;
+            setHighlightsHeight(height-140);
+          }}>
             <Text style={styles.highlightsHeader}>Highlights</Text>
             {highlights.map((highlight, index) => (
               <View key={index} style={styles.highlightItem}>
@@ -629,9 +650,12 @@ const handleDateSelect = (date: Date, rowIndex: number): void => {
         {renderMonthHeader()}
         {renderWeekdays()}
       </View>
-      <View style={[styles.calendarContentWrapper, { height: height }]}>
+      <Animated.View style={[
+        styles.calendarContentWrapper, 
+        { height: animatedHeight }
+      ]}>
         {renderCalendarDays()}
-      </View>
+      </Animated.View>
       <View style={styles.footerSection}>
         {renderStreakFooter()}
       </View>
