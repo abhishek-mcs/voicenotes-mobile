@@ -12,11 +12,9 @@ import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
   dsn: 'https://794cc208d64f43a4069e118c7521c135@o4508691521863680.ingest.us.sentry.io/4508691555942400',
-  replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 0,
   enableCaptureFailedRequests:true,
   enableAutoSessionTracking: false,
-  environment: "production",
+  environment: __DEV__?"development":"production",
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
 });

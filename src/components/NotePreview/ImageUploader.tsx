@@ -104,7 +104,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             id: temporaryImageId,
             type: ATTACHMENT_TYPE.IMAGE,
             url: newImage.uri,
-            is_uploading: true,
+            is_uploading: noteType!=3,
           },
         ]);
         noteType!=3?handleSelectedImage(newImage,temporaryImageId)

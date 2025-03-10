@@ -598,7 +598,7 @@ const NotePreview = forwardRef(
       []:[];
 
       const intermediateButtons = [
-        ...([0,1,2,4]?.includes(note?.recording_type)?[{
+        ...(([0,1,2,4]?.includes(note?.recording_type) || !note.recording_type)?[{
           text: "Download",
           onPress: onDownloadAudio,
           icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
@@ -1066,9 +1066,10 @@ const NotePreview = forwardRef(
                 )}
 
                 <TagsList note={note} />
-                {!!attachments && attachments?.length > 0 && (
+                {((!!attachments && attachments?.length > 0)||(!!note?.imageAttachments && note?.imageAttachments?.length > 0)) && (
                   <AttachmentViewer
                     attachments={attachments}
+                    localImages={note?.imageAttachments??null}
                     onAttachmentUpdate={refreshNoteAfterAttachmentChange}
                     onEditLink={(linkItem: any) => {
                       setShowLinkEditModal(true);
