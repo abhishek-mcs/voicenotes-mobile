@@ -88,7 +88,7 @@ const Home = () => {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
-  const { recordingList,tempRecordingData } = useSelector(
+  const { recordingList } = useSelector(
     (state: RootState) => state.recordingStates
   );
   const createGuestUser = useGuestToken();
@@ -562,7 +562,6 @@ const Home = () => {
 
       const newTemporaryRecording: NewNote = createTempRecDetails({uri,duration,parentId:recordingParentId})
 
-      dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
@@ -575,6 +574,7 @@ const Home = () => {
           }
           return recording;
         });
+        dispatch(setTempRecordingData(newTemporaryRecording));
         dispatch(setRecordingList(newRecordingList));
       }
 

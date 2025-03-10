@@ -26,7 +26,8 @@ type BaseNote = {
   temp_parent_id?:string |null,
   recording_type?:number|null,
   text_note?:string|null,
-  imageAttachments?: any[]
+  imageAttachments?: any[],
+  isRelatedNote?: boolean
 };
 
 export type NewNote = BaseNote;
