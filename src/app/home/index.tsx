@@ -72,6 +72,7 @@ import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFireba
 import { stopSilentBackgroundService } from "services/background";
 import { createTempRecDetails } from "utils/createTempRecDetails";
 import * as FileSystem from "expo-file-system";
+import { isTaskRegistered, registerBackgroundTask } from "services/backgroundFetchHelperiOS";
 
 const { height } = Dimensions.get("screen");
 
@@ -139,38 +140,42 @@ const Home = () => {
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
   },[isLightMode])
 
+  const deepLinkListener = async() => {
+    if (!!file) {
+      setAuthToken(token,false,netinfo)
+      // Handle file processing (e.g., upload or play audio)
+      const fileURI = await saveRecording(file,true)??''
+      console.log("moved file to cache", fileURI)
+      const MAX_SIZE_MB = 35 * 1024 * 1024;
+      const fileInfo:any = await FileSystem.getInfoAsync(fileURI);
+      if (fileInfo?.size > MAX_SIZE_MB ) {
+        console.warn(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
+        showDialog('','Your file is too large (over 35 MB). Please choose a smaller file to continue.')
+        return;
+      }
+      const { sound } = await Audio.Sound.createAsync({ uri:file });
+      const status = await sound.getStatusAsync();
+      let d:number = 0;
+      if (status?.isLoaded&&status?.durationMillis) {
+        console.log("Audio duration (ms):", status.durationMillis);
+        d = status.durationMillis;
+      }
+      if(fileURI&&isBeliever){
+        const tempRecordingDetails = createTempRecDetails({uri:fileURI,duration:d})
+        dispatch(setTempRecordingData(tempRecordingDetails))
+        dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
+        uploadVoiceNote(tempRecordingDetails)
+      }else{
+        setTimeout(() => {
+          checkAndShowPremium()
+        }, 1000);
+      }
+    }
+  }
+
   useEffect(() => {
     (async function(){
-      if (!!file) {
-        setAuthToken(token,false,netinfo)
-        // Handle file processing (e.g., upload or play audio)
-        const fileURI = await saveRecording(file,true)??''
-        console.log("moved file to cache", fileURI)
-        const MAX_SIZE_MB = 35 * 1024 * 1024;
-        const fileInfo:any = await FileSystem.getInfoAsync(fileURI);
-        if (fileInfo?.size > MAX_SIZE_MB ) {
-          console.warn(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
-          showDialog('','Your file is too large (over 35 MB). Please choose a smaller file to continue.')
-          return;
-        }
-        const { sound } = await Audio.Sound.createAsync({ uri:file });
-        const status = await sound.getStatusAsync();
-        let d:number = 0;
-        if (status?.isLoaded&&status?.durationMillis) {
-          console.log("Audio duration (ms):", status.durationMillis);
-          d = status.durationMillis;
-        }
-        if(fileURI&&isBeliever){
-          const tempRecordingDetails = createTempRecDetails({uri:fileURI,duration:d})
-          dispatch(setTempRecordingData(tempRecordingDetails))
-          dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
-          uploadVoiceNote(tempRecordingDetails)
-        }else{
-          setTimeout(() => {
-            checkAndShowPremium()
-          }, 1000);
-        }
-      }
+      await deepLinkListener()
     })()
   }, [file]);
   
@@ -405,31 +410,41 @@ const Home = () => {
     }
   };
 
+  const syncRecordingAndSubnotes = async (recording: Note) => {
+    if (recording.status !== "processed") {
+      await syncUpNote(recording);
+    }
+    
+    if (recording?.subnotes && Array.isArray(recording?.subnotes)) {
+      for (const subnote of recording?.subnotes) {
+        if (subnote?.status !== "processed") {
+          await syncUpNote(subnote); // Pass true to indicate it's a subnote
+        }
+      }
+    }
+  };
+
+  const syncAllRecordings = async () => {
+    for (const recording of recordingList) {
+      await syncRecordingAndSubnotes(recording);
+    }
+  };
+
   useEffect(() => {
     if (isOffline) return;
   
-    const syncRecordingAndSubnotes = async (recording: Note) => {
-      if (recording.status !== "processed") {
-        await syncUpNote(recording);
-      }
-      
-      if (recording?.subnotes && Array.isArray(recording?.subnotes)) {
-        for (const subnote of recording?.subnotes) {
-          if (subnote?.status !== "processed") {
-            await syncUpNote(subnote); // Pass true to indicate it's a subnote
-          }
-        }
-      }
-    };
-  
-    const syncAllRecordings = async () => {
-      for (const recording of recordingList) {
-        await syncRecordingAndSubnotes(recording);
-      }
-    };
-  
     syncAllRecordings();
   }, [isOffline]);
+
+  useEffect(()=>{
+    (async function(){
+      if(isIOS){
+        const isReg = await isTaskRegistered('bg-upload-all');
+        if(isReg)
+          registerBackgroundTask('bg-upload-all',syncAllRecordings,300)
+      }
+    })()
+  },[]);
 
   const onAsk = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
