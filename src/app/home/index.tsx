@@ -104,6 +104,7 @@ const Home = () => {
   const [play, setPlay] = useState<Audio.Sound | null>();
   const [audioLoading, setAudioLoading] = useState(-1);
   const soundRef = useRef<any>(null);
+  const [calendar, showCalendar] = useState(false);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
   const [isRefreshing, setRefreshing] = useState(false);
@@ -739,6 +740,7 @@ const Home = () => {
                 isOffline={isOffline}
                 streaks={streaks}
                 streaksRef={streaksRef}
+                onCalendarToggled={() => showCalendar(!calendar)}
                 scrollY={scrollY}
                 scale={scale.current}
               />
@@ -939,10 +941,18 @@ const Home = () => {
       </CustomModal>
       <Modal
         transparent
-        visible
+        visible={calendar}
+        animationType="fade"
       >
         <BlurView style={{ flex: 1 }} tint="light" intensity={50}>
-          <View style={{flex: 1}}></View>
+          <View style={styles.calendarHeader}>
+            <Pressable onPress={() => showCalendar(false)} style={styles.button}>
+              <SvgXml xml={home.calendar} />
+            </Pressable>
+            <Pressable onPress={() => router.navigate("/settings/")} style={styles.button}>
+              <SvgXml xml={home.settings} />
+            </Pressable>
+          </View>
           <View style={{flex: 5, alignItems: 'center'}}>
             <ExpandableCalendar />
           </View>
@@ -964,6 +974,21 @@ const useStyles = () => {
     paddingVertical: isIOS ? 0 : 32,
     backgroundColor:Colors.bgColor
   },
+  calendarHeader: {
+    flex: 0.5,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    padding: 12,
+    marginTop: 30,
+  },
+  button: {
+    height: 38,
+    width: 38,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 }), [Colors]); // Recreate styles when Colors change
 };
 
