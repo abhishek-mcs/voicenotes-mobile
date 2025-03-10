@@ -981,13 +981,13 @@ const Home = () => {
         visible={calendar}
         animationType="fade"
       >
-        <BlurView style={{ flex: 1 }} tint="light" intensity={50}>
+        <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={50}>
           <View style={styles.calendarHeader}>
             <Pressable onPress={() => showCalendar(false)} style={styles.button}>
-              <SvgXml xml={home.calendar} />
+              <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>
             <Pressable onPress={() => router.navigate("/settings/")} style={styles.button}>
-              <SvgXml xml={home.settings} />
+              <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>
           </View>
           <View style={{flex: 5, alignItems: 'center'}}>

@@ -1,5 +1,6 @@
 import { home } from 'assets/svg/home';
-import React, { useState, useRef, useEffect } from 'react';
+import { useTheme } from 'context';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -94,13 +95,15 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   // State for carousel-like months
   const [monthsData, setMonthsData] = useState<MonthData[]>([]);
 
-  const highlightsContainerRef = useRef<View>(null);
   const [highlightsHeight, setHighlightsHeight] = useState(0);
   
   // Animation values
   const monthsAnimation = useRef(new Animated.Value(0)).current;
   const expandAnimation = useRef(new Animated.Value(0)).current;
   const isAnimating = useRef(false);
+
+  const styles = useStyles();
+  const { Colors } = useTheme();
 
   // Generate months data (prev, current, next)
   useEffect(() => {
@@ -468,7 +471,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
               setShowHighlights(!showHighlights);
             }}
           >
-            <SvgXml xml={home.highlights} />
+            <SvgXml xml={home.highlights.replace(/#FFFFFF/g,Colors.green4)} />
             <Text style={styles.highlightsText}>
               {showHighlights ? 'Hide highlights' : 'View highlights'}
             </Text>
@@ -636,7 +639,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const renderStreakFooter = (): JSX.Element => {
     return (
       <View style={styles.streakContainer}>
-        <SvgXml xml={home.fire} />
+        <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
         <Text style={styles.streakText}>
           You are on a 15-day streak and rank 111 globally.
         </Text>
@@ -663,224 +666,226 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: CALENDAR_WIDTH,
-    backgroundColor: '#fff',
-    borderRadius: 25,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
-    overflow: 'hidden',
-  },
-  monthHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
-  monthText: {
-    fontSize: 28,
-    fontWeight: '500',
-    color: '#000',
-  },
-  calendarContentWrapper: {
-    position: 'relative',
-    zIndex: 1,
-    overflow: 'hidden',
-  },
-  headerSection: {
-    position: 'relative',
-    zIndex: 2,
-    backgroundColor: '#fff',
-  },
-  footerSection: {
-    position: 'relative',
-    zIndex: 2,
-    backgroundColor: '#fff',
-  },
-  monthsWrapper: {
-    position: 'relative',
-    height: 260, // Match container height
-  },
-  absoluteMonth: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-  },
-  monthContainer: {
-    width: '100%',
-  },
-  highlightsButton: {
-    backgroundColor: '#e8f5e9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5
-  },
-  highlightsText: {
-    color: '#3d8c40',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  highlightsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    marginBottom: 15,
-    padding: 10,
-    borderColor: '#f0f0f0',
-    borderWidth: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
+    container: {
+      width: CALENDAR_WIDTH,
+      backgroundColor: Colors.grey2,
+      borderRadius: 25,
+      padding: 16,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 2,
+      overflow: 'hidden',
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  highlightsHeader: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 12,
-    color: '#000',
-  },
-  highlightItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  bulletPoint: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#3d8c40',
-    marginRight: 8,
-  },
-  highlightText: {
-    fontSize: 14,
-    color: '#555',
-    flex: 1,
-  },
-  weekdayContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingBottom: 16,
-  },
-  weekdayText: {
-    fontSize: 15,
-    color: '#000',
-    width: (CALENDAR_WIDTH - 32) / 7,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  calendarRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 12,
-  },
-  calendarDay: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 20,
-    backgroundColor: 'transparent',
-  },
-  calendarDayText: {
-    fontSize: 15,
-    color: '#000',
-    fontWeight: '500',
-  },
-  emptyDay: {
-    backgroundColor: 'transparent',
-  },
-  activeDay: {
-    backgroundColor: '#f5f5f5',
-  },
-  selectedDay: {
-    backgroundColor: '#000',
-  },
-  selectedDayText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  expandedContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    marginVertical: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderColor: '#f0f0f0',
-    borderWidth: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
+    monthHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingBottom: 20,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  dateHeaderText: {
-    fontSize: 14,
-    marginBottom: 8,
-    fontWeight: '500',
-    color: '#000',
-  },
-  notesContainer: {
-    borderRadius: 8,
-    backgroundColor: '#fafafa',
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-  },
-  eventItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5,
-    height: EVENT_ITEM_HEIGHT,
-  },
-  eventTime: {
-    width: 80,
-    fontSize: 14,
-    color: '#888',
-  },
-  eventTitle: {
-    fontSize: 14,
-    color: '#000',
-    fontWeight: '400',
-    flex: 1,
-  },
-  seeAllButton: {
-    alignSelf: 'center',
-    marginTop: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 15,
-  },
-  seeAllText: {
-    fontSize: 12,
-    color: '#555',
-    fontWeight: '500',
-  },
-  streakContainer: {
-    marginTop: 8,
-    paddingVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 5
-  },
-  streakText: {
-    fontSize: 13,
-    color: '#555',
-  },
-});
+    monthText: {
+      fontSize: 28,
+      fontWeight: '500',
+      color: Colors.text,
+    },
+    calendarContentWrapper: {
+      position: 'relative',
+      zIndex: 1,
+      overflow: 'hidden',
+    },
+    headerSection: {
+      position: 'relative',
+      zIndex: 2,
+      backgroundColor: Colors.grey2,
+    },
+    footerSection: {
+      position: 'relative',
+      zIndex: 2,
+      backgroundColor: Colors.grey2,
+    },
+    monthsWrapper: {
+      position: 'relative',
+      height: 260, // Match container height
+    },
+    absoluteMonth: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+    },
+    monthContainer: {
+      width: '100%',
+    },
+    highlightsButton: {
+      backgroundColor: Colors.green3,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5
+    },
+    highlightsText: {
+      color: Colors.green4,
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    highlightsContainer: {
+      backgroundColor: Colors.bgColor20,
+      borderRadius: 10,
+      marginBottom: 15,
+      padding: 10,
+      borderColor: Colors.grey,
+      borderWidth: 0.2,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 2,
+        height: 2,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    highlightsHeader: {
+      fontSize: 16,
+      fontWeight: '500',
+      marginBottom: 12,
+      color: Colors.text,
+    },
+    highlightItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    bulletPoint: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: Colors.text,
+      marginRight: 8,
+    },
+    highlightText: {
+      fontSize: 14,
+      color: Colors.text,
+      flex: 1,
+    },
+    weekdayContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingBottom: 16,
+    },
+    weekdayText: {
+      fontSize: 15,
+      color: Colors.text,
+      width: (CALENDAR_WIDTH - 32) / 7,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    calendarRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginBottom: 12,
+    },
+    calendarDay: {
+      width: 40,
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 20,
+      backgroundColor: 'transparent',
+    },
+    calendarDayText: {
+      fontSize: 15,
+      color: Colors.text,
+      fontWeight: '500',
+    },
+    emptyDay: {
+      backgroundColor: 'transparent',
+    },
+    activeDay: {
+      backgroundColor: Colors.bgColor19,
+    },
+    selectedDay: {
+      backgroundColor: Colors.text,
+    },
+    selectedDayText: {
+      color: Colors.bgColor,
+      fontWeight: 'bold',
+    },
+    expandedContainer: {
+      backgroundColor: Colors.bgColor,
+      borderRadius: 16,
+      marginVertical: 4,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      shadowColor: Colors.text,
+      shadowOffset: {
+        width: 2,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    dateHeaderText: {
+      fontSize: 14,
+      marginBottom: 8,
+      fontWeight: '500',
+      color: Colors.text,
+    },
+    notesContainer: {
+      borderRadius: 8,
+      backgroundColor: Colors.bgColor,
+      paddingVertical: 5,
+      paddingHorizontal: 5,
+    },
+    eventItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 5,
+      height: EVENT_ITEM_HEIGHT,
+    },
+    eventTime: {
+      width: 80,
+      fontSize: 14,
+      color: '#888',
+    },
+    eventTitle: {
+      fontSize: 14,
+      color: Colors.text,
+      fontWeight: '400',
+      flex: 1,
+    },
+    seeAllButton: {
+      alignSelf: 'center',
+      marginTop: 8,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      backgroundColor: Colors.grey8,
+      borderRadius: 15,
+    },
+    seeAllText: {
+      fontSize: 12,
+      color: Colors.grey6,
+      fontWeight: '500',
+    },
+    streakContainer: {
+      marginTop: 8,
+      paddingVertical: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 5
+    },
+    streakText: {
+      fontSize: 13,
+      color: Colors.text,
+    },
+  }), [Colors])
+}
 
 export default ExpandableCalendar;
