@@ -23,18 +23,27 @@ const SNAP_ANIMATION_DURATION = 200; // Increased for smoother transitions
 const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
 const HEIGHT_ANIMATION_DURATION = 100; // Duration for height animations
 
-// Utility functions remain the same
-const generateRandomDatesForMonth = (date: Date): Date[] => {
+// Utility functions 
+// NEW FUNCTION: Get dates with recording counts > 0 for a specific month
+const getDatesWithRecordings = (date: Date, weeksData: any[]): Date[] => {
   const year = date.getFullYear();
   const month = date.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const numberOfDates = Math.floor(Math.random() * 6) + 5;
   const dates: Date[] = [];
   
-  for (let i = 0; i < numberOfDates; i++) {
-    const day = Math.floor(Math.random() * daysInMonth) + 1;
-    dates.push(new Date(year, month, day));
-  }
+  // Iterate through all weeks in the data
+  weeksData.forEach(week => {
+    // Iterate through each day in the week
+    week.forEach(day => {
+      const dayDate = new Date(day.date);
+      
+      // Check if the date is in the target month and has recordings
+      if (dayDate.getFullYear() === year && 
+          dayDate.getMonth() === month && 
+          day.recordings_count > 0) {
+        dates.push(dayDate);
+      }
+    });
+  });
   
   return dates;
 };
@@ -64,13 +73,24 @@ interface MonthData {
   eventDates: Date[];
 }
 
+type Data = {
+  current_streak: number;
+  rank: number;
+  max_recordings_count: number;
+  total_users: string;
+  weeks: any[];
+}
+
 interface ExpandableCalendarProps {
   initialDate?: Date;
+  data: Data;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
+  data,
 }) => {
+  const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [expandedHeight, setExpandedHeight] = useState(0);
@@ -85,6 +105,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     date: '',
     items: [],
   });
+
+  useEffect(() => setLoading(data.weeks.length < 0), [data])
   
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
@@ -116,7 +138,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       
       const months = [prevMonth, baseMonth, nextMonth];
       return months.map((month, index) => {
-        const eventDates = generateRandomDatesForMonth(month);
+        // Use the real recording data instead of random dates
+        const eventDates = getDatesWithRecordings(month, data.weeks);
         const days = generateCalendarDays(month, eventDates);
         if(index === 1) {
           // Animate to the new base height instead of immediately setting it
@@ -132,12 +155,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     };
     
     // Initial setup, only run once
-    if (monthsData.length === 0) {
+    if (monthsData.length === 0 && data.weeks.length > 0) {
       setMonthsData(generateMonthsData(currentMonth));
       const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long' });
       setHighlights(generateHighlights(monthName));
     }
-  }, []);
+  }, [data.weeks]);
 
   // Update animatedHeight when baseHeight changes
   useEffect(() => {
@@ -252,7 +275,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         
         const months = [prevOfNew, newMonth, nextOfNew];
         const newMonthsData = months.map((month, index) => {
-          const eventDates = generateRandomDatesForMonth(month);
+          // Use real recording data instead of random dates
+          const eventDates = getDatesWithRecordings(month, data.weeks);
           const days = generateCalendarDays(month, eventDates);
           if(index === 1) {
             // Animate to the new base height instead of immediately setting it
@@ -313,8 +337,25 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     })
   ).current;
 
-  // Modify the handleDateSelect function to ensure animation works on first tap
+  // Find recording count for a specific date
+  const getRecordingCountForDate = (date: Date): number => {
+    for (const week of data.weeks) {
+      for (const day of week) {
+        const dayDate = new Date(day.date);
+        if (dayDate.getDate() === date.getDate() && 
+            dayDate.getMonth() === date.getMonth() && 
+            dayDate.getFullYear() === date.getFullYear()) {
+          return day.recordings_count;
+        }
+      }
+    }
+    return 0;
+  };
+
   const handleDateSelect = (date: Date, rowIndex: number): void => {
+    // Get recording count for the selected date
+    const recordingCount = getRecordingCountForDate(date);
+    
     // Case 1: User clicks on the already selected date (collapse)
     if (
       selectedDate &&
@@ -350,14 +391,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         year: 'numeric',
       });
 
-      const numberOfItems = Math.floor(Math.random() * 4) + 5;
-      const items = Array.from({ length: numberOfItems }, (_, i) => ({
+      // Generate more meaningful items based on recording count
+      const items = Array.from({ length: recordingCount }, (_, i) => ({
         time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
           Math.random() * 60
         )
           .toString()
           .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-        title: `Event ${i + 1} for ${dateString}`,
+        title: `Recording ${i + 1} for ${dateString}`,
       }));
       
       // Calculate height adjustment if switching from showing all notes
@@ -367,7 +408,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         const heightAdjustment = (newVisibleItems - currentVisibleItems) * EVENT_ITEM_HEIGHT;
         
         // Animate to new height
-        setExpandedHeight(EXPAND_HEIGHT + heightAdjustment);
+        setExpandedHeight(calculateExpandedHeight(items.length));
+      } else {
+        // Calculate appropriate height based on item count
+        setExpandedHeight(calculateExpandedHeight(items.length));
       }
 
       setAdditionalInfo({
@@ -385,14 +429,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         year: 'numeric',
       });
 
-      const numberOfItems = Math.floor(Math.random() * 4) + 5;
-      const items = Array.from({ length: numberOfItems }, (_, i) => ({
+      // Generate items based on recording count
+      const items = Array.from({ length: recordingCount }, (_, i) => ({
         time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
           Math.random() * 60
         )
           .toString()
           .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-        title: `Event ${i + 1} for ${dateString}`,
+        title: `Recording ${i + 1} for ${dateString}`,
       }));
 
       // Set data first before animation starts
@@ -404,7 +448,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       // Important: Update these states before starting the animation
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
-      setExpandedHeight(EXPAND_HEIGHT);
+      
+      // Calculate appropriate height based on item count
+      setExpandedHeight(calculateExpandedHeight(items.length));
       
       // Reset animation value to ensure it starts from 0
       expandAnimation.setValue(0);
@@ -418,27 +464,35 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     }
   };
 
+  const calculateExpandedHeight = (itemCount: number): number => {
+    // Base height for the container padding, header, and footer
+    const baseContainerHeight = 80;
+    
+    // Calculate the height needed for the items
+    const visibleItemCount = Math.min(MAX_VISIBLE_ITEMS, itemCount);
+    const itemsHeight = visibleItemCount * EVENT_ITEM_HEIGHT;
+    
+    // Add space for the "See all" button if needed
+    const seeAllButtonHeight = itemCount > MAX_VISIBLE_ITEMS ? 30 : 0;
+    
+    return baseContainerHeight + itemsHeight + seeAllButtonHeight;
+  };
+
   const toggleShowAllNotes = () => {
-    // Calculate the current visible items and the total items
-    const visibleItems = showAllNotes 
+    // Toggle the state
+    const newShowAllState = !showAllNotes;
+    setShowAllNotes(newShowAllState);
+    
+    // Calculate the new height based on the toggled state
+    const itemsToShow = newShowAllState 
       ? additionalInfo.items.length 
       : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length);
     
-    // Calculate the number of items that will be shown after toggle
-    const newVisibleItems = !showAllNotes
-      ? additionalInfo.items.length
-      : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length);
+    // Use the helper function to calculate the proper height
+    const newHeight = calculateExpandedHeight(additionalInfo.items.length);
     
-    // Calculate the height difference based on the change in visible items
-    const itemsHeightDifference = (newVisibleItems - visibleItems) * EVENT_ITEM_HEIGHT;
-    
-    // Toggle the state
-    setShowAllNotes(!showAllNotes);
-    
-    // Only adjust heights if there's a difference in the number of visible items
-    if (itemsHeightDifference !== 0) {
-      setExpandedHeight(prevHeight => prevHeight + itemsHeightDifference);
-    }
+    // Set the new expanded height
+    setExpandedHeight(newHeight);
   };
 
   const renderWeekdays = (): JSX.Element => {
@@ -641,7 +695,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       <View style={styles.streakContainer}>
         <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
         <Text style={styles.streakText}>
-          You are on a 15-day streak and rank 111 globally.
+          {`You are on a ${data.current_streak}-day streak and rank ${data.rank} globally.`}
         </Text>
       </View>
     );
@@ -660,7 +714,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         {renderCalendarDays()}
       </Animated.View>
       <View style={styles.footerSection}>
-        {renderStreakFooter()}
+        {!loading && renderStreakFooter()}
       </View>
     </View>
   );
