@@ -727,6 +727,7 @@ const useStyles = () => {
       width: CALENDAR_WIDTH,
       backgroundColor: Colors.grey2,
       borderRadius: 25,
+      borderWidth: 0.1,
       padding: 16,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
@@ -872,6 +873,7 @@ const useStyles = () => {
     expandedContainer: {
       backgroundColor: Colors.bgColor,
       borderRadius: 16,
+      borderWidth: 0.17,
       marginVertical: 4,
       marginBottom: 16,
       paddingHorizontal: 16,
