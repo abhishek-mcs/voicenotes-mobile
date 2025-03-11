@@ -991,7 +991,7 @@ const Home = () => {
             </Pressable>
           </View>
           <View style={{flex: 5, alignItems: 'center'}}>
-            <ExpandableCalendar />
+            <ExpandableCalendar data={streaks?.data?.data || []} />
           </View>
           <View style={{flex: 1}} />
         </BlurView>
