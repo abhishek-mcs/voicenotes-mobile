@@ -1,5 +1,7 @@
 import { home } from 'assets/svg/home';
+import SkeletonLoader from 'components/common/loaders/skeleton';
 import { useTheme } from 'context';
+import { getNotesByDates } from 'queries/home';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
@@ -24,10 +26,11 @@ const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
 const HEIGHT_ANIMATION_DURATION = 100; // Duration for height animations
 
 // Utility functions 
-const getDatesWithRecordings = (date: Date, weeksData: any[]): Date[] => {
+const getDatesWithRecordings = (date: Date, weeksData: any[][]): Date[] => {
   const year = date.getFullYear();
   const month = date.getMonth();
   const dates: Date[] = [];
+  if(!weeksData) return dates;
   
   // Iterate through all weeks in the data
   weeksData.forEach(week => {
@@ -101,14 +104,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     date: '',
     items: [],
   });
-
-  useEffect(() => {if(data.weeks) setLoading(data.weeks.length < 0)}, [data])
-  
-  useEffect(() => {
-    if (highlightsData && currentMonth) {
-      setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
-    }
-  }, [highlightsData, currentMonth]);
+  const [monthlyNotes, setMonthlyNotes] = useState<Record<string, Record<string, any[]>>>({});
+  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
@@ -129,7 +126,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const styles = useStyles();
   const { Colors } = useTheme();
 
-  // Generate months data (prev, current, next)
   useEffect(() => {
     const generateMonthsData = (baseMonth: any) => {
       const prevMonth = new Date(baseMonth);
@@ -160,8 +156,13 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     if (monthsData.length === 0 && data.weeks && data.weeks.length > 0) {
       setMonthsData(generateMonthsData(currentMonth));
       setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
+      
+      // Fetch notes for the initial month
+      fetchNotesForMonth(currentMonth);
     }
   }, [data.weeks]);
+
+  useEffect(() => {if(data.weeks) setLoading(data.weeks.length < 0)}, [data])
 
   // Update animatedHeight when baseHeight changes
   useEffect(() => {
@@ -171,6 +172,20 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       useNativeDriver: false, // Height animations can't use native driver
     }).start();
   }, [baseHeight, expandedHeight]);
+
+  useEffect(() => {
+    if (highlightsData && currentMonth) {
+      setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
+      
+      // Create a month key
+      const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+      
+      // Only fetch if we don't already have notes for this month
+      if (!monthlyNotes[monthKey]) {
+        fetchNotesForMonth(currentMonth);
+      }
+    }
+  }, [highlightsData, currentMonth]);
 
   // Utility functions
   const isDateActive = (date: Date | undefined, activeDates: Date[]): boolean => {
@@ -242,6 +257,42 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     return rows;
   };
 
+  const fetchNotesForMonth = async (month: Date) => {
+    setIsLoadingNotes(true);
+    
+    // Get all dates with recordings in the month
+    const datesWithRecordings = getDatesWithRecordings(month, data.weeks);
+    
+    // Format dates as YYYY-MM-DD strings
+    const dateStrings = datesWithRecordings.map(date => 
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    );
+    
+    // Skip if no dates with recordings
+    if (dateStrings.length === 0) {
+      setIsLoadingNotes(false);
+      return;
+    }
+    
+    try {
+      // Call your API function
+      const notesData = await getNotesByDates(dateStrings);
+      
+      // Create a month key (YYYY-MM)
+      const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+      
+      // Update state with the new notes - do this regardless of whether there's a selected date
+      setMonthlyNotes(prev => ({
+        ...prev,
+        [monthKey]: notesData
+      }));
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    } finally {
+      setIsLoadingNotes(false);
+    }
+  };
+
   const changeMonth = (direction: number): void => {
     if (isAnimating.current) return;
     isAnimating.current = true;
@@ -294,6 +345,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         setMonthsData(newMonthsData);
         
         setHighlights(getHighlightsForMonth(newMonth, highlightsData));
+        
+        // Get notes for the new month if they're not already loaded
+        const monthKey = `${newMonth.getFullYear()}-${String(newMonth.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyNotes[monthKey]) {
+          fetchNotesForMonth(newMonth);
+        }
         
         return newMonth;
       });
@@ -352,10 +409,18 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const handleDateSelect = (date: Date, rowIndex: number): void => {
+    // Format the date as YYYY-MM-DD
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    
     // Get recording count for the selected date
     const recordingCount = getRecordingCountForDate(date);
     
-    // Case 1: User clicks on the already selected date (collapse)
+    // Check if we already have notes for this month
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const monthData = monthlyNotes[monthKey] || {};
+    const dateNotes = monthData[dateStr]?.data;
+    
+    // Same logic as before for collapsing
     if (
       selectedDate &&
       selectedDate.getDate() === date.getDate() &&
@@ -368,7 +433,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         duration: EXPAND_ANIMATION_DURATION,
         useNativeDriver: true,
       }).start(() => {
-        // Animate height reduction
         setExpandedHeight(0);
         setSelectedDate(null);
         setExpandedRowIndex(null);
@@ -376,90 +440,67 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         setShowAllNotes(false);
       });
     } 
-    // Case 2: User clicks on a new date while another date is already expanded
-    else if (selectedDate !== null) {
-      // Keep expanded state but change the data
-      setSelectedDate(date);
-      setExpandedRowIndex(rowIndex);
-      setShowAllNotes(false);
-
-      const dateString = date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-
-      // Generate more meaningful items based on recording count
-      const items = Array.from({ length: recordingCount }, (_, i) => ({
-        time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
-          Math.random() * 60
-        )
-          .toString()
-          .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-        title: `Recording ${i + 1} for ${dateString}`,
-      }));
-      
-      // Calculate height adjustment if switching from showing all notes
-      if (showAllNotes) {
-        const currentVisibleItems = additionalInfo.items.length;
-        const newVisibleItems = Math.min(MAX_VISIBLE_ITEMS, items.length);
-        const heightAdjustment = (newVisibleItems - currentVisibleItems) * EVENT_ITEM_HEIGHT;
-        
-        // Animate to new height
-        setExpandedHeight(calculateExpandedHeight(items.length));
-      } else {
-        // Calculate appropriate height based on item count
-        setExpandedHeight(calculateExpandedHeight(items.length));
-      }
-
-      setAdditionalInfo({
-        date: dateString,
-        items,
-      });
-    }
-    // Case 3: User clicks on a date when nothing is expanded
+    // Handle expanding
     else {
-      // First, prepare all the data
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       });
-
-      // Generate items based on recording count
-      const items = Array.from({ length: recordingCount }, (_, i) => ({
-        time: `${Math.floor(Math.random() * 12 + 1)}:${Math.floor(
-          Math.random() * 60
-        )
-          .toString()
-          .padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
-        title: `Recording ${i + 1} for ${dateString}`,
-      }));
-
-      // Set data first before animation starts
+      
+      // Generate items array based on whether we have notes or not
+      let items: any[] = [];
+      
+      if (dateNotes && Array.isArray(dateNotes)) {
+        // We have notes, map them to the format we need
+        items = dateNotes.map((note) => {
+          // Parse the recorded_at timestamp
+          const recordedAt = new Date(note.recorded_at);
+          
+          // Format the time as HH:MM AM/PM
+          const hours = recordedAt.getHours();
+          const minutes = recordedAt.getMinutes();
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+          const formattedMinutes = minutes.toString().padStart(2, '0');
+          const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+          
+          return {
+            time: timeString,
+            title: note.title || 'Untitled Recording',
+            id: note.id,
+            transcript: note.transcript
+          };
+        });
+      } else console.log(dateNotes)
+      
+      // Set data and states
       setAdditionalInfo({
         date: dateString,
         items,
       });
       
-      // Important: Update these states before starting the animation
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
       
-      // Calculate appropriate height based on item count
-      setExpandedHeight(calculateExpandedHeight(items.length));
+      // Calculate appropriate height for either real items or skeleton
+      setExpandedHeight(calculateExpandedHeight(items.length || recordingCount));
       
-      // Reset animation value to ensure it starts from 0
+      // Reset animation value
       expandAnimation.setValue(0);
       
-      // Now start the animation
+      // Start the animation
       Animated.timing(expandAnimation, {
         toValue: 1,
         duration: EXPAND_ANIMATION_DURATION,
         useNativeDriver: true,
       }).start();
+      
+      // If we don't have notes for this month, fetch them
+      if (!monthlyNotes[monthKey]) {
+        fetchNotesForMonth(date);
+      }
     }
   };
 
@@ -602,54 +643,63 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             </View>
             
             {expandedRowIndex === rowIndex && 
-             monthData.date.getMonth() === currentMonth.getMonth() &&
-             monthData.date.getFullYear() === currentMonth.getFullYear() && (
-              <Animated.View
-                style={[
-                  styles.expandedContainer,
-                  {
-                    opacity: expandAnimation,
-                    transform: [
-                      {
-                        translateY: expandAnimation.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [-10, 0],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <Text style={styles.dateHeaderText}>{additionalInfo.date}</Text>
-                
-                {additionalInfo.items.length > 0 && (
-                  <View>
-                    <View style={styles.notesContainer}>
-                      {additionalInfo.items
-                        .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
-                        .map((item, index) => (
-                          <View key={index} style={styles.eventItem}>
-                            <Text style={styles.eventTime}>{item.time}</Text>
-                            <Text style={styles.eventTitle}>{item.title}</Text>
-                          </View>
-                        ))
-                      }
-                    </View>
-                    
-                    {additionalInfo.items.length > MAX_VISIBLE_ITEMS && (
-                      <TouchableOpacity
-                        style={styles.seeAllButton}
-                        onPress={toggleShowAllNotes}
-                      >
-                        <Text style={styles.seeAllText}>
-                          {showAllNotes ? 'Show less' : 'See all notes'}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                )}
-              </Animated.View>
-            )}
+              monthData.date.getMonth() === currentMonth.getMonth() &&
+              monthData.date.getFullYear() === currentMonth.getFullYear() && (
+                <Animated.View
+                  style={[
+                    styles.expandedContainer,
+                    {
+                      opacity: expandAnimation,
+                      transform: [
+                        {
+                          translateY: expandAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [-10, 0],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  <Text style={styles.dateHeaderText}>{additionalInfo.date}</Text>
+                  
+                  {isLoadingNotes ? (
+                    <SkeletonLoader count={getRecordingCountForDate(selectedDate!)} />
+                  ) : (
+                    additionalInfo.items.length > 0 ? (
+                      <View>
+                        <View style={styles.notesContainer}>
+                          {additionalInfo.items
+                            .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
+                            .map((item, index) => (
+                              <View key={index} style={styles.eventItem}>
+                                <Text style={styles.eventTime}>{item.time}</Text>
+                                <Text style={styles.eventTitle}>{item.title}</Text>
+                              </View>
+                            ))
+                          }
+                        </View>
+                        
+                        {additionalInfo.items.length > MAX_VISIBLE_ITEMS && (
+                          <TouchableOpacity
+                            style={styles.seeAllButton}
+                            onPress={toggleShowAllNotes}
+                          >
+                            <Text style={styles.seeAllText}>
+                              {showAllNotes ? 'Show less' : 'See all notes'}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    ) : (
+                      <View style={styles.noNotesContainer}>
+                        <Text style={styles.noNotesText}>No notes available</Text>
+                      </View>
+                    )
+                  )}
+                </Animated.View>
+              )
+            }
           </View>
         ))}
       </View>
@@ -943,6 +993,14 @@ const useStyles = () => {
     streakText: {
       fontSize: 13,
       color: Colors.text,
+    },
+    noNotesContainer: {
+      padding: 10,
+      alignItems: 'center',
+    },
+    noNotesText: {
+      color: Colors.grey3,
+      fontStyle: 'italic',
     },
   }), [Colors])
 }

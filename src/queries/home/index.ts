@@ -462,3 +462,40 @@ export function useHighlights(token: string) {
             }
         })
 }
+
+export const getNotesByDates = async (dates: string[]): Promise<Record<string, any[]>> => {
+    // Create an object to store results with dates as keys
+    const result: Record<string, any[]> = {};
+    
+    // Initialize all dates with empty arrays in case of failures
+    dates.forEach(date => {
+      result[date] = [];
+    });
+    
+    try {
+      // Create array of promises with their corresponding dates
+      const requests = dates.map(date => ({
+        date,
+        promise: axiosApi.post('/calendar/day', { date })
+          .then(response => ({ success: true, date, data: response.data }))
+          .catch(error => ({ success: false, date, data: error }))
+      }));
+      
+      // Execute all requests in parallel and wait for all to complete
+      const responses = await Promise.all(requests.map(req => req.promise));
+      
+      // Process each response and update the result object
+      responses.forEach(response => {
+        if (response.success) {
+          // If successful, store the data array for that date
+          result[response.date] = response?.data;
+        }
+        // If failed, the empty array initialized earlier remains
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('Error in getNotesByDates:', error);
+      return result;
+    }
+  };
