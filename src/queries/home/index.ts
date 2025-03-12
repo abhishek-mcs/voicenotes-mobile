@@ -450,3 +450,15 @@ export function useStreak(token:any){
         }
     })
 }
+
+export function useHighlights(token: string) {
+    return useQuery('highlights', (p?: any) => {
+        if (!!token)
+            return axiosApi.get(`/calendar/highlights`)
+    },
+        {
+            onError: (error: any) => {
+                console.log(error?.response?.data?.message);
+            }
+        })
+}

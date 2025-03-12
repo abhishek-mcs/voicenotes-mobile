@@ -26,7 +26,7 @@ import {
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
-import { useGetTags, useRecordings, useStreak } from "queries/home";
+import { useGetTags, useHighlights, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { isIOS, screenHeight } from "utils/common";
@@ -123,6 +123,7 @@ const Home = () => {
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
+  const highlights = useHighlights(token)
 
   const getTags=useGetTags()
   const { action, file }:any = useLocalSearchParams();
@@ -991,7 +992,7 @@ const Home = () => {
             </Pressable>
           </Pressable>
           <Pressable onPress={() => showCalendar(false)} style={{flex: 6, alignItems: 'center'}}>
-            <ExpandableCalendar data={streaks?.data?.data || []} />
+            <ExpandableCalendar highlightsData={highlights?.data?.data} data={streaks?.data?.data || []} />
           </Pressable>
         </BlurView>
       </Modal>

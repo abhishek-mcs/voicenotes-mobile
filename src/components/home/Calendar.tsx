@@ -24,7 +24,6 @@ const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
 const HEIGHT_ANIMATION_DURATION = 100; // Duration for height animations
 
 // Utility functions 
-// NEW FUNCTION: Get dates with recording counts > 0 for a specific month
 const getDatesWithRecordings = (date: Date, weeksData: any[]): Date[] => {
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -48,16 +47,11 @@ const getDatesWithRecordings = (date: Date, weeksData: any[]): Date[] => {
   return dates;
 };
 
-const generateHighlights = (month: string): Array<string> => {
-  const highlights = [
-    `${month} had the highest activity this year`,
-    `You completed 8 tasks in ${month}`,
-    `Your streak increased by 5 days in ${month}`,
-    `You ranked in the top 10% of users in ${month}`
-  ];
+const getHighlightsForMonth = (date: Date, highlightsData: any): Array<{title: string, uuid: string}> => {
+  if (!highlightsData) return [];
   
-  const numberOfHighlights = Math.random() > 0.5 ? 3 : 4;
-  return highlights.slice(0, numberOfHighlights);
+  const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  return highlightsData[monthKey] || [];
 };
 
 interface CalendarDay {
@@ -84,11 +78,13 @@ type Data = {
 interface ExpandableCalendarProps {
   initialDate?: Date;
   data: Data;
+  highlightsData: any;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
   data,
+  highlightsData
 }) => {
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
@@ -96,7 +92,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [expandedHeight, setExpandedHeight] = useState(0);
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
   const [showHighlights, setShowHighlights] = useState(false);
-  const [highlights, setHighlights] = useState<string[]>([]);
+  const [highlights, setHighlights] = useState<Array<{title: string, uuid: string}>>([]);
   const [showAllNotes, setShowAllNotes] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState<{
     date: string;
@@ -106,8 +102,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     items: [],
   });
 
-  useEffect(() => setLoading(data.weeks.length < 0), [data])
+  useEffect(() => {if(data.weeks) setLoading(data.weeks.length < 0)}, [data])
   
+  useEffect(() => {
+    if (highlightsData && currentMonth) {
+      setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
+    }
+  }, [highlightsData, currentMonth]);
+
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
   
@@ -155,10 +157,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     };
     
     // Initial setup, only run once
-    if (monthsData.length === 0 && data.weeks.length > 0) {
+    if (monthsData.length === 0 && data.weeks && data.weeks.length > 0) {
       setMonthsData(generateMonthsData(currentMonth));
-      const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long' });
-      setHighlights(generateHighlights(monthName));
+      setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
     }
   }, [data.weeks]);
 
@@ -292,9 +293,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         
         setMonthsData(newMonthsData);
         
-        // Generate highlights for the new month
-        const monthName = newMonth.toLocaleDateString('en-US', { month: 'long' });
-        setHighlights(generateHighlights(monthName));
+        setHighlights(getHighlightsForMonth(newMonth, highlightsData));
         
         return newMonth;
       });
@@ -513,25 +512,29 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const monthName = currentMonth.toLocaleDateString('en-US', {
       month: 'long',
     });
-
+  
+    const hasHighlights = highlights.length > 0;
+  
     return (
       <View>
         <View style={styles.monthHeader}>
           <Text style={styles.monthText}>{monthName}</Text>
-          <TouchableOpacity
-            style={styles.highlightsButton}
-            onPress={() => {
-              setExpandedHeight(showHighlights ? 0 : highlightsHeight + 10);
-              setShowHighlights(!showHighlights);
-            }}
-          >
-            <SvgXml xml={home.highlights.replace(/#FFFFFF/g,Colors.green4)} />
-            <Text style={styles.highlightsText}>
-              {showHighlights ? 'Hide highlights' : 'View highlights'}
-            </Text>
-          </TouchableOpacity>
+          {hasHighlights && (
+            <TouchableOpacity
+              style={styles.highlightsButton}
+              onPress={() => {
+                setExpandedHeight(showHighlights ? 0 : highlightsHeight + 10);
+                setShowHighlights(!showHighlights);
+              }}
+            >
+              <SvgXml xml={home.highlights.replace(/#FFFFFF/g,Colors.green4)} />
+              <Text style={styles.highlightsText}>
+                {showHighlights ? 'Hide highlights' : 'View highlights'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-        {showHighlights && (
+        {showHighlights && hasHighlights && (
           <View style={styles.highlightsContainer} onLayout={(event) => {
             const { height } = event.nativeEvent.layout;
             setHighlightsHeight(height-140);
@@ -540,7 +543,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             {highlights.map((highlight, index) => (
               <View key={index} style={styles.highlightItem}>
                 <View style={styles.bulletPoint} />
-                <Text style={styles.highlightText}>{highlight}</Text>
+                <Text style={styles.highlightText}>{highlight.title}</Text>
               </View>
             ))}
           </View>
