@@ -174,14 +174,14 @@ const Home = () => {
 
     const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
       // console.log("React Native: Search Note started");
-      router.push("/search");
+      router.push("/search/");
     });
 
     const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
       console.log("React Native: Text Note started");
       const noteContent = event?.content;
       router.push({
-        pathname: "/text-note",
+        pathname: "/text-note/",
         params: { content: noteContent }, // Pass the content as a parameter
       });
     });
@@ -286,7 +286,7 @@ const Home = () => {
           break;
         case 'searchDeeplink':
           if (recEnabled) break; 
-          router.push("/search")
+          router.push("/search/")
           break;
       }
   }, [action]);
