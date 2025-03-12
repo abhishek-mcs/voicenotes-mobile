@@ -22,7 +22,6 @@ import {
   onRecord,
   stopRecording,
 } from "func/home/record";
-import { useGuestToken } from "queries/auth";
 import { useGetTags, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
@@ -83,13 +82,9 @@ const Home = () => {
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
-  const guestToken = useSelector(
-    (state: RootState) => state.userDetails.guestToken
-  );
   const { recordingList } = useSelector(
     (state: RootState) => state.recordingStates
   );
-  const createGuestUser = useGuestToken();
   const dispatch = useDispatch();
   const [rec, setRec] = useState<Audio.Recording | null>(null);
   const [recEnabled, setRecEnabled] = useState<boolean>(false);

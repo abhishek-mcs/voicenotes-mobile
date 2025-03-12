@@ -9,16 +9,16 @@ export default (token:string,guestToken:string,createGuestUser:any,dispatch:any)
         if(!!token){
           setAuthToken(token,false,netInfo)
         }else if(!!guestToken){
-          setAuthToken(guestToken,true,netInfo)
+          // setAuthToken(guestToken,true,netInfo)
         }else {
-          createGuestUser?.mutate({},{
-            onSuccess(data:any) {
-                dispatch(setGuestToken(data?.data?.guestUser?.token||""))
-            },
-            onError(error:any) {
-                // console.log(error,'Create guest user failed')
-            },
-          })
+          // createGuestUser?.mutate({},{
+          //   onSuccess(data:any) {
+          //       dispatch(setGuestToken(data?.data?.guestUser?.token||""))
+          //   },
+          //   onError(error:any) {
+          //       // console.log(error,'Create guest user failed')
+          //   },
+          // })
         }
       },[token,guestToken])
 }

@@ -27,9 +27,6 @@ const OtpScreen = () => {
   const [resendEnable,setResend] = useState(true)
   const {email,password,name}:{email:string,password:string,name:string}=useGlobalSearchParams()
   const dispatch=useDispatch()
-  const guestToken:string = useSelector(
-    (state: RootState) => state.userDetails.guestToken
-  );
 
   const signup=useSignup()
   const moveRecords=useMoveGuestRecords()
