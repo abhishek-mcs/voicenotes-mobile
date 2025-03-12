@@ -982,18 +982,17 @@ const Home = () => {
         animationType="fade"
       >
         <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={50}>
-          <View style={styles.calendarHeader}>
+          <Pressable onPress={() => showCalendar(false)} style={styles.calendarHeader}>
             <Pressable onPress={() => showCalendar(false)} style={styles.button}>
               <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>
             <Pressable onPress={() => router.navigate("/settings/")} style={styles.button}>
               <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>
-          </View>
-          <View style={{flex: 5, alignItems: 'center'}}>
+          </Pressable>
+          <Pressable onPress={() => showCalendar(false)} style={{flex: 6, alignItems: 'center'}}>
             <ExpandableCalendar data={streaks?.data?.data || []} />
-          </View>
-          <View style={{flex: 1}} />
+          </Pressable>
         </BlurView>
       </Modal>
     </SafeAreaView>
