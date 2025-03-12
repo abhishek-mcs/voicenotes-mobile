@@ -1,9 +1,9 @@
 import { useGlobalSearchParams, useRouter } from "expo-router"
 import { useSignup } from "queries/auth"
-import React, { useContext, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import {ActivityIndicator, Alert,Dimensions,KeyboardAvoidingView,Platform,SafeAreaView,StyleSheet,Text,TouchableHighlight,View,} from "react-native"
 import { useDispatch, useSelector } from "react-redux"
-import { setEmail, setGuestToken, setToken, setUserDetail } from "redux/reducers/userDetails"
+import { setToken, setUserDetail } from "redux/reducers/userDetails"
 import { setAuthToken } from "services/api/axios-api"
 import {OTPInput} from "components/auth/otp-input"
 import { useQueryClient } from "react-query"
@@ -15,8 +15,8 @@ import { commonSvg } from "assets/svg/commonSvg"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { setRecordingList } from "redux/reducers/recordingStates"
-import appsFlyer from "react-native-appsflyer"
 import { useTheme } from "context"
+import { logEvent } from "func/analytics/logEvent"
 
 const errorContent='Sorry, the code you have entered is invalid.'
 
@@ -27,9 +27,6 @@ const OtpScreen = () => {
   const [resendEnable,setResend] = useState(true)
   const {email,password,name}:{email:string,password:string,name:string}=useGlobalSearchParams()
   const dispatch=useDispatch()
-  const guestToken:string = useSelector(
-    (state: RootState) => state.userDetails.guestToken
-  );
 
   const signup=useSignup()
   const moveRecords=useMoveGuestRecords()
@@ -68,7 +65,7 @@ const OtpScreen = () => {
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
               analytics().logEvent('sign_up_success').catch(()=>{})
-              appsFlyer?.logEvent('signup_success',{value:'af_success'})
+              logEvent('signup_success',{value:'af_success'})
               router.replace({ pathname: `/auth/signup/premium`, params: { from:"signup",email } });
             // }})
           }

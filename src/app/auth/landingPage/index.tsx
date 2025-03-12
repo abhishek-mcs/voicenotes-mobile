@@ -6,7 +6,6 @@ import { SvgXml } from "react-native-svg"
 import { SafeAreaView } from "react-native"
 import { LandingSvg } from "assets/svg/LandingSvg"
 import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
-import * as AuthSession from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
 import * as AppleAuth from "expo-apple-authentication";
 import { signInWithApple, signInWithGoogle } from "queries/auth"
@@ -18,8 +17,8 @@ import { isAndroid, isIOS } from "utils/common"
 import useAnimatedSlide from "hooks/anim/useAnimatedSlide"
 import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
-import appsFlyer from "react-native-appsflyer"
 import { useTheme } from "context"
+import { logEvent } from "func/analytics/logEvent"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -46,7 +45,7 @@ const LandingPage =() => {
         queryClient.resetQueries('user-data')
         router.replace("/home/");
         analytics()?.logEvent('social_sign_in_success').catch(e=>{})
-        appsFlyer?.logEvent('social_login',{value:'success'})
+        logEvent('social_login',{value:'success'})
       }
     }
   }
@@ -60,7 +59,7 @@ const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuth
 const loginGoogle=signInWithGoogle()
 const signInGoogle=(token:any,params:any)=>{
   analytics()?.logEvent('google_sign_in_clicked').catch(e=>{})
-  appsFlyer?.logEvent('google_sign_in_clicked',{value:'google_sign_in_initiate'})
+  logEvent('google_sign_in_clicked',{value:'google_sign_in_initiate'})
   const {code,state,prompt,authuser,scope}=params
   loginGoogle.mutate({
     access_token:token,
@@ -110,7 +109,7 @@ const signInGoogle=(token:any,params:any)=>{
       if (credential.email) dispatch(setEmail(credential.email))
       signInAppleAPI(credential?.identityToken)
       analytics()?.logEvent('apple_sign_in_clicked').catch(e=>{})
-      appsFlyer?.logEvent('apple_sign_in_clicked',{value:'apple_login_initiate'})
+      logEvent('apple_sign_in_clicked',{value:'apple_login_initiate'})
       // signed in
     } catch (e:any) {
       if (e?.code === "ERR_CANCELED") {

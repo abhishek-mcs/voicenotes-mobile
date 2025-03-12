@@ -19,15 +19,13 @@ import { SvgXml } from "react-native-svg";
 import { useLogin } from "queries/auth";
 import { useQueryClient } from "react-query";
 import { isIOS } from "utils/common";
-import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
-import GoogleAuthButton from "components/auth/google-auth-button";
 import { analytics } from "../../../../firebaseConfig";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { setRecordingList } from "redux/reducers/recordingStates";
-import appsFlyer from "react-native-appsflyer";
 import { useTheme } from "context";
+import { logEvent } from "func/analytics/logEvent";
 
 const LoginPassword = () => {
   const router = useRouter();
@@ -80,7 +78,7 @@ const LoginPassword = () => {
             router.dismissAll();
             router.replace("/home/");
             analytics()?.logEvent('sign_in_success').catch(()=>{})
-            appsFlyer?.logEvent('af_login',{value:'af_success'})
+            logEvent('af_login',{value:'af_success'})
           }
         },
         onError: (error: any) => {

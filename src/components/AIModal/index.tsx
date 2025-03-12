@@ -1,16 +1,13 @@
 import {
   FlatList,
-  Image,
   InteractionManager,
   Keyboard,
-  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableHighlight,
-  useWindowDimensions,
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -18,25 +15,20 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useMemo,
   useRef,
   useState,
 } from "react";
-import ReactNativeModal from "react-native-modal";
 import { AIModalSVG } from "assets/svg/AIModalSvg";
 import { useAskAI,useAskAIHistory, useDeleteAskHistory, useGetAskChat, useUploadChatRecord, useVoiceChatResponse } from "queries/home";
 import Touchable from "components/common/Touchable";
 import { useDispatch, useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
-import typing from "assets/lottie/typing.json";
 import chatLoader from "assets/lottie/chatLoader.json";
-import { formatTranscript, isAndroid, isIOS, screenHeight, screenWidth, sleep } from "utils/common";
+import { formatTranscript, isAndroid, isIOS, screenHeight, sleep } from "utils/common";
 import aiSuggestions from "utils/constants/ai-suggestions";
-import { RootState } from "redux/store/store";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { DrawerLayout } from "react-native-gesture-handler";
-import { home } from "assets/svg/home";
 import { formatDate, formatDate2, isSameDay } from "utils/format-date";
 import { commonSvg } from "assets/svg/commonSvg";
 import AudioPlayer from "./AudioPlayer";
@@ -48,14 +40,12 @@ import ChatRecorder from "components/common/recording/chat-recorder";
 import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import { setStringAsync } from "expo-clipboard";
-import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import Swiper from 'react-native-swiper'
 import Collapsible from 'react-native-collapsible';
 import Header from "./header";
 import { useTheme } from "context";
 import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useDialog } from "context/DialogContext";
-import TypingLoader from "components/common/loaders/typing/TypingLoader";
 import CreateModal from "components/CreateModal";
 import useLayoutAnim from "hooks/anim/useLayoutAnim";
 

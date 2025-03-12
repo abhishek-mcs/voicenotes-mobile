@@ -257,6 +257,9 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
                       // Remove the child_added listener
                       database().ref(firebasePath).off('child_added', pathExistsListener);
                   }
+                  setTimeout(() => {
+                    database().ref(firebasePath).off('child_added', pathExistsListener);
+                  }, 5000);
               });
       } else {
         // Path exists, set up the value listener directly

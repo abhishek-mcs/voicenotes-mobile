@@ -6,7 +6,7 @@ import { Text } from "react-native";
 import { useDeleteSearchHistory, useSearch, useSearchHistory, useSetSearchHistory } from "queries/search";
 import { useRouter } from "expo-router";
 import CircularLoader from "components/common/loaders/circular-loader";
-import { screenHeight, screenWidth } from "utils/common";
+import { screenHeight, screenWidth, sleep } from "utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
@@ -79,14 +79,15 @@ const SearchComponent = ({setHide=(v:boolean)=>{},onFocus=()=>{},onBlur=()=>{},s
       Keyboard.dismiss()
     }
 
-    const goto=(rec_id:any)=>{
+    const goto=async (rec_id:any)=>{
       Keyboard.dismiss();
       setSearchHistory.mutate(rec_id)
+      clearSearch() 
+      onBlurInput()
+      await sleep(400)
       // router.push({pathname:"/RelatedNotes/",params:{id:rec_id}})
       dispatch(setRelatedNoteId(rec_id))
-      // router.back() 
-      onBlurInput()
-      clearSearch()
+      // router.back()
     }
     useEffect(()=>{
       InteractionManager.runAfterInteractions(() => {

@@ -2,15 +2,12 @@ import { useEffect } from 'react';
 import { Redirect } from 'expo-router';
 import { RootState } from 'redux/store/store';
 import { useDispatch, useSelector } from 'react-redux';
-import * as WebBrowser from 'expo-web-browser';
 import useFBEventTracking from 'hooks/fbsdk/useFBEventTracking';
 import { LogBox, Platform, UIManager } from 'react-native';
 import useIAPSetup from 'hooks/iap/useIAPSetup';
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates';
 import notifee, { EventType } from '@notifee/react-native';
-import { setAuthToken } from 'services/api/axios-api';
 import { useNetInfo } from '@react-native-community/netinfo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 notifee.registerForegroundService(() => {
   return new Promise(() => {});
@@ -53,36 +50,16 @@ export default function App() {
   const dispatch = useDispatch()
   const netinfo = useNetInfo()
   
-  useFBEventTracking()
   useIAPSetup()
   useEffect(() => {
-    WebBrowser?.warmUpAsync();
-    // InteractionManager.runAfterInteractions(()=>{
-      // setTimeout(async() => {
-      //   await SplashScreen.hideAsync()
-      //   setIsLoading(false)
-      // }, 2000);
-    // })
-    dispatch(setTempIsIAPPurchased(false))
-    return () => {
-      WebBrowser?.coolDownAsync();
-    };
+    dispatch(setTempIsIAPPurchased(false));
   }, []);
 
-  useEffect(()=>{
-    (async function(){
-      const t = await AsyncStorage.getItem('authToken')??''
-      if(!!t){
-        setAuthToken(t,false,netinfo);
-      }
-    })()
-  },[])
-
   if (token) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/home/" />;
   }else{
     return (
-      <Redirect href="/auth/landingPage" />
+      <Redirect href="/auth/landingPage/" />
     );
   }
 }

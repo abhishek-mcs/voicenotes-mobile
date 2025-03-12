@@ -1136,7 +1136,6 @@ const NotePreview = forwardRef(
                     <RelatedNotesList
                       note={note}
                       onPress={(id: any) => {
-                        // setRelatedNoteId(null);
                         dispatch(setRelatedNoteId(id));
                       }}
                     />

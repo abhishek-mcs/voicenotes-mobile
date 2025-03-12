@@ -46,11 +46,6 @@ const RelatedNotesList = ({note,onPress=(id:any)=>{}}:{note: Note,onPress:(id:an
                         dispatch(setRelatedNoteId(null))
                         await sleep(400)
                         dispatch(setRelatedNoteId(item?.id))
-                        // onPress(item?.id);
-                        // router.push({
-                        //   pathname: "/RelatedNotes/",
-                        //   params: { id: item?.id },
-                        // });
                       }}
                       activeOpacity={0.6}
                       key={item?.id+v}
