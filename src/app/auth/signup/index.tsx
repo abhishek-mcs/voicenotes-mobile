@@ -16,13 +16,12 @@ import { RootState } from "redux/store/store";
 import { setEmail } from "redux/reducers/userDetails";
 import { useSignup } from "queries/auth";
 import { SvgXml } from "react-native-svg";
-import { home } from "assets/svg/home";
 import { isIOS } from "utils/common";
 import Touchable from "components/common/Touchable";
 import { commonSvg } from "assets/svg/commonSvg";
 import { analytics } from "../../../../firebaseConfig";
-import appsFlyer from "react-native-appsflyer";
 import { useTheme } from "context";
+import { logEvent } from "func/analytics/logEvent";
 
 const Signup = () => {
   const router = useRouter();
@@ -55,7 +54,7 @@ const Signup = () => {
         onSuccess: async (response: any, _variables: any, _context: any) => {
           analytics().logEvent('sign_up_initiated').catch(e=>{})
             router.push({pathname:"/auth/signup/otp-screen",params:{email:emailText,password:passwordText,name:name}});
-            appsFlyer?.logEvent('signup_initiated',{value:'success'})
+            logEvent('signup_initiated',{value:'success'})
         },
         onError: (error: any) => {
           console.log(error)

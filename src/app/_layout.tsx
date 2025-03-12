@@ -9,6 +9,11 @@ import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { isIOS } from "utils/common";
 import * as Sentry from '@sentry/react-native';
+import { useEffect } from "react";
+import { setAuthToken } from "services/api/axios-api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNetInfo } from "@react-native-community/netinfo";
+import useFBEventTracking from "hooks/fbsdk/useFBEventTracking";
 
 Sentry.init({
   dsn: 'https://794cc208d64f43a4069e118c7521c135@o4508691521863680.ingest.us.sentry.io/4508691555942400',
@@ -32,6 +37,21 @@ function Layout() {
     "Secondary-Italic": require('../assets/fonts/InstrumentSerif-Italic.ttf'),
     ...FontAwesome.font,
   });
+
+  const netinfo = useNetInfo();
+  useFBEventTracking()
+
+  useEffect(()=>{
+    if(fontsLoaded){
+      (async function(){
+        const t = await AsyncStorage.getItem('authToken')??''
+        if(!!t){
+          setAuthToken(t,false,netinfo);
+        }
+      })()
+    }
+  },[fontsLoaded])
+
   if (!fontsLoaded) {
     return null;
   }
