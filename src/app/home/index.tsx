@@ -992,7 +992,7 @@ const Home = () => {
             </Pressable>
           </Pressable>
           <Pressable onPress={() => showCalendar(false)} style={{flex: 6, alignItems: 'center'}}>
-            <ExpandableCalendar highlightsData={highlights?.data?.data} data={streaks?.data?.data || []} />
+            <ExpandableCalendar highlightsData={highlights?.data?.data} streaksData={streaks?.data?.data || []} />
           </Pressable>
         </BlurView>
       </Modal>

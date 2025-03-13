@@ -80,13 +80,13 @@ type Data = {
 
 interface ExpandableCalendarProps {
   initialDate?: Date;
-  data: Data;
+  streaksData: Data;
   highlightsData: any;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
-  data,
+  streaksData,
   highlightsData
 }) => {
   const [loading, setLoading] = useState(true);
@@ -106,6 +106,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   });
   const [monthlyNotes, setMonthlyNotes] = useState<Record<string, Record<string, any[]>>>({});
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
+  const [data, setData] = useState<Data>(streaksData);
 
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
@@ -152,17 +153,19 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       });
     };
     
-    // Initial setup, only run once
-    if (monthsData.length === 0 && data.weeks && data.weeks.length > 0) {
-      setMonthsData(generateMonthsData(currentMonth));
-      setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
-      
-      // Fetch notes for the initial month
-      fetchNotesForMonth(currentMonth);
-    }
-  }, [data.weeks]);
+    setMonthsData(generateMonthsData(currentMonth));
+    setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
+    
+    // Fetch notes for the initial month
+    fetchNotesForMonth(currentMonth);
+  }, [data]);
 
-  useEffect(() => {if(data.weeks) setLoading(data.weeks.length < 0)}, [data])
+  useEffect(() => {
+    if(streaksData.weeks){
+      setLoading(false)
+      setData(streaksData)
+    }
+  }, [streaksData])
 
   // Update animatedHeight when baseHeight changes
   useEffect(() => {
