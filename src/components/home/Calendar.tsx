@@ -526,13 +526,21 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const newShowAllState = !showAllNotes;
     setShowAllNotes(newShowAllState);
     
-    // Calculate the new height based on the toggled state
-    const itemsToShow = newShowAllState 
-      ? additionalInfo.items.length 
-      : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length);
-    
-    // Use the helper function to calculate the proper height
-    const newHeight = calculateExpandedHeight(additionalInfo.items.length);
+    // Calculate height differently based on expanded state
+    let newHeight;
+    if (newShowAllState) {
+      // When showing all items, use the full count
+      newHeight = calculateExpandedHeight(additionalInfo.items.length);
+      
+      // Add extra height for each item beyond MAX_VISIBLE_ITEMS
+      if (additionalInfo.items.length > MAX_VISIBLE_ITEMS) {
+        const extraItems = additionalInfo.items.length - MAX_VISIBLE_ITEMS;
+        newHeight += extraItems * EVENT_ITEM_HEIGHT;
+      }
+    } else {
+      // When collapsing, use the default limited view height
+      newHeight = calculateExpandedHeight(Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length));
+    }
     
     // Set the new expanded height
     setExpandedHeight(newHeight);
@@ -783,12 +791,12 @@ const useStyles = () => {
       width: CALENDAR_WIDTH,
       backgroundColor: Colors.grey2,
       borderRadius: 25,
-      borderWidth: 0.1,
+      borderWidth: 0.15,
       padding: 16,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
+      shadowOffset: { width: 4, height: 4 },
+      shadowOpacity: 0.5,
+      shadowRadius: 10,
       elevation: 2,
       overflow: 'hidden',
     },
