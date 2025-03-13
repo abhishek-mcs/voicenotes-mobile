@@ -287,9 +287,10 @@ const NotePreview = forwardRef(
     const onShareNote = async() => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
-      setTimeout(() => {
-        setShareVisible(true);
-      }, 500);
+      router.push("/share")
+      // setTimeout(() => {
+      //   setShareVisible(true);
+      // }, 500);
     };
 
     const onCopy = async (content = "") => {

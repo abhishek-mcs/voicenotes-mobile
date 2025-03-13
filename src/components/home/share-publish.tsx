@@ -20,14 +20,14 @@ const SharePublish = () => {
   const invitedUsers = [
     { id: "1", name: "Aleesha John", email: "aleesha@buymeacoffee.com", image: "https://via.placeholder.com/50" },
     { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
+    { id: "3", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
+    { id: "4", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
   ];
   
   const notInvitedUsers = [
+    { id: "1", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
     { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
+    { id: "3", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
   ];
 
   const onClose = () => { router.back() }
@@ -73,7 +73,10 @@ const SharePublish = () => {
         </View>
         <View>
           <Touchable onPress={onClose} style={styles.closeContainer}>
-            <SvgXml xml={commonSvg.close?.replace("#717171",Colors.askClose)} />
+            {isLightMode ? 
+            <SvgXml xml={commonSvg.close?.replace("#717171",Colors.askClose)} /> :
+            <SvgXml xml={commonSvg.close?.replace("#717171",'#fff')} />
+            }
           </Touchable>
         </View>
       </View>
@@ -105,7 +108,7 @@ const SharePublish = () => {
           bottomOffset={20}
         >
           {/* Invited Users */}
-          <Text style={styles.invitedTitle}>Invited</Text>
+          <Text style={styles.invitedTitle}>Shared</Text>
           {invitedUsers.map((user) => (
             <View key={user.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
             {/* <Image source={{ uri: user.image }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} /> */}
@@ -121,7 +124,7 @@ const SharePublish = () => {
           ))}
 
           {/* Not Invited Users */}
-          <Text style={styles.invitedTitle}>Not invited</Text>
+          <Text style={styles.invitedTitle}>Recent</Text>
           {notInvitedUsers.map((user) => (
             <View key={user.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {/* <Image source={{ uri: user.image }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} /> */}
@@ -144,7 +147,8 @@ const SharePublish = () => {
           </TouchableOpacity>
           </View>
       </View> : 
-      <Publish />
+      <></>
+      // <Publish />
       }
     </View>
   )
@@ -217,7 +221,7 @@ const useStyles = () => {
   },
   shareButton: {
     flexDirection: 'row',
-    backgroundColor: "black", 
+    backgroundColor: Colors.blackWithOpacity(1), 
     paddingHorizontal: 19,
     borderRadius: 10,
     height: 36,
@@ -225,7 +229,8 @@ const useStyles = () => {
     marginTop: 8 
   },
   shareButtonText: {
-    color: "white", 
+    fontSize: 14, 
+    color: Colors.whiteWithOpacity(1), 
     fontFamily: "Primary-Semibold", 
   },
   invitedTitle: {
