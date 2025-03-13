@@ -19,15 +19,15 @@ type BaseNote = {
   transcript?: null;
   recorded_at?: number;
   status: string;
-  parent_id?: string | null
-  internalUrl?:string
-  isSubnote?:boolean
-  temp_id?:string
-  temp_parent_id?:string |null,
-  recording_type?:number|null,
-  text_note?:string|null,
-  imageAttachments?: any[],
-  isRelatedNote?: boolean
+  parent_id?: string | null;
+  internalUrl?:string;
+  isSubnote?:boolean;
+  temp_id?:string;
+  temp_parent_id?:string |null;
+  recording_type?:number|null;
+  text_note?:string|null;
+  imageAttachments?: any[];
+  relatedNotedId?: any;
 };
 
 export type NewNote = BaseNote;

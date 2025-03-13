@@ -53,7 +53,7 @@ export default ({id=null,onBack=()=>{},onStartRecord=(v:any)=>{},continueProcess
                     {getIndividualNote.isSuccess&&!getIndividualNote?.isRefetching?
                     <NotePreview
                       ref={notePreviewRef}
-                      note={{...note,is_title_loading,is_transcript_loading,subnotes:!!tempRecordingData.status&&!!tempRecordingData?.isRelatedNote?[...subnotes??[],tempRecordingData]:subnotes??[]}}
+                      note={{...note,is_title_loading,is_transcript_loading,subnotes:(!!tempRecordingData?.status&&tempRecordingData?.relatedNotedId==id)?[...subnotes??[],tempRecordingData]:subnotes??[]}}
                       index={0}
                       list={[note]}
                       isPlay={isPlay}

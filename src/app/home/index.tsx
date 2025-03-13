@@ -458,35 +458,28 @@ const Home = () => {
       //   parent_id=recordingList.find((rec)=>rec.temp_id==note.temp_parent_id)?.id??null;
       //   // console.log('parent_id: ',parent_id)
       // }
-      await saveVoiceNote({
+      const response = await saveVoiceNote({
         audio: note.audio.data.url,
         duration: note.audio.data.duration,
         parent_id: note?.parent_id ??null,
         recorded_at: note.recorded_at,
         temp_id:note.temp_id,
-      }).then(async(response)=>{
-        const recordingId = response.recording.id;
-        // console.log(recordingId,'recording id')
-        if(continueUpload && !recordingParentId) setRecordingParentId(recordingId)
-        // console.log("audio uploaded waiting for process");
-        dispatch(
-          updateRecordingDetails({
-            recordingId,
-            data: { status: "processing" },
-            temporaryRecordingId,
-          })
-        );
-        dispatch(updateTempRecordingData("processing"));
-        await listenToFirebaseStatus(recordingId, temporaryRecordingId);
-      }).catch((e)=>{
-        dispatch(
-          updateRecordingDetails({
-            recordingId: note.id,
-            data: { status: "upload_failed" },
-            temporaryRecordingId,
-          })
-        );
       });
+
+      const recordingId = response.recording.id;
+      // console.log(recordingId,'recording id')
+      if(continueUpload && !recordingParentId) setRecordingParentId(recordingId)
+      // console.log("audio uploaded waiting for process");
+      dispatch(
+        updateRecordingDetails({
+          recordingId,
+          data: { status: "processing" },
+          temporaryRecordingId,
+        })
+      );
+      dispatch(updateTempRecordingData("processing"));
+      await listenToFirebaseStatus(recordingId, temporaryRecordingId);
+      
       setTimeout(() => {
         // console.log("removing old recordings to save memory");
         removeExtraOldAudios(recordingList, dispatch);
@@ -527,6 +520,7 @@ const Home = () => {
         status: "uploading",
         internalUrl: uri,
         parent_id: recordingParentId,
+        relatedNotedId:relatedNoteId
       };
 
       if (!recordingParentId) {
