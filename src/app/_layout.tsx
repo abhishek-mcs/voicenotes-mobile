@@ -96,6 +96,13 @@ function Layout() {
                   }}
                 />
                 <Stack.Screen
+                  name="share/index"
+                  options={{
+                    presentation: "formSheet",
+                    animation: isIOS ? "ios" : "slide_from_bottom",
+                  }}
+                />
+                <Stack.Screen
                   name="search/index"
                   options={{ animation: "fade" }}
                 />
