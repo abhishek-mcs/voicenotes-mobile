@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, Animated, Easing } from 'react-native'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { LinearGradient } from 'expo-linear-gradient'
 import notifee, { AuthorizationStatus } from "@notifee/react-native";

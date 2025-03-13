@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, StyleSheet, Image, Platform } from 'react-native'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import Reminders from 'components/common/Reminders';
 import { useTheme } from "context"
 import * as Haptics from "expo-haptics";

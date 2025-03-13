@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, StyleSheet, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"

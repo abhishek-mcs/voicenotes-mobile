@@ -1,6 +1,6 @@
 import { View, Text, SafeAreaView, StyleSheet, Image, Linking, Platform } from 'react-native'
 import notifee, { AuthorizationStatus } from '@notifee/react-native'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useMemo } from 'react'
 import { useRouter } from 'expo-router'
@@ -28,11 +28,11 @@ const TrialReminder = () => {
         const settings = await notifee.requestPermission()
         if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
             // Notifications enabled, navigate to home
-            router.push("/home")
+            router.push("/home/")
         } else {
             openNotificationSettings()
             setTimeout(() => {
-                router.push("/home")
+                router.push("/home/")
             }
             , 2000)
         }

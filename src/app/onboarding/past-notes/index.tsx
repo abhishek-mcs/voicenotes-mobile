@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, StyleSheet, Image, Platform, Animated, Easing } from 'react-native'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import { screenWidth, isAndroid, screenHeight } from 'utils/common';
 import Swiper from "react-native-deck-swiper";
 import { useTheme } from "context"

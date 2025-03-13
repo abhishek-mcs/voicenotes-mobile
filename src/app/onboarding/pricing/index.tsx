@@ -1,6 +1,6 @@
 import { View, Text, SafeAreaView, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native'
 import notifee, { AuthorizationStatus } from '@notifee/react-native'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'expo-router' 
@@ -51,7 +51,7 @@ const Pricing = () => {
         if (isPermissionDenied) {
           dispatch(setSelectedScreen(19))
         } else {
-          router.push("/home")
+          router.push("/home/")
         }
     }
 
