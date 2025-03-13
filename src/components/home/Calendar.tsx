@@ -445,6 +445,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     } 
     // Handle expanding
     else {
+      setShowHighlights(false)
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'short',
