@@ -1,0 +1,173 @@
+import { View, Text, SafeAreaView, StyleSheet, Image, Platform, Animated, Easing } from 'react-native'
+import LargeButton from 'components/Largebutton'
+import { useTheme } from "context"
+import { useEffect, useMemo, useRef } from 'react'
+import * as Haptics from "expo-haptics";
+import { screenHeight } from 'utils/common'
+import { setSelectedScreen } from 'redux/reducers/onboardingData'
+import { useDispatch } from 'react-redux'
+
+const Watch = () => {
+    const styles = useStyles()
+    const dispatch = useDispatch();
+    const {Colors, isLightMode}=useTheme()
+
+     // Animations
+     const watchScale = useRef(new Animated.Value(1)).current;
+     const cloudAnimation = useRef(new Animated.Value(0)).current;
+ 
+     // Watch Scaling Animation (Pulsating)
+     useEffect(() => {
+         Animated.loop(
+             Animated.sequence([
+                 Animated.timing(watchScale, {
+                     toValue: 1.03, // Slight scale-up
+                     duration: 1500,
+                     easing: Easing.inOut(Easing.ease),
+                     useNativeDriver: true,
+                 }),
+                 Animated.timing(watchScale, {
+                     toValue: 1, // Back to normal
+                     duration: 1500,
+                     easing: Easing.inOut(Easing.ease),
+                     useNativeDriver: true,
+                 }),
+             ])
+         ).start();
+     }, []);
+ 
+     // Cloud Bouncing Animation (Up & Down Movement)
+     useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(cloudAnimation, {
+                    toValue: -8, // Move slightly up
+                    duration: 1000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(cloudAnimation, {
+                    toValue: 0, // Move back to original position
+                    duration: 1000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, []);
+
+
+    const onContinue = async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+          () => {}
+        );
+        dispatch(setSelectedScreen(6))
+    }
+
+  return (
+    <SafeAreaView style={styles.mainContainer}>
+        <View style={styles.mainTextContainer}>
+            <Text style={styles.mainText}>Voicenotes works well on Apple Watch</Text>
+        </View>
+
+        {/* Watch Image with Scaling Animation */}
+        <View style={styles.imageContainer}>
+                <Animated.Image
+                    source={isLightMode ? require('../../../assets/images/watch.png') : require('../../../assets/images/watch-dark.png')}
+                    style={[styles.watchImage, { transform: [{ scale: watchScale }] }]}
+                />
+            </View>
+
+        {/* Speech Bubble with Circular Motion */}
+        <Animated.View
+            style={[
+                styles.imageContainer2,
+                {
+                    transform: [{ translateY: cloudAnimation }],
+                },
+            ]}
+        >
+            <Image source={require('../../../assets/images/watchNote.png')} style={styles.watchImage2} />
+        </Animated.View>
+
+        <View style={[styles.buttonContainer1, styles.footerContainer]}>
+            <LargeButton
+                underlayColor={Colors.settingsBtnBg}
+                style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                onPress={onContinue}
+                text="Continue"
+                isLoading={false}
+                color={Colors.text4}
+            />
+        </View>
+    </SafeAreaView>
+  )
+}
+
+const useStyles = () => {
+        const { Colors } = useTheme();
+        return useMemo(() => StyleSheet.create({
+        mainContainer: {
+            flex: 1,
+            backgroundColor: Colors.whiteWithOpacity(1),
+            marginTop: Platform.OS === 'ios' ? 0 : 40
+        },
+        mainTextContainer: {
+            marginTop: 20,
+            paddingHorizontal: 16,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        mainText: {
+            fontFamily: 'Secondary',
+            fontSize: 48,
+            lineHeight: 56,
+            textAlign: 'center',
+            color: Colors.black2
+        },
+        imageContainer: {
+            paddingHorizontal: 16,
+            paddingTop: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        watchImage: {
+            height: screenHeight / 2.5,
+            resizeMode: 'contain',
+        },
+        imageContainer2: {
+            paddingHorizontal: 25,
+            paddingTop: 10,
+            paddingBottom: 16,
+            alignItems: 'flex-start',
+        },
+        watchImage2: {
+            height: 100,
+            // width: screenWidth / 2,
+            resizeMode: 'contain'
+        },
+        text: { 
+            fontFamily:'Primary-Semibold',
+            fontSize:16
+        },
+        buttonContainer1: {
+            padding: 16,
+            paddingBottom: 0,
+        },
+        button: {
+            height:48,
+            justifyContent:'center',
+            alignItems:'center',
+            borderRadius:16,
+            flexDirection:'row'
+        },
+        footerContainer: {
+            position: 'absolute',
+            bottom: 18,
+            right: 0,
+            left: 0
+        }
+    }), [Colors]);
+}
+
+export default Watch
