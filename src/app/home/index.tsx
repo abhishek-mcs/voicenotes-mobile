@@ -256,7 +256,7 @@ const Home = () => {
         break;
       case 'search':
         // console.log('Performing action for Search');
-        router.push("/search");
+        router.push("/search/");
         break;
       default:
         // console.log('No matching shortcut action');
@@ -393,13 +393,13 @@ const Home = () => {
     // CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
-    router.push("/ask-my-ai");
+    router.push("/ask-my-ai/");
   };
   const onCreate = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    router.push('/create')
+    router.push('/create/')
     // CreateModalRef.current?.onReset();
     // AIModalRef?.current?.close();
     // CreateModalRef.current?.toggle();
@@ -685,7 +685,8 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
-  if (!token) return <Redirect href="/auth/landingPage" />;
+  // if (!token) return <Redirect href="/auth/landingPage/" />;
+  if (!token) return <Redirect href="/onboarding/" />;
   return (
     <SafeAreaView
       style={[styles.container]}

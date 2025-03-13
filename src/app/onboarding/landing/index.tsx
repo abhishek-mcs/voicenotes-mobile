@@ -1,6 +1,6 @@
 import { View, Text, SafeAreaView, StyleSheet, FlatList } from 'react-native'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
-import LargeButton from 'components/Largebutton'
+import LargeButton from 'components/LargeButton'
 import { screenHeight, screenWidth } from 'utils/common'
 import { useTheme } from "context"
 import { useMemo, useRef, useState } from 'react'
@@ -49,7 +49,8 @@ const Landing = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
             () => {}
         );
-        router.push("/auth/landingPage")
+        // router.push("/onboarding/")
+        router.push("/auth/landingPage/")
     }
 
   return (

@@ -1,7 +1,7 @@
 import { useNetInfo } from "@react-native-community/netinfo";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "redux/reducers/hashSlice";
 import { setToken } from "redux/reducers/userDetails";
@@ -62,7 +62,8 @@ export function useLogout(){
         dispatch(setPinnedTagsData([]))
         dispatch(setHashTags([]))
         dispatch(setHashTagsData([]))
-        route.replace("/auth/landingPage/")
+        route.replace("/onboarding/")
+        // route.replace("/auth/landingPage/")
     }
     return useMutation('logout',async (p?:any)=> {
         return await axiosApi.post(`auth/logout`);
@@ -78,9 +79,46 @@ export function useLogout(){
     })
 }
 
+//Check if email exists already
 export function useCheckEmail(){
     return useMutation("check_email", (p?:any)=>{
         return axios.post(API_URL+"/api/auth/check-email",p)
+    })
+}
+
+//Get enums for user preferences
+export function useGetPreferenceEnums(){
+    return useQuery('get_preference_enums',()=> {
+        return axios.get(API_URL+"/api/preferences-options")
+    },
+    {
+        onSuccess:(data: any)=>{
+            console.log('Preference enums success ',data);
+        },
+        onError:(error:any)=>{
+            console.log('Preference enums error ',error?.response?.data?.message);
+        }
+    })
+}
+
+//Get user preferences during onboarding
+export function useGetPreferences(){
+    return useMutation("get_preferences", (p?:any)=>{
+        return axiosApi.post(API_URL+"/api/preferences",p)
+    })
+}
+
+//Verify email in settings after onboarding
+export function useVerifyEmail(){
+    return useMutation("verify_email", (p?:any)=>{
+        return axiosApi.post(API_URL+"/api/auth/verify-email",p)
+    })
+}
+
+//Register after onboarding
+export function useOnboardingSignup(){
+    return useMutation("onboarding_signup", (p?:any)=>{
+        return axios.post(API_URL+"/api/auth/register",p)
     })
 }
 

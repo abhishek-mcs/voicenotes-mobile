@@ -59,7 +59,8 @@ export default function App() {
     return <Redirect href="/home/" />;
   }else{
     return (
-      <Redirect href="/auth/landingPage/" />
+      <Redirect href="/onboarding/" />
+      // <Redirect href="/auth/landingPage/" />
     );
   }
 }

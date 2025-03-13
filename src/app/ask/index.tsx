@@ -15,7 +15,8 @@ export default () => {
           }
         })
       }else{
-        router.navigate({pathname: '/auth/landingPage/'})
+        router.navigate({pathname: '/onboarding/'})
+        // router.navigate({pathname: '/auth/landingPage/'})
       }        
     });
 }
