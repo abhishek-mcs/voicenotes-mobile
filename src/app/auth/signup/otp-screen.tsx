@@ -64,6 +64,7 @@ const OtpScreen = () => {
             // moveRecords.mutate(guestToken,{onSuccess:()=>{
               queryClient.resetQueries('all-recording')
               queryClient.resetQueries('user-data')
+              queryClient.resetQueries('all-tags')
               analytics().logEvent('sign_up_success').catch(()=>{})
               logEvent('signup_success',{value:'af_success'})
               router.replace({ pathname: `/auth/signup/premium`, params: { from:"signup",email } });

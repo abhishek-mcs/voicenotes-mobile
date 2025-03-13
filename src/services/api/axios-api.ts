@@ -6,6 +6,7 @@ import { getReachability, getIsPaired, getIsWatchAppInstalled, sendMessage, watc
 import { isIOS } from "utils/common";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeModules } from 'react-native';
+import { store } from "redux/store/store";
 
 const setAppGroupValue = async (key: string, value: string) => {
   try {
@@ -22,6 +23,21 @@ const axiosApi = axios.create({
     "User-Agent": `Voicenotes-${Device.osName}-${Application.nativeApplicationVersion}`,
   },
 })
+
+axiosApi.interceptors.request.use(
+  (config) => {
+    const state = store.getState();
+    const token = state.userDetails.token;
+
+    if (token) {
+      console.log('axios auth',token)
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 function checkWatchStatus(token: string | void) {
   getIsWatchAppInstalled().then(installed => {
@@ -84,8 +100,8 @@ export function setAuthToken(token: string | void, isGuest: boolean=false, netIn
   }
 
   if (!isGuest && token) {
-    axiosApi.defaults.baseURL = `${API_URL}/api`;
-    axiosApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    // axiosApi.defaults.baseURL = `${API_URL}/api`;
+    // axiosApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     // console.log("setAuthToken", token);
     
     if (isIOS) {
@@ -94,9 +110,9 @@ export function setAuthToken(token: string | void, isGuest: boolean=false, netIn
       NativeModules.TokenBridge.sendTokenToWatch(token);
     }
   } else {
-    delete axiosApi.defaults.headers.common["Authorization"];
-    axiosApi.defaults.params = { token };
-    axiosApi.defaults.baseURL = `${API_URL}/api/guest`;
+    // delete axiosApi.defaults.headers.common["Authorization"];
+    // axiosApi.defaults.params = { token };
+    // axiosApi.defaults.baseURL = `${API_URL}/api/guest`;
   }
 }
 

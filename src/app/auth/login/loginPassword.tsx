@@ -75,6 +75,7 @@ const LoginPassword = () => {
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')
             queryClient.resetQueries('user-data')
+            queryClient.resetQueries('all-tags')
             router.dismissAll();
             router.replace("/home/");
             analytics()?.logEvent('sign_in_success').catch(()=>{})
