@@ -59,6 +59,7 @@ function Layout() {
                   name="home/index"
                   options={{ animation: "none" }}
                 />
+                <Stack.Screen name="onboarding/index" />
                 <Stack.Screen
                   name="auth/landingPage/index"
                   options={{ animation: "none" }}
