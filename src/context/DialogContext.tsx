@@ -16,7 +16,7 @@ interface DialogContextType {
         title: string,
         description: string,
         buttons?: DialogButton[],
-        options?: { userInterfaceStyle?: string } // Optional options object
+        options?: { cancelable?:boolean, userInterfaceStyle?: string } // Optional options object
     ) => void;
 }
 
@@ -32,26 +32,28 @@ export const useDialog = () => {
 
 export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [visible, setVisible] = useState(false);
+    const [options, setOptions] = useState({ cancelable: true });
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [buttons, setButtons] = useState<DialogButton[]>([]);
-    const {Colors} = useTheme()
+    const {Colors,isLightMode} = useTheme()
 
-    const showDialog: DialogContextType['showDialog'] = (title='', description='', buttonArray=[], options={}) => {
+    const showDialog: DialogContextType['showDialog'] = (title='', description='', buttonArray=[], options={ cancelable: true, userInterfaceStyle:isLightMode?"light":"dark" }) => {
         const b:any=buttonArray
-        const opt:any=options
+        const opt:any= options
         if(isAndroid){
             setTitle(title);
             setDescription(description);
             setButtons(buttonArray); // Assuming the second button is the confirm button
             setVisible(true);
+            opt?.cancelable == false && setOptions({ cancelable: false })
         }else{
             Alert.alert(title,description,b,opt)
         }
     };
 
     const handleCancel = () => {
-        setVisible(false);
+        options?.cancelable && setVisible(false);
     };
     
     return (
