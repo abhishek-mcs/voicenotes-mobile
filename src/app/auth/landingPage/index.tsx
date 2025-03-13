@@ -43,6 +43,7 @@ const LandingPage =() => {
         dispatch(setUserDetail(userData))
         queryClient.resetQueries('all-recording')
         queryClient.resetQueries('user-data')
+        queryClient.resetQueries('all-tags')
         router.replace("/home/");
         analytics()?.logEvent('social_sign_in_success').catch(e=>{})
         logEvent('social_login',{value:'success'})

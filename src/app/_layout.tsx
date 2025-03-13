@@ -9,10 +9,6 @@ import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { isIOS } from "utils/common";
 import * as Sentry from '@sentry/react-native';
-import { useEffect } from "react";
-import { setAuthToken } from "services/api/axios-api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNetInfo } from "@react-native-community/netinfo";
 import useFBEventTracking from "hooks/fbsdk/useFBEventTracking";
 
 Sentry.init({
@@ -38,19 +34,7 @@ function Layout() {
     ...FontAwesome.font,
   });
 
-  const netinfo = useNetInfo();
   useFBEventTracking()
-
-  useEffect(()=>{
-    if(fontsLoaded){
-      (async function(){
-        const t = await AsyncStorage.getItem('authToken')??''
-        if(!!t){
-          setAuthToken(t,false,netinfo);
-        }
-      })()
-    }
-  },[fontsLoaded])
 
   if (!fontsLoaded) {
     return null;

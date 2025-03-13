@@ -638,15 +638,6 @@ const Home = () => {
     setRefreshing(false);
   };
 
-  const netinfo = useNetInfo()
-
-  useEffect(()=>{
-    if(!!token){
-      setAuthToken(token,false,netinfo)
-      AsyncStorage.setItem('authToken', token)??''
-    }
-  },[])
-
   const scrollY = useRef(new Animated.Value(0)).current;
   const searchBarHeight = 40; // Adjust based on your search bar height
   const headerHeight=50;
