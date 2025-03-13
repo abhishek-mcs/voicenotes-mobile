@@ -85,6 +85,7 @@
     "react-native-circular-progress": "^1.4.1",
     "react-native-collapsible": "^1.6.2",
     "react-native-context-menu-view": "^1.16.0",
+    "react-native-deck-swiper": "^2.0.17",
     "react-native-dialog": "^9.3.0",
     "react-native-fbsdk-next": "^13.0.0",
     "react-native-gesture-handler": "~2.14.0",
