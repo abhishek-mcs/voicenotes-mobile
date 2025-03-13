@@ -20,8 +20,6 @@ import { generateRandomIdentifier } from "utils/formatBigNumber";
 import { useDialog } from "context/DialogContext";
 import { useEffect } from "react";
 import { deviceInfo } from "services/api/api-constants";
-import { NewNote } from "types";
-import { useNetInfo } from "@react-native-community/netinfo";
 
 export function useFirebaseRecordingListener() {
   const dispatch = useDispatch();
@@ -31,7 +29,6 @@ export function useFirebaseRecordingListener() {
   const relatedNotes = useGetRelatedRecording();
   const {showDialog} = useDialog();
   const {isLightMode} = useTheme();
-  const netInfo = useNetInfo(); 
 
   const uploadImage = async (newImage: string,noteId:any,isLast:boolean) => {
     const identifier = generateRandomIdentifier();
@@ -52,7 +49,7 @@ export function useFirebaseRecordingListener() {
         },
       });
       if(result&&isLast){
-        queryClient.invalidateQueries('single-recording')
+        queryClient.invalidateQueries('all-recording')
         queryClient.resetQueries('streaks');
         console.log('Upload successfull');
       }
@@ -66,27 +63,12 @@ export function useFirebaseRecordingListener() {
     }
   };
 
-  const onTextNoteSave = async(note:NewNote) => {
+  const onTextNoteSave = async(textnote:string='',temporaryRecordingId:any,images:any[]=[]) => {
     // const t = textnote?.replace(/\n/g, '<br>');
-    try{
-      const textnote = note?.text_note
-      const recording_type = note?.recording_type
-      const temporaryRecordingId:any = note?.id
-      const images:any = note?.imageAttachments
-      const data = await axiosApi.post(`/recordings/new`,{recording_type,transcript:textnote,device_info:JSON.stringify(deviceInfo)},{timeout:3000,timeoutErrorMessage:'Time out! Not able to save text note'})
-      const noteId = data?.data?.recording?.id
-      dispatch(
-        updateRecordingDetails({
-          recordingId: noteId,
-          data: { status:netInfo?.isConnected?"saving":"upload_failed" },
-          temporaryRecordingId:note?.id,
-        })
-      );
-      listenToFirebaseStatus(noteId,temporaryRecordingId);
-      images?.length>0&&images?.map(async(img:any,i:number)=>await uploadImage(img?.url,noteId,i==images?.length-1))
-    }catch(e){
-      console.log(e,'text note failed to save')
-    }
+    const data = await axiosApi.post(`/recordings/new`,{recording_type:3,transcript:textnote,device_info:JSON.stringify(deviceInfo)},{timeout:3000,timeoutErrorMessage:'Time out! Not able to save text note'})
+    const noteId = data?.data?.recording?.id
+    listenToFirebaseStatus(noteId,temporaryRecordingId);
+    images?.length>0&&images?.map(async(img,i)=>await uploadImage(img?.url,noteId,i==images?.length-1))
   }
 
   useEffect(() => {
@@ -219,11 +201,11 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       dispatch(setRelatedNoteTranscriptLoad(false));
       relatedNotes.mutate(recordingId);
     }
-    queryClient.resetQueries("single-recording");
     if(!isTitleTriggered && isTitleGenerated){
       setTriggerTypingTitle(recordingId);
       isTitleTriggered = true;
       dispatch(setRelatedNoteTitleLoad(false));
+      queryClient.invalidateQueries("single-recording");
     }
     isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     dispatch(updateTempRecordingData(updatedStatus));

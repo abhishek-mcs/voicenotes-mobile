@@ -144,7 +144,7 @@ export const stopRecording = async (recording: ExtendedRecording|any ) => {
   }
 };
 
-export const cancelRecording = async (recording: ExtendedRecording | any,soundRef:Audio.Sound|null) => {
+export const cancelRecording = async (recording: ExtendedRecording | null,soundRef:Audio.Sound|null) => {
   try {
     if (recording) {
       if (recording._appStateSubscription) {
@@ -188,17 +188,16 @@ export const setupAudioRec = (recording: Audio.Recording | null) => {
   }, []);
 };
 
+const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
 
-export const saveRecording = async (uri: string = "", isCache = false) => {  // Recording.getURI()
+const saveRecording = async (uri: string = "") => {  // Recording.getURI()
   try {
-    const DOCUMENT_FOLDER = `${FileSystem.documentDirectory}`;
-    const CACHE_FOLDER = `${FileSystem.cacheDirectory}`;
     // Get just the name and extension of the recording file created from the URI path
     const fileName = uri?.split('/')?.pop();
-    const moveTo = `${isCache?CACHE_FOLDER:DOCUMENT_FOLDER}${fileName}`;
+    const moveTo = `${DOCUMENT_FOLDER}${fileName}`;
     
     // Move the file and wait for completion
-    await FileSystem.copyAsync({ 
+    await FileSystem.moveAsync({ 
       from: uri, 
       to: moveTo 
     });

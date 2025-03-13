@@ -22,7 +22,6 @@ import {
   cancelRecording,
   checkRecordPermission,
   onRecord,
-  saveRecording,
   stopRecording,
 } from "func/home/record";
 import { useGuestToken } from "queries/auth";
@@ -45,7 +44,7 @@ import {
   updateTempRecordingData,
 } from "redux/reducers/recordingStates";
 import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
-import { setCanRecord, setToken } from "redux/reducers/userDetails";
+import { setCanRecord } from "redux/reducers/userDetails";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
@@ -72,11 +71,10 @@ import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
-import { createTempRecDetails } from "utils/createTempRecDetails";
-import * as FileSystem from "expo-file-system";
-import { isTaskRegistered, registerBackgroundTask } from "services/backgroundFetchHelperiOS";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
+import RecButton from "components/common/recording/rec-button";
 
 const { height } = Dimensions.get("screen");
 
@@ -93,7 +91,7 @@ const Home = () => {
   const guestToken = useSelector(
     (state: RootState) => state.userDetails.guestToken
   );
-  const { recordingList } = useSelector(
+  const { recordingList,tempRecordingData } = useSelector(
     (state: RootState) => state.recordingStates
   );
   const createGuestUser = useGuestToken();
@@ -126,14 +124,14 @@ const Home = () => {
   const highlights = useHighlights(token)
 
   const getTags=useGetTags()
-  const { action, file }:any = useLocalSearchParams();
+  const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
   const {showDialog}:any = useDialog()
 
-  const { listenToFirebaseStatus, onTextNoteSave } = useFirebaseRecordingListener()
+  const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
   useWatchNetInfo()
   
@@ -145,45 +143,6 @@ const Home = () => {
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
   },[isLightMode])
-
-  const deepLinkListener = async() => {
-    if (!!file) {
-      setAuthToken(token,false,netinfo)
-      // Handle file processing (e.g., upload or play audio)
-      const fileURI = await saveRecording(file,true)??''
-      console.log("moved file to cache", fileURI)
-      const MAX_SIZE_MB = 35 * 1024 * 1024;
-      const fileInfo:any = await FileSystem.getInfoAsync(fileURI);
-      if (fileInfo?.size > MAX_SIZE_MB ) {
-        console.warn(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
-        showDialog('','Your file is too large (over 35 MB). Please choose a smaller file to continue.')
-        return;
-      }
-      const { sound } = await Audio.Sound.createAsync({ uri:file });
-      const status = await sound.getStatusAsync();
-      let d:number = 0;
-      if (status?.isLoaded&&status?.durationMillis) {
-        console.log("Audio duration (ms):", status.durationMillis);
-        d = status.durationMillis;
-      }
-      if(fileURI&&isBeliever){
-        const tempRecordingDetails = createTempRecDetails({uri:fileURI,duration:d})
-        dispatch(setTempRecordingData(tempRecordingDetails))
-        dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
-        uploadVoiceNote(tempRecordingDetails)
-      }else{
-        setTimeout(() => {
-          checkAndShowPremium()
-        }, 1000);
-      }
-    }
-  }
-
-  useEffect(() => {
-    (async function(){
-      await deepLinkListener()
-    })()
-  }, [file]);
   
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
@@ -222,14 +181,14 @@ const Home = () => {
 
     const searchNoteSubscription = actionEmitter.addListener('searchNote', () => {
       // console.log("React Native: Search Note started");
-      router.push("/search");
+      router.push("/search/");
     });
 
     const textNoteSubscription = actionEmitter.addListener('addToTextNote', (event) => {
       console.log("React Native: Text Note started");
       const noteContent = event?.content;
       router.push({
-        pathname: "/text-note",
+        pathname: "/text-note/",
         params: { content: noteContent }, // Pass the content as a parameter
       });
     });
@@ -309,7 +268,7 @@ const Home = () => {
         break;
       case 'search':
         // console.log('Performing action for Search');
-        router.push("/search");
+        router.push("/search/");
         break;
       default:
         // console.log('No matching shortcut action');
@@ -334,7 +293,7 @@ const Home = () => {
           break;
         case 'searchDeeplink':
           if (recEnabled) break; 
-          router.push("/search")
+          router.push("/search/")
           break;
       }
   }, [action]);
@@ -389,11 +348,8 @@ const Home = () => {
   const syncUpNote = async (note: Note) => {
     const retryUpload = async (note: Note) => {
       console.log("retrying upload for note: ", note.audio.data.url);
-      !note?.audio?.data?.url && Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
-      if(note?.recording_type == 3)
-        await onTextNoteSave(note);
-      else
-        await uploadVoiceNote(note).catch(()=>{});
+      !note?.audio?.data?.url&&Sentry.captureMessage("retrying upload for note: "+note?.audio?.data?.url,"error")
+      await uploadVoiceNote(note).catch(()=>{});
     };
 
     const retryProcessing = async (note: Note) => {
@@ -416,41 +372,31 @@ const Home = () => {
     }
   };
 
-  const syncRecordingAndSubnotes = async (recording: Note) => {
-    if (recording.status !== "processed") {
-      await syncUpNote(recording);
-    }
-    
-    if (recording?.subnotes && Array.isArray(recording?.subnotes)) {
-      for (const subnote of recording?.subnotes) {
-        if (subnote?.status !== "processed") {
-          await syncUpNote(subnote); // Pass true to indicate it's a subnote
-        }
-      }
-    }
-  };
-
-  const syncAllRecordings = async () => {
-    for (const recording of recordingList) {
-      await syncRecordingAndSubnotes(recording);
-    }
-  };
-
   useEffect(() => {
     if (isOffline) return;
   
+    const syncRecordingAndSubnotes = async (recording: Note) => {
+      if (recording.status !== "processed") {
+        await syncUpNote(recording);
+      }
+      
+      if (recording?.subnotes && Array.isArray(recording?.subnotes)) {
+        for (const subnote of recording?.subnotes) {
+          if (subnote?.status !== "processed") {
+            await syncUpNote(subnote); // Pass true to indicate it's a subnote
+          }
+        }
+      }
+    };
+  
+    const syncAllRecordings = async () => {
+      for (const recording of recordingList) {
+        await syncRecordingAndSubnotes(recording);
+      }
+    };
+  
     syncAllRecordings();
   }, [isOffline]);
-
-  useEffect(()=>{
-    (async function(){
-      if(isIOS){
-        const isReg = await isTaskRegistered('bg-upload-all');
-        if(isReg)
-          registerBackgroundTask('bg-upload-all',syncAllRecordings,300)
-      }
-    })()
-  },[]);
 
   const onAsk = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -459,13 +405,13 @@ const Home = () => {
     // CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
-    router.push("/ask-my-ai");
+    router.push("/ask-my-ai/");
   };
   const onCreate = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    router.push('/create')
+    router.push('/create/')
     // CreateModalRef.current?.onReset();
     // AIModalRef?.current?.close();
     // CreateModalRef.current?.toggle();
@@ -581,8 +527,21 @@ const Home = () => {
       let uri = await stopRecording(rec);
       setRec(null);
 
-      const newTemporaryRecording: NewNote = createTempRecDetails({uri,duration,parentId:recordingParentId})
+      const temporaryRecordingId = Math.random().toString(36).substring(7);
+      const newTemporaryRecording: NewNote = {
+        id: temporaryRecordingId,
+        temp_id:temporaryRecordingId,
+        audio: { data: { url: uri, duration } },
+        isUploading: true,
+        title: `New Recording`,
+        transcript: null,
+        recorded_at: new Date().getTime(),
+        status: "uploading",
+        internalUrl: uri,
+        parent_id: recordingParentId,
+      };
 
+      dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
@@ -595,7 +554,6 @@ const Home = () => {
           }
           return recording;
         });
-        dispatch(setTempRecordingData(newTemporaryRecording));
         dispatch(setRecordingList(newRecordingList));
       }
 
@@ -694,7 +652,12 @@ const Home = () => {
 
   const netinfo = useNetInfo()
 
-  // useGetToken()
+  useEffect(()=>{
+    if(!!token){
+      setAuthToken(token,false,netinfo)
+      AsyncStorage.setItem('authToken', token)??''
+    }
+  },[])
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const searchBarHeight = 40; // Adjust based on your search bar height
@@ -749,7 +712,7 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
-  if (!token) return <Redirect href="/auth/landingPage" />;
+  if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
       style={[styles.container]}

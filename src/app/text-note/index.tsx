@@ -37,7 +37,6 @@ import { RootState } from "redux/store/store";
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { commonSvg } from "assets/svg/commonSvg";
 import { useDialog } from "context/DialogContext";
-import { useNetInfo } from "@react-native-community/netinfo";
 
 const TextNote = () => {
   const router = useRouter();
@@ -64,8 +63,6 @@ const TextNote = () => {
   const isBeliever = userDetails?.subscription_status||isTempIAPPurchased
   const { showDialog } = useDialog()
 
-  const netinfo = useNetInfo()
-
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
@@ -85,15 +82,13 @@ const TextNote = () => {
       title: `New note`,
       transcript: null,
       recorded_at: new Date().getTime(),
-      status: netinfo?.isConnected?"saving":"upload_failed",
+      status: "saving",
       internalUrl: undefined,
       parent_id: null,
-      recording_type:3,
-      text_note: textnote,
-      imageAttachments: attachments
+      recording_type:3
     };
 
-    onTextNoteSave(newTemporaryRecording)
+    onTextNoteSave(textnote,temporaryRecordingId,attachments)
     dispatch(setTempRecordingData(newTemporaryRecording))
     dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
     recordingList?.length>0&&
@@ -216,7 +211,7 @@ const TextNote = () => {
         <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{padding:16,paddingBottom:isIOS?0:300}}
-        extraKeyboardSpace={-200}
+        extraKeyboardSpace={isIOS?-screenHeight*2:-200}
         >
         <TextInput
           ref={inputRef}
@@ -225,7 +220,7 @@ const TextNote = () => {
             fontFamily: 'Primary',
             fontSize: 14,
             lineHeight: textnote?.length>0?20:18,
-            paddingBottom:isIOS?200:0
+            paddingBottom:isIOS?60:0
           }}
           multiline
           placeholder="Write here..."
@@ -237,14 +232,6 @@ const TextNote = () => {
           selectTextOnFocus={false}
           {...(isBeliever?{}:{maxLength:1500})}
         />
-
-      <ImageUploader
-        showImagePicker={showImagePicker}
-        setShowImagePicker={setShowImagePicker}
-        setAttachments={setAttachments}
-        onAttachmentUpdate={refreshNotesAfterAttachmentChange}
-        noteType={3}
-      />
         </KeyboardAwareScrollView>
 
       <KeyboardStickyView
@@ -277,6 +264,13 @@ const TextNote = () => {
           </Pressable>
       </KeyboardStickyView>
 
+      <ImageUploader
+        showImagePicker={showImagePicker}
+        setShowImagePicker={setShowImagePicker}
+        setAttachments={setAttachments}
+        onAttachmentUpdate={refreshNotesAfterAttachmentChange}
+        noteType={3}
+      />
     </SafeAreaView>
   );
 };

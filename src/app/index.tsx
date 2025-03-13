@@ -11,7 +11,6 @@ import notifee, { EventType } from '@notifee/react-native';
 import { setAuthToken } from 'services/api/axios-api';
 import { useNetInfo } from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGetToken } from 'hooks/auth/useGetToken';
 
 notifee.registerForegroundService(() => {
   return new Promise(() => {});
@@ -70,14 +69,20 @@ export default function App() {
     };
   }, []);
 
-  useGetToken()
-  // useDeeplink()
+  useEffect(()=>{
+    (async function(){
+      const t = await AsyncStorage.getItem('authToken')??''
+      if(!!t){
+        setAuthToken(t,false,netinfo);
+      }
+    })()
+  },[])
 
   if (token) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/home/" />;
   }else{
     return (
-      <Redirect href="/auth/landingPage" />
+      <Redirect href="/auth/landingPage/" />
     );
   }
 }

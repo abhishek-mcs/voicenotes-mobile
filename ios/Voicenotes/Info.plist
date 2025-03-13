@@ -10,24 +10,6 @@
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
     <string>Voicenotes</string>
-    <key>CFBundleDocumentTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleTypeName</key>
-        <string>Audio</string>
-        <key>LSHandlerRank</key>
-        <string>Owner</string>
-        <key>LSItemContentTypes</key>
-        <array>
-          <string>public.audio</string>
-          <string>app.voicenotes.mp3</string>
-          <string>app.voicenotes.wav</string>
-          <string>app.voicenotes.m4a</string>
-          <string>app.voicenotes.flac</string>
-          <string>app.voicenotes.aac</string>
-        </array>
-      </dict>
-    </array>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -65,7 +47,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>202</string>
+    <string>200</string>
     <key>FacebookAdvertiserIDCollectionEnabled</key>
     <true/>
     <key>FacebookAppID</key>
@@ -82,11 +64,6 @@
     <false/>
     <key>LSApplicationQueriesSchemes</key>
     <array>
-      <string>files</string>
-      <string>whatsapp</string>
-      <string>audio</string>
-      <string>music</string>
-      <string>voicenotes</string>
       <string>fbapi</string>
       <string>fb-messenger-api</string>
       <string>fbauth2</string>
@@ -136,6 +113,91 @@
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
     </array>
     <key>NSUserTrackingUsageDescription</key>
     <string>Voicenotes require event tracking to improve app performance and enhance your user experience.</string>
@@ -153,15 +215,12 @@
     <key>UIBackgroundModes</key>
     <array>
       <string>audio</string>
-      <string>fetch</string>
-      <string>remote-notification</string>
-      <string>processing</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
-      <string>arm64</string>
+      <string>armv7</string>
     </array>
     <key>UIRequiresFullScreen</key>
     <false/>
@@ -183,113 +242,5 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-      <dict>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.audio</string>
-        </array>
-        <key>UTTypeDescription</key>
-        <string>MP3 Audio</string>
-        <key>UTTypeIdentifier</key>
-        <string>app.voicenotes.mp3</string>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array>
-            <string>mp3</string>
-          </array>
-          <key>public.mime-type</key>
-          <array>
-            <string>audio/mpeg</string>
-          </array>
-        </dict>
-      </dict>
-      <dict>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.audio</string>
-        </array>
-        <key>UTTypeDescription</key>
-        <string>WAV Audio</string>
-        <key>UTTypeIdentifier</key>
-        <string>app.voicenotes.wav</string>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array>
-            <string>wav</string>
-          </array>
-          <key>public.mime-type</key>
-          <array>
-            <string>audio/wav</string>
-          </array>
-        </dict>
-      </dict>
-      <dict>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.audio</string>
-        </array>
-        <key>UTTypeDescription</key>
-        <string>M4A Audio</string>
-        <key>UTTypeIdentifier</key>
-        <string>app.voicenotes.m4a</string>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array>
-            <string>m4a</string>
-          </array>
-          <key>public.mime-type</key>
-          <array>
-            <string>audio/mp4</string>
-          </array>
-        </dict>
-      </dict>
-      <dict>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.audio</string>
-        </array>
-        <key>UTTypeDescription</key>
-        <string>FLAC Audio</string>
-        <key>UTTypeIdentifier</key>
-        <string>app.voicenotes.flac</string>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array>
-            <string>flac</string>
-          </array>
-          <key>public.mime-type</key>
-          <array>
-            <string>audio/flac</string>
-          </array>
-        </dict>
-      </dict>
-      <dict>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.audio</string>
-        </array>
-        <key>UTTypeDescription</key>
-        <string>AAC Audio</string>
-        <key>UTTypeIdentifier</key>
-        <string>app.voicenotes.aac</string>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array>
-            <string>aac</string>
-          </array>
-          <key>public.mime-type</key>
-          <array>
-            <string>audio/aac</string>
-          </array>
-        </dict>
-      </dict>
-    </array>
   </dict>
 </plist>

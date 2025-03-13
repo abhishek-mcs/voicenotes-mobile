@@ -32,10 +32,8 @@ struct SiriAppShortcuts: AppShortcutsProvider {
                 systemImageName: "waveform.badge.magnifyingglass")
     
     AppShortcut(intent: TextNoteIntent(), phrases: [
-      "Add to \(.applicationName)",
-      "Add to voice notes",
-      "Add to voice note",
-      "Add a text note to voice notes",
+      "Add a text note on \(.applicationName)",
+      "Create a text note"
     ],
                 shortTitle: "Create Text Note",
                 systemImageName: "note.text")
