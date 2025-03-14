@@ -35,7 +35,7 @@ const Publish = ({
 
     useEffect(() => {
         console.log('Publish ',slug, isPublished, isNoteJustMadePrivate);
-    },[slug])
+    },[])
 
     return (
         <View style={styles.container}>
@@ -61,7 +61,7 @@ const Publish = ({
                     
                     {/* Play Button + Timer */}
                     <View style={styles.audioPlayer}>
-                        <TouchableOpacity style={styles.playButton}>
+                        <TouchableOpacity>
                             <Text style={styles.playIcon}>▶</Text>
                         </TouchableOpacity>
                         <Text style={styles.timer}>00:29</Text>
@@ -69,9 +69,7 @@ const Publish = ({
 
                     {/* Voice Note Text */}
                     <Text style={styles.voiceText}>
-                        So first, the biggest news I got the job I interviewed for last week. 
-                        Super excited about that, it’s a huge opportunity and I can’t wait to start next month. 
-                        Definitely feeling a little nervous...
+                        So first, the biggest news I got the job I interviewed for last week. Super excited about that, it's a huge opportunity and I can't wait to start next month. Definitely feeling a little nervous...
                     </Text>
                 </View>
             </View>
@@ -119,19 +117,21 @@ const useStyles = () => {
     },
     previewBox: {
         width: '100%',
-        backgroundColor: '#F8F8F8',
+        backgroundColor: Colors.whiteWithOpacity(1),
+        borderColor: Colors.darkWithOpacity(0.1),
+        borderWidth: 1,
         borderRadius: 12,
         overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
     },
     browserHeader: {
+        width: '67%',
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         padding: 10,
-        backgroundColor: '#EAEAEA',
+        backgroundColor: Colors.whiteWithOpacity(1),
+        borderBottomColor: Colors.darkWithOpacity(0.1),
+        borderBottomWidth: 1
     },
     circleGroup: {
         flexDirection: 'row',
@@ -145,46 +145,45 @@ const useStyles = () => {
     },
     browserTitle: {
         marginLeft: 10,
-        fontSize: 14,
-        fontWeight: 'bold',
+        fontSize: 13,
+        fontFamily: 'Primary-Bold',
+        color: Colors.grey5
     },
     voiceNoteContent: {
         padding: 16,
+        backgroundColor: Colors.darkWithOpacity(0.05)
     },
     voiceTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 14,
+        fontFamily: 'Primary-Bold',
         marginBottom: 8,
+        color: Colors.text
     },
     audioPlayer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#EAEAEA',
-        padding: 8,
-        borderRadius: 8,
-        width: 100,
+        backgroundColor: Colors.darkWithOpacity(0.05),
+        paddingVertical: 6,
+        borderRadius: 22,
+        paddingHorizontal: 12,
         marginBottom: 10,
+        width: 88
     },
-    playButton: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: 'black',
+    playIcon: {
+        color: Colors.darkWithOpacity(1),
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 8,
-    },
-    playIcon: {
-        color: 'white',
-        fontSize: 12,
+        fontSize: 16,
     },
     timer: {
         fontSize: 14,
-        fontWeight: 'bold',
+        fontFamily: 'Primary-Semibold',
     },
     voiceText: {
-        fontSize: 14,
-        color: 'gray',
+        fontSize: 12,
+        lineHeight: 18,
+        color: Colors.grey3,
     },
     publishButton: {
         marginTop: 24,

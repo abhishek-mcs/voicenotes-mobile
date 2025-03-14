@@ -37,7 +37,7 @@ import {
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
-import { useUnpublishRecording } from "queries/home/share";
+import { useGetSharedList, useUnpublishRecording } from "queries/home/share";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
@@ -110,6 +110,7 @@ const NotePreview = forwardRef(
     const [isPublished, setIsPublished] = useState(note?.is_published ?? false);
     const [publishLoading, setPublishLoading] = useState(false);
     const [isNoteJustMadePrivate, setIsNoteJustMadePrivate] = useState(false);
+    const getShareList = useGetSharedList(note?.id || '')
     const [creationLoader, setCreationLoader] = useState(false);
     const [createType, setCreateType] = useState("summary");
     const [showAddMenu, setShowAddMenu] = useState(false);
@@ -287,21 +288,23 @@ const NotePreview = forwardRef(
     const onShareNote = async() => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
-      console.log('Publish note ', note?.public_slug, isPublished, isNoteJustMadePrivate);
-      router.navigate({
-        pathname: "/share",
-        params: {
-          slug: note?.public_slug || "",
-          isPublished: isPublished,
-          onPressCancel: () => setShareVisible(false),
-          onPressDone: togglePublish,
-          isNoteJustMadePrivate:isNoteJustMadePrivate,
-          setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
-        }
-      });
-      // setTimeout(() => {
-      //   setShareVisible(true);
-      // }, 500);
+      const shareList = getShareList.data?.data
+      console.log('Publish ', shareList);
+      // router.navigate({
+      //   pathname: "/share",
+      //   params: {
+      //     slug: note?.public_slug || "",
+      //     isPublished: isPublished,
+      //     sharedList: shareList,
+      //     onPressCancel: () => setShareVisible(false),
+      //     onPressDone: togglePublish,
+      //     isNoteJustMadePrivate:isNoteJustMadePrivate,
+      //     setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
+      //   }
+      // });
+      setTimeout(() => {
+        setShareVisible(true);
+      }, 500);
     };
 
     const onCopy = async (content = "") => {

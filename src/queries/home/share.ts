@@ -26,3 +26,29 @@ export function useGetPublishedRecording(){
         }
     })
 }
+
+export function useGetSharedList(id: string){
+    return useQuery('share-list',() => {
+        return axiosApi.get(`/shared-users/${id}`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log('shared-list',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useShareRecording(){
+    const queryClient = useQueryClient();
+    return useMutation('share-note',(p?:any) => {
+        return axiosApi.post(`/recording/${p.id}/share`, { emails: [p.emails]})
+    },
+    {
+        onSuccess:async(data:any)=>{
+            await queryClient.invalidateQueries('shared-list')
+        },
+        onError:(error:any)=>{
+            console.log('unpublish',error?.response?.data?.message);
+        }
+    })
+}

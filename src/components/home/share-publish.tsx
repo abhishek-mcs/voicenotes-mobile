@@ -1,19 +1,25 @@
 import { commonSvg } from 'assets/svg/commonSvg'
 import { home } from 'assets/svg/home'
+import { setStringAsync } from "expo-clipboard";
 import { TextField } from 'components/common/text-field'
 import Touchable from 'components/common/Touchable'
 import { useTheme } from 'context'
 import { router } from 'expo-router'
-import { useCallback, useMemo, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView } from 'react-native'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView, Image } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isIOS } from 'utils/common'
 import Publish from './publish'
+import { useGetSharedList, useShareRecording } from 'queries/home/share'
+import { set } from 'date-fns'
+import { useQueryClient } from 'react-query'
+import { MAIN_URL } from 'services/api/api-constants';
 
 interface PublishModalProps {
   slug: string | any;
   isPublished: boolean;
+  sharedList: any;
   onPressDone: () => void;
   onPressCancel: () => void;
   isNoteJustMadePrivate: boolean;
@@ -23,30 +29,60 @@ interface PublishModalProps {
 const SharePublish = ({
   slug = "",
   isPublished = false,
+  sharedList = [],
   onPressDone = () => {},
   onPressCancel = () => {},
   isNoteJustMadePrivate = false,
   setIsNoteJustMadePrivte = () => {},
 } : PublishModalProps) => {
   const styles = useStyles()
+  const queryClient = useQueryClient();
   const { Colors, isLightMode } = useTheme()
-  const [isSelected, setSelected] = useState('publish');
+  const [isSelected, setSelected] = useState('share');
+  const getShareList = useGetSharedList(slug)
+  const shareList = getShareList.data?.data
+  const shareRecording = useShareRecording();
+  const [copy, setCopy] = useState(false);
+  const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("");
-
-  const invitedUsers = [
-    { id: "1", name: "Aleesha John", email: "aleesha@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "3", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "4", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-  ];
-  
-  const notInvitedUsers = [
-    { id: "1", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "2", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-    { id: "3", name: "Joseph Sunny", email: "joseph@buymeacoffee.com", image: "https://via.placeholder.com/50" },
-  ];
+  const [sharedUsers, setSharedUsers] = useState(shareList?.users ? shareList.users : []);
+  const [recent, setRecent] = useState(shareList.recent ? shareList.recent : []);
 
   const onClose = () => { router.back() }
+
+  const onCopy = async () => {
+    setCopy(true);
+    await setStringAsync(MAIN_URL + "/s/" + slug);
+    setTimeout(() => {
+      setCopy(false);
+    }, 700);
+  };
+
+  useEffect(() => {
+    if (shareList) {
+      console.log('API called', shareList);
+      setSharedUsers(shareList?.users ? shareList.users : []);
+      setRecent(shareList.recent ? shareList.recent : []);
+    }
+  },[shareList])
+
+  const onShareRecording = () => {
+    shareRecording.mutate(
+      { id: slug, emails: email },
+      {
+        onSuccess: async () => {
+          try {
+            setLoading(true)
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setLoading(false)
+          }
+        }
+      }
+    )
+  }
 
   const KeyboardWrapper = useCallback(({children}:any) => isIOS ?
     children:(
@@ -125,31 +161,37 @@ const SharePublish = ({
         >
           {/* Invited Users */}
           <Text style={styles.invitedTitle}>Shared</Text>
-          {invitedUsers.map((user) => (
-            <View key={user.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
-            {/* <Image source={{ uri: user.image }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} /> */}
-            <View style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10, backgroundColor: Colors.grey7 }}></View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 12, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>
-              <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
-            </View>
-            <TouchableOpacity style={{padding: 4}}>
-              <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
-            </TouchableOpacity>
+          {sharedUsers.map((user: any, index: number) => (
+            <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
+              {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
+                <View style={{ width: 32, height: 32, backgroundColor: Colors.darkWithOpacity(0.1) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <SvgXml xml={commonSvg.unknown?.replace("white",Colors.lightGrey)} />
+                </View> 
+              }
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 12, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>
+                <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
+              </View>
+              <TouchableOpacity style={{padding: 4}}>
+                <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+              </TouchableOpacity>
           </View>
           ))}
 
           {/* Not Invited Users */}
           <Text style={styles.invitedTitle}>Recent</Text>
-          {notInvitedUsers.map((user) => (
-            <View key={user.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
-              {/* <Image source={{ uri: user.image }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} /> */}
-              <View style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10, backgroundColor: Colors.grey7 }}></View>
+          {recent.map((user: any, index: number) => (
+            <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
+              {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
+                <View style={{ width: 32, height: 32, backgroundColor: Colors.darkWithOpacity(0.1) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <SvgXml xml={commonSvg.unknown?.replace("white",Colors.lightGrey)} />
+                </View> 
+              }
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 12, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={onShareRecording}>
                 <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -157,7 +199,7 @@ const SharePublish = ({
         </KeyboardAwareScrollView>
         {/* Copy Link Button */}
         <View style={styles.footerContainer}>
-          <TouchableOpacity style={styles.copyLinkButton}>
+          <TouchableOpacity onPress={onCopy} style={styles.copyLinkButton}>
             {/* <Ionicons name="link" size={20} color="black" /> */}
             <Text style={styles.copyLinkText}>Copy link</Text>
           </TouchableOpacity>
@@ -165,7 +207,7 @@ const SharePublish = ({
       </View> : 
       <Publish 
         slug={slug} 
-        isPublished={isPublished}  
+        isPublished={true}  
         onPressDone={onPressDone}
         onPressCancel={onPressCancel}
         isNoteJustMadePrivate={isNoteJustMadePrivate}
@@ -182,7 +224,8 @@ const useStyles = () => {
   container: {
     // maxHeight: screenHeight * 0.8,
     flex: 1,
-    backgroundColor: Colors.bgColor8
+    backgroundColor: Colors.bgColor8,
+    paddingTop: isIOS ? 0 : 40
   },
   headerContainer: {
     flexDirection: "row",
