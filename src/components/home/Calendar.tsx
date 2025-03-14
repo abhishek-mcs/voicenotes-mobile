@@ -14,6 +14,7 @@ import {
   Animated,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+import { isIOS } from 'utils/common';
 
 const { width } = Dimensions.get('window');
 const CALENDAR_WIDTH = width * 0.9;
@@ -773,18 +774,20 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
 
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
-      <View style={styles.headerSection}>
-        {renderMonthHeader()}
-        {renderWeekdays()}
-      </View>
-      <Animated.View style={[
-        styles.calendarContentWrapper, 
-        { height: animatedHeight }
-      ]}>
-        {renderCalendarDays()}
-      </Animated.View>
-      <View style={styles.footerSection}>
-        {!loading && renderStreakFooter()}
+      <View style={styles.calendarVisualWrapper}>
+        <View style={styles.headerSection}>
+          {renderMonthHeader()}
+          {renderWeekdays()}
+        </View>
+        <Animated.View style={[
+          styles.calendarContentWrapper, 
+          { height: animatedHeight }
+        ]}>
+          {renderCalendarDays()}
+        </Animated.View>
+        <View style={styles.footerSection}>
+          {!loading && renderStreakFooter()}
+        </View>
       </View>
     </View>
   );
@@ -797,14 +800,31 @@ const useStyles = () => {
       width: CALENDAR_WIDTH,
       backgroundColor: Colors.grey2,
       borderRadius: 25,
-      borderWidth: 0.2,
+      borderWidth: isIOS ? 0.2 : 0,
       padding: 16,
-      shadowColor: '#000',
-      shadowOffset: { width: 4, height: 4 },
-      shadowOpacity: 0.5,
-      shadowRadius: 10,
-      elevation: 2,
+      // iOS specific shadow matching the CSS box-shadow values
+      ...(isIOS ? {
+        // Combined effect of the three box shadows:
+        // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.15);
+        // box-shadow: 0px 8px 40px 0px rgba(0, 0, 0, 0.04);
+        // box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.05);
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 8 }, // Taking the larger y-offset
+        shadowOpacity: 0.15, // Using the highest opacity value
+        shadowRadius: 40, // Using the largest blur radius
+      } : {
+        // Android shadow remains the same
+        elevation: 4,
+      }),
       overflow: 'hidden',
+    },
+    calendarVisualWrapper: {
+      ...(isIOS ? {
+        position: 'relative',
+        margin: 1, // Small margin to help shadow rendering
+        backgroundColor: Colors.grey2,
+        borderRadius: 24, // Slightly smaller than container
+      } : {})
     },
     monthHeader: {
       flexDirection: 'row',
@@ -864,15 +884,18 @@ const useStyles = () => {
       marginBottom: 15,
       padding: 10,
       borderColor: Colors.grey,
-      borderWidth: 0.2,
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 2,
-        height: 2,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 2,
-      elevation: 2,
+      borderWidth: isIOS ? 0.2 : 0,
+      // iOS specific shadow - using one of the box-shadow values
+      ...(isIOS ? {
+        // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.15);
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 2,
+      } : {
+        // Android shadow
+        elevation: 2,
+      }),
     },
     highlightsHeader: {
       fontSize: 16,
@@ -942,20 +965,23 @@ const useStyles = () => {
     },
     expandedContainer: {
       backgroundColor: Colors.bgColor,
-      borderRadius: 16,
+      borderRadius: isIOS ? 16 : 10,
       borderWidth: 0.17,
       marginVertical: 4,
       marginBottom: 16,
       paddingHorizontal: 16,
       paddingVertical: 12,
-      shadowColor: Colors.text,
-      shadowOffset: {
-        width: 2,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 2,
+      // iOS specific shadow - using one of the box-shadow values
+      ...(isIOS ? {
+        // box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.05);
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+      } : {
+        // Android shadow
+        elevation: 0,
+      }),
     },
     dateHeaderText: {
       fontSize: 14,
@@ -1019,7 +1045,7 @@ const useStyles = () => {
       color: Colors.grey3,
       fontStyle: 'italic',
     },
-  }), [Colors])
+  }), [Colors, isIOS])
 }
 
 export default ExpandableCalendar;
