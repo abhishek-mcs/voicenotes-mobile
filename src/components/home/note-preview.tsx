@@ -287,7 +287,18 @@ const NotePreview = forwardRef(
     const onShareNote = async() => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
-      router.push("/share")
+      console.log('Publish note ', note?.public_slug, isPublished, isNoteJustMadePrivate);
+      router.navigate({
+        pathname: "/share",
+        params: {
+          slug: note?.public_slug || "",
+          isPublished: isPublished,
+          onPressCancel: () => setShareVisible(false),
+          onPressDone: togglePublish,
+          isNoteJustMadePrivate:isNoteJustMadePrivate,
+          setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
+        }
+      });
       // setTimeout(() => {
       //   setShareVisible(true);
       // }, 500);

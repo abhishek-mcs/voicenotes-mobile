@@ -1,27 +1,21 @@
 import { useTheme } from 'context';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { setStringAsync } from "expo-clipboard";
 import { MAIN_URL } from "services/api/api-constants";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 
 interface PublishModalProps {
-    visible: boolean;
-    hideModal: () => void;
-    isPublished: boolean;
-    isLoading: boolean;
     slug: string | any;
+    isPublished: boolean;
     onPressDone: () => void;
     onPressCancel: () => void;
     isNoteJustMadePrivate: boolean;
     setIsNoteJustMadePrivte: (x: boolean) => void;
-}
-  
+} 
 
 const Publish = ({
-        visible,
-        hideModal = () => {},
-        isLoading = false,
         slug = "",
+        isPublished = false,
         onPressDone = () => {},
         onPressCancel = () => {},
         isNoteJustMadePrivate = false,
@@ -29,7 +23,6 @@ const Publish = ({
     } : PublishModalProps) => {
     const styles = useStyles()
     const { Colors, isLightMode } = useTheme()
-    const [isPublished, setPublished] = useState(true)
     const [copy, setCopy] = useState(false);
 
     const onCopy = async () => {
@@ -39,6 +32,10 @@ const Publish = ({
           setCopy(false);
         }, 700);
     };
+
+    useEffect(() => {
+        console.log('Publish ',slug, isPublished, isNoteJustMadePrivate);
+    },[slug])
 
     return (
         <View style={styles.container}>

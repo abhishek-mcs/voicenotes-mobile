@@ -5,16 +5,32 @@ import Touchable from 'components/common/Touchable'
 import { useTheme } from 'context'
 import { router } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isIOS } from 'utils/common'
 import Publish from './publish'
 
-const SharePublish = () => {
+interface PublishModalProps {
+  slug: string | any;
+  isPublished: boolean;
+  onPressDone: () => void;
+  onPressCancel: () => void;
+  isNoteJustMadePrivate: boolean;
+  setIsNoteJustMadePrivte: (x: boolean) => void;
+}
+
+const SharePublish = ({
+  slug = "",
+  isPublished = false,
+  onPressDone = () => {},
+  onPressCancel = () => {},
+  isNoteJustMadePrivate = false,
+  setIsNoteJustMadePrivte = () => {},
+} : PublishModalProps) => {
   const styles = useStyles()
   const { Colors, isLightMode } = useTheme()
-  const [isSelected, setSelected] = useState('share');
+  const [isSelected, setSelected] = useState('publish');
   const [email, setEmail] = useState("");
 
   const invitedUsers = [
@@ -43,7 +59,7 @@ const SharePublish = () => {
     ),[])
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View
         style={styles.headerContainer}
       >
@@ -147,10 +163,16 @@ const SharePublish = () => {
           </TouchableOpacity>
           </View>
       </View> : 
-      <></>
-      // <Publish />
+      <Publish 
+        slug={slug} 
+        isPublished={isPublished}  
+        onPressDone={onPressDone}
+        onPressCancel={onPressCancel}
+        isNoteJustMadePrivate={isNoteJustMadePrivate}
+        setIsNoteJustMadePrivte={setIsNoteJustMadePrivte}
+      />
       }
-    </View>
+    </SafeAreaView>
   )
 }
 

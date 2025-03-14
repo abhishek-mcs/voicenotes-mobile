@@ -96,7 +96,7 @@ function Layout() {
                   }}
                 />
                 <Stack.Screen
-                  name="share/index"
+                  name="share"
                   options={{
                     presentation: "formSheet",
                     animation: isIOS ? "ios" : "slide_from_bottom",
