@@ -797,7 +797,7 @@ const useStyles = () => {
       width: CALENDAR_WIDTH,
       backgroundColor: Colors.grey2,
       borderRadius: 25,
-      borderWidth: 0.5,
+      borderWidth: 0.2,
       padding: 16,
       shadowColor: '#000',
       shadowOffset: { width: 4, height: 4 },
