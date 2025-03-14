@@ -1,7 +1,7 @@
 import { home } from 'assets/svg/home';
 import SkeletonLoader from 'components/common/loaders/skeleton';
 import { useTheme } from 'context';
-import { getNotesByDates } from 'queries/home';
+import { getNotesByDates, useHighlights } from 'queries/home';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
@@ -51,11 +51,8 @@ const getDatesWithRecordings = (date: Date, weeksData: any[][]): Date[] => {
   return dates;
 };
 
-const getHighlightsForMonth = (date: Date, highlightsData: any): Array<{title: string, uuid: string}> => {
-  if (!highlightsData) return [];
-  
-  const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  return highlightsData[monthKey] || [];
+const formatMonthForApi = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 };
 
 interface CalendarDay {
@@ -87,8 +84,7 @@ interface ExpandableCalendarProps {
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
-  streaksData,
-  highlightsData
+  streaksData
 }) => {
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
@@ -96,7 +92,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [expandedHeight, setExpandedHeight] = useState(0);
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null);
   const [showHighlights, setShowHighlights] = useState(false);
-  const [highlights, setHighlights] = useState<Array<{title: string, uuid: string}>>([]);
   const [showAllNotes, setShowAllNotes] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState<{
     date: string;
@@ -108,6 +103,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [monthlyNotes, setMonthlyNotes] = useState<Record<string, Record<string, any[]>>>({});
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
   const [data, setData] = useState<Data>(streaksData);
+  const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
 
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
@@ -124,6 +120,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const monthsAnimation = useRef(new Animated.Value(0)).current;
   const expandAnimation = useRef(new Animated.Value(0)).current;
   const isAnimating = useRef(false);
+
+  const { 
+    data: highlightsData,
+    isLoading: highlightsLoading,
+    refetch: refetchHighlights
+   } = useHighlights("", formatMonthForApi(currentMonth))
+
+  const highlights: Array<{title: string, uuid: string}> = highlightsData?.data || [];
 
   const styles = useStyles();
   const { Colors } = useTheme();
@@ -155,7 +159,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     };
     
     setMonthsData(generateMonthsData(currentMonth));
-    setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
     
     // Fetch notes for the initial month
     fetchNotesForMonth(currentMonth);
@@ -176,20 +179,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       useNativeDriver: false, // Height animations can't use native driver
     }).start();
   }, [baseHeight, expandedHeight]);
-
-  useEffect(() => {
-    if (highlightsData && currentMonth) {
-      setHighlights(getHighlightsForMonth(currentMonth, highlightsData));
-      
-      // Create a month key
-      const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
-      
-      // Only fetch if we don't already have notes for this month
-      if (!monthlyNotes[monthKey]) {
-        fetchNotesForMonth(currentMonth);
-      }
-    }
-  }, [highlightsData, currentMonth]);
 
   // Utility functions
   const isDateActive = (date: Date | undefined, activeDates: Date[]): boolean => {
@@ -347,8 +336,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         });
         
         setMonthsData(newMonthsData);
-        
-        setHighlights(getHighlightsForMonth(newMonth, highlightsData));
+
+        monthsAnimation.setValue(0);
+        isAnimating.current = false;
+
+        // Refetch highlights for the new month after state update
+        setTimeout(() => {
+          refetchHighlights();
+        }, 0);
         
         // Get notes for the new month if they're not already loaded
         const monthKey = `${newMonth.getFullYear()}-${String(newMonth.getMonth() + 1).padStart(2, '0')}`;
@@ -567,13 +562,31 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       month: 'long',
     });
   
-    const hasHighlights = highlights.length > 0;
+    // Check if monthsData is initialized
+    if (monthsData.length < 3) {
+      return (
+        <View style={styles.monthHeader}>
+          <Text style={styles.monthText}>{monthName}</Text>
+        </View>
+      );
+    }
+  
+    // Check if month has recordings before showing highlights button
+    const currentMonthData = monthsData.find(data => 
+      data.date.getMonth() === currentMonth.getMonth() && 
+      data.date.getFullYear() === currentMonth.getFullYear());
+    
+    // Safe access with optional chaining and default to empty array
+    const eventDates = currentMonthData?.eventDates ?? [];
+    
+    // Show button only if the month has recordings
+    const showHighlightsButton = eventDates.length > 0;
   
     return (
       <View>
         <View style={styles.monthHeader}>
           <Text style={styles.monthText}>{monthName}</Text>
-          {hasHighlights && (
+          {showHighlightsButton && (
             <TouchableOpacity
               style={styles.highlightsButton}
               onPress={() => {
@@ -584,6 +597,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                 setShowAllNotes(false);
                 setExpandedHeight(showHighlights ? 0 : highlightsHeight + 10);
                 setShowHighlights(!showHighlights);
+                
+                // If we're showing highlights, trigger a refetch to ensure data is fresh
+                if (!showHighlights) {
+                  refetchHighlights();
+                }
               }}
             >
               <SvgXml xml={home.highlights.replace(/#FFFFFF/g,Colors.green4)} />
@@ -593,18 +611,28 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             </TouchableOpacity>
           )}
         </View>
-        {showHighlights && hasHighlights && (
+        {showHighlights && (
           <View style={styles.highlightsContainer} onLayout={(event) => {
             const { height } = event.nativeEvent.layout;
             setHighlightsHeight(height-140);
           }}>
             <Text style={styles.highlightsHeader}>Highlights</Text>
-            {highlights.map((highlight, index) => (
-              <View key={index} style={styles.highlightItem}>
-                <View style={styles.bulletPoint} />
-                <Text style={styles.highlightText}>{highlight.title}</Text>
-              </View>
-            ))}
+            
+            {highlightsLoading ? (
+              // Show skeleton loader when loading highlights
+              <SkeletonLoader count={3} />
+            ) : highlights.length > 0 ? (
+              // Show highlights when available
+              highlights.map((highlight, index) => (
+                <View key={index} style={styles.highlightItem}>
+                  <View style={styles.bulletPoint} />
+                  <Text style={styles.highlightText}>{highlight.title}</Text>
+                </View>
+              ))
+            ) : (
+              // Show a message when no highlights are available
+              <Text style={styles.noNotesText}>No highlights available</Text>
+            )}
           </View>
         )}
       </View>
