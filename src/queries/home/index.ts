@@ -451,10 +451,10 @@ export function useStreak(token:any){
     })
 }
 
-export function useHighlights(token: string) {
+export function useHighlights(token: string, month: string) {
     return useQuery('highlights', (p?: any) => {
         if (!!token)
-            return axiosApi.get(`/calendar/highlights`)
+            return axiosApi.post(`/calendar/highlights`, { month })
     },
         {
             onError: (error: any) => {
