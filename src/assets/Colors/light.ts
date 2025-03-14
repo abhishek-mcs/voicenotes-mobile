@@ -130,4 +130,5 @@ export default {
   arrow:'#0d0d0d',
   loader:(o:number)=>`rgba(130, 130, 130,${o})`,
   snack:'#0d0d0d',
+  selection: 'rgba(0,0,0,0.05)'
 };

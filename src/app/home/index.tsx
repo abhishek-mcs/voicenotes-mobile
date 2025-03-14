@@ -966,7 +966,14 @@ const Home = () => {
       >
         <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={isIOS ? 50 : 100}>
           <Pressable onPress={() => showCalendar(false)} style={styles.calendarHeader}>
-            {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.button, {left: calendarPos.x, top: isIOS ? calendarPos.y - 30: calendarPos.y}]}>
+            {calendarPos.y !== 0 && 
+              <Pressable
+                onPress={() => showCalendar(false)} 
+                style={[
+                  styles.button,
+                  {left: calendarPos.x, top: isIOS ? calendarPos.y - 30: calendarPos.y, backgroundColor: Colors.selection}
+                ]}
+              >
               <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>}
             {settingsPos.y !== 0 && <Pressable onPress={() => router.navigate("/settings/")} style={[styles.button, {left: settingsPos.x, top: isIOS ? settingsPos.y - 30 : settingsPos.y}]}>
