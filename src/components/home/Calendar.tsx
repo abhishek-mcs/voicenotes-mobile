@@ -576,6 +576,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             <TouchableOpacity
               style={styles.highlightsButton}
               onPress={() => {
+                setExpandedHeight(0);
+                setSelectedDate(null);
+                setExpandedRowIndex(null);
+                setAdditionalInfo({ date: '', items: [] });
+                setShowAllNotes(false);
                 setExpandedHeight(showHighlights ? 0 : highlightsHeight + 10);
                 setShowHighlights(!showHighlights);
               }}
