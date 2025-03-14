@@ -131,6 +131,13 @@ const Home = () => {
   const styles = useStyles()
   const {showDialog}:any = useDialog()
 
+  // these are to align the icons in the header while opening calendar
+  const calendarIconRef = useRef(null);
+  const settingsIconRef = useRef(null);
+
+  const [calendarPos, setCalendarPos] = useState({x: 0, y: 0});
+  const [settingsPos, setSettingsPos] = useState({x: 0, y: 0});
+
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
   useWatchNetInfo()
@@ -611,6 +618,17 @@ const Home = () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
+
+  const openCalendar = () => {
+    calendarIconRef.current.measureInWindow((x, y, width, height) => {
+      setCalendarPos({x, y});
+    });
+    settingsIconRef.current.measureInWindow((x, y, width, height) => {
+      setSettingsPos({x, y});
+    });
+
+    showCalendar(true);
+  }
   
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -740,8 +758,9 @@ const Home = () => {
                 isLogged={!!token}
                 isOffline={isOffline}
                 streaks={streaks}
-                streaksRef={streaksRef}
-                onCalendarToggled={() => showCalendar(!calendar)}
+                settingsRef={settingsIconRef}
+                calendarRef={calendarIconRef}
+                onCalendarToggled={openCalendar}
                 scrollY={scrollY}
                 scale={scale.current}
               />
@@ -945,18 +964,18 @@ const Home = () => {
         visible={calendar}
         animationType="fade"
       >
-        <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={50}>
+        <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={isIOS ? 50 : 100}>
           <Pressable onPress={() => showCalendar(false)} style={styles.calendarHeader}>
-            <Pressable onPress={() => showCalendar(false)} style={styles.button}>
+            {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.button, {left: calendarPos.x, top: isIOS ? calendarPos.y - 30: calendarPos.y}]}>
               <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
-            </Pressable>
-            <Pressable onPress={() => router.navigate("/settings/")} style={styles.button}>
+            </Pressable>}
+            {settingsPos.y !== 0 && <Pressable onPress={() => router.navigate("/settings/")} style={[styles.button, {left: settingsPos.x, top: isIOS ? settingsPos.y - 30 : settingsPos.y}]}>
               <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)} />
-            </Pressable>
+            </Pressable>}
           </Pressable>
-          <Pressable onPress={() => showCalendar(false)} style={{flex: 6, alignItems: 'center'}}>
+          {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
             <ExpandableCalendar highlightsData={highlights?.data?.data} streaksData={streaks?.data?.data || []} />
-          </Pressable>
+          </Pressable>}
         </BlurView>
       </Modal>
     </SafeAreaView>
@@ -965,6 +984,7 @@ const Home = () => {
 
 const useStyles = () => {
   const { Colors } = useTheme();
+  const { width } = Dimensions.get("screen");
   return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
@@ -980,14 +1000,21 @@ const useStyles = () => {
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
     padding: 12,
-    marginTop: 30,
+    marginTop: isIOS ? 30 : 0
+  },
+  calendar: {
+    flex: 6,
+    alignItems: 'center',
+    position: 'absolute',
+    left: width / 20,
   },
   button: {
     height: 38,
     width: 38,
     borderRadius: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    position: 'absolute'
   }
 }), [Colors]); // Recreate styles when Colors change
 };

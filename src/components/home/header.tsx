@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Animated, Image, Keyboard, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Keyboard, LayoutAnimation, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
 import { useDispatch, useSelector } from "react-redux";
@@ -17,7 +17,7 @@ import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails
 import { languages } from "utils/constants/languages";
 import { useTheme } from "context";
 
-const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,hideBgColor=false,scale=1}:any) => {
+const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,calendarRef,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
@@ -98,12 +98,12 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,hideBgColor=f
           <Text style={{color:Colors.primaryDark,fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
         {/* streak indicator */}
-        <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
+        <Pressable ref={calendarRef} onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
           <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)}/>
-        </Touchable>
-        <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
+        </Pressable>
+        <Pressable ref={settingsRef} style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
           <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)}/>
-        </Touchable>
+        </Pressable>
         </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
         {/* signup and login button */}
