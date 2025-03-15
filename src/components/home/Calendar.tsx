@@ -14,6 +14,8 @@ import {
   Animated,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store/store';
 import { isIOS } from 'utils/common';
 
 const { width } = Dimensions.get('window');
@@ -86,6 +88,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
   streaksData
 }) => {
+
+  const { token }:any = useSelector((state: RootState) => state.userDetails);
+
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -125,9 +130,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     data: highlightsData,
     isLoading: highlightsLoading,
     refetch: refetchHighlights
-   } = useHighlights("", formatMonthForApi(currentMonth))
+   } = useHighlights(token, formatMonthForApi(currentMonth))
 
-  const highlights: Array<{title: string, uuid: string}> = highlightsData?.data || [];
+  const highlights: Array<string> = highlightsData?.data || [];
 
   const styles = useStyles();
   const { Colors } = useTheme();
@@ -626,7 +631,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
               highlights.map((highlight, index) => (
                 <View key={index} style={styles.highlightItem}>
                   <View style={styles.bulletPoint} />
-                  <Text style={styles.highlightText}>{highlight.title}</Text>
+                  <Text style={styles.highlightText}>{highlight}</Text>
                 </View>
               ))
             ) : (

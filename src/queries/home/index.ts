@@ -452,15 +452,17 @@ export function useStreak(token:any){
 }
 
 export function useHighlights(token: string, month: string) {
-    return useQuery('highlights', (p?: any) => {
+    return useQuery(['highlights', month], (p?: any) => {
         if (!!token)
             return axiosApi.post(`/calendar/highlights`, { month })
     },
-        {
-            onError: (error: any) => {
-                console.log(error?.response?.data?.message);
-            }
-        })
+    {
+        onError: (error: any) => {
+            console.log(error?.response?.data?.message);
+        },
+        // Only run the query when we have a month value
+        enabled: !!month
+    })
 }
 
 export const getNotesByDates = async (dates: string[]): Promise<Record<string, any[]>> => {
