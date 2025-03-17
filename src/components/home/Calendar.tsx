@@ -503,7 +503,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       }
       
       // Calculate appropriate height for either real items or skeleton
-      const newExpandedHeight = calculateExpandedHeight(items.length || recordingCount);
+      const newExpandedHeight = calculateExpandedHeight(items.length || recordingCount, items.length > 0);
       
       // Set all states in a predictable order
       setSelectedDate(date);
@@ -532,9 +532,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     }
   };
 
-  const calculateExpandedHeight = (itemCount: number): number => {
+  const calculateExpandedHeight = (itemCount: number, hasNotes: boolean = true): number => {
     // Base height for the container padding, header, and footer
     const baseContainerHeight = 80;
+    
+    // If there are no notes, return a fixed height for the "no notes" container
+    if (!hasNotes) {
+      return baseContainerHeight + 40; // Adjust this value based on the actual height needed
+    }
     
     // Calculate the height needed for the items
     const visibleItemCount = Math.min(MAX_VISIBLE_ITEMS, itemCount);
@@ -1109,6 +1114,7 @@ const useStyles = () => {
     noNotesContainer: {
       padding: 10,
       alignItems: 'center',
+      height: 40
     },
     noNotesText: {
       color: Colors.grey3,
