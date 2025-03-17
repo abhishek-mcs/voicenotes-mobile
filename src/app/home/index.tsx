@@ -976,7 +976,7 @@ const Home = () => {
               >
               <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>}
-            {settingsPos.y !== 0 && <Pressable onPress={() => router.navigate("/settings/")} style={[styles.button, {left: settingsPos.x, top: isIOS ? settingsPos.y - 30 : settingsPos.y}]}>
+            {settingsPos.y !== 0 && <Pressable onPress={() => {if(!isIOS) { showCalendar(false) } router.navigate("/settings/")}} style={[styles.button, {left: settingsPos.x, top: isIOS ? settingsPos.y - 30 : settingsPos.y}]}>
               <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)} />
             </Pressable>}
           </Pressable>
