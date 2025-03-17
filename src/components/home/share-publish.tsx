@@ -5,19 +5,21 @@ import { TextField } from 'components/common/text-field'
 import Touchable from 'components/common/Touchable'
 import { useTheme } from 'context'
 import { router } from 'expo-router'
+import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView, Image } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isIOS } from 'utils/common'
 import Publish from './publish'
-import { useGetSharedList, useShareRecording } from 'queries/home/share'
-import { set } from 'date-fns'
+import { Menu, MenuItem } from 'react-native-material-menu';
+import { useGetSharedList, useRevokeShare, useShareRecording } from 'queries/home/share'
 import { useQueryClient } from 'react-query'
 import { MAIN_URL } from 'services/api/api-constants';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store/store';
 
 interface PublishModalProps {
-  slug: string | any;
   isPublished: boolean;
   sharedList: any;
   onPressDone: () => void;
@@ -27,7 +29,6 @@ interface PublishModalProps {
 }
 
 const SharePublish = ({
-  slug = "",
   isPublished = false,
   sharedList = [],
   onPressDone = () => {},
@@ -39,24 +40,59 @@ const SharePublish = ({
   const queryClient = useQueryClient();
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
-  const getShareList = useGetSharedList(slug)
+  const {noteId} = useSelector((state:RootState)=>state.editStates)
+  const getShareList = useGetSharedList(noteId)
   const shareList = getShareList.data?.data
   const shareRecording = useShareRecording();
+  const revokeShared = useRevokeShare();
   const [copy, setCopy] = useState(false);
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("");
   const [sharedUsers, setSharedUsers] = useState(shareList?.users ? shareList.users : []);
   const [recent, setRecent] = useState(shareList.recent ? shareList.recent : []);
+  const [visible, setVisible] = useState(false);
+
+  const hideMenu = () => setVisible(false);
+
+  const showMenu = () => setVisible(true);
 
   const onClose = () => { router.back() }
 
   const onCopy = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => {}
+    );
     setCopy(true);
-    await setStringAsync(MAIN_URL + "/s/" + slug);
+    await setStringAsync(MAIN_URL + "/s/" + noteId);
     setTimeout(() => {
       setCopy(false);
     }, 700);
   };
+
+  const onShareNewEmail = (emailId: string) => {
+    onShareRecording(emailId)
+    setEmail('')
+  }
+
+  const onRevoke = (emailId: string) => {
+    console.log(emailId);
+    revokeShared.mutate(
+      { id: noteId, email: emailId },
+      {
+        onSuccess: async () => {
+          try {
+            setLoading(true)
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setLoading(false)
+          }
+        }
+      }
+    )
+    hideMenu()
+  }
 
   useEffect(() => {
     if (shareList) {
@@ -66,9 +102,9 @@ const SharePublish = ({
     }
   },[shareList])
 
-  const onShareRecording = () => {
+  const onShareRecording = ( emailId: string ) => {
     shareRecording.mutate(
-      { id: slug, emails: email },
+      { id: noteId, emails: emailId },
       {
         onSuccess: async () => {
           try {
@@ -146,7 +182,7 @@ const SharePublish = ({
               autoCapitalize="none"
             />
           </KeyboardWrapper>
-          <TouchableOpacity style={styles.shareButton}>
+          <TouchableOpacity onPress={() => onShareNewEmail(email)} style={styles.shareButton}>
             <Text style={styles.shareButtonText}>Share</Text>
           </TouchableOpacity>
         </View>
@@ -160,8 +196,8 @@ const SharePublish = ({
           bottomOffset={20}
         >
           {/* Invited Users */}
-          <Text style={styles.invitedTitle}>Shared</Text>
-          {sharedUsers.map((user: any, index: number) => (
+          {sharedUsers.length > 0 && <Text style={styles.invitedTitle}>Shared</Text>}
+          {sharedUsers.length > 0 && sharedUsers.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
                 <View style={{ width: 32, height: 32, backgroundColor: Colors.darkWithOpacity(0.1) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
@@ -169,13 +205,19 @@ const SharePublish = ({
                 </View> 
               }
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 12, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>
+                {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
-              <TouchableOpacity style={{padding: 4}}>
-                <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
-              </TouchableOpacity>
-          </View>
+              <Menu
+                visible={visible}
+                anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10}} onPress={showMenu}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                onRequestClose={hideMenu}
+              >
+                <MenuItem onPress={() => onRevoke(user.email)}>
+                  <Text style={{ color: 'red' }}>Revoke</Text>
+                </MenuItem>
+              </Menu>
+            </View>
           ))}
 
           {/* Not Invited Users */}
@@ -188,10 +230,10 @@ const SharePublish = ({
                 </View> 
               }
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 12, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>
+                {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
-              <TouchableOpacity onPress={onShareRecording}>
+              <TouchableOpacity onPress={() => onShareRecording(user.email)}>
                 <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -206,8 +248,8 @@ const SharePublish = ({
           </View>
       </View> : 
       <Publish 
-        slug={slug} 
-        isPublished={true}  
+        slug={noteId} 
+        isPublished={isPublished}  
         onPressDone={onPressDone}
         onPressCancel={onPressCancel}
         isNoteJustMadePrivate={isNoteJustMadePrivate}

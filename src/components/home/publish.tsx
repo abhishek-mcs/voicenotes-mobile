@@ -2,7 +2,10 @@ import { useTheme } from 'context';
 import { useEffect, useMemo, useState } from 'react';
 import { setStringAsync } from "expo-clipboard";
 import { MAIN_URL } from "services/api/api-constants";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { SvgXml } from 'react-native-svg';
+import * as Haptics from "expo-haptics";
+import { commonSvg } from 'assets/svg/commonSvg';
 
 interface PublishModalProps {
     slug: string | any;
@@ -26,6 +29,9 @@ const Publish = ({
     const [copy, setCopy] = useState(false);
 
     const onCopy = async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+          () => {}
+        );
         setCopy(true);
         await setStringAsync(MAIN_URL + "/s/" + slug);
         setTimeout(() => {
@@ -33,14 +39,15 @@ const Publish = ({
         }, 700);
     };
 
-    useEffect(() => {
-        console.log('Publish ',slug, isPublished, isNoteJustMadePrivate);
-    },[])
-
     return (
         <View style={styles.container}>
             {/* Title & Subtitle */}
-            {isPublished ? <View><Text style={styles.title}>Your note is public</Text></View> : <Text style={styles.title}>Publish to web</Text>}
+            {isPublished ? 
+                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
+                    <SvgXml style={{ marginTop: 4 }} xml={commonSvg.greenTick} />
+                    <Text style={styles.title}>Your note is public</Text>
+                </View> : 
+                <Text style={styles.title}>Publish to web</Text>}
             <Text style={styles.subtitle}>Anyone with the link will have access to this voice note.</Text>
 
             {/* Voice Note Preview Box */}
@@ -77,14 +84,15 @@ const Publish = ({
             {/* Publish Button */}
             {isPublished ? 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.copyLinkButton}>
+                <TouchableOpacity onPress={onCopy} style={styles.copyLinkButton}>
+                    <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
                     <Text style={styles.copyLinkText}>Copy link</Text>
                 </TouchableOpacity> 
-                <View>
+                <TouchableOpacity onPress={onPressDone}>
                     <Text style={styles.unpublishText}>Unpublish</Text>
-                </View>
+                </TouchableOpacity>
             </View>
-            : <TouchableOpacity style={styles.publishButton}>
+            : <TouchableOpacity onPress={onPressDone} style={styles.publishButton}>
                 <Text style={styles.publishText}>Publish</Text>
             </TouchableOpacity> 
             }
@@ -104,7 +112,7 @@ const useStyles = () => {
         backgroundColor: '#fff',
     },
     title: {
-        fontSize: 14,
+        fontSize: 16,
         fontFamily: 'Primary-Semibold',
         marginBottom: 6,
     },
@@ -206,11 +214,14 @@ const useStyles = () => {
     },
     copyLinkButton: {
         width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'center',
         backgroundColor: Colors.blackWithOpacity(0.05),
         borderRadius: 10,
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 40,
+        gap: 6,
     },
     copyLinkText: {
         fontSize: 14,

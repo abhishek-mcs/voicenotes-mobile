@@ -48,7 +48,22 @@ export function useShareRecording(){
             await queryClient.invalidateQueries('shared-list')
         },
         onError:(error:any)=>{
-            console.log('unpublish',error?.response?.data?.message);
+            console.log('share-recording ',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useRevokeShare(){
+    const queryClient = useQueryClient();
+    return useMutation('revoke-share',(p?:any) => {
+        return axiosApi.post(`/recording/${p.id}/revoke`, { email: p.email})
+    },
+    {
+        onSuccess:async(data:any)=>{
+            await queryClient.invalidateQueries('shared-list')
+        },
+        onError:(error:any)=>{
+            console.log('revoke-share ',error?.response?.data?.message);
         }
     })
 }

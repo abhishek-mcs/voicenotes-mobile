@@ -63,7 +63,7 @@ import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
-import { setEditNote } from "redux/reducers/editStates";
+import { setEditNote, setNoteId } from "redux/reducers/editStates";
 import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
@@ -252,6 +252,7 @@ const NotePreview = forwardRef(
     };
 
     const togglePublish = () => {
+      console.log('called', note?.public_slug);
       const wasPublic = !!note?.public_slug;
 
       try {
@@ -285,11 +286,25 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onShareNote = async() => {
+    const onShareNote = async(id: any) => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
       const shareList = getShareList.data?.data
       console.log('Publish ', shareList);
+      dispatch(setNoteId(id ? id : ''))
+      setTimeout(() => {
+        router.navigate({
+          pathname: "/share",
+          params: {
+            isPublished: isPublished,
+            sharedList: shareList,
+            onPressCancel: () => setShareVisible(false),
+            onPressDone: togglePublish,
+            isNoteJustMadePrivate:isNoteJustMadePrivate,
+            setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
+          }
+        });
+      }, 500);
       // router.navigate({
       //   pathname: "/share",
       //   params: {
@@ -302,9 +317,9 @@ const NotePreview = forwardRef(
       //     setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
       //   }
       // });
-      setTimeout(() => {
-        setShareVisible(true);
-      }, 500);
+      // setTimeout(() => {
+      //   setShareVisible(true);
+      // }, 500);
     };
 
     const onCopy = async (content = "") => {
@@ -752,7 +767,7 @@ const NotePreview = forwardRef(
         title:"Share",
         systemIcon:'square.and.arrow.up',
         androidIcon:'share-outline',
-        onPress:onShareNote
+        onPress: () => onShareNote(note?.id)
       }]:[]),
       // {
       //   title:"Create",
