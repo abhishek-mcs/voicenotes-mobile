@@ -412,25 +412,30 @@ const Home = () => {
     parent_id = null,
     index = -1,
   }: any) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-      () => {}
-    );
-    if (recEnabled && !repeat) {
-      // console.log("Recording already started.");
-      if (parent_id) setRecordingParentId(parent_id);
-      return;
+    try{
+      setRecEnabled(true)
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+        () => {}
+      );
+      if (recEnabled && !repeat) {
+        // console.log("Recording already started.");
+        if (parent_id) setRecordingParentId(parent_id);
+        return;
+      }
+      AIModalRef.current?.close();
+      // CreateModalRef.current?.close();
+      if (!canRecord) {
+        return;
+      }
+      setRecordingParentId(parent_id);
+      onRecord(setRec, setRecEnabled,isLightMode,showDialog);
+      activateKeepAwakeAsync();
+      analytics().logEvent("started_recording");
+      setTriggerTypingTitle(null)
+      setTriggerTypingTranscript(null)
+    }catch{
+      setRecEnabled(false)
     }
-    AIModalRef.current?.close();
-    // CreateModalRef.current?.close();
-    if (!canRecord) {
-      return;
-    }
-    setRecordingParentId(parent_id);
-    onRecord(setRec, setRecEnabled,isLightMode,showDialog);
-    activateKeepAwakeAsync();
-    analytics().logEvent("started_recording");
-    setTriggerTypingTitle(null)
-    setTriggerTypingTranscript(null)
   };
 
   const onPause = async (paused: boolean) => {
@@ -442,6 +447,11 @@ const Home = () => {
           // console.log("resumed");
         });
   };
+
+  useEffect(()=>{
+    console.log("mmemory-leak")
+    return ()=>console.log("memory leak")
+  },[])
 
   const uploadVoiceNote = async (note: NewNote, continueUpload = false) => {
     const temporaryRecordingId = note.id;

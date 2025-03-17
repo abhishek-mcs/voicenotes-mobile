@@ -244,22 +244,11 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
         // First check if the path exists
       const onceSnap = await dbRef.once('value');
       if (!onceSnap.exists()) {
-          console.log("Path doesn't exist yet, waiting...");
-          // Set up a listener for child added
-          const pathExistsListener = database()
-              .ref(firebasePath)
-              .on('child_added', (snapshot) => {
-                  if (snapshot.key === recordingId.toString()) {
-                      // Path now exists, set up the value listener
-                      console.log("Path now exists, set up the value listener");
-                      setupValueListener();
-                      // Remove the child_added listener
-                      database().ref(firebasePath).off('child_added', pathExistsListener);
-                  }
-                  setTimeout(() => {
-                    database().ref(firebasePath).off('child_added', pathExistsListener);
-                  }, 5000);
-              });
+          await sleep(4000)
+          const updatedNote = await fetchSingleRecording(recordingId);
+          if(!!updatedNote?.data?.title&&!!updatedNote?.data?.transcript){
+            setupValueListener()
+          }
       } else {
         // Path exists, set up the value listener directly
           console.log('Path exists, set up the value listener directly',onceSnap.val())
