@@ -749,7 +749,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                             .map((item, index) => (
                               <View key={index} style={styles.eventItem}>
                                 <Text style={styles.eventTime}>{item.time}</Text>
-                                <Text style={styles.eventTitle}>{item.title}</Text>
+                                <Text 
+                                  style={styles.eventTitle}
+                                  numberOfLines={1}
+                                  ellipsizeMode="tail"
+                                >{item.title}</Text>
                               </View>
                             ))
                           }
@@ -1039,6 +1043,9 @@ const useStyles = () => {
         shadowRadius: 6, // Increased radius
         // This is important - ensures the shadow is rendered properly
         zIndex: 1,
+        shadowPath: "0 0 0 0",
+        // This ensures the shadow renders correctly with the path
+        overflow: 'visible',
       } : {
         // Android shadow
         elevation: 4,
@@ -1072,6 +1079,7 @@ const useStyles = () => {
       color: Colors.text,
       fontWeight: '400',
       flex: 1,
+      overflow: 'hidden',
     },
     seeAllButton: {
       alignSelf: 'center',
