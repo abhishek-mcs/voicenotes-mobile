@@ -20,7 +20,7 @@ import { isIOS } from 'utils/common';
 
 const { width } = Dimensions.get('window');
 const CALENDAR_WIDTH = width * 0.9;
-const EVENT_ITEM_HEIGHT = 25;
+const EVENT_ITEM_HEIGHT = 30;
 const MAX_VISIBLE_ITEMS = 3;
 const EXPAND_ANIMATION_DURATION = 200;
 const EXPAND_HEIGHT = 200;
@@ -1025,21 +1025,23 @@ const useStyles = () => {
     expandedContainer: {
       backgroundColor: Colors.bgColor,
       borderRadius: isIOS ? 16 : 10,
-      borderWidth: 0.17,
+      borderWidth: 0.0,
       marginVertical: 4,
+      marginHorizontal: 2, // Added horizontal margin to give space for side shadows
       marginBottom: 16,
       paddingHorizontal: 16,
       paddingVertical: 12,
-      // iOS specific shadow - using one of the box-shadow values
+      // iOS specific shadow - for even shadow on all sides
       ...(isIOS ? {
-        // box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.05);
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 0 }, // Centered shadow
+        shadowOpacity: 0.15, // Slightly increased opacity
+        shadowRadius: 6, // Increased radius
+        // This is important - ensures the shadow is rendered properly
+        zIndex: 1,
       } : {
         // Android shadow
-        elevation: 0,
+        elevation: 4,
       }),
     },
     dateHeaderText: {
@@ -1051,13 +1053,13 @@ const useStyles = () => {
     notesContainer: {
       borderRadius: 8,
       backgroundColor: Colors.bgColor,
-      paddingVertical: 5,
+      paddingVertical: 3,
       paddingHorizontal: 5,
     },
     eventItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 5,
+      paddingVertical: 1,
       height: EVENT_ITEM_HEIGHT,
     },
     eventTime: {
