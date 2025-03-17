@@ -176,14 +176,23 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     }
   }, [streaksData])
 
-  // Update animatedHeight when baseHeight changes
+  const calculateDynamicHeight = (monthData: any) => {
+    const numberOfRows = monthData.days.length;
+    const baseRowHeight = 52; // Adjust based on the actual row height with spacing
+    return numberOfRows * baseRowHeight + (expandedHeight > 0 ? expandedHeight : 0);
+  };
+  
   useEffect(() => {
-    Animated.timing(animatedHeight, {
-      toValue: baseHeight + expandedHeight,
-      duration: HEIGHT_ANIMATION_DURATION,
-      useNativeDriver: false, // Height animations can't use native driver
-    }).start();
-  }, [baseHeight, expandedHeight]);
+    if (monthsData.length >= 3) {
+      const currentMonthData = monthsData[1]; // Current month is at index 1
+      const newHeight = calculateDynamicHeight(currentMonthData);
+      Animated.timing(animatedHeight, {
+        toValue: newHeight,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [monthsData, expandedHeight]);
 
   // Utility functions
   const isDateActive = (date: Date | undefined, activeDates: Date[]): boolean => {
@@ -423,7 +432,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     const monthData = monthlyNotes[monthKey] || {};
     const dateNotes = monthData[dateStr]?.data;
-    
+
     // Same logic as before for collapsing
     if (
       selectedDate &&
@@ -938,8 +947,7 @@ const useStyles = () => {
     },
     highlightItem: {
       flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 5,
+      alignItems: 'flex-start', // This is good - aligns items to the top
     },
     bulletPoint: {
       width: 6,
@@ -947,11 +955,14 @@ const useStyles = () => {
       borderRadius: 3,
       backgroundColor: Colors.text,
       marginRight: 8,
+      marginTop: 8, // Instead of a fixed value, we'll use a relative one
     },
     highlightText: {
       fontSize: 14,
       color: Colors.text,
       flex: 1,
+      lineHeight: 20, // Adding a consistent line height is good
+      paddingTop: 1, // Small adjustment to text positioning
     },
     weekdayContainer: {
       flexDirection: 'row',
