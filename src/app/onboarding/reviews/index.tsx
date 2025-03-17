@@ -19,7 +19,7 @@ const Reviews = () => {
     const scrollViewRef = useRef<ScrollView>(null);
     const scrollY = useRef(new Animated.Value(0)).current;
     const [contentHeight, setContentHeight] = useState(0);
-    const SCROLL_DURATION = 150000; 
+    const SCROLL_DURATION = 70000; 
     
     // const CARD_HEIGHT = 160; 
     // const SCROLL_INTERVAL = 15000;
@@ -205,7 +205,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: isIOS ? 0 : 40
+            // marginTop: isIOS ? 0 : 40
         },
         scrollContainer: {
             height: screenHeight * 0.8, // Adjust this value as needed

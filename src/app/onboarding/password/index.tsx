@@ -175,7 +175,7 @@ const Password = () => {
                       placeholder="*******"
                       placeholderTextColor={Colors.grey3}
                       autoCapitalize="none"
-                    //   autoFocus
+                      autoFocus={true}
                     />
                      {error && error.length > 0 && (
                     <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>{error}</Text>
@@ -205,7 +205,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

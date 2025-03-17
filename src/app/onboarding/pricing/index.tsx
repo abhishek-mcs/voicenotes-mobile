@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, FlatList, Platform, Pressable } from 'react-native'
 import notifee, { AuthorizationStatus } from '@notifee/react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
@@ -168,7 +168,7 @@ const Pricing = () => {
         <View style={styles.footerContainer}>
 
             <View style={styles.pricingContainer}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.planContainer,
                   selectedPlan === "yearly" ? styles.selectedPlan : styles.unselectedPlan,
@@ -183,9 +183,9 @@ const Pricing = () => {
                     <Text style={styles.planPrice}>{priceAnnualMonthlyString}/mo</Text>
                 </View>
               
-              </TouchableOpacity>
+              </Pressable>
               
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.planContainer,
                   selectedPlan === "monthly" ? styles.selectedPlan : styles.unselectedPlan,
@@ -194,7 +194,7 @@ const Pricing = () => {
               >
                 <Text style={styles.planTitle}>Monthly</Text>
                 <Text style={styles.planPrice}>{priceMonthString}/mo</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
 

@@ -1,11 +1,12 @@
 import { View, Text, SafeAreaView, StyleSheet, Image, Dimensions, FlatList, Platform } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics"
 import { isAndroid, screenHeight, screenWidth } from 'utils/common'
 import { useDispatch } from 'react-redux'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
+import { Animated } from 'react-native'
 
 const { width } = Dimensions.get("window");
 
@@ -15,6 +16,21 @@ const Meetings = () => {
     const dispatch = useDispatch();
     const [activeIndex, setActiveIndex] = useState(0);
     const flatListRef = useRef(null);
+
+    const animatedValues = useMemo(() =>
+        [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
+        []
+      );
+    
+    useEffect(() => {
+      Animated.stagger(150, animatedValues.map(anim => 
+        Animated.timing(anim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      )).start();
+    }, [animatedValues]);
 
     const handleScroll = (event: any) => {
         const slideIndex = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -61,10 +77,10 @@ const Meetings = () => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
+            renderItem={({ item, index }) => (
+              <Animated.View style={[styles.card, { transform: [{ translateX: animatedValues[index] }] }]}> 
                 {item.image}
-              </View>
+              </Animated.View>
             )}
           />
 
@@ -95,7 +111,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

@@ -190,21 +190,27 @@ const Email = () => {
             setValidationError(false)
             dispatch(setEmail(emailText))
             dispatch(setUserEmail(emailText))
+            console.log('Email Api called');
+            
             checkEmailMutation.mutate(
                 { email: emailText },
                 { 
                     onSuccess: async (response:any) => {
+                        setLoading(false)
                         if (response.data?.exists) {
                             setLoading(false)
+                            console.log("Email exists")
                             setEmailError("Account with this email already exists.")
                         } else {
                             setLoading(false)
+                            console.log("Email doesn't exist")
                             dispatch(setSelectedScreen(16))
                             // router?.push("/onboarding/name/")
                         }
                     },
                     onError: (error:any) => {
                         setLoading(false)
+                        console.log("Email error")
                         console.warn(error?.response?.data,'s')
                         for (const er in error.response.data.errors) {
                           if (er == "email") {
@@ -219,82 +225,83 @@ const Email = () => {
     }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView style={styles.mainContainer}>
-                <View style={styles.mainTextContainer}>
-                    <Text style={styles.mainText}>Enter your email</Text>
-                </View>
+    <SafeAreaView style={styles.mainContainer}>
+         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View>
+                    <View style={styles.mainTextContainer}>
+                        <Text style={styles.mainText}>Enter your email</Text>
+                    </View>
 
-                <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
-                    <TextField
-                      forwardedRef={inputRef}
-                      style={{marginTop:0,flexDirection:'column'}}
-                      inputStyle={{ height: 48, color:Colors.text, borderRadius: 16, borderWidth: 0, backgroundColor:Colors.bgColor7 }}
-                      value={emailText}
-                      returnKeyType="go"
-                      textContentType="emailAddress"
-                      onSubmitEditing={onContinueEmail}
-                      onChangeText={(text) => {
-                        setEmailText(text)
-                        setEmailError(null)
-                        setValidationError(false)
-                      }}
-                      placeholder="Your email"
-                      placeholderTextColor={Colors.grey3}
-                      autoComplete="email"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                    //   autoFocus
-                    />
-                    {validationError && (
-                        <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
-                    )}
-                    {emailError && (
-                        <Text style={{marginTop:8}}>
-                            <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
-                        </Text>
-                    )}
-                </View>
-               
-                <View style={styles.buttonContainer1}>
-                    <LargeButton
-                        underlayColor={Colors.settingsBtnBg}
-                        style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
-                        onPress={onContinueEmail}
-                        text="Continue"
-                        isLoading={loading}
-                        color={Colors.text4}
-                    />
-                </View>
-                <View style={styles.footerContainer}>
-                    <View style={styles.buttonContainer1}>
-                        <LargeButton
-                            underlayColor={Colors.bgColor}
-                            style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
-                            onPress={signInAppleAsync}
-                            text="Continue with Apple"
-                            isLoading={false}
-                            color={Colors.black2}
-                            centerIcon={LandingSvg.apple?.replace('white', Colors.text)}
+                    <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+                        <TextField
+                          forwardedRef={inputRef}
+                          style={{marginTop:0,flexDirection:'column'}}
+                          inputStyle={{ height: 48, color:Colors.text, borderRadius: 16, borderWidth: 0, backgroundColor:Colors.bgColor7 }}
+                          value={emailText}
+                          returnKeyType="go"
+                          textContentType="emailAddress"
+                          onSubmitEditing={onContinueEmail}
+                          onChangeText={(text) => {
+                            setEmailText(text)
+                            setEmailError(null)
+                            setValidationError(false)
+                          }}
+                          placeholder="Your email"
+                          placeholderTextColor={Colors.grey3}
+                          autoComplete="email"
+                          keyboardType="email-address"
+                          autoCapitalize="none"
+                          autoFocus={true}
                         />
+                        {validationError && (
+                            <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>
+                        )}
+                        {emailError && (
+                            <Text style={{marginTop:8}}>
+                                <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
+                            </Text>
+                        )}
                     </View>
+                    
                     <View style={styles.buttonContainer1}>
                         <LargeButton
-                            underlayColor={Colors.bgColor}
-                            style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
-                            onPress={onGoogleLogin}
-                            text="Continue with Google"
-                            isLoading={false}
-                            color={Colors.black2}
-                            centerIcon={LandingSvg.google}
+                            underlayColor={Colors.settingsBtnBg}
+                            style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                            onPress={onContinueEmail}
+                            text="Continue"
+                            isLoading={loading}
+                            color={Colors.text4}
                         />
                     </View>
                 </View>
-            </SafeAreaView>
-        </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-    
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+        <View style={styles.footerContainer}>
+            <View style={styles.buttonContainer1}>
+                <LargeButton
+                    underlayColor={Colors.bgColor}
+                    style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
+                    onPress={signInAppleAsync}
+                    text="Continue with Apple"
+                    isLoading={false}
+                    color={Colors.black2}
+                    centerIcon={LandingSvg.apple?.replace('white', Colors.text)}
+                />
+            </View>
+            <View style={styles.buttonContainer1}>
+                <LargeButton
+                    underlayColor={Colors.bgColor}
+                    style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
+                    onPress={onGoogleLogin}
+                    text="Continue with Google"
+                    isLoading={false}
+                    color={Colors.black2}
+                    centerIcon={LandingSvg.google}
+                />
+            </View>
+        </View>
+    </SafeAreaView>
   )
 }
 
@@ -304,7 +311,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

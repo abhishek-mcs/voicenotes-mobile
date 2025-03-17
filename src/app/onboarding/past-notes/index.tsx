@@ -1,6 +1,6 @@
 import { View, Text, SafeAreaView, StyleSheet, Image, Platform, Animated, Easing } from 'react-native'
 import LargeButton from 'components/LargeButton'
-import { screenWidth, isAndroid, screenHeight } from 'utils/common';
+import { screenWidth, isAndroid, screenHeight, isIOS } from 'utils/common';
 import Swiper from "react-native-deck-swiper";
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -13,6 +13,21 @@ const PastNotes = () => {
     const {Colors}=useTheme()
     const dispatch=useDispatch()
     const [index, setIndex] = useState(0);
+
+    const animatedValues = useMemo(() =>
+        [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
+        []
+      );
+  
+    useEffect(() => {
+      Animated.stagger(150, animatedValues.map(anim => 
+        Animated.timing(anim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      )).start();
+    }, [animatedValues]);
 
     // Rotation Animation
     const handRotation = useRef(new Animated.Value(0)).current;
@@ -47,7 +62,7 @@ const PastNotes = () => {
         Animated.loop(
             Animated.timing(handRotation, {
                 toValue: 1,
-                duration: 1000, // Smoother transition
+                duration: 700, // Smoother transition
                 easing: Easing.inOut(Easing.sin), // Natural back-and-forth easing
                 useNativeDriver: true,
             })
@@ -60,10 +75,6 @@ const PastNotes = () => {
         outputRange: ["-15deg", "15deg"], // Rotate between -15° and 15°
     });
 
-    const rotateInterpolation2 = handRotation.interpolate({
-        inputRange: [-1, 1],
-        outputRange: ["-5deg", "5deg"], // Less rotation for a subtle effect
-    });
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -76,13 +87,11 @@ const PastNotes = () => {
         <View style={styles.cardContainer}>
             <Swiper
                 cards={data}
-                renderCard={(item, cardIndex) => (
-                  <Animated.View 
+                renderCard={(item) => (
+                  <Animated.View
                     style={[
                         styles.cardImage,
-                        cardIndex === 0
-                            ? { transform: [{ rotate: rotateInterpolation2 }] } // Rotate only the first card
-                            : {},
+                        { transform: [{ translateX: animatedValues[index] }] }
                     ]}
                   >
                     {item.image}
@@ -125,7 +134,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,
@@ -161,7 +170,7 @@ const useStyles = () => {
         },
         cardImage: {
             // width: screenWidth * 0.9,
-            height: screenHeight * 0.4,
+            height: isIOS ? screenHeight * 0.35 : screenHeight * 0.4,
             // borderRadius: 10,
             overflow: "hidden",
             justifyContent: "center",
@@ -185,7 +194,7 @@ const useStyles = () => {
             width: 60,
             height: 50,
             position: "absolute",
-            bottom: -(screenHeight/2.2), // Adjust as needed
+            bottom: isIOS ? -(screenHeight/2.3) : -(screenHeight/2.1), // Adjust as needed
             right: 30,
             opacity: 0.8,
         },

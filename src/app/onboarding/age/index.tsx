@@ -1,7 +1,7 @@
-import { View, Text, SafeAreaView, StyleSheet, Platform } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, Platform, Animated } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +14,19 @@ const Age = ({data}: any) => {
     const dispatch = useDispatch();
     const { age_group } = useSelector((state: RootState) => state.onboardingData);
     const [isSelected, setSelected] = useState<any>(age_group !== null ? age_group : null)
+
+    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(500)), [data]);
+    
+    useEffect(() => {
+      animatedValues.forEach((anim: any, index: any) => {
+        Animated.timing(anim, {
+          toValue: 0,
+          duration: 300,
+          delay: index * 50,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, [animatedValues]);
 
     const onSelect = async (num: number) => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -34,8 +47,8 @@ const Age = ({data}: any) => {
         <View style={styles.subheadingContainer}>
             <Text style={styles.subheading}>Your age is used to personalize your AI and its responses.</Text>
         </View>
-        {data?.map((item:any) => (
-            <View key={item.value} style={styles.buttonContainer1}>
+        {data?.map((item:any, index: any) => (
+            <Animated.View key={item.value} style={[styles.buttonContainer1, { transform: [{ translateX: animatedValues[index] }] }]}>
                 <LargeButton
                     underlayColor={Colors.bottomBarButtonBg1}
                     style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == item.value && {borderColor: Colors.black2, borderWidth: 2}]}
@@ -45,7 +58,7 @@ const Age = ({data}: any) => {
                     color={Colors.black2}
                     endIcon={isSelected == item.value && onboardingSvg.filledTick?.replace('black', Colors.black2)}
                 />
-            </View>
+            </Animated.View>
         ))}
     </SafeAreaView>
   )

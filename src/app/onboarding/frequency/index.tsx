@@ -1,7 +1,7 @@
-import { View, Text, SafeAreaView, StyleSheet, Platform } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, Platform, Animated } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +14,19 @@ const Frequency = ({data}: any) => {
     const dispatch = useDispatch();
     const { note_taking_frequency } = useSelector((state: RootState) => state.onboardingData);
     const [isSelected, setSelected] = useState<any>(note_taking_frequency !== null ? note_taking_frequency : null)
+
+    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(500)), [data]);
+    
+    useEffect(() => {
+      animatedValues.forEach((anim: any, index: any) => {
+        Animated.timing(anim, {
+          toValue: 0,
+          duration: 300,
+          delay: index * 50,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, [animatedValues]);
 
     const onSelect = async (num: number) => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -31,8 +44,8 @@ const Frequency = ({data}: any) => {
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>How often do you take notes?</Text>
         </View>
-        {data?.map((item:any) => (
-            <View key={item.value} style={styles.buttonContainer1}>
+        {data?.map((item:any, index: any) => (
+            <Animated.View key={item.value} style={[styles.buttonContainer1, { transform: [{ translateX: animatedValues[index] }] }]}>
                 <LargeButton
                     underlayColor={Colors.bottomBarButtonBg1}
                     style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == item.value && {borderColor: Colors.black2, borderWidth: 2}]}
@@ -42,7 +55,7 @@ const Frequency = ({data}: any) => {
                     color={Colors.black2}
                     endIcon={isSelected == item.value && onboardingSvg.filledTick?.replace('black', Colors.black2)}
                 />
-            </View>
+            </Animated.View>
         ))}
     </SafeAreaView>
   )
@@ -54,7 +67,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

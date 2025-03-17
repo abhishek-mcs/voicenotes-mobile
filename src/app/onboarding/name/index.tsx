@@ -53,24 +53,25 @@ const Name = () => {
                       placeholderTextColor={Colors.grey3}
                       autoComplete="name"
                       autoCapitalize="none"
-                    //   autoFocus
+                      autoFocus={true}
                     />
                     {error && error.length > 0 && (
                     <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>{error}</Text>
                     )}
                 </View>
 
-                <View style={[styles.buttonContainer1, styles.footerContainer]}>
-                    <LargeButton
-                        underlayColor={Colors.settingsBtnBg}
-                        style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
-                        onPress={onContinue}
-                        text="Continue"
-                        isLoading={false}
-                        color={Colors.text4}
-                    />
+                <View style={styles.footerContainer}>
+                    <View style={styles.buttonContainer1}>
+                        <LargeButton
+                            underlayColor={Colors.settingsBtnBg}
+                            style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                            onPress={onContinue}
+                            text="Continue"
+                            isLoading={false}
+                            color={Colors.text4}
+                        />
+                    </View> 
                 </View>
-
             </SafeAreaView>
         </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -83,7 +84,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

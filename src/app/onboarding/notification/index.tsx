@@ -17,7 +17,10 @@ const Notification = () => {
         if (Platform.OS === 'ios') {
             Linking.openSettings();
         } else {
-            Linking.openURL('android.settings.APP_NOTIFICATION_SETTINGS');
+            Linking.openURL('package:com.app.voicenotes').catch(() => {
+                // Fallback if direct package linking fails
+                Linking.openSettings();
+            });
         }
     };
 
@@ -58,7 +61,8 @@ const Notification = () => {
           settings.authorizationStatus === AuthorizationStatus.DENIED
         ) {
           // If status is DENIED or BLOCKED, the popup has already appeared
-          setPopupVisible(true);
+          if (Platform.OS == 'android') requestUserPermission()
+          else setPopupVisible(true);
         } else {
           // If status is NOT_DETERMINED (iOS) or default Android case, it hasn't appeared
           setPopupVisible(false);
@@ -114,7 +118,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40,
+            // marginTop: Platform.OS === 'ios' ? 0 : 40,
             alignItems: 'center',
         },
         mainTextContainer: {

@@ -12,6 +12,16 @@ const Watch = () => {
     const dispatch = useDispatch();
     const {Colors, isLightMode}=useTheme()
 
+    const imageSlideAnim = useRef(new Animated.Value(300)).current;
+
+    useEffect(() => {
+        Animated.timing(imageSlideAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    }, [imageSlideAnim]);
+
      // Animations
      const watchScale = useRef(new Animated.Value(1)).current;
      const cloudAnimation = useRef(new Animated.Value(0)).current;
@@ -87,7 +97,7 @@ const Watch = () => {
                 },
             ]}
         >
-            <Image source={require('../../../assets/images/watchNote.png')} style={styles.watchImage2} />
+            <Animated.Image source={require('../../../assets/images/watchNote.png')} style={[styles.watchImage2, { transform: [{ translateX: imageSlideAnim }] }]}   />
         </Animated.View>
 
         <View style={[styles.buttonContainer1, styles.footerContainer]}>
@@ -110,7 +120,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

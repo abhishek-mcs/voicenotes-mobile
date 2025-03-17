@@ -4,15 +4,26 @@ import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { SvgXml } from 'react-native-svg'
 import * as Haptics from "expo-haptics";
 import { useTheme } from "context"
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { screenHeight } from 'utils/common'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
+import { Animated } from 'react-native';
 
 const FreeTrial = () => {
     const styles = useStyles()
     const {Colors} = useTheme()
     const dispatch = useDispatch();
+
+    const imageSlideAnim = useRef(new Animated.Value(300)).current;
+
+    useEffect(() => {
+        Animated.timing(imageSlideAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    }, [imageSlideAnim]);
 
     const onContinue = async () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -27,7 +38,10 @@ const FreeTrial = () => {
             <Text style={styles.mainText}>We want you to try Voicenotes for free</Text>
         </View>
         <View style={styles.imageContainer}>
-            <Image source={require('../../../assets/images/free-try.png')} style={styles.noteImage} />
+            <Animated.Image 
+                source={require('../../../assets/images/free-try.png')} 
+                style={[styles.noteImage, { transform: [{ translateX: imageSlideAnim }] }]}  
+            />
         </View>
         <View style={styles.footerContainer}>
             <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
@@ -59,7 +73,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: Platform.OS === 'ios' ? 0 : 40
+            // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,

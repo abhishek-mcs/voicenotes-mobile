@@ -1,4 +1,4 @@
-import { SafeAreaView, View } from 'react-native'
+import { Animated, SafeAreaView, View } from 'react-native'
 import Landing from './landing'
 import Discovery from './discovery'
 import Language from './language'
@@ -36,20 +36,19 @@ const Onboarding = () => {
   const [noteTypes, setNoteTypes] = useState([])
 
   useEffect(() => {
-    if (!data && !isFetching) {
+    if (data == undefined && !isFetching) {
       refetch();
     }
   }, [data, isFetching, refetch]);
 
   useEffect(() => {
-    const enums:any = data?.data
     console.log(data);
-    if (enums) {
-      setReferrer(enums?.referrer)
-      setAgeGroup(enums?.age_group)
-      setFrequency(enums?.note_taking_frequency)
-      setRevisit(enums?.revisit_frequency)
-      setNoteTypes(enums?.note_types)
+    if (data) {
+      setReferrer(data?.referrer)
+      setAgeGroup(data?.age_group)
+      setFrequency(data?.note_taking_frequency)
+      setRevisit(data?.revisit_frequency)
+      setNoteTypes(data?.note_types)
     }
   },[data])
 
@@ -58,6 +57,7 @@ const Onboarding = () => {
        {selectedScreen !== 1 && selectedScreen !== 18 && <View>
           <AnimatedProgressBar step={selectedScreen} totalSteps={18} />
         </View>}
+      <Animated.View style={{ flex: 1 }}>
       { selectedScreen == 1 ? <Landing /> 
         : selectedScreen == 2 ? <Discovery data={referrer} /> 
         : selectedScreen == 3 ? <Language /> 
@@ -78,6 +78,7 @@ const Onboarding = () => {
         : selectedScreen == 18 ? <Pricing /> 
         : selectedScreen == 19 ? <TrialReminder /> 
         : <Landing />}
+      </Animated.View>
     </SafeAreaView>
   )
 }

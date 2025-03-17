@@ -1,9 +1,9 @@
-import { View, Text, SafeAreaView, StyleSheet, FlatList } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, FlatList, Animated } from 'react-native'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import LargeButton from 'components/LargeButton'
-import { screenHeight, screenWidth } from 'utils/common'
+import { isIOS, screenHeight, screenWidth } from 'utils/common'
 import { useTheme } from "context"
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { Image } from 'react-native'
 import { useDispatch } from 'react-redux'
@@ -17,6 +17,21 @@ const Landing = () => {
     const dispatch = useDispatch();
     const [activeIndex, setActiveIndex] = useState(0);
     const flatListRef = useRef(null);
+
+    const animatedValues = useMemo(() =>
+        [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
+        []
+      );
+  
+    useEffect(() => {
+      Animated.stagger(150, animatedValues.map(anim => 
+        Animated.timing(anim, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        })
+      )).start();
+    }, [animatedValues]);
 
     const handleScroll = (event: any) => {
         const slideIndex = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
@@ -68,10 +83,10 @@ const Landing = () => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
+            renderItem={({ item, index }) => (
+              <Animated.View style={[styles.card, { transform: [{ translateX: animatedValues[index] }] }]}> 
                 {item.image}
-              </View>
+              </Animated.View>
             )}
           />
         
@@ -115,7 +130,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            // marginTop: Platform.OS === 'ios' ? 0 : 40
+            marginTop: isIOS ? 0 : 40
         },
         mainTextContainer: {
             marginTop: 20,
@@ -158,7 +173,7 @@ const useStyles = () => {
             borderRadius: 5,
         },
         landingImage: {
-            width: screenWidth/1.2,
+            width: isIOS ? screenWidth/1.2 : screenWidth/1.35,
             resizeMode: 'contain',
         },
         text: {

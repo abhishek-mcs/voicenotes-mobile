@@ -82,14 +82,17 @@ export function useLogout(){
 //Check if email exists already
 export function useCheckEmail(){
     return useMutation("check_email", (p?:any)=>{
+        console.log('Email Api inside');
         return axios.post(API_URL+"/api/auth/check-email",p)
     })
 }
 
 //Get enums for user preferences
 export function useGetPreferenceEnums(){
-    return useQuery('get_preference_enums',()=> {
-        return axios.get(API_URL+"/api/preferences-options")
+    return useQuery('get_preference_enums',async()=> {
+        console.log('Enums API called');
+        const response = await axios.get(API_URL+"/api/preferences-options")
+        return response.data
     },
     {
         onSuccess:(data: any)=>{
