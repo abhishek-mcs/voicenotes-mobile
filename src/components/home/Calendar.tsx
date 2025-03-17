@@ -433,29 +433,42 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const monthData = monthlyNotes[monthKey] || {};
     const dateNotes = monthData[dateStr]?.data;
 
-    // Same logic as before for collapsing
-    if (
-      selectedDate &&
+    // Check if this is the same date that's already selected
+    const isSameDate = selectedDate && 
       selectedDate.getDate() === date.getDate() &&
       selectedDate.getMonth() === date.getMonth() &&
-      selectedDate.getFullYear() === date.getFullYear()
-    ) {
-      // Collapse animation
+      selectedDate.getFullYear() === date.getFullYear();
+
+    // Reset animation value regardless of what happens next
+    expandAnimation.setValue(0);
+    
+    // Case 1: Collapsing the currently expanded date
+    if (isSameDate) {
+      // First update state
+      setShowHighlights(false);
+      setShowAllNotes(false);
+      setAdditionalInfo({ date: '', items: [] });
+      
+      // Then collapse animation
       Animated.timing(expandAnimation, {
         toValue: 0,
         duration: EXPAND_ANIMATION_DURATION,
         useNativeDriver: true,
       }).start(() => {
+        // Only after animation completes, reset selection states
         setExpandedHeight(0);
         setSelectedDate(null);
         setExpandedRowIndex(null);
-        setAdditionalInfo({ date: '', items: [] });
-        setShowAllNotes(false);
       });
     } 
-    // Handle expanding
+    // Case 2: Expanding a new date
     else {
-      setShowHighlights(false)
+      // First reset any previous expansions immediately
+      setExpandedHeight(0);
+      setShowHighlights(false);
+      setShowAllNotes(false);
+      
+      // Prepare all date display data
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'short',
@@ -487,29 +500,30 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             transcript: note.transcript
           };
         });
-      } else console.log(dateNotes)
+      }
       
-      // Set data and states
+      // Calculate appropriate height for either real items or skeleton
+      const newExpandedHeight = calculateExpandedHeight(items.length || recordingCount);
+      
+      // Set all states in a predictable order
+      setSelectedDate(date);
+      setExpandedRowIndex(rowIndex);
       setAdditionalInfo({
         date: dateString,
         items,
       });
       
-      setSelectedDate(date);
-      setExpandedRowIndex(rowIndex);
-      
-      // Calculate appropriate height for either real items or skeleton
-      setExpandedHeight(calculateExpandedHeight(items.length || recordingCount));
-      
-      // Reset animation value
-      expandAnimation.setValue(0);
-      
-      // Start the animation
-      Animated.timing(expandAnimation, {
-        toValue: 1,
-        duration: EXPAND_ANIMATION_DURATION,
-        useNativeDriver: true,
-      }).start();
+      // Apply height after a short delay to ensure render is ready
+      setTimeout(() => {
+        setExpandedHeight(newExpandedHeight);
+        
+        // Start the animation after states are updated
+        Animated.timing(expandAnimation, {
+          toValue: 1,
+          duration: EXPAND_ANIMATION_DURATION,
+          useNativeDriver: true,
+        }).start();
+      }, 50);
       
       // If we don't have notes for this month, fetch them
       if (!monthlyNotes[monthKey]) {
@@ -703,8 +717,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             </View>
             
             {expandedRowIndex === rowIndex && 
-              monthData.date.getMonth() === currentMonth.getMonth() &&
-              monthData.date.getFullYear() === currentMonth.getFullYear() && (
+              selectedDate && // Make sure selectedDate exists
+              monthData.date.getMonth() === selectedDate.getMonth() && // Compare with selectedDate instead
+              monthData.date.getFullYear() === selectedDate.getFullYear() &&  (
                 <Animated.View
                   style={[
                     styles.expandedContainer,
