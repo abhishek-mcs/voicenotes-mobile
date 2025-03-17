@@ -1,7 +1,7 @@
-import { View, Text, SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, Animated } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { useOnboardingSignup, useGetPreferences } from 'queries/auth'
 import { TextField } from 'components/common/text-field'
@@ -15,7 +15,7 @@ import { setToken, setUserDetail } from 'redux/reducers/userDetails'
 import { useQueryClient } from 'react-query'
 import { analytics } from '../../../../firebaseConfig'
 import appsFlyer from 'react-native-appsflyer'
-import { getNotification } from 'utils/cache'
+// import { getNotification } from 'utils/cache'
 // import { saveNotificationSettings } from 'queries/settings'
 // import { formatTime } from 'utils/format-date'
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
@@ -29,32 +29,61 @@ const Password = () => {
     const {userEmail, name, referrer, language, age_group, note_taking_frequency, revisit_frequency, note_types} = useSelector((state: RootState) => state.onboardingData);
     const onboardingSignupMutation:any = useOnboardingSignup()
     const getPreferencesMutation:any = useGetPreferences()
-    const [morningTime, setMorningTime] = useState<Date | null>(null)
-    const [eveningTime, setEveningTime] = useState<Date | null>(null)
-    const [active, setActive] = useState({ morning: true, evening: true })
+    // const [morningTime, setMorningTime] = useState<Date | null>(null)
+    // const [eveningTime, setEveningTime] = useState<Date | null>(null)
+    // const [active, setActive] = useState({ morning: true, evening: true })
     const [password, setPassword] = useState('')
     const [error, setError] = useState<any>('')
     const [loading, setLoading] = useState(false)
     const netInfo = useNetInfo()
 
-    const checkNotification = async (type: 'morning' | 'evening') => {
-        getNotification(type).then((response) => {
-            if (response) {
-                if (type === 'morning') {
-                    setMorningTime(response.time)
-                    setActive({ ...active, morning: response.active })
-                } else {
-                    setEveningTime(response.time)
-                    setActive({ ...active, evening: response.active })
-                }
-            }
-        })
-    }
+      // Animated value for the footer position
+      const footerPosition = useRef(new Animated.Value(0)).current;
+    
+        // Effect to track keyboard events and adjust footer position
+      useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+            const keyboardHeight = e.endCoordinates.height;
+            const adjustedHeight = Math.min(keyboardHeight - 20, 150);
+          Animated.timing(footerPosition, {
+            toValue: adjustedHeight,
+            duration: 300,
+            useNativeDriver: false,
+          }).start();
+        });
+    
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+          Animated.timing(footerPosition, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: false,
+          }).start();
+        });
+    
+        return () => {
+          keyboardDidShowListener.remove();
+          keyboardDidHideListener.remove();
+        };
+      }, []);
 
-    useEffect(() => {
-        checkNotification('morning')
-        checkNotification('evening')
-    },[])
+    // const checkNotification = async (type: 'morning' | 'evening') => {
+    //     getNotification(type).then((response) => {
+    //         if (response) {
+    //             if (type === 'morning') {
+    //                 setMorningTime(response.time)
+    //                 setActive({ ...active, morning: response.active })
+    //             } else {
+    //                 setEveningTime(response.time)
+    //                 setActive({ ...active, evening: response.active })
+    //             }
+    //         }
+    //     })
+    // }
+
+    // useEffect(() => {
+    //     checkNotification('morning')
+    //     checkNotification('evening')
+    // },[])
 
     // const useSaveNotificationSettings = () => {
     //     saveNotificationSettingsMutation.mutate(
@@ -182,7 +211,8 @@ const Password = () => {
                     )}
                 </View>
 
-                <View style={[styles.buttonContainer1, styles.footerContainer]}>
+                <Animated.View style={[styles.footerContainer, { bottom: footerPosition }]}>
+                <View style={styles.buttonContainer1}>
                     <LargeButton
                         underlayColor={Colors.settingsBtnBg}
                         style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
@@ -191,7 +221,8 @@ const Password = () => {
                         isLoading={loading}
                         color={Colors.text4}
                     />
-                </View>
+                </View> 
+                </Animated.View>
 
             </SafeAreaView>
         </TouchableWithoutFeedback>

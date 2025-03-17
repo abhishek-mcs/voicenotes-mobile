@@ -39,7 +39,7 @@ const Onboarding = () => {
     if (data == undefined && !isFetching) {
       refetch();
     }
-  }, [data, isFetching, refetch]);
+  }, [data, isFetching]);
 
   useEffect(() => {
     console.log(data);

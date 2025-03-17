@@ -1,7 +1,7 @@
-import { View, Text, SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, Animated } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { TextField } from 'components/common/text-field'
 import { TouchableWithoutFeedback } from 'react-native'
@@ -17,6 +17,35 @@ const Name = () => {
     const [username, setUsername] = useState<string>(name ? name : '')
     const [error, setError] = useState<any>('')
 
+    // Animated value for the footer position
+  const footerPosition = useRef(new Animated.Value(0)).current;
+
+    // Effect to track keyboard events and adjust footer position
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+        const keyboardHeight = e.endCoordinates.height;
+        const adjustedHeight = Math.min(keyboardHeight - 20, 150);
+      Animated.timing(footerPosition, {
+        toValue: adjustedHeight,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      Animated.timing(footerPosition, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
     const onContinue = async () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
@@ -30,7 +59,7 @@ const Name = () => {
     }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+    <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView style={styles.mainContainer}>
                 <View style={styles.mainTextContainer}>
@@ -60,7 +89,7 @@ const Name = () => {
                     )}
                 </View>
 
-                <View style={styles.footerContainer}>
+                <Animated.View style={[styles.footerContainer, { bottom: footerPosition }]}>
                     <View style={styles.buttonContainer1}>
                         <LargeButton
                             underlayColor={Colors.settingsBtnBg}
@@ -71,7 +100,7 @@ const Name = () => {
                             color={Colors.text4}
                         />
                     </View> 
-                </View>
+                </Animated.View>
             </SafeAreaView>
         </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

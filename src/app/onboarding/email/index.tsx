@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, StyleSheet, TextInput, KeyboardAvoidingView, 
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { androidGoogleClientID, expoClientID, iosGoogleClientID, MAIN_URL } from "services/api/api-constants"
+import { androidGoogleClientID, iosGoogleClientID } from "services/api/api-constants"
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { validateEmail } from 'utils/api-queries/auth/signin-mutations'
 import * as Google from "expo-auth-session/providers/google";
@@ -17,9 +17,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setAuthToken } from 'services/api/axios-api'
 import { useNetInfo } from '@react-native-community/netinfo'
 import { useQueryClient } from 'react-query'
-import { getNotification } from 'utils/cache'
-// import { saveNotificationSettings } from 'queries/settings'
-// import { formatTime } from 'utils/format-date'
 import { RootState } from 'redux/store/store'
 
 
@@ -34,32 +31,28 @@ const Email = () => {
     const getPreferencesMutation:any = useGetPreferences()
     const [loading, setLoading] = useState(false)
     const [emailError, setEmailError]:any = useState('')
-    const [morningTime, setMorningTime] = useState<Date | null>(null)
-    const [eveningTime, setEveningTime] = useState<Date | null>(null)
-    const [active, setActive] = useState({ morning: true, evening: true })
-    // const saveNotificationSettingsMutation:any = saveNotificationSettings()
     const {userEmail, referrer, language, age_group, note_taking_frequency, revisit_frequency, note_types} = useSelector((state: RootState) => state.onboardingData);
     const [validationError, setValidationError]:any = useState(false)
     const [emailText, setEmailText] = useState(userEmail ? userEmail : '')
 
-    const checkNotification = async (type: 'morning' | 'evening') => {
-        getNotification(type).then((response) => {
-            if (response) {
-                if (type === 'morning') {
-                    setMorningTime(response.time)
-                    setActive({ ...active, morning: response.active })
-                } else {
-                    setEveningTime(response.time)
-                    setActive({ ...active, evening: response.active })
-                }
-            }
-        })
-    }
+    // const checkNotification = async (type: 'morning' | 'evening') => {
+    //     getNotification(type).then((response) => {
+    //         if (response) {
+    //             if (type === 'morning') {
+    //                 setMorningTime(response.time)
+    //                 setActive({ ...active, morning: response.active })
+    //             } else {
+    //                 setEveningTime(response.time)
+    //                 setActive({ ...active, evening: response.active })
+    //             }
+    //         }
+    //     })
+    // }
 
-    useEffect(() => {
-        checkNotification('morning')
-        checkNotification('evening')
-    },[])
+    // useEffect(() => {
+    //     checkNotification('morning')
+    //     checkNotification('evening')
+    // },[])
 
     // const useSaveNotificationSettings = () => {
     //     saveNotificationSettingsMutation.mutate(
@@ -96,7 +89,6 @@ const Email = () => {
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')
             queryClient.resetQueries('user-data')
-            // router.replace("/onboarding/pricing/");
             dispatch(setSelectedScreen(18))
             getPreferencesMutation.mutate(
                 {
@@ -205,7 +197,6 @@ const Email = () => {
                             setLoading(false)
                             console.log("Email doesn't exist")
                             dispatch(setSelectedScreen(16))
-                            // router?.push("/onboarding/name/")
                         }
                     },
                     onError: (error:any) => {

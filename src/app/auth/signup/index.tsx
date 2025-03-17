@@ -55,7 +55,7 @@ const Signup = () => {
           analytics().logEvent('sign_up_initiated').catch(e=>{})
             router.push({pathname:"/auth/signup/otp-screen",params:{email:emailText,password:passwordText,name:name}});
             logEvent('signup_initiated',{value:'success'})
-        },
+          },
         onError: (error: any) => {
           console.log(error)
         },

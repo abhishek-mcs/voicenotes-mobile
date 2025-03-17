@@ -88,20 +88,24 @@ export function useCheckEmail(){
 }
 
 //Get enums for user preferences
-export function useGetPreferenceEnums(){
-    return useQuery('get_preference_enums',async()=> {
+export function useGetPreferenceEnums() {
+    return useQuery(
+      'get_preference_enums',
+      async () => {
         console.log('Enums API called');
-        const response = await axios.get(API_URL+"/api/preferences-options")
-        return response.data
-    },
-    {
-        onSuccess:(data: any)=>{
-            console.log('Preference enums success ',data);
+        const response = await axios.get(API_URL + '/api/preferences-options');
+        console.log('API Response:', response);
+        return response.data;
+      },
+      {
+        onSuccess: (data: any) => {
+          console.log('Preference enums success:', data);
         },
-        onError:(error:any)=>{
-            console.log('Preference enums error ',error?.response?.data?.message);
-        }
-    })
+        onError: (error: any) => {
+          console.error('Preference enums error:', error?.response?.data?.message || error.message);
+        },
+      }
+    );
 }
 
 //Get user preferences during onboarding

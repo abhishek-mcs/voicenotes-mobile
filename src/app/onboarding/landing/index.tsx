@@ -8,6 +8,8 @@ import { useRouter } from 'expo-router'
 import { Image } from 'react-native'
 import { useDispatch } from 'react-redux'
 import * as Haptics from "expo-haptics";
+import { analytics } from '../../../../firebaseConfig'
+import { logEvent } from 'func/analytics/logEvent'
 
 
 const Landing = () => {
@@ -17,6 +19,11 @@ const Landing = () => {
     const dispatch = useDispatch();
     const [activeIndex, setActiveIndex] = useState(0);
     const flatListRef = useRef(null);
+
+    useEffect(() => {
+      analytics().logEvent('onboarding_landing').catch(e=>{})
+        logEvent('signup_initiated',{value:'success'})
+    },[])
 
     const animatedValues = useMemo(() =>
         [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
@@ -57,6 +64,8 @@ const Landing = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_landing').catch(e=>{})
+        logEvent('onboarding_landing',{value:'success'})
         dispatch(setSelectedScreen(2))
     }
 
