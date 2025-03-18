@@ -1105,12 +1105,12 @@ const useStyles = () => {
       marginTop: 8,
       paddingVertical: 6,
       paddingHorizontal: 12,
-      backgroundColor: Colors.grey8,
+      backgroundColor: Colors.bgColor3(0.05),
       borderRadius: 15,
     },
     seeAllText: {
       fontSize: 12,
-      color: Colors.grey6,
+      color: Colors.blackWithOpacity(1),
       fontWeight: '500',
     },
     streakContainer: {
