@@ -866,30 +866,27 @@ const useStyles = () => {
       width: CALENDAR_WIDTH,
       backgroundColor: Colors.grey2,
       borderRadius: 25,
-      borderWidth: isIOS ? 0.2 : 0,
+      borderWidth: isIOS ? 0.0 : 0,
       padding: 16,
-      // iOS specific shadow matching the CSS box-shadow values
+      // Enhanced iOS shadow for better visibility on all sides
       ...(isIOS ? {
-        // Combined effect of the three box shadows:
-        // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.15);
-        // box-shadow: 0px 8px 40px 0px rgba(0, 0, 0, 0.04);
-        // box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.05);
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 8 }, // Taking the larger y-offset
-        shadowOpacity: 0.15, // Using the highest opacity value
-        shadowRadius: 40, // Using the largest blur radius
+        shadowOffset: { width: 0, height: 0 }, // Center the shadow (0,0) to spread it evenly
+        shadowOpacity: 0.25, // Increase opacity for better visibility
+        shadowRadius: 15, // Slightly reduced but still substantial
+        margin: 5, // Add a small margin to ensure shadow is visible on all sides
       } : {
-        // Android shadow remains the same
-        elevation: 4,
+        // Android shadow - increase elevation for better visibility
+        elevation: 8,
       }),
-      overflow: 'hidden',
+      // Remove overflow: 'hidden' from here
     },
     calendarVisualWrapper: {
       ...(isIOS ? {
         position: 'relative',
-        margin: 1, // Small margin to help shadow rendering
+        overflow: 'hidden', // Keep overflow hidden here
+        borderRadius: 0, // Slightly smaller than container
         backgroundColor: Colors.grey2,
-        borderRadius: 24, // Slightly smaller than container
       } : {})
     },
     monthHeader: {
