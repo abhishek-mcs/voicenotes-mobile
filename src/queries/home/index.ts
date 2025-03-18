@@ -473,21 +473,21 @@ export function useDayNotes(selectedDate: Date | null, { onSuccess }: { onSucces
     return useQuery(
         ['dateNotes', selectedDate ? formatDateForApi(selectedDate) : null],
         async () => {
-        if (!selectedDate) return { data: [] };
-        const dateStr = formatDateForApi(selectedDate);
-        const timezone = getTimeZone();
-        const response = await axiosApi.post('/calendar/day', { date: dateStr, timezone });
-        return response.data;
+            if (!selectedDate) return { data: [] };
+            const dateStr = formatDateForApi(selectedDate);
+            const timezone = getTimeZone();
+            const response = await axiosApi.post('/calendar/day', { date: dateStr, timezone });
+            return response.data;
         },
         {
-        enabled: !!selectedDate,
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-        select: (data) => {
-            if (!data) return { data: [] };
-            return data;
-        },
-        onSuccess
+            enabled: !!selectedDate,
+            staleTime: 5 * 60 * 1000,
+            refetchOnWindowFocus: false,
+            select: (data) => {
+                if (!data) return { data: [] };
+                return data;
+            },
+            onSuccess
         }
     );
 }
