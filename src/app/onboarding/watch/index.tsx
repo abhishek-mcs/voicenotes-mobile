@@ -6,6 +6,7 @@ import * as Haptics from "expo-haptics";
 import { screenHeight } from 'utils/common'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
+import { analytics } from '../../../../firebaseConfig';
 
 const Watch = () => {
     const styles = useStyles()
@@ -71,6 +72,7 @@ const Watch = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_apple_watch').catch(e=>{console.log(e)})
         dispatch(setSelectedScreen(6))
     }
 

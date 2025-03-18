@@ -9,6 +9,7 @@ import { screenHeight } from 'utils/common'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
 import { Animated } from 'react-native';
+import { analytics } from '../../../../firebaseConfig';
 
 const FreeTrial = () => {
     const styles = useStyles()
@@ -29,6 +30,7 @@ const FreeTrial = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
             () => {}
         );
+        analytics().logEvent('onboarding_free_trial_info').catch((e: any)=>{console.log(e)})
         dispatch(setSelectedScreen(15))
     }
 

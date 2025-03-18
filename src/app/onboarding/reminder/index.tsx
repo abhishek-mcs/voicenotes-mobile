@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 // import notifee, { AuthorizationStatus } from "@notifee/react-native";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useMemo } from 'react';
+import { analytics } from '../../../../firebaseConfig';
 
 const Reminder = () => {
     const styles = useStyles()
@@ -17,6 +18,7 @@ const Reminder = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_notification_settings').catch(e=>{console.log(e)})
         dispatch(setSelectedScreen(14))
     }
 

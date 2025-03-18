@@ -17,6 +17,7 @@ import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates'
 // import { AppEventsLogger } from 'react-native-fbsdk-next'
 // import { analytics } from '../../../../firebaseConfig'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
+import { analytics } from '../../../../firebaseConfig'
 
 const Pricing = () => {
     const styles = useStyles()
@@ -48,6 +49,9 @@ const Pricing = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        if(selectedPlan == 'yearly') {
+          analytics().logEvent("free_trial_activated").catch(e=>{console.log(e)})
+        }
         if (isPermissionDenied) {
           dispatch(setSelectedScreen(19))
         } else {
@@ -70,6 +74,12 @@ const Pricing = () => {
         if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
           console.log('Purchased successfully');
           dispatch(setTempIsIAPPurchased(true))
+          analytics()
+            .logEvent(
+              selectedPlan == "monthly"
+                ? "monthly_subscription_success"
+                : "yearly_subscription_success"
+          ).catch(e=>{console.log(e)})
           await queryClient.invalidateQueries('user-data');
           onContinue()
         }

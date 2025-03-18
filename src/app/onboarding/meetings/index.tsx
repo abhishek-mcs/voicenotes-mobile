@@ -7,6 +7,7 @@ import { isAndroid, screenHeight, screenWidth } from 'utils/common'
 import { useDispatch } from 'react-redux'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { Animated } from 'react-native'
+import { analytics } from '../../../../firebaseConfig'
 
 const { width } = Dimensions.get("window");
 
@@ -56,6 +57,7 @@ const Meetings = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_meetings').catch(e=>{console.log(e)})
         dispatch(setSelectedScreen(9))
     }
 

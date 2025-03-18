@@ -18,6 +18,7 @@ import { setAuthToken } from 'services/api/axios-api'
 import { useNetInfo } from '@react-native-community/netinfo'
 import { useQueryClient } from 'react-query'
 import { RootState } from 'redux/store/store'
+import { analytics } from '../../../../firebaseConfig'
 
 
 const Email = () => {
@@ -196,6 +197,7 @@ const Email = () => {
                         } else {
                             setLoading(false)
                             console.log("Email doesn't exist")
+                            analytics().logEvent('onboarding_email_checked').catch(e=>{console.log(e)})
                             dispatch(setSelectedScreen(16))
                         }
                     },

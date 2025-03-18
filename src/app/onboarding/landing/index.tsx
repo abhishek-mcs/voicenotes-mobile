@@ -9,7 +9,7 @@ import { Image } from 'react-native'
 import { useDispatch } from 'react-redux'
 import * as Haptics from "expo-haptics";
 import { analytics } from '../../../../firebaseConfig'
-import { logEvent } from 'func/analytics/logEvent'
+// import { logEvent } from 'func/analytics/logEvent'
 
 
 const Landing = () => {
@@ -22,7 +22,7 @@ const Landing = () => {
 
     useEffect(() => {
       analytics().logEvent('onboarding_landing').catch(e=>{})
-        logEvent('signup_initiated',{value:'success'})
+        // logEvent('signup_initiated',{value:'success'})
     },[])
 
     const animatedValues = useMemo(() =>
@@ -64,8 +64,8 @@ const Landing = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
-        analytics().logEvent('onboarding_landing').catch(e=>{})
-        logEvent('onboarding_landing',{value:'success'})
+        analytics().logEvent('onboarding_landing').catch(e=>{console.log(e)})
+        // logEvent('onboarding_landing',{value:'success'})
         dispatch(setSelectedScreen(2))
     }
 

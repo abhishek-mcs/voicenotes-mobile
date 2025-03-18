@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import * as Haptics from "expo-haptics";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { screenWidth } from 'utils/common';
+import { analytics } from '../../../../firebaseConfig';
 
 const Notification = () => {
     const styles = useStyles()
@@ -29,6 +30,7 @@ const Notification = () => {
           () => {}
         );
         openNotificationSettings()
+        analytics().logEvent('onboarding_notification_allowed').catch(e=>{console.log(e)})
         setTimeout(() => dispatch(setSelectedScreen(13)), 200);
     }
 
@@ -36,6 +38,7 @@ const Notification = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_notification_denied').catch(e=>{console.log(e)})
         setTimeout(() => dispatch(setSelectedScreen(14)), 200);
     }
 
@@ -44,9 +47,11 @@ const Notification = () => {
         const settings = await notifee.requestPermission();
         if (settings.authorizationStatus == AuthorizationStatus.AUTHORIZED) {
             console.log('Permission settings:', settings);
+            analytics().logEvent('onboarding_notification_allowed').catch(e=>{console.log(e)})
             dispatch(setSelectedScreen(13))
         } else {
             console.log('User declined permissions');
+            analytics().logEvent('onboarding_notification_denied').catch(e=>{console.log(e)})
             dispatch(setSelectedScreen(14))
         }
     }

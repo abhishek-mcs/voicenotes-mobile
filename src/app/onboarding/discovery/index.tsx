@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setReferrer, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { RootState } from 'redux/store/store';
+import { analytics } from '../../../../firebaseConfig';
 
 const Discovery = ({data}: any) => {
     const styles = useStyles()
@@ -32,6 +33,7 @@ const Discovery = ({data}: any) => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_referrer').catch(e=>{console.log(e)})
         setSelected(num)
         dispatch(setReferrer(num))
         if(num) {

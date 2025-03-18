@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useDispatch } from 'react-redux';
+import { analytics } from '../../../../firebaseConfig';
 
 const PastNotes = () => {
     const styles = useStyles()
@@ -55,6 +56,7 @@ const PastNotes = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
             () => {}
         );
+        analytics().logEvent('onboarding_past_notes').catch(e=>{console.log(e)})
         dispatch(setSelectedScreen(11))
     }
 

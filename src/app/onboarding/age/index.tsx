@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setAgeGroup, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
-import { logEvent } from 'func/analytics/logEvent';
+// import { logEvent } from 'func/analytics/logEvent';
 
 const Age = ({data}: any) => {
     const styles = useStyles()
@@ -34,8 +34,8 @@ const Age = ({data}: any) => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
-        analytics().logEvent('onboarding_age_group').catch(e=>{})
-        logEvent('onboarding_age_group',{value:'success'})
+        analytics().logEvent('onboarding_age_group').catch(e=>{console.log(e)})
+        // logEvent('onboarding_age_group',{value:'success'})
         setSelected(num)
         dispatch(setAgeGroup(num))
         if(num) {

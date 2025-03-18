@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { SvgXml } from 'react-native-svg'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
+import { analytics } from '../../../../firebaseConfig'
 
 const TrialReminder = () => {
     const styles = useStyles()
@@ -17,7 +18,10 @@ const TrialReminder = () => {
         if (Platform.OS === 'ios') {
             Linking.openSettings();
         } else {
-            Linking.openURL('android.settings.APP_NOTIFICATION_SETTINGS');
+            Linking.openURL('package:com.app.voicenotes').catch(() => {
+                // Fallback if direct package linking fails
+                Linking.openSettings();
+            });
         }
     };
 
@@ -31,6 +35,7 @@ const TrialReminder = () => {
             router.push("/home/")
         } else {
             openNotificationSettings()
+            analytics().logEvent('onboarding_force_enable_notification').catch(e=>{console.log(e)})
             setTimeout(() => {
                 router.push("/home/")
             }

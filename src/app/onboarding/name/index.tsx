@@ -8,6 +8,7 @@ import { TouchableWithoutFeedback } from 'react-native'
 import { setName, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'redux/store/store';
+import { analytics } from '../../../../firebaseConfig';
 
 const Name = () => {
     const styles = useStyles()
@@ -50,6 +51,7 @@ const Name = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_name_entered').catch(e=>{console.log(e)})
         if(username && username.length > 0) {
             dispatch(setName(username))
             dispatch(setSelectedScreen(17))

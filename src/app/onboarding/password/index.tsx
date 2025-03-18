@@ -115,6 +115,7 @@ const Password = () => {
             () => {}
         );
         setLoading(true)
+        analytics().logEvent('sign_up_initiated').catch(e=>{})
         if (password && password.length > 0) {
             onboardingSignupMutation.mutate(
                 { 
@@ -136,7 +137,7 @@ const Password = () => {
                             queryClient.resetQueries('all-recording')
                             queryClient.resetQueries('user-data')
                             analytics().logEvent('sign_up_success').catch(()=>{})
-                            appsFlyer?.logEvent('signup_success',{value:'af_success'})
+                            // appsFlyer?.logEvent('signup_success',{value:'af_success'})
                             getPreferencesMutation.mutate(
                                 {
                                     referrer: referrer,
@@ -148,6 +149,7 @@ const Password = () => {
                                 },
                                 {
                                     onSuccess: (response:any) => {
+                                        analytics().logEvent('onboarding_preferences_updated').catch(e=>{console.log(e)})
                                         console.log(response.data,'preferences')
                                         setLoading(false)
                                         

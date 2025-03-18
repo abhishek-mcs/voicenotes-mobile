@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { isAndroid } from 'utils/common'
 import { RootState } from 'redux/store/store';
+import { analytics } from '../../../../firebaseConfig';
 
 const Topics = ({data}: any) => {
     const styles = useStyles()
@@ -40,6 +41,7 @@ const Topics = ({data}: any) => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        analytics().logEvent('onboarding_note_types').catch(e=>{console.log(e)})
         dispatch(setNoteTypes(isSelected))
         if (isSelected.length > 0 && isSelected.includes(2)) {
             dispatch(setSelectedScreen(8))

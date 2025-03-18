@@ -7,6 +7,7 @@ import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNoteTakingFrequency, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
+import { analytics } from '../../../../firebaseConfig';
 
 const Frequency = ({data}: any) => {
     const styles = useStyles()
@@ -33,6 +34,7 @@ const Frequency = ({data}: any) => {
             () => {}
         );
         setSelected(num)
+        analytics().logEvent('onboarding_notes_frequency').catch(e=>{console.log(e)})
         dispatch(setNoteTakingFrequency(num))
         if(num) {
             setTimeout(() => dispatch(setSelectedScreen(7)), 200);

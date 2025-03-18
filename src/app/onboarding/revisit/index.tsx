@@ -7,6 +7,7 @@ import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
 import { setRevisitFrequency, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
+import { analytics } from '../../../../firebaseConfig';
 
 const Revisit = ({data}: any) => {
     const styles = useStyles()
@@ -33,6 +34,7 @@ const Revisit = ({data}: any) => {
           () => {}
         );
         setSelected(num)
+        analytics().logEvent('onboarding_revisit_frequency').catch(e=>{console.log(e)})
         dispatch(setRevisitFrequency(num))
         if(num){
             setTimeout(() => dispatch(setSelectedScreen(10)), 200);

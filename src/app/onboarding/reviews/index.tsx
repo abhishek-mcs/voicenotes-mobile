@@ -10,6 +10,7 @@ import { SvgXml } from 'react-native-svg'
 import { isIOS, screenHeight } from 'utils/common'
 import { useDispatch } from 'react-redux';
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
+import { analytics } from '../../../../firebaseConfig';
 
 const Reviews = () => {
     const styles = useStyles()
@@ -124,7 +125,7 @@ const Reviews = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
-        // dispatch(setSelectedScreen(12))
+        analytics().logEvent('onboarding_reviews').catch(e=>{console.log(e)})
         if (isPermissionGranted) {
             dispatch(setSelectedScreen(13))
         } else {
