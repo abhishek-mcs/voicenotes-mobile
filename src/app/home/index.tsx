@@ -448,11 +448,6 @@ const Home = () => {
         });
   };
 
-  useEffect(()=>{
-    console.log("mmemory-leak")
-    return ()=>console.log("memory leak")
-  },[])
-
   const uploadVoiceNote = async (note: NewNote, continueUpload = false) => {
     const temporaryRecordingId = note.id;
 
@@ -491,7 +486,7 @@ const Home = () => {
         })
       );
       dispatch(updateTempRecordingData("processing"));
-      await listenToFirebaseStatus(recordingId, temporaryRecordingId);
+      listenToFirebaseStatus(recordingId, temporaryRecordingId);
       
       setTimeout(() => {
         // console.log("removing old recordings to save memory");
