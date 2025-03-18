@@ -13,12 +13,9 @@ import {
   PanResponderGestureState,
   Animated,
 } from 'react-native';
-import { getTimeZone } from 'react-native-localize';
 import { SvgXml } from 'react-native-svg';
-import { useQuery } from 'react-query';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store/store';
-import axiosApi from 'services/api/axios-api';
 import { isIOS } from 'utils/common';
 
 const { width } = Dimensions.get('window');
@@ -311,6 +308,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     setSelectedDate(null);
     setExpandedRowIndex(null);
     setShowAllNotes(false);
+    setShowHighlights(false);
     
     // Smoothly animate height back to base height when changing month
     setExpandedHeight(0);
@@ -328,6 +326,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         const newMonth = new Date(prevMonth);
         newMonth.setMonth(prevMonth.getMonth() + direction);
         
+        // IMPORTANT: Make sure to use the latest streaksData
+        // This ensures we're not using stale data
+        const currentData = streaksData.weeks ? streaksData : data;
+        console.log(`current data is ${currentData} because streaksData is ${streaksData} & data is ${data}`)
+        
         // Update months data based on the new month
         const prevOfNew = new Date(newMonth);
         prevOfNew.setMonth(newMonth.getMonth() - 1);
@@ -337,8 +340,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         
         const months = [prevOfNew, newMonth, nextOfNew];
         const newMonthsData = months.map((month, index) => {
-          // Use real recording data instead of random dates
-          const eventDates = getDatesWithRecordings(month, data.weeks);
+          // Use the latest data to get event dates
+          const eventDates = getDatesWithRecordings(month, currentData.weeks);
           const days = generateCalendarDays(month, eventDates);
           if(index === 1) {
             // Animate to the new base height instead of immediately setting it
@@ -352,22 +355,20 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           };
         });
         
+        // Ensure state updates are batched properly
         setMonthsData(newMonthsData);
-
+  
+        // Reset animation value without animation
         monthsAnimation.setValue(0);
         isAnimating.current = false;
-
-        // Refetch highlights for the new month after state update
-        setTimeout(() => {
-          refetchHighlights();
-        }, 0);
         
         return newMonth;
       });
       
-      // Reset animation value without animation
-      monthsAnimation.setValue(0);
-      isAnimating.current = false;
+      // Refetch highlights for the new month after state update
+      setTimeout(() => {
+        refetchHighlights();
+      }, 0);
     });
   };
 
@@ -424,7 +425,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       selectedDate.getDate() === date.getDate() &&
       selectedDate.getMonth() === date.getMonth() &&
       selectedDate.getFullYear() === date.getFullYear();
-
+  
     // Reset animation value regardless of what happens next
     expandAnimation.setValue(0);
     
@@ -454,6 +455,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       setShowHighlights(false);
       setShowAllNotes(false);
       
+      // Clear previous data before loading new data
+      setAdditionalInfo({
+        date: '',
+        items: [],
+      });
+      
       // Prepare date display data
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
@@ -462,7 +469,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         year: 'numeric',
       });
       
-      // Set initial state with empty items - they'll be populated when the query completes
+      // Update states in correct order
+      setSelectedDate(date);
+      setExpandedRowIndex(rowIndex);
+      
+      // Set initial state with proper date display
       setAdditionalInfo({
         date: dateString,
         items: [],
@@ -470,11 +481,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       
       // Calculate initial height for skeleton loader
       const recordingCount = getRecordingCountForDate(date);
-      const initialHeight = calculateExpandedHeight(recordingCount, false);
-      
-      // Set all states in a predictable order
-      setSelectedDate(date);
-      setExpandedRowIndex(rowIndex);
+      const initialHeight = calculateExpandedHeight(recordingCount, recordingCount > 0);
       
       // Apply height after a short delay to ensure render is ready
       setTimeout(() => {
@@ -534,6 +541,46 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     setExpandedHeight(newHeight);
   };
 
+  useEffect(() => {
+    if (selectedDateNotes && !isLoadingNotes && selectedDate) {
+      const dateString = selectedDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+  
+      const formattedItems = (selectedDateNotes?.data || []).map((note: any) => {
+        // Parse the recorded_at timestamp
+        const recordedAt = new Date(note.recorded_at);
+        
+        // Format the time as HH:MM AM/PM
+        const hours = recordedAt.getHours();
+        const minutes = recordedAt.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+        
+        return {
+          time: timeString,
+          title: note.title || 'Untitled Recording',
+          id: note.id,
+          transcript: note.transcript
+        };
+      });
+  
+      setAdditionalInfo({
+        date: dateString,
+        items: formattedItems,
+      });
+  
+      // Calculate new expanded height based on available items
+      const newExpandedHeight = calculateExpandedHeight(formattedItems.length, formattedItems.length > 0);
+      setExpandedHeight(newExpandedHeight);
+    }
+  }, [selectedDateNotes, isLoadingNotes, selectedDate]);
+
   const renderWeekdays = (): JSX.Element => {
     // Correct order for Monday-based week
     const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -553,8 +600,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       month: 'long',
     });
   
-    // Check if monthsData is initialized
-    if (monthsData.length < 3) {
+    // Wait for data to load before showing highlights button
+    if (monthsData.length < 3 || loading) {
       return (
         <View style={styles.monthHeader}>
           <Text style={styles.monthText}>{monthName}</Text>
@@ -562,15 +609,23 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       );
     }
   
-    // Check if month has recordings before showing highlights button
+    // Find the current month data more reliably
     const currentMonthData = monthsData.find(data => 
       data.date.getMonth() === currentMonth.getMonth() && 
-      data.date.getFullYear() === currentMonth.getFullYear());
+      data.date.getFullYear() === currentMonth.getFullYear()
+    );
     
-    // Safe access with optional chaining and default to empty array
-    const eventDates = currentMonthData?.eventDates ?? [];
+    // If month data can't be found, just show the month name
+    if (!currentMonthData) {
+      return (
+        <View style={styles.monthHeader}>
+          <Text style={styles.monthText}>{monthName}</Text>
+        </View>
+      );
+    }
     
-    // Show button only if the month has recordings
+    // Check if month has recordings before showing highlights button
+    const eventDates = currentMonthData.eventDates || [];
     const showHighlightsButton = eventDates.length > 0;
   
     return (
@@ -681,8 +736,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
             
             {expandedRowIndex === rowIndex && 
               selectedDate && // Make sure selectedDate exists
-              monthData.date.getMonth() === selectedDate.getMonth() && // Compare with selectedDate instead
-              monthData.date.getFullYear() === selectedDate.getFullYear() &&  (
+              monthData.date.getMonth() === selectedDate.getMonth() && 
+              monthData.date.getFullYear() === selectedDate.getFullYear() && (
                 <Animated.View
                   style={[
                     styles.expandedContainer,
@@ -786,6 +841,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const renderStreakFooter = (): JSX.Element => {
+    if (!data || !data.current_streak) {
+      return <View style={styles.streakContainer} />;
+    }
+    
     return (
       <View style={styles.streakContainer}>
         <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
@@ -810,7 +869,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           {renderCalendarDays()}
         </Animated.View>
         <View style={styles.footerSection}>
-          {!loading && renderStreakFooter()}
+          {!loading && data && renderStreakFooter()}
         </View>
       </View>
     </View>

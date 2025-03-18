@@ -163,7 +163,6 @@ const Home = () => {
     }
   }, [getTags?.data?.data]);
 
-
   useEffect(() => {
     Sentry.setUser({ email: userDetails?.email });
     const tokenSubscription = actionEmitter.addListener('sendToken', () => {
