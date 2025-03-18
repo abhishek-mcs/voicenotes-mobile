@@ -847,7 +847,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     
     return (
       <View style={styles.streakContainer}>
-        <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
+        <View style={styles.streakIconContainer}>
+          <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
+        </View>
         <Text style={styles.streakText}>
           {`You are on a ${data.current_streak}-day streak and rank ${data.rank} globally.`}
         </Text>
@@ -1116,14 +1118,18 @@ const useStyles = () => {
     streakContainer: {
       marginTop: 8,
       paddingVertical: 8,
-      alignItems: 'center',
-      justifyContent: 'center',
       flexDirection: 'row',
-      gap: 8
+      alignItems: 'flex-start', // Changed from 'center' to 'flex-start'
+      paddingHorizontal: 5,
+      gap: 5
+    },
+    streakIconContainer: {
+      paddingTop: 2, // Add a small padding to align with the first line of text
     },
     streakText: {
       fontSize: 13,
       color: Colors.text,
+      flex: 1, // Allow text to take remaining space
     },
     noNotesContainer: {
       padding: 10,
