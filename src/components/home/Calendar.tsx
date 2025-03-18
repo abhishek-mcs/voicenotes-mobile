@@ -81,7 +81,6 @@ type Data = {
 interface ExpandableCalendarProps {
   initialDate?: Date;
   streaksData: Data;
-  highlightsData: any;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
