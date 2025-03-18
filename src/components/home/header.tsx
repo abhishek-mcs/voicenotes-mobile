@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { home } from "assets/svg/home";
 import Touchable from "components/common/Touchable";
-import { Animated, Image, Keyboard, LayoutAnimation, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Keyboard, LayoutAnimation, Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import {router as route} from "expo-router"
 import { useDispatch, useSelector } from "react-redux";
@@ -17,7 +17,7 @@ import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails
 import { languages } from "utils/constants/languages";
 import { useTheme } from "context";
 
-const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=false,scale=1}:any) => {
+const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,calendarRef,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
   const {token,userDetails}:any=useSelector((state:RootState)=>state?.userDetails)
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
@@ -39,7 +39,7 @@ const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
   const toggleStreaks = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    streaksRef.current?.toggle()
+    onCalendarToggled();
   };
   const openDrawer=()=>{
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
@@ -98,14 +98,12 @@ const Header = ({isLogged=true,isOffline,streaksRef,streaks,scrollY,hideBgColor=
           <Text style={{color:Colors.primaryDark,fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}
         {/* streak indicator */}
-        <Touchable onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
-          <SvgXml xml={home.streak?.replace('>0<',`>${formatBigNumber(streaks?.data?.data?.current_streak)??0}<`)?.replace(/#717171/g,Colors.refresh)}/>
-        </Touchable>
-        <Touchable style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
-          {!!photo_url?
-          <Image source={{uri:photo_url}} style={{width:30,height:30,borderRadius:30,backgroundColor:Colors.bgColor3(0.1)}}/>
-          :<SvgXml xml={commonSvg.profileIcon?.replace(/#274F47/g,Colors.primaryDark)}/>}
-        </Touchable>
+        <Pressable ref={calendarRef} onPress={toggleStreaks} style={styles.streak} activeOpacity={1}>
+          <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)}/>
+        </Pressable>
+        <Pressable ref={settingsRef} style={{padding:8,width:38,height:38,justifyContent:'center'}} onPress={openSettings}>
+          <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)}/>
+        </Pressable>
         </View>
         :<View style={{flexDirection:'row',alignItems:'center',alignSelf:'flex-end'}}>
         {/* signup and login button */}

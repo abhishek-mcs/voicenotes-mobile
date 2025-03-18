@@ -206,6 +206,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       setTriggerTypingTitle(recordingId);
       isTitleTriggered = true;
       dispatch(setRelatedNoteTitleLoad(false));
+      queryClient.invalidateQueries("single-recording");
     }
     isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     dispatch(updateTempRecordingData(updatedStatus));

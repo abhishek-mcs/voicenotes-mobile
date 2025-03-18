@@ -6,7 +6,7 @@ import { useGetRelatedRecording } from "./relatedNote";
 import { Platform } from "react-native";
 import * as Device from 'expo-device';
 import { currentVersion } from "services/api/api-constants";
-
+import { getTimeZone } from "react-native-localize";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -450,3 +450,55 @@ export function useStreak(token:any){
         }
     })
 }
+
+export function useHighlights(token: string, month: string) {
+    return useQuery(['highlights', month], (p?: any) => {
+        if (!!token)
+            return axiosApi.post(`/calendar/highlights`, { month })
+    },
+    {
+        onError: (error: any) => {
+            console.log(error?.response?.data?.message);
+        },
+        // Only run the query when we have a month value
+        enabled: !!month
+    })
+}
+
+export const getNotesByDates = async (dates: string[]): Promise<Record<string, any[]>> => {
+    // Create an object to store results with dates as keys
+    const result: Record<string, any[]> = {};
+    const timezone = getTimeZone();
+
+    // Initialize all dates with empty arrays in case of failures
+    dates.forEach(date => {
+      result[date] = [];
+    });
+    
+    try {
+      // Create array of promises with their corresponding dates
+      const requests = dates.map(date => ({
+        date,
+        promise: axiosApi.post('/calendar/day', { date, timezone })
+          .then(response => ({ success: true, date, data: response.data }))
+          .catch(error => ({ success: false, date, data: error }))
+      }));
+      
+      // Execute all requests in parallel and wait for all to complete
+      const responses = await Promise.all(requests.map(req => req.promise));
+      
+      // Process each response and update the result object
+      responses.forEach(response => {
+        if (response.success) {
+          // If successful, store the data array for that date
+          result[response.date] = response?.data;
+        }
+        // If failed, the empty array initialized earlier remains
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('Error in getNotesByDates:', error);
+      return result;
+    }
+  };

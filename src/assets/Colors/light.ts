@@ -37,8 +37,11 @@ export default {
   lightRoseWithOpacity:(opacity:number) => `rgba(243, 233, 233, ${opacity})`,
   yellowWithOpacity:(opacity:number) => `rgba(214, 162, 67, ${opacity})`,
   grey:'#9b9b9b',
+  grey2: '#FFFFFF',
   green:'#58a942',
   green2:'#499035',
+  green3: "rgba(0, 111, 48, 0.05)",
+  green4: "rgba(0, 111, 48, 1)",
   lightGrey:'#f9f9f9',
   grey3:'#717171',
   grey4:'#ddd',
@@ -78,6 +81,8 @@ export default {
   bgColor16:'#D8D8D8',
   bgColor17:'#fff',
   bgColor18:(o:number)=>`rgba(34, 34, 34,${o})`,
+  bgColor19: "rgba(34, 34, 34, 0.05)",
+  bgColor20: "#fff",
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#fff',
   streak2:'#fff',
@@ -125,4 +130,5 @@ export default {
   arrow:'#0d0d0d',
   loader:(o:number)=>`rgba(130, 130, 130,${o})`,
   snack:'#0d0d0d',
+  selection: 'rgba(0,0,0,0.05)'
 };

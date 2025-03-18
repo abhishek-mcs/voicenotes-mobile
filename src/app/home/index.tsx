@@ -3,6 +3,8 @@ import {
   DeviceEventEmitter,
   Easing,
   KeyboardAvoidingView,
+  Modal,
+  Pressable,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -22,7 +24,7 @@ import {
   onRecord,
   stopRecording,
 } from "func/home/record";
-import { useGetTags, useRecordings, useStreak } from "queries/home";
+import { useGetTags, useHighlights, useRecordings, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { isIOS, screenHeight } from "utils/common";
@@ -70,6 +72,9 @@ import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFireba
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useForceUpdateCheck } from "hooks/force-update/useForceUpdateCheck";
+import ExpandableCalendar from "components/home/Calendar";
+import { BlurView } from "expo-blur";
+import RecButton from "components/common/recording/rec-button";
 
 const { height } = Dimensions.get("screen");
 
@@ -95,6 +100,7 @@ const Home = () => {
   const [play, setPlay] = useState<Audio.Sound | null>();
   const [audioLoading, setAudioLoading] = useState(-1);
   const soundRef = useRef<any>(null);
+  const [calendar, showCalendar] = useState(false);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
   const [isRefreshing, setRefreshing] = useState(false);
@@ -111,6 +117,7 @@ const Home = () => {
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
+  const highlights = useHighlights(token)
 
   const getTags=useGetTags()
   const { action }:any = useLocalSearchParams();
@@ -119,6 +126,13 @@ const Home = () => {
   const { Colors,isLightMode } = useTheme()
   const styles = useStyles()
   const {showDialog}:any = useDialog()
+
+  // these are to align the icons in the header while opening calendar
+  const calendarIconRef = useRef(null);
+  const settingsIconRef = useRef(null);
+
+  const [calendarPos, setCalendarPos] = useState({x: 0, y: 0});
+  const [settingsPos, setSettingsPos] = useState({x: 0, y: 0});
 
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
@@ -526,6 +540,7 @@ const Home = () => {
         relatedNotedId:relatedNoteId
       };
 
+      dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
@@ -538,7 +553,6 @@ const Home = () => {
           }
           return recording;
         });
-        dispatch(setTempRecordingData(newTemporaryRecording));
         dispatch(setRecordingList(newRecordingList));
       }
 
@@ -596,6 +610,17 @@ const Home = () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
+
+  const openCalendar = () => {
+    calendarIconRef.current.measureInWindow((x, y, width, height) => {
+      setCalendarPos({x, y});
+    });
+    settingsIconRef.current.measureInWindow((x, y, width, height) => {
+      setSettingsPos({x, y});
+    });
+
+    showCalendar(true);
+  }
   
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -716,7 +741,9 @@ const Home = () => {
                 isLogged={!!token}
                 isOffline={isOffline}
                 streaks={streaks}
-                streaksRef={streaksRef}
+                settingsRef={settingsIconRef}
+                calendarRef={calendarIconRef}
+                onCalendarToggled={openCalendar}
                 scrollY={scrollY}
                 scale={scale.current}
               />
@@ -915,12 +942,39 @@ const Home = () => {
           syncUpNote={syncUpNote}
         />
       </CustomModal>
+      <Modal
+        transparent
+        visible={calendar}
+        animationType="fade"
+      >
+        <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={isIOS ? 50 : 100}>
+          <Pressable onPress={() => showCalendar(false)} style={styles.calendarHeader}>
+            {calendarPos.y !== 0 && 
+              <Pressable
+                onPress={() => showCalendar(false)} 
+                style={[
+                  styles.button,
+                  {left: calendarPos.x, top: isIOS ? calendarPos.y - 30: calendarPos.y, backgroundColor: Colors.selection}
+                ]}
+              >
+              <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
+            </Pressable>}
+            {settingsPos.y !== 0 && <Pressable onPress={() => {if(!isIOS) { showCalendar(false) } router.navigate("/settings/")}} style={[styles.button, {left: settingsPos.x, top: isIOS ? settingsPos.y - 30 : settingsPos.y}]}>
+              <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)} />
+            </Pressable>}
+          </Pressable>
+          {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
+            <ExpandableCalendar highlightsData={highlights?.data?.data} streaksData={streaks?.data?.data || []} />
+          </Pressable>}
+        </BlurView>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 const useStyles = () => {
   const { Colors } = useTheme();
+  const { width } = Dimensions.get("screen");
   return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
@@ -930,6 +984,30 @@ const useStyles = () => {
     paddingVertical: isIOS ? 0 : 32,
     backgroundColor:Colors.bgColor
   },
+  calendarHeader: {
+    flex: 0.5,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    padding: 12,
+    marginTop: isIOS ? 30 : 0
+  },
+  calendar: {
+    flex: 6,
+    alignItems: 'center',
+    position: 'absolute',
+    left: 0,
+    width: '100%',
+    height: '100%'
+  },
+  button: {
+    height: 38,
+    width: 38,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute'
+  }
 }), [Colors]); // Recreate styles when Colors change
 };
 
