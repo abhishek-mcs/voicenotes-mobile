@@ -1,7 +1,7 @@
 import { home } from 'assets/svg/home';
 import SkeletonLoader from 'components/common/loaders/skeleton';
 import { useTheme } from 'context';
-import { getNotesByDates, useHighlights } from 'queries/home';
+import { useDayNotes, useHighlights } from 'queries/home';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
@@ -13,9 +13,12 @@ import {
   PanResponderGestureState,
   Animated,
 } from 'react-native';
+import { getTimeZone } from 'react-native-localize';
 import { SvgXml } from 'react-native-svg';
+import { useQuery } from 'react-query';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store/store';
+import axiosApi from 'services/api/axios-api';
 import { isIOS } from 'utils/common';
 
 const { width } = Dimensions.get('window');
@@ -97,16 +100,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const [showAllNotes, setShowAllNotes] = useState(false);
   const [additionalInfo, setAdditionalInfo] = useState<{
     date: string;
-    items: Array<{ time: string; title: string }>;
+    items: Array<{ time: string; title: string; id?: string; transcript?: string }>;
   }>({
     date: '',
     items: [],
   });
-  const [monthlyNotes, setMonthlyNotes] = useState<Record<string, Record<string, any[]>>>({});
-  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
+  const [highlightsHeight, setHighlightsHeight] = useState(0);
   const [data, setData] = useState<Data>(streaksData);
-  const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
-
+  
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
   
@@ -115,8 +116,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
 
   // State for carousel-like months
   const [monthsData, setMonthsData] = useState<MonthData[]>([]);
-
-  const [highlightsHeight, setHighlightsHeight] = useState(0);
   
   // Animation values
   const monthsAnimation = useRef(new Animated.Value(0)).current;
@@ -127,13 +126,59 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     data: highlightsData,
     isLoading: highlightsLoading,
     refetch: refetchHighlights
-   } = useHighlights(token, formatMonthForApi(currentMonth))
+  } = useHighlights(token, formatMonthForApi(currentMonth));
 
   const highlights: Array<string> = highlightsData?.data || [];
 
   const styles = useStyles();
   const { Colors } = useTheme();
 
+  const { 
+    data: selectedDateNotes,
+    isLoading: isLoadingNotes 
+  } = useDayNotes(selectedDate, {
+    onSuccess: (data) => {
+      // When data is fetched successfully, update the additionalInfo
+      if (selectedDate) {
+        const dateString = selectedDate.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+  
+        const formattedItems = (data?.data || []).map((note: any) => {
+          // Parse the recorded_at timestamp
+          const recordedAt = new Date(note.recorded_at);
+          
+          // Format the time as HH:MM AM/PM
+          const hours = recordedAt.getHours();
+          const minutes = recordedAt.getMinutes();
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          const formattedHours = hours % 12 || 12;
+          const formattedMinutes = minutes.toString().padStart(2, '0');
+          const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+          
+          return {
+            time: timeString,
+            title: note.title || 'Untitled Recording',
+            id: note.id,
+            transcript: note.transcript
+          };
+        });
+  
+        setAdditionalInfo({
+          date: dateString,
+          items: formattedItems,
+        });
+  
+        // Calculate new expanded height based on available items
+        const newExpandedHeight = calculateExpandedHeight(formattedItems.length, formattedItems.length > 0);
+        setExpandedHeight(newExpandedHeight);
+      }
+    }
+  });
+  
   useEffect(() => {
     const generateMonthsData = (baseMonth: any) => {
       const prevMonth = new Date(baseMonth);
@@ -161,9 +206,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     };
     
     setMonthsData(generateMonthsData(currentMonth));
-    
-    // Fetch notes for the initial month
-    fetchNotesForMonth(currentMonth);
   }, [data]);
 
   useEffect(() => {
@@ -261,42 +303,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     return rows;
   };
 
-  const fetchNotesForMonth = async (month: Date) => {
-    setIsLoadingNotes(true);
-    
-    // Get all dates with recordings in the month
-    const datesWithRecordings = getDatesWithRecordings(month, data.weeks);
-    
-    // Format dates as YYYY-MM-DD strings
-    const dateStrings = datesWithRecordings.map(date => 
-      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    );
-    
-    // Skip if no dates with recordings
-    if (dateStrings.length === 0) {
-      setIsLoadingNotes(false);
-      return;
-    }
-    
-    try {
-      // Call your API function
-      const notesData = await getNotesByDates(dateStrings);
-      
-      // Create a month key (YYYY-MM)
-      const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
-      
-      // Update state with the new notes - do this regardless of whether there's a selected date
-      setMonthlyNotes(prev => ({
-        ...prev,
-        [monthKey]: notesData
-      }));
-    } catch (error) {
-      console.error('Error fetching notes:', error);
-    } finally {
-      setIsLoadingNotes(false);
-    }
-  };
-
   const changeMonth = (direction: number): void => {
     if (isAnimating.current) return;
     isAnimating.current = true;
@@ -356,12 +362,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           refetchHighlights();
         }, 0);
         
-        // Get notes for the new month if they're not already loaded
-        const monthKey = `${newMonth.getFullYear()}-${String(newMonth.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyNotes[monthKey]) {
-          fetchNotesForMonth(newMonth);
-        }
-        
         return newMonth;
       });
       
@@ -419,17 +419,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const handleDateSelect = (date: Date, rowIndex: number): void => {
-    // Format the date as YYYY-MM-DD
-    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    
-    // Get recording count for the selected date
-    const recordingCount = getRecordingCountForDate(date);
-    
-    // Check if we already have notes for this month
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    const monthData = monthlyNotes[monthKey] || {};
-    const dateNotes = monthData[dateStr]?.data;
-
     // Check if this is the same date that's already selected
     const isSameDate = selectedDate && 
       selectedDate.getDate() === date.getDate() &&
@@ -465,7 +454,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       setShowHighlights(false);
       setShowAllNotes(false);
       
-      // Prepare all date display data
+      // Prepare date display data
       const dateString = date.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'short',
@@ -473,46 +462,23 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         year: 'numeric',
       });
       
-      // Generate items array based on whether we have notes or not
-      let items: any[] = [];
+      // Set initial state with empty items - they'll be populated when the query completes
+      setAdditionalInfo({
+        date: dateString,
+        items: [],
+      });
       
-      if (dateNotes && Array.isArray(dateNotes)) {
-        // We have notes, map them to the format we need
-        items = dateNotes.map((note) => {
-          // Parse the recorded_at timestamp
-          const recordedAt = new Date(note.recorded_at);
-          
-          // Format the time as HH:MM AM/PM
-          const hours = recordedAt.getHours();
-          const minutes = recordedAt.getMinutes();
-          const ampm = hours >= 12 ? 'PM' : 'AM';
-          const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-          const formattedMinutes = minutes.toString().padStart(2, '0');
-          const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
-          
-          return {
-            time: timeString,
-            title: note.title || 'Untitled Recording',
-            id: note.id,
-            transcript: note.transcript
-          };
-        });
-      }
-      
-      // Calculate appropriate height for either real items or skeleton
-      const newExpandedHeight = calculateExpandedHeight(items.length || recordingCount, items.length > 0);
+      // Calculate initial height for skeleton loader
+      const recordingCount = getRecordingCountForDate(date);
+      const initialHeight = calculateExpandedHeight(recordingCount, false);
       
       // Set all states in a predictable order
       setSelectedDate(date);
       setExpandedRowIndex(rowIndex);
-      setAdditionalInfo({
-        date: dateString,
-        items,
-      });
       
       // Apply height after a short delay to ensure render is ready
       setTimeout(() => {
-        setExpandedHeight(newExpandedHeight);
+        setExpandedHeight(initialHeight);
         
         // Start the animation after states are updated
         Animated.timing(expandAnimation, {
@@ -521,11 +487,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           useNativeDriver: true,
         }).start();
       }, 50);
-      
-      // If we don't have notes for this month, fetch them
-      if (!monthlyNotes[monthKey]) {
-        fetchNotesForMonth(date);
-      }
     }
   };
 

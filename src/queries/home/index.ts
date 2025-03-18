@@ -464,41 +464,30 @@ export function useHighlights(token: string, month: string) {
         enabled: !!month
     })
 }
+const formatDateForApi = (date: Date | null): string => {
+    if (!date) return '';
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
 
-export const getNotesByDates = async (dates: string[]): Promise<Record<string, any[]>> => {
-    // Create an object to store results with dates as keys
-    const result: Record<string, any[]> = {};
-    const timezone = getTimeZone();
-
-    // Initialize all dates with empty arrays in case of failures
-    dates.forEach(date => {
-      result[date] = [];
-    });
-    
-    try {
-      // Create array of promises with their corresponding dates
-      const requests = dates.map(date => ({
-        date,
-        promise: axiosApi.post('/calendar/day', { date, timezone })
-          .then(response => ({ success: true, date, data: response.data }))
-          .catch(error => ({ success: false, date, data: error }))
-      }));
-      
-      // Execute all requests in parallel and wait for all to complete
-      const responses = await Promise.all(requests.map(req => req.promise));
-      
-      // Process each response and update the result object
-      responses.forEach(response => {
-        if (response.success) {
-          // If successful, store the data array for that date
-          result[response.date] = response?.data;
+export function useDayNotes(selectedDate: Date | null, { onSuccess }: { onSuccess?: (data: any) => void} = {}) {
+    return useQuery(
+        ['dateNotes', selectedDate ? formatDateForApi(selectedDate) : null],
+        async () => {
+        if (!selectedDate) return { data: [] };
+        const dateStr = formatDateForApi(selectedDate);
+        const timezone = getTimeZone();
+        const response = await axiosApi.post('/calendar/day', { date: dateStr, timezone });
+        return response.data;
+        },
+        {
+        enabled: !!selectedDate,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        select: (data) => {
+            if (!data) return { data: [] };
+            return data;
+        },
+        onSuccess
         }
-        // If failed, the empty array initialized earlier remains
-      });
-      
-      return result;
-    } catch (error) {
-      console.error('Error in getNotesByDates:', error);
-      return result;
-    }
-  };
+    );
+}
