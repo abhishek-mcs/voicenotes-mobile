@@ -1,8 +1,9 @@
 import { View, Text, SafeAreaView, StyleSheet, FlatList, Platform, Pressable } from 'react-native'
-import notifee, { AuthorizationStatus } from '@notifee/react-native'
+import Touchable from "components/common/Touchable";
+import notifee, { AndroidImportance, AuthorizationStatus } from '@notifee/react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'expo-router' 
 import * as Haptics from "expo-haptics";
 import { SvgXml } from 'react-native-svg'
@@ -11,13 +12,14 @@ import Purchases from "react-native-purchases"
 import { RootState } from 'redux/store/store'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDialog } from 'context/DialogContext'
+import { RepeatFrequency, TimestampTrigger, TriggerType, AndroidStyle } from "@notifee/react-native";
 // import { setUserDetail } from 'redux/reducers/userDetails'
 import { useQueryClient } from 'react-query'
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates'
-// import { AppEventsLogger } from 'react-native-fbsdk-next'
-// import { analytics } from '../../../../firebaseConfig'
-import { setSelectedScreen } from 'redux/reducers/onboardingData'
+import { AppEventsLogger } from 'react-native-fbsdk-next'
 import { analytics } from '../../../../firebaseConfig'
+import { setFreeTrialStartDate, setSelectedScreen } from 'redux/reducers/onboardingData'
+import { settingsSvg } from 'assets/svg/settingsSvg'
 
 const Pricing = () => {
     const styles = useStyles()
@@ -32,6 +34,7 @@ const Pricing = () => {
     const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
     const pack=IAPOfferings?.availablePackages||[]
     const [isPermissionDenied, setIsPermissionDenied] = useState(false)
+    const notificationChannel = useRef<string | undefined>(undefined)
     const [error, setError] = useState('')
 
     const checkNotificationPermission = async () => {
@@ -50,7 +53,10 @@ const Pricing = () => {
           () => {}
         );
         if(selectedPlan == 'yearly') {
+          dispatch(setFreeTrialStartDate(new Date()))
+          trialEndsNotification()
           analytics().logEvent("free_trial_activated").catch(e=>{console.log(e)})
+          AppEventsLogger.logEvent('fb_free_trial_activated');
         }
         if (isPermissionDenied) {
           dispatch(setSelectedScreen(19))
@@ -74,12 +80,28 @@ const Pricing = () => {
         if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
           console.log('Purchased successfully');
           dispatch(setTempIsIAPPurchased(true))
-          analytics()
-            .logEvent(
-              selectedPlan == "monthly"
-                ? "monthly_subscription_success"
-                : "yearly_subscription_success"
-          ).catch(e=>{console.log(e)})
+          try {
+            analytics()
+              .logEvent(
+                selectedPlan == "monthly"
+                  ? "monthly_subscription_success"
+                  : "yearly_subscription_success"
+              )
+              AppEventsLogger.logPurchase(
+                selectedPlan == "monthly"
+                  ? pack[1]?.product?.price || 9.99
+                  : pack[4]?.product?.price || 49.99,
+                pack[1]?.product?.currencyCode || "USD",
+                {
+                  fb_currency:
+                    selectedPlan == "monthly"
+                      ? pack[1]?.product?.priceString || "$9.99"
+                      : pack[4]?.product?.priceString || "$49.99",
+                  _eventName:
+                    selectedPlan == "monthly" ? "Monthly Subscription" : "Yearly Subscription",
+                }
+              );
+          } catch {}
           await queryClient.invalidateQueries('user-data');
           onContinue()
         }
@@ -100,11 +122,58 @@ const Pricing = () => {
       return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
     };
 
+    const createNotificationChannel = async (): Promise<string> => {
+      return await notifee.createChannel({
+          id: 'reminders',
+          name: 'Reminders',
+          importance: AndroidImportance.DEFAULT,
+          vibration: true,
+          lights: true,
+          sound: 'default'
+      });
+    }
+
+    const trialEndsNotification = async () => {
+      createNotificationChannel().then(channel => {
+        notificationChannel.current = channel;
+      })
+      try {
+        let time = new Date()
+        time.setDate(time.getDate() + 5);
+        const trigger: TimestampTrigger = {
+            type: TriggerType.TIMESTAMP,
+            timestamp: time.getTime(),
+            repeatFrequency: RepeatFrequency.NONE,
+            alarmManager: {
+                allowWhileIdle: true,
+            }
+        };
+
+        const id = await notifee.createTriggerNotification(
+            {
+                id: `free-trial-ends-${time.getTime()}-notification`,
+                title: 'Voicenotes',
+                body: "Your free trial ends soon.",
+                android: {
+                    channelId: notificationChannel.current,
+                    style: {
+                        type: AndroidStyle.BIGTEXT,
+                        text: "Your free trial ends soon."
+                    },
+                },
+            },
+            trigger
+        )
+      } catch(error) {
+          console.error('Free trial ends notification failed ',error)
+      } 
+    }
+
     const timelineData = [
         {
           id: "1",
           title: "Today",
-          description: "Take as many notes as you want. Ask AI anything from your notes. See for yourself what the buzz is about!",
+          description: `Take as many notes as you want. \nAsk AI anything from your notes. \nSee for yourself what the buzz is about!`,
           icon: <SvgXml xml={onboardingSvg.lock?.replace('black', Colors.black2)} style={styles.icon} />,
         },
         {
@@ -160,6 +229,9 @@ const Pricing = () => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
+      <Touchable onPress={() => router.back()} style={{ padding: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+          <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
+        </Touchable>
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>How your free </Text>
             <Text style={styles.mainText}>7-day trial works</Text>
@@ -217,7 +289,7 @@ const Pricing = () => {
                     underlayColor={Colors.settingsBtnBg}
                     style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                     onPress={onStart}
-                    text="Start my free week"
+                    text={selectedPlan == 'monthly' ? `Subscribe for ${priceMonthString} / month` : "Start my free week"}
                     isLoading={loading}
                     color={Colors.text4}
                 />
@@ -238,10 +310,9 @@ const useStyles = () => {
     mainContainer: {
         flex: 1,
         backgroundColor: Colors.whiteWithOpacity(1),
-        marginTop: Platform.OS === 'ios' ? 0 : 40
+        marginTop: Platform.OS === 'ios' ? 0 : 30
     },
     mainTextContainer: {
-        marginTop: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },

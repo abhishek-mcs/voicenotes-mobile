@@ -7,6 +7,7 @@ import { screenHeight } from 'utils/common'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Watch = () => {
     const styles = useStyles()
@@ -73,6 +74,7 @@ const Watch = () => {
           () => {}
         );
         analytics().logEvent('onboarding_apple_watch').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_apple_watch');
         dispatch(setSelectedScreen(6))
     }
 

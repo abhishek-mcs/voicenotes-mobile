@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { screenWidth } from 'utils/common';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Notification = () => {
     const styles = useStyles()
@@ -31,6 +32,7 @@ const Notification = () => {
         );
         openNotificationSettings()
         analytics().logEvent('onboarding_notification_allowed').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_notification_allowed');
         setTimeout(() => dispatch(setSelectedScreen(13)), 200);
     }
 
@@ -39,19 +41,21 @@ const Notification = () => {
           () => {}
         );
         analytics().logEvent('onboarding_notification_denied').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_notification_denied');
         setTimeout(() => dispatch(setSelectedScreen(14)), 200);
     }
-
 
     async function requestUserPermission() {
         const settings = await notifee.requestPermission();
         if (settings.authorizationStatus == AuthorizationStatus.AUTHORIZED) {
             console.log('Permission settings:', settings);
             analytics().logEvent('onboarding_notification_allowed').catch(e=>{console.log(e)})
+            AppEventsLogger.logEvent('fb_onboarding_notification_allowed');
             dispatch(setSelectedScreen(13))
         } else {
             console.log('User declined permissions');
             analytics().logEvent('onboarding_notification_denied').catch(e=>{console.log(e)})
+            AppEventsLogger.logEvent('fb_onboarding_notification_denied');
             dispatch(setSelectedScreen(14))
         }
     }

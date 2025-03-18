@@ -20,37 +20,49 @@ import Pricing from './pricing'
 import TrialReminder from './trial-reminder'
 import { useTheme } from 'context'
 import AnimatedProgressBar from './AnimatedProgressBar'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'redux/store/store'
 import { useGetPreferenceEnums } from 'queries/auth'
 import { useEffect, useState } from 'react'
+import { setPreferenceEnums } from 'redux/reducers/onboardingData'
 
 const Onboarding = () => {
   const {Colors}=useTheme()
-  const { selectedScreen } = useSelector((state: RootState) => state.onboardingData);
+  const dispatch = useDispatch();
+  const { selectedScreen, preferenceEnums } = useSelector((state: RootState) => state.onboardingData);
   const { data, refetch, isFetching } = useGetPreferenceEnums()
+  const [enums, setEnums] = useState(preferenceEnums ? preferenceEnums : data)
   const [referrer, setReferrer] = useState([])
   const [ageGroup, setAgeGroup] = useState([])
   const [frequency, setFrequency] = useState([])
   const [revisit, setRevisit] = useState([])
   const [noteTypes, setNoteTypes] = useState([])
-
-  useEffect(() => {
-    if (data == undefined && !isFetching) {
-      refetch();
-    }
-  }, [data, isFetching]);
+  
 
   useEffect(() => {
     console.log(data);
-    if (data) {
+    if (data == undefined && !isFetching) {
+      refetch();
+    } else if (data) {
+      setEnums(data)
       setReferrer(data?.referrer)
       setAgeGroup(data?.age_group)
       setFrequency(data?.note_taking_frequency)
       setRevisit(data?.revisit_frequency)
       setNoteTypes(data?.note_types)
+      dispatch(setPreferenceEnums(data))
     }
-  },[data])
+  }, [data, isFetching]);
+
+  useEffect(() => {
+    if(enums) {
+      setReferrer(enums?.referrer)
+      setAgeGroup(enums?.age_group)
+      setFrequency(enums?.note_taking_frequency)
+      setRevisit(enums?.revisit_frequency)
+      setNoteTypes(enums?.note_types)
+    }
+  },[enums])
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.whiteWithOpacity(1) }}>

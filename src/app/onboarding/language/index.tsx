@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setLanguage, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
 import { Animated } from 'react-native';
+import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Language = () => {
     const styles = useStyles()
@@ -51,6 +53,8 @@ const Language = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
             () => {}
         );
+        analytics().logEvent('onboarding_language_select').catch(e=>{})
+        AppEventsLogger.logEvent('fb_onboarding_language_select');
         if (num) {
             setTimeout(() => dispatch(setSelectedScreen(4)), 100);
             setSelected(num)

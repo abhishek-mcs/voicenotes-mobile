@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useDispatch } from 'react-redux';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const PastNotes = () => {
     const styles = useStyles()
@@ -57,6 +58,7 @@ const PastNotes = () => {
             () => {}
         );
         analytics().logEvent('onboarding_past_notes').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_past_notes');
         dispatch(setSelectedScreen(11))
     }
 

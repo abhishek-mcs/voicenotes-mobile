@@ -11,6 +11,7 @@ import { isIOS, screenHeight } from 'utils/common'
 import { useDispatch } from 'react-redux';
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Reviews = () => {
     const styles = useStyles()
@@ -31,14 +32,14 @@ const Reviews = () => {
             profileImage: <Image source={require('../../../assets/images/profile1.png')} style={styles.profileImage} />,
             name: "David Singleton",
             rating: 5,
-            review: "16 of those were me! I now have the iOS app wired to my action button and it's been wonderful. The speed and quality of voice recognition is amazing!",
+            review: "16 of those were me! I now have the iOS app wired to my action button and it's been wonderful. The speed and quality of voice recognition is 🤩",
         },
         {
             id: 2,
             profileImage: <Image source={require('../../../assets/images/profile2.png')} style={styles.profileImage} />,
             name: "Product Hunt",
             rating: 5,
-            review: "Me doing voice notes and loving the simple UI",
+            review: "Bootstrapped teams are out here reminding us that big budgets aren’t everything. Voicenotes, this year’s Bootstrapped winner, is one of those ‘how did I live without this?’ tools, turning your voice memos into searchable notes.",
         },
         {
             id: 3,
@@ -126,6 +127,7 @@ const Reviews = () => {
           () => {}
         );
         analytics().logEvent('onboarding_reviews').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_reviews');
         if (isPermissionGranted) {
             dispatch(setSelectedScreen(13))
         } else {

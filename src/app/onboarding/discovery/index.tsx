@@ -8,6 +8,7 @@ import { setReferrer, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from "react-native-fbsdk-next";
 
 const Discovery = ({data}: any) => {
     const styles = useStyles()
@@ -34,6 +35,7 @@ const Discovery = ({data}: any) => {
           () => {}
         );
         analytics().logEvent('onboarding_referrer').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_referrer');
         setSelected(num)
         dispatch(setReferrer(num))
         if(num) {

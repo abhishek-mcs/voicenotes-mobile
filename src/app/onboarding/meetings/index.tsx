@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { Animated } from 'react-native'
 import { analytics } from '../../../../firebaseConfig'
+import { AppEventsLogger } from 'react-native-fbsdk-next'
 
 const { width } = Dimensions.get("window");
 
@@ -58,6 +59,7 @@ const Meetings = () => {
           () => {}
         );
         analytics().logEvent('onboarding_meetings').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_meetings');
         dispatch(setSelectedScreen(9))
     }
 

@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setAgeGroup, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from "react-native-fbsdk-next";
 // import { logEvent } from 'func/analytics/logEvent';
 
 const Age = ({data}: any) => {
@@ -35,6 +36,7 @@ const Age = ({data}: any) => {
           () => {}
         );
         analytics().logEvent('onboarding_age_group').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_age_group');
         // logEvent('onboarding_age_group',{value:'success'})
         setSelected(num)
         dispatch(setAgeGroup(num))

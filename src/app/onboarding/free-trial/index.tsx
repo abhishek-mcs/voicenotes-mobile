@@ -10,6 +10,7 @@ import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
 import { Animated } from 'react-native';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const FreeTrial = () => {
     const styles = useStyles()
@@ -31,6 +32,7 @@ const FreeTrial = () => {
             () => {}
         );
         analytics().logEvent('onboarding_free_trial_info').catch((e: any)=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_free_trial_info');
         dispatch(setSelectedScreen(15))
     }
 

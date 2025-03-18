@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setRevisitFrequency, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Revisit = ({data}: any) => {
     const styles = useStyles()
@@ -35,6 +36,7 @@ const Revisit = ({data}: any) => {
         );
         setSelected(num)
         analytics().logEvent('onboarding_revisit_frequency').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_revisit_frequency');
         dispatch(setRevisitFrequency(num))
         if(num){
             setTimeout(() => dispatch(setSelectedScreen(10)), 200);

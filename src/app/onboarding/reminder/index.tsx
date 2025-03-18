@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useMemo } from 'react';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Reminder = () => {
     const styles = useStyles()
@@ -19,6 +20,7 @@ const Reminder = () => {
           () => {}
         );
         analytics().logEvent('onboarding_notification_settings').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_notification_settings');
         dispatch(setSelectedScreen(14))
     }
 

@@ -19,7 +19,7 @@ import { useNetInfo } from '@react-native-community/netinfo'
 import { useQueryClient } from 'react-query'
 import { RootState } from 'redux/store/store'
 import { analytics } from '../../../../firebaseConfig'
-
+import { AppEventsLogger } from "react-native-fbsdk-next";
 
 const Email = () => {
     const styles = useStyles()
@@ -134,7 +134,12 @@ const Email = () => {
                 client_id: Platform.OS === "ios" ? iosGoogleClientID : androidGoogleClientID,
                 source: Platform.OS === "ios" ? 'ios' : 'android',
                 device: 'mobile_app'
-            }, { onSuccess: onLoginSuccess });
+            }, { onSuccess: (data: any) => {
+                    analytics().logEvent('onboarding_google_signup').catch(e=>{console.log(e)})
+                    AppEventsLogger.logEvent('fb_onboarding_google_signup');
+                    onLoginSuccess(data)
+                } 
+            });
         }
     }, [googleResponse]);
     
@@ -165,7 +170,12 @@ const Email = () => {
             loginApple.mutate({
                 access_token: credential.identityToken,
                 source: Platform.OS === "ios" ? 'ios' : 'android'
-            }, { onSuccess: onLoginSuccess });
+            }, { onSuccess: (data: any) => {
+                    analytics().logEvent('onboarding_apple_signup').catch(e=>{console.log(e)})
+                    AppEventsLogger.logEvent('fb_onboarding_apple_signup');
+                    onLoginSuccess(data)
+                }  
+            });
         } catch (e) {
             console.error(e);
         }
@@ -198,6 +208,7 @@ const Email = () => {
                             setLoading(false)
                             console.log("Email doesn't exist")
                             analytics().logEvent('onboarding_email_checked').catch(e=>{console.log(e)})
+                            AppEventsLogger.logEvent('fb_onboarding_email_checked');
                             dispatch(setSelectedScreen(16))
                         }
                     },
@@ -245,7 +256,7 @@ const Email = () => {
                           autoComplete="email"
                           keyboardType="email-address"
                           autoCapitalize="none"
-                          autoFocus={true}
+                        //   autoFocus={true}
                         />
                         {validationError && (
                             <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>Invalid email address.</Text>

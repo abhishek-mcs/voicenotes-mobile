@@ -1,7 +1,7 @@
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useNavigation, useRouter } from "expo-router";
-import { useLogout } from "queries/auth";
+import { useGetPreferenceEnums, useLogout } from "queries/auth";
 import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard, Linking } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
@@ -27,6 +27,8 @@ import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";
 import { useDialog } from "context/DialogContext";
 import Header from "components/settings/header";
+import { setPreferenceEnums, setSelectedScreen } from "redux/reducers/onboardingData";
+import VerifyEmail from "components/settings/verifyEmail";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -183,10 +185,12 @@ const Help = ({ onClose }: { onClose: () => void }) => {
 
 const Settings = () => {
   const router = useRouter();
+  const styles = useStyles()
   const navigation = useNavigation()
   const { Colors, theme, switchTheme, isLightMode } = useTheme()
 
   const logout = useLogout()
+  const { data: preferenceData } = useGetPreferenceEnums()
   const { userDetails, lang }: any = useSelector((state: RootState) => state.userDetails);
   const { isTempIAPPurchased } = useSelector((state: RootState) => state.IAPStates);
   const settings: any = userDetails.settings
@@ -200,7 +204,7 @@ const Settings = () => {
   const renderScreen = (name: string, Component: React.ComponentType<any>) => {
     const isActive = activeScreen === name;
     const animation = getAnimation(name);
-
+    
     return (
       <Animated.View
         key={name}
@@ -220,7 +224,7 @@ const Settings = () => {
         ]}
         pointerEvents={isActive ? 'auto' : 'none'}
       >
-        <Component onClose={hideScreen} />
+        {activeScreen == 'verifyEmail' ? <Component onClose={hideScreen} onOpen={true} /> : <Component onClose={hideScreen} />}
       </Animated.View>
     );
   };
@@ -238,6 +242,8 @@ const Settings = () => {
           await deleteCounter()
           await logout.mutateAsync('').catch(() => { })
           dispatch(setTempIsIAPPurchased(false))
+          dispatch(setSelectedScreen(1))
+          dispatch(setPreferenceEnums(preferenceData))
           router?.back();
         }
       }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
@@ -280,6 +286,8 @@ const Settings = () => {
   // in case the user tries to navigate back using the device back button
   // not for android
   useEffect(() => {
+    console.log(userDetails);
+    
     navigation.addListener('beforeRemove', (e) => {
       if (activeScreen && !isAnimating) {
         e.preventDefault();
@@ -308,6 +316,19 @@ const Settings = () => {
           }}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
+          {userDetails.is_new_user ? <View style={{ marginHorizontal: 16, marginBottom: 20, borderRadius: 12, backgroundColor: Colors.bgColor2, overflow: 'hidden' }}>
+            <TouchableHighlight onPress={() => showScreen('verifyEmail')} underlayColor={Colors.greyWithOpacity(0.12)} style={{ overflow: 'hidden', padding: 16,  }} >
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  {userDetails.is_email_verified ? '' : <SvgXml xml={settingsSvg.errorIcon} /> }
+                  <Text style={[{ fontFamily: 'Primary-Medium', fontSize: 14, color: Colors.blackWithOpacity(1) }]}>
+                  Verify your email
+                  </Text>
+                </View>
+                <Text style={styles.rightTxt}>{userDetails.is_email_verified ? 'Completed' : 'Pending' }</Text>
+              </View>
+            </TouchableHighlight>
+          </View> : ''}
           <Grouped
             title="APP"
             items={[
@@ -324,7 +345,7 @@ const Settings = () => {
             items={[
               { title: 'Email', onPress: () => showScreen('email'), value: userDetails?.email || '', rightIcon: settingsSvg.arrow },
               { title: 'Change password', onPress: () => showScreen('password'), value: '', rightIcon: settingsSvg.arrow },
-              ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : []),
+              ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : []),
             ]}
           />
           <Grouped
@@ -346,6 +367,7 @@ const Settings = () => {
         </View>
       )} */}
 
+      {renderScreen('verifyEmail', VerifyEmail)}
       {renderScreen('name', Name)}
       {renderScreen('about', About)}
       {renderScreen('email', Email)}

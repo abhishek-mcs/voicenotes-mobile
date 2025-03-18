@@ -14,11 +14,12 @@ import { setRecordingList } from 'redux/reducers/recordingStates'
 import { setToken, setUserDetail } from 'redux/reducers/userDetails'
 import { useQueryClient } from 'react-query'
 import { analytics } from '../../../../firebaseConfig'
-import appsFlyer from 'react-native-appsflyer'
+// import appsFlyer from 'react-native-appsflyer'
 // import { getNotification } from 'utils/cache'
 // import { saveNotificationSettings } from 'queries/settings'
 // import { formatTime } from 'utils/format-date'
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Password = () => {
     const styles = useStyles()
@@ -116,6 +117,7 @@ const Password = () => {
         );
         setLoading(true)
         analytics().logEvent('sign_up_initiated').catch(e=>{})
+        AppEventsLogger.logEvent('fb_sign_up_initiated');
         if (password && password.length > 0) {
             onboardingSignupMutation.mutate(
                 { 
@@ -137,6 +139,12 @@ const Password = () => {
                             queryClient.resetQueries('all-recording')
                             queryClient.resetQueries('user-data')
                             analytics().logEvent('sign_up_success').catch(()=>{})
+                            AppEventsLogger.logEvent(
+                                AppEventsLogger.AppEvents.CompletedRegistration,
+                                {
+                                  [AppEventsLogger.AppEventParams.RegistrationMethod]: `${userEmail}`,
+                                }
+                            );
                             // appsFlyer?.logEvent('signup_success',{value:'af_success'})
                             getPreferencesMutation.mutate(
                                 {
@@ -150,6 +158,7 @@ const Password = () => {
                                 {
                                     onSuccess: (response:any) => {
                                         analytics().logEvent('onboarding_preferences_updated').catch(e=>{console.log(e)})
+                                        AppEventsLogger.logEvent('fb_onboarding_preferences_updated');
                                         console.log(response.data,'preferences')
                                         setLoading(false)
                                         

@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { SvgXml } from 'react-native-svg'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { analytics } from '../../../../firebaseConfig'
+import { AppEventsLogger } from 'react-native-fbsdk-next'
 
 const TrialReminder = () => {
     const styles = useStyles()
@@ -36,6 +37,7 @@ const TrialReminder = () => {
         } else {
             openNotificationSettings()
             analytics().logEvent('onboarding_force_enable_notification').catch(e=>{console.log(e)})
+            AppEventsLogger.logEvent('fb_onboarding_force_enable_notification');
             setTimeout(() => {
                 router.push("/home/")
             }

@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 export interface userData {
+    preferenceEnums: any,
     selectedScreen: number,
     referrer: number | null,
     language: string,
@@ -11,9 +12,11 @@ export interface userData {
     note_types: number[],
     userEmail: string,
     name: string,
+    freeTrialStartDate: any,
 }
 
 const initialState: userData = {
+    preferenceEnums: [],
     selectedScreen: 1,
     referrer: null,
     language: '',
@@ -23,12 +26,16 @@ const initialState: userData = {
     note_types: [],
     userEmail: '',
     name: '',
+    freeTrialStartDate: '',
 }
 
 export const onboardingData = createSlice({
   name: 'onboardingData',
   initialState,
   reducers: {
+    setPreferenceEnums: (state, action: PayloadAction<any>) => {
+      state.preferenceEnums = action.payload
+  },
     setSelectedScreen: (state, action: PayloadAction<number>) => {
         state.selectedScreen = action.payload
     },
@@ -60,10 +67,13 @@ export const onboardingData = createSlice({
     setName: (state, action: PayloadAction<string>) => {
         state.name = action.payload
     },
+    setFreeTrialStartDate: (state, action: PayloadAction<any>) => {
+      state.freeTrialStartDate = action.payload
+  },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setSelectedScreen, setReferrer, setLanguage, setAgeGroup, setNoteTakingFrequency, setRevisitFrequency, setNoteTypes, setUserEmail, setName } = onboardingData.actions
+export const { setPreferenceEnums, setSelectedScreen, setReferrer, setLanguage, setAgeGroup, setNoteTakingFrequency, setRevisitFrequency, setNoteTypes, setUserEmail, setName, setFreeTrialStartDate } = onboardingData.actions
 
 export default onboardingData.reducer

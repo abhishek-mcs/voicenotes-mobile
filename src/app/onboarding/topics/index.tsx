@@ -9,6 +9,7 @@ import { setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { isAndroid } from 'utils/common'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Topics = ({data}: any) => {
     const styles = useStyles()
@@ -42,6 +43,7 @@ const Topics = ({data}: any) => {
           () => {}
         );
         analytics().logEvent('onboarding_note_types').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_note_types');
         dispatch(setNoteTypes(isSelected))
         if (isSelected.length > 0 && isSelected.includes(2)) {
             dispatch(setSelectedScreen(8))

@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setNoteTakingFrequency, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Frequency = ({data}: any) => {
     const styles = useStyles()
@@ -35,6 +36,7 @@ const Frequency = ({data}: any) => {
         );
         setSelected(num)
         analytics().logEvent('onboarding_notes_frequency').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_notes_frequency');
         dispatch(setNoteTakingFrequency(num))
         if(num) {
             setTimeout(() => dispatch(setSelectedScreen(7)), 200);

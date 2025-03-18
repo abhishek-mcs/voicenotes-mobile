@@ -8,6 +8,7 @@ import {
   StyleSheet,
   View
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -131,6 +132,18 @@ const Home = () => {
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
   },[isLightMode])
+
+  useEffect(() => {
+    if(userDetails.is_email_verified) {
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Your email has been verified!",
+        position: "top",
+        visibilityTime: 3000,
+      });
+    }
+  },[userDetails.is_email_verified])
   
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){

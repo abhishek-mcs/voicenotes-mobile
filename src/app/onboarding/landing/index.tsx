@@ -9,6 +9,7 @@ import { Image } from 'react-native'
 import { useDispatch } from 'react-redux'
 import * as Haptics from "expo-haptics";
 import { analytics } from '../../../../firebaseConfig'
+import { AppEventsLogger } from 'react-native-fbsdk-next'
 // import { logEvent } from 'func/analytics/logEvent'
 
 
@@ -22,6 +23,7 @@ const Landing = () => {
 
     useEffect(() => {
       analytics().logEvent('onboarding_landing').catch(e=>{})
+      AppEventsLogger.logEvent('fb_onboarding_landing');
         // logEvent('signup_initiated',{value:'success'})
     },[])
 
