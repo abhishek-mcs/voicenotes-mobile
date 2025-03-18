@@ -23,10 +23,8 @@ const CALENDAR_WIDTH = width * 0.9;
 const EVENT_ITEM_HEIGHT = 30;
 const MAX_VISIBLE_ITEMS = 3;
 const EXPAND_ANIMATION_DURATION = 200;
-const EXPAND_HEIGHT = 200;
 const SNAP_ANIMATION_DURATION = 200; // Increased for smoother transitions
 const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
-const HEIGHT_ANIMATION_DURATION = 100; // Duration for height animations
 
 // Utility functions 
 const getDatesWithRecordings = (date: Date, weeksData: any[][]): Date[] => {
@@ -1101,7 +1099,7 @@ const useStyles = () => {
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
-      gap: 5
+      gap: 8
     },
     streakText: {
       fontSize: 13,
