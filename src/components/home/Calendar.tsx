@@ -329,7 +329,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         // IMPORTANT: Make sure to use the latest streaksData
         // This ensures we're not using stale data
         const currentData = streaksData.weeks ? streaksData : data;
-        console.log(`current data is ${currentData} because streaksData is ${streaksData} & data is ${data}`)
+        // console.log(`current data is ${currentData} because streaksData is ${streaksData} & data is ${data}`)
         
         // Update months data based on the new month
         const prevOfNew = new Date(newMonth);

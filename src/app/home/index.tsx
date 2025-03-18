@@ -979,7 +979,11 @@ const Home = () => {
             </Pressable>}
           </Pressable>
           {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
-            <ExpandableCalendar streaksData={streaks?.data?.data || []} />
+            {streaks?.data?.data?.weeks ? <ExpandableCalendar streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
+              <View style={styles.calendarVisualWrapper}>
+                <Text style={styles.indicator} >Loading</Text>
+              </View>
+            </View>}
           </Pressable>}
         </BlurView>
       </Modal>
@@ -1022,6 +1026,38 @@ const useStyles = () => {
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute'
+  },
+  calendarContainer: {
+    width: width * 0.9,
+    backgroundColor: Colors.grey2,
+    borderRadius: 25,
+    borderWidth: isIOS ? 0.0 : 0,
+    padding: 16,
+    // Enhanced iOS shadow for better visibility on all sides
+    ...(isIOS ? {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 }, // Center the shadow (0,0) to spread it evenly
+      shadowOpacity: 0.25, // Increase opacity for better visibility
+      shadowRadius: 15, // Slightly reduced but still substantial
+      margin: 5, // Add a small margin to ensure shadow is visible on all sides
+    } : {
+      // Android shadow - increase elevation for better visibility
+      elevation: 8,
+    }),
+    // Remove overflow: 'hidden' from here
+  },
+  calendarVisualWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...(isIOS ? {
+      position: 'relative',
+      overflow: 'hidden', // Keep overflow hidden here
+      borderRadius: 0, // Slightly smaller than container
+      backgroundColor: Colors.grey2,
+    } : {})
+  },
+  indicator: {
+    color: Colors.text
   }
 }), [Colors]); // Recreate styles when Colors change
 };
