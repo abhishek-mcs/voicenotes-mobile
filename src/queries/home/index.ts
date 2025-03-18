@@ -6,7 +6,7 @@ import { useGetRelatedRecording } from "./relatedNote";
 import { Platform } from "react-native";
 import * as Device from 'expo-device';
 import { currentVersion } from "services/api/api-constants";
-
+import { getTimeZone } from "react-native-localize";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -468,7 +468,8 @@ export function useHighlights(token: string, month: string) {
 export const getNotesByDates = async (dates: string[]): Promise<Record<string, any[]>> => {
     // Create an object to store results with dates as keys
     const result: Record<string, any[]> = {};
-    
+    const timezone = getTimeZone();
+
     // Initialize all dates with empty arrays in case of failures
     dates.forEach(date => {
       result[date] = [];
@@ -478,7 +479,7 @@ export const getNotesByDates = async (dates: string[]): Promise<Record<string, a
       // Create array of promises with their corresponding dates
       const requests = dates.map(date => ({
         date,
-        promise: axiosApi.post('/calendar/day', { date })
+        promise: axiosApi.post('/calendar/day', { date, timezone })
           .then(response => ({ success: true, date, data: response.data }))
           .catch(error => ({ success: false, date, data: error }))
       }));
