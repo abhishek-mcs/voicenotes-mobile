@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedScreen } from "redux/reducers/onboardingData";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
+import { isIOS, screenHeight } from "utils/common";
 
 const AnimatedProgressBar = ({ step, totalSteps }: any) => {
   const {Colors}=useTheme()
@@ -56,7 +56,7 @@ const useStyles = () => {
   const { Colors } = useTheme();
   return useMemo(() => StyleSheet.create({
   headerContainer: {
-    marginTop: isIOS ? 0 : 40,
+    marginTop: isIOS ? 0 : screenHeight/25,
     backgroundColor: Colors.whiteWithOpacity(1),
     flexDirection: "row",
     alignItems: "center",

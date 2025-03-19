@@ -141,7 +141,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: isIOS ? 0 : 40
+            marginTop: isIOS ? 0 : screenHeight/25
         },
         mainTextContainer: {
             marginTop: 20,

@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, TouchableHighlight } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { useTheme } from "context"
 import { useEffect, useMemo, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { RootState } from 'redux/store/store'
 import { SvgXml } from 'react-native-svg'
 import { settingsSvg } from 'assets/svg/settingsSvg'
@@ -23,8 +23,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
     const router=useRouter()
     const queryClient=useQueryClient()
     const verifyEmail = useVerifyEmail()
-    const dispatch = useDispatch()
-    const {userEmail} = useSelector((state: RootState) => state.onboardingData);
+    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
     const [otpText, setOTP] = useState('------')
     const [errorText, setErrorText] = useState('')
     const errorContent='Sorry, the code you have entered is invalid.'
@@ -65,37 +64,39 @@ const VerifyEmail: React.FC<Props> = (props) => {
     }
 
   return (
-    <View style={{ flex: 1 }}>
-        <TouchableHighlight onPress={props.onClose} style={{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40, backgroundColor: Colors.bottomBarButtonBg1, borderRadius: 16, alignItems: "center", justifyContent:'center', marginVertical: 20, marginLeft: 16 }}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <TouchableHighlight onPress={props.onClose} style={{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40, backgroundColor: Colors.bottomBarButtonBg1, borderRadius: 16, alignItems: "center", justifyContent:'center', marginVertical: 20, marginLeft: 16 }}>
                 <Text style={{ color: Colors.bottomBarText1, fontFamily: "Primary-Semibold", fontSize: 14 }}>Back</Text>
             </TouchableHighlight>
-        <View style={styles.root}>
-            <View style={{ alignItems: 'center' }}>
-                <SvgXml xml={settingsSvg.verifyEmail?.replace('black', Colors.black2)} />
-            </View>
-            <Text style={styles.heading}>Verify your email</Text>
-            <Text style={styles.description}>We just sent a 6-digit code to</Text>
-            <Text style={styles.description}>{userEmail}, enter it below:</Text>
-            <OTPInput
-                numberOfInputs={6}
-                onChange={(v)=>{setOTP(v);errorText?.length!=0&&setErrorText("")}}
-                otpValue={otpText}
-                errorText={errorText}
-            />
-            <View style={[styles.buttonContainer, styles.footerContainer]}>
-                <LargeButton
-                    underlayColor={Colors.settingsBtnBg}
-                    style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
-                    onPress={verifyOtp}
-                    text="Done"
-                    color={Colors.text4}
+            <View style={styles.root}>
+                <View style={{ alignItems: 'center' }}>
+                    <SvgXml xml={settingsSvg.verifyEmail?.replace('black', Colors.black2)} />
+                </View>
+                <Text style={styles.heading}>Verify your email</Text>
+                <Text style={styles.description}>We just sent a 6-digit code to</Text>
+                <Text style={styles.description}>{userDetails?.email}, enter it below:</Text>
+                <OTPInput
+                    numberOfInputs={6}
+                    onChange={(v)=>{setOTP(v);errorText?.length!=0&&setErrorText("")}}
+                    otpValue={otpText}
+                    errorText={errorText}
                 />
-                <TouchableHighlight onPress={() => handleSubmit(true)}>
-                    <Text style={styles.blueButton}>Resend email</Text>
-                </TouchableHighlight>
+                <View style={[styles.buttonContainer, styles.footerContainer]}>
+                    <LargeButton
+                        underlayColor={Colors.settingsBtnBg}
+                        style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                        onPress={verifyOtp}
+                        text="Done"
+                        color={Colors.text4}
+                    />
+                    <TouchableHighlight onPress={() => handleSubmit(true)}>
+                        <Text style={styles.blueButton}>Resend email</Text>
+                    </TouchableHighlight>
+                </View>
             </View>
-        </View>
-    </View>
+        </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   )
 }
 

@@ -20,6 +20,7 @@ import { AppEventsLogger } from 'react-native-fbsdk-next'
 import { analytics } from '../../../../firebaseConfig'
 import { setFreeTrialStartDate, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { settingsSvg } from 'assets/svg/settingsSvg'
+import { screenHeight } from 'utils/common';
 
 const Pricing = () => {
     const styles = useStyles()
@@ -310,7 +311,7 @@ const useStyles = () => {
     mainContainer: {
         flex: 1,
         backgroundColor: Colors.whiteWithOpacity(1),
-        marginTop: Platform.OS === 'ios' ? 0 : 30
+        marginTop: Platform.OS === 'ios' ? 0 : screenHeight/25
     },
     mainTextContainer: {
         justifyContent: 'center',
