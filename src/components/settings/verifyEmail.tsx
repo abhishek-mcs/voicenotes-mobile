@@ -80,12 +80,12 @@ const VerifyEmail: React.FC<Props> = (props) => {
                 <Text style={styles.heading}>Verify your email</Text>
                 <Text style={styles.description}>We just sent a 6-digit code to</Text>
                 <Text style={styles.description}>{userDetails?.email}, enter it below:</Text>
-                <OTPInput
+                {props.onOpen && <OTPInput
                     numberOfInputs={6}
                     onChange={(v)=>{setOTP(v);errorText?.length!=0&&setErrorText("")}}
                     otpValue={otpText}
                     errorText={errorText}
-                />
+                />}
                 <View style={[styles.buttonContainer, styles.footerContainer]}>
                     <LargeButton
                         underlayColor={Colors.settingsBtnBg}

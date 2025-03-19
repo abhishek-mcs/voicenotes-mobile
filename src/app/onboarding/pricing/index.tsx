@@ -61,7 +61,7 @@ const Pricing = () => {
           AppEventsLogger.logEvent('fb_free_trial_activated');
         }
         if(isNewUser) {
-          router.back()
+          router.push("/home/")
         } else {
           if (isPermissionDenied && selectedPlan == 'yearly') {
             dispatch(setSelectedScreen(19))

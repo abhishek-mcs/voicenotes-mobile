@@ -140,7 +140,7 @@ const Home = () => {
   },[userDetails])
 
   useEffect(() => {
-    if(emailVerified) {
+    if(emailVerified && userDetails.is_email_verified) {
       Toast.show({
         type: "verified",
         text1: "Your email has been verified!",

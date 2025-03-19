@@ -315,7 +315,7 @@ const Settings = () => {
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           {userDetails.is_new_user ? <View style={{ marginHorizontal: 16, marginBottom: 20, borderRadius: 12, backgroundColor: Colors.bgColor2, overflow: 'hidden' }}>
-            <TouchableHighlight onPress={() => showScreen('verifyEmail')} underlayColor={Colors.greyWithOpacity(0.12)} style={{ overflow: 'hidden', padding: 16,  }} >
+            <TouchableHighlight onPress={userDetails.is_email_verified ? () => {} : () => showScreen('verifyEmail')} underlayColor={Colors.greyWithOpacity(0.12)} style={{ overflow: 'hidden', padding: 16,  }} >
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   {userDetails.is_email_verified ? '' : <SvgXml xml={settingsSvg.errorIcon} /> }
