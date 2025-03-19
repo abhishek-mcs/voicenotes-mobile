@@ -136,6 +136,10 @@ const Home = () => {
   },[isLightMode])
 
   useEffect(() => {
+    console.log('New user', userDetails, isTempIAPPurchased);
+  },[userDetails])
+
+  useEffect(() => {
     if(emailVerified) {
       Toast.show({
         type: "verified",

@@ -17,7 +17,44 @@ export interface userData {
 }
 
 const initialState: userData = {
-    preferenceEnums: [],
+    preferenceEnums: { 
+      "age_group": [
+        {"label": "Under 20", "value": 1}, 
+        {"label": "20s", "value": 2}, 
+        {"label": "30s", "value": 3}, 
+        {"label": "40s", "value": 4}, 
+        {"label": "50+", "value": 5}
+      ], 
+      "note_taking_frequency": [
+        {"label": "Rarely (0-2/week)", "value": 1}, 
+        {"label": "Almost every day", "value": 2}, 
+        {"label": "Every day", "value": 3}, 
+        {"label": "More than 5 times daily", "value": 4}
+      ], 
+      "note_types": [
+        {"label": "Journaling", "value": 1}, 
+        {"label": "Meetings", "value": 2}, 
+        {"label": "To-do", "value": 3}, 
+        {"label": "Research", "value": 4}, 
+        {"label": "Lectures", "value": 5}, 
+        {"label": "Book highlights", "value": 6}, 
+        {"label": "Other", "value": 7}
+      ], 
+      "referrer": [
+        {"label": "App Store", "value": 1}, 
+        {"label": "TikTok", "value": 2}, 
+        {"label": "YouTube", "value": 3}, 
+        {"label": "Facebook/Instagram", "value": 4}, 
+        {"label": "Google Search", "value": 5}, 
+        {"label": "Friends & Family", "value": 6}, 
+        {"label": "Other", "value": 7}
+      ], 
+      "revisit_frequency": [
+        {"label": "Rarely", "value": 1}, 
+        {"label": "Occasionally", "value": 2}, 
+        {"label": "All the time", "value": 3}
+      ]
+    },
     selectedScreen: 1,
     referrer: null,
     language: '',

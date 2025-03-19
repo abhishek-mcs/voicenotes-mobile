@@ -40,17 +40,18 @@ const Onboarding = () => {
   
 
   useEffect(() => {
-    console.log(data);
+    console.log('Onboarding', data, preferenceEnums);
     if (data == undefined && !isFetching) {
       refetch();
     } else if (data) {
-      setEnums(data)
-      setReferrer(data?.referrer)
-      setAgeGroup(data?.age_group)
-      setFrequency(data?.note_taking_frequency)
-      setRevisit(data?.revisit_frequency)
-      setNoteTypes(data?.note_types)
-      dispatch(setPreferenceEnums(data))
+      const getData = data ? data : enums
+      setEnums(data ? data : enums)
+      setReferrer(getData?.referrer)
+      setAgeGroup(getData?.age_group)
+      setFrequency(getData?.note_taking_frequency)
+      setRevisit(getData?.revisit_frequency)
+      setNoteTypes(getData?.note_types)
+      dispatch(setPreferenceEnums(getData))
     }
   }, [data, isFetching]);
 

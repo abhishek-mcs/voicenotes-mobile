@@ -243,7 +243,7 @@ const Settings = () => {
           await logout.mutateAsync('').catch(() => { })
           dispatch(setTempIsIAPPurchased(false))
           dispatch(setSelectedScreen(1))
-          dispatch(setPreferenceEnums(preferenceData))
+          if(preferenceData) {dispatch(setPreferenceEnums(preferenceData))}
           router?.back();
         }
       }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
@@ -286,8 +286,6 @@ const Settings = () => {
   // in case the user tries to navigate back using the device back button
   // not for android
   useEffect(() => {
-    console.log(userDetails);
-    
     navigation.addListener('beforeRemove', (e) => {
       if (activeScreen && !isAnimating) {
         e.preventDefault();

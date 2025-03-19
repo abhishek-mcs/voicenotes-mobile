@@ -54,15 +54,20 @@ const Pricing = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        dispatch(setTempIsIAPPurchased(true))
         if(selectedPlan == 'yearly') {
           trialEndsNotification()
           analytics().logEvent("free_trial_activated").catch(e=>{console.log(e)})
           AppEventsLogger.logEvent('fb_free_trial_activated');
         }
-        if (isPermissionDenied && selectedPlan == 'yearly') {
-          dispatch(setSelectedScreen(19))
+        if(isNewUser) {
+          router.back()
         } else {
-          router.push("/home/")
+          if (isPermissionDenied && selectedPlan == 'yearly') {
+            dispatch(setSelectedScreen(19))
+          } else {
+            router.push("/home/")
+          }
         }
     }
 
@@ -80,7 +85,7 @@ const Pricing = () => {
         const productToBuy = selectedPlan == 'monthly' ? pack[1]?.product : pack[4]?.product;
         const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
         if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
-          console.log('Purchased successfully');
+          console.log('Purchased successfully', customerInfo.entitlements.active["Believer"]);
           dispatch(setTempIsIAPPurchased(true))
           try {
             analytics()
