@@ -70,7 +70,7 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { setEmailVerified } from "redux/reducers/onboardingData";
+import { setEmailVerified, setIsNewUser } from "redux/reducers/onboardingData";
 
 const { height } = Dimensions.get("screen");
 
@@ -140,6 +140,9 @@ const Home = () => {
   },[userDetails])
 
   useEffect(() => {
+    if(userDetails.is_new_user) {
+      dispatch(setIsNewUser(true))
+    }
     if(emailVerified && userDetails.is_email_verified) {
       Toast.show({
         type: "verified",
@@ -149,7 +152,7 @@ const Home = () => {
       });
       dispatch(setEmailVerified(false))
     }
-  },[emailVerified])
+  },[emailVerified, userDetails])
   
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){

@@ -32,7 +32,7 @@ const Reviews = () => {
             profileImage: <Image source={require('../../../assets/images/profile1.png')} style={styles.profileImage} />,
             name: "David Singleton",
             rating: 5,
-            review: "16 of those were me! I now have the iOS app wired to my action button and it’s been wonderful. The speed and quality of voice recognition is 🤩",
+            review: "I now have the iOS app wired to my action button and it’s been wonderful. The speed and quality of voice recognition is 🤩",
         },
         {
             id: 2,
@@ -213,7 +213,7 @@ const Reviews = () => {
         <View style={styles.footerContainer}>
             
             <View style={styles.mainTextContainer}>
-                <Text style={styles.mainText}>Loved by 150,000 note-takers</Text>
+                <Text style={styles.mainText}>Loved by 200,000 note-takers</Text>
             </View>
             <View style={styles.buttonContainer1}>
                 <LargeButton

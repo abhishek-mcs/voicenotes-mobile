@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator, InteractionManager, ScrollView } from "react-native"
+import { View,  Platform, Animated,Text, StyleSheet, TouchableHighlight, Linking, ActivityIndicator, InteractionManager, ScrollView, Pressable } from "react-native"
 import * as WebBrowser from "expo-web-browser"
 import { SplashScreen, useRouter } from "expo-router"
 import { SvgXml } from "react-native-svg"
@@ -19,6 +19,7 @@ import { analytics } from "../../../../firebaseConfig"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { useTheme } from "context"
 import { logEvent } from "func/analytics/logEvent"
+import { commonSvg } from "assets/svg/commonSvg"
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -125,6 +126,9 @@ const signInGoogle=(token:any,params:any)=>{
 
   return (
     <SafeAreaView style={{flex:1,backgroundColor:Colors.whiteWithOpacity(1)}}>
+       <Pressable onPress={() => router.back()} style={{ padding: 20 }}>
+          <SvgXml xml={commonSvg.back2} />
+        </Pressable>
     <View
       style={{paddingVertical:32,paddingHorizontal:24,backgroundColor:Colors.whiteWithOpacity(1),flex:1,justifyContent:'space-between'}}
     >

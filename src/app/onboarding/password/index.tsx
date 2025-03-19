@@ -160,8 +160,6 @@ const Password = () => {
                                         analytics().logEvent('onboarding_preferences_updated').catch(e=>{console.log(e)})
                                         AppEventsLogger.logEvent('fb_onboarding_preferences_updated');
                                         console.log(response.data,'preferences')
-                                        setLoading(false)
-                                        
                                     },
                                     onError: (error:any) => {
                                         setLoading(false)
@@ -172,7 +170,10 @@ const Password = () => {
                             )
                             // useSaveNotificationSettings()
                             // setTimeout(() => router.push("/onboarding/pricing/"), 2000);
-                            setTimeout(() => dispatch(setSelectedScreen(18)), 2000);
+                            setTimeout(() => {
+                                dispatch(setSelectedScreen(18))
+                                setLoading(false)
+                            }, 3000);
                         }
                     },
                     onError: (error:any) => {

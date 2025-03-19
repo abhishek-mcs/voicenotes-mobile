@@ -36,7 +36,6 @@ const Pricing = () => {
     const { isNewUser } = useSelector((state: RootState) => state.onboardingData);
     const pack=IAPOfferings?.availablePackages||[]
     const [isPermissionDenied, setIsPermissionDenied] = useState(false)
-    const notificationChannel = useRef<string | undefined>(undefined)
     const [error, setError] = useState('')
 
     const checkNotificationPermission = async () => {
@@ -47,6 +46,8 @@ const Pricing = () => {
     }
 
     useEffect(() => {
+      console.log(screenWidth);
+      
       checkNotificationPermission()
     },[])
 
@@ -185,19 +186,21 @@ const Pricing = () => {
           title: "Today",
           description: `Take as many notes as you want. \nAsk AI anything from your notes. \nSee for yourself what the buzz is about!`,
           icon: <SvgXml xml={onboardingSvg.lock?.replace('black', Colors.black2)} style={styles.icon} />,
+          height: 98,
         },
         {
           id: "2",
           title: "Day 5 - Your trial is ending",
           description: "We'll send you a reminder that your trial is ending soon.",
-          icon: <SvgXml xml={onboardingSvg.bell?.replace('black', Colors.black2)} style={styles.icon} /> 
+          icon: <SvgXml xml={onboardingSvg.bell?.replace('black', Colors.black2)} style={styles.icon} />,
+          height: 70,
         },
         {
           id: "3",
           title: "After day 7 - Billing starts",
           description: `You'll be charged on ${getFutureDate(7)} unless you cancel anytime before.`,
           icon: <SvgXml xml={onboardingSvg.crown?.replace('black', Colors.black2)} style={styles.icon} />,
-          isLast: true 
+          height: 40,
         },
     ];
 
@@ -211,7 +214,7 @@ const Pricing = () => {
             
       
             {/* Timeline Line */}
-            <View style={[styles.timelineLine, { height: item.isLast ? 40 : 67}]} />
+            <View style={[styles.timelineLine, { height: item.height}]} />
       
             {/* Text Content */}
             <View style={styles.textContainer}>
@@ -239,7 +242,7 @@ const Pricing = () => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-        {isNewUser ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+        {!isNewUser ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable> : ''}
         <View style={styles.mainTextContainer}>
@@ -323,6 +326,7 @@ const useStyles = () => {
         marginTop: isIOS ? 0 : screenHeight/20
     },
     mainTextContainer: {
+        marginTop: 12,
         justifyContent: 'center',
         alignItems: 'center',
     },

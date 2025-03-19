@@ -78,7 +78,7 @@ export const onboardingData = createSlice({
     setSelectedScreen: (state, action: PayloadAction<number>) => {
         state.selectedScreen = action.payload
     },
-    setReferrer: (state, action: PayloadAction<number>) => {
+    setReferrer: (state, action: PayloadAction<any>) => {
       state.referrer = action.payload
     },
     setLanguage: (state, action: PayloadAction<string>) => {
@@ -88,13 +88,13 @@ export const onboardingData = createSlice({
     //     state.token = action.payload
     //     AsyncStorage?.setItem('authToken',action.payload)
     // },
-    setAgeGroup: (state, action: PayloadAction<number>)=>{
+    setAgeGroup: (state, action: PayloadAction<any>)=>{
         state.age_group = action.payload
     },
-    setNoteTakingFrequency: (state, action: PayloadAction<number>)=>{
+    setNoteTakingFrequency: (state, action: PayloadAction<any>)=>{
         state.note_taking_frequency= action.payload;
     },
-    setRevisitFrequency: (state, action: PayloadAction<number>)=>{
+    setRevisitFrequency: (state, action: PayloadAction<any>)=>{
         state.revisit_frequency= action.payload;
     },
     setNoteTypes:(state, action: PayloadAction<number[]>)=>{
