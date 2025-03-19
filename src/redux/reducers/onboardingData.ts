@@ -12,7 +12,8 @@ export interface userData {
     note_types: number[],
     userEmail: string,
     name: string,
-    freeTrialStartDate: any,
+    isNewUser: boolean | null,
+    emailVerified: boolean | null,
 }
 
 const initialState: userData = {
@@ -26,7 +27,8 @@ const initialState: userData = {
     note_types: [],
     userEmail: '',
     name: '',
-    freeTrialStartDate: '',
+    isNewUser: null,
+    emailVerified: null,
 }
 
 export const onboardingData = createSlice({
@@ -67,13 +69,16 @@ export const onboardingData = createSlice({
     setName: (state, action: PayloadAction<string>) => {
         state.name = action.payload
     },
-    setFreeTrialStartDate: (state, action: PayloadAction<any>) => {
-      state.freeTrialStartDate = action.payload
-  },
+    setIsNewUser: (state, action: PayloadAction<boolean>) => {
+      state.isNewUser = action.payload
+    },
+    setEmailVerified: (state, action: PayloadAction<boolean>) => {
+      state.emailVerified = action.payload
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setPreferenceEnums, setSelectedScreen, setReferrer, setLanguage, setAgeGroup, setNoteTakingFrequency, setRevisitFrequency, setNoteTypes, setUserEmail, setName, setFreeTrialStartDate } = onboardingData.actions
+export const { setPreferenceEnums, setSelectedScreen, setReferrer, setLanguage, setAgeGroup, setNoteTakingFrequency, setRevisitFrequency, setNoteTypes, setUserEmail, setName, setIsNewUser, setEmailVerified } = onboardingData.actions
 
 export default onboardingData.reducer

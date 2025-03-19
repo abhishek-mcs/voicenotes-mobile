@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, TouchableHighlight, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { useTheme } from "context"
 import { useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'redux/store/store'
 import { SvgXml } from 'react-native-svg'
 import { settingsSvg } from 'assets/svg/settingsSvg'
@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router'
 import { screenHeight } from 'utils/common'
 import { useVerifyEmail } from 'queries/auth'
 import { useQueryClient } from 'react-query'
+import { setEmailVerified } from 'redux/reducers/onboardingData'
 
 type Props = {
     onClose: () => void,
@@ -21,6 +22,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
     const styles = useStyles()
     const {Colors}=useTheme()
     const router=useRouter()
+    const dispatch = useDispatch();
     const queryClient=useQueryClient()
     const verifyEmail = useVerifyEmail()
     const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
@@ -48,14 +50,15 @@ const VerifyEmail: React.FC<Props> = (props) => {
                 payload,
                 {
                     onSuccess: async (response: any, _variables: any, _context: any) => {
-                      console.log(response);
+                      console.log('Verify email ',response);
                       queryClient.invalidateQueries('user-data')
+                      dispatch(setEmailVerified(true))
                       if(!getOtp) {
                         router.back()
                       }
                     },
                     onError: (error: any) => {
-                        console.log(error)
+                        console.log('Verify email ',error)
                         setErrorText("The code you entered is wrong.")
                     }
                 }
@@ -64,9 +67,10 @@ const VerifyEmail: React.FC<Props> = (props) => {
     }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <TouchableHighlight onPress={props.onClose} style={{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40, backgroundColor: Colors.bottomBarButtonBg1, borderRadius: 16, alignItems: "center", justifyContent:'center', marginVertical: 20, marginLeft: 16 }}>
+            <View style={{flex: 1}}>
+            <TouchableHighlight onPress={props.onClose} underlayColor={Colors.grey10} style={{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40, backgroundColor: Colors.bottomBarButtonBg1, borderRadius: 16, alignItems: "center", justifyContent:'center', marginTop: 30, marginLeft: 16 }}>
                 <Text style={{ color: Colors.bottomBarText1, fontFamily: "Primary-Semibold", fontSize: 14 }}>Back</Text>
             </TouchableHighlight>
             <View style={styles.root}>
@@ -95,8 +99,9 @@ const VerifyEmail: React.FC<Props> = (props) => {
                     </TouchableHighlight>
                 </View>
             </View>
+            </View>
         </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </View>
   )
 }
 

@@ -125,7 +125,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
 };
 
 const useStyles = () => {
-  const { Colors } = useTheme();
+  const { Colors, isLightMode } = useTheme();
   return useMemo(() => StyleSheet.create({
   main:{
     marginTop:32,
@@ -144,7 +144,7 @@ const useStyles = () => {
     alignItems: 'center',
     justifyContent:'center',
     borderWidth: 1,
-    borderColor:Colors.lightRoseWithOpacity(1),
+    borderColor: isLightMode ? Colors.bottomBarButtonBg1 : Colors.lightRoseWithOpacity(1),
     width: 42,
     height: 50,
   },

@@ -70,6 +70,7 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setEmailVerified } from "redux/reducers/onboardingData";
 
 const { height } = Dimensions.get("screen");
 
@@ -83,6 +84,7 @@ const Home = () => {
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
+  const { emailVerified } = useSelector((state: RootState) => state.onboardingData);
   const { recordingList } = useSelector(
     (state: RootState) => state.recordingStates
   );
@@ -134,16 +136,16 @@ const Home = () => {
   },[isLightMode])
 
   useEffect(() => {
-    if(userDetails.is_email_verified) {
+    if(emailVerified) {
       Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Your email has been verified!",
+        type: "verified",
+        text1: "Your email has been verified!",
         position: "top",
         visibilityTime: 3000,
       });
+      dispatch(setEmailVerified(false))
     }
-  },[userDetails.is_email_verified])
+  },[emailVerified])
   
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){

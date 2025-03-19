@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, FlatList, Platform, Pressable } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, FlatList, Pressable } from 'react-native'
 import Touchable from "components/common/Touchable";
 import notifee, { AndroidImportance, AuthorizationStatus } from '@notifee/react-native'
 import LargeButton from 'components/LargeButton'
@@ -18,9 +18,9 @@ import { useQueryClient } from 'react-query'
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates'
 import { AppEventsLogger } from 'react-native-fbsdk-next'
 import { analytics } from '../../../../firebaseConfig'
-import { setFreeTrialStartDate, setSelectedScreen } from 'redux/reducers/onboardingData'
+import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { settingsSvg } from 'assets/svg/settingsSvg'
-import { screenHeight } from 'utils/common';
+import { isIOS, screenHeight } from 'utils/common';
 
 const Pricing = () => {
     const styles = useStyles()
@@ -33,6 +33,7 @@ const Pricing = () => {
     const [selectedPlan, setSelectedPlan] = useState("yearly");
     const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
     const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
+    const { isNewUser } = useSelector((state: RootState) => state.onboardingData);
     const pack=IAPOfferings?.availablePackages||[]
     const [isPermissionDenied, setIsPermissionDenied] = useState(false)
     const notificationChannel = useRef<string | undefined>(undefined)
@@ -54,12 +55,11 @@ const Pricing = () => {
           () => {}
         );
         if(selectedPlan == 'yearly') {
-          dispatch(setFreeTrialStartDate(new Date()))
           trialEndsNotification()
           analytics().logEvent("free_trial_activated").catch(e=>{console.log(e)})
           AppEventsLogger.logEvent('fb_free_trial_activated');
         }
-        if (isPermissionDenied) {
+        if (isPermissionDenied && selectedPlan == 'yearly') {
           dispatch(setSelectedScreen(19))
         } else {
           router.push("/home/")
@@ -69,6 +69,7 @@ const Pricing = () => {
     const onStart = async () => {
       try {
         setLoading(true)
+        console.log(userDetails.email);
         await Purchases.setAttributes({'email': userDetails?.email})
         if (!pack || pack.length === 0) {
           console.error('No products available');
@@ -230,9 +231,9 @@ const Pricing = () => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <Touchable onPress={() => router.back()} style={{ padding: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+        {isNewUser ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
-        </Touchable>
+        </Touchable> : ''}
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>How your free </Text>
             <Text style={styles.mainText}>7-day trial works</Text>
@@ -311,7 +312,7 @@ const useStyles = () => {
     mainContainer: {
         flex: 1,
         backgroundColor: Colors.whiteWithOpacity(1),
-        marginTop: Platform.OS === 'ios' ? 0 : screenHeight/25
+        marginTop: isIOS ? 0 : screenHeight/20
     },
     mainTextContainer: {
         justifyContent: 'center',
@@ -330,7 +331,7 @@ const useStyles = () => {
     },
     timelineContainer: {
         paddingHorizontal: 16,
-        paddingTop: 27,
+        paddingTop: isIOS ? 27 : screenHeight/20,
         paddingBottom: 10,
     },
     itemContainer: {
