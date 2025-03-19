@@ -148,7 +148,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/9,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2

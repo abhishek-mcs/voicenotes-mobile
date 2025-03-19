@@ -20,7 +20,7 @@ import { AppEventsLogger } from 'react-native-fbsdk-next'
 import { analytics } from '../../../../firebaseConfig'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { settingsSvg } from 'assets/svg/settingsSvg'
-import { isIOS, screenHeight } from 'utils/common';
+import { isIOS, screenHeight, screenWidth } from 'utils/common';
 
 const Pricing = () => {
     const styles = useStyles()
@@ -325,7 +325,7 @@ const useStyles = () => {
     },
     mainText: {
         fontFamily: 'Secondary',
-        fontSize: 48,
+        fontSize: screenWidth/8,
         lineHeight: 56,
         textAlign: 'center',
         color: Colors.black2
@@ -336,7 +336,7 @@ const useStyles = () => {
     },
     timelineContainer: {
         paddingHorizontal: 16,
-        paddingTop: isIOS ? 27 : screenHeight/20,
+        paddingTop: isIOS ? 25 : screenWidth/20,
         paddingBottom: 10,
     },
     itemContainer: {
@@ -374,12 +374,12 @@ const useStyles = () => {
     },
     title: {
         fontFamily: 'Primary-Semibold',
-        fontSize: 16,
+        fontSize: screenWidth/25,
         lineHeight: 20,
         color: Colors.black2,
     },
     description: {
-        fontSize: 16,
+        fontSize: screenWidth/25,
         lineHeight: 24,
         fontFamily: 'Primary',
         color: Colors.text10,
@@ -389,8 +389,9 @@ const useStyles = () => {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        // marginTop: 10,
-        padding: 22,
+        marginTop: 5,
+        paddingHorizontal: 22,
+        paddingBottom: 22,
         gap: 18
     },
     planContainer: {
