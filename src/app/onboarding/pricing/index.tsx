@@ -74,7 +74,7 @@ const Pricing = () => {
     const onStart = async () => {
       try {
         setLoading(true)
-        console.log(userDetails.email);
+        console.log('onStart', userDetails.email);
         await Purchases.setAttributes({'email': userDetails?.email})
         if (!pack || pack.length === 0) {
           console.error('No products available');
@@ -141,40 +141,43 @@ const Pricing = () => {
     }
 
     const trialEndsNotification = async () => {
-      createNotificationChannel().then(channel => {
-        notificationChannel.current = channel;
-      })
       try {
+        const channelId = await createNotificationChannel();
+        console.log('Channel created: ', channelId);
+        
         let time = new Date()
         time.setDate(time.getDate() + 5);
         const trigger: TimestampTrigger = {
-            type: TriggerType.TIMESTAMP,
-            timestamp: time.getTime(),
-            repeatFrequency: RepeatFrequency.NONE,
-            alarmManager: {
-                allowWhileIdle: true,
-            }
+          type: TriggerType.TIMESTAMP,
+          timestamp: time.getTime(), 
+          repeatFrequency: RepeatFrequency.NONE,
+          alarmManager: {
+            allowWhileIdle: true,
+          },
         };
-
+    
+        // Create the trigger notification
         const id = await notifee.createTriggerNotification(
-            {
-                id: `free-trial-ends-${time.getTime()}-notification`,
-                title: 'Voicenotes',
-                body: "Your free trial ends soon.",
-                android: {
-                    channelId: notificationChannel.current,
-                    style: {
-                        type: AndroidStyle.BIGTEXT,
-                        text: "Your free trial ends soon."
-                    },
-                },
+          {
+            id: `free-trial-ends-${Date.now()}-notification`,
+            title: 'Voicenotes',
+            body: 'Your free trial ends soon.',
+            android: {
+              channelId,
+              style: {
+                type: AndroidStyle.BIGTEXT,
+                text: 'Your free trial ends soon.',
+              },
             },
-            trigger
-        )
-      } catch(error) {
-          console.error('Free trial ends notification failed ',error)
-      } 
-    }
+          },
+          trigger
+        );
+    
+        console.log('Notification scheduled with id: ', id);
+      } catch (error) {
+        console.error('Failed to schedule free trial notification:', error);
+      }
+    };
 
     const timelineData = [
         {
