@@ -1116,15 +1116,14 @@ const useStyles = () => {
       fontWeight: '500',
     },
     streakContainer: {
-      marginTop: 8,
-      paddingVertical: 8,
+      paddingVertical: 4,
       flexDirection: 'row',
       alignItems: 'flex-start', // Changed from 'center' to 'flex-start'
       paddingHorizontal: 5,
       gap: 5
     },
     streakIconContainer: {
-      paddingTop: 2, // Add a small padding to align with the first line of text
+      paddingBottom: 0, // Add a small padding to align with the first line of text
     },
     streakText: {
       fontSize: 13,
