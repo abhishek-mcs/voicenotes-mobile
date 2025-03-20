@@ -11,6 +11,38 @@ export interface Attachment {
   is_uploading: boolean;
 }
 
+type Tag = {
+  id: number,
+  user_id: number,
+  name: string,
+  keywords: string[] | null,
+  is_pinned: number,
+  display_order?: null | number,
+  emoji: string | null,
+  created_at: string,
+  updated_at: string | null,
+  workspace_id: string | null,
+  pivot?: {
+      recording_id: number,
+      tag_id: number
+  }
+}
+
+export type VoiceNote = {
+  id: string,
+  recording_id: string,
+  created_at: string,
+  recorded_at: string | null,
+  updated_at: string | null,
+  deleted_at: string | null,
+  title: string | null,
+  transcript: string | null,
+  duration: number | null,
+  attachments: Attachment[],
+  tags: Tag[],
+  latest_attachment_updated_at: string | null
+}
+
 type BaseNote = {
   id: any;
   audio: any;
