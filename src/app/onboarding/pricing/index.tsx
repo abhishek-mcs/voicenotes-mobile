@@ -46,6 +46,8 @@ const Pricing = () => {
     }
 
     useEffect(() => {
+      console.log('New user in pricing', isNewUser);
+      
       checkNotificationPermission()
     },[])
 
@@ -311,7 +313,7 @@ const Pricing = () => {
                     color={Colors.text4}
                 />
                  {error && error.length > 0 && (
-                    <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8}}>{error}</Text>
+                    <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:10,marginTop:8}}>{error}</Text>
                   )}
             </View>
         </View>

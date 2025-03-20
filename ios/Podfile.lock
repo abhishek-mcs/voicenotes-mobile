@@ -1419,6 +1419,8 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNLocalize (3.4.1):
+    - React-Core
   - RNNotifee (9.1.8):
     - React-Core
     - RNNotifee/NotifeeCore (= 9.1.8)
@@ -1576,6 +1578,7 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBDatabase (from `../node_modules/@react-native-firebase/database`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPurchases (from `../node_modules/react-native-purchases`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
@@ -1831,6 +1834,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/database"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
   RNPurchases:
@@ -1984,6 +1989,7 @@ SPEC CHECKSUMS:
   RNFBApp: c1337749fc4a372b515ba0eb82058efbd064e10b
   RNFBDatabase: 64101478d3da4b5771e7daeb9df20cb5559e5e1e
   RNGestureHandler: 12833709769dde5fdb36ec9d4cdf4d3a1a024122
+  RNLocalize: 06991b9c31e7a898a9fa6ddb204ce0f53a967248
   RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
   RNPurchases: 1d676de19b7bcb2fd39b187b76bc82b807c359fa
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
@@ -2004,4 +2010,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 9ec409c464f779f9633012b410a9583cabb1e64d
 
-COCOAPODS: 1.14.2
+COCOAPODS: 1.16.2

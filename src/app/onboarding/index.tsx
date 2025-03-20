@@ -37,7 +37,6 @@ const Onboarding = () => {
   const [frequency, setFrequency] = useState([])
   const [revisit, setRevisit] = useState([])
   const [noteTypes, setNoteTypes] = useState([])
-  
 
   useEffect(() => {
     if (data == undefined && !isFetching) {

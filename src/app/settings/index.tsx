@@ -27,7 +27,7 @@ import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";
 import { useDialog } from "context/DialogContext";
 import Header from "components/settings/header";
-import { setAgeGroup, setIsNewUser, setLanguage, setName, setNoteTakingFrequency, setNoteTypes, setPreferenceEnums, setReferrer, setRevisitFrequency, setSelectedScreen, setUserEmail } from "redux/reducers/onboardingData";
+import { setAgeGroup, setLanguage, setName, setNoteTakingFrequency, setNoteTypes, setPreferenceEnums, setReferrer, setRevisitFrequency, setSelectedScreen, setUserEmail } from "redux/reducers/onboardingData";
 import VerifyEmail from "components/settings/verifyEmail";
 
 /*
@@ -203,7 +203,6 @@ const Settings = () => {
           await logout.mutateAsync('').catch(() => { })
           dispatch(setTempIsIAPPurchased(false))
           dispatch(setSelectedScreen(1))
-          dispatch(setIsNewUser(false))
           if(preferenceData) {dispatch(setPreferenceEnums(preferenceData))}
           dispatch(setReferrer(null))
           dispatch(setLanguage(''))
