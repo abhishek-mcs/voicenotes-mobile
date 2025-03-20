@@ -65,7 +65,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useNoteContext, useTheme } from "context";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
-import { incrementCounter, shouldPromptNow, updateRecordings } from "utils/cache";
+import { getRecordings, incrementCounter, shouldPromptNow, updateRecordings } from "utils/cache";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
@@ -75,7 +75,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
 import RecButton from "components/common/recording/rec-button";
-import { useAllRecordings } from "queries/common";
+import { getAllRecordings, useAllRecordings } from "queries/common";
 
 const { height } = Dimensions.get("screen");
 
@@ -147,14 +147,25 @@ const Home = () => {
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord((val)));
 
-  const recordings = useAllRecordings();
+  const [allRecordings, setAllRecordings] = useState<VoiceNote[]>([]);
+  const recordings = useAllRecordings(token);
 
   useEffect(() => {
     if (recordings.data && recordings.data.length > 0) {
       const serverRecords: VoiceNote[] = recordings.data;
+      setAllRecordings(serverRecords);
       updateRecordings(serverRecords);
     }
   }, [recordings])
+
+  useEffect(() => {
+    async function setRecordingsFromCache() {
+      const cachedRecordings = await getRecordings();
+      if(allRecordings.length === 0 && cachedRecordings.length > 0) setAllRecordings(cachedRecordings);
+    }
+
+    setRecordingsFromCache();
+  }, [])
 
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
@@ -989,7 +1000,7 @@ const Home = () => {
             </Pressable>}
           </Pressable>
           {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
-            {recordings.data && recordings.data.length > 0 ? <ExpandableCalendar onClose={() => showCalendar(false)} streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
+            {allRecordings.length > 0 ? <ExpandableCalendar onClose={() => showCalendar(false)} rawData={allRecordings} /> : <View style={styles.calendarContainer}>
               <View style={styles.calendarVisualWrapper}>
                 <Text style={styles.indicator} >Loading</Text>
               </View>

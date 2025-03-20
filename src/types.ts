@@ -11,16 +11,28 @@ export interface Attachment {
   is_uploading: boolean;
 }
 
+// this is the attachment object returned by the API
+interface AttachmentAPI {
+  description: string | null;
+  id: number;
+  type: ATTACHMENT_TYPE;
+  url: string | null;
+  recording_id?: string;
+  public_url?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
 type Tag = {
   id: number,
   user_id: number,
   name: string,
-  keywords: string[] | null,
-  is_pinned: number,
+  keywords: string[],
+  is_pinned: 0 | 1,
   display_order?: null | number,
   emoji: string | null,
   created_at: string,
-  updated_at: string | null,
+  updated_at: string,
   workspace_id: string | null,
   pivot?: {
       recording_id: number,
@@ -32,13 +44,13 @@ export type VoiceNote = {
   id: string,
   recording_id: string,
   created_at: string,
-  recorded_at: string | null,
-  updated_at: string | null,
+  recorded_at?: string | null,
+  updated_at: string,
   deleted_at: string | null,
   title: string | null,
   transcript: string | null,
-  duration: number | null,
-  attachments: Attachment[],
+  duration: number,
+  attachments: AttachmentAPI[],
   tags: Tag[],
   latest_attachment_updated_at: string | null
 }
