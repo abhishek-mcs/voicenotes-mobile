@@ -78,12 +78,14 @@ type Data = {
 interface ExpandableCalendarProps {
   initialDate?: Date;
   rawData: VoiceNote[];
+  streaks: Data;
   onClose: () => void;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
   rawData,
+  streaks,
   onClose
 }) => {
 
@@ -934,7 +936,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const renderStreakFooter = (): JSX.Element => {
-    if (!data || !data.current_streak) {
+    if (!streaks || !streaks.current_streak) {
       return <View style={styles.streakContainer} />;
     }
     
@@ -944,7 +946,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
         </View>
         <Text style={styles.streakText}>
-          {`You are on a ${data.current_streak}-day streak and rank ${data.rank} globally.`}
+          {`You are on a ${streaks.current_streak}-day streak and rank ${streaks.rank} globally.`}
         </Text>
       </View>
     );
@@ -964,7 +966,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           {renderCalendarDays()}
         </Animated.View>
         <View style={styles.footerSection}>
-          {!loading && data && renderStreakFooter()}
+          {!loading && streaks && renderStreakFooter()}
         </View>
       </View>
     </View>
