@@ -71,15 +71,15 @@ export function useFirebaseRecordingListener() {
     images?.length>0&&images?.map(async(img,i)=>await uploadImage(img?.url,noteId,i==images?.length-1))
   }
 
-  useEffect(() => {
-    return () => {
-        // Cleanup all listeners when component unmounts
-        console.log('Cleanup all firebase db listeners')
-        const firebasePath = "processStatuses/recording";
-        const baseRef = database().ref(firebasePath);
-        baseRef.off('value');
-    };
-}, []);
+//   useEffect(() => {
+//     return () => {
+//         // Cleanup all listeners when component unmounts
+//         console.log('Cleanup all firebase db listeners')
+//         const firebasePath = "processStatuses/recording";
+//         const baseRef = database().ref(firebasePath);
+//         baseRef.off('value');
+//     };
+// }, []);
 
 const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecordingId,teamSummaryId,isTitleGenerated,isTitleTriggered,isTranscriptTriggered,isProcessCompleted,is_transcript_only,dbListener}:any)=>{
   // Validate the status value
@@ -206,6 +206,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       setTriggerTypingTitle(recordingId);
       isTitleTriggered = true;
       dispatch(setRelatedNoteTitleLoad(false));
+      queryClient.invalidateQueries("single-recording");
     }
     isTitleGenerated = (updatedNote?.data?.title != null || is_transcript_only);
     dispatch(updateTempRecordingData(updatedStatus));
@@ -239,33 +240,36 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
       const firebasePath = "processStatuses/recording";
       let isListenerTriggered = false;
       let retry = 0;
+      await sleep(1000)
       const dbRef = database().ref(firebasePath).child(`${recordingId}`);
 
       console.log("firebase listen", firebasePath +'/' +recordingId);
-        // First check if the path exists
-      const onceSnap = await dbRef.once('value');
-      if (!onceSnap.exists()) {
-          console.log("Path doesn't exist yet, waiting...");
-          // Set up a listener for child added
-          const pathExistsListener = database()
-              .ref(firebasePath)
-              .on('child_added', (snapshot) => {
-                  if (snapshot.key === recordingId.toString()) {
-                      // Path now exists, set up the value listener
-                      console.log("Path now exists, set up the value listener");
-                      setupValueListener();
-                      // Remove the child_added listener
-                      database().ref(firebasePath).off('child_added', pathExistsListener);
-                  }
-                  setTimeout(() => {
-                    database().ref(firebasePath).off('child_added', pathExistsListener);
-                  }, 5000);
-              });
-      } else {
-        // Path exists, set up the value listener directly
-          console.log('Path exists, set up the value listener directly',onceSnap.val())
-          setupValueListener();
-      }
+      //   // First check if the path exists
+      // const onceSnap = await dbRef.once('value');
+      // if (!onceSnap.exists()) {
+      //     console.log("Path doesn't exists, set up the value listener directly")
+      //     await sleep(4000)
+      //     const updatedNote = await fetchSingleRecording(recordingId);
+      //     if(!!updatedNote?.data?.title&&!!updatedNote?.data?.transcript){
+      //       relatedNotes.mutate(recordingId);
+      //       dispatch(
+      //         updateRecordingDetails({
+      //           recordingId,
+      //           data: {
+      //             ...updatedNote.data,
+      //             status: 'processed',
+      //             is_transcript_loading: false,
+      //           },
+      //         })
+      //       );
+      //       queryClient.invalidateQueries("single-recording");
+      //       setExpandNote(0);
+      //     }
+      // } else {
+      //   // Path exists, set up the value listener directly
+      //     console.log('Path exists, set up the value listener directly',onceSnap.val())
+      //     setupValueListener();
+      // }
 
     // Initialize flags to track the state of title and transcript generation
       let isTitleGenerated = false || is_transcript_only;
@@ -302,7 +306,7 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
         }
       );
       await sleep(4000);
-      if(!isListenerTriggered&&!isNaN(onceSnap.val())&&retry<5){
+      if(!isListenerTriggered&&retry<4){
         retry++;
         const dbRef2 = database().ref(firebasePath).child(`${recordingId}`);
         const onceSnap2 = await dbRef2.once('value');
@@ -314,8 +318,27 @@ const updateNoteBasedOnStatus = async ({status,dbRef,recordingId,temporaryRecord
           console.log('triggering once again as a fallback')
           setupValueListener();
         }
+      }else if(!isListenerTriggered&&retry==5){
+        retry++;
+        const updatedNote = await fetchSingleRecording(recordingId);
+        if(!!updatedNote?.data?.title&&!!updatedNote?.data?.transcript){
+          relatedNotes.mutate(recordingId);
+          dispatch(
+            updateRecordingDetails({
+              recordingId,
+              data: {
+                ...updatedNote.data,
+                status: 'processed',
+                is_transcript_loading: false,
+              },
+            })
+          );
+          queryClient.invalidateQueries("single-recording");
+          setExpandNote(0);
+        }
       }
     }
+    setupValueListener()
     } catch (e) {
       console.log("Error processing snapshot:", e);
       // Update UI to show error state if needed

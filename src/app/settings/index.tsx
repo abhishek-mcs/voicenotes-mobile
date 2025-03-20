@@ -143,46 +143,6 @@ const useAnimatedScreens = () => {
   return { showScreen, hideScreen, getAnimation, activeScreen, panResponder, isAnimating };
 };
 
-const Help = ({ onClose }: { onClose: () => void }) => {
-  const { isLightMode } = useTheme()
-  const { showDialog } = useDialog()
-  const onDelete = () => {
-    showDialog('', "Are you sure you wish to delete your account?",
-      [{
-        text: "Cancel",
-        style: "cancel"
-      }, {
-        text: "Yes",
-        onPress: async () => Wb.openBrowserAsync('https://tally.so/r/3xpBey', { toolbarColor: isLightMode ? '#fff' : '#000' })
-      }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
-  }
-
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Header
-        label="Help"
-        cancelLabel="Back" 
-        onCancel={onClose} 
-      >
-        <View style={{ flex: 1, width: '95%' }}>
-        <Grouped
-            title=""
-            items={[
-              { title: 'FAQ', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en/articles/9271900-frequently-asked-questions', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Contact support', value: '', onPress: () => Linking.openURL('mailto:team@voicenotes.com'), rightIcon: settingsSvg.arrow },
-              { title: 'Share feedback', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Report an issue', value: '', onPress: () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/nbHS0GZO', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Reddit', value: '', onPress: () => Wb.openBrowserAsync('https://www.reddit.com/r/Voicenotesai/', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Twitter', value: '', onPress: () => Wb.openBrowserAsync('https://x.com/voicenotesai', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
-              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow }
-            ]}
-          />
-        </View>
-      </Header>
-    </View>
-  );
-}
-
 const Settings = () => {
   const router = useRouter();
   const styles = useStyles()
@@ -258,6 +218,18 @@ const Settings = () => {
       }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
   }
 
+  const onDelete = () => {
+    showDialog('', "Are you sure you wish to delete your account?",
+      [{
+        text: "Cancel",
+        style: "cancel"
+      }, {
+        text: "Yes",
+        onPress: async () => Wb.openBrowserAsync('https://tally.so/r/3xpBey', { toolbarColor: isLightMode ? '#fff' : '#000' })
+      }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
+  }
+
+  const feedback = () => Wb.openBrowserAsync('https://kyls3j7z4tt.typeform.com/to/Fn4bRdxT?typeform-source=voicenotes.com', { toolbarColor: isLightMode ? '#fff' : '#000' })
   const onSelectLang = (code = 'en') => {
     dispatch(setLang(languages[code]))
     saveSettings.mutate({
@@ -358,7 +330,9 @@ const Settings = () => {
           <Grouped
             title="MORE"
             items={[
-              { title: 'Help', onPress: () => showScreen('help'), value: '', rightIcon: settingsSvg.arrow },
+              { title: 'Get support', value: '', onPress: () => Wb.openBrowserAsync('https://help.voicenotes.com/en', { toolbarColor: isLightMode ? '#fff' : '#000' }), rightIcon: settingsSvg.arrow },
+              { title: 'Delete account', value: '', onPress: onDelete, rightIcon: settingsSvg.arrow },
+              { title: 'Share feedback', value: '', onPress: feedback, rightIcon: settingsSvg.arrow },
               { title: 'Sign out', value: '', onPress: onLogout, style: { color: Colors.redWithOpacity(1) }, leftIcon: settingsSvg.signOut },
             ]}
           />
@@ -380,7 +354,6 @@ const Settings = () => {
       {renderScreen('email', Email)}
       {renderScreen('names', Names)}
       {renderScreen('password', Password)}
-      {renderScreen('help', Help)}
     </SafeAreaView>
   );
 }
@@ -393,7 +366,7 @@ const Grouped = ({ title, items }: { title: string, items: any }) => {
   const styles = useStyles()
   return (
     <View style={{ marginBottom: 20 }}>
-      {title && <Text style={{ fontFamily: 'Primary-Medium', fontSize: 12, color: Colors.grey, marginLeft: 32, marginBottom: 8 }}>{title}</Text>}
+      <Text style={{ fontFamily: 'Primary-Medium', fontSize: 12, color: Colors.grey, marginLeft: 32, marginBottom: 8 }}>{title}</Text>
       <View style={{ marginHorizontal: 16, borderRadius: 12, backgroundColor: Colors.bgColor2, overflow: 'hidden' }}>
         {items?.map((item: any, index: number) =>
           <View key={index}>

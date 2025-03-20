@@ -39,8 +39,11 @@ export default {
   lightRoseWithOpacity: (opacity:number) => `rgba(120, 110, 110, ${opacity})`, // More muted for dark mode
   yellowWithOpacity: (opacity:number) => `rgba(214, 162, 67, ${opacity})`, // Accent yellow unchanged
   grey: '#c5c5c5', // Slightly lighter grey for dark mode
+  grey2: "#1A1A1A", // Darker grey for dark mode
   green: '#6fb573', // Darker green for dark mode
   green2: '#4e7f56', // Darker shade of secondary green
+  green3: "rgba(48, 209, 88, 0.05)",
+  green4: "rgba(48, 209, 88, 1)",
   lightGrey: '#303030', // Darker background grey
   grey3: '#828282', // Slightly adjusted grey for text
   grey4: '#444444', // Darker grey for secondary elements
@@ -80,6 +83,8 @@ export default {
   bgColor16:tertiary,
   bgColor17:'#1d1d1d',
   bgColor18: (opacity:number) => tertiary,
+  bgColor19: '#333333',
+  bgColor20: "#333333",
   dragBar:'rgba(60, 60, 67, 0.3)',
   streak1:'#343434',
   streak2:'#171717',
@@ -128,4 +133,5 @@ export default {
   status:'',
   loader:(o:number)=>'#fff',
   snack:tertiary,
+  selection: 'rgba(255, 255, 255, 0.15)',
 };

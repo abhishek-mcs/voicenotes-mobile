@@ -33,6 +33,34 @@
       "android": {
         "resourceClass": "large"
       }
+    },
+    "athul": {
+      "autoIncrement": true,
+      "channel": "athul",
+      "android": {
+        "resourceClass": "large"
+      }
+    },
+    "vishal": {
+      "autoIncrement": true,
+      "channel": "vishal",
+      "android": {
+        "resourceClass": "large"
+      }
+    },
+    "ijas": {
+      "autoIncrement": true,
+      "channel": "ijas",
+      "android": {
+        "resourceClass": "large"
+      }
+    },
+    "merina": {
+      "autoIncrement": true,
+      "channel": "merina",
+      "android": {
+        "resourceClass": "large"
+      }
     }
   },
   "submit": {
@@ -44,6 +72,34 @@
       }
     },
     "staging": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview": false
+      }
+    },
+    "athul": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview": false
+      }
+    },
+    "vishal": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview": false
+      }
+    },
+    "ijas": {
+      "android": {
+        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
+        "track": "internal",
+        "changesNotSentForReview": false
+      }
+    },
+    "merina": {
       "android": {
         "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
         "track": "internal",

@@ -6,7 +6,7 @@ import { useGetRelatedRecording } from "./relatedNote";
 import { Platform } from "react-native";
 import * as Device from 'expo-device';
 import { currentVersion } from "services/api/api-constants";
-
+import { getTimeZone } from "react-native-localize";
 
 export function useRecordings(tags?:string){
     const logout =useLogout()
@@ -449,4 +449,45 @@ export function useStreak(token:any){
             console.log(error?.response?.data?.message);
         }
     })
+}
+
+export function useHighlights(token: string, month: string) {
+    return useQuery(['highlights', month], (p?: any) => {
+        if (!!token)
+            return axiosApi.post(`/calendar/highlights`, { month })
+    },
+    {
+        onError: (error: any) => {
+            console.log(error?.response?.data?.message);
+        },
+        // Only run the query when we have a month value
+        enabled: !!month
+    })
+}
+const formatDateForApi = (date: Date | null): string => {
+    if (!date) return '';
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
+export function useDayNotes(selectedDate: Date | null, { onSuccess }: { onSuccess?: (data: any) => void} = {}) {
+    return useQuery(
+        ['dateNotes', selectedDate ? formatDateForApi(selectedDate) : null],
+        async () => {
+            if (!selectedDate) return { data: [] };
+            const dateStr = formatDateForApi(selectedDate);
+            const timezone = getTimeZone();
+            const response = await axiosApi.post('/calendar/day', { date: dateStr, timezone });
+            return response.data;
+        },
+        {
+            enabled: !!selectedDate,
+            staleTime: 5 * 60 * 1000,
+            refetchOnWindowFocus: false,
+            select: (data) => {
+                if (!data) return { data: [] };
+                return data;
+            },
+            onSuccess
+        }
+    );
 }

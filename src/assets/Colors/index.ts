@@ -35,6 +35,7 @@ export default {
   lightRoseWithOpacity:(opacity:number) => `rgba(243, 233, 233, ${opacity})`,
   yellowWithOpacity:(opacity:number) => `rgba(214, 162, 67, ${opacity})`,
   grey:'#9b9b9b',
+  grey2: '#1A1A1A',
   green:'#58a942',
   green2:'#499035',
   lightGrey:'#f9f9f9',
