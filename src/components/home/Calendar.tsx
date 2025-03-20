@@ -12,9 +12,11 @@ import {
   PanResponder,
   PanResponderGestureState,
   Animated,
+  Pressable,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setRelatedNoteId } from 'redux/reducers/relatedNoteStates';
 import { RootState } from 'redux/store/store';
 import { isIOS } from 'utils/common';
 
@@ -79,14 +81,17 @@ type Data = {
 interface ExpandableCalendarProps {
   initialDate?: Date;
   streaksData: Data;
+  onClose: () => void;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
-  streaksData
+  streaksData,
+  onClose
 }) => {
 
   const { token }:any = useSelector((state: RootState) => state.userDetails);
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
@@ -497,6 +502,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     }
   };
 
+  const handleNoteSelect = (noteId: string | undefined): void => {
+    onClose();
+    dispatch(setRelatedNoteId(null));
+    setTimeout(() => dispatch(setRelatedNoteId(noteId)), 200)
+  }
+
   const calculateExpandedHeight = (itemCount: number, hasNotes: boolean = true): number => {
     // Base height for the container padding, header, and footer
     const baseContainerHeight = 80;
@@ -765,14 +776,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                           {additionalInfo.items
                             .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
                             .map((item, index) => (
-                              <View key={index} style={styles.eventItem}>
+                              <Pressable onPress={() => handleNoteSelect(item.id)} key={index} style={styles.eventItem}>
                                 <Text style={styles.eventTime}>{item.time}</Text>
                                 <Text 
                                   style={styles.eventTitle}
                                   numberOfLines={1}
                                   ellipsizeMode="tail"
                                 >{item.title}</Text>
-                              </View>
+                              </Pressable>
                             ))
                           }
                         </View>
