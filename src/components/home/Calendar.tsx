@@ -867,7 +867,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                         <View style={styles.notesContainer}>
                           {additionalInfo.items
                             .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
-                            .reverse()
                             .map((item, index) => (
                               <Pressable onPress={() => handleNoteSelect(item.id)} key={index} style={styles.eventItem}>
                                 <Text style={styles.eventTime}>{item.time}</Text>
