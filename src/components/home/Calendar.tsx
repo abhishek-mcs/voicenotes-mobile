@@ -78,12 +78,14 @@ type Data = {
 interface ExpandableCalendarProps {
   initialDate?: Date;
   rawData: VoiceNote[];
+  streaks: Data;
   onClose: () => void;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
   rawData,
+  streaks,
   onClose
 }) => {
 
@@ -135,8 +137,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const getNotesForSelectedDate = (date: Date | null): VoiceNote[] => {
     if (!date || !rawData) return [];
     
-    // Format the date to YYYY-MM-DD for comparison
-    const dateStr = date.toISOString().split('T')[0];
+    // Create a date string in local timezone to avoid UTC conversion issues
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // getMonth() is 0-indexed
+    const day = date.getDate();
+    const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     
     return rawData.filter(note => {
       // Skip deleted notes
@@ -144,7 +149,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       
       // Use recorded_at if available, otherwise use created_at
       const noteDate = new Date(note.recorded_at || note.created_at);
-      const noteDateStr = noteDate.toISOString().split('T')[0];
+      
+      // Create a date string in the same format, in local timezone
+      const noteYear = noteDate.getFullYear();
+      const noteMonth = noteDate.getMonth() + 1;
+      const noteDay = noteDate.getDate();
+      const noteDateStr = `${noteYear}-${noteMonth.toString().padStart(2, '0')}-${noteDay.toString().padStart(2, '0')}`;
       
       return noteDateStr === dateStr;
     });
@@ -857,6 +867,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                         <View style={styles.notesContainer}>
                           {additionalInfo.items
                             .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
+                            .reverse()
                             .map((item, index) => (
                               <Pressable onPress={() => handleNoteSelect(item.id)} key={index} style={styles.eventItem}>
                                 <Text style={styles.eventTime}>{item.time}</Text>
@@ -934,7 +945,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const renderStreakFooter = (): JSX.Element => {
-    if (!data || !data.current_streak) {
+    if (!streaks || !streaks.current_streak) {
       return <View style={styles.streakContainer} />;
     }
     
@@ -944,7 +955,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
         </View>
         <Text style={styles.streakText}>
-          {`You are on a ${data.current_streak}-day streak and rank ${data.rank} globally.`}
+          {`You are on a ${streaks.current_streak}-day streak and rank ${streaks.rank} globally.`}
         </Text>
       </View>
     );
@@ -964,7 +975,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           {renderCalendarDays()}
         </Animated.View>
         <View style={styles.footerSection}>
-          {!loading && data && renderStreakFooter()}
+          {!loading && streaks && renderStreakFooter()}
         </View>
       </View>
     </View>
