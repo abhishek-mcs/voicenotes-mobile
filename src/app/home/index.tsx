@@ -75,7 +75,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
 import RecButton from "components/common/recording/rec-button";
-import { getAllRecordings, useAllRecordings } from "queries/common";
+import { useAllRecordings } from "queries/common";
 
 const { height } = Dimensions.get("screen");
 
@@ -148,11 +148,23 @@ const Home = () => {
     dispatch(setCanRecord((val)));
 
   const [allRecordings, setAllRecordings] = useState<VoiceNote[]>([]);
-  const recordings = useAllRecordings(token);
+  const { data: recordings, refetch: refetchAllRecordings } = useAllRecordings(token);
+
+  async function refreshRecordings() {
+    if (allRecordings.length === 0 || recordingList.length === 0) return;
+    
+    const latestServerRecording = allRecordings[0];
+    const latestLocalRecording = recordingList[0];
+    
+    const serverTimestamp = new Date(latestServerRecording.created_at).getTime();
+    const localTimestamp = new Date(latestLocalRecording.created_at).getTime();
+    
+    if (serverTimestamp < localTimestamp) refetchAllRecordings();
+  }
 
   useEffect(() => {
-    if (recordings.data && recordings.data.length > 0) {
-      const serverRecords: VoiceNote[] = recordings.data;
+    if (recordings && recordings.length > 0) {
+      const serverRecords: VoiceNote[] = recordings;
       setAllRecordings(serverRecords);
       updateRecordings(serverRecords);
     }
@@ -639,6 +651,7 @@ const Home = () => {
   },[hashFilter])
 
   const openCalendar = () => {
+    refreshRecordings();
     calendarIconRef.current.measureInWindow((x, y, width, height) => {
       setCalendarPos({x, y});
     });
