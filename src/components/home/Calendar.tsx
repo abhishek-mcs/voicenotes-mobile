@@ -237,7 +237,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       height += highlightsOffset;
     }
     
-    height = showAllNotes || height < 360 ? height : height - 40;
+    height = selectedDate !== null || height < 360 ? height : height - 40;
     return height;
   };
   
