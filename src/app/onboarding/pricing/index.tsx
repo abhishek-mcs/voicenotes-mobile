@@ -239,10 +239,14 @@ const Pricing = () => {
     let priceAnnualMonthlyString=`${currencySymbol}${priceAnnualMonthly}`;
     let priceMonthString=`${currencySymbol}${priceMonth}`;
 
+    if (priceString.startsWith('Rp')){
+      priceMonthString = priceMonthString+'ribu';
+      priceAnnualMonthlyString = priceAnnualMonthlyString+'ribu';
+    }
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-        {!isNewUser ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+        {isNewUser ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable> : ''}
         <View style={styles.mainTextContainer}>
@@ -323,7 +327,7 @@ const useStyles = () => {
     mainContainer: {
         flex: 1,
         backgroundColor: Colors.whiteWithOpacity(1),
-        marginTop: isIOS ? 0 : screenHeight/20
+        marginTop: isIOS ? 0 : screenHeight/15
     },
     mainTextContainer: {
         marginTop: 12,

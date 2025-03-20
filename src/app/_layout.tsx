@@ -11,6 +11,8 @@ import { isIOS, screenWidth } from "utils/common";
 import * as Sentry from '@sentry/react-native';
 import useFBEventTracking from "hooks/fbsdk/useFBEventTracking";
 import { Text, View } from "react-native";
+import { SvgXml } from "react-native-svg";
+import { commonSvg } from "assets/svg/commonSvg";
 
 Sentry.init({
   dsn: 'https://794cc208d64f43a4069e118c7521c135@o4508691521863680.ingest.us.sentry.io/4508691555942400',
@@ -25,8 +27,9 @@ Sentry.init({
 
 const toastConfig = {
   verified: ({ text1 }: any) => (
-    <View style={{ marginTop: 30, height: 48, width: screenWidth/1.3, backgroundColor: '#35794D', borderRadius: 25, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: 'white', fontSize: 16, fontWeight: '500', padding: 12 }}>{text1}</Text>
+    <View style={{ flexDirection: 'row', gap: 6, marginTop: 30, height: 48, width: screenWidth/1.3, backgroundColor: '#35794D', borderRadius: 25, justifyContent: 'center', alignItems: 'center' }}>
+      <SvgXml style={{marginTop: 3}} xml={commonSvg.tick} />
+      <Text style={{ color: 'white', fontSize: 16, fontWeight: '500', paddingVertical: 12 }}>{text1}</Text>
     </View>
   )
 };

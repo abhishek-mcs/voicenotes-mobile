@@ -40,7 +40,6 @@ const Onboarding = () => {
   
 
   useEffect(() => {
-    console.log('Onboarding', data, preferenceEnums);
     if (data == undefined && !isFetching) {
       refetch();
     } else if (data) {

@@ -8,7 +8,7 @@ import { settingsSvg } from 'assets/svg/settingsSvg'
 import { OTPInput } from 'components/auth/otp-input'
 import LargeButton from 'components/LargeButton'
 import { useRouter } from 'expo-router'
-import { screenHeight } from 'utils/common'
+import { isIOS, screenHeight } from 'utils/common'
 import { useVerifyEmail } from 'queries/auth'
 import { useQueryClient } from 'react-query'
 import { setEmailVerified } from 'redux/reducers/onboardingData'
@@ -70,7 +70,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
     <View style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={{flex: 1}}>
-            <TouchableHighlight onPress={props.onClose} underlayColor={Colors.grey10} style={{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40, backgroundColor: Colors.bottomBarButtonBg1, borderRadius: 16, alignItems: "center", justifyContent:'center', marginTop: 30, marginLeft: 16 }}>
+            <TouchableHighlight onPress={props.onClose} underlayColor={Colors.grey10} style={{ width: 'auto', alignSelf: 'flex-start', paddingHorizontal: 16, height: 40, backgroundColor: Colors.bottomBarButtonBg1, borderRadius: 16, alignItems: "center", justifyContent:'center', marginTop: isIOS ? 30: 60, marginLeft: 16 }}>
                 <Text style={{ color: Colors.bottomBarText1, fontFamily: "Primary-Semibold", fontSize: 14 }}>Back</Text>
             </TouchableHighlight>
             <View style={styles.root}>

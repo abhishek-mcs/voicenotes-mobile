@@ -17,7 +17,7 @@ const Topics = ({data}: any) => {
     const dispatch = useDispatch();
     const { note_types } = useSelector((state: RootState) => state.onboardingData);
     const [isSelected, setSelected] = useState<number[]>(note_types)
-    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(500)), [data]);
+    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(350)), [data]);
     
     useEffect(() => {
       animatedValues.forEach((anim: any, index: any) => {

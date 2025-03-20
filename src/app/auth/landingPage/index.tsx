@@ -126,7 +126,7 @@ const signInGoogle=(token:any,params:any)=>{
 
   return (
     <SafeAreaView style={{flex:1,backgroundColor:Colors.whiteWithOpacity(1)}}>
-       <Pressable onPress={() => router.back()} style={{ padding: 20 }}>
+       <Pressable onPress={() => router.back()} style={{ padding: 20, marginTop: isIOS?0:40 }}>
           <SvgXml xml={commonSvg.back2} />
         </Pressable>
     <View

@@ -99,7 +99,7 @@ export function useGetPreferenceEnums() {
       },
       {
         onSuccess: (data: any) => {
-          console.log('Preference enums success:', data);
+        //   console.log('Preference enums success:', data);
         },
         onError: (error: any) => {
           console.error('Preference enums error:', error?.response?.data?.message || error.message);

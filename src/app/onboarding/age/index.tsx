@@ -18,7 +18,7 @@ const Age = ({data}: any) => {
     const { age_group } = useSelector((state: RootState) => state.onboardingData);
     const [isSelected, setSelected] = useState<any>(age_group !== null ? age_group : null)
 
-    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(500)), [data]);
+    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(350)), [data]);
     
     useEffect(() => {
       animatedValues.forEach((anim: any, index: any) => {

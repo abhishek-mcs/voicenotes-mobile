@@ -17,7 +17,7 @@ const Revisit = ({data}: any) => {
     const { revisit_frequency } = useSelector((state: RootState) => state.onboardingData);
     const [isSelected, setSelected] = useState<any>(revisit_frequency !== null ? revisit_frequency : null)
 
-    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(500)), [data]);
+    const animatedValues = useMemo(() => data?.map(() => new Animated.Value(350)), [data]);
     
     useEffect(() => {
       animatedValues.forEach((anim: any, index: any) => {

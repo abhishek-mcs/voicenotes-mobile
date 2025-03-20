@@ -36,7 +36,7 @@ const Language = () => {
         { icon: onboardingSvg.italian, label: 'Italian', name: 'it', value: 6 },
         { icon: onboardingSvg.portugese, label: 'Portugese', name: 'pt', value: 7 }
     ]
-    const animatedValues = useMemo(() => languages?.map(() => new Animated.Value(500)), [languages]);
+    const animatedValues = useMemo(() => languages?.map(() => new Animated.Value(350)), [languages]);
     
     useEffect(() => {
       animatedValues.forEach((anim: any, index: any) => {
