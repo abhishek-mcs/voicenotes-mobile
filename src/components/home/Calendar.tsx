@@ -149,17 +149,17 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           year: 'numeric',
         });
   
+        // Change this part in the useDayNotes onSuccess callback
         const formattedItems = (data?.data || []).map((note: any) => {
           // Parse the recorded_at timestamp
           const recordedAt = new Date(note.recorded_at);
           
-          // Format the time as HH:MM AM/PM
+          // Format the time in 24-hour format (HH:MM)
           const hours = recordedAt.getHours();
           const minutes = recordedAt.getMinutes();
-          const ampm = hours >= 12 ? 'PM' : 'AM';
-          const formattedHours = hours % 12 || 12;
+          const formattedHours = hours.toString().padStart(2, '0');
           const formattedMinutes = minutes.toString().padStart(2, '0');
-          const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+          const timeString = `${formattedHours}:${formattedMinutes}`;
           
           return {
             time: timeString,
@@ -583,13 +583,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         // Parse the recorded_at timestamp
         const recordedAt = new Date(note.recorded_at);
         
-        // Format the time as HH:MM AM/PM
+        // Format the time in 24-hour format (HH:MM)
         const hours = recordedAt.getHours();
         const minutes = recordedAt.getMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
+        const formattedHours = hours.toString().padStart(2, '0');
         const formattedMinutes = minutes.toString().padStart(2, '0');
-        const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+        const timeString = `${formattedHours}:${formattedMinutes}`;
         
         return {
           time: timeString,
@@ -1121,7 +1120,7 @@ const useStyles = () => {
       height: EVENT_ITEM_HEIGHT,
     },
     eventTime: {
-      width: 80,
+      width: 50,
       fontSize: 14,
       color: '#888',
     },
