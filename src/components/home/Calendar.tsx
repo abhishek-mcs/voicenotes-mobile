@@ -1000,9 +1000,10 @@ const useStyles = () => {
       ...(isIOS ? {
         // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.15);
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.15,
-        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 0 }, // Center the shadow (0,0) to spread it evenly
+        shadowOpacity: 0.2, // Increase opacity for better visibility
+        shadowRadius: 5, // Slightly reduced but still substantial
+        margin: 2,
       } : {
         // Android shadow
         elevation: 2,
