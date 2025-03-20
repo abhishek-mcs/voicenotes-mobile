@@ -94,12 +94,11 @@ export function useGetPreferenceEnums() {
       async () => {
         console.log('Enums API called');
         const response = await axios.get(API_URL + '/api/preferences-options');
-        console.log('API Response:', response);
         return response.data;
       },
       {
         onSuccess: (data: any) => {
-        //   console.log('Preference enums success:', data);
+          console.log('Preference enums success:');
         },
         onError: (error: any) => {
           console.error('Preference enums error:', error?.response?.data?.message || error.message);

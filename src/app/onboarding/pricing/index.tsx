@@ -46,8 +46,6 @@ const Pricing = () => {
     }
 
     useEffect(() => {
-      console.log(screenWidth);
-      
       checkNotificationPermission()
     },[])
 
@@ -85,6 +83,8 @@ const Pricing = () => {
         }
         const productToBuy = selectedPlan == 'monthly' ? pack[1]?.product : pack[4]?.product;
         const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
+        console.log('Customer info ',customerInfo);
+        
         if ( typeof customerInfo.entitlements.active["Believer"] !== undefined ) {
           console.log('Purchased successfully', customerInfo.entitlements.active["Believer"]);
           dispatch(setTempIsIAPPurchased(true))
