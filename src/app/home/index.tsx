@@ -967,7 +967,7 @@ const Home = () => {
             </Pressable>}
           </Pressable>
           {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
-            {streaks?.data?.data?.weeks ? <ExpandableCalendar streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
+            {streaks?.data?.data?.weeks ? <ExpandableCalendar onClose={() => showCalendar(false)} streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
               <View style={styles.calendarVisualWrapper}>
                 <Text style={styles.indicator} >Loading</Text>
               </View>

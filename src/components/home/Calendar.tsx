@@ -12,9 +12,11 @@ import {
   PanResponder,
   PanResponderGestureState,
   Animated,
+  Pressable,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setRelatedNoteId } from 'redux/reducers/relatedNoteStates';
 import { RootState } from 'redux/store/store';
 import { isIOS } from 'utils/common';
 
@@ -79,14 +81,17 @@ type Data = {
 interface ExpandableCalendarProps {
   initialDate?: Date;
   streaksData: Data;
+  onClose: () => void;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
-  streaksData
+  streaksData,
+  onClose
 }) => {
 
   const { token }:any = useSelector((state: RootState) => state.userDetails);
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(initialDate);
@@ -144,17 +149,17 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           year: 'numeric',
         });
   
+        // Change this part in the useDayNotes onSuccess callback
         const formattedItems = (data?.data || []).map((note: any) => {
           // Parse the recorded_at timestamp
           const recordedAt = new Date(note.recorded_at);
           
-          // Format the time as HH:MM AM/PM
+          // Format the time in 24-hour format (HH:MM)
           const hours = recordedAt.getHours();
           const minutes = recordedAt.getMinutes();
-          const ampm = hours >= 12 ? 'PM' : 'AM';
-          const formattedHours = hours % 12 || 12;
+          const formattedHours = hours.toString().padStart(2, '0');
           const formattedMinutes = minutes.toString().padStart(2, '0');
-          const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+          const timeString = `${formattedHours}:${formattedMinutes}`;
           
           return {
             time: timeString,
@@ -215,7 +220,25 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const calculateDynamicHeight = (monthData: any) => {
     const numberOfRows = monthData.days.length;
     const baseRowHeight = 52; // Adjust based on the actual row height with spacing
-    return numberOfRows * baseRowHeight + (expandedHeight > 0 ? expandedHeight : 0);
+    
+    // Base calculation for calendar rows
+    let height = numberOfRows * baseRowHeight;
+    
+    // Either add expanded height for selected date OR highlights height, but not both
+    if (expandedHeight > 0) {
+      // We have a selected date with expanded details
+      height += expandedHeight;
+    } else if (showHighlights) {
+      // No expanded date, but showing highlights
+      // Add a constant value for initial rendering before actual height is measured
+      const highlightsOffset = highlightsHeight > 0 ? highlightsHeight : 65;
+      
+      // Only add a portion of the highlights height to prevent excessive height
+      height += highlightsOffset;
+    }
+    
+    height = selectedDate !== null || height < 360 ? height : height - 40;
+    return height;
   };
   
   useEffect(() => {
@@ -497,6 +520,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     }
   };
 
+  const handleNoteSelect = (noteId: string | undefined): void => {
+    onClose();
+    dispatch(setRelatedNoteId(null));
+    setTimeout(() => dispatch(setRelatedNoteId(noteId)), 200)
+  }
+
   const calculateExpandedHeight = (itemCount: number, hasNotes: boolean = true): number => {
     // Base height for the container padding, header, and footer
     const baseContainerHeight = 80;
@@ -554,13 +583,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         // Parse the recorded_at timestamp
         const recordedAt = new Date(note.recorded_at);
         
-        // Format the time as HH:MM AM/PM
+        // Format the time in 24-hour format (HH:MM)
         const hours = recordedAt.getHours();
         const minutes = recordedAt.getMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
+        const formattedHours = hours.toString().padStart(2, '0');
         const formattedMinutes = minutes.toString().padStart(2, '0');
-        const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+        const timeString = `${formattedHours}:${formattedMinutes}`;
         
         return {
           time: timeString,
@@ -599,6 +627,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const monthName = currentMonth.toLocaleDateString('en-US', {
       month: 'long',
     });
+
+    const year = currentMonth.toLocaleDateString('en-US', {
+      year: 'numeric',
+    });
   
     // Wait for data to load before showing highlights button
     if (monthsData.length < 3 || loading) {
@@ -631,7 +663,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     return (
       <View>
         <View style={styles.monthHeader}>
-          <Text style={styles.monthText}>{monthName}</Text>
+          <View>
+            <Text style={styles.yearText}>{year}</Text>
+            <Text style={styles.monthText}>{monthName}</Text>
+          </View>
           {showHighlightsButton && (
             <TouchableOpacity
               style={styles.highlightsButton}
@@ -765,14 +800,14 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
                           {additionalInfo.items
                             .slice(0, showAllNotes ? additionalInfo.items.length : Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length))
                             .map((item, index) => (
-                              <View key={index} style={styles.eventItem}>
+                              <Pressable onPress={() => handleNoteSelect(item.id)} key={index} style={styles.eventItem}>
                                 <Text style={styles.eventTime}>{item.time}</Text>
                                 <Text 
                                   style={styles.eventTitle}
                                   numberOfLines={1}
                                   ellipsizeMode="tail"
                                 >{item.title}</Text>
-                              </View>
+                              </Pressable>
                             ))
                           }
                         </View>
@@ -911,13 +946,18 @@ const useStyles = () => {
     monthHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       paddingBottom: 20,
     },
     monthText: {
       fontSize: 28,
       fontWeight: '500',
       color: Colors.text,
+    },
+    yearText: {
+      fontSize: 15,
+      fontWeight: '500',
+      color: Colors.text10
     },
     calendarContentWrapper: {
       position: 'relative',
@@ -971,9 +1011,10 @@ const useStyles = () => {
       ...(isIOS ? {
         // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.15);
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.15,
-        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 0 }, // Center the shadow (0,0) to spread it evenly
+        shadowOpacity: 0.2, // Increase opacity for better visibility
+        shadowRadius: 5, // Slightly reduced but still substantial
+        margin: 2,
       } : {
         // Android shadow
         elevation: 2,
@@ -1091,7 +1132,7 @@ const useStyles = () => {
       height: EVENT_ITEM_HEIGHT,
     },
     eventTime: {
-      width: 80,
+      width: 50,
       fontSize: 14,
       color: '#888',
     },
