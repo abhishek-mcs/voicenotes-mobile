@@ -137,8 +137,11 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const getNotesForSelectedDate = (date: Date | null): VoiceNote[] => {
     if (!date || !rawData) return [];
     
-    // Format the date to YYYY-MM-DD for comparison
-    const dateStr = date.toISOString().split('T')[0];
+    // Create a date string in local timezone to avoid UTC conversion issues
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // getMonth() is 0-indexed
+    const day = date.getDate();
+    const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     
     return rawData.filter(note => {
       // Skip deleted notes
@@ -146,7 +149,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       
       // Use recorded_at if available, otherwise use created_at
       const noteDate = new Date(note.recorded_at || note.created_at);
-      const noteDateStr = noteDate.toISOString().split('T')[0];
+      
+      // Create a date string in the same format, in local timezone
+      const noteYear = noteDate.getFullYear();
+      const noteMonth = noteDate.getMonth() + 1;
+      const noteDay = noteDate.getDate();
+      const noteDateStr = `${noteYear}-${noteMonth.toString().padStart(2, '0')}-${noteDay.toString().padStart(2, '0')}`;
       
       return noteDateStr === dateStr;
     });
