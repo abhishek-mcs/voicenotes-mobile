@@ -627,6 +627,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const monthName = currentMonth.toLocaleDateString('en-US', {
       month: 'long',
     });
+
+    const year = currentMonth.toLocaleDateString('en-US', {
+      year: 'numeric',
+    });
   
     // Wait for data to load before showing highlights button
     if (monthsData.length < 3 || loading) {
@@ -659,7 +663,10 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     return (
       <View>
         <View style={styles.monthHeader}>
-          <Text style={styles.monthText}>{monthName}</Text>
+          <View>
+            <Text style={styles.yearText}>{year}</Text>
+            <Text style={styles.monthText}>{monthName}</Text>
+          </View>
           {showHighlightsButton && (
             <TouchableOpacity
               style={styles.highlightsButton}
@@ -939,13 +946,18 @@ const useStyles = () => {
     monthHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       paddingBottom: 20,
     },
     monthText: {
       fontSize: 28,
       fontWeight: '500',
       color: Colors.text,
+    },
+    yearText: {
+      fontSize: 15,
+      fontWeight: '500',
+      color: Colors.text10
     },
     calendarContentWrapper: {
       position: 'relative',
