@@ -220,7 +220,25 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const calculateDynamicHeight = (monthData: any) => {
     const numberOfRows = monthData.days.length;
     const baseRowHeight = 52; // Adjust based on the actual row height with spacing
-    return numberOfRows * baseRowHeight + (expandedHeight > 0 ? expandedHeight : 0);
+    
+    // Base calculation for calendar rows
+    let height = numberOfRows * baseRowHeight;
+    
+    // Either add expanded height for selected date OR highlights height, but not both
+    if (expandedHeight > 0) {
+      // We have a selected date with expanded details
+      height += expandedHeight;
+    } else if (showHighlights) {
+      // No expanded date, but showing highlights
+      // Add a constant value for initial rendering before actual height is measured
+      const highlightsOffset = highlightsHeight > 0 ? highlightsHeight : 65;
+      
+      // Only add a portion of the highlights height to prevent excessive height
+      height += highlightsOffset;
+    }
+    
+    height = showAllNotes || height < 360 ? height : height - 40;
+    return height;
   };
   
   useEffect(() => {
