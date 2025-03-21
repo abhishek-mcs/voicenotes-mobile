@@ -111,7 +111,7 @@ const Landing = () => {
         <View style={styles.footerContainer}>
             <View style={styles.buttonContainer1}>
                 <LargeButton
-                    underlayColor={Colors.settingsBtnBg}
+                    underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                     style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                     onPress={getStarted}
                     text="Get started"
@@ -121,7 +121,7 @@ const Landing = () => {
             </View>
             <View style={styles.buttonContainer1}>
                 <LargeButton
-                    underlayColor={Colors.bgColor3(0.1)}
+                    underlayColor={isLightMode ? Colors.bgColor3(0.2) : Colors.blackWithOpacity(0.3)}
                     style={[styles.button, { backgroundColor: Colors.bgColor3(0.1) }]}
                     onPress={onAccount}
                     text="I already have an account"

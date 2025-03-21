@@ -20,14 +20,14 @@ import { useQueryClient } from 'react-query'
 import { RootState } from 'redux/store/store'
 import { analytics } from '../../../../firebaseConfig'
 import { AppEventsLogger } from "react-native-fbsdk-next";
+import { isIOS } from 'utils/common'
 
 const Email = () => {
     const styles = useStyles()
-    const {Colors}=useTheme()
+    const {Colors,isLightMode}=useTheme()
     const dispatch = useDispatch();
     const netInfo=useNetInfo()
     const queryClient=useQueryClient()
-    const inputRef = useRef<TextInput>(null);
     const checkEmailMutation:any = useCheckEmail()
     const getPreferencesMutation:any = useGetPreferences()
     const [loading, setLoading] = useState(false)
@@ -229,9 +229,10 @@ const Email = () => {
     }
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <SafeAreaView style={styles.mainContainer}>
          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            
                 <View>
                     <View style={styles.mainTextContainer}>
                         <Text style={styles.mainText}>Enter your email</Text>
@@ -239,7 +240,6 @@ const Email = () => {
 
                     <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
                         <TextField
-                          forwardedRef={inputRef}
                           style={{marginTop:0,flexDirection:'column'}}
                           inputStyle={{ height: 48, color:Colors.text, borderRadius: 16, borderWidth: 0, backgroundColor:Colors.bgColor7 }}
                           value={emailText}
@@ -270,7 +270,7 @@ const Email = () => {
                     
                     <View style={styles.buttonContainer1}>
                         <LargeButton
-                            underlayColor={Colors.settingsBtnBg}
+                            underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                             style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                             onPress={onContinueEmail}
                             text="Continue"
@@ -279,12 +279,12 @@ const Email = () => {
                         />
                     </View>
                 </View>
-            </TouchableWithoutFeedback>
+            
         </KeyboardAvoidingView>
         <View style={styles.footerContainer}>
-            <View style={styles.buttonContainer1}>
+            {isIOS && <View style={styles.buttonContainer1}>
                 <LargeButton
-                    underlayColor={Colors.bgColor}
+                    underlayColor={Colors.blackWithOpacity(0.05)}
                     style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
                     onPress={signInAppleAsync}
                     text="Continue with Apple"
@@ -292,10 +292,10 @@ const Email = () => {
                     color={Colors.black2}
                     centerIcon={LandingSvg.apple?.replace('white', Colors.text)}
                 />
-            </View>
+            </View>}
             <View style={styles.buttonContainer1}>
                 <LargeButton
-                    underlayColor={Colors.bgColor}
+                    underlayColor={Colors.blackWithOpacity(0.05)}
                     style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
                     onPress={onGoogleLogin}
                     text="Continue with Google"
@@ -306,6 +306,7 @@ const Email = () => {
             </View>
         </View>
     </SafeAreaView>
+    </TouchableWithoutFeedback>
   )
 }
 

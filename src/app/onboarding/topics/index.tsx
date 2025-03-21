@@ -10,11 +10,13 @@ import { isAndroid } from 'utils/common'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { ScrollView } from 'react-native';
 
 const Topics = ({data}: any) => {
     const styles = useStyles()
     const {Colors} = useTheme()
     const dispatch = useDispatch();
+    const [error, setError] = useState(false)
     const { note_types } = useSelector((state: RootState) => state.onboardingData);
     const [isSelected, setSelected] = useState<number[]>(note_types)
     const animatedValues = useMemo(() => data?.map(() => new Animated.Value(350)), [data]);
@@ -31,6 +33,7 @@ const Topics = ({data}: any) => {
     }, [animatedValues]);
 
     const onSelect = (num: number) => {
+        setError(false)
         setSelected((prevSelected) =>
             prevSelected.includes(num)
                 ? prevSelected.filter((item) => item !== num) 
@@ -45,7 +48,10 @@ const Topics = ({data}: any) => {
         analytics().logEvent('onboarding_note_types').catch(e=>{console.log(e)})
         AppEventsLogger.logEvent('fb_onboarding_note_types');
         dispatch(setNoteTypes(isSelected))
-        if (isSelected.length > 0 && isSelected.includes(2)) {
+        if (isSelected.length == 0) {
+            setError(true)
+        }
+        else if (isSelected.length > 0 && isSelected.includes(2)) {
             dispatch(setSelectedScreen(8))
         }
         else if (isSelected.length > 0) {
@@ -58,10 +64,11 @@ const Topics = ({data}: any) => {
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>What do you take notes about?</Text>
         </View>
+        <ScrollView style={{ marginBottom: isAndroid ? 70 : 90 }}>
         {data?.map((item: any, index: any) => (
             <Animated.View key={item.value} style={[styles.buttonContainer1, { transform: [{ translateX: animatedValues[index] }] }]}>
                 <LargeButton
-                    underlayColor={Colors.bottomBarButtonBg1}
+                    underlayColor={Colors.blackWithOpacity(0.1)}
                     style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected.includes(item.value) && {borderColor: Colors.black2, borderWidth: 2}]}
                     onPress={() => onSelect(item.value)}
                     text={item.label}
@@ -71,16 +78,20 @@ const Topics = ({data}: any) => {
                 />
             </Animated.View>
         ))}
+        </ScrollView>
         
-        <View style={[styles.buttonContainer1, styles.footerContainer]}>
+        <View style={[styles.buttonContainer1, error ? styles.footerContainerWithError : styles.footerContainer]}>
             <LargeButton
-                underlayColor={Colors.black2}
+                underlayColor={Colors.blackWithOpacity(0.8)}
                 style={[styles.button, { backgroundColor: Colors.black2 }]}
                 onPress={onContinue}
                 text="Continue"
                 isLoading={false}
                 color={Colors.white1}
             />
+            {error && (
+                <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginTop:8, alignSelf: 'center'}}>Please select an option to continue.</Text>
+            )}
         </View>
     </SafeAreaView>
   )
@@ -124,9 +135,16 @@ const useStyles = () => {
           flexDirection:'row'
         },
         footerContainer: {
-            height: isAndroid ? 50 : 70,
+            height: isAndroid ? 50 : 60,
             position: 'absolute',
             bottom: 32,
+            right: 0,
+            left: 0
+        },
+        footerContainerWithError: {
+            height: isAndroid ? 50 : 60,
+            position: 'absolute',
+            bottom: isAndroid ? 45 : 32,
             right: 0,
             left: 0
         }

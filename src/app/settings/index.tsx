@@ -212,7 +212,7 @@ const Settings = () => {
           dispatch(setNoteTypes([]))
           dispatch(setUserEmail(''))
           dispatch(setName(''))
-          router?.back();
+          router.push('/onboarding/')
         }
       }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
   }

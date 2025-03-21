@@ -169,7 +169,7 @@ const Pricing = () => {
               channelId,
               style: {
                 type: AndroidStyle.BIGTEXT,
-                text: 'Your free trial ends soon.',
+                text: 'Your Free Trial is ending soon!',
               },
             },
           },
@@ -305,15 +305,15 @@ const Pricing = () => {
             </View>
             <View style={styles.buttonContainer1}>
                 <LargeButton
-                    underlayColor={Colors.settingsBtnBg}
-                    style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                    underlayColor={Colors.blackWithOpacity(0.8)}
+                    style={[styles.button, { backgroundColor: Colors.black2 }]}
                     onPress={onStart}
                     text={selectedPlan == 'monthly' ? `Subscribe for ${priceMonthString} / month` : "Start my free week"}
                     isLoading={loading}
-                    color={Colors.text4}
+                    color={Colors.white1}
                 />
                  {error && error.length > 0 && (
-                    <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:10,marginTop:8}}>{error}</Text>
+                    <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:12,marginTop:8}}>{error}</Text>
                   )}
             </View>
         </View>

@@ -2,6 +2,7 @@ import { View, Text, SafeAreaView, StyleSheet, Image, Platform, Animated, Easing
 import LargeButton from 'components/LargeButton'
 import { screenWidth, isAndroid, screenHeight, isIOS } from 'utils/common';
 import Swiper from "react-native-deck-swiper";
+import LottieView from 'lottie-react-native';
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics";
@@ -12,9 +13,10 @@ import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const PastNotes = () => {
     const styles = useStyles()
-    const {Colors}=useTheme()
+    const {Colors,isLightMode}=useTheme()
     const dispatch=useDispatch()
     const [index, setIndex] = useState(0);
+    const [swiped, setSwiped] = useState(false)
 
     const animatedValues = useMemo(() =>
         [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
@@ -35,21 +37,22 @@ const PastNotes = () => {
     const handRotation = useRef(new Animated.Value(0)).current;
 
     const handleSwiped = () => {
+        // setSwiped(true)
         setIndex((prevIndex) => (prevIndex + 1) % data.length); 
     };
 
     const data = [
         {
           id: "1",
-          image: <Image source={require('../../../assets/images/pastnotes1.png')} style={styles.noteImage} />,
+          image: <Image source={isLightMode ? require('../../../assets/images/pastnotes1.png') : require('../../../assets/images/pastnotes1-dark.png')} style={styles.noteImage} />,
         },
         {
           id: "2",
-          image: <Image source={require('../../../assets/images/pastnotes2.png')} style={styles.noteImage} />,
+          image: <Image source={isLightMode ? require('../../../assets/images/pastnotes2.png') : require('../../../assets/images/pastnotes2-dark.png')} style={styles.noteImage} />,
         },
         {
           id: "3",
-          image: <Image source={require('../../../assets/images/pastnotes3.png')} style={styles.noteImage} />,
+          image: <Image source={isLightMode ? require('../../../assets/images/pastnotes3.png') : require('../../../assets/images/pastnotes3-dark.png')} style={styles.noteImage} />,
         },
     ];
 
@@ -106,9 +109,10 @@ const PastNotes = () => {
                 infinite
                 backgroundColor="transparent"
                 stackSize={3}
+                onSwiping={() => setSwiped(true)}
             />
             {/* Hand Icon Animation */}
-            <Animated.Image
+            {/* <Animated.Image
                 source={require('../../../assets/images/hand.png')}
                 style={[
                     styles.handIcon,
@@ -116,11 +120,15 @@ const PastNotes = () => {
                         transform: [{ rotate: rotateInterpolation }],
                     },
                 ]}
-            />
+            /> */}
+            {!swiped && <View style={styles.handContainer}>
+                <LottieView source={isLightMode ? require('../../../assets/lottie/handswipe.json') : require('../../../assets/lottie/handswipe-dark.json')} autoPlay loop style={styles.handIcon}/>
+            </View>}
         </View>
+        
         <View style={[styles.buttonContainer1, styles.footerContainer]}>
             <LargeButton
-                underlayColor={Colors.settingsBtnBg}
+                underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                 style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                 onPress={onContinue}
                 text="Continue"
@@ -173,34 +181,45 @@ const useStyles = () => {
             alignItems: "center",
         },
         cardImage: {
-            // width: screenWidth * 0.9,
-            height: isIOS ? screenHeight * 0.35 : screenHeight * 0.4,
+            width: screenWidth * 0.9,
+            // height: isIOS ? screenHeight * 0.35 : screenHeight * 0.4,
             // borderRadius: 10,
-            overflow: "hidden",
+            // overflow: "hidden",
             justifyContent: "center",
             alignItems: "center",
             // backgroundColor: "#fff",
-            shadowColor: "#000",
+            
+            shadowColor: Colors.blackWithOpacity(0.6),
             shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.3,
-            shadowRadius: 5,
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
             elevation: 5,
+
+            position: 'absolute',
+            bottom: isIOS ? 180 : 120,
+            right: 0,
+            left: 0
         },
         noteImage: {
-            width: screenWidth / 1.2,
+            width: screenWidth,
             resizeMode: 'contain',
         },
         firstImage: {
             width: screenWidth,
             resizeMode: 'contain',
         },
+        handContainer: {
+            // flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+        },
         handIcon: {
-            width: 60,
-            height: 50,
+            width: 120,
+            height: 120,
             position: "absolute",
-            bottom: isIOS ? -(screenHeight/2.3) : -(screenHeight/2.1), // Adjust as needed
-            right: 30,
-            opacity: 0.8,
+            bottom: isIOS ? -screenHeight/2 : -screenHeight/1.9,
+            // right: 0,
+            // opacity: 0.8,
         },
         text: { 
             fontFamily:'Primary-Semibold',
@@ -218,7 +237,7 @@ const useStyles = () => {
             flexDirection:'row'
         },
         footerContainer: {
-            height: isAndroid ? 50 : 70,
+            // height: isAndroid ? 50 : 70,
             position: 'absolute',
             bottom: 27,
             right: 0,

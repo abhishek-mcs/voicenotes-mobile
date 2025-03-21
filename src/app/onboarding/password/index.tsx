@@ -23,7 +23,7 @@ import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 const Password = () => {
     const styles = useStyles()
-    const {Colors}=useTheme()
+    const {Colors,isLightMode}=useTheme()
     const dispatch = useDispatch();
     const queryClient=useQueryClient()
     // const saveNotificationSettingsMutation:any = saveNotificationSettings()
@@ -226,7 +226,7 @@ const Password = () => {
                 <Animated.View style={[styles.footerContainer, { bottom: footerPosition }]}>
                 <View style={styles.buttonContainer1}>
                     <LargeButton
-                        underlayColor={Colors.settingsBtnBg}
+                        underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                         style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                         onPress={onContinue}
                         text="Continue"

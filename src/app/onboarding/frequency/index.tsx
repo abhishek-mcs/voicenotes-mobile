@@ -51,7 +51,7 @@ const Frequency = ({data}: any) => {
         {data?.map((item:any, index: any) => (
             <Animated.View key={item.value} style={[styles.buttonContainer1, { transform: [{ translateX: animatedValues[index] }] }]}>
                 <LargeButton
-                    underlayColor={Colors.bottomBarButtonBg1}
+                    underlayColor={Colors.blackWithOpacity(0.1)}
                     style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == item.value && {borderColor: Colors.black2, borderWidth: 2}]}
                     onPress={() => onSelect(item.value)}
                     text={item.label}

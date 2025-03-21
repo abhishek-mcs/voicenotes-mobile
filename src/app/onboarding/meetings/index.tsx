@@ -3,7 +3,7 @@ import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics"
-import { isAndroid, screenHeight, screenWidth } from 'utils/common'
+import { isAndroid, isIOS, screenHeight, screenWidth } from 'utils/common'
 import { useDispatch } from 'react-redux'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { Animated } from 'react-native'
@@ -14,7 +14,7 @@ const { width } = Dimensions.get("window");
 
 const Meetings = () => {
     const styles = useStyles()
-    const {Colors}=useTheme()
+    const {Colors,isLightMode}=useTheme()
     const dispatch = useDispatch();
     const [activeIndex, setActiveIndex] = useState(0);
     const flatListRef = useRef(null);
@@ -97,7 +97,7 @@ const Meetings = () => {
         </View>
         <View style={[styles.buttonContainer1, styles.footerContainer]}>
             <LargeButton
-                underlayColor={Colors.settingsBtnBg}
+                underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                 style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                 onPress={onContinue}
                 text="Continue"
@@ -145,7 +145,7 @@ const useStyles = () => {
             color: Colors.grey3
         },
         imageContainer: {
-            paddingTop: 10,
+            paddingTop: isIOS ? 5 : screenHeight/22,
             justifyContent: 'center',
             alignItems: 'center',
         },
@@ -201,7 +201,7 @@ const useStyles = () => {
             resizeMode: 'contain',
         },
         footerContainer: {
-            height: isAndroid ? 50 : 70,
+            height: isAndroid ? 50 : 60,
             position: 'absolute',
             bottom: 32,
             right: 0,

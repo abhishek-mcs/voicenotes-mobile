@@ -193,7 +193,7 @@ const Reviews = () => {
                 ]}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}
-                scrollEnabled={false} // Disable manual scrolling
+                scrollEnabled={true} // Disable manual scrolling
                 onContentSizeChange={(_, height) => setContentHeight(height)}
                 contentContainerStyle={{ 
                     paddingBottom: screenHeight/2,
@@ -217,12 +217,12 @@ const Reviews = () => {
             </View>
             <View style={styles.buttonContainer1}>
                 <LargeButton
-                    underlayColor={Colors.settingsBtnBg}
-                    style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                    underlayColor={Colors.blackWithOpacity(0.8)}
+                    style={[styles.button, { backgroundColor: Colors.black2 }]}
                     onPress={onContinue}
                     text="Continue"
                     isLoading={false}
-                    color={Colors.text4}
+                    color={Colors.white1}
                 />
             </View>
             <LinearGradient
