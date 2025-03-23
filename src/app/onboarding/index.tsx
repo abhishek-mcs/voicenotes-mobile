@@ -30,7 +30,7 @@ const Onboarding = () => {
   const {Colors}=useTheme()
   const dispatch = useDispatch();
   const { selectedScreen, preferenceEnums } = useSelector((state: RootState) => state.onboardingData);
-  const { data, refetch, isFetching } = useGetPreferenceEnums()
+  const { data } = useGetPreferenceEnums()
   const [enums, setEnums] = useState(preferenceEnums ? preferenceEnums : data)
   const [referrer, setReferrer] = useState([])
   const [ageGroup, setAgeGroup] = useState([])
@@ -39,9 +39,7 @@ const Onboarding = () => {
   const [noteTypes, setNoteTypes] = useState([])
 
   useEffect(() => {
-    if (data == undefined && !isFetching) {
-      refetch();
-    } else if (data) {
+  if (data) {
       const getData = data ? data : enums
       setEnums(data ? data : enums)
       setReferrer(getData?.referrer)
@@ -51,7 +49,7 @@ const Onboarding = () => {
       setNoteTypes(getData?.note_types)
       dispatch(setPreferenceEnums(getData))
     }
-  }, [data, isFetching]);
+  }, [data]);
 
   useEffect(() => {
     if(enums) {
