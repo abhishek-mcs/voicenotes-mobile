@@ -152,7 +152,7 @@ const Pricing = () => {
         time.setDate(time.getDate());
         const trigger: TimestampTrigger = {
           type: TriggerType.TIMESTAMP,
-          timestamp: time.getTime() + 180000, 
+          timestamp: time.getTime() + 600000, 
           repeatFrequency: RepeatFrequency.NONE,
           alarmManager: {
             allowWhileIdle: true,
