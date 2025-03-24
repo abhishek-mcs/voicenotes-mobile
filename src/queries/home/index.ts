@@ -8,11 +8,12 @@ import * as Device from 'expo-device';
 import { currentVersion } from "services/api/api-constants";
 import { getTimeZone } from "react-native-localize";
 
-export function useRecordings(tags?:string){
+export function useRecordings(tags?:string, options={}){
     const logout =useLogout()
     return useInfiniteQuery(tags=='shared'?['published-recordings']:['all-recording',tags],async ({pageParam=1})=>{
         return await axiosApi.get((tags=='shared'?'/recordings/public?page=':'/recordings?page=')+pageParam+(!!tags?`&tags[]=${tags}`:''));
     },{
+        ...options,
         getNextPageParam:(lastPage)=>{
             return lastPage.data?.links?.next ? lastPage.data.meta?.current_page + 1 : undefined;
         },
@@ -280,11 +281,12 @@ export function useAddTitle(){
     })
 }
 
-export function useGetTags(){
+export function useGetTags(options={}){
     return useQuery('all-tags',(p?:any)=> {
         return axiosApi.get(`/tags`)
     },
     {
+        ...options,
         onError:(error:any)=>{
             console.log(error?.response?.data?.message);
         }

@@ -121,7 +121,9 @@ const Home = () => {
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
 
-  const getTags=useGetTags()
+  const getTags=useGetTags({
+    enabled: !!token
+  })
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
@@ -142,7 +144,9 @@ const Home = () => {
   
   useForceUpdateCheck()
   
-  const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
+  const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter, {
+    enabled: !!token
+  });
 
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord((val)));
