@@ -50,7 +50,7 @@ const Meetings = () => {
         },
         {
           id: "3",
-          image: <Image source={require('../../../assets/images/meetings3.png')} style={styles.meetingImage3} />,
+          image: <Image source={isLightMode ? require('../../../assets/images/meetings3.png') : require('../../../assets/images/meeting3-dark.png')} style={styles.meetingImage3} />,
         },
     ];
 

@@ -6,7 +6,7 @@ import * as Haptics from "expo-haptics";
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
-import { isAndroid } from 'utils/common'
+import { isAndroid, screenWidth } from 'utils/common'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
@@ -64,7 +64,7 @@ const Topics = ({data}: any) => {
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>What do you take notes about?</Text>
         </View>
-        <ScrollView style={{ marginBottom: isAndroid ? 70 : 90 }}>
+        <ScrollView style={{ marginBottom: isAndroid ? 80 : 100 }}>
         {data?.map((item: any, index: any) => (
             <Animated.View key={item.value} style={[styles.buttonContainer1, { transform: [{ translateX: animatedValues[index] }] }]}>
                 <LargeButton
@@ -114,7 +114,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/8,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2

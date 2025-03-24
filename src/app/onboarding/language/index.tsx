@@ -10,6 +10,8 @@ import { RootState } from 'redux/store/store';
 import { Animated } from 'react-native';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { isAndroid, screenWidth } from 'utils/common';
+import { ScrollView } from 'react-native';
 
 const Language = () => {
     const styles = useStyles()
@@ -70,6 +72,7 @@ const Language = () => {
             <Text style={styles.mainText}>What's your preferred language?</Text>
         </View>
         
+        <ScrollView style={{ marginBottom: isAndroid ? 80 : 100 }}>
         {languages?.map((item: any, index: any) => (
             <Animated.View
             key={index}
@@ -87,92 +90,7 @@ const Language = () => {
                 />
             </Animated.View>
         ))}
-        {/* <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 1 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(1)}
-                text="Detect Language"
-                isLoading={false}
-                color={Colors.black2}
-                endIcon={isSelected == 1 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-                startIcon={onboardingSvg.zoom?.replace("black", Colors.black2)}
-            />
-        </View>
-        <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 2 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(2)}
-                text="English"
-                isLoading={false}
-                color={Colors.black2}
-                endIcon={isSelected == 2 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-                startIcon={onboardingSvg.english}
-            />
-            
-        </View>
-        <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 3 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(3)}
-                text="Spanish"
-                isLoading={false}
-                color={Colors.black2}
-                startIcon={onboardingSvg.spanish}
-                endIcon={isSelected == 3 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-            />
-        </View>
-        <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 4 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(4)}
-                text="French"
-                isLoading={false}
-                color={Colors.black2}
-                startIcon={onboardingSvg.french}
-                endIcon={isSelected == 4 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-            />
-        </View>
-        <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 5 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(5)}
-                text="German"
-                isLoading={false}
-                color={Colors.black2}
-                startIcon={onboardingSvg.german}
-                endIcon={isSelected == 5 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-            />
-        </View>
-        <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 6 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(6)}
-                text="Italian"
-                isLoading={false}
-                color={Colors.black2}
-                startIcon={onboardingSvg.italian}
-                endIcon={isSelected == 6 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-            />
-        </View>
-        <View style={styles.buttonContainer1}>
-            <LargeButton
-                underlayColor={Colors.bottomBarButtonBg1}
-                style={[styles.button, { backgroundColor: Colors.bottomBarButtonBg1 }, isSelected == 7 && {borderColor: Colors.black2, borderWidth: 2}]}
-                onPress={() => onSelect(7)}
-                text="Portugese"
-                isLoading={false}
-                color={Colors.black2}
-                endIcon={isSelected == 7 && onboardingSvg.filledTick?.replace('black', Colors.black2)}
-                startIcon={onboardingSvg.portugese}
-            />
-        </View> */}
-        
+        </ScrollView>
     </SafeAreaView>
   )
 }
@@ -194,7 +112,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/8,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2

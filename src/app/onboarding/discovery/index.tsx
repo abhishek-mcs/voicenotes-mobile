@@ -9,6 +9,8 @@ import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from "react-native-fbsdk-next";
+import { ScrollView } from 'react-native';
+import { isAndroid } from 'utils/common';
 
 const Discovery = ({data}: any) => {
     const styles = useStyles()
@@ -48,6 +50,7 @@ const Discovery = ({data}: any) => {
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>How did you hear about Voicenotes?</Text>
         </View>
+        <ScrollView style={{ marginBottom: isAndroid ? 80 : 100 }}>
         {data?.map((item: any, index: any) => (
             <Animated.View
                 key={item.value}
@@ -64,6 +67,7 @@ const Discovery = ({data}: any) => {
                 />
             </Animated.View>
         ))}
+        </ScrollView>
     </SafeAreaView>
   )
 }

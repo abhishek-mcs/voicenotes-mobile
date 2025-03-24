@@ -122,7 +122,7 @@ const PastNotes = () => {
                 ]}
             /> */}
             {!swiped && <View style={styles.handContainer}>
-                <LottieView source={isLightMode ? require('../../../assets/lottie/handswipe.json') : require('../../../assets/lottie/handswipe-dark.json')} autoPlay loop style={styles.handIcon}/>
+                <LottieView source={isLightMode ? require('../../../assets/lottie/hand.json') : require('../../../assets/lottie/hand-dark.json')} autoPlay loop style={styles.handIcon}/>
             </View>}
         </View>
         

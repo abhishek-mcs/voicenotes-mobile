@@ -149,10 +149,10 @@ const Pricing = () => {
         console.log('Channel created: ', channelId);
         
         let time = new Date()
-        time.setDate(time.getDate() + 5);
+        time.setDate(time.getDate());
         const trigger: TimestampTrigger = {
           type: TriggerType.TIMESTAMP,
-          timestamp: time.getTime(), 
+          timestamp: time.getTime() + 180000, 
           repeatFrequency: RepeatFrequency.NONE,
           alarmManager: {
             allowWhileIdle: true,
@@ -256,12 +256,14 @@ const Pricing = () => {
             <Text style={styles.mainText}>7-day trial works</Text>
         </View>
 
-        <View>
+        <View style={{flex: 1, maxHeight: screenHeight/2.1}}>
             <FlatList
               data={timelineData}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => <TimelineItem item={item} />}
               contentContainerStyle={styles.timelineContainer}
+              keyboardShouldPersistTaps='handled'
+              showsVerticalScrollIndicator={false}
             />
         </View>
 
@@ -348,6 +350,7 @@ const useStyles = () => {
         fontSize: 16
     },
     timelineContainer: {
+        flexGrow: 1,
         paddingHorizontal: 16,
         paddingTop: isIOS ? 25 : screenWidth/20,
         paddingBottom: 10,

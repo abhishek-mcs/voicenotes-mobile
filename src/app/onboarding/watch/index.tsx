@@ -3,7 +3,7 @@ import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef } from 'react'
 import * as Haptics from "expo-haptics";
-import { screenHeight } from 'utils/common'
+import { isIOS, screenHeight, screenWidth } from 'utils/common'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
 import { analytics } from '../../../../firebaseConfig';
@@ -81,14 +81,14 @@ const Watch = () => {
   return (
     <SafeAreaView style={styles.mainContainer}>
         <View style={styles.mainTextContainer}>
-            <Text style={styles.mainText}>Voicenotes works well on Apple Watch</Text>
+            <Text style={styles.mainText}>Voicenotes works well on {isIOS ? 'Apple' : 'Android'} Watch</Text>
         </View>
 
         {/* Watch Image with Scaling Animation */}
         <View style={styles.imageContainer}>
                 <Animated.Image
-                    source={isLightMode ? require('../../../assets/images/watch.png') : require('../../../assets/images/watch-dark.png')}
-                    style={[styles.watchImage, { transform: [{ scale: watchScale }] }]}
+                    source={isLightMode && isIOS ? require('../../../assets/images/watch.png') : isIOS ? require('../../../assets/images/watch-dark.png') : require('../../../assets/images/androidWatch.png')}
+                    style={[!isIOS ? styles.watchImage : styles.androidWatch, { transform: [{ scale: watchScale }] }]}
                 />
             </View>
 
@@ -134,19 +134,24 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/8,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2
         },
         imageContainer: {
+            width: screenWidth,
             paddingHorizontal: 16,
-            paddingTop: 30,
+            paddingTop: isIOS ? 30 : 20,
             justifyContent: 'center',
             alignItems: 'center',
         },
         watchImage: {
             height: screenHeight / 2.5,
+            resizeMode: 'contain',
+        },
+        androidWatch: {
+            height: screenHeight / 2.3,
             resizeMode: 'contain',
         },
         imageContainer2: {
