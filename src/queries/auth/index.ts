@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "redux/reducers/hashSlice";
+import { setSelectedScreen } from "redux/reducers/onboardingData";
 import { setToken } from "redux/reducers/userDetails";
 import { API_URL } from "services/api/api-constants";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
@@ -58,6 +59,7 @@ export function useLogout(){
         setAuthToken('',false,netInfo)
         queryClient.clear()
         dispatch(setToken(''))
+        dispatch(setSelectedScreen(1))
         dispatch(setPinnedTags([]))
         dispatch(setPinnedTagsData([]))
         dispatch(setHashTags([]))

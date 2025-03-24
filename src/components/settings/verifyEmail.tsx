@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, Keyboard, Pressable } from 'react-native'
 import { useTheme } from "context"
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,6 +12,7 @@ import { isIOS, screenHeight } from 'utils/common'
 import { useVerifyEmail } from 'queries/auth'
 import { useQueryClient } from 'react-query'
 import { setEmailVerified } from 'redux/reducers/onboardingData'
+import * as Haptics from "expo-haptics";
 
 type Props = {
     onClose: () => void,
@@ -43,7 +44,10 @@ const VerifyEmail: React.FC<Props> = (props) => {
         } else handleSubmit(false)
     }
 
-    const  handleSubmit = (getOtp:boolean) => {
+    const  handleSubmit = async (getOtp:boolean) => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+            () => {}
+        );
         const payload = getOtp ? {} : { otp: otpText}
         if (otpText != "") {
             verifyEmail.mutate(
@@ -94,9 +98,9 @@ const VerifyEmail: React.FC<Props> = (props) => {
                         text="Done"
                         color={Colors.text4}
                     />
-                    <TouchableHighlight onPress={() => handleSubmit(true)}>
+                    <Pressable onPress={() => handleSubmit(true)}>
                         <Text style={styles.blueButton}>Resend email</Text>
-                    </TouchableHighlight>
+                    </Pressable>
                 </View>
             </View>
             </View>
