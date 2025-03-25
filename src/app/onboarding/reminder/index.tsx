@@ -9,6 +9,7 @@ import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useMemo } from 'react';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { screenWidth } from 'utils/common';
 
 const Reminder = () => {
     const styles = useStyles()
@@ -96,7 +97,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/8,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2

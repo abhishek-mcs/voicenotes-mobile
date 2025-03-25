@@ -151,7 +151,7 @@ const useStyles = () => {
             resizeMode: 'contain',
         },
         androidWatch: {
-            height: screenHeight / 2.3,
+            height: screenHeight / 2.2,
             resizeMode: 'contain',
         },
         imageContainer2: {

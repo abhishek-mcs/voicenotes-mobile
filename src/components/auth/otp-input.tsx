@@ -90,6 +90,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               keyboardType="numeric"
               onKeyPress={({nativeEvent}) => handleInputChange(index, nativeEvent?.key)}
               onChangeText={async(v)=>await handleInputPaste(v)}
+              returnKeyType="done"   
             />
           </View>
           </View>
@@ -113,6 +114,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               keyboardType="numeric"
               onKeyPress={({nativeEvent}) => handleInputChange(index + numberOfInputs / 2, nativeEvent?.key)}
               onChange={async(v)=>await handleInputPaste(v)}
+              returnKeyType="done"   
             />
           </View>
           </View>

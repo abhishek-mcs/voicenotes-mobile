@@ -50,7 +50,7 @@ const Discovery = ({data}: any) => {
         <View style={styles.mainTextContainer}>
             <Text style={styles.mainText}>How did you hear about Voicenotes?</Text>
         </View>
-        <ScrollView style={{ marginBottom: isAndroid ? 80 : 100 }}>
+        <ScrollView style={{ marginBottom: isAndroid ? 20 : 30 }}>
         {data?.map((item: any, index: any) => (
             <Animated.View
                 key={item.value}

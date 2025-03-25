@@ -22,9 +22,7 @@ const Landing = () => {
     const flatListRef = useRef(null);
 
     useEffect(() => {
-      analytics().logEvent('onboarding_landing').catch(e=>{})
-      AppEventsLogger.logEvent('fb_onboarding_landing');
-        // logEvent('signup_initiated',{value:'success'})
+      console.log(screenWidth, screenHeight);
     },[])
 
     const animatedValues = useMemo(() =>
@@ -67,6 +65,7 @@ const Landing = () => {
           () => {}
         );
         analytics().logEvent('onboarding_landing').catch(e=>{console.log(e)})
+        AppEventsLogger.logEvent('fb_onboarding_landing');
         // logEvent('onboarding_landing',{value:'success'})
         dispatch(setSelectedScreen(2))
     }
@@ -150,7 +149,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 64,
+            fontSize: screenWidth * 0.17,
             textAlign: 'center',
             color: Colors.black2
         },
@@ -204,7 +203,7 @@ const useStyles = () => {
         },
         footerContainer: {
             position: 'absolute',
-            bottom: 40,
+            bottom: 32,
             right: 0,
             left: 0
         }

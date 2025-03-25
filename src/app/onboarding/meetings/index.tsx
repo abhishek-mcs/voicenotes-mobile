@@ -125,7 +125,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/8,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2
@@ -145,7 +145,7 @@ const useStyles = () => {
             color: Colors.grey3
         },
         imageContainer: {
-            paddingTop: isIOS ? 5 : screenHeight/22,
+            paddingTop: 10,
             justifyContent: 'center',
             alignItems: 'center',
         },
@@ -189,11 +189,13 @@ const useStyles = () => {
             flexDirection:'row'
         },
         meetingImage1: {
-            width: screenWidth / 1.2,
+            height: screenHeight/2.4,
+            // width: screenWidth / 1.2,
             resizeMode: 'contain',
         },
         meetingImage2: {
-            width: screenWidth / 1.3,
+            height: screenHeight/2.4,
+            // width: screenWidth / 1.4,
             resizeMode: 'contain',
         },
         meetingImage3: {

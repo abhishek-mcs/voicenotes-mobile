@@ -5,7 +5,7 @@ import { SvgXml } from 'react-native-svg'
 import * as Haptics from "expo-haptics";
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef } from 'react'
-import { screenHeight } from 'utils/common'
+import { screenHeight, screenWidth } from 'utils/common'
 import { setIsNewUser, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
 import { Animated } from 'react-native';
@@ -89,7 +89,7 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: 48,
+            fontSize: screenWidth/8,
             lineHeight: 56,
             textAlign: 'center',
             color: Colors.black2
@@ -102,7 +102,7 @@ const useStyles = () => {
             alignItems: 'center',
         },
         noteImage: {
-            height: screenHeight/2.3,
+            height: screenHeight/2.4,
             // width: 240,
             resizeMode: 'contain',
         },
@@ -119,7 +119,7 @@ const useStyles = () => {
         },
         footerContainer: {
             position: 'absolute',
-            bottom: 32,
+            bottom: 20,
             right: 0,
             left: 0
         }
