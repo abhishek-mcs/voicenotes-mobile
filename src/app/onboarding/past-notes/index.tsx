@@ -1,6 +1,6 @@
-import { View, Text, SafeAreaView, StyleSheet, Image, Platform, Animated, Easing } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, Image, Animated, Easing } from 'react-native'
 import LargeButton from 'components/LargeButton'
-import { screenWidth, isAndroid, screenHeight, isIOS } from 'utils/common';
+import { screenWidth, screenHeight, isIOS } from 'utils/common';
 import Swiper from "react-native-deck-swiper";
 import LottieView from 'lottie-react-native';
 import { useTheme } from "context"

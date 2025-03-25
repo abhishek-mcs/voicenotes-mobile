@@ -72,7 +72,7 @@ const Language = () => {
             <Text style={styles.mainText}>What's your preferred language?</Text>
         </View>
         
-        <ScrollView style={{ marginBottom: isAndroid ? 80 : 100 }}>
+        <ScrollView style={{ marginBottom: isAndroid ? 20 : 30 }}>
         {languages?.map((item: any, index: any) => (
             <Animated.View
             key={index}

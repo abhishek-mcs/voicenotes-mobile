@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, Image, Platform, Animated, Easing } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, Animated, Easing } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef } from 'react'
@@ -88,7 +88,7 @@ const Watch = () => {
         <View style={styles.imageContainer}>
                 <Animated.Image
                     source={isLightMode && isIOS ? require('../../../assets/images/watch.png') : isIOS ? require('../../../assets/images/watch-dark.png') : require('../../../assets/images/androidWatch.png')}
-                    style={[!isIOS ? styles.watchImage : styles.androidWatch, { transform: [{ scale: watchScale }] }]}
+                    style={[isIOS ? styles.watchImage : styles.androidWatch, { transform: [{ scale: watchScale }] }]}
                 />
             </View>
 
@@ -142,12 +142,12 @@ const useStyles = () => {
         imageContainer: {
             width: screenWidth,
             paddingHorizontal: 16,
-            paddingTop: isIOS ? 30 : 20,
+            paddingTop: isIOS ? 30 : 0,
             justifyContent: 'center',
             alignItems: 'center',
         },
         watchImage: {
-            height: screenHeight / 2.5,
+            height: screenHeight / 2.6,
             resizeMode: 'contain',
         },
         androidWatch: {
@@ -156,12 +156,12 @@ const useStyles = () => {
         },
         imageContainer2: {
             paddingHorizontal: 25,
-            paddingTop: 10,
+            paddingTop: isIOS ? 10 : 0,
             paddingBottom: 16,
             alignItems: 'flex-start',
         },
         watchImage2: {
-            height: 100,
+            height: isIOS ? 100 : 90,
             // width: screenWidth / 2,
             resizeMode: 'contain'
         },

@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, Image, Platform } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { SvgXml } from 'react-native-svg'
@@ -33,12 +33,9 @@ const FreeTrial = () => {
         );
         analytics().logEvent('onboarding_free_trial_info').catch((e: any)=>{console.log(e)})
         AppEventsLogger.logEvent('fb_onboarding_free_trial_info');
+        dispatch(setIsNewUser(false))
         dispatch(setSelectedScreen(15))
     }
-
-    useEffect(() => {
-        dispatch(setIsNewUser(false))
-      },[])
 
   return (
     <SafeAreaView style={styles.mainContainer}>

@@ -149,10 +149,10 @@ const Pricing = () => {
         console.log('Channel created: ', channelId);
         
         let time = new Date()
-        time.setDate(time.getDate());
+        time.setDate(time.getDate() + 5);
         const trigger: TimestampTrigger = {
           type: TriggerType.TIMESTAMP,
-          timestamp: time.getTime() + 600000, 
+          timestamp: time.getTime(), 
           repeatFrequency: RepeatFrequency.NONE,
           alarmManager: {
             allowWhileIdle: true,
@@ -164,7 +164,7 @@ const Pricing = () => {
           {
             id: `free-trial-ends-${Date.now()}-notification`,
             title: 'Voicenotes',
-            body: 'Your free trial ends soon.',
+            body: 'Your Free Trial is ending soon!',
             android: {
               channelId,
               style: {
