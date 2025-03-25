@@ -35,7 +35,9 @@ const LargeButton = ({text, onPress, style, underlayColor, color, isLoading=fals
             {endIcon ? <SvgXml xml={endIcon} /> : <View style={{ width: 24}}></View> }
             </View> 
             : 
-            <ActivityIndicator size={"small"} color={color} />
+            <View style={{ flex: 1, marginHorizontal: 12 }}>
+              <ActivityIndicator size={"small"} color={color} />
+            </View>
         }
     </TouchableHighlight>
   )

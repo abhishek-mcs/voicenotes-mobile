@@ -20,6 +20,7 @@ const PastNotes = () => {
     const [index, setIndex] = useState(0);
     const [swiped, setSwiped] = useState(false)
     const [finished, setFinished] = useState(false);
+    const [animationCompleted, setAnimationCompleted] = useState(false);
 
     const animatedValues = useMemo(() =>
         [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
@@ -27,24 +28,26 @@ const PastNotes = () => {
       );
   
     useEffect(() => {
-      Animated.stagger(150, animatedValues.map(anim => 
-        Animated.timing(anim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        })
-      )).start();
+        Animated.stagger(150, animatedValues.map((anim) =>
+            Animated.timing(anim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            })
+        )).start(() => setAnimationCompleted(true));
     }, [animatedValues]);
 
     // Rotation Animation
     const handRotation = useRef(new Animated.Value(0)).current;
 
     const handleSwiped = () => {
-        if (index < data.length - 1) {
-            setIndex(prevIndex => prevIndex + 1);
-        } else {
-            setFinished(true); // Show "You're all caught up" message
-        }
+        setIndex((prevIndex) => {
+            if (prevIndex < data.length - 1) {
+                return prevIndex + 1;
+            }
+            setFinished(true);
+            return prevIndex;
+        });
     };
 
     const data = [
@@ -135,7 +138,7 @@ const PastNotes = () => {
         
         <View style={[styles.buttonContainer1, styles.footerContainer]}>
             <LargeButton
-                underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
+                underlayColor={Colors.blackWithOpacity(0.8)}
                 style={[styles.button, { backgroundColor: Colors.black2 }]}
                 onPress={onContinue}
                 text="Continue"

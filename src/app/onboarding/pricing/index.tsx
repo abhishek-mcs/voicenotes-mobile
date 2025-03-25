@@ -391,12 +391,12 @@ const useStyles = () => {
     title: {
         fontFamily: 'Primary-Semibold',
         fontSize: screenHeight/45,
-        lineHeight: screenHeight/43,
+        lineHeight: screenHeight/40,
         color: Colors.black2,
     },
     description: {
-        fontSize: screenHeight/48,
-        lineHeight: screenHeight/40,
+        fontSize: screenHeight/50,
+        lineHeight: screenHeight/35,
         fontFamily: 'Primary',
         color: Colors.text10,
         marginTop: 4,
