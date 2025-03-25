@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import * as Haptics from "expo-haptics";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
-import { screenWidth } from 'utils/common';
+import { screenHeight, screenWidth } from 'utils/common';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
 
@@ -131,7 +131,7 @@ const useStyles = () => {
             alignItems: 'center',
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 700 ? 20 : 0,
             paddingHorizontal: 16,
             paddingBottom: 16,
         },

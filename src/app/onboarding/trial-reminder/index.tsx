@@ -78,7 +78,7 @@ const useStyles = () => {
             marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: screenHeight > 720 ? 20 : 0,
+            marginTop: screenHeight > 700 ? 20 : 0,
             paddingHorizontal: 24,
             paddingBottom: 16,
             justifyContent: 'center',

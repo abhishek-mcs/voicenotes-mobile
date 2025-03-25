@@ -203,7 +203,7 @@ const useStyles = () => {
             elevation: 5,
 
             position: 'absolute',
-            bottom: screenHeight > 720 ? 120 : 80,
+            bottom: screenHeight > 700 ? 120 : 80,
             right: 0,
             left: 0
         },

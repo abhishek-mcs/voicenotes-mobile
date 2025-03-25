@@ -20,7 +20,7 @@ import { useQueryClient } from 'react-query'
 import { RootState } from 'redux/store/store'
 import { analytics } from '../../../../firebaseConfig'
 import { AppEventsLogger } from "react-native-fbsdk-next";
-import { isIOS } from 'utils/common'
+import { isIOS, screenHeight } from 'utils/common'
 
 const Email = () => {
     const styles = useStyles()
@@ -319,7 +319,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 700 ? 20 : 0,
             justifyContent: 'center',
             alignItems: 'center',
         },

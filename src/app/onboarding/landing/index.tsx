@@ -143,7 +143,7 @@ const useStyles = () => {
             marginTop: isIOS ? 0 : screenHeight/22
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 700 ? 20 : 0,
             justifyContent: 'center',
             alignItems: 'center',
         },

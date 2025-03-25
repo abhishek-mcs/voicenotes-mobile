@@ -20,6 +20,7 @@ import { analytics } from '../../../../firebaseConfig'
 // import { formatTime } from 'utils/format-date'
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { screenHeight } from 'utils/common';
 
 const Password = () => {
     const styles = useStyles()
@@ -251,7 +252,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 700 ? 20 : 0,
             justifyContent: 'center',
             alignItems: 'center',
         },
