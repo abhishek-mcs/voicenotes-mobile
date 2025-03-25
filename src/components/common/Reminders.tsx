@@ -9,6 +9,7 @@ import { cancelNotification, getNotification, setNotification } from "utils/cach
 import SwitchAndroid from "components/common/SwitchAndroid";
 import { isIOS } from "utils/common";
 import CustomTimePicker from "components/common/TimePicker";
+import * as Sentry from '@sentry/react-native';
 
 const motivators = {
     morning: "Good morning! Take a moment for a quick brain dump and clear your mind for what's ahead.",
@@ -204,7 +205,8 @@ const Reminders: React.FC = () => {
             setActive(prev => ({ ...prev, [type]: true }))
         } catch(error) {
             setActive(prev => ({ ...prev, [type]: false }))
-            Alert.alert('Oops', 'Failed to schedule notification since this time has likely passed for today. Please try again with a different time.')
+            Alert.alert('Oops', 'We ran into an unexpected error trying to schedule notifications in your device. Please report this to the team.')
+            Sentry.captureException(error)
             console.error(error)
         } finally {
             setWorking(null)
