@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Pressable, Modal, Animated, PanResponder, Platf
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTheme } from "context";
 import { Switch } from "@rneui/themed";
-import { SvgXml } from "react-native-svg";
+import { err, SvgXml } from "react-native-svg";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import notifee, { AndroidImportance, AndroidNotificationSetting, RepeatFrequency, TimestampTrigger, TriggerType, AndroidStyle } from "@notifee/react-native";
 import { cancelNotification, getNotification, setNotification } from "utils/cache";
@@ -166,51 +166,56 @@ const Reminders: React.FC = () => {
 
     const scheduleNotification = async (type: 'morning' | 'evening', dateObject?: Date) => {
         setWorking(type)
-        createNotificationChannel().then(channel => {
+        createNotificationChannel().then(async (channel) => {
             notificationChannel.current = channel;
-        })
-        try {
-            if(!await checkAndroidPermissions()) {
-                setWorking(null)
-                return
-            }
-    
-            const time = dateObject || getNextValidTime(type === 'morning' ? morningTime : eveningTime)
-            const trigger: TimestampTrigger = {
-                type: TriggerType.TIMESTAMP,
-                timestamp: time.getTime(),
-                repeatFrequency: RepeatFrequency.DAILY,
-                alarmManager: {
-                    allowWhileIdle: true,
+            try {
+                if(!await checkAndroidPermissions()) {
+                    setWorking(null)
+                    return
                 }
-            };
-    
-            const id = await notifee.createTriggerNotification(
-                {
-                    id: `${type}-${time.getTime()}-notification`,
-                    title: 'Voicenotes',
-                    body: motivators[type],
-                    android: {
-                        channelId: notificationChannel.current,
-                        style: {
-                            type: AndroidStyle.BIGTEXT,
-                            text: motivators[type]
+        
+                const time = dateObject || getNextValidTime(type === 'morning' ? morningTime : eveningTime)
+                const trigger: TimestampTrigger = {
+                    type: TriggerType.TIMESTAMP,
+                    timestamp: time.getTime(),
+                    repeatFrequency: RepeatFrequency.DAILY,
+                    alarmManager: {
+                        allowWhileIdle: true,
+                    }
+                };
+        
+                const id = await notifee.createTriggerNotification(
+                    {
+                        id: `${type}-${time.getTime()}-notification`,
+                        title: 'Voicenotes',
+                        body: motivators[type],
+                        android: {
+                            channelId: notificationChannel.current,
+                            style: {
+                                type: AndroidStyle.BIGTEXT,
+                                text: motivators[type]
+                            },
                         },
                     },
-                },
-                trigger
-            )
-    
-            await setNotification({ time, type, id, active: true })
-            setActive(prev => ({ ...prev, [type]: true }))
-        } catch(error) {
+                    trigger
+                )
+        
+                await setNotification({ time, type, id, active: true })
+                setActive(prev => ({ ...prev, [type]: true }))
+            } catch(error) {
+                setActive(prev => ({ ...prev, [type]: false }))
+                Alert.alert('Oops', 'We ran into an unexpected error trying to schedule notifications in your device. Please report this to the team.')
+                Sentry.captureException(error)
+                console.error(error)
+            } finally {
+                setWorking(null)
+            }
+        }).catch(error => {
             setActive(prev => ({ ...prev, [type]: false }))
             Alert.alert('Oops', 'We ran into an unexpected error trying to schedule notifications in your device. Please report this to the team.')
             Sentry.captureException(error)
             console.error(error)
-        } finally {
-            setWorking(null)
-        }
+        })
     }
 
     const clearNotification = async (type: 'morning' | 'evening') => {
