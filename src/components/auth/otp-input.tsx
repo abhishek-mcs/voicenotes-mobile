@@ -5,7 +5,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, Text } from 'react-native';
 import { isIOS } from 'utils/common';
 
-export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='' }) => {
+export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='', onSubmit=()=>{} }) => {
   const inputRefs = Array.from({ length: numberOfInputs }, () => useRef<TextInput>(null));
   const [currentIndex,setCurrentIndex] = useState(0)
   const isPasting=useRef(false);
@@ -91,6 +91,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               onKeyPress={({nativeEvent}) => handleInputChange(index, nativeEvent?.key)}
               onChangeText={async(v)=>await handleInputPaste(v)}
               returnKeyType="done"   
+              onSubmitEditing={onSubmit}
             />
           </View>
           </View>
@@ -115,6 +116,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               onKeyPress={({nativeEvent}) => handleInputChange(index + numberOfInputs / 2, nativeEvent?.key)}
               onChange={async(v)=>await handleInputPaste(v)}
               returnKeyType="done"   
+              onSubmitEditing={onSubmit}
             />
           </View>
           </View>

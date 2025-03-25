@@ -29,6 +29,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
     const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
     const [otpText, setOTP] = useState('------')
     const [errorText, setErrorText] = useState('')
+    const [loading, setLoading] = useState(false)
     const errorContent='Sorry, the code you have entered is invalid.'
 
     useEffect(() => {
@@ -41,7 +42,10 @@ const VerifyEmail: React.FC<Props> = (props) => {
     const verifyOtp = () => {
         if (otpText == "") {
           setErrorText(errorContent)
-        } else handleSubmit(false)
+        } else {
+            setLoading(true)
+            handleSubmit(false)
+        }
     }
 
     const  handleSubmit = async (getOtp:boolean) => {
@@ -58,6 +62,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
                       if(!getOtp) {
                         await queryClient.invalidateQueries('user-data')
                         dispatch(setEmailVerified(true))
+                        setLoading(false)
                         router.back()
                         router.push('/home/')
                       }
@@ -90,6 +95,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
                     onChange={(v)=>{setOTP(v);errorText?.length!=0&&setErrorText("")}}
                     otpValue={otpText}
                     errorText={errorText}
+                    onSubmit={verifyOtp}
                 />}
                 <View style={[styles.buttonContainer, styles.footerContainer]}>
                     <LargeButton
@@ -98,6 +104,7 @@ const VerifyEmail: React.FC<Props> = (props) => {
                         onPress={verifyOtp}
                         text="Done"
                         color={Colors.text4}
+                        isLoading={loading}
                     />
                     <Pressable onPress={() => handleSubmit(true)}>
                         <Text style={styles.blueButton}>Resend email</Text>
