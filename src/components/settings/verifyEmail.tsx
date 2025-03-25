@@ -55,10 +55,11 @@ const VerifyEmail: React.FC<Props> = (props) => {
                 {
                     onSuccess: async (response: any, _variables: any, _context: any) => {
                       console.log('Verify email ',response);
-                      queryClient.invalidateQueries('user-data')
-                      dispatch(setEmailVerified(true))
                       if(!getOtp) {
+                        await queryClient.invalidateQueries('user-data')
+                        dispatch(setEmailVerified(true))
                         router.back()
+                        router.push('/home/')
                       }
                     },
                     onError: (error: any) => {

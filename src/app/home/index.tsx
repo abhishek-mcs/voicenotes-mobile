@@ -160,6 +160,8 @@ const Home = () => {
   },[userDetails])
 
   useEffect(() => {
+    console.log('user', userDetails.is_new_user, emailVerified);
+    
     if(userDetails.is_new_user) {
       dispatch(setIsNewUser(true))
     }

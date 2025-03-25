@@ -135,12 +135,12 @@ const PastNotes = () => {
         
         <View style={[styles.buttonContainer1, styles.footerContainer]}>
             <LargeButton
-                underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
-                style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
+                underlayColor={Colors.blackWithOpacity(0.8)}
+                style={[styles.button, { backgroundColor: Colors.black2 }]}
                 onPress={onContinue}
                 text="Continue"
                 isLoading={false}
-                color={Colors.text4}
+                color={Colors.white1}
             />
         </View>
     </SafeAreaView>
