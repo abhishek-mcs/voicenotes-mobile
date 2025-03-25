@@ -10,6 +10,8 @@ import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useDispatch } from 'react-redux';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { SvgXml } from 'react-native-svg';
+import { onboardingSvg } from 'assets/svg/onboardingSvg';
 
 const PastNotes = () => {
     const styles = useStyles()
@@ -17,6 +19,7 @@ const PastNotes = () => {
     const dispatch=useDispatch()
     const [index, setIndex] = useState(0);
     const [swiped, setSwiped] = useState(false)
+    const [finished, setFinished] = useState(false);
 
     const animatedValues = useMemo(() =>
         [new Animated.Value(screenWidth), new Animated.Value(screenWidth), new Animated.Value(screenWidth)],
@@ -37,8 +40,11 @@ const PastNotes = () => {
     const handRotation = useRef(new Animated.Value(0)).current;
 
     const handleSwiped = () => {
-        // setSwiped(true)
-        setIndex((prevIndex) => (prevIndex + 1) % data.length); 
+        if (index < data.length - 1) {
+            setIndex(prevIndex => prevIndex + 1);
+        } else {
+            setFinished(true); // Show "You're all caught up" message
+        }
     };
 
     const data = [
@@ -92,25 +98,26 @@ const PastNotes = () => {
             <Text style={styles.subheading}>Our AI automatically resurfaces your past notes</Text>
         </View>
         <View style={styles.cardContainer}>
+        {!finished ? (
             <Swiper
                 cards={data}
                 renderCard={(item) => (
-                  <Animated.View
-                    style={[
-                        styles.cardImage,
-                        { transform: [{ translateX: animatedValues[index] }] }
-                    ]}
-                  >
-                    {item.image}
-                  </Animated.View>
+                    <Animated.View style={[styles.cardImage, { transform: [{ translateX: animatedValues[index] }] }]}>                            
+                        {item.image}
+                    </Animated.View>
                 )}
                 onSwiped={handleSwiped}
                 cardIndex={index}
-                infinite
+                infinite={false} // Stop after last card
                 backgroundColor="transparent"
                 stackSize={3}
                 onSwiping={() => setSwiped(true)}
             />
+        ) : (
+            <View style={{ height: '60%',justifyContent: 'center', alignItems: 'center'}}>
+                <SvgXml xml={onboardingSvg.check} />
+            </View> 
+        )}
             {/* Hand Icon Animation */}
             {/* <Animated.Image
                 source={require('../../../assets/images/hand.png')}
@@ -121,7 +128,7 @@ const PastNotes = () => {
                     },
                 ]}
             /> */}
-            {!swiped && <View style={styles.handContainer}>
+            {!swiped && !finished && <View style={styles.handContainer}>
                 <LottieView source={isLightMode ? require('../../../assets/lottie/hand.json') : require('../../../assets/lottie/hand-dark.json')} autoPlay loop style={styles.handIcon}/>
             </View>}
         </View>
@@ -220,6 +227,13 @@ const useStyles = () => {
             bottom: isIOS ? -screenHeight/2 : -screenHeight/1.9,
             // right: 0,
             // opacity: 0.8,
+        },
+        caughtUpText: {
+            fontSize: 24,
+            fontWeight: 'bold',
+            color: Colors.black2,
+            textAlign: 'center',
+            marginTop: 20,
         },
         text: { 
             fontFamily:'Primary-Semibold',
