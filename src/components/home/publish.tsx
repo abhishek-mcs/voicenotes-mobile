@@ -6,27 +6,54 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { SvgXml } from 'react-native-svg';
 import * as Haptics from "expo-haptics";
 import { commonSvg } from 'assets/svg/commonSvg';
+import { screenWidth } from 'utils/common';
+import { useUnpublishRecording } from 'queries/home/share';
+import { useQueryClient } from 'react-query';
 
 interface PublishModalProps {
     slug: string | any;
     isPublished: boolean;
-    onPressDone: () => void;
-    onPressCancel: () => void;
-    isNoteJustMadePrivate: boolean;
-    setIsNoteJustMadePrivte: (x: boolean) => void;
 } 
 
 const Publish = ({
         slug = "",
         isPublished = false,
-        onPressDone = () => {},
-        onPressCancel = () => {},
-        isNoteJustMadePrivate = false,
-        setIsNoteJustMadePrivte = () => {},
     } : PublishModalProps) => {
     const styles = useStyles()
-    const { Colors, isLightMode } = useTheme()
+    const { Colors } = useTheme()
     const [copy, setCopy] = useState(false);
+    const [loading, setLoading] = useState(false)
+    const [published, setPublished] = useState(isPublished)
+    const publishRecording = useUnpublishRecording()
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        console.log(isPublished, published);
+    },[isPublished])
+
+    const onPublish = () => {
+        publishRecording.mutate(
+          { id: slug },
+          {
+            onSuccess: async (data: any) => {
+              try {
+                setLoading(true)
+                console.log(data.data.recording.is_published);
+                
+                setPublished(data.data.recording.is_published)
+                await queryClient.invalidateQueries("published-recordings");
+                await queryClient.invalidateQueries("all-recording");
+                await queryClient.invalidateQueries("single-recording");
+              } catch (e) {
+                console.log("error in publish recording", e);
+              } finally {
+                setLoading(false)
+              }
+            }
+          }
+        )
+      }
+    
 
     const onCopy = async () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -42,7 +69,7 @@ const Publish = ({
     return (
         <View style={styles.container}>
             {/* Title & Subtitle */}
-            {isPublished ? 
+            {published ? 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
                     <SvgXml style={{ marginTop: 4 }} xml={commonSvg.greenTick} />
                     <Text style={styles.title}>Your note is public</Text>
@@ -82,17 +109,17 @@ const Publish = ({
             </View>
 
             {/* Publish Button */}
-            {isPublished ? 
+            {published ? 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={onCopy} style={styles.copyLinkButton}>
                     <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
                     <Text style={styles.copyLinkText}>Copy link</Text>
                 </TouchableOpacity> 
-                <TouchableOpacity onPress={onPressDone}>
+                <TouchableOpacity onPress={onPublish}>
                     <Text style={styles.unpublishText}>Unpublish</Text>
                 </TouchableOpacity>
             </View>
-            : <TouchableOpacity onPress={onPressDone} style={styles.publishButton}>
+            : <TouchableOpacity onPress={onPublish} style={styles.publishButton}>
                 <Text style={styles.publishText}>Publish</Text>
             </TouchableOpacity> 
             }
@@ -101,7 +128,7 @@ const Publish = ({
 }
 
 const useStyles = () => {
-  const { Colors } = useTheme();
+  const { Colors, isLightMode } = useTheme();
   return useMemo(() => StyleSheet.create({
     container: {
         flex: 1,
@@ -109,12 +136,13 @@ const useStyles = () => {
         justifyContent: 'flex-start',
         paddingTop: 25,
         paddingHorizontal: 20,
-        backgroundColor: '#fff',
+        backgroundColor: Colors.darkWithOpacity(0.2),
     },
     title: {
         fontSize: 16,
         fontFamily: 'Primary-Semibold',
         marginBottom: 6,
+        color: Colors.black2
     },
     subtitle: {
         fontSize: 12,
@@ -132,12 +160,12 @@ const useStyles = () => {
         overflow: 'hidden',
     },
     browserHeader: {
-        width: '67%',
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 10,
-        backgroundColor: Colors.whiteWithOpacity(1),
+        backgroundColor: isLightMode ? Colors.whiteWithOpacity(1) : Colors.darkWithOpacity(0.7),
         borderBottomColor: Colors.darkWithOpacity(0.1),
         borderBottomWidth: 1
     },
@@ -155,7 +183,8 @@ const useStyles = () => {
         marginLeft: 10,
         fontSize: 13,
         fontFamily: 'Primary-Bold',
-        color: Colors.grey5
+        paddingRight: screenWidth/3.5,
+        color: isLightMode ? Colors.grey5 : Colors.black2
     },
     voiceNoteContent: {
         padding: 16,
@@ -170,7 +199,7 @@ const useStyles = () => {
     audioPlayer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: Colors.darkWithOpacity(0.05),
+        backgroundColor: isLightMode ? Colors.darkWithOpacity(0.05) : Colors.darkWithOpacity(0.7),
         paddingVertical: 6,
         borderRadius: 22,
         paddingHorizontal: 12,
@@ -178,7 +207,7 @@ const useStyles = () => {
         width: 88
     },
     playIcon: {
-        color: Colors.darkWithOpacity(1),
+        color: isLightMode ? Colors.grey3 : Colors.black2,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 8,
@@ -187,11 +216,12 @@ const useStyles = () => {
     timer: {
         fontSize: 14,
         fontFamily: 'Primary-Semibold',
+        color: isLightMode ? Colors.grey3 : Colors.black2,
     },
     voiceText: {
         fontSize: 12,
         lineHeight: 18,
-        color: Colors.grey3,
+        color: isLightMode ? Colors.grey3 : Colors.black2,
     },
     publishButton: {
         marginTop: 24,

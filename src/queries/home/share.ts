@@ -21,6 +21,10 @@ export function useGetPublishedRecording(){
         return axiosApi.get(`/recordings/public?page=1`)
     },
     {
+        onSuccess:async(data:any)=>{
+            console.log('',data);
+            
+        },
         onError:(error:any)=>{
             console.log('published-recordings',error?.response?.data?.message);
         }

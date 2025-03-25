@@ -6,8 +6,8 @@ import Touchable from 'components/common/Touchable'
 import { useTheme } from 'context'
 import { router } from 'expo-router'
 import * as Haptics from "expo-haptics";
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView, Image } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isIOS } from 'utils/common'
@@ -22,21 +22,14 @@ import { RootState } from 'redux/store/store';
 interface PublishModalProps {
   isPublished: boolean;
   sharedList: any;
-  onPressDone: () => void;
-  onPressCancel: () => void;
-  isNoteJustMadePrivate: boolean;
-  setIsNoteJustMadePrivte: (x: boolean) => void;
 }
 
 const SharePublish = ({
   isPublished = false,
   sharedList = [],
-  onPressDone = () => {},
-  onPressCancel = () => {},
-  isNoteJustMadePrivate = false,
-  setIsNoteJustMadePrivte = () => {},
 } : PublishModalProps) => {
   const styles = useStyles()
+  const menuRefs = useRef<any[]>([]);
   const queryClient = useQueryClient();
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
@@ -52,9 +45,12 @@ const SharePublish = ({
   const [recent, setRecent] = useState(shareList.recent ? shareList.recent : []);
   const [visible, setVisible] = useState(false);
 
-  const hideMenu = () => setVisible(false);
+  // const hideMenu = () => setVisible(false);
 
-  const showMenu = () => setVisible(true);
+  // const showMenu = () => setVisible(true);
+
+  const showMenu = (index: number) => menuRefs.current[index]?.show();
+  const hideMenu = (index: number) => menuRefs.current[index]?.hide();
 
   const onClose = () => { router.back() }
 
@@ -74,8 +70,7 @@ const SharePublish = ({
     setEmail('')
   }
 
-  const onRevoke = (emailId: string) => {
-    console.log(emailId);
+  const onRevoke = (emailId: string, index: any) => {
     revokeShared.mutate(
       { id: noteId, email: emailId },
       {
@@ -91,12 +86,11 @@ const SharePublish = ({
         }
       }
     )
-    hideMenu()
+    hideMenu(index)
   }
 
   useEffect(() => {
     if (shareList) {
-      console.log('API called', shareList);
       setSharedUsers(shareList?.users ? shareList.users : []);
       setRecent(shareList.recent ? shareList.recent : []);
     }
@@ -200,7 +194,7 @@ const SharePublish = ({
           {sharedUsers.length > 0 && sharedUsers.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
-                <View style={{ width: 32, height: 32, backgroundColor: Colors.darkWithOpacity(0.1) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(0.8) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
                   <SvgXml xml={commonSvg.unknown?.replace("white",Colors.lightGrey)} />
                 </View> 
               }
@@ -209,11 +203,12 @@ const SharePublish = ({
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
               <Menu
+                ref={(ref) => (menuRefs.current[index] = ref)}
                 visible={visible}
-                anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10}} onPress={showMenu}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
-                onRequestClose={hideMenu}
+                anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                onRequestClose={() => hideMenu(index)}
               >
-                <MenuItem onPress={() => onRevoke(user.email)}>
+                <MenuItem onPress={() => onRevoke(user.email, index)}>
                   <Text style={{ color: 'red' }}>Revoke</Text>
                 </MenuItem>
               </Menu>
@@ -225,7 +220,7 @@ const SharePublish = ({
           {recent.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
-                <View style={{ width: 32, height: 32, backgroundColor: Colors.darkWithOpacity(0.1) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(0.8) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
                   <SvgXml xml={commonSvg.unknown?.replace("white",Colors.lightGrey)} />
                 </View> 
               }
@@ -250,10 +245,6 @@ const SharePublish = ({
       <Publish 
         slug={noteId} 
         isPublished={isPublished}  
-        onPressDone={onPressDone}
-        onPressCancel={onPressCancel}
-        isNoteJustMadePrivate={isNoteJustMadePrivate}
-        setIsNoteJustMadePrivte={setIsNoteJustMadePrivte}
       />
       }
     </SafeAreaView>
