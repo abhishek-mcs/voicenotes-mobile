@@ -296,12 +296,7 @@ const NotePreview = forwardRef(
         router.navigate({
           pathname: "/share",
           params: {
-            isPublished: isPublished,
-            sharedList: shareList,
-            onPressCancel: () => setShareVisible(false),
-            onPressDone: togglePublish,
-            isNoteJustMadePrivate:isNoteJustMadePrivate,
-            setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
+            is_published: isPublished,
           }
         });
       }, 500);

@@ -4,7 +4,7 @@ import { setStringAsync } from "expo-clipboard";
 import { TextField } from 'components/common/text-field'
 import Touchable from 'components/common/Touchable'
 import { useTheme } from 'context'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native'
@@ -20,12 +20,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store/store';
 
 interface PublishModalProps {
-  isPublished: boolean;
-  sharedList: any;
+  isPublished?: any;
+  sharedList?: any;
 }
 
 const SharePublish = ({
-  isPublished = false,
+  isPublished,
   sharedList = [],
 } : PublishModalProps) => {
   const styles = useStyles()
@@ -34,6 +34,7 @@ const SharePublish = ({
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
   const {noteId} = useSelector((state:RootState)=>state.editStates)
+  const {is_published} = useLocalSearchParams()
   const getShareList = useGetSharedList(noteId)
   const shareList = getShareList.data?.data
   const shareRecording = useShareRecording();
@@ -88,6 +89,11 @@ const SharePublish = ({
     )
     hideMenu(index)
   }
+
+  useEffect(() => {
+    console.log('params',is_published);
+    
+  },[is_published])
 
   useEffect(() => {
     if (shareList) {
@@ -244,7 +250,7 @@ const SharePublish = ({
       </View> : 
       <Publish 
         slug={noteId} 
-        isPublished={isPublished}  
+        isPublished={is_published}  
       />
       }
     </SafeAreaView>

@@ -11,13 +11,13 @@ import { useUnpublishRecording } from 'queries/home/share';
 import { useQueryClient } from 'react-query';
 
 interface PublishModalProps {
-    slug: string | any;
-    isPublished: boolean;
+    slug?: string | any;
+    isPublished?: any;
 } 
 
 const Publish = ({
         slug = "",
-        isPublished = false,
+        isPublished,
     } : PublishModalProps) => {
     const styles = useStyles()
     const { Colors } = useTheme()
@@ -136,7 +136,7 @@ const useStyles = () => {
         justifyContent: 'flex-start',
         paddingTop: 25,
         paddingHorizontal: 20,
-        backgroundColor: Colors.darkWithOpacity(0.2),
+        backgroundColor: isLightMode ? Colors.white1 : Colors.darkWithOpacity(0.2),
     },
     title: {
         fontSize: 16,
@@ -207,7 +207,7 @@ const useStyles = () => {
         width: 88
     },
     playIcon: {
-        color: isLightMode ? Colors.grey3 : Colors.black2,
+        color: Colors.black2,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 8,
@@ -216,7 +216,7 @@ const useStyles = () => {
     timer: {
         fontSize: 14,
         fontFamily: 'Primary-Semibold',
-        color: isLightMode ? Colors.grey3 : Colors.black2,
+        color: Colors.black2,
     },
     voiceText: {
         fontSize: 12,
