@@ -9,6 +9,7 @@ import { setNoteTakingFrequency, setSelectedScreen } from 'redux/reducers/onboar
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { screenHeight } from 'utils/common';
 
 const Frequency = ({data}: any) => {
     const styles = useStyles()
@@ -74,7 +75,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 20,
             paddingBottom: 10,
             justifyContent: 'center',

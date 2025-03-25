@@ -9,6 +9,7 @@ import { setRevisitFrequency, setSelectedScreen } from 'redux/reducers/onboardin
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
+import { screenHeight } from 'utils/common';
 
 const Revisit = ({data}: any) => {
     const styles = useStyles()
@@ -74,7 +75,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 16,
             paddingBottom: 16,
             justifyContent: 'center',

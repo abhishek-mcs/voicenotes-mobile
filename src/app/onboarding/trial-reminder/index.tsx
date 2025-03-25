@@ -9,6 +9,7 @@ import { SvgXml } from 'react-native-svg'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { analytics } from '../../../../firebaseConfig'
 import { AppEventsLogger } from 'react-native-fbsdk-next'
+import { screenHeight } from 'utils/common'
 
 const TrialReminder = () => {
     const styles = useStyles()
@@ -77,7 +78,7 @@ const useStyles = () => {
             marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 24,
             paddingBottom: 16,
             justifyContent: 'center',

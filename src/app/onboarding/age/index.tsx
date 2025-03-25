@@ -9,6 +9,7 @@ import { setAgeGroup, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from "react-native-fbsdk-next";
+import { screenHeight } from 'utils/common';
 // import { logEvent } from 'func/analytics/logEvent';
 
 const Age = ({data}: any) => {
@@ -79,7 +80,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 20,
             justifyContent: 'center',
             alignItems: 'center',

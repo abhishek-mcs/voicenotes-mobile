@@ -140,7 +140,7 @@ const useStyles = () => {
         mainContainer: {
             flex: 1,
             backgroundColor: Colors.whiteWithOpacity(1),
-            marginTop: isIOS ? 0 : screenHeight/20
+            marginTop: isIOS ? 0 : screenHeight/22
         },
         mainTextContainer: {
             marginTop: 20,
@@ -149,18 +149,18 @@ const useStyles = () => {
         },
         mainText: {
             fontFamily: 'Secondary',
-            fontSize: screenWidth * 0.17,
+            fontSize: screenWidth * 0.18,
             textAlign: 'center',
             color: Colors.black2
         },
         imageContainer: {
-            paddingTop: 20,
+            paddingTop: screenHeight/30,
             justifyContent: 'center',
             alignItems: 'center',
         },
         card: {
             width: screenWidth,
-            height: screenHeight/2.5,
+            height: screenHeight < 680 ? screenHeight/2.8 : screenHeight/2.5,
             justifyContent: 'center',
             alignItems: 'center',
         },
@@ -183,7 +183,8 @@ const useStyles = () => {
             borderRadius: 5,
         },
         landingImage: {
-            width: isIOS ? screenWidth/1.2 : screenWidth/1.35,
+            height: screenHeight < 680 ? screenHeight/2.8 : screenHeight/2.5,
+            // width: isIOS ? screenWidth/1.2 : screenWidth/1.35,
             resizeMode: 'contain',
         },
         text: {
@@ -203,7 +204,7 @@ const useStyles = () => {
         },
         footerContainer: {
             position: 'absolute',
-            bottom: 32,
+            bottom: 20,
             right: 0,
             left: 0
         }

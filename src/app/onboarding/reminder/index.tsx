@@ -9,7 +9,7 @@ import { setSelectedScreen } from 'redux/reducers/onboardingData';
 import { useMemo } from 'react';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
-import { screenWidth } from 'utils/common';
+import { screenHeight, screenWidth } from 'utils/common';
 
 const Reminder = () => {
     const styles = useStyles()
@@ -89,7 +89,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 16,
             paddingBottom: 16,
             justifyContent: 'center',

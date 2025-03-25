@@ -276,6 +276,7 @@ const useStyles = () => {
             alignItems:'center',
             borderRadius:16,
             flexDirection:'row',
+            marginBottom: 20
         },
         footerContainer: {
             position: 'absolute',

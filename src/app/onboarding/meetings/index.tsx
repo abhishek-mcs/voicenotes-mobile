@@ -118,7 +118,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 16,
             justifyContent: 'center',
             alignItems: 'center',
@@ -151,11 +151,12 @@ const useStyles = () => {
         },
         card: {
             width: width,
-            height: screenHeight/2.2,
+            height: screenHeight > 680 ? screenHeight/2.2 : screenHeight/2.6,
             justifyContent: 'center',
             alignItems: 'center'
         },
         pagination: {
+            marginTop:5,
             flexDirection: "row",
             alignItems: 'center'
         },
@@ -189,17 +190,18 @@ const useStyles = () => {
             flexDirection:'row'
         },
         meetingImage1: {
-            height: screenHeight/2.4,
+            height: screenHeight < 680 ? screenHeight/2.6 : screenHeight/2.4,
             // width: screenWidth / 1.2,
             resizeMode: 'contain',
         },
         meetingImage2: {
-            height: screenHeight/2.4,
+            height: screenHeight < 680 ? screenHeight/2.6 : screenHeight/2.4,
             // width: screenWidth / 1.4,
             resizeMode: 'contain',
         },
         meetingImage3: {
-            width: screenWidth / 1.1,
+            // width: screenWidth / 1.1,
+            height: screenHeight < 680 ? screenHeight/2.6 : screenHeight/2.4,
             resizeMode: 'contain',
         },
         footerContainer: {

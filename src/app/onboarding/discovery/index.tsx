@@ -10,7 +10,7 @@ import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from "react-native-fbsdk-next";
 import { ScrollView } from 'react-native';
-import { isAndroid } from 'utils/common';
+import { isAndroid, screenHeight } from 'utils/common';
 
 const Discovery = ({data}: any) => {
     const styles = useStyles()
@@ -81,7 +81,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingBottom: 4,
             paddingHorizontal: 20,
             justifyContent: 'center',

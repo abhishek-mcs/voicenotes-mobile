@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
-import { setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
-import { isAndroid, screenWidth } from 'utils/common'
+import { setIsNewUser, setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
+import { isAndroid, screenHeight, screenWidth } from 'utils/common'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
@@ -48,6 +48,7 @@ const Topics = ({data}: any) => {
         analytics().logEvent('onboarding_note_types').catch(e=>{console.log(e)})
         AppEventsLogger.logEvent('fb_onboarding_note_types');
         dispatch(setNoteTypes(isSelected))
+        dispatch(setIsNewUser(false))
         if (isSelected.length == 0) {
             setError(true)
         }
@@ -106,7 +107,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 20,
             paddingBottom: 10,
             justifyContent: 'center',

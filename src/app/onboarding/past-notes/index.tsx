@@ -135,7 +135,7 @@ const PastNotes = () => {
         
         <View style={[styles.buttonContainer1, styles.footerContainer]}>
             <LargeButton
-                underlayColor={Colors.blackWithOpacity(0.8)}
+                underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                 style={[styles.button, { backgroundColor: Colors.black2 }]}
                 onPress={onContinue}
                 text="Continue"
@@ -156,7 +156,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingHorizontal: 16,
             justifyContent: 'center',
             alignItems: 'center',
@@ -203,7 +203,7 @@ const useStyles = () => {
             elevation: 5,
 
             position: 'absolute',
-            bottom: isIOS ? 180 : 120,
+            bottom: screenHeight > 720 ? 120 : 80,
             right: 0,
             left: 0
         },

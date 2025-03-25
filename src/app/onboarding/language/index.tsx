@@ -10,7 +10,7 @@ import { RootState } from 'redux/store/store';
 import { Animated } from 'react-native';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
-import { isAndroid, screenWidth } from 'utils/common';
+import { isAndroid, screenHeight, screenWidth } from 'utils/common';
 import { ScrollView } from 'react-native';
 
 const Language = () => {
@@ -104,7 +104,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: 20,
+            marginTop: screenHeight > 720 ? 20 : 0,
             paddingBottom: 16,
             paddingHorizontal: 20,
             justifyContent: 'center',

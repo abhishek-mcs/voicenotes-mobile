@@ -334,7 +334,7 @@ const useStyles = () => {
         marginTop: isIOS ? 0 : screenHeight/15
     },
     mainTextContainer: {
-        marginTop: 12,
+        marginTop: screenHeight > 720 ? 12 : 0,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -347,7 +347,7 @@ const useStyles = () => {
     },
     text: { 
         fontFamily: 'Primary-Semibold', 
-        fontSize: 16
+        fontSize: screenWidth/28
     },
     timelineContainer: {
         flexGrow: 1,
@@ -390,13 +390,13 @@ const useStyles = () => {
     },
     title: {
         fontFamily: 'Primary-Semibold',
-        fontSize: screenWidth/25,
-        lineHeight: 20,
+        fontSize: screenHeight/45,
+        lineHeight: screenHeight/43,
         color: Colors.black2,
     },
     description: {
-        fontSize: screenWidth/25,
-        lineHeight: 24,
+        fontSize: screenHeight/48,
+        lineHeight: screenHeight/40,
         fontFamily: 'Primary',
         color: Colors.text10,
         marginTop: 4,
@@ -407,7 +407,7 @@ const useStyles = () => {
         alignItems: "center",
         marginTop: 5,
         paddingHorizontal: 22,
-        paddingBottom: 22,
+        paddingBottom: screenHeight > 720 ? 22 : 12,
         gap: 18
     },
     planContainer: {
@@ -470,7 +470,7 @@ const useStyles = () => {
     },
     footerContainer: {
         position: 'absolute',
-        bottom: 40,
+        bottom: 30,
         right: 0,
         left: 0
     }
