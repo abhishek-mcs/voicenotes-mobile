@@ -101,7 +101,7 @@ const PastNotes = () => {
         {!finished ? (
             <Swiper
                 cards={data}
-                renderCard={(item) => (
+                renderCard={(item: any) => (
                     <Animated.View style={[styles.cardImage, { transform: [{ translateX: animatedValues[index] }] }]}>                            
                         {item.image}
                     </Animated.View>
