@@ -59,7 +59,8 @@
       "autoIncrement": true,
       "channel": "merina",
       "android": {
-        "resourceClass": "large"
+        "resourceClass": "large",
+        "buildType": "apk"
       }
     }
   },
