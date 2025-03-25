@@ -82,8 +82,11 @@ export const recordingStates = createSlice({
     updateTempRecordingData: (state, action: PayloadAction<any>) => {
       if( action.payload === 'processed')
         state.tempRecordingData=[]
-      else
-        state.tempRecordingData.status= action.payload??'upload_failed'
+      else{
+        const temp = {...state.tempRecordingData}
+        temp.status= action.payload??'upload_failed'
+        state.tempRecordingData={...temp}
+      }
     },
     updateRecordingDetails: (state, action: PayloadAction<any>) => {
       const { recordingId, temporaryRecordingId, data } = action.payload;

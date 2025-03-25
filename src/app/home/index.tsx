@@ -3,6 +3,8 @@ import {
   DeviceEventEmitter,
   Easing,
   KeyboardAvoidingView,
+  Modal,
+  Pressable,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -69,6 +71,10 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useForceUpdateCheck } from "hooks/force-update/useForceUpdateCheck";
+import ExpandableCalendar from "components/home/Calendar";
+import { BlurView } from "expo-blur";
+import RecButton from "components/common/recording/rec-button";
 
 const { height } = Dimensions.get("screen");
 
@@ -94,6 +100,7 @@ const Home = () => {
   const [play, setPlay] = useState<Audio.Sound | null>();
   const [audioLoading, setAudioLoading] = useState(-1);
   const soundRef = useRef<any>(null);
+  const [calendar, showCalendar] = useState(false);
   const [hideSearch, setHideSearch] = useState(true);
   const [showAskMe, setShowAskMe] = useState(true);
   const [isRefreshing, setRefreshing] = useState(false);
@@ -119,9 +126,18 @@ const Home = () => {
   const styles = useStyles()
   const {showDialog}:any = useDialog()
 
+  // these are to align the icons in the header while opening calendar
+  const calendarIconRef = useRef(null);
+  const settingsIconRef = useRef(null);
+
+  const [calendarPos, setCalendarPos] = useState({x: 0, y: 0});
+  const [settingsPos, setSettingsPos] = useState({x: 0, y: 0});
+
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
   useWatchNetInfo()
+  
+  useForceUpdateCheck()
   
   const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
 
@@ -144,7 +160,6 @@ const Home = () => {
       dispatch(setPinnedTags(pTags))
     }
   }, [getTags?.data?.data]);
-
 
   useEffect(() => {
     Sentry.setUser({ email: userDetails?.email });
@@ -256,7 +271,7 @@ const Home = () => {
         break;
       case 'search':
         // console.log('Performing action for Search');
-        router.push("/search");
+        router.push("/search/");
         break;
       default:
         // console.log('No matching shortcut action');
@@ -393,13 +408,13 @@ const Home = () => {
     // CreateModalRef.current?.close();
     // AIModalRef.current?.toggle();
     // AIModalRef.current?.getNewSugg();
-    router.push("/ask-my-ai");
+    router.push("/ask-my-ai/");
   };
   const onCreate = async() => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    router.push('/create')
+    router.push('/create/')
     // CreateModalRef.current?.onReset();
     // AIModalRef?.current?.close();
     // CreateModalRef.current?.toggle();
@@ -409,25 +424,30 @@ const Home = () => {
     parent_id = null,
     index = -1,
   }: any) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-      () => {}
-    );
-    if (recEnabled && !repeat) {
-      // console.log("Recording already started.");
-      if (parent_id) setRecordingParentId(parent_id);
-      return;
+    try{
+      setRecEnabled(true)
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+        () => {}
+      );
+      if (recEnabled && !repeat) {
+        // console.log("Recording already started.");
+        if (parent_id) setRecordingParentId(parent_id);
+        return;
+      }
+      AIModalRef.current?.close();
+      // CreateModalRef.current?.close();
+      if (!canRecord) {
+        return;
+      }
+      setRecordingParentId(parent_id);
+      onRecord(setRec, setRecEnabled,isLightMode,showDialog);
+      activateKeepAwakeAsync();
+      analytics().logEvent("started_recording");
+      setTriggerTypingTitle(null)
+      setTriggerTypingTranscript(null)
+    }catch{
+      setRecEnabled(false)
     }
-    AIModalRef.current?.close();
-    // CreateModalRef.current?.close();
-    if (!canRecord) {
-      return;
-    }
-    setRecordingParentId(parent_id);
-    onRecord(setRec, setRecEnabled,isLightMode,showDialog);
-    activateKeepAwakeAsync();
-    analytics().logEvent("started_recording");
-    setTriggerTypingTitle(null)
-    setTriggerTypingTranscript(null)
   };
 
   const onPause = async (paused: boolean) => {
@@ -478,7 +498,7 @@ const Home = () => {
         })
       );
       dispatch(updateTempRecordingData("processing"));
-      await listenToFirebaseStatus(recordingId, temporaryRecordingId);
+      listenToFirebaseStatus(recordingId, temporaryRecordingId);
       
       setTimeout(() => {
         // console.log("removing old recordings to save memory");
@@ -523,6 +543,7 @@ const Home = () => {
         relatedNotedId:relatedNoteId
       };
 
+      dispatch(setTempRecordingData(newTemporaryRecording))
       if (!recordingParentId) {
         dispatch(setRecordingList([newTemporaryRecording, ...recordingList]));
       } else {
@@ -535,7 +556,6 @@ const Home = () => {
           }
           return recording;
         });
-        dispatch(setTempRecordingData(newTemporaryRecording));
         dispatch(setRecordingList(newRecordingList));
       }
 
@@ -593,6 +613,17 @@ const Home = () => {
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
   },[hashFilter])
+
+  const openCalendar = () => {
+    calendarIconRef.current.measureInWindow((x, y, width, height) => {
+      setCalendarPos({x, y});
+    });
+    settingsIconRef.current.measureInWindow((x, y, width, height) => {
+      setSettingsPos({x, y});
+    });
+
+    showCalendar(true);
+  }
   
   const renderItem = useCallback(
     ({ item, index }: any) => (
@@ -685,7 +716,7 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
-  if (!token) return <Redirect href="/auth/landingPage" />;
+  if (!token) return <Redirect href="/auth/landingPage/" />;
   return (
     <SafeAreaView
       style={[styles.container]}
@@ -713,7 +744,9 @@ const Home = () => {
                 isLogged={!!token}
                 isOffline={isOffline}
                 streaks={streaks}
-                streaksRef={streaksRef}
+                settingsRef={settingsIconRef}
+                calendarRef={calendarIconRef}
+                onCalendarToggled={openCalendar}
                 scrollY={scrollY}
                 scale={scale.current}
               />
@@ -912,12 +945,43 @@ const Home = () => {
           syncUpNote={syncUpNote}
         />
       </CustomModal>
+      <Modal
+        transparent
+        visible={calendar}
+        animationType="fade"
+      >
+        <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={isIOS ? 50 : 100}>
+          <Pressable onPress={() => showCalendar(false)} style={styles.calendarHeader}>
+            {calendarPos.y !== 0 && 
+              <Pressable
+                onPress={() => showCalendar(false)} 
+                style={[
+                  styles.button,
+                  {left: calendarPos.x, top: isIOS ? calendarPos.y - 30: calendarPos.y, backgroundColor: Colors.selection}
+                ]}
+              >
+              <SvgXml xml={home.calendar?.replace(/#717171/g,Colors.refresh)} />
+            </Pressable>}
+            {settingsPos.y !== 0 && <Pressable onPress={() => {if(!isIOS) { showCalendar(false) } router.navigate("/settings/")}} style={[styles.button, {left: settingsPos.x, top: isIOS ? settingsPos.y - 30 : settingsPos.y}]}>
+              <SvgXml xml={home.settings?.replace(/#717171/g,Colors.refresh)} />
+            </Pressable>}
+          </Pressable>
+          {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
+            {streaks?.data?.data?.weeks ? <ExpandableCalendar onClose={() => showCalendar(false)} streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
+              <View style={styles.calendarVisualWrapper}>
+                <Text style={styles.indicator} >Loading</Text>
+              </View>
+            </View>}
+          </Pressable>}
+        </BlurView>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 const useStyles = () => {
   const { Colors } = useTheme();
+  const { width } = Dimensions.get("screen");
   return useMemo(() => StyleSheet.create({
   container: {
     flex: 1,
@@ -927,6 +991,62 @@ const useStyles = () => {
     paddingVertical: isIOS ? 0 : 32,
     backgroundColor:Colors.bgColor
   },
+  calendarHeader: {
+    flex: 0.5,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    padding: 12,
+    marginTop: isIOS ? 30 : 0
+  },
+  calendar: {
+    flex: 6,
+    alignItems: 'center',
+    position: 'absolute',
+    left: 0,
+    width: '100%',
+    height: '100%'
+  },
+  button: {
+    height: 38,
+    width: 38,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute'
+  },
+  calendarContainer: {
+    width: width * 0.9,
+    backgroundColor: Colors.grey2,
+    borderRadius: 25,
+    borderWidth: isIOS ? 0.0 : 0,
+    padding: 16,
+    // Enhanced iOS shadow for better visibility on all sides
+    ...(isIOS ? {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 }, // Center the shadow (0,0) to spread it evenly
+      shadowOpacity: 0.25, // Increase opacity for better visibility
+      shadowRadius: 15, // Slightly reduced but still substantial
+      margin: 5, // Add a small margin to ensure shadow is visible on all sides
+    } : {
+      // Android shadow - increase elevation for better visibility
+      elevation: 8,
+    }),
+    // Remove overflow: 'hidden' from here
+  },
+  calendarVisualWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...(isIOS ? {
+      position: 'relative',
+      overflow: 'hidden', // Keep overflow hidden here
+      borderRadius: 0, // Slightly smaller than container
+      backgroundColor: Colors.grey2,
+    } : {})
+  },
+  indicator: {
+    color: Colors.text
+  }
 }), [Colors]); // Recreate styles when Colors change
 };
 
