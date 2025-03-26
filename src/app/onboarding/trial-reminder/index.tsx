@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, StyleSheet, Image, Linking, Platform } from '
 import notifee, { AuthorizationStatus } from '@notifee/react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { SvgXml } from 'react-native-svg'
@@ -14,6 +14,7 @@ import { screenHeight } from 'utils/common'
 const TrialReminder = () => {
     const styles = useStyles()
     const router = useRouter()
+    const [loading, setLoading] = useState(false)
     const {Colors,isLightMode} = useTheme()
 
     const openNotificationSettings = () => {
@@ -31,6 +32,7 @@ const TrialReminder = () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
+        setLoading(true)
         const settings = await notifee.requestPermission()
         if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
             // Notifications enabled, navigate to home
@@ -61,7 +63,7 @@ const TrialReminder = () => {
                 style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
                 onPress={onEnable}
                 text="Enable notifications"
-                isLoading={false}
+                isLoading={loading}
                 color={Colors.text4}
             />
         </View>

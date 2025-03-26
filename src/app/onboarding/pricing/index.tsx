@@ -40,7 +40,7 @@ const Pricing = () => {
 
     const checkNotificationPermission = async () => {
         const settings = await notifee.getNotificationSettings()
-        if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
+        if (settings.authorizationStatus !== AuthorizationStatus.AUTHORIZED) {
             setIsPermissionDenied(true)
         }
     }

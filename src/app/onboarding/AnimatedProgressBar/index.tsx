@@ -22,9 +22,6 @@ const AnimatedProgressBar = ({ step, totalSteps }: any) => {
     else if (step == 13) {
       dispatch(setSelectedScreen(11))
     }
-    else if (step == 13) {
-      dispatch(setSelectedScreen(11))
-    }
     else if (step == 2) {
       dispatch(setSelectedScreen(1))
       router.back()

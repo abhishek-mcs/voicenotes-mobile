@@ -192,7 +192,6 @@ const useStyles = () => {
         },
         cardImage: {
             width: screenWidth * 0.9,
-            // height: isIOS ? screenHeight * 0.35 : screenHeight * 0.4,
             // borderRadius: 10,
             // overflow: "hidden",
             justifyContent: "center",
@@ -206,7 +205,7 @@ const useStyles = () => {
             elevation: 5,
 
             position: 'absolute',
-            bottom: screenHeight > 700 ? screenHeight/6 : 80,
+            bottom: screenHeight > 900 ? 300 : screenHeight > 800 && screenHeight < 900 ? 200 : screenHeight > 700 && screenHeight < 800 ? 150 : 80,
             right: 0,
             left: 0
         },
