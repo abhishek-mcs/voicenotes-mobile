@@ -78,6 +78,11 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,c
     outputRange: [isBeliever?-16:-20, -translateY],
     extrapolate: 'clamp',
   });
+
+  useEffect(() => {
+    console.log('Believer', isBeliever, 'Temp', isTempIAPPurchased);
+    
+  },[])
   
   return (
     <Animated.View style={{height:headerHeightAnimate,transform:[{scaleY:scale}],opacity:scale}}>

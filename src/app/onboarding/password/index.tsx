@@ -281,7 +281,7 @@ const useStyles = () => {
         },
         footerContainer: {
             position: 'absolute',
-            bottom: 32,
+            bottom: screenHeight > 900 ? 100 : 32,
             right: 0,
             left: 0
         }

@@ -168,6 +168,11 @@ const Home = () => {
   }
 
   useEffect(() => {
+    console.log('Believer', isBeliever, 'Temp', isTempIAPPurchased);
+    
+  },[])
+
+  useEffect(() => {
     if (recordings && recordings.length > 0) {
       const serverRecords: VoiceNote[] = recordings;
       setAllRecordings(serverRecords);
