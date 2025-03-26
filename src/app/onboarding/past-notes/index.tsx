@@ -172,7 +172,7 @@ const useStyles = () => {
             color: Colors.black2
         },
         subheadingContainer: {
-            paddingHorizontal: 16,
+            paddingHorizontal: 20,
             paddingTop: 16,
             // paddingBottom: 5,
             justifyContent: 'center',
@@ -205,7 +205,7 @@ const useStyles = () => {
             elevation: 5,
 
             position: 'absolute',
-            bottom: screenHeight > 900 ? 250 : screenHeight > 800 && screenHeight < 900 ? 200 : screenHeight > 700 && screenHeight < 800 ? 150 : 80,
+            bottom: screenHeight > 900 ? 220 : screenHeight > 850 && screenHeight < 900 ? 200 : screenHeight > 800 && screenHeight < 850 ? 180 : screenHeight > 750 && screenHeight < 800 ? 150 : screenHeight > 700 && screenHeight < 570 ? 120 : 80,
             right: 0,
             left: 0
         },
