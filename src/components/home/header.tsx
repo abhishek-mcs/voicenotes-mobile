@@ -57,7 +57,7 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,c
     route.navigate("/settings/")
   }
 
-  const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
+  const isBeliever=(isTempIAPPurchased ?? userDetails?.subscription_status)
   const headerHeight=90
   const minHeaderHeight=40
   const titleFontSize=36
