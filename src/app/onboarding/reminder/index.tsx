@@ -6,7 +6,7 @@ import * as Haptics from "expo-haptics";
 import { useDispatch } from 'react-redux';
 // import notifee, { AuthorizationStatus } from "@notifee/react-native";
 import { setSelectedScreen } from 'redux/reducers/onboardingData';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
 import { screenHeight, screenWidth } from 'utils/common';
@@ -33,8 +33,23 @@ const Reminder = () => {
     // }
 
     // useEffect(() => {
-    //   checkNotificationPermission()
+    //     requestUserPermission()
     // },[])
+
+    // async function requestUserPermission() {
+    //     const settings = await notifee.requestPermission();
+    //     if (settings.authorizationStatus == AuthorizationStatus.AUTHORIZED) {
+    //         console.log('Permission settings:', settings);
+    //         analytics().logEvent('onboarding_notification_allowed').catch(e=>{console.log(e)})
+    //         AppEventsLogger.logEvent('fb_onboarding_notification_allowed');
+    //         dispatch(setSelectedScreen(13))
+    //     } else {
+    //         console.log('User declined permissions');
+    //         analytics().logEvent('onboarding_notification_denied').catch(e=>{console.log(e)})
+    //         AppEventsLogger.logEvent('fb_onboarding_notification_denied');
+    //         dispatch(setSelectedScreen(14))
+    //     }
+    // }
 
   return (
     <SafeAreaView style={styles.mainContainer}>

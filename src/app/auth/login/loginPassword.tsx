@@ -26,6 +26,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import { setRecordingList } from "redux/reducers/recordingStates";
 import { useTheme } from "context";
 import { logEvent } from "func/analytics/logEvent";
+import { setSelectedScreen } from "redux/reducers/onboardingData";
 
 const LoginPassword = () => {
   const router = useRouter();
@@ -223,7 +224,9 @@ const LoginPassword = () => {
         </Text>
         <Pressable
           onPress={() => {
-            router.push("/auth/signup/");
+            dispatch(setSelectedScreen(2))
+            // router.push("/auth/signup/");
+            router.push("/onboarding/")
           }}
         >
           <Text

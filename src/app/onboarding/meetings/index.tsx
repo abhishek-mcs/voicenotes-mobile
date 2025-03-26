@@ -118,7 +118,7 @@ const useStyles = () => {
             // marginTop: Platform.OS === 'ios' ? 0 : 40
         },
         mainTextContainer: {
-            marginTop: screenHeight > 700 ? 20 : 0,
+            paddingTop: screenHeight > 700 ? 20 : 0,
             paddingHorizontal: 16,
             justifyContent: 'center',
             alignItems: 'center',
@@ -200,8 +200,10 @@ const useStyles = () => {
             resizeMode: 'contain',
         },
         meetingImage3: {
-            // width: screenWidth / 1.1,
-            height: screenHeight < 680 ? screenHeight/2.6 : screenHeight/2.4,
+            width: screenWidth > 300 && screenHeight > 700 ? screenWidth : screenWidth < 320 ? screenWidth / 1.2 : screenWidth / 1.2,
+            // height: screenHeight < 680 ? screenHeight/2.6 : screenHeight/2.4,
+            // width: (screenHeight/2.5)*1.5,
+            // paddingHorizontal: 16,
             resizeMode: 'contain',
         },
         footerContainer: {

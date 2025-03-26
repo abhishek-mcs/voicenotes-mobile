@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, Animated, Easi
 import LargeButton from 'components/LargeButton'
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { LinearGradient } from 'expo-linear-gradient'
-import notifee, { AuthorizationStatus } from "@notifee/react-native";
+// import notifee, { AuthorizationStatus } from "@notifee/react-native";
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Haptics from "expo-haptics";
@@ -17,7 +17,7 @@ const Reviews = () => {
     const styles = useStyles()
     const dispatch=useDispatch()
     const {Colors, isLightMode}=useTheme()
-    const [isPermissionGranted, setIsPermissionGranted] = useState(false)
+    // const [isPermissionGranted, setIsPermissionGranted] = useState(false)
     const scrollViewRef = useRef<ScrollView>(null);
     const scrollY = useRef(new Animated.Value(0)).current;
     const [contentHeight, setContentHeight] = useState(0);
@@ -46,7 +46,7 @@ const Reviews = () => {
             profileImage: <Image source={{ uri: "https://pbs.twimg.com/profile_images/1873591604126097408/uZlC0-34_400x400.jpg" }} style={styles.profileImage} />,
             name: "Knebel",
             rating: 5,
-            review: "Notion, Obsidian, OneNote, I’ve tried them all.\nThey’re great tools, but they assume you’re consistently organized and have a good memory.\nWith ADHD, that’s rarely the case.\nToday I tried @voicenotesai, and honestly, I was blown away! It’s the kind of AI app I’ve been searching for a long time. It uses AI not just to store notes, but to automatically organize them and retrieve any lost thoughts when you need them most, just by asking the AI \nFor people with ADHD, this might be a BIG deal.",
+            review: "Notion, Obsidian, OneNote, I’ve tried them all.\nThey’re great tools, but they assume you’re consistently organized and have a good memory.\nWith ADHD, that’s rarely the case.\nToday I tried @voicenotesai, and honestly, I was blown away! It’s the kind of AI app I’ve been searching for a long time. It uses AI not just to store notes, but to automatically organize them and retrieve any lost thoughts when you need them most, just by asking the AI. For people with ADHD, this might be a BIG deal.",
         },
         {
             id: 4,
@@ -81,7 +81,7 @@ const Reviews = () => {
             profileImage: <Image source={{ uri: "https://voicenotesbucket.s3.us-west-2.amazonaws.com/files/pictures/tweets/profile-pics/7cPYpbK3VyztVAUPEXtACcZSKsOAvyJV3vN6oNO6.jpg" }} style={styles.profileImage} />,
             name: "Lachlan Schipke",
             rating: 5,
-            review: "Finally had the chance to try out @voicenotesai and oh man! IN LOVE 😍 \nI think this will be the way I do my journal entries from now on seeing as I can plan my day and have it make a to do list for me! \nAbsolutely brilliant 👏",
+            review: "Finally had the chance to try out @voicenotesai and oh man! IN LOVE 😍 I think this will be the way I do my journal entries from now on seeing as I can plan my day and have it make a to do list for me! Absolutely brilliant 👏",
         },
         {
             id: 9,
@@ -146,16 +146,16 @@ const Reviews = () => {
         };
     }, [contentHeight]);
 
-    const checkNotificationPermission = async () => {
-        const settings = await notifee.getNotificationSettings()
-        if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
-            setIsPermissionGranted(true)
-        }
-    }
+    // const checkNotificationPermission = async () => {
+    //     const settings = await notifee.getNotificationSettings()
+    //     if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
+    //         setIsPermissionGranted(true)
+    //     }
+    // }
 
-    useEffect(() => {
-      checkNotificationPermission()
-    },[])
+    // useEffect(() => {
+    //   checkNotificationPermission()
+    // },[])
 
     const onContinue = async () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -163,11 +163,12 @@ const Reviews = () => {
         );
         analytics().logEvent('onboarding_reviews').catch(e=>{console.log(e)})
         AppEventsLogger.logEvent('fb_onboarding_reviews');
-        if (isPermissionGranted) {
-            dispatch(setSelectedScreen(13))
-        } else {
-            dispatch(setSelectedScreen(12))
-        }
+        dispatch(setSelectedScreen(13))
+        // if (isPermissionGranted) {
+        //     dispatch(setSelectedScreen(13))
+        // } else {
+        //     dispatch(setSelectedScreen(12))
+        // }
     }
 
   return (

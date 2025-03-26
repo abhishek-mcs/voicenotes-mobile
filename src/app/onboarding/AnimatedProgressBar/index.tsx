@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSelectedScreen } from "redux/reducers/onboardingData";
 import { RootState } from "redux/store/store";
 import { isIOS, screenHeight } from "utils/common";
+import { router } from "expo-router";
 
 const AnimatedProgressBar = ({ step, totalSteps }: any) => {
   const {Colors}=useTheme()
@@ -23,6 +24,10 @@ const AnimatedProgressBar = ({ step, totalSteps }: any) => {
     }
     else if (step == 13) {
       dispatch(setSelectedScreen(11))
+    }
+    else if (step == 2) {
+      dispatch(setSelectedScreen(1))
+      router.back()
     }
     else {
       dispatch(setSelectedScreen(step - 1))
