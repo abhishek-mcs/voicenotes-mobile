@@ -608,6 +608,11 @@ const NotePreview = forwardRef(
 
       const failedButtons = [
         {
+          text: "Download",
+          onPress: onDownloadAudio,
+          icon: home.download?.replace(/#9B9B9B/g,Colors.text9),
+        },
+        {
           text: "Retry",
           onPress: async ()=>{
             setRetryLoader(true);
