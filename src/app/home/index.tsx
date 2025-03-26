@@ -48,7 +48,7 @@ import { setCanRecord } from "redux/reducers/userDetails";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
-import { NewNote, Note } from "types";
+import { NewNote, Note, VoiceNote } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
@@ -65,7 +65,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useNoteContext, useTheme } from "context";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
-import { incrementCounter, shouldPromptNow } from "utils/cache";
+import { getRecordings, incrementCounter, shouldPromptNow, updateRecordings } from "utils/cache";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
@@ -77,6 +77,7 @@ import { useForceUpdateCheck } from "hooks/force-update/useForceUpdateCheck";
 import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
 import RecButton from "components/common/recording/rec-button";
+import { useAllRecordings } from "queries/common";
 
 const { height } = Dimensions.get("screen");
 
@@ -150,6 +151,38 @@ const Home = () => {
 
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord((val)));
+
+  const [allRecordings, setAllRecordings] = useState<VoiceNote[]>([]);
+  const { data: recordings, refetch: refetchAllRecordings } = useAllRecordings(token);
+
+  async function refreshRecordings() {
+    if (allRecordings.length === 0 || recordingList.length === 0) return;
+    
+    const latestServerRecording = allRecordings[0];
+    const latestLocalRecording = recordingList[0];
+    
+    const serverTimestamp = new Date(latestServerRecording.created_at).getTime();
+    const localTimestamp = new Date(latestLocalRecording.created_at).getTime();
+    
+    if (serverTimestamp < localTimestamp) refetchAllRecordings();
+  }
+
+  useEffect(() => {
+    if (recordings && recordings.length > 0) {
+      const serverRecords: VoiceNote[] = recordings;
+      setAllRecordings(serverRecords);
+      updateRecordings(serverRecords);
+    }
+  }, [recordings])
+
+  useEffect(() => {
+    async function setRecordingsFromCache() {
+      const cachedRecordings = await getRecordings();
+      if(allRecordings.length === 0 && cachedRecordings.length > 0) setAllRecordings(cachedRecordings);
+    }
+
+    setRecordingsFromCache();
+  }, [])
 
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
@@ -638,6 +671,7 @@ const Home = () => {
   },[hashFilter])
 
   const openCalendar = () => {
+    refreshRecordings();
     calendarIconRef.current.measureInWindow((x, y, width, height) => {
       setCalendarPos({x, y});
     });
@@ -991,7 +1025,7 @@ const Home = () => {
             </Pressable>}
           </Pressable>
           {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
-            {streaks?.data?.data?.weeks ? <ExpandableCalendar onClose={() => showCalendar(false)} streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
+            {allRecordings.length > 0 ? <ExpandableCalendar onClose={() => showCalendar(false)} rawData={allRecordings} streaks={streaks?.data?.data} /> : <View style={styles.calendarContainer}>
               <View style={styles.calendarVisualWrapper}>
                 <Text style={styles.indicator} >Loading</Text>
               </View>

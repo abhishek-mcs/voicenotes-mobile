@@ -2,6 +2,7 @@
 // this is used for prompt the user to review the app
 
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { VoiceNote } from "types"
 
 const THRESHOLD = 5 // how many notes should be recorded before prompting
 const COUNTER = 'voicenotes_record_counter' // label for async storage
@@ -65,4 +66,18 @@ export const cancelNotification = async (notification: Notification) => {
 
 export const deleteNotification = async (type: 'morning' | 'evening') => {
     await AsyncStorage.removeItem(`vn-${type}-notification`)
+}
+
+export const updateRecordings = async (recordings: VoiceNote[]) => {
+    if(recordings.length > 0) await AsyncStorage.setItem('recordings', JSON.stringify(recordings))
+}
+
+export const getRecordings = async (): Promise<VoiceNote[]> => {
+    const value = await AsyncStorage.getItem('recordings')
+    if(!value) return []
+    return JSON.parse(value)
+}
+
+export const deleteRecordings = async () => {
+    await AsyncStorage.removeItem('recordings')
 }

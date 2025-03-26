@@ -192,8 +192,8 @@ const EditNote = () => {
               placeholder="Transcript"
               placeholderTextColor={Colors.grey6}
               value={
-                // (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
-                // editNoteSummary:
+                (editNote?.recording_type==2&&!editNote?.isEditMeetingTranscript)?
+                editNoteSummary:
                 editNote?.recording_type==3?
                 formatTranscript2(editNote?.transcript)
                 :editNote?.transcript
