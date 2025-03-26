@@ -36,17 +36,17 @@ const Reviews = () => {
         },
         {
             id: 2,
-            profileImage: <Image source={{ uri: "https://pbs.twimg.com/profile_images/1853561861196677120/ZOWGwoHi_400x400.jpg" }} style={styles.profileImage} />,
+            profileImage: <Image source={require('../../../assets/images/Hayden.jpg')} style={styles.profileImage} />,
             name: "Hayden",
             rating: 5,
             review: "It's funny that the times I'm most motivated are the times I physically cannot/should not do work (driving, going to sleep, etc). Lately @voicenotesai has been goated during those times.",
         },
         {
             id: 3,
-            profileImage: <Image source={{ uri: "https://pbs.twimg.com/profile_images/1873591604126097408/uZlC0-34_400x400.jpg" }} style={styles.profileImage} />,
+            profileImage: <Image source={require('../../../assets/images/knebel.jpg')} style={styles.profileImage} />,
             name: "Knebel",
             rating: 5,
-            review: "Notion, Obsidian, OneNote, I’ve tried them all.\nThey’re great tools, but they assume you’re consistently organized and have a good memory.\nWith ADHD, that’s rarely the case.\nToday I tried @voicenotesai, and honestly, I was blown away! It’s the kind of AI app I’ve been searching for a long time. It uses AI not just to store notes, but to automatically organize them and retrieve any lost thoughts when you need them most, just by asking the AI. For people with ADHD, this might be a BIG deal.",
+            review: "Notion, Obsidian, OneNote, I’ve tried them all. They’re great tools, but they assume you’re consistently organized and have a good memory. With ADHD, that’s rarely the case. Today I tried @voicenotesai, and honestly, I was blown away! It’s the kind of AI app I’ve been searching for a long time. It uses AI not just to store notes, but to automatically organize them and retrieve any lost thoughts when you need them most, just by asking the AI. For people with ADHD, this might be a BIG deal.",
         },
         {
             id: 4,

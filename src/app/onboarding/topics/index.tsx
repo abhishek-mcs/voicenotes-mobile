@@ -145,7 +145,7 @@ const useStyles = () => {
         footerContainerWithError: {
             height: isAndroid ? 50 : 60,
             position: 'absolute',
-            bottom: isAndroid ? 45 : 32,
+            bottom: 32,
             right: 0,
             left: 0
         }
