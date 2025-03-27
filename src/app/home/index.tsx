@@ -117,7 +117,7 @@ const Home = () => {
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const queryClient = useQueryClient();
   // const bannerRef=useRef<any>(null)
-  const isBeliever = (isTempIAPPurchased ?? userDetails?.subscription_status);
+  const isBeliever = (userDetails?.subscription_status||isTempIAPPurchased);
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
