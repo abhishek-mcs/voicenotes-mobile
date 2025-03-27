@@ -21,6 +21,7 @@ import { analytics } from '../../../../firebaseConfig'
 import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { settingsSvg } from 'assets/svg/settingsSvg'
 import { isIOS, screenHeight, screenWidth } from 'utils/common';
+import * as webBrowser from "expo-web-browser"
 
 const Pricing = () => {
     const styles = useStyles()
@@ -188,7 +189,7 @@ const Pricing = () => {
           title: "Today",
           description: `Take as many notes as you want. \nAsk AI anything from your notes. \nSee for yourself what the buzz is about!`,
           icon: <SvgXml xml={onboardingSvg.lock?.replace('black', Colors.black2)} style={styles.icon} />,
-          height: 98,
+          height: screenHeight/7,
         },
         {
           id: "2",
@@ -248,7 +249,7 @@ const Pricing = () => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-        {isNewUser ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+        {isNewUser || !userDetails.is_new_user ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable> : ''}
         <View style={styles.mainTextContainer}>
@@ -318,6 +319,14 @@ const Pricing = () => {
                     <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:12,marginTop:8}}>{error}</Text>
                   )}
             </View>
+            <View style={styles.termsContainer}>
+                      <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
+                        <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
+                      </Touchable>
+                      <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
+                        <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
+                      </Touchable>
+                    </View>
         </View>
         
        
@@ -358,7 +367,7 @@ const useStyles = () => {
     itemContainer: {
         flexDirection: "row",
         alignItems: "flex-start",
-        paddingBottom: 24,
+        paddingBottom: screenHeight/35,
     },
     iconContainer: {
         height: 36,
@@ -468,9 +477,22 @@ const useStyles = () => {
         borderRadius:16,
         flexDirection:'row',
     },
+    termsContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 14,
+    },
+    footerText1: {
+      color: Colors.grey,
+      fontFamily: "Primary",
+      fontSize: 12,
+      lineHeight: 15,
+      textAlign: "center",
+    },
     footerContainer: {
         position: 'absolute',
-        bottom: 30,
+        bottom: isIOS ? 10 : 30,
         right: 0,
         left: 0
     }
