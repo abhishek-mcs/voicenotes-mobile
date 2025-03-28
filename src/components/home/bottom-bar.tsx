@@ -69,7 +69,7 @@ useEffect(() => {
           const newDuration = prevDuration + 1000;
           if (
             newDuration >= 60000 &&
-            (!token || !userDetails?.subscription_status)
+            (!token || !isBeliever)
           ) {
             onStopRecord(newDuration);
             return 0;

@@ -16,7 +16,6 @@ import { commonSvg } from "assets/svg/commonSvg";
 import { setCanRecord, setLang, setUserDetail } from "redux/reducers/userDetails";
 import { languages } from "utils/constants/languages";
 import { useTheme } from "context";
-import { setIsNewUser, setSelectedScreen } from "redux/reducers/onboardingData";
 
 const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,calendarRef,hideBgColor=false,scale=1}:any) => {
   const router:any=useNavigation()
@@ -28,12 +27,6 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,c
   const dispatch=useDispatch()
   const data=useGetUserData(token);
   const photo_url=data?.data?.data?.photo_url||null;
-
-  useEffect(() => {
-    if(userDetails?.is_new_user) 
-      dispatch(setIsNewUser(true))
-    dispatch(setSelectedScreen(18))
-  },[userDetails])
 
   useEffect(() => {
     if(!!token&&data?.data?.data){

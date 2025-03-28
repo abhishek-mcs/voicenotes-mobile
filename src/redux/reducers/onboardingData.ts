@@ -12,7 +12,7 @@ export interface userData {
     note_types: number[],
     userEmail: string,
     name: string,
-    isNewUser: boolean | null,
+    showClose: boolean | null,
     emailVerified: boolean | null,
 }
 
@@ -47,6 +47,7 @@ const initialState: userData = {
         {"label": "Facebook/Instagram", "value": 4}, 
         {"label": "Google Search", "value": 5}, 
         {"label": "Friends & Family", "value": 6}, 
+        {"label": "Reddit", "value": 8}, 
         {"label": "Other", "value": 7}
       ], 
       "revisit_frequency": [
@@ -64,7 +65,7 @@ const initialState: userData = {
     note_types: [],
     userEmail: '',
     name: '',
-    isNewUser: null,
+    showClose: null,
     emailVerified: null,
 }
 
@@ -106,8 +107,8 @@ export const onboardingData = createSlice({
     setName: (state, action: PayloadAction<string>) => {
         state.name = action.payload
     },
-    setIsNewUser: (state, action: PayloadAction<boolean>) => {
-      state.isNewUser = action.payload
+    setShowClose: (state, action: PayloadAction<boolean>) => {
+      state.showClose = action.payload
     },
     setEmailVerified: (state, action: PayloadAction<boolean>) => {
       state.emailVerified = action.payload
@@ -116,6 +117,6 @@ export const onboardingData = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setPreferenceEnums, setSelectedScreen, setReferrer, setLanguage, setAgeGroup, setNoteTakingFrequency, setRevisitFrequency, setNoteTypes, setUserEmail, setName, setIsNewUser, setEmailVerified } = onboardingData.actions
+export const { setPreferenceEnums, setSelectedScreen, setReferrer, setLanguage, setAgeGroup, setNoteTakingFrequency, setRevisitFrequency, setNoteTypes, setUserEmail, setName, setShowClose, setEmailVerified } = onboardingData.actions
 
 export default onboardingData.reducer

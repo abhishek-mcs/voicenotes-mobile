@@ -72,7 +72,7 @@ import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { setEmailVerified } from "redux/reducers/onboardingData";
+import { setEmailVerified, setSelectedScreen, setShowClose } from "redux/reducers/onboardingData";
 import { useForceUpdateCheck } from "hooks/force-update/useForceUpdateCheck";
 import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
@@ -435,6 +435,11 @@ const Home = () => {
       retryProcessing(note);
     }
   };
+
+  useEffect(() => {
+      dispatch(setShowClose(true))
+      dispatch(setSelectedScreen(18))
+  },[])
 
   useEffect(() => {
     if (isOffline) return;

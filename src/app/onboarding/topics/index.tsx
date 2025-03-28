@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import * as Haptics from "expo-haptics";
 import { onboardingSvg } from 'assets/svg/onboardingSvg'
 import { useDispatch, useSelector } from 'react-redux'
-import { setIsNewUser, setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
+import { setShowClose, setNoteTypes, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { isAndroid, screenHeight, screenWidth } from 'utils/common'
 import { RootState } from 'redux/store/store';
 import { analytics } from '../../../../firebaseConfig';
@@ -48,7 +48,7 @@ const Topics = ({data}: any) => {
         analytics().logEvent('onboarding_note_types').catch(e=>{console.log(e)})
         AppEventsLogger.logEvent('fb_onboarding_note_types');
         dispatch(setNoteTypes(isSelected))
-        dispatch(setIsNewUser(false))
+        dispatch(setShowClose(false))
         if (isSelected.length == 0) {
             setError(true)
         }

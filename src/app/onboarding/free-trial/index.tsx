@@ -6,7 +6,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef } from 'react'
 import { screenHeight, screenWidth } from 'utils/common'
-import { setIsNewUser, setSelectedScreen } from 'redux/reducers/onboardingData'
+import { setShowClose, setSelectedScreen } from 'redux/reducers/onboardingData'
 import { useDispatch } from 'react-redux'
 import { Animated } from 'react-native';
 import { analytics } from '../../../../firebaseConfig';
@@ -33,7 +33,7 @@ const FreeTrial = () => {
         );
         analytics().logEvent('onboarding_free_trial_info').catch((e: any)=>{console.log(e)})
         AppEventsLogger.logEvent('fb_onboarding_free_trial_info');
-        dispatch(setIsNewUser(false))
+        dispatch(setShowClose(false))
         dispatch(setSelectedScreen(15))
     }
 
