@@ -22,11 +22,13 @@ import { setSelectedScreen } from 'redux/reducers/onboardingData'
 import { settingsSvg } from 'assets/svg/settingsSvg'
 import { isIOS, screenHeight, screenWidth } from 'utils/common';
 import * as webBrowser from "expo-web-browser"
+import { iapSvg } from 'assets/svg/iapSvg';
 
 const Pricing = () => {
     const styles = useStyles()
     const router = useRouter()
     const dispatch=useDispatch()
+    const iapSvgIcons:any = iapSvg
     const queryClient=useQueryClient()
     const {Colors,isLightMode}=useTheme()
     const {showDialog} = useDialog()
@@ -34,7 +36,7 @@ const Pricing = () => {
     const [selectedPlan, setSelectedPlan] = useState("yearly");
     const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
     const {userDetails}:any=useSelector((state:RootState)=>state.userDetails)
-    const { isNewUser } = useSelector((state: RootState) => state.onboardingData);
+    const { showClose } = useSelector((state: RootState) => state.onboardingData);
     const pack=IAPOfferings?.availablePackages||[]
     const [isPermissionDenied, setIsPermissionDenied] = useState(false)
     const [error, setError] = useState('')
@@ -47,8 +49,7 @@ const Pricing = () => {
     }
 
     useEffect(() => {
-      console.log('New user in pricing', isNewUser);
-      
+      console.log('New user in pricing', showClose);
       checkNotificationPermission()
     },[])
 
@@ -62,12 +63,13 @@ const Pricing = () => {
           analytics().logEvent("free_trial_activated").catch(e=>{console.log(e)})
           AppEventsLogger.logEvent('fb_free_trial_activated');
         }
-        if(isNewUser) {
+        if(showClose) {
           router.push("/home/")
         } else {
           if (isPermissionDenied && selectedPlan == 'yearly') {
             dispatch(setSelectedScreen(19))
           } else {
+            analytics().logEvent("onboarding_continue_to_home").catch(e=>{console.log(e)})
             router.push("/home/")
           }
         }
@@ -76,13 +78,18 @@ const Pricing = () => {
     const onStart = async () => {
       try {
         setLoading(true)
-        console.log('onStart', userDetails.email);
+        
         await Purchases.setAttributes({'email': userDetails?.email})
         if (!pack || pack.length === 0) {
           console.error('No products available');
           showDialog('Error', 'Unable to fetch product information. Please try again later.',[],{userInterfaceStyle:isLightMode?"light":"dark"});
           setLoading(false);
           return;
+        }
+        if (selectedPlan == 'yearly') {
+          analytics().logEvent("onboarding_free_trial_initiated").catch(e=>{console.log(e)})
+        } else {
+          analytics().logEvent("onboarding_monthly_subscription_initiated").catch(e=>{console.log(e)})
         }
         const productToBuy = selectedPlan == 'monthly' ? pack[1]?.product : pack[4]?.product;
         const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
@@ -95,8 +102,8 @@ const Pricing = () => {
             analytics()
               .logEvent(
                 selectedPlan == "monthly"
-                  ? "monthly_subscription_success"
-                  : "yearly_subscription_success"
+                  ? "onboarding_monthly_subscription_success"
+                  : "onboarding_yearly_subscription_success"
               )
               AppEventsLogger.logPurchase(
                 selectedPlan == "monthly"
@@ -114,6 +121,7 @@ const Pricing = () => {
               );
           } catch {}
           await queryClient.invalidateQueries('user-data');
+          setLoading(false)
           onContinue()
         }
       } catch (e: any) {
@@ -123,15 +131,17 @@ const Pricing = () => {
           setLoading(false)
           setError('Unable to complete the purchase. Please try again later.');
         }
+      } finally {
+        setLoading(false)
       }
     }
 
-    const getFutureDate = (days: number) => {
-      const date = new Date();
-      date.setDate(date.getDate() + days);
+    // const getFutureDate = (days: number) => {
+    //   const date = new Date();
+    //   date.setDate(date.getDate() + days);
     
-      return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-    };
+    //   return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    // };
 
     const createNotificationChannel = async (): Promise<string> => {
       return await notifee.createChannel({
@@ -187,13 +197,13 @@ const Pricing = () => {
         {
           id: "1",
           title: "Today",
-          description: `Take as many notes as you want. \nAsk AI anything from your notes. \nSee for yourself what the buzz is about!`,
+          description: `Unlock all the app features like Unlimited recording, Ask AI and more.`,
           icon: <SvgXml xml={onboardingSvg.lock?.replace('black', Colors.black2)} style={styles.icon} />,
-          height: screenHeight/7,
+          height: 80,
         },
         {
           id: "2",
-          title: "Day 5 - Your trial is ending",
+          title: "Day 5 - Reminder",
           description: "We'll send you a reminder that your trial is ending soon.",
           icon: <SvgXml xml={onboardingSvg.bell?.replace('black', Colors.black2)} style={styles.icon} />,
           height: 70,
@@ -201,9 +211,9 @@ const Pricing = () => {
         {
           id: "3",
           title: "After day 7 - Billing starts",
-          description: `You'll be charged on ${getFutureDate(7)} unless you cancel anytime before.`,
+          description: `Your free trial ends and you'll be charged, cancel anytime before.`,
           icon: <SvgXml xml={onboardingSvg.crown?.replace('black', Colors.black2)} style={styles.icon} />,
-          height: 40,
+          height: 45,
         },
     ];
 
@@ -249,25 +259,57 @@ const Pricing = () => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-        {isNewUser || !userDetails.is_new_user ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
+        {showClose ? <Touchable onPress={() => router.back()} style={{ paddingHorizontal: 12, alignSelf: 'flex-end', marginRight: 2 }} activeOpacity={0.6}>
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable> : ''}
-        <View style={styles.mainTextContainer}>
-            <Text style={styles.mainText}>How your free </Text>
-            <Text style={styles.mainText}>7-day trial works</Text>
-        </View>
 
-        <View style={{flex: 1, maxHeight: screenHeight/2.1}}>
-            <FlatList
-              data={timelineData}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <TimelineItem item={item} />}
-              contentContainerStyle={styles.timelineContainer}
-              keyboardShouldPersistTaps='handled'
-              showsVerticalScrollIndicator={false}
-            />
-        </View>
+        {selectedPlan== 'yearly' ? <View style={{flex: 1}}>
+          <View style={styles.mainTextContainer}>
+              <Text style={styles.mainText}>How your free </Text>
+              <Text style={styles.mainText}>7-day trial works</Text>
+          </View>
 
+          <View style={{flex: 1, maxHeight: screenHeight/2.1}}>
+              <FlatList
+                data={timelineData}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <TimelineItem item={item} />}
+                contentContainerStyle={styles.timelineContainer}
+                keyboardShouldPersistTaps='handled'
+                showsVerticalScrollIndicator={false}
+              />
+          </View>
+        </View> 
+        : <View style={{flex: 1}}>
+            <View style={styles.monthlyTextContainer}>
+              <SvgXml xml={iapSvgIcons.usersCount2?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
+            </View>
+            <View style={styles.mainTextContainer}>
+              <Text style={styles.mainText}>{`Upgrade your\nnotes & meetings`}</Text>
+            </View>
+            <View style={{flex:1, marginTop: 20 }}>
+              <View style={styles.descView}>
+                <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
+                <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
+              </View>
+              <View style={styles.descView}>
+                <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
+                <Text style={styles.desc}>Human-level transcription in 100+ languages.</Text>
+              </View>
+              <View style={styles.descView}>
+                <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
+                <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
+              </View>
+              <View style={styles.descView}>
+                <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={styles.doneIcon} />
+                <View style={styles.descTextContainer}>
+                  <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
+                  <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />
+                </View>
+              </View>
+            </View>
+          </View>
+        }
         
         <View style={styles.footerContainer}>
 
@@ -320,13 +362,13 @@ const Pricing = () => {
                   )}
             </View>
             <View style={styles.termsContainer}>
-                      <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
-                        <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
-                      </Touchable>
-                      <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
-                        <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
-                      </Touchable>
-                    </View>
+              <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
+                <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
+              </Touchable>
+              <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
+                <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
+              </Touchable>
+            </View>
         </View>
         
        
@@ -354,6 +396,10 @@ const useStyles = () => {
         textAlign: 'center',
         color: Colors.black2
     },
+    monthlyTextContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
     text: { 
         fontFamily: 'Primary-Semibold', 
         fontSize: screenWidth/28
@@ -409,6 +455,34 @@ const useStyles = () => {
         fontFamily: 'Primary',
         color: Colors.text10,
         marginTop: 4,
+    },
+    doneIcon: {
+      marginTop: 2,
+      // marginRight: 9,
+    },
+    descTextContainer: {
+      flex: 1,
+      flexDirection: "row",
+      // flexWrap: "wrap",
+      alignItems: "center",
+    },
+    techCrunchIcon: {
+      marginLeft: 4,
+      // marginTop: 2,
+    },
+    descView: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      paddingHorizontal: 20,
+      marginBottom: screenHeight > 690 ? 17 : 12,
+    },
+    desc: {
+      marginLeft: 9,
+      fontSize: 16,
+      fontFamily: "Primary-Medium",
+      color: Colors.text5,
+      lineHeight: 22,
+      marginTop: -4,
     },
     pricingContainer: {
         flexDirection: "row",

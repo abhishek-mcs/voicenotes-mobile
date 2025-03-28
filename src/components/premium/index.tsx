@@ -157,7 +157,7 @@ const Premium=(props:any) => {
           </Touchable>
           <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
             <View style={{paddingLeft: 22, marginBottom: 0}}>
-              <SvgXml xml={iapSvgIcons.usersCount?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
+              <SvgXml xml={iapSvgIcons.usersCount2?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
             <View style={styles.container}>
               <Text style={styles.title}>{`Upgrade your\nnotes & meetings`}</Text>
@@ -189,14 +189,14 @@ const Premium=(props:any) => {
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
-        <View style={styles.footer}>
-          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
-            <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
-          </Touchable>
-          <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
-            <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
-          </Touchable>
-        </View>
+                <View style={styles.footer}>
+                  <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
+                    <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
+                  </Touchable>
+                  <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
+                    <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
+                  </Touchable>
+                </View>
               </View>
             </View>
           </ScrollView>

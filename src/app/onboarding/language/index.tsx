@@ -58,11 +58,12 @@ const Language = () => {
         analytics().logEvent('onboarding_language_select').catch(e=>{})
         AppEventsLogger.logEvent('fb_onboarding_language_select');
         if (num) {
-            setTimeout(() => dispatch(setSelectedScreen(4)), 100);
+            // setTimeout(() => ), 100);
             setSelected(num)
             const lang = languages.find((lang) => lang.value === num)
             const selectedLanguage: any = lang?.name || null
             dispatch(setLanguage(selectedLanguage))
+            dispatch(setSelectedScreen(4))
         }
     }
 
