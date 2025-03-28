@@ -263,7 +263,7 @@ const Pricing = () => {
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable> : ''}
 
-        {selectedPlan== 'yearly' ? <View style={{flex: 1}}>
+        <View style={{flex: 1}}>
           <View style={styles.mainTextContainer}>
               <Text style={styles.mainText}>How your free </Text>
               <Text style={styles.mainText}>7-day trial works</Text>
@@ -280,7 +280,8 @@ const Pricing = () => {
               />
           </View>
         </View> 
-        : <View style={{flex: 1}}>
+        
+        {/* <View style={{flex: 1}}>
             <View style={styles.monthlyTextContainer}>
               <SvgXml xml={iapSvgIcons.usersCount2?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
@@ -309,7 +310,7 @@ const Pricing = () => {
               </View>
             </View>
           </View>
-        }
+         */}
         
         <View style={styles.footerContainer}>
 
