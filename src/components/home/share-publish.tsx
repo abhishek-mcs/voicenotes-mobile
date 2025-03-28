@@ -18,32 +18,33 @@ import { useQueryClient } from 'react-query'
 import { MAIN_URL } from 'services/api/api-constants';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store/store';
+import CircularLoader from 'components/common/loaders/circular-loader';
+import ThreeDotLoader from 'components/common/loaders/three-dot-loader';
 
-interface PublishModalProps {
-  isPublished?: any;
-  sharedList?: any;
-}
-
-const SharePublish = ({
-  isPublished,
-  sharedList = [],
-} : PublishModalProps) => {
+const SharePublish = () => {
   const styles = useStyles()
   const menuRefs = useRef<any[]>([]);
+  const channelMenuRefs = useRef<any[]>([]);
   const queryClient = useQueryClient();
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
   const {noteId} = useSelector((state:RootState)=>state.editStates)
-  const {is_published} = useLocalSearchParams()
+  const {is_published, note_id} = useLocalSearchParams()
   const getShareList = useGetSharedList(noteId)
   const shareList = getShareList.data?.data
   const shareRecording = useShareRecording();
   const revokeShared = useRevokeShare();
   const [copy, setCopy] = useState(false);
   const [loading, setLoading] = useState(false)
+  const [channelLoading, setChannelLoading] = useState(-1)
+  const [revokeLoading, setRevokeLoading] = useState(-1)
+  const [shareLoading, setShareLoading] = useState(-1)
   const [email, setEmail] = useState("");
   const [sharedUsers, setSharedUsers] = useState(shareList?.users ? shareList.users : []);
   const [recent, setRecent] = useState(shareList.recent ? shareList.recent : []);
+  const { userDetails }: any = useSelector((state: RootState) => state.userDetails);
+  const currentChannels = userDetails?.team?.channels || [];
+  const [channels, setChannels] = useState(shareList.channels ? shareList.channels : []);
   const [visible, setVisible] = useState(false);
 
   // const hideMenu = () => setVisible(false);
@@ -52,6 +53,9 @@ const SharePublish = ({
 
   const showMenu = (index: number) => menuRefs.current[index]?.show();
   const hideMenu = (index: number) => menuRefs.current[index]?.hide();
+
+  const showChannelMenu = (index: number) => channelMenuRefs.current[index]?.show();
+  const hideChannelMenu = (index: number) => channelMenuRefs.current[index]?.hide();
 
   const onClose = () => { router.back() }
 
@@ -67,22 +71,23 @@ const SharePublish = ({
   };
 
   const onShareNewEmail = (emailId: string) => {
-    onShareRecording(emailId)
+    setLoading(true)
+    onShareRecording(emailId, -1)
     setEmail('')
   }
 
   const onRevoke = (emailId: string, index: any) => {
+    setRevokeLoading(index)
     revokeShared.mutate(
-      { id: noteId, email: emailId },
+      { id: noteId, email: emailId, isChannel: false },
       {
         onSuccess: async () => {
           try {
-            setLoading(true)
             await queryClient.invalidateQueries("share-list");
           } catch (e) {
             console.log("error in share recording", e);
           } finally {
-            setLoading(false)
+            setRevokeLoading(-1)
           }
         }
       }
@@ -91,33 +96,71 @@ const SharePublish = ({
   }
 
   useEffect(() => {
-    console.log('params',is_published);
-    
-  },[is_published])
+    console.log('User details in share ', currentChannels);
+  },[])
 
   useEffect(() => {
     if (shareList) {
       setSharedUsers(shareList?.users ? shareList.users : []);
       setRecent(shareList.recent ? shareList.recent : []);
+      setChannels(shareList.channels ? shareList.channels : []);
     }
   },[shareList])
 
-  const onShareRecording = ( emailId: string ) => {
+  const onShareRecording = ( emailId: string, index: number ) => {
+    setShareLoading(index)
     shareRecording.mutate(
-      { id: noteId, emails: emailId },
+      { id: noteId, emails: emailId, channel: false },
       {
         onSuccess: async () => {
           try {
-            setLoading(true)
             await queryClient.invalidateQueries("share-list");
           } catch (e) {
             console.log("error in share recording", e);
           } finally {
             setLoading(false)
+            setShareLoading(-1)
           }
         }
       }
     )
+  }
+
+  const onShareChannel = ( channelId: string, index: number ) => {
+    setChannelLoading(index)
+    shareRecording.mutate(
+      { id: note_id, channel: true, channels: [channelId] },
+      {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setChannelLoading(-1)
+          }
+        }
+      }
+    )
+  }
+
+  const onRevokeChannel = (channelId: string, index: any) => {
+    setChannelLoading(index)
+    revokeShared.mutate(
+      { id: note_id, isChannel: true, channel: channelId },
+      {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setChannelLoading(-1)
+          }
+        }
+      }
+    )
+    hideMenu(index)
   }
 
   const KeyboardWrapper = useCallback(({children}:any) => isIOS ?
@@ -183,7 +226,7 @@ const SharePublish = ({
             />
           </KeyboardWrapper>
           <TouchableOpacity onPress={() => onShareNewEmail(email)} style={styles.shareButton}>
-            <Text style={styles.shareButtonText}>Share</Text>
+            {loading ? <CircularLoader color={Colors.whiteWithOpacity(1)} /> : <Text style={styles.shareButtonText}>Share</Text>}
           </TouchableOpacity>
         </View>
 
@@ -195,7 +238,42 @@ const SharePublish = ({
           automaticallyAdjustKeyboardInsets={true}
           bottomOffset={20}
         >
-          {/* Invited Users */}
+          {/* Channels */}
+          {currentChannels.length > 0 && <Text style={styles.invitedTitle}>Channels</Text>}
+          {currentChannels.map((user: any, index: number) => (
+            <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
+              {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 10, marginRight: 10 }} /> :
+                <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1) , borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <Text style={{ fontSize: 16, color: Colors.black2 }} >{user.name.charAt(0)}</Text>
+                </View> 
+              }
+              <View style={{ flex: 1 }}>
+                {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
+                <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.members.length} members</Text>
+              </View>
+              <TouchableOpacity onPress={() => onShareChannel(user.ulid, index)}>
+              {channelLoading == index ? <CircularLoader color={Colors.blue} /> 
+                : <View>
+                    {channels.includes(user.ulid) ? 
+                    <Menu
+                      ref={(ref) => (channelMenuRefs.current[index] = ref)}
+                      visible={visible}
+                      anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showChannelMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                      onRequestClose={() => hideChannelMenu(index)}
+                      style={{borderRadius:10}}
+                    >
+                      <MenuItem style={{borderRadius:10, height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevokeChannel(user.ulid, index)}>
+                        <Text style={{ color: 'red' }}>Revoke</Text>
+                      </MenuItem>
+                    </Menu>
+                    : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
+                  </View>
+              }
+              </TouchableOpacity>
+            </View>
+          ))}
+
+          {/* Shared Users */}
           {sharedUsers.length > 0 && <Text style={styles.invitedTitle}>Shared</Text>}
           {sharedUsers.length > 0 && sharedUsers.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
@@ -208,21 +286,33 @@ const SharePublish = ({
                 {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
-              <Menu
-                ref={(ref) => (menuRefs.current[index] = ref)}
-                visible={visible}
-                anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
-                onRequestClose={() => hideMenu(index)}
-              >
-                <MenuItem onPress={() => onRevoke(user.email, index)}>
-                  <Text style={{ color: 'red' }}>Revoke</Text>
-                </MenuItem>
-              </Menu>
+              {revokeLoading == index ?  
+                <View style={{ marginRight: -10 }}>
+                  <ThreeDotLoader
+                    size={20}
+                      colorFilters={[
+                        {keypath:'Left',color:Colors.text},
+                        {keypath:'Mid',color:Colors.text},
+                        {keypath:'Right',color:Colors.text}
+                      ]}/>
+                </View>
+              : <Menu
+                  ref={(ref) => (menuRefs.current[index] = ref)}
+                  visible={visible}
+                  anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                  onRequestClose={() => hideMenu(index)}
+                  style={{borderRadius:10}}
+                >
+                  <MenuItem style={{borderRadius:10, height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevoke(user.email, index)}>
+                    <Text style={{ color: 'red' }}>Revoke</Text>
+                  </MenuItem>
+                </Menu>
+              }
             </View>
           ))}
 
-          {/* Not Invited Users */}
-          <Text style={styles.invitedTitle}>Recent</Text>
+          {/* Recently shared Users */}
+          {recent.length > 0 && <Text style={styles.invitedTitle}>Recent</Text>}
           {recent.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
@@ -234,8 +324,8 @@ const SharePublish = ({
                 {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
-              <TouchableOpacity onPress={() => onShareRecording(user.email)}>
-                <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>
+              <TouchableOpacity onPress={() => onShareRecording(user.email, index)}>
+                {shareLoading == index ? <CircularLoader color={Colors.blue} /> : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
               </TouchableOpacity>
             </View>
           ))}
@@ -250,7 +340,7 @@ const SharePublish = ({
       </View> : 
       <Publish 
         slug={noteId} 
-        isPublished={is_published}  
+        isPublished={is_published == 'true' ? true : false}  
       />
       }
     </SafeAreaView>

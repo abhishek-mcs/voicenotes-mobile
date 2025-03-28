@@ -10,6 +10,7 @@ import {
   Text,
   View,
   DeviceEventEmitter,
+  TouchableOpacity,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDateAndTimeNew, formatDateTime, formattedDurations } from "utils/format-date";
@@ -286,7 +287,7 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onShareNote = async(id: any) => {
+    const onShareNote = async(id: any, published: number) => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
       hideMoreOption();
       const shareList = getShareList.data?.data
@@ -296,7 +297,8 @@ const NotePreview = forwardRef(
         router.navigate({
           pathname: "/share",
           params: {
-            is_published: isPublished,
+            is_published: published == 1 ? true : false,
+            note_id: id,
           }
         });
       }, 500);
@@ -758,12 +760,12 @@ const NotePreview = forwardRef(
         androidIcon: "pound",
         onPress: onGotoAddTag,
         },
-      ...(userDetails?.id==note?.user_id?[{
-        title:"Share",
-        systemIcon:'square.and.arrow.up',
-        androidIcon:'share-outline',
-        onPress: () => onShareNote(note?.id)
-      }]:[]),
+      // ...(userDetails?.id==note?.user_id?[{
+      //   title:"Share",
+      //   systemIcon:'square.and.arrow.up',
+      //   androidIcon:'share-outline',
+      //   onPress: () => onShareNote(note?.id)
+      // }]:[]),
       // {
       //   title:"Create",
       //   systemIcon:'pencil.and.outline',
@@ -1135,12 +1137,14 @@ const NotePreview = forwardRef(
                       <SvgXml xml={home.create1?.replace('#0D0D0D',Colors.more)}/>
                     </View>
                   </MoreOptions>}
-                  {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
-                    {/* {userDetails?.id==note?.user_id&&
-                    <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
-                      <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
-                    </Pressable>} */}
-                  {/* </MoreOptions> */}
+                  
+                    {userDetails?.id==note?.user_id&&
+                    <View style={{height:30,width:30,position:'relative'}}> 
+                      <Pressable onPress={() => onShareNote(note.id, note.is_published)} style={({pressed}) => [{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor: pressed ? Colors.bgColor1 : Colors.inputBg2,justifyContent:"center",alignItems:'center'}]}>
+                        <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
+                      </Pressable>
+                    </View>}
+                  
                   <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
@@ -1197,7 +1201,7 @@ const NotePreview = forwardRef(
           )}
         </Touchable>
 
-        <PublishedModal
+        {/* <PublishedModal
           slug={note?.public_slug || ""}
           visible={shareVisible}
           isPublished={isPublished}
@@ -1207,7 +1211,7 @@ const NotePreview = forwardRef(
           isNoteJustMadePrivate={isNoteJustMadePrivate}
           setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
           hideModal={() => {setShareVisible(false);setIsNoteJustMadePrivate(false)}}
-        />
+        /> */}
 
         {!!note?.subnotes&&note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote

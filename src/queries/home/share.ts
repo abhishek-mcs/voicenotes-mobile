@@ -45,7 +45,7 @@ export function useGetSharedList(id: string){
 export function useShareRecording(){
     const queryClient = useQueryClient();
     return useMutation('share-note',(p?:any) => {
-        return axiosApi.post(`/recording/${p.id}/share`, { emails: [p.emails]})
+        return axiosApi.post(`/recording/${p.id}/share`, p.channel? { channels: p.channels } : { id: p.id, emails: [p.emails]})
     },
     {
         onSuccess:async(data:any)=>{
@@ -60,7 +60,7 @@ export function useShareRecording(){
 export function useRevokeShare(){
     const queryClient = useQueryClient();
     return useMutation('revoke-share',(p?:any) => {
-        return axiosApi.post(`/recording/${p.id}/revoke`, { email: p.email})
+        return axiosApi.post(`/recording/${p.id}/revoke`, p.isChannel ? {channel: p.channel} : { email: p.email})
     },
     {
         onSuccess:async(data:any)=>{

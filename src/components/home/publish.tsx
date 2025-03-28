@@ -9,10 +9,12 @@ import { commonSvg } from 'assets/svg/commonSvg';
 import { screenWidth } from 'utils/common';
 import { useUnpublishRecording } from 'queries/home/share';
 import { useQueryClient } from 'react-query';
+import { set } from '@react-native-firebase/database';
+import CircularLoader from 'components/common/loaders/circular-loader';
 
 interface PublishModalProps {
     slug?: string | any;
-    isPublished?: any;
+    isPublished?: boolean;
 } 
 
 const Publish = ({
@@ -23,23 +25,18 @@ const Publish = ({
     const { Colors } = useTheme()
     const [copy, setCopy] = useState(false);
     const [loading, setLoading] = useState(false)
-    const [published, setPublished] = useState(isPublished)
+    const [published, setPublished] = useState(isPublished??false)
     const publishRecording = useUnpublishRecording()
     const queryClient = useQueryClient();
 
-    useEffect(() => {
-        console.log(isPublished, published);
-    },[isPublished])
-
     const onPublish = () => {
+        setLoading(true)
         publishRecording.mutate(
           { id: slug },
           {
             onSuccess: async (data: any) => {
               try {
-                setLoading(true)
-                console.log(data.data.recording.is_published);
-                
+                setLoading(false)
                 setPublished(data.data.recording.is_published)
                 await queryClient.invalidateQueries("published-recordings");
                 await queryClient.invalidateQueries("all-recording");
@@ -74,7 +71,8 @@ const Publish = ({
                     <SvgXml style={{ marginTop: 4 }} xml={commonSvg.greenTick} />
                     <Text style={styles.title}>Your note is public</Text>
                 </View> : 
-                <Text style={styles.title}>Publish to web</Text>}
+                <Text style={styles.title}>Publish to web</Text>
+            }
             <Text style={styles.subtitle}>Anyone with the link will have access to this voice note.</Text>
 
             {/* Voice Note Preview Box */}
@@ -120,7 +118,7 @@ const Publish = ({
                 </TouchableOpacity>
             </View>
             : <TouchableOpacity onPress={onPublish} style={styles.publishButton}>
-                <Text style={styles.publishText}>Publish</Text>
+                {loading ? <CircularLoader /> : <Text style={styles.publishText}>Publish</Text>}
             </TouchableOpacity> 
             }
         </View>
