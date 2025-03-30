@@ -217,11 +217,15 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     const generateMonthsData = (baseMonth: any) => {
       const prevMonth = new Date(baseMonth);
       prevMonth.setMonth(baseMonth.getMonth() - 1);
+      if(prevMonth.getMonth() == baseMonth.getMonth()) {
+        prevMonth.setMonth(prevMonth.getMonth() - 1);
+      }
       
       const nextMonth = new Date(baseMonth);
       nextMonth.setMonth(baseMonth.getMonth() + 1);
       
       const months = [prevMonth, baseMonth, nextMonth];
+      
       return months.map((month, index) => {
         // Use the real recording data instead of random dates
         const eventDates = getDatesWithRecordings(month, data.weeks);
@@ -238,7 +242,6 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         };
       });
     };
-    
     setMonthsData(generateMonthsData(currentMonth));
   }, [data]);
 
@@ -456,6 +459,9 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       setCurrentMonth(prevMonth => {
         const newMonth = new Date(prevMonth);
         newMonth.setMonth(prevMonth.getMonth() + direction);
+        if(newMonth.getMonth() === prevMonth.getMonth()) {
+          newMonth.setMonth(newMonth.getMonth() + direction);
+        }     
         
         // Use the current processed data
         const currentProcessedData = data ? processVoiceNotes(rawData) : { weeks: [] };
@@ -463,11 +469,16 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         // Update months data based on the new month
         const prevOfNew = new Date(newMonth);
         prevOfNew.setMonth(newMonth.getMonth() - 1);
+
+        if(newMonth.getMonth() === prevOfNew.getMonth()) {
+          prevOfNew.setMonth(prevOfNew.getMonth() + direction);
+        }  
         
         const nextOfNew = new Date(newMonth);
         nextOfNew.setMonth(newMonth.getMonth() + 1);
         
         const months = [prevOfNew, newMonth, nextOfNew];
+        
         const newMonthsData = months.map((month, index) => {
           // Use the current processed data to get event dates
           const eventDates = getDatesWithRecordings(month, currentProcessedData.weeks);
