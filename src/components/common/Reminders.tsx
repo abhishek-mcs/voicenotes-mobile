@@ -272,8 +272,9 @@ const Reminders: React.FC = () => {
 
     useEffect(() => {
         const getDefaultTime = (type: 'morning' | 'evening') => {
-            const now = new Date()
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), type === 'morning' ? 9 : 19, 0, 0, 0)
+            const date = new Date();
+            date.setHours(type === 'morning' ? 9 : 19, 0, 0, 0);
+            return date;
         }
 
         const checkNotification = (type: 'morning' | 'evening') => {
