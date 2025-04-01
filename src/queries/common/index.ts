@@ -3,21 +3,30 @@ import axiosApi from "services/api/axios-api";
 import { VoiceNote } from "types";
 
 export function useAllRecordings(token: string): UseQueryResult<VoiceNote[], Error> {
-    return useQuery('recordings', 
-        async () => {
+    return useQuery<VoiceNote[], Error>(
+        'recordings',
+        async ({ signal }) => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, 5000);
 
-            const response = await axiosApi.get(`/recordings/all`);
-            
-            if (response.data) {
-                return response.data as VoiceNote[];
+            try {
+                const response = await axiosApi.get('/recordings/all', { signal: controller.signal });
+                clearTimeout(timeoutId);
+                return response.data;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
             }
-            
-            return [];
         },
         {
             enabled: !!token,
+            retry: 3,
+            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+            staleTime: 30000,
             onError: (error: any) => {
-                console.warn(error?.response?.data?.message);
+                console.warn('All recordings fetch error:', error?.response?.data?.message);
             },
         }
     );
