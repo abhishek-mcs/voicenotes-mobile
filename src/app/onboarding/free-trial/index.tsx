@@ -119,7 +119,7 @@ const useStyles = () => {
         },
         footerContainer: {
             position: 'absolute',
-            bottom: 20,
+            bottom: 6,
             right: 0,
             left: 0
         }

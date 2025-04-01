@@ -23,9 +23,9 @@ const LargeButton = ({text, onPress, style, underlayColor, color, isLoading=fals
       style={style}
       onPress={onPress}>
         { !isLoading ? 
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 12 }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 12, alignItems: 'center' }}>
               {startIcon ? <SvgXml xml={startIcon} />  : <View style={{ width: 24}}></View> }
-              <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'center' }}>
+              <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center' }}>
                 {centerIcon && <SvgXml xml={centerIcon} /> }
                 <Text style={[{fontFamily:'Primary-Semibold',fontSize:16, alignSelf: 'center' },color?{color}:{color:Colors.grey2WithOpacity(1)}]}>
                     {text}
