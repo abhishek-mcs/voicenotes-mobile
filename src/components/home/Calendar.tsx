@@ -681,7 +681,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       }
     } else {
       // When collapsing, use the default limited view height
-      newHeight = calculateExpandedHeight(Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length));
+      newHeight = calculateExpandedHeight(Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length) + 10);
     }
     
     // Set the new expanded height
