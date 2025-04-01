@@ -263,6 +263,7 @@ const Pricing = () => {
           <SvgXml xml={settingsSvg.close?.replace("#0D0D0D", Colors.black2)} width={30} height={30} />
         </Touchable> : ''}
 
+        {selectedPlan == 'yearly' ? 
         <View style={{flex: 1}}>
           <View style={styles.mainTextContainer}>
               <Text style={styles.mainText}>How your free </Text>
@@ -279,9 +280,9 @@ const Pricing = () => {
                 showsVerticalScrollIndicator={false}
               />
           </View>
-        </View> 
+        </View> :
         
-        {/* <View style={{flex: 1}}>
+        <View style={{flex: 1}}>
             <View style={styles.monthlyTextContainer}>
               <SvgXml xml={iapSvgIcons.usersCount2?.replace("#222222",Colors.text5).replaceAll('black',Colors.blackWithOpacity(1))}/>
             </View>
@@ -291,26 +292,26 @@ const Pricing = () => {
             <View style={{flex:1, marginTop: 20 }}>
               <View style={styles.descView}>
                 <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
-                <Text style={styles.desc}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
+                <Text style={styles.monthlyDescription}>Unlimited Everything: Record, Ask AI and Create content (summary, to-do, email).</Text>
               </View>
               <View style={styles.descView}>
                 <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
-                <Text style={styles.desc}>Human-level transcription in 100+ languages.</Text>
+                <Text style={styles.monthlyDescription}>Human-level transcription in 100+ languages.</Text>
               </View>
               <View style={styles.descView}>
                 <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={{marginTop:3.5}}/>
-                <Text style={styles.desc}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
+                <Text style={styles.monthlyDescription}>Sync with all your devices: Web, Mobile & Smartwatch.</Text>
               </View>
               <View style={styles.descView}>
                 <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={styles.doneIcon} />
                 <View style={styles.descTextContainer}>
-                  <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
-                  <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />
+                  <Text style={styles.monthlyDescription}>#1 AI voice app. As seen on</Text>
+                  <SvgXml width={110} xml={isLightMode ? iapSvg.techCrunch : iapSvg.techCrunchDark} style={styles.techCrunchIcon} />
                 </View>
               </View>
             </View>
-          </View>
-         */}
+          </View>}
+        
         
         <View style={styles.footerContainer}>
 
@@ -483,6 +484,14 @@ const useStyles = () => {
       fontFamily: "Primary-Medium",
       color: Colors.text5,
       lineHeight: 22,
+      marginTop: -4,
+    },
+    monthlyDescription: {
+      fontSize: screenHeight/50,
+      lineHeight: screenHeight/35,
+      fontFamily: 'Primary',
+      marginLeft: 9,
+      color: Colors.text5,
       marginTop: -4,
     },
     pricingContainer: {

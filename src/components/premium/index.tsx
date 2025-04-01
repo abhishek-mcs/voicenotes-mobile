@@ -177,7 +177,7 @@ const Premium=(props:any) => {
                 <SvgXml xml={isLightMode ? iapSvg.done : iapSvg.done_white} style={styles.doneIcon} />
                 <View style={styles.descTextContainer}>
                   <Text style={styles.desc}>#1 AI voice app. As seen on</Text>
-                  <SvgXml xml={iapSvg.techCrunch} style={styles.techCrunchIcon} />
+                  <SvgXml width={110} xml={isLightMode ? iapSvg.techCrunch : iapSvg.techCrunchDark} style={styles.techCrunchIcon} />
                 </View>
               </View>
               <View style={styles.subContainer}>
