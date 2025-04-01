@@ -153,10 +153,15 @@ const Home = () => {
     dispatch(setCanRecord((val)));
 
   const [allRecordings, setAllRecordings] = useState<VoiceNote[]>([]);
-  const { data: recordings, refetch: refetchAllRecordings } = useAllRecordings(token);
+  const { data: recordings, refetch: refetchAllRecordings, status: recordingListStatus } = useAllRecordings(token);
 
   async function refreshRecordings() {
-    if (allRecordings.length === 0 || recordingList.length === 0) return;
+    if (recordingList.length === 0) return;
+
+    if(allRecordings.length === 0) {
+      refetchAllRecordings();
+      return
+    }
     
     const latestServerRecording = allRecordings[0];
     const latestLocalRecording = recordingList[0];
@@ -1035,7 +1040,7 @@ const Home = () => {
             </Pressable>}
           </Pressable>
           {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
-            {allRecordings.length > 0 ? <ExpandableCalendar onClose={() => showCalendar(false)} rawData={allRecordings} streaks={streaks?.data?.data} /> : <View style={styles.calendarContainer}>
+            {allRecordings.length > 0 || recordingListStatus !== 'loading' ? <ExpandableCalendar onClose={() => showCalendar(false)} rawData={allRecordings} streaks={streaks?.data?.data} /> : <View style={styles.calendarContainer}>
               <View style={styles.calendarVisualWrapper}>
                 <Text style={styles.indicator} >Loading</Text>
               </View>
