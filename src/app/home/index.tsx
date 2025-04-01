@@ -491,7 +491,6 @@ const Home = () => {
     index = -1,
   }: any) => {
     try{
-      setRecEnabled(true)
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
         () => {}
       );
@@ -508,11 +507,10 @@ const Home = () => {
       setRecordingParentId(parent_id);
       onRecord(setRec, setRecEnabled,isLightMode,showDialog);
       activateKeepAwakeAsync();
-      analytics().logEvent("started_recording");
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
     }catch{
-      setRecEnabled(false)
+      console.log('Error in recording')
     }
   };
 
@@ -590,8 +588,8 @@ const Home = () => {
       );
       checkAndShowPremium()
       !recordingParentId&&setExpandNote(-1)
-      setRecEnabled(false);
       let uri = await stopRecording(rec);
+      setRecEnabled(false);
       setRec(null);
 
       const temporaryRecordingId = Math.random().toString(36).substring(7);
@@ -640,7 +638,6 @@ const Home = () => {
       await uploadVoiceNote(newTemporaryRecording, repeat);
 
       if (!repeat) deactivateKeepAwake();
-      analytics().logEvent("completed_recording");
     },
     [rec, recordingList, dispatch,recordingParentId,splitCount]
   );
@@ -649,18 +646,17 @@ const Home = () => {
     await cancelRecording(rec, soundRef?.current);
     setRec(null);
     setRecEnabled(false);
-    analytics().logEvent("cancelled_recording");
   };
 
-  useEffect(() => {
-    return rec
-      ? () => {
-          cancelRecording(rec, soundRef.current);
-          setRec(null);
-          setRecEnabled(false);
-        }
-      : undefined;
-  }, []);
+  // useEffect(() => {
+  //   return rec
+  //     ? () => {
+  //         cancelRecording(rec, soundRef.current);
+  //         setRec(null);
+  //         setRecEnabled(false);
+  //       }
+  //     : undefined;
+  // }, []);
 
   const fetchNextPage = () => {
     // if(recordingList?.length>10){
