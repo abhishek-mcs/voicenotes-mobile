@@ -35,6 +35,7 @@ const Email = () => {
     const {userEmail, referrer, language, age_group, note_taking_frequency, revisit_frequency, note_types} = useSelector((state: RootState) => state.onboardingData);
     const [validationError, setValidationError]:any = useState(false)
     const [emailText, setEmailText] = useState(userEmail ? userEmail : '')
+    const [isEmail, setIsEmail] = useState(false)
 
     // const checkNotification = async (type: 'morning' | 'evening') => {
     //     getNotification(type).then((response) => {
@@ -235,10 +236,10 @@ const Email = () => {
             
                 <View>
                     <View style={styles.mainTextContainer}>
-                        <Text style={styles.mainText}>Enter your email</Text>
+                        <Text style={styles.mainText}>{isEmail ? 'Enter your email' : 'Create your account'}</Text>
                     </View>
 
-                    <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+                    {isEmail && <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
                         <TextField
                           style={{marginTop:0,flexDirection:'column'}}
                           inputStyle={{ height: 48, color:Colors.text, borderRadius: 16, borderWidth: 0, backgroundColor:Colors.bgColor7 }}
@@ -266,9 +267,9 @@ const Email = () => {
                                 <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>{emailError}</Text>
                             </Text>
                         )}
-                    </View>
+                    </View>}
                     
-                    <View style={styles.buttonContainer1}>
+                    {isEmail ? <View style={styles.buttonContainer1}>
                         <LargeButton
                             underlayColor={isLightMode ? Colors.blackWithOpacity(0.8) : Colors.blackWithOpacity(0.3)}
                             style={[styles.button, { backgroundColor: Colors.settingsBtnBg }]}
@@ -277,11 +278,41 @@ const Email = () => {
                             isLoading={loading}
                             color={Colors.text4}
                         />
-                    </View>
+                    </View> : <View style={styles.buttonContainer1}>
+                        <LargeButton
+                            underlayColor={Colors.blackWithOpacity(0.05)}
+                            style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
+                            onPress={() => setIsEmail(true)}
+                            text="Continue with Email"
+                            color={Colors.black2}
+                            centerIcon={LandingSvg.emailIcon?.replace('white', Colors.text)}
+                        />
+                    </View>}
+                    {isIOS && !isEmail && <View style={styles.buttonContainer1}>
+                        <LargeButton
+                            underlayColor={Colors.blackWithOpacity(0.05)}
+                            style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
+                            onPress={signInAppleAsync}
+                            text="Continue with Apple"
+                            isLoading={false}
+                            color={Colors.black2}
+                            centerIcon={LandingSvg.apple?.replace('white', Colors.text)}
+                        />
+                    </View>}
+                    {!isEmail && <View style={styles.buttonContainer1}>
+                        <LargeButton
+                            underlayColor={Colors.blackWithOpacity(0.05)}
+                            style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
+                            onPress={onGoogleLogin}
+                            text="Continue with Google"
+                            isLoading={false}
+                            color={Colors.black2}
+                            centerIcon={LandingSvg.google}
+                        />
+                    </View>}
                 </View>
-            
         </KeyboardAvoidingView>
-        <View style={styles.footerContainer}>
+        {/* <View style={styles.footerContainer}>
             {isIOS && <View style={styles.buttonContainer1}>
                 <LargeButton
                     underlayColor={Colors.blackWithOpacity(0.05)}
@@ -304,7 +335,7 @@ const Email = () => {
                     centerIcon={LandingSvg.google}
                 />
             </View>
-        </View>
+        </View> */}
     </SafeAreaView>
     </TouchableWithoutFeedback>
   )
@@ -346,10 +377,10 @@ const useStyles = () => {
             flexDirection:'row',
         },
         footerContainer: {
-            position: 'absolute',
-            bottom: 32,
-            right: 0,
-            left: 0
+            // position: 'absolute',
+            // bottom: 32,
+            // right: 0,
+            // left: 0
         }
     }), [Colors]);
 }

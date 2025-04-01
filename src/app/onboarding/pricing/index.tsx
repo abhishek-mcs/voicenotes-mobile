@@ -89,7 +89,7 @@ const Pricing = () => {
         if (selectedPlan == 'yearly') {
           analytics().logEvent("onboarding_free_trial_initiated").catch(e=>{console.log(e)})
         } else {
-          analytics().logEvent("onboarding_monthly_subscription_initiated").catch(e=>{console.log(e)})
+          analytics().logEvent("onboarding_monthly_sub_initiated").catch(e=>{console.log(e)})
         }
         const productToBuy = selectedPlan == 'monthly' ? pack[1]?.product : pack[4]?.product;
         const { customerInfo } = await Purchases.purchaseStoreProduct(productToBuy);
@@ -102,8 +102,8 @@ const Pricing = () => {
             analytics()
               .logEvent(
                 selectedPlan == "monthly"
-                  ? "onboarding_monthly_subscription_success"
-                  : "onboarding_yearly_subscription_success"
+                  ? "onboarding_monthly_sub_success"
+                  : "onboarding_yearly_sub_success"
               )
               AppEventsLogger.logPurchase(
                 selectedPlan == "monthly"
@@ -210,7 +210,7 @@ const Pricing = () => {
         },
         {
           id: "3",
-          title: "After day 7 - Billing starts",
+          title: "After day 7",
           description: `Your free trial ends and you'll be charged, cancel anytime before.`,
           icon: <SvgXml xml={onboardingSvg.crown?.replace('black', Colors.black2)} style={styles.icon} />,
           height: 45,
@@ -247,14 +247,17 @@ const Pricing = () => {
     const currencySymbol=match?match[0]?.trim():"$";
 
     const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
+    const priceAnnual=(pack[4]?.product?.price||49.99).toFixed(2);
     const priceAnnualMonthly=((pack[4]?.product?.price||49.99)/12).toFixed(2);
 
     let priceAnnualMonthlyString=`${currencySymbol}${priceAnnualMonthly}`;
     let priceMonthString=`${currencySymbol}${priceMonth}`;
+    let priceAnnualString=`${currencySymbol}${priceAnnual}`;
 
     if (priceString.startsWith('Rp')){
       priceMonthString = priceMonthString+'ribu';
       priceAnnualMonthlyString = priceAnnualMonthlyString+'ribu';
+      priceAnnualString = priceAnnualString+'ribu';
     }
 
   return (
@@ -346,10 +349,10 @@ const Pricing = () => {
             </View>
 
 
-            <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
+            {selectedPlan == 'yearly' ? <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center'}}>
                 <SvgXml xml={onboardingSvg.tick?.replace('black', Colors.black2)} /> 
-                <Text style={{ fontFamily: 'Primary-Semibold', fontSize: 14, color: Colors.black2 }}>Cancel anytime</Text>
-            </View>
+                <Text style={{ fontFamily: 'Primary-Semibold', fontSize: 14, color: Colors.black2 }}>No Payment Due Now</Text>
+            </View> : <View style={{marginTop: 17}}></View> }
             <View style={styles.buttonContainer1}>
                 <LargeButton
                     underlayColor={Colors.blackWithOpacity(0.8)}
@@ -363,6 +366,9 @@ const Pricing = () => {
                     <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:12,marginTop:8}}>{error}</Text>
                   )}
             </View>
+            {selectedPlan == 'yearly' ? <View style={{marginTop:10}}>
+              <Text style={[styles.footerText1,{color:Colors.text10}]}>{`7 days free, then ${priceAnnualString} per year (${priceAnnualMonthlyString}/mo)`}</Text>
+            </View> : <View style={{marginTop:25}}></View> }
             <View style={styles.termsContainer}>
               <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
                 <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
@@ -519,6 +525,8 @@ const useStyles = () => {
         backgroundColor: Colors.bottomBarButtonBg1,
     },
     unselectedPlan: {
+        borderWidth: 2,
+        borderColor: Colors.bottomBarButtonBg1,
         backgroundColor: Colors.bottomBarButtonBg1,
     },
     planTitle: {
