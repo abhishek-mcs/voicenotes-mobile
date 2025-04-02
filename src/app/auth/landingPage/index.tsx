@@ -81,8 +81,8 @@ const signInGoogle=(token:any,params:any)=>{
   const onGoogleLogin=async()=>{
    isAndroid&& Linking.addEventListener('url', (e) => {
       if(e?.url.includes('com.app.voicenotes:/0authredirect'))
-        // router.push("/onboarding/")
-        router.push("/auth/landingPage/")
+        router.push("/onboarding/")
+        // router.push("/auth/landingPage/")
     })
    const res= await googlePromptAsync().then(e=>{
     console.log(e)
