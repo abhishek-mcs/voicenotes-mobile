@@ -158,9 +158,14 @@ const Email = () => {
                 access_token: credential.identityToken,
                 source: Platform.OS === "ios" ? 'ios' : 'android'
             }, { onSuccess: (data: any) => {
-                    analytics().logEvent('onboarding_apple_signup').catch(e=>{console.log(e)})
-                    AppEventsLogger.logEvent('fb_onboarding_apple_signup');
-                    onLoginSuccess(data)
+                    console.log('Success data', data.data.user.created_at, isMoreThan5MinutesAgo(data.data.user.created_at));
+                    if(isMoreThan5MinutesAgo(data.data.user.created_at) == false){
+                        analytics().logEvent('onboarding_apple_signup').catch(e=>{console.log(e)})
+                        AppEventsLogger.logEvent('fb_onboarding_apple_signup');
+                        onLoginSuccess(data)
+                    } else {
+                        setGoogleError(true)
+                    }
                 }  
             });
         } catch (e) {
@@ -280,7 +285,7 @@ const Email = () => {
                             style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
                             onPress={signInAppleAsync}
                             text="Continue with Apple"
-                            isLoading={false}
+                            isLoading={loginApple?.isLoading||false}
                             color={Colors.black2}
                             centerIcon={LandingSvg.apple?.replace('white', Colors.text)}
                         />

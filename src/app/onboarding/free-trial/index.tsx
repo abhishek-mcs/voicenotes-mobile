@@ -40,24 +40,27 @@ const FreeTrial = () => {
         dispatch(setSelectedScreen(15))
     }
 
-    const defaultPriceMonthly = '$9.99';
+    let MonthlyPriceString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace(/\.0+$/, '')
+    let AnnualPriceString=(pack[4]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$49.99')?.replace(/\.0+$/, '')
 
-    let priceString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||defaultPriceMonthly)?.replace(/\.0+$/, '')
+    let priceString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||'$9.99')?.replace(/\.0+$/, '')
     const match = priceString?.match(/^[^\d]*[^\d\s]/);
     const currencySymbol=match?match[0]?.trim():"$";
 
     const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
     const priceAnnual=(pack[4]?.product?.price||49.99).toFixed(2);
     const priceAnnualMonthly=((pack[4]?.product?.price||49.99)/12).toFixed(2);
+    const priceAnnualMonthlyRibu=((pack[4]?.product?.price||49.99)/12000).toFixed(0);
 
     let priceAnnualMonthlyString=`${currencySymbol}${priceAnnualMonthly}`;
+    let priceAnnualMonthlyStringRibu=`${currencySymbol}${priceAnnualMonthlyRibu}`;
     let priceMonthString=`${currencySymbol}${priceMonth}`;
     let priceAnnualString=`${currencySymbol}${priceAnnual}`;
 
     if (priceString.startsWith('Rp')){
-      priceMonthString = priceMonthString+'ribu';
-      priceAnnualMonthlyString = priceAnnualMonthlyString+'ribu';
-      priceAnnualString = priceAnnualString+'ribu';
+      priceMonthString = MonthlyPriceString+'ribu';
+      priceAnnualMonthlyString = priceAnnualMonthlyStringRibu+'ribu';
+      priceAnnualString = AnnualPriceString+'ribu';
     }
 
   return (
