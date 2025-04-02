@@ -90,7 +90,7 @@ const FreeTrial = () => {
                 />
             </View>
             <View style={{ alignSelf: 'center', paddingTop: 12 }}>
-                <Text style={{ fontFamily: 'Primary', fontSize: 14, color: Colors.text10 }}>Just {priceAnnualString} per year ({priceAnnualMonthly}/mo)</Text>
+                <Text style={{ fontFamily: 'Primary', fontSize: 14, color: Colors.text10 }}>Just {priceAnnualString} per year ({priceAnnualMonthlyString}/mo)</Text>
             </View>
         </View>
         
