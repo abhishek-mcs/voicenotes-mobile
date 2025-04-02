@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native'
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -20,7 +20,7 @@ import { useQueryClient } from 'react-query'
 import { RootState } from 'redux/store/store'
 import { analytics } from '../../../../firebaseConfig'
 import { AppEventsLogger } from "react-native-fbsdk-next";
-import { isIOS, screenHeight } from 'utils/common'
+import { isAndroid, isIOS, screenHeight } from 'utils/common'
 
 const Email = () => {
     const styles = useStyles()
@@ -91,49 +91,55 @@ const Email = () => {
     });
     
     const loginGoogle = signInWithGoogle();
+    const signInGoogle=(token:any,params:any)=>{
+      const {code,state,prompt,authuser,scope}=params
+      loginGoogle.mutate({
+        access_token:token,
+        client_id:isIOS?iosGoogleClientID:androidGoogleClientID,
+        source:isIOS?'ios':'android',
+        device:'mobile_app',code,state,prompt,authuser,scope},{
+        onSuccess:(data: any) => {
+            console.log('Success data', data.data.user.created_at, isMoreThan5MinutesAgo(data.data.user.created_at));
+            if(isMoreThan5MinutesAgo(data.data.user.created_at) == false){
+                analytics().logEvent('onboarding_google_signup').catch(e=>{console.log(e)})
+                AppEventsLogger.logEvent('fb_onboarding_google_signup');
+                onLoginSuccess(data)
+            } else {
+                setGoogleError(true)
+            }
+        },
+      })
+    }
 
     useEffect(() => {
+        Linking.removeAllListeners('url');
         if (googleResponse?.type === "success") {
             console.log('Google Response success', googleResponse);
-            
-            loginGoogle.mutate({
-                access_token: googleResponse?.params.id_token,
-                client_id: Platform.OS === "ios" ? iosGoogleClientID : androidGoogleClientID,
-                source: Platform.OS === "ios" ? 'ios' : 'android',
-                device: 'mobile_app'
-            }, { onSuccess: (data: any) => {
-                    console.log('Success data', data.data.user.created_at, isMoreThan5MinutesAgo(data.data.user.created_at));
-                    if(isMoreThan5MinutesAgo(data.data.user.created_at) == false){
-                        analytics().logEvent('onboarding_google_signup').catch(e=>{console.log(e)})
-                        AppEventsLogger.logEvent('fb_onboarding_google_signup');
-                        onLoginSuccess(data)
-                    } else {
-                        setGoogleError(true)
-                    }
-                },
-                onError: (error: any) => {
-                    console.log("Google Sign-In Error:", error?.response?.data);
-                    // Set error if account exists
-                    if (error?.response?.data?.message?.includes("already exists")) {
-                        setGoogleError(true)
-                    }
-                }
-            });
+            signInGoogle(googleResponse?.params.id_token,googleResponse?.params)
         } else {
             console.log('Google response not success',googleResponse, googleResponse?.type);
         }
+        return () => {
+            Linking.removeAllListeners('url');
+        };
     }, [googleResponse]);
     
     const onGoogleLogin = async () => {
         setGoogleError(false);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-            () => {}
-        );
-        const res= await googlePromptAsync().then(e=>{
-            console.log('googlePromptAsync data',e)
-        }).catch(e=>{
-            console.log('googlePromptAsync error',e)
-        })
+        if (isAndroid) {
+            Linking.addEventListener('url', (e) => {
+                if (e?.url.includes('com.app.voicenotes:/0authredirect')) {
+                    setGoogleError(true)
+                }
+            });
+        }
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        try {
+            await googlePromptAsync();
+        } catch (error) {
+            console.error('Google sign in error:', error);
+            setGoogleError(true);
+        }
     };
 
     // Apple Authentication
