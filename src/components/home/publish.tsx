@@ -1,5 +1,5 @@
 import { useTheme } from 'context';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { setStringAsync } from "expo-clipboard";
 import { MAIN_URL } from "services/api/api-constants";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
@@ -9,38 +9,43 @@ import { commonSvg } from 'assets/svg/commonSvg';
 import { screenWidth } from 'utils/common';
 import { useUnpublishRecording } from 'queries/home/share';
 import { useQueryClient } from 'react-query';
-import { set } from '@react-native-firebase/database';
 import CircularLoader from 'components/common/loaders/circular-loader';
 
 interface PublishModalProps {
     slug?: string | any;
     isPublished?: boolean;
+    title?: string | any;
+    content?: string | any;
+    duration?: any;
 } 
 
 const Publish = ({
         slug = "",
         isPublished,
+        title = "",
+        content = "",
+        duration,
     } : PublishModalProps) => {
     const styles = useStyles()
     const { Colors } = useTheme()
-    const [copy, setCopy] = useState(false);
     const [loading, setLoading] = useState(false)
     const [published, setPublished] = useState(isPublished??false)
     const publishRecording = useUnpublishRecording()
     const queryClient = useQueryClient();
 
-    const onPublish = () => {
+    const onPublish = async() => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
         setLoading(true)
         publishRecording.mutate(
           { id: slug },
           {
             onSuccess: async (data: any) => {
               try {
-                setLoading(false)
                 setPublished(data.data.recording.is_published)
                 await queryClient.invalidateQueries("published-recordings");
                 await queryClient.invalidateQueries("all-recording");
                 await queryClient.invalidateQueries("single-recording");
+                setLoading(false)
               } catch (e) {
                 console.log("error in publish recording", e);
               } finally {
@@ -56,11 +61,17 @@ const Publish = ({
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
           () => {}
         );
-        setCopy(true);
         await setStringAsync(MAIN_URL + "/s/" + slug);
-        setTimeout(() => {
-          setCopy(false);
-        }, 700);
+    };
+
+    const formatText = (text: string, limit: number = 210): string => {
+        return text.length > limit ? text.slice(0, limit) + "..." : text;
+    };
+
+    const formatDuration = (ms: number): string => {
+        const minutes = Math.floor(ms / 60000); // Convert to minutes
+        const seconds = Math.floor((ms % 60000) / 1000); // Get remaining seconds
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
     return (
@@ -89,19 +100,19 @@ const Publish = ({
 
                 {/* Voice Note Content */}
                 <View style={styles.voiceNoteContent}>
-                    <Text style={styles.voiceTitle}>Life Updates, Random Thoughts & Plans</Text>
+                    <Text style={styles.voiceTitle}>{title}</Text>
                     
                     {/* Play Button + Timer */}
                     <View style={styles.audioPlayer}>
                         <TouchableOpacity>
                             <Text style={styles.playIcon}>▶</Text>
                         </TouchableOpacity>
-                        <Text style={styles.timer}>00:29</Text>
+                        <Text style={styles.timer}>{formatDuration(duration)}</Text>
                     </View>
 
                     {/* Voice Note Text */}
                     <Text style={styles.voiceText}>
-                        So first, the biggest news I got the job I interviewed for last week. Super excited about that, it's a huge opportunity and I can't wait to start next month. Definitely feeling a little nervous...
+                        {content && formatText(content)}
                     </Text>
                 </View>
             </View>

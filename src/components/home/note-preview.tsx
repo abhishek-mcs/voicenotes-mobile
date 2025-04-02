@@ -287,11 +287,9 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onShareNote = async(id: any, published: number) => {
+    const onShareNote = async(id: any, published: number, title: string, duration:any, audioDuration:any, content: any) => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-      hideMoreOption();
-      const shareList = getShareList.data?.data
-      console.log('Publish ', shareList);
+      // hideMoreOption();
       dispatch(setNoteId(id ? id : ''))
       setTimeout(() => {
         router.navigate({
@@ -299,24 +297,12 @@ const NotePreview = forwardRef(
           params: {
             is_published: published == 1 ? true : false,
             note_id: id,
+            note_title: title,
+            note_content: content,
+            note_duration: duration||audioDuration
           }
         });
-      }, 500);
-      // router.navigate({
-      //   pathname: "/share",
-      //   params: {
-      //     slug: note?.public_slug || "",
-      //     isPublished: isPublished,
-      //     sharedList: shareList,
-      //     onPressCancel: () => setShareVisible(false),
-      //     onPressDone: togglePublish,
-      //     isNoteJustMadePrivate:isNoteJustMadePrivate,
-      //     setIsNoteJustMadePrivte:setIsNoteJustMadePrivate,
-      //   }
-      // });
-      // setTimeout(() => {
-      //   setShareVisible(true);
-      // }, 500);
+      }, 50);
     };
 
     const onCopy = async (content = "") => {
@@ -1140,7 +1126,22 @@ const NotePreview = forwardRef(
                   
                     {userDetails?.id==note?.user_id&&
                     <View style={{height:30,width:30,position:'relative'}}> 
-                      <Pressable onPress={() => onShareNote(note.id, note.is_published)} style={({pressed}) => [{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor: pressed ? Colors.bgColor1 : Colors.inputBg2,justifyContent:"center",alignItems:'center'}]}>
+                      <Pressable 
+                        onPress={() => onShareNote(
+                          note.id, 
+                          note.is_published, 
+                          note.title,
+                          note?.duration,
+                          note?.audio?.data?.duration,
+                          note?.recording_type==2?
+                            note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
+                            :note?.recording_type==3?
+                            formatTranscript2(note?.transcript)
+                            : note?.recording_type==5 ?
+                              formatTranscript5(note?.transcript)
+                            : formatTranscript(note?.transcript)
+                        )} 
+                        style={({pressed}) => [{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor: pressed ? Colors.bgColor1 : Colors.inputBg2,justifyContent:"center",alignItems:'center'}]}>
                         <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
                       </Pressable>
                     </View>}

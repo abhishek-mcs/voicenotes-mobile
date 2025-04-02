@@ -42,11 +42,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.app.voicenotes",
-<<<<<<< HEAD
-      "versionCode": 278,
-=======
       "versionCode": 284,
->>>>>>> production
       "googleServicesFile": "./google-services.json"
     },
     "web": {

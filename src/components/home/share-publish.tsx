@@ -6,7 +6,7 @@ import Touchable from 'components/common/Touchable'
 import { useTheme } from 'context'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Haptics from "expo-haptics";
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -29,12 +29,11 @@ const SharePublish = () => {
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
   const {noteId} = useSelector((state:RootState)=>state.editStates)
-  const {is_published, note_id} = useLocalSearchParams()
+  const {is_published, note_id, note_title, note_content, note_duration} = useLocalSearchParams()
   const getShareList = useGetSharedList(noteId)
   const shareList = getShareList.data?.data
   const shareRecording = useShareRecording();
   const revokeShared = useRevokeShare();
-  const [copy, setCopy] = useState(false);
   const [loading, setLoading] = useState(false)
   const [channelLoading, setChannelLoading] = useState(-1)
   const [revokeLoading, setRevokeLoading] = useState(-1)
@@ -45,11 +44,6 @@ const SharePublish = () => {
   const { userDetails }: any = useSelector((state: RootState) => state.userDetails);
   const currentChannels = userDetails?.team?.channels || [];
   const [channels, setChannels] = useState(shareList.channels ? shareList.channels : []);
-  const [visible, setVisible] = useState(false);
-
-  // const hideMenu = () => setVisible(false);
-
-  // const showMenu = () => setVisible(true);
 
   const showMenu = (index: number) => menuRefs.current[index]?.show();
   const hideMenu = (index: number) => menuRefs.current[index]?.hide();
@@ -63,11 +57,7 @@ const SharePublish = () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
-    setCopy(true);
     await setStringAsync(MAIN_URL + "/s/" + noteId);
-    setTimeout(() => {
-      setCopy(false);
-    }, 700);
   };
 
   const onShareNewEmail = (emailId: string) => {
@@ -76,7 +66,8 @@ const SharePublish = () => {
     setEmail('')
   }
 
-  const onRevoke = (emailId: string, index: any) => {
+  const onRevoke = async (emailId: string, index: any) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     setRevokeLoading(index)
     revokeShared.mutate(
       { id: noteId, email: emailId, isChannel: false },
@@ -96,10 +87,6 @@ const SharePublish = () => {
   }
 
   useEffect(() => {
-    console.log('User details in share ', currentChannels);
-  },[])
-
-  useEffect(() => {
     if (shareList) {
       setSharedUsers(shareList?.users ? shareList.users : []);
       setRecent(shareList.recent ? shareList.recent : []);
@@ -107,7 +94,8 @@ const SharePublish = () => {
     }
   },[shareList])
 
-  const onShareRecording = ( emailId: string, index: number ) => {
+  const onShareRecording = async( emailId: string, index: number ) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     setShareLoading(index)
     shareRecording.mutate(
       { id: noteId, emails: emailId, channel: false },
@@ -126,7 +114,8 @@ const SharePublish = () => {
     )
   }
 
-  const onShareChannel = ( channelId: string, index: number ) => {
+  const onShareChannel = async( channelId: string, index: number ) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     setChannelLoading(index)
     shareRecording.mutate(
       { id: note_id, channel: true, channels: [channelId] },
@@ -144,7 +133,8 @@ const SharePublish = () => {
     )
   }
 
-  const onRevokeChannel = (channelId: string, index: any) => {
+  const onRevokeChannel = async(channelId: string, index: any) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
     setChannelLoading(index)
     revokeShared.mutate(
       { id: note_id, isChannel: true, channel: channelId },
@@ -162,16 +152,6 @@ const SharePublish = () => {
     )
     hideMenu(index)
   }
-
-  const KeyboardWrapper = useCallback(({children}:any) => isIOS ?
-    children:(
-      <KeyboardAwareScrollView
-      automaticallyAdjustKeyboardInsets
-      bottomOffset={0}
-      >
-        {children}
-      </KeyboardAwareScrollView>
-    ),[])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -213,7 +193,6 @@ const SharePublish = () => {
       </View>
       {isSelected == 'share' ? <View style={styles.contentContainer}>
         <View style={styles.inputContainer}>
-          <KeyboardWrapper>
             <TextField
               style={{ flex: 1 }}
               inputStyle={{ height: 36, color:Colors.text, borderRadius: 10, borderWidth: 1.5, backgroundColor:Colors.inputBg3 }}
@@ -224,7 +203,6 @@ const SharePublish = () => {
               placeholderTextColor={Colors.grey}
               autoCapitalize="none"
             />
-          </KeyboardWrapper>
           <TouchableOpacity onPress={() => onShareNewEmail(email)} style={styles.shareButton}>
             {loading ? <CircularLoader color={Colors.whiteWithOpacity(1)} /> : <Text style={styles.shareButtonText}>Share</Text>}
           </TouchableOpacity>
@@ -240,7 +218,7 @@ const SharePublish = () => {
         >
           {/* Channels */}
           {currentChannels.length > 0 && <Text style={styles.invitedTitle}>Channels</Text>}
-          {currentChannels.map((user: any, index: number) => (
+          {currentChannels.length > 0 && currentChannels.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 10, marginRight: 10 }} /> :
                 <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1) , borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
@@ -257,12 +235,10 @@ const SharePublish = () => {
                     {channels.includes(user.ulid) ? 
                     <Menu
                       ref={(ref) => (channelMenuRefs.current[index] = ref)}
-                      visible={visible}
                       anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showChannelMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
                       onRequestClose={() => hideChannelMenu(index)}
-                      style={{borderRadius:10}}
                     >
-                      <MenuItem style={{borderRadius:10, height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevokeChannel(user.ulid, index)}>
+                      <MenuItem style={{height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevokeChannel(user.ulid, index)}>
                         <Text style={{ color: 'red' }}>Revoke</Text>
                       </MenuItem>
                     </Menu>
@@ -298,12 +274,10 @@ const SharePublish = () => {
                 </View>
               : <Menu
                   ref={(ref) => (menuRefs.current[index] = ref)}
-                  visible={visible}
                   anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
                   onRequestClose={() => hideMenu(index)}
-                  style={{borderRadius:10}}
                 >
-                  <MenuItem style={{borderRadius:10, height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevoke(user.email, index)}>
+                  <MenuItem style={{height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevoke(user.email, index)}>
                     <Text style={{ color: 'red' }}>Revoke</Text>
                   </MenuItem>
                 </Menu>
@@ -313,7 +287,7 @@ const SharePublish = () => {
 
           {/* Recently shared Users */}
           {recent.length > 0 && <Text style={styles.invitedTitle}>Recent</Text>}
-          {recent.map((user: any, index: number) => (
+          {recent.length > 0 && recent.map((user: any, index: number) => (
             <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
               {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
                 <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(0.8) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
@@ -341,6 +315,9 @@ const SharePublish = () => {
       <Publish 
         slug={noteId} 
         isPublished={is_published == 'true' ? true : false}  
+        title={note_title}
+        content={note_content}
+        duration={note_duration}
       />
       }
     </SafeAreaView>
