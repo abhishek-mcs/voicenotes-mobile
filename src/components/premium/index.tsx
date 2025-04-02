@@ -189,14 +189,14 @@ const Premium=(props:any) => {
                 <Touchable onPress={onRestore} style={{padding:8}}>
                   <Text style={[styles.footerText,{color:Colors.grey3}]}>Restore</Text>
                 </Touchable>
-                <View style={styles.footer}>
+                {isIOS && <View style={styles.footer}>
                   <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
                     <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
                   </Touchable>
                   <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
                     <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
                   </Touchable>
-                </View>
+                </View>}
               </View>
             </View>
           </ScrollView>
