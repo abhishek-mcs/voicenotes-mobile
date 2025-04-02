@@ -50,7 +50,7 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,c
     route.navigate("/settings/")
   }
 
-  const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased)
+  const isBeliever=(userDetails?.subscription_status||isTempIAPPurchased);
   const headerHeight=90
   const minHeaderHeight=40
   const titleFontSize=36
@@ -71,6 +71,11 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,c
     outputRange: [isBeliever?-16:-20, -translateY],
     extrapolate: 'clamp',
   });
+
+  useEffect(() => {
+    console.log('Believer', isBeliever, 'Temp', isTempIAPPurchased);
+    
+  },[])
   
   return (
     <Animated.View style={{height:headerHeightAnimate,transform:[{scaleY:scale}],opacity:scale}}>
@@ -93,7 +98,7 @@ const Header = ({isLogged=true,isOffline,onCalendarToggled,scrollY,settingsRef,c
         <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
         {/* upgrade button */}
         {!isBeliever&&
-        <Touchable onPress={()=>route.navigate("/premium/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.upgradeBtn,paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
+        <Touchable onPress={()=>route.navigate(userDetails.is_new_user ? "/premium/" : "/onboarding/")} style={{flexDirection:'row',alignItems:'center',height:32,backgroundColor:Colors.upgradeBtn,paddingHorizontal:12,justifyContent:'center',marginRight:2,borderRadius:8}}>
           <SvgXml xml={iapSvg.thunder?.replace(/#0E3934/g,Colors.primaryDark)} />
           <Text style={{color:Colors.primaryDark,fontFamily:'Primary-Semibold',fontSize:14,marginLeft:6,lineHeight:16}}>Upgrade</Text>
         </Touchable>}

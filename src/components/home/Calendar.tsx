@@ -1,7 +1,7 @@
 import { home } from 'assets/svg/home';
 import SkeletonLoader from 'components/common/loaders/skeleton';
 import { useTheme } from 'context';
-import { useDayNotes, useHighlights } from 'queries/home';
+import { useHighlights } from 'queries/home';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
@@ -18,6 +18,7 @@ import { SvgXml } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRelatedNoteId } from 'redux/reducers/relatedNoteStates';
 import { RootState } from 'redux/store/store';
+import { VoiceNote } from 'types';
 import { isIOS } from 'utils/common';
 
 const { width } = Dimensions.get('window');
@@ -28,29 +29,25 @@ const EXPAND_ANIMATION_DURATION = 200;
 const SNAP_ANIMATION_DURATION = 200; // Increased for smoother transitions
 const TRANSITION_OFFSET = 300; // Vertical offset for month transitions
 
-// Utility functions 
-const getDatesWithRecordings = (date: Date, weeksData: any[][]): Date[] => {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const dates: Date[] = [];
-  if(!weeksData) return dates;
+const getDatesWithRecordings = (month: Date, weeks: any[]): Date[] => {
+  if (!weeks || weeks.length === 0) return [];
   
-  // Iterate through all weeks in the data
-  weeksData.forEach(week => {
-    // Iterate through each day in the week
-    week.forEach(day => {
-      const dayDate = new Date(day.date);
+  const eventDates: Date[] = [];
+  const monthStart = new Date(month.getFullYear(), month.getMonth(), 1);
+  const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+  
+  weeks.forEach(week => {
+    week.forEach((day: any) => {
+      const date = new Date(day.date);
       
-      // Check if the date is in the target month and has recordings
-      if (dayDate.getFullYear() === year && 
-          dayDate.getMonth() === month && 
-          day.recordings_count > 0) {
-        dates.push(dayDate);
+      // Check if the date is in the current month and has recordings
+      if (date >= monthStart && date <= monthEnd && day.recordings_count > 0) {
+        eventDates.push(date);
       }
     });
   });
   
-  return dates;
+  return eventDates;
 };
 
 const formatMonthForApi = (date: Date) => {
@@ -73,20 +70,22 @@ interface MonthData {
 type Data = {
   current_streak: number;
   rank: number;
-  max_recordings_count: number;
-  total_users: string;
+  max_recordings_count?: number;
+  total_users?: string;
   weeks: any[];
 }
 
 interface ExpandableCalendarProps {
   initialDate?: Date;
-  streaksData: Data;
+  rawData: VoiceNote[];
+  streaks: Data;
   onClose: () => void;
 }
 
 const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   initialDate = new Date(),
-  streaksData,
+  rawData,
+  streaks,
   onClose
 }) => {
 
@@ -108,7 +107,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
     items: [],
   });
   const [highlightsHeight, setHighlightsHeight] = useState(0);
-  const [data, setData] = useState<Data>(streaksData);
+  const [data, setData] = useState<Data>({ current_streak: 0, rank: 0, weeks: [] });
   
   // Base height for the calendar without any expansions
   const [baseHeight, setBaseHeight] = useState(260);
@@ -135,24 +134,56 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const styles = useStyles();
   const { Colors } = useTheme();
 
-  const { 
-    data: selectedDateNotes,
-    isLoading: isLoadingNotes 
-  } = useDayNotes(selectedDate, {
-    onSuccess: (data) => {
-      // When data is fetched successfully, update the additionalInfo
-      if (selectedDate) {
+  const getNotesForSelectedDate = (date: Date | null): VoiceNote[] => {
+    if (!date || !rawData) return [];
+    
+    // Create a date string in local timezone to avoid UTC conversion issues
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // getMonth() is 0-indexed
+    const day = date.getDate();
+    const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    
+    return rawData.filter(note => {
+      // Skip deleted notes
+      if (note.deleted_at !== null) return false;
+      
+      // Use recorded_at if available, otherwise use created_at
+      const noteDate = new Date(note.recorded_at || note.created_at);
+      
+      // Create a date string in the same format, in local timezone
+      const noteYear = noteDate.getFullYear();
+      const noteMonth = noteDate.getMonth() + 1;
+      const noteDay = noteDate.getDate();
+      const noteDateStr = `${noteYear}-${noteMonth.toString().padStart(2, '0')}-${noteDay.toString().padStart(2, '0')}`;
+      
+      return noteDateStr === dateStr;
+    });
+  };
+
+  // In the component, use this instead of useDayNotes
+  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
+  const [selectedDateNotes, setSelectedDateNotes] = useState<VoiceNote[]>([]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      setIsLoadingNotes(true);
+      // Small delay to show loading state
+      setTimeout(() => {
+        const notes = getNotesForSelectedDate(selectedDate);
+        setSelectedDateNotes(notes);
+        setIsLoadingNotes(false);
+        
+        // Update additionalInfo with the notes
         const dateString = selectedDate.toLocaleDateString('en-US', {
           weekday: 'long',
           month: 'short',
           day: 'numeric',
           year: 'numeric',
         });
-  
-        // Change this part in the useDayNotes onSuccess callback
-        const formattedItems = (data?.data || []).map((note: any) => {
+        
+        const formattedItems = notes.map(note => {
           // Parse the recorded_at timestamp
-          const recordedAt = new Date(note.recorded_at);
+          const recordedAt = new Date(note.recorded_at || note.created_at);
           
           // Format the time in 24-hour format (HH:MM)
           const hours = recordedAt.getHours();
@@ -161,35 +192,40 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           const formattedMinutes = minutes.toString().padStart(2, '0');
           const timeString = `${formattedHours}:${formattedMinutes}`;
           
+          // Convert null to undefined for transcript to match the expected type
           return {
             time: timeString,
             title: note.title || 'Untitled Recording',
-            id: note.id,
-            transcript: note.transcript
+            id: note.id, // This is already a string, so no conversion needed
+            transcript: note.transcript || undefined // Convert null to undefined
           };
         });
-  
+        
         setAdditionalInfo({
           date: dateString,
           items: formattedItems,
         });
-  
+        
         // Calculate new expanded height based on available items
         const newExpandedHeight = calculateExpandedHeight(formattedItems.length, formattedItems.length > 0);
         setExpandedHeight(newExpandedHeight);
-      }
+      }, 100);
     }
-  });
+  }, [selectedDate, data]);
   
   useEffect(() => {
     const generateMonthsData = (baseMonth: any) => {
       const prevMonth = new Date(baseMonth);
       prevMonth.setMonth(baseMonth.getMonth() - 1);
+      if(prevMonth.getMonth() == baseMonth.getMonth()) {
+        prevMonth.setMonth(prevMonth.getMonth() - 1);
+      }
       
       const nextMonth = new Date(baseMonth);
       nextMonth.setMonth(baseMonth.getMonth() + 1);
       
       const months = [prevMonth, baseMonth, nextMonth];
+      
       return months.map((month, index) => {
         // Use the real recording data instead of random dates
         const eventDates = getDatesWithRecordings(month, data.weeks);
@@ -206,16 +242,91 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
         };
       });
     };
-    
     setMonthsData(generateMonthsData(currentMonth));
   }, [data]);
 
   useEffect(() => {
-    if(streaksData.weeks){
-      setLoading(false)
-      setData(streaksData)
+    if (rawData && rawData.length > 0) {
+      setLoading(false);
+      const processedData = processVoiceNotes(rawData);
+      setData(processedData);
     }
-  }, [streaksData])
+  }, [rawData]);
+
+  const processVoiceNotes = (voiceNotes: VoiceNote[]) => {
+    const processedData: Data = {
+      current_streak: 0, // These values will be set elsewhere or removed
+      rank: 0,
+      weeks: []
+    };
+    
+    // Create a map of dates to recording counts
+    const dateMap = new Map();
+    
+    voiceNotes.forEach(note => {
+      // Skip deleted notes
+      if (note.deleted_at !== null) return;
+      
+      // Use recorded_at if available, otherwise use created_at
+      const dateString = note.recorded_at || note.created_at;
+      const date = new Date(dateString);
+      const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      if (dateMap.has(formattedDate)) {
+        dateMap.set(formattedDate, dateMap.get(formattedDate) + 1);
+      } else {
+        dateMap.set(formattedDate, 1);
+      }
+    });
+    
+    // Convert the map to the weeks format needed by the calendar
+    // This is a simplified version - you might need to adjust based on your exact needs
+    const dates = Array.from(dateMap.keys()).sort();
+    if (dates.length === 0) return processedData;
+    
+    // Group dates by week
+    const weeks: any[] = [];
+    let currentWeek: any[] = [];
+    let currentWeekStart: Date | null = null;
+    
+    dates.forEach(dateStr => {
+      const date = new Date(dateStr);
+      const recordings_count = dateMap.get(dateStr);
+      
+      if (!currentWeekStart) {
+        currentWeekStart = new Date(date);
+        // Set to the start of the week (Monday)
+        const day = date.getDay();
+        currentWeekStart.setDate(date.getDate() - (day === 0 ? 6 : day - 1));
+      }
+      
+      // Check if this date belongs to the current week
+      const timeDiff = date.getTime() - currentWeekStart.getTime();
+      const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+      
+      if (dayDiff >= 7) {
+        // Start a new week
+        weeks.push(currentWeek);
+        currentWeek = [];
+        currentWeekStart = new Date(date);
+        const day = date.getDay();
+        currentWeekStart.setDate(date.getDate() - (day === 0 ? 6 : day - 1));
+      }
+      
+      currentWeek.push({
+        date: dateStr,
+        recordings_count
+      });
+    });
+    
+    // Add the last week
+    if (currentWeek.length > 0) {
+      weeks.push(currentWeek);
+    }
+    
+    processedData.weeks = weeks;
+    return processedData;
+  };
 
   const calculateDynamicHeight = (monthData: any) => {
     const numberOfRows = monthData.days.length;
@@ -348,23 +459,29 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       setCurrentMonth(prevMonth => {
         const newMonth = new Date(prevMonth);
         newMonth.setMonth(prevMonth.getMonth() + direction);
+        if(newMonth.getMonth() === prevMonth.getMonth()) {
+          newMonth.setMonth(newMonth.getMonth() + direction);
+        }     
         
-        // IMPORTANT: Make sure to use the latest streaksData
-        // This ensures we're not using stale data
-        const currentData = streaksData.weeks ? streaksData : data;
-        // console.log(`current data is ${currentData} because streaksData is ${streaksData} & data is ${data}`)
+        // Use the current processed data
+        const currentProcessedData = data ? processVoiceNotes(rawData) : { weeks: [] };
         
         // Update months data based on the new month
         const prevOfNew = new Date(newMonth);
         prevOfNew.setMonth(newMonth.getMonth() - 1);
+
+        if(newMonth.getMonth() === prevOfNew.getMonth()) {
+          prevOfNew.setMonth(prevOfNew.getMonth() + direction);
+        }  
         
         const nextOfNew = new Date(newMonth);
         nextOfNew.setMonth(newMonth.getMonth() + 1);
         
         const months = [prevOfNew, newMonth, nextOfNew];
+        
         const newMonthsData = months.map((month, index) => {
-          // Use the latest data to get event dates
-          const eventDates = getDatesWithRecordings(month, currentData.weeks);
+          // Use the current processed data to get event dates
+          const eventDates = getDatesWithRecordings(month, currentProcessedData.weeks);
           const days = generateCalendarDays(month, eventDates);
           if(index === 1) {
             // Animate to the new base height instead of immediately setting it
@@ -429,12 +546,13 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
 
   // Find recording count for a specific date
   const getRecordingCountForDate = (date: Date): number => {
+    if (!data.weeks) return 0;
+    
+    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    
     for (const week of data.weeks) {
       for (const day of week) {
-        const dayDate = new Date(day.date);
-        if (dayDate.getDate() === date.getDate() && 
-            dayDate.getMonth() === date.getMonth() && 
-            dayDate.getFullYear() === date.getFullYear()) {
+        if (day.date === dateStr) {
           return day.recordings_count;
         }
       }
@@ -523,8 +641,8 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   const handleNoteSelect = (noteId: string | undefined): void => {
     onClose();
     dispatch(setRelatedNoteId(null));
-    setTimeout(() => dispatch(setRelatedNoteId(noteId)), 200)
-  }
+    setTimeout(() => dispatch(setRelatedNoteId(noteId)), 200);
+  };
 
   const calculateExpandedHeight = (itemCount: number, hasNotes: boolean = true): number => {
     // Base height for the container padding, header, and footer
@@ -563,51 +681,12 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
       }
     } else {
       // When collapsing, use the default limited view height
-      newHeight = calculateExpandedHeight(Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length));
+      newHeight = calculateExpandedHeight(Math.min(MAX_VISIBLE_ITEMS, additionalInfo.items.length) + 10);
     }
     
     // Set the new expanded height
     setExpandedHeight(newHeight);
   };
-
-  useEffect(() => {
-    if (selectedDateNotes && !isLoadingNotes && selectedDate) {
-      const dateString = selectedDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-  
-      const formattedItems = (selectedDateNotes?.data || []).map((note: any) => {
-        // Parse the recorded_at timestamp
-        const recordedAt = new Date(note.recorded_at);
-        
-        // Format the time in 24-hour format (HH:MM)
-        const hours = recordedAt.getHours();
-        const minutes = recordedAt.getMinutes();
-        const formattedHours = hours.toString().padStart(2, '0');
-        const formattedMinutes = minutes.toString().padStart(2, '0');
-        const timeString = `${formattedHours}:${formattedMinutes}`;
-        
-        return {
-          time: timeString,
-          title: note.title || 'Untitled Recording',
-          id: note.id,
-          transcript: note.transcript
-        };
-      });
-  
-      setAdditionalInfo({
-        date: dateString,
-        items: formattedItems,
-      });
-  
-      // Calculate new expanded height based on available items
-      const newExpandedHeight = calculateExpandedHeight(formattedItems.length, formattedItems.length > 0);
-      setExpandedHeight(newExpandedHeight);
-    }
-  }, [selectedDateNotes, isLoadingNotes, selectedDate]);
 
   const renderWeekdays = (): JSX.Element => {
     // Correct order for Monday-based week
@@ -876,7 +955,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
   };
 
   const renderStreakFooter = (): JSX.Element => {
-    if (!data || !data.current_streak) {
+    if (!streaks || !streaks.current_streak) {
       return <View style={styles.streakContainer} />;
     }
     
@@ -886,7 +965,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           <SvgXml xml={home.fire?.replace(/#FFFFFF/g,Colors.refresh)} />
         </View>
         <Text style={styles.streakText}>
-          {`You are on a ${data.current_streak}-day streak and rank ${data.rank} globally.`}
+          {`You are on a ${streaks.current_streak}-day streak and rank ${streaks.rank} globally.`}
         </Text>
       </View>
     );
@@ -906,7 +985,7 @@ const ExpandableCalendar: React.FC<ExpandableCalendarProps> = ({
           {renderCalendarDays()}
         </Animated.View>
         <View style={styles.footerSection}>
-          {!loading && data && renderStreakFooter()}
+          {!loading && streaks && renderStreakFooter()}
         </View>
       </View>
     </View>

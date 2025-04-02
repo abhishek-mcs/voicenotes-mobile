@@ -482,7 +482,7 @@ const NotePreview = forwardRef(
       }
     }, [note?.public_slug]);
 
-    const audioDuration = note?.audio?.data?.duration||note?.duration;
+    const audioDuration = note?.duration||note?.audio?.data?.duration;
     const formattedDuration = useMemo(
       () =>
         audioDuration
@@ -625,7 +625,7 @@ const NotePreview = forwardRef(
       []:[];
 
       const intermediateButtons = [
-        ...([0,1,2,4]?.includes(note?.recording_type)?[{
+        ...(([0,1,2,4]?.includes(note?.recording_type) || !note.recording_type)?[{
           text: "Download",
           onPress: onDownloadAudio,
           icon: home.download?.replace(/#9B9B9B/g,Colors.text9),

@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import { View } from "react-native";
 import RecButton from "./rec-button";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 // import Waveform from "./waveform";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
@@ -30,6 +30,10 @@ export default ({
   const { Colors } = useTheme()
   const styles = useStyles()
   const bottomSvgIcons:any = bottomSvg;
+
+  useEffect(() => {
+    console.log('Total Duration ',totalDuration);
+  },[])
 
   const continueRecording = () => {
     setIsCanceling(false);

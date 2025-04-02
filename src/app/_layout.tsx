@@ -7,9 +7,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { isIOS } from "utils/common";
+import { isIOS, screenWidth } from "utils/common";
 import * as Sentry from '@sentry/react-native';
 import useFBEventTracking from "hooks/fbsdk/useFBEventTracking";
+import { Text, View } from "react-native";
+import { SvgXml } from "react-native-svg";
+import { commonSvg } from "assets/svg/commonSvg";
 
 Sentry.init({
   dsn: 'https://794cc208d64f43a4069e118c7521c135@o4508691521863680.ingest.us.sentry.io/4508691555942400',
@@ -21,6 +24,15 @@ Sentry.init({
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
 });
+
+const toastConfig = {
+  verified: ({ text1 }: any) => (
+    <View style={{ flexDirection: 'row', gap: 6, marginTop: 30, height: 48, width: screenWidth/1.3, backgroundColor: '#35794D', borderRadius: 25, justifyContent: 'center', alignItems: 'center' }}>
+      <SvgXml style={{marginTop: 3}} xml={commonSvg.tick} />
+      <Text style={{ color: 'white', fontSize: 16, fontWeight: '500', paddingVertical: 12 }}>{text1}</Text>
+    </View>
+  )
+};
 
 function Layout() {
   const [fontsLoaded,error] = useFonts({
@@ -59,6 +71,7 @@ function Layout() {
                   name="home/index"
                   options={{ animation: "none" }}
                 />
+                <Stack.Screen name="onboarding/index" />
                 <Stack.Screen
                   name="auth/landingPage/index"
                   options={{ animation: "none" }}
@@ -153,7 +166,7 @@ function Layout() {
           </PortalProvider>
         </GestureHandlerRootView>
       </AppProvider>
-      <Toast />
+      <Toast config={toastConfig} />
     </>
   );
 }

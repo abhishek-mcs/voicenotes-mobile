@@ -1,7 +1,7 @@
 import { settingsSvg } from "assets/svg/settingsSvg";
 import Touchable from "components/common/Touchable";
 import { useNavigation, useRouter } from "expo-router";
-import { useLogout } from "queries/auth";
+import { useGetPreferenceEnums, useLogout } from "queries/auth";
 import { SafeAreaView, Text, TouchableHighlight, View, Alert, StyleSheet, ScrollView, Animated, PanResponder, Dimensions, BackHandler, Keyboard, Linking } from "react-native";
 import { SvgXml } from "react-native-svg";
 import * as Wb from "expo-web-browser";
@@ -21,11 +21,14 @@ import Email from "components/settings/email";
 import Names from "components/settings/names";
 import Password from "components/settings/password";
 import ProfilePic from "components/settings/profilepic";
-import { deleteCounter } from "utils/cache";
+import { deleteCounter, deleteRecordings } from "utils/cache";
 import { useTheme } from "context";
 import MoreOptions from "components/common/more-options";
 import { useQueryClient } from "react-query";
 import { useDialog } from "context/DialogContext";
+import Header from "components/settings/header";
+import { setAgeGroup, setLanguage, setName, setNoteTakingFrequency, setNoteTypes, setPreferenceEnums, setReferrer, setRevisitFrequency, setSelectedScreen, setUserEmail } from "redux/reducers/onboardingData";
+import VerifyEmail from "components/settings/verifyEmail";
 
 /*
   Right now, expo-router doesn't seem to offer a preset animation within a formSheet. There is ofc an option to open a formSheet within one.
@@ -142,10 +145,12 @@ const useAnimatedScreens = () => {
 
 const Settings = () => {
   const router = useRouter();
+  const styles = useStyles()
   const navigation = useNavigation()
   const { Colors, theme, switchTheme, isLightMode } = useTheme()
 
   const logout = useLogout()
+  const { data: preferenceData } = useGetPreferenceEnums()
   const { userDetails, lang }: any = useSelector((state: RootState) => state.userDetails);
   const { isTempIAPPurchased } = useSelector((state: RootState) => state.IAPStates);
   const settings: any = userDetails.settings
@@ -159,7 +164,7 @@ const Settings = () => {
   const renderScreen = (name: string, Component: React.ComponentType<any>) => {
     const isActive = activeScreen === name;
     const animation = getAnimation(name);
-
+    
     return (
       <Animated.View
         key={name}
@@ -179,7 +184,7 @@ const Settings = () => {
         ]}
         pointerEvents={isActive ? 'auto' : 'none'}
       >
-        <Component onClose={hideScreen} />
+        {activeScreen == 'verifyEmail' ? <Component onClose={hideScreen} onOpen={true} /> : <Component onClose={hideScreen} />}
       </Animated.View>
     );
   };
@@ -195,9 +200,20 @@ const Settings = () => {
         onPress: async () => {
           await AsyncStorage.removeItem('isLoggedIn');
           await deleteCounter()
+          await deleteRecordings()
           await logout.mutateAsync('').catch(() => { })
           dispatch(setTempIsIAPPurchased(false))
-          router?.back();
+          dispatch(setSelectedScreen(1))
+          if(preferenceData) {dispatch(setPreferenceEnums(preferenceData))}
+          dispatch(setReferrer(null))
+          dispatch(setLanguage(''))
+          dispatch(setAgeGroup(null))
+          dispatch(setNoteTakingFrequency(null))
+          dispatch(setRevisitFrequency(null))
+          dispatch(setNoteTypes([]))
+          dispatch(setUserEmail(''))
+          dispatch(setName(''))
+          router.push('/onboarding/')
         }
       }], { userInterfaceStyle: isLightMode ? "light" : "dark" })
   }
@@ -279,6 +295,19 @@ const Settings = () => {
           }}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
+          {userDetails.is_new_user && !userDetails.is_email_verified ? <View style={{ marginHorizontal: 16, marginBottom: 20, borderRadius: 12, backgroundColor: Colors.bgColor2, overflow: 'hidden' }}>
+            <TouchableHighlight onPress={userDetails.is_email_verified ? () => {} : () => showScreen('verifyEmail')} underlayColor={Colors.greyWithOpacity(0.12)} style={{ overflow: 'hidden', padding: 16,  }} >
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  {userDetails.is_email_verified ? '' : <SvgXml xml={settingsSvg.errorIcon} /> }
+                  <Text style={[{ fontFamily: 'Primary-Medium', fontSize: 14, color: Colors.blackWithOpacity(1) }]}>
+                  Verify your email
+                  </Text>
+                </View>
+                <Text style={styles.rightTxt}>{userDetails.is_email_verified ? 'Completed' : 'Pending' }</Text>
+              </View>
+            </TouchableHighlight>
+          </View> : ''}
           <Grouped
             title="APP"
             items={[
@@ -295,7 +324,7 @@ const Settings = () => {
             items={[
               { title: 'Email', onPress: () => showScreen('email'), value: userDetails?.email || '', rightIcon: settingsSvg.arrow },
               { title: 'Change password', onPress: () => showScreen('password'), value: '', rightIcon: settingsSvg.arrow },
-              ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : []),
+              ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : []),
             ]}
           />
           <Grouped
@@ -319,6 +348,7 @@ const Settings = () => {
         </View>
       )} */}
 
+      {renderScreen('verifyEmail', VerifyEmail)}
       {renderScreen('name', Name)}
       {renderScreen('about', About)}
       {renderScreen('email', Email)}

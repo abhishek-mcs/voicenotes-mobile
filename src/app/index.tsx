@@ -8,6 +8,7 @@ import useIAPSetup from 'hooks/iap/useIAPSetup';
 import { setTempIsIAPPurchased } from 'redux/reducers/IAPStates';
 import notifee, { EventType } from '@notifee/react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { setSelectedScreen } from 'redux/reducers/onboardingData';
 
 notifee.registerForegroundService(() => {
   return new Promise(() => {});
@@ -55,11 +56,20 @@ export default function App() {
     dispatch(setTempIsIAPPurchased(false));
   }, []);
 
+  useEffect(() => {
+    if(token) {
+      console.log('Token exists');
+    } else {
+      dispatch(setSelectedScreen(1))
+    }
+  },[token])
+
   if (token) {
     return <Redirect href="/home/" />;
   }else{
     return (
-      <Redirect href="/auth/landingPage/" />
+      <Redirect href="/onboarding/" />
+      // <Redirect href="/auth/landingPage/" />
     );
   }
 }

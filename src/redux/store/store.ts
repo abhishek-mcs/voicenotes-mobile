@@ -9,6 +9,7 @@ import IAPStates from 'redux/reducers/IAPStates';
 import recordingStates from 'redux/reducers/recordingStates';
 import editStates from 'redux/reducers/editStates';
 import relatedNoteStates from 'redux/reducers/relatedNoteStates';
+import onboardingData from 'redux/reducers/onboardingData';
 
 const persistConfig = {
   key: 'root',
@@ -23,7 +24,8 @@ const rootReducer = combineReducers({
     IAPStates:IAPStates,
     recordingStates:recordingStates,
     editStates:editStates,
-    relatedNoteStates:relatedNoteStates
+    relatedNoteStates:relatedNoteStates,
+    onboardingData:onboardingData
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

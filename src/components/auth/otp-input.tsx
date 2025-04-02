@@ -5,7 +5,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, Text } from 'react-native';
 import { isIOS } from 'utils/common';
 
-export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='' }) => {
+export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',errorText='', onSubmit=()=>{} }) => {
   const inputRefs = Array.from({ length: numberOfInputs }, () => useRef<TextInput>(null));
   const [currentIndex,setCurrentIndex] = useState(0)
   const isPasting=useRef(false);
@@ -90,6 +90,8 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               keyboardType="numeric"
               onKeyPress={({nativeEvent}) => handleInputChange(index, nativeEvent?.key)}
               onChangeText={async(v)=>await handleInputPaste(v)}
+              returnKeyType="done"   
+              onSubmitEditing={onSubmit}
             />
           </View>
           </View>
@@ -113,6 +115,8 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
               keyboardType="numeric"
               onKeyPress={({nativeEvent}) => handleInputChange(index + numberOfInputs / 2, nativeEvent?.key)}
               onChange={async(v)=>await handleInputPaste(v)}
+              returnKeyType="done"   
+              onSubmitEditing={onSubmit}
             />
           </View>
           </View>
@@ -125,7 +129,7 @@ export const OTPInput = ({ numberOfInputs = 6, onChange=(v:any)=>{},otpValue='',
 };
 
 const useStyles = () => {
-  const { Colors } = useTheme();
+  const { Colors, isLightMode } = useTheme();
   return useMemo(() => StyleSheet.create({
   main:{
     marginTop:32,
@@ -144,7 +148,7 @@ const useStyles = () => {
     alignItems: 'center',
     justifyContent:'center',
     borderWidth: 1,
-    borderColor:Colors.lightRoseWithOpacity(1),
+    borderColor: isLightMode ? Colors.bottomBarButtonBg1 : Colors.lightRoseWithOpacity(1),
     width: 42,
     height: 50,
   },

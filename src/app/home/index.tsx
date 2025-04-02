@@ -10,6 +10,7 @@ import {
   StyleSheet,
   View
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RootState } from "redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -47,7 +48,7 @@ import { setCanRecord } from "redux/reducers/userDetails";
 import { analytics, } from "../../../firebaseConfig";
 import { saveVoiceNote } from "func/home/uploadAudioFb";
 import axiosApi, { setAuthToken } from "services/api/axios-api";
-import { NewNote, Note } from "types";
+import { NewNote, Note, VoiceNote } from "types";
 import { combineRecordings, removeExtraOldAudios } from "utils/audioUtils";
 import useWatchNetInfo from "hooks/watch/useWatchNetInfo";
 import CustomModal from "components/common/custom-modal";
@@ -64,17 +65,19 @@ import { useLocalSearchParams } from "expo-router";
 import { useNoteContext, useTheme } from "context";
 import SearchComponent from "components/search-component";
 import Review from "components/common/Review";
-import { incrementCounter, shouldPromptNow } from "utils/cache";
+import { getRecordings, incrementCounter, shouldPromptNow, updateRecordings } from "utils/cache";
 import { StatusBar } from "react-native";
 import { useDialog } from "context/DialogContext";
 import * as Sentry from '@sentry/react-native';
 import { useFirebaseRecordingListener } from "hooks/firebase-listeners/useFirebaseRecordingListener";
 import { stopSilentBackgroundService } from "services/background";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setEmailVerified, setSelectedScreen, setShowClose } from "redux/reducers/onboardingData";
 import { useForceUpdateCheck } from "hooks/force-update/useForceUpdateCheck";
 import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
 import RecButton from "components/common/recording/rec-button";
+import { useAllRecordings } from "queries/common";
 
 const { height } = Dimensions.get("screen");
 
@@ -88,6 +91,7 @@ const Home = () => {
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
+  const { emailVerified } = useSelector((state: RootState) => state.onboardingData);
   const { recordingList } = useSelector(
     (state: RootState) => state.recordingStates
   );
@@ -113,12 +117,14 @@ const Home = () => {
   const {relatedNoteId} = useSelector((state: RootState) => state.relatedNoteStates);
   const queryClient = useQueryClient();
   // const bannerRef=useRef<any>(null)
-  const isBeliever = (userDetails?.subscription_status || isTempIAPPurchased);
+  const isBeliever = (userDetails?.subscription_status||isTempIAPPurchased);
   const { showPremiumPage, checkAndShowPremium } = usePremiumPrompt(isBeliever,!!token);
   const streaksRef=useRef(null)
   const streaks=useStreak(token)
 
-  const getTags=useGetTags()
+  const getTags=useGetTags({
+    enabled: !!token
+  })
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
@@ -139,14 +145,74 @@ const Home = () => {
   
   useForceUpdateCheck()
   
-  const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter);
+  const recordingQuery = useRecordings(hashFilter == "All" ? "" : hashFilter, {
+    enabled: !!token
+  });
 
   const dispatchCanRecord = (val: boolean) =>
     dispatch(setCanRecord((val)));
 
+  const [allRecordings, setAllRecordings] = useState<VoiceNote[]>([]);
+  const { data: recordings, refetch: refetchAllRecordings, status: recordingListStatus } = useAllRecordings(token);
+
+  async function refreshRecordings() {
+    if (recordingList.length === 0) return;
+
+    if(allRecordings.length === 0) {
+      refetchAllRecordings();
+      return
+    }
+    
+    const latestServerRecording = allRecordings[0];
+    const latestLocalRecording = recordingList[0];
+    
+    const serverTimestamp = new Date(latestServerRecording.created_at).getTime();
+    const localTimestamp = new Date(latestLocalRecording.created_at).getTime();
+    
+    if (serverTimestamp < localTimestamp) refetchAllRecordings();
+  }
+
+  useEffect(() => {
+    console.log('Believer', isBeliever, 'Temp', isTempIAPPurchased);
+    
+  },[])
+
+  useEffect(() => {
+    if (recordings && recordings.length > 0) {
+      const serverRecords: VoiceNote[] = recordings;
+      setAllRecordings(serverRecords);
+      updateRecordings(serverRecords);
+    }
+  }, [recordings])
+
+  useEffect(() => {
+    async function setRecordingsFromCache() {
+      const cachedRecordings = await getRecordings();
+      if(allRecordings.length === 0 && cachedRecordings.length > 0) setAllRecordings(cachedRecordings);
+    }
+
+    setRecordingsFromCache();
+  }, [])
+
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
   },[isLightMode])
+
+  useEffect(() => {
+    console.log('New user', userDetails, isTempIAPPurchased);
+  },[userDetails])
+
+  useEffect(() => {
+    if(emailVerified && userDetails.is_email_verified) {
+      Toast.show({
+        type: "verified",
+        text1: "Your email has been verified!",
+        position: "top",
+        visibilityTime: 3000,
+      });
+      dispatch(setEmailVerified(false))
+    }
+  },[emailVerified, userDetails])
   
   useEffect(() => {
     if(getTags?.data?.data&&Array.isArray(getTags?.data?.data)){
@@ -376,6 +442,11 @@ const Home = () => {
   };
 
   useEffect(() => {
+      dispatch(setShowClose(true))
+      dispatch(setSelectedScreen(18))
+  },[])
+
+  useEffect(() => {
     if (isOffline) return;
   
     const syncRecordingAndSubnotes = async (recording: Note) => {
@@ -425,7 +496,6 @@ const Home = () => {
     index = -1,
   }: any) => {
     try{
-      setRecEnabled(true)
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
         () => {}
       );
@@ -442,11 +512,10 @@ const Home = () => {
       setRecordingParentId(parent_id);
       onRecord(setRec, setRecEnabled,isLightMode,showDialog);
       activateKeepAwakeAsync();
-      analytics().logEvent("started_recording");
       setTriggerTypingTitle(null)
       setTriggerTypingTranscript(null)
     }catch{
-      setRecEnabled(false)
+      console.log('Error in recording')
     }
   };
 
@@ -524,8 +593,8 @@ const Home = () => {
       );
       checkAndShowPremium()
       !recordingParentId&&setExpandNote(-1)
-      setRecEnabled(false);
       let uri = await stopRecording(rec);
+      setRecEnabled(false);
       setRec(null);
 
       const temporaryRecordingId = Math.random().toString(36).substring(7);
@@ -574,7 +643,6 @@ const Home = () => {
       await uploadVoiceNote(newTemporaryRecording, repeat);
 
       if (!repeat) deactivateKeepAwake();
-      analytics().logEvent("completed_recording");
     },
     [rec, recordingList, dispatch,recordingParentId,splitCount]
   );
@@ -583,18 +651,17 @@ const Home = () => {
     await cancelRecording(rec, soundRef?.current);
     setRec(null);
     setRecEnabled(false);
-    analytics().logEvent("cancelled_recording");
   };
 
-  useEffect(() => {
-    return rec
-      ? () => {
-          cancelRecording(rec, soundRef.current);
-          setRec(null);
-          setRecEnabled(false);
-        }
-      : undefined;
-  }, []);
+  // useEffect(() => {
+  //   return rec
+  //     ? () => {
+  //         cancelRecording(rec, soundRef.current);
+  //         setRec(null);
+  //         setRecEnabled(false);
+  //       }
+  //     : undefined;
+  // }, []);
 
   const fetchNextPage = () => {
     // if(recordingList?.length>10){
@@ -615,6 +682,7 @@ const Home = () => {
   },[hashFilter])
 
   const openCalendar = () => {
+    refreshRecordings();
     calendarIconRef.current.measureInWindow((x, y, width, height) => {
       setCalendarPos({x, y});
     });
@@ -716,7 +784,8 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
-  if (!token) return <Redirect href="/auth/landingPage/" />;
+  // if (!token) return <Redirect href="/auth/landingPage/" />;
+  if (!token) return <Redirect href="/onboarding/" />;
   return (
     <SafeAreaView
       style={[styles.container]}
@@ -967,7 +1036,7 @@ const Home = () => {
             </Pressable>}
           </Pressable>
           {calendarPos.y !== 0 && <Pressable onPress={() => showCalendar(false)} style={[styles.calendar, { top: calendarPos.y + 50 }]}>
-            {streaks?.data?.data?.weeks ? <ExpandableCalendar onClose={() => showCalendar(false)} streaksData={streaks?.data?.data || []} /> : <View style={styles.calendarContainer}>
+            {allRecordings.length > 0 || recordingListStatus !== 'loading' ? <ExpandableCalendar onClose={() => showCalendar(false)} rawData={allRecordings} streaks={streaks?.data?.data} /> : <View style={styles.calendarContainer}>
               <View style={styles.calendarVisualWrapper}>
                 <Text style={styles.indicator} >Loading</Text>
               </View>

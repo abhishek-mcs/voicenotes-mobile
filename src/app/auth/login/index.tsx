@@ -14,6 +14,7 @@ import { useCheckEmail } from "queries/auth"
 import { analytics } from "../../../../firebaseConfig"
 import { useTheme } from "context"
 import { logEvent } from "func/analytics/logEvent"
+import { setSelectedScreen } from "redux/reducers/onboardingData"
 
 
 const Login=()=> {
@@ -54,7 +55,9 @@ const Login=()=> {
             if (response.data?.exists) {
               router?.push("/auth/login/loginPassword")
             }else{
-              router.push("/auth/signup/")
+              dispatch(setSelectedScreen(2))
+              // router.push("/auth/signup/")
+              router.push("/onboarding/")
               // setEmailError("There is no account with the given email address.")
             }
           },
@@ -111,7 +114,8 @@ const Login=()=> {
               onPress={() => {
                 analytics()?.logEvent('sign_up_redirected').catch(e=>{})
                 logEvent('signup_redirected',{value:'signup_redirected'})
-                router.push("/auth/signup/")
+                // router.push("/auth/signup/")
+                router.push("/onboarding/")
               }}
               style={{color:Colors.redWithOpacity(1),fontSize:14,fontFamily:'Primary-Bold',textDecorationLine:'underline'}}
             >{` Sign up`}</Text>
