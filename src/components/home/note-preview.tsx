@@ -455,7 +455,7 @@ const NotePreview = forwardRef(
       }
     }, [note?.public_slug]);
 
-    const audioDuration = note?.audio?.data?.duration||note?.duration;
+    const audioDuration = note?.duration||note?.audio?.data?.duration;
     const formattedDuration = useMemo(
       () =>
         audioDuration
