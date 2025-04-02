@@ -6,8 +6,9 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef } from 'react'
 import { screenHeight, screenWidth } from 'utils/common'
+import { RootState } from 'redux/store/store'
+import { useDispatch, useSelector } from 'react-redux'
 import { setShowClose, setSelectedScreen } from 'redux/reducers/onboardingData'
-import { useDispatch } from 'react-redux'
 import { Animated } from 'react-native';
 import { analytics } from '../../../../firebaseConfig';
 import { AppEventsLogger } from 'react-native-fbsdk-next';
@@ -16,6 +17,8 @@ const FreeTrial = () => {
     const styles = useStyles()
     const {Colors} = useTheme()
     const dispatch = useDispatch();
+    const {IAPOfferings}:any=useSelector((state:RootState)=>state.IAPStates)
+    const pack=IAPOfferings?.availablePackages||[]
 
     const imageSlideAnim = useRef(new Animated.Value(300)).current;
 
@@ -37,6 +40,26 @@ const FreeTrial = () => {
         dispatch(setSelectedScreen(15))
     }
 
+    const defaultPriceMonthly = '$9.99';
+
+    let priceString=(pack[1]?.product?.priceString?.replace(/\s*(?=\d)/, '')||defaultPriceMonthly)?.replace(/\.0+$/, '')
+    const match = priceString?.match(/^[^\d]*[^\d\s]/);
+    const currencySymbol=match?match[0]?.trim():"$";
+
+    const priceMonth=(pack[1]?.product?.price||9.99).toFixed(2);
+    const priceAnnual=(pack[4]?.product?.price||49.99).toFixed(2);
+    const priceAnnualMonthly=((pack[4]?.product?.price||49.99)/12).toFixed(2);
+
+    let priceAnnualMonthlyString=`${currencySymbol}${priceAnnualMonthly}`;
+    let priceMonthString=`${currencySymbol}${priceMonth}`;
+    let priceAnnualString=`${currencySymbol}${priceAnnual}`;
+
+    if (priceString.startsWith('Rp')){
+      priceMonthString = priceMonthString+'ribu';
+      priceAnnualMonthlyString = priceAnnualMonthlyString+'ribu';
+      priceAnnualString = priceAnnualString+'ribu';
+    }
+
   return (
     <SafeAreaView style={styles.mainContainer}>
         <View style={styles.mainTextContainer}>
@@ -49,7 +72,7 @@ const FreeTrial = () => {
             />
         </View>
         <View style={styles.footerContainer}>
-            <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
                 <SvgXml xml={onboardingSvg.tick?.replace('black', Colors.black2)} /> 
                 <Text style={{ fontFamily: 'Primary-Semibold', fontSize: 14, color: Colors.black2 }}>No payment due now</Text>
             </View>
@@ -64,7 +87,7 @@ const FreeTrial = () => {
                 />
             </View>
             <View style={{ alignSelf: 'center', paddingTop: 12 }}>
-                <Text style={{ fontFamily: 'Primary', fontSize: 14, color: Colors.text10 }}>Just $49.99 per year (3.99/mo)</Text>
+                <Text style={{ fontFamily: 'Primary', fontSize: 14, color: Colors.text10 }}>Just {priceAnnualString} per year ({priceAnnualMonthly}/mo)</Text>
             </View>
         </View>
         

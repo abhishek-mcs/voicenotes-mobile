@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, StyleSheet, TextInput, KeyboardAvoidingView, 
 import LargeButton from 'components/LargeButton'
 import { useTheme } from "context"
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { androidGoogleClientID, iosGoogleClientID } from "services/api/api-constants"
+import { androidGoogleClientID, iosGoogleClientID, expoClientID } from "services/api/api-constants"
 import { setEmail, setToken, setUserDetail } from "redux/reducers/userDetails"
 import { validateEmail } from 'utils/api-queries/auth/signin-mutations'
 import * as Google from "expo-auth-session/providers/google";
@@ -36,50 +36,14 @@ const Email = () => {
     const [validationError, setValidationError]:any = useState(false)
     const [emailText, setEmailText] = useState(userEmail ? userEmail : '')
     const [isEmail, setIsEmail] = useState(false)
+    const [googleError, setGoogleError] = useState(false)
 
-    // const checkNotification = async (type: 'morning' | 'evening') => {
-    //     getNotification(type).then((response) => {
-    //         if (response) {
-    //             if (type === 'morning') {
-    //                 setMorningTime(response.time)
-    //                 setActive({ ...active, morning: response.active })
-    //             } else {
-    //                 setEveningTime(response.time)
-    //                 setActive({ ...active, evening: response.active })
-    //             }
-    //         }
-    //     })
-    // }
-
-    // useEffect(() => {
-    //     checkNotification('morning')
-    //     checkNotification('evening')
-    // },[])
-
-    // const useSaveNotificationSettings = () => {
-    //     saveNotificationSettingsMutation.mutate(
-    //         {
-    //             notifications: {
-    //                 morning: {
-    //                     time: formatTime(morningTime),
-    //                     activated: active.morning
-    //                 },
-    //                 evening: {
-    //                     time: formatTime(eveningTime),
-    //                     activated: active.evening
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             onSuccess: (response: any) => {
-    //                 console.log(response.data)
-    //             },
-    //             onError: (error: any) => {
-    //                 console.log(error?.response?.data?.message);
-    //             }
-    //         }
-    //     )
-    // }
+    const isMoreThan5MinutesAgo = (createdAt: string): boolean => {
+        const createdAtDate = new Date(createdAt);
+        const now = new Date();
+        const diffInMs = now.getTime() - createdAtDate.getTime();
+        return diffInMs > 5 * 60 * 1000;
+      };
 
     const onLoginSuccess=(data:any)=>{
         if(!!data?.data){
@@ -91,7 +55,6 @@ const Email = () => {
             dispatch(setUserDetail(userData))
             queryClient.resetQueries('all-recording')
             queryClient.resetQueries('user-data')
-            dispatch(setSelectedScreen(18))
             getPreferencesMutation.mutate(
                 {
                     referrer: referrer,
@@ -121,6 +84,7 @@ const Email = () => {
 
     // Google Authentication
     const [googleRequest, googleResponse, googlePromptAsync] = Google.useIdTokenAuthRequest({
+        expoClientId: expoClientID,
         iosClientId: iosGoogleClientID,
         androidClientId: androidGoogleClientID,
         scopes: ["profile", "email"],
@@ -130,31 +94,53 @@ const Email = () => {
 
     useEffect(() => {
         if (googleResponse?.type === "success") {
+            console.log('Google Response success', googleResponse);
+            
             loginGoogle.mutate({
                 access_token: googleResponse?.params.id_token,
                 client_id: Platform.OS === "ios" ? iosGoogleClientID : androidGoogleClientID,
                 source: Platform.OS === "ios" ? 'ios' : 'android',
                 device: 'mobile_app'
             }, { onSuccess: (data: any) => {
-                    analytics().logEvent('onboarding_google_signup').catch(e=>{console.log(e)})
-                    AppEventsLogger.logEvent('fb_onboarding_google_signup');
-                    onLoginSuccess(data)
-                } 
+                    console.log('Success data', data.data.user.created_at, isMoreThan5MinutesAgo(data.data.user.created_at));
+                    if(isMoreThan5MinutesAgo(data.data.user.created_at) == false){
+                        analytics().logEvent('onboarding_google_signup').catch(e=>{console.log(e)})
+                        AppEventsLogger.logEvent('fb_onboarding_google_signup');
+                        onLoginSuccess(data)
+                    } else {
+                        setGoogleError(true)
+                    }
+                },
+                onError: (error: any) => {
+                    console.log("Google Sign-In Error:", error?.response?.data);
+                    // Set error if account exists
+                    if (error?.response?.data?.message?.includes("already exists")) {
+                        setGoogleError(true)
+                    }
+                }
             });
+        } else {
+            console.log('Google response not success',googleResponse, googleResponse?.type);
         }
     }, [googleResponse]);
     
     const onGoogleLogin = async () => {
+        setGoogleError(false);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
             () => {}
         );
-        await googlePromptAsync();
+        const res= await googlePromptAsync().then(e=>{
+            console.log('googlePromptAsync data',e)
+        }).catch(e=>{
+            console.log('googlePromptAsync error',e)
+        })
     };
 
     // Apple Authentication
     const loginApple = signInWithApple();
 
     const signInAppleAsync = async () => {
+        setGoogleError(false);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
             () => {}
         );
@@ -305,10 +291,13 @@ const Email = () => {
                             style={[styles.button, { backgroundColor: Colors.bgColor, borderColor: Colors.grey4, borderWidth: 1 }]}
                             onPress={onGoogleLogin}
                             text="Continue with Google"
-                            isLoading={false}
+                            isLoading={loginGoogle?.isLoading||false}
                             color={Colors.black2}
                             centerIcon={LandingSvg.google}
                         />
+                        {googleError && <View style={{marginTop:8, justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14}}>Account with this email already exists.</Text>
+                        </View>}
                     </View>}
                 </View>
         </KeyboardAvoidingView>

@@ -352,7 +352,7 @@ const Pricing = () => {
             {selectedPlan == 'yearly' ? <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center'}}>
                 <SvgXml xml={onboardingSvg.tick?.replace('black', Colors.black2)} /> 
                 <Text style={{ fontFamily: 'Primary-Semibold', fontSize: 14, color: Colors.black2 }}>No Payment Due Now</Text>
-            </View> : <View style={{marginTop: 17}}></View> }
+            </View> : <View style={{marginTop: 21}}></View> }
             <View style={styles.buttonContainer1}>
                 <LargeButton
                     underlayColor={Colors.blackWithOpacity(0.8)}
@@ -369,14 +369,14 @@ const Pricing = () => {
             {selectedPlan == 'yearly' ? <View style={{marginTop:10}}>
               <Text style={[styles.footerText1,{color:Colors.text10}]}>{`7 days free, then ${priceAnnualString} per year (${priceAnnualMonthlyString}/mo)`}</Text>
             </View> : <View style={{marginTop:25}}></View> }
-            <View style={styles.termsContainer}>
+            {isIOS && <View style={styles.termsContainer}>
               <Touchable onPress={()=>webBrowser.openBrowserAsync('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',{toolbarColor:isLightMode?'#fff':'#000'})}>
                 <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1)}]}>Terms of Service</Text>
               </Touchable>
               <Touchable onPress={()=>webBrowser.openBrowserAsync('https://help.voicenotes.com/en/articles/9196879-privacy-policy',{toolbarColor:isLightMode?'#fff':'#000'})}>
                 <Text style={[styles.footerText1,{color:Colors.blackWithOpacity(1),marginHorizontal:16}]}>Privacy Policy</Text>
               </Touchable>
-            </View>
+            </View>}
         </View>
         
        
@@ -512,11 +512,11 @@ const useStyles = () => {
     planContainer: {
         // width: 150,
         flex: 1,
-        height: 84,
+        // height: 84,
         borderRadius: 12,
         justifyContent: "center",
         // alignItems: "center",
-        padding: 20,
+        padding: 18,
         position: "relative",
     },
     selectedPlan: {
