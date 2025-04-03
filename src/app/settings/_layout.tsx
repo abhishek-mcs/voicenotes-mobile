@@ -31,6 +31,13 @@ export default function Layout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="publish"
+        options={{
+          animation: "slide_from_right",
+          headerShown: false,
+        }}
+      />
   </Stack>
   );
 }
