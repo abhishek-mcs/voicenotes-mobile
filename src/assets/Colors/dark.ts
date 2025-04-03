@@ -134,4 +134,5 @@ export default {
   loader:(o:number)=>'#fff',
   snack:tertiary,
   selection: 'rgba(255, 255, 255, 0.15)',
+  textinput: tertiary
 };

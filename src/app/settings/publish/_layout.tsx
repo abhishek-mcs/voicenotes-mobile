@@ -7,6 +7,14 @@ export default function Layout() {
                 name="index"
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="bio"
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="publication"
+                options={{ headerShown: false }}
+            />
         </Stack>
     )
 }

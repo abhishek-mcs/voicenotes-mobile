@@ -138,7 +138,7 @@ function Publish() {
                 </ScrollView>
                 
                 <View style={styles.footerContainer}>
-                    <Pressable style={styles.createbutton}>
+                    <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
                         <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
                         <Text style={styles.createlabel}>Create</Text>
                     </Pressable>
