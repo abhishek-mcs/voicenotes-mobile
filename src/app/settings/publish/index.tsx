@@ -4,7 +4,7 @@ import Header from "components/settings/header";
 import { useTheme } from "context/theme-context";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Animated, Image } from "react-native";
+import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView } from "react-native";
 import Svg, { SvgXml } from "react-native-svg";
 import { isIOS } from "utils/common";
 
@@ -61,39 +61,40 @@ function Publish() {
         </View>
     }
 
-    // const Author = (): JSX.Element => {
-    //     return <View style={styles.author}>
-    //         <PromptCard
-    //             index={1}
-    //             title={'Set up your profile'}
-    //             body="Let listeners know who's behind the mic -- add a name, photo and short bio"
-    //         />
-    //     </View>
-    // }
-
     const Author = (): JSX.Element => {
         return <View style={styles.author}>
-            <Text style={styles.heading}>About</Text>
-            <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                <View style={styles.card}>
-                    <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-                        <Image
-                            source={require('../../../assets/images/pastnotes3-dark.png')}
-                            style={{ width: 100, height: 100 }}
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <View style={{ flex: 4, justifyContent: 'center', gap: 2, paddingRight: 15 }}>
-                        <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={styles.authorname}>Leonardio di Caprio</Text>
-                            <EditButton />
-                        </View>
-                        <Text numberOfLines={3} ellipsizeMode="tail" style={styles.authorbio}>Artist. Inventor. Visionary.Leonardo da Vinci’s VoiceNotes echo with timeless curiosity — from natu...</Text>
-                    </View>
-                </View>
-            </View>
+            <PromptCard
+                index={1}
+                title={'Set up your profile'}
+                body="Let listeners know who's behind the mic -- add a name, photo and short bio"
+                onPress={() => router.push('/settings/publish/bio')}
+            />
         </View>
     }
+
+    // const Author = (): JSX.Element => {
+    //     return <View style={styles.author}>
+    //         <Text style={styles.heading}>About</Text>
+    //         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+    //             <View style={styles.card}>
+    //                 <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
+    //                     <Image
+    //                         source={require('../../../assets/images/pastnotes3-dark.png')}
+    //                         style={{ width: 100, height: 100 }}
+    //                         resizeMode="contain"
+    //                     />
+    //                 </View>
+    //                 <View style={{ flex: 4, justifyContent: 'center', gap: 2, paddingRight: 15 }}>
+    //                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+    //                         <Text style={styles.authorname}>Leonardio di Caprio</Text>
+    //                         <EditButton />
+    //                     </View>
+    //                     <Text numberOfLines={3} ellipsizeMode="tail" style={styles.authorbio}>Artist. Inventor. Visionary.Leonardo da Vinci’s VoiceNotes echo with timeless curiosity — from natu...</Text>
+    //                 </View>
+    //             </View>
+    //         </View>
+    //     </View>
+    // }
 
     // const Publications = () => {
     //     return <View style={styles.publications}>
@@ -125,9 +126,29 @@ function Publish() {
 
         return <View style={styles.publications}>
             <Text style={styles.heading}>Publications</Text>
-            <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                <Publication title="Design & Beyond" url="amal.voicenotes.com" />
-                <Publication title="BoxClub" url="box.voicenotes.com" />
+            <View style={styles.publicationsContainer}>
+                <ScrollView 
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollViewContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <Publication title="Design & Beyond" url="amal.voicenotes.com" onEdit={() => {}} />
+                    <Publication title="BoxClub" url="box.voicenotes.com" onEdit={() => {}} />
+                    {/* Add more publications here */}
+                </ScrollView>
+                
+                <View style={styles.footerContainer}>
+                    <Pressable style={styles.createbutton}>
+                        <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
+                        <Text style={styles.createlabel}>Create</Text>
+                    </Pressable>
+                    <View style={styles.captionContainer}>
+                        <SvgXml xml={settingsSvg.send.replace("black", Colors.blackWithOpacity(0.5))} />
+                        <Text style={styles.caption}>
+                            You're live! Record a voice note, tap Share, choose a publication and hit Publish!
+                        </Text>
+                    </View>
+                </View>
             </View>
         </View>
     }
@@ -217,7 +238,31 @@ const useStyles = () => {
         },
         publications: {
             width: '100%',
-            paddingHorizontal: 20
+            paddingHorizontal: 20,
+            flex: 1,
+        },
+        publicationsContainer: {
+            flex: 1,
+            marginTop: 10,
+        },
+        scrollView: {
+            flex: 1,
+        },
+        scrollViewContent: {
+            paddingTop: 10,
+            paddingBottom: 20,
+        },
+        footerContainer: {
+            width: '100%',
+            paddingBottom: 20
+        },
+        captionContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            marginTop: 20,
+            gap: 10,
+            width: '95%'
         },
         publication: {
             fontFamily: 'Primary-Medium',
@@ -294,6 +339,27 @@ const useStyles = () => {
             borderRadius: 2,
             backgroundColor: Colors.blackWithOpacity(0.25),
         },
+        createbutton: {
+            width: '100%',
+            backgroundColor: Colors.askLogo,
+            height: 50,
+            marginTop: 30,
+            borderRadius: 25,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10
+        },
+        createlabel: {
+            color: Colors.whiteWithOpacity(1),
+            fontFamily: 'Primary-Bold',
+            fontSize: 14
+        },
+        caption: {
+            color: Colors.blackWithOpacity(0.5),
+            fontFamily: 'Primary',
+            fontSize: 13
+        }
     }), [Colors])
 }
 
