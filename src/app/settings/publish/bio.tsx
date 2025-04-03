@@ -13,6 +13,8 @@ function BioEditor() {
     const scrollViewRef = useRef<ScrollView>(null)
     const [keyboardSpace, setKeyboardSpace] = useState(0)
 
+    const aboutRef = useRef<TextInput>(null)
+
     useEffect(() => {
         const keyboardWillShow = Keyboard.addListener(
             isIOS ? 'keyboardWillShow' : 'keyboardDidShow',
@@ -52,15 +54,15 @@ function BioEditor() {
             <ImagePicker caption="Profile photo" />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput style={styles.input} />
+                <TextInput style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput multiline style={[styles.input, { height: 80, paddingVertical: 10 }]} />
+                <TextInput ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Website</Text>
-                <TextInput style={styles.input} />
+                <TextInput style={styles.input} keyboardType={'url'} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>

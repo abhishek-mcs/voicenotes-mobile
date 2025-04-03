@@ -13,6 +13,10 @@ function PublicationEditor() {
     const scrollViewRef = useRef<ScrollView>(null)
     const [keyboardSpace, setKeyboardSpace] = useState(0)
 
+    // input fields
+    const urlRef = useRef<TextInput>(null)
+    const aboutRef = useRef<TextInput>(null)
+
     useEffect(() => {
         const keyboardWillShow = Keyboard.addListener(
             isIOS ? 'keyboardWillShow' : 'keyboardDidShow',
@@ -52,22 +56,18 @@ function PublicationEditor() {
             <ImagePicker caption="Photo or artwork" />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput style={styles.input} />
+                <TextInput style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Username</Text>
+                <Text style={{ color: Colors.text }}>Publication URL</Text>
                 <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]} >
-                    <TextInput style={{ width: '50%', fontFamily: 'Primary' }} />
+                    <TextInput ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary' }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
                 </View>
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput style={styles.input} />
-            </View>
-            <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Website</Text>
-                <TextInput style={styles.input} />
+                <TextInput ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>
