@@ -1,15 +1,21 @@
+import * as Haptics from 'expo-haptics'
 import { commonSvg } from "assets/svg/commonSvg";
+import { home } from "assets/svg/home";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import { useTheme } from "context/theme-context";
 import { useLocalSearchParams } from "expo-router";
-import { publishNotetoPage, unPublishNoteFromPage } from "queries/share";
-import { useMemo, useState } from "react";
+import { publishNotetoPage, publishPublicly, unPublishNoteFromPage } from "queries/share";
+import { useMemo, useRef, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Pressable, Image, ActivityIndicator } from "react-native"
-import Svg, { SvgXml } from "react-native-svg";
+import { SvgXml } from "react-native-svg";
+import MoreOptions from 'components/common/more-options';
+import { MenuOptionsType } from "components/common/more-options/menu-props";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRecordingDetails } from "redux/reducers/recordingStates";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import { setStringAsync } from "expo-clipboard";
+import { MAIN_URL } from 'services/api/api-constants';
 
 function Publish(): JSX.Element {
     const styles = useStyles()
@@ -21,11 +27,56 @@ function Publish(): JSX.Element {
 
     const note = recordingList.find(item => item.id === note_id)
 
+    const [isPublic, setPublic] = useState<boolean>(note?.is_published);
+    const [buffering, setBuffering] = useState<boolean>(false)
+
+    const moreOptionsRef = useRef<{ show: () => void; hide: () => void } | null>(null);
+
     const formatDuration = (ms: number): string => {
         const minutes = Math.floor(ms / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
+
+    const togglePublic = async () => {
+        setBuffering(true)
+        try {
+            await publishPublicly(note?.id);
+            dispatch(updateRecordingDetails({
+                recordingId: note?.id,
+                data: {
+                    is_published: !isPublic
+                }
+            }))
+            setPublic(prev => !prev)
+        } catch(error) {
+            console.error(error)
+        } finally { setBuffering(false) }
+    }
+
+    const onCopy = async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+          () => {}
+        );
+        await setStringAsync(MAIN_URL + "/s/" + note?.id);
+    };
+
+    const menuOptions: MenuOptionsType[] = [
+        {
+            title: "Copy link",
+            onPress: onCopy,
+            androidIcon: "content-copy"
+        },
+        {
+            title: "Unpublish",
+            onPress: () => {
+                if (!buffering) {
+                    togglePublic();
+                }
+            },
+            androidIcon: "close-circle-outline"
+        }
+    ];
 
     const Publication = ({ title, image, listens, disabled, slug, id }: { title: string, image: string, listens: number, disabled: boolean, slug: string, id: number }): JSX.Element => {
 
@@ -87,7 +138,7 @@ function Publish(): JSX.Element {
                 </View>
             </View> :
             <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
-                <Pressable onPress={onChangePublish} style={styles.action}>
+                <Pressable onPress={ working? null : onChangePublish} style={styles.action}>
                     {working ? <ActivityIndicator /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
                 </Pressable>
             </View>}
@@ -120,24 +171,35 @@ function Publish(): JSX.Element {
         </View>
 
         <View style={styles.web}>
-            <View style={{ flex: 0.8, justifyContent: 'center', alignItems: 'center' }}>
-                <SvgXml xml={settingsSvg.upload} />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <SvgXml xml={commonSvg.globe.replace("black", Colors.text)} width={25} height={25} />
             </View>
             <View style={{ flex: 3, justifyContent: 'center' }}>
                 <Text style={styles.webHeader}>Publish to web</Text>
                 <Text style={styles.webCaption}>Anyone with the link will have access to this voice note</Text>
             </View>
-            <View style={{ flex: 2.2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, flexDirection: 'row', gap: 10 }} >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                    <SvgXml xml={commonSvg.greenTick} />
-                    <Text style={styles.webPublished}>Published</Text>
-                </View>
-                <Pressable style={styles.more}>
-
-                </Pressable>
-                {/* <Pressable style={styles.action}>
+            <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, flexDirection: 'row', gap: 10 }} >
+                {buffering ? <ActivityIndicator /> : isPublic ? <>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                        <SvgXml xml={commonSvg.greenTick} />
+                        <Text style={styles.webPublished}>Published</Text>
+                    </View>
+                    <MoreOptions
+                        ref={moreOptionsRef}
+                        options={menuOptions}
+                        isNative={isIOS}
+                    >
+                        <Pressable 
+                            style={styles.more}
+                            onPress={() => moreOptionsRef.current?.show()}
+                        >
+                            <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+                        </Pressable>
+                    </MoreOptions>
+                </> :
+                <Pressable onPress={buffering ? null : togglePublic} style={styles.action}>
                     <Text style={styles.actionlabel}>Publish</Text>
-                </Pressable> */}
+                </Pressable>}
             </View>
         </View>
         <View style={styles.publications}>

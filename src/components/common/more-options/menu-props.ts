@@ -1,19 +1,15 @@
 import { ContextMenuAction } from "react-native-context-menu-view";
 
+export type MenuOptionsType = {
+    title: string;
+    onPress: (() => void) | false;
+    androidIcon?: string;
+    actions?: MenuOptionsType[];
+    searchable?: boolean;
+}
+
 export interface MenuProps {
-    options: {
-        title: string;
-        systemIcon?: string;
-        androidIcon?: string;
-        onPress?: () => void;
-        actions?: Array<{
-            title: string;
-            onPress: () => void;
-            androidIcon?: string;
-            searchable?: boolean;
-        }>;
-        destructive?: boolean;
-    }[];
+    options: MenuOptionsType[];
     style?: any;
     children: React.ReactNode;
     isNative?: boolean;

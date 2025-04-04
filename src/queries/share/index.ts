@@ -21,3 +21,8 @@ export async function unPublishNoteFromPage(
 
     return response.data.data
 }
+
+export async function publishPublicly(id: string) {
+    const response = await axiosApi.patch(`/recordings/${id}/public`)
+    return response.data.data
+}
