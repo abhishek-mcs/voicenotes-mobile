@@ -21,6 +21,7 @@ export const TagButton = ({
   onPress = () => {},
   icon = "",
   from = "",
+  activeInvites=false,
 }) => {
   const dispatch = useDispatch();
   const { hashFilter } = useSelector((state: RootState) => state.hash);
@@ -47,13 +48,16 @@ export const TagButton = ({
       style={[styles.tagButton, selected ? styles.activeTagContainer : {}]}
       onPress={onClickTag}
       activeOpacity={1}
-    >
-      <Text
-        style={[styles.tagButtonText, style, selected ? styles.activeTag : {}]}
-      >
-        {title == "" ? "All" : capitalizeFirstLetter(title)}
-      </Text>
-      {!!icon && <SvgXml xml={icon} />}
+    > 
+      <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+      {activeInvites && <View style={{height:8,width:8,borderRadius:5,backgroundColor:'red',alignSelf:'center'}}></View>}
+        <Text
+          style={[styles.tagButtonText, style, selected ? styles.activeTag : {}]}
+        > 
+          {title == "" ? "All" : capitalizeFirstLetter(title)}
+        </Text>
+        {!!icon && <SvgXml xml={icon} />}
+      </View>
     </Touchable>
   );
 };
@@ -78,13 +82,15 @@ export default function TagButtons({
   pinnedTags = [],
   pinnedTagsData = [],
   isDefaultHash = true,
-  tagsData=[]
+  tagsData=[],
+  pendingInvites=false,
 }: {
   hashFilter: any;
   pinnedTags: any;
   pinnedTagsData: any;
   isDefaultHash: boolean;
-  tagsData:any
+  tagsData:any;
+  pendingInvites?:boolean
 }) {
   const isPinned = pinnedTags?.length > 0;
   const id =
@@ -147,7 +153,7 @@ export default function TagButtons({
           showsHorizontalScrollIndicator={false}
         >
           <TagButton title="" style={{ color: Colors.grey3 }} />
-          <TagButton title="shared" style={{ color: Colors.grey3 }} />
+          <TagButton title="shared" style={{ color: Colors.grey3 }} activeInvites={pendingInvites} />
           <TagButton title="starred" style={{ color: Colors.grey3 }} />
           {isPinned &&
             pinnedTags?.map((v: any) => (
