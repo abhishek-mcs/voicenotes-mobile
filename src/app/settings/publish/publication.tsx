@@ -84,7 +84,7 @@ function PublicationEditor() {
             return;
         }
 
-        if(!url) {
+        if(!url || url.length < 3) {
             Alert.alert(
                 '',
                 'Please choose a public URL for your publication.',
@@ -129,8 +129,9 @@ function PublicationEditor() {
     )
 
     const checkSlugAvailability = async (text: string) => {
-        setUrl(text.toLowerCase().trim().replace(/\s+/g, ''))
-        debouncedCheckSlug(text)
+        const newURL = text.toLowerCase().trim().replace(/\s+/g, '');
+        setUrl(newURL)
+        if(newURL.length > 2) debouncedCheckSlug(text)
     }
     
     return <Header
@@ -153,7 +154,7 @@ function PublicationEditor() {
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Publication URL</Text>
                 <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
-                    <TextInput value={url} keyboardType="url" autoCapitalize="none" autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary' }} />
+                    <TextInput value={url} keyboardType="url" autoCapitalize="none" autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
                     {checkingSlug && <ActivityIndicator />}
                 </View>
