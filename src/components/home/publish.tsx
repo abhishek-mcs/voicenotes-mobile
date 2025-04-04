@@ -2,44 +2,95 @@ import { commonSvg } from "assets/svg/commonSvg";
 import { settingsSvg } from "assets/svg/settingsSvg";
 import { useTheme } from "context/theme-context";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Pressable, Image } from "react-native"
+import { publishNotetoPage, unPublishNoteFromPage } from "queries/share";
+import { useMemo, useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Pressable, Image, ActivityIndicator } from "react-native"
 import Svg, { SvgXml } from "react-native-svg";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateRecordingDetails } from "redux/reducers/recordingStates";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 
 function Publish(): JSX.Element {
     const styles = useStyles()
-    
+    const { Colors } = useTheme()
     const { recordingList } = useSelector((state: RootState) => state.recordingStates);
+    const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
     const { note_id } = useLocalSearchParams()
+    const dispatch = useDispatch()
 
     const note = recordingList.find(item => item.id === note_id)
 
     const formatDuration = (ms: number): string => {
-        const minutes = Math.floor(ms / 60000); // Convert to minutes
-        const seconds = Math.floor((ms % 60000) / 1000); // Get remaining seconds
+        const minutes = Math.floor(ms / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
-    const Publication = (): JSX.Element => {
-        return <View style={styles.publication}>
+    const Publication = ({ title, image, listens, disabled, slug, id }: { title: string, image: string, listens: number, disabled: boolean, slug: string, id: number }): JSX.Element => {
+
+        const [published, setPublished] = useState<boolean>(note?.publication_ids.includes(id))
+        const [working, setWorking] = useState<boolean>(false)
+        const [imageLoading, setImageLoading] = useState<boolean>(false)
+
+        const onChangePublish = async () => {
+            setWorking(true)
+            try{
+                if(published) {
+                    await unPublishNoteFromPage(note?.id, slug)
+                    setPublished(false)
+                    dispatch(updateRecordingDetails({
+                        recordingId: note?.id,
+                        data: {
+                            publication_ids: note?.publication_ids.filter((pubId: number) => pubId !== id)
+                        }
+                    }));
+                }else {
+                    await publishNotetoPage(note?.id, slug)
+                    setPublished(true)
+                    dispatch(updateRecordingDetails({
+                        recordingId: note?.id,
+                        data: {
+                            publication_ids: [...(note?.publication_ids || []), id]
+                        }
+                    }));
+                }
+            } catch(error) {
+                console.error(error)
+            } finally { setWorking(false) }
+        }
+
+        return <View style={[styles.publication, { opacity: disabled ? 0.5 : 1 }]}>
             <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
+                {imageLoading && (
+                    <View style={{ position: 'absolute', width: 40, height: 40, borderRadius: 15, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator color={Colors.askLogo} />
+                    </View>
+                )}
                 <Image
                     style={styles.avatar}
-                    source={require('../../assets/images/landing3-dark.png')}
+                    width={50}
+                    height={50}
+                    resizeMode="contain"
+                    source={{ uri: image }}
+                    onLoadStart={() => setImageLoading(true)}
+                    onLoadEnd={() => setImageLoading(false)}
                 />
             </View>
             <View style={{ flex: 4, justifyContent: 'center' }}>
-                <Text style={styles.title}>Design & Beyond</Text>
+                <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>{title}</Text>
                 <Text style={styles.listens}>17.8k listens</Text>
             </View>
+            {disabled ? <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={[styles.action, { backgroundColor: 'transparent' }]}>
+                    <Text style={[styles.actionlabel, { color: Colors.text }]}>Disabled</Text>
+                </View>
+            </View> :
             <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
-                <Pressable style={styles.action}>
-                    <Text style={styles.actionlabel}>Publish</Text>
+                <Pressable onPress={onChangePublish} style={styles.action}>
+                    {working ? <ActivityIndicator /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
                 </Pressable>
-            </View>
+            </View>}
         </View>
     }
     
@@ -90,8 +141,9 @@ function Publish(): JSX.Element {
             </View>
         </View>
         <View style={styles.publications}>
-            <Publication />
-            <Publication />
+            {userDetails?.publications.map((item: any, index: number) => {
+                return <Publication key={index} title={item?.title} image={item?.avatar} listens={item?.listener_count} disabled={!item?.is_public} slug={item?.slug} id={item?.id} />
+            })}
         </View>
     </View>
 }
@@ -267,7 +319,8 @@ const useStyles = () => {
     avatar: {
         height: 50,
         width: 50,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        borderRadius: 10
     }
   }), [Colors])
 }
