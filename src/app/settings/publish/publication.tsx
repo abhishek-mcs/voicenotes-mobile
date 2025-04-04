@@ -107,7 +107,10 @@ function PublicationEditor() {
         try {
             const response = publication ? await editPublication(about, true, url, name, avatar !== publication?.avatar ? avatar : undefined) : await createPublication(avatar, about, true, url, name)
     
-            let publications = userDetails?.publications.length > 0 ? userDetails?.publications.map((item: any) => item?.id === publication?.id ? response : item) : [response];
+            let publications = publication
+            ? userDetails?.publications.map((item: any) => item?.id === publication?.id ? response : item)
+            : [...(userDetails?.publications || []), response];
+            
             dispatch(setUserDetail({
                 ...userDetails,
                 publications
