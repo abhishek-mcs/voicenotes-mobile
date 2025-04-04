@@ -104,6 +104,15 @@ function PublicationEditor() {
             return;
         }
 
+        if(about.length > 255) {
+            Alert.alert(
+                '',
+                'The description field should not be greater than 255 characters.',
+                [{ text: 'OK' }]
+            )
+            return;
+        }
+
         try {
             const response = publication ? await editPublication(about, true, url, name, avatar !== publication?.avatar ? avatar : undefined) : await createPublication(avatar, about, true, url, name)
     
