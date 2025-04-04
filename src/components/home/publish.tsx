@@ -297,6 +297,7 @@ const useStyles = () => {
         width: '100%',
         borderWidth: 0.5,
         borderRadius: 10,
+        paddingRight: 10,
         borderColor: Colors.greyWithOpacity(0.5),
         height: 100,
         flexDirection: 'row',
