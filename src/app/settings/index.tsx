@@ -316,7 +316,8 @@ const Settings = () => {
               { title: 'Theme', data: [['auto', 'Auto', isIOS ? 'circle.lefthalf.fill' : 'circle-half-full'], ['light', 'Day', isIOS ? 'sun.max' : 'white-balance-sunny'], ['dark', 'Night', isIOS ? 'moon.zzz' : 'weather-night']], value: selectedTheme[theme], onPressMenu: onSelectTheme, isMenu: true },
               { title: 'Language', isMenu: true, data: Object.entries(languages), value: lang, onPressMenu: onSelectLang },
               { title: 'Names to remember', value: '', onPress: () => showScreen('names'), rightIcon: settingsSvg.arrow },
-              { title: 'Notifications', value: '', onPress: () => router.push('/settings/reminders'), rightIcon: settingsSvg.arrow }
+              { title: 'Notifications', value: '', onPress: () => router.push('/settings/reminders'), rightIcon: settingsSvg.arrow },
+              { title: 'Pages', onPress: () => router.push(isTempIAPPurchased || userDetails.subscription_plan ? '/settings/publish' : '/premium/'), value: '', rightIcon: settingsSvg.arrow },
             ]}
           />
           <Grouped
@@ -324,7 +325,6 @@ const Settings = () => {
             items={[
               { title: 'Email', onPress: () => showScreen('email'), value: userDetails?.email || '', rightIcon: settingsSvg.arrow },
               { title: 'Change password', onPress: () => showScreen('password'), value: '', rightIcon: settingsSvg.arrow },
-              ...(isTempIAPPurchased || userDetails.subscription_plan ? [{ title: 'Pages', onPress: () => router.push('/settings/publish'), value: '', rightIcon: settingsSvg.arrow }] : []),
               ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : []),
             ]}
           />
