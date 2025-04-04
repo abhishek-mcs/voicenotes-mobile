@@ -29,7 +29,7 @@ const SharePublish = () => {
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
   const {noteId} = useSelector((state:RootState)=>state.editStates)
-  const {is_published, note_id, note_title, note_content, note_duration} = useLocalSearchParams()
+  const { note_id } = useLocalSearchParams()
   const getShareList = useGetSharedList(noteId)
   const shareList = getShareList.data?.data
   const shareRecording = useShareRecording();
@@ -312,13 +312,7 @@ const SharePublish = () => {
           </TouchableOpacity>
           </View>
       </View> : 
-      <Publish 
-        slug={noteId} 
-        isPublished={is_published == 'true' ? true : false}  
-        title={note_title}
-        content={note_content}
-        duration={note_duration}
-      />
+      <Publish id={note_id} />
       }
     </SafeAreaView>
   )

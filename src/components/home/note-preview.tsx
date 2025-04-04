@@ -292,14 +292,10 @@ const NotePreview = forwardRef(
       // hideMoreOption();
       dispatch(setNoteId(id ? id : ''))
       setTimeout(() => {
-        router.navigate({
+        router.push({
           pathname: "/share",
           params: {
-            is_published: published == 1 ? true : false,
-            note_id: id,
-            note_title: title,
-            note_content: content,
-            note_duration: duration||audioDuration
+            note_id: id
           }
         });
       }, 50);
