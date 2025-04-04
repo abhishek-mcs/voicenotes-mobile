@@ -5,6 +5,8 @@ import { useRouter } from "expo-router"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ImagePicker from "components/settings/ImagePicker"
 import { isIOS } from "utils/common"
+import { useSelector } from "react-redux"
+import { RootState } from "redux/store/store"
 
 function BioEditor() {
     const router = useRouter()
@@ -12,6 +14,11 @@ function BioEditor() {
     const { Colors } = useTheme()
     const scrollViewRef = useRef<ScrollView>(null)
     const [keyboardSpace, setKeyboardSpace] = useState(0)
+    const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
+
+    const [name, setName] = useState<string>(userDetails?.author?.name || '')
+    const [about, setAbout] = useState<string>(userDetails?.author?.about || '')
+    const [website, setWebsite] = useState<string>(userDetails?.author?.website || '')
 
     const aboutRef = useRef<TextInput>(null)
 
@@ -54,15 +61,15 @@ function BioEditor() {
             <ImagePicker caption="Profile photo" />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
+                <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
+                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Website</Text>
-                <TextInput style={styles.input} keyboardType={'url'} />
+                <TextInput value={website} onChangeText={text => setWebsite(text)} style={styles.input} keyboardType={'url'} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>

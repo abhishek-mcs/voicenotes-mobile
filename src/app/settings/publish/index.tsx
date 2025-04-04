@@ -1,19 +1,24 @@
 import { settingsSvg } from "assets/svg/settingsSvg";
 import GetStarted from "components/settings/GetStarted";
 import Header from "components/settings/header";
+import * as Wb from 'expo-web-browser';
 import { useTheme } from "context/theme-context";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView } from "react-native";
-import Svg, { SvgXml } from "react-native-svg";
+import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView, ActivityIndicator } from "react-native";
+import { SvgXml } from "react-native-svg";
+import { useSelector } from "react-redux";
+import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 
 function Publish() {
     const router = useRouter();
     const styles = useStyles();
-    const { Colors } = useTheme()
+    const { Colors, isLightMode } = useTheme()
 
-    const [authorSetup, setAuthorSetup] = useState<boolean>(true)
+    const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
+
+    const [authorSetup, setAuthorSetup] = useState<boolean>(userDetails?.author !== null)
 
     const screenSlide = new Animated.Value(0);
 
@@ -26,8 +31,8 @@ function Publish() {
         }).start();
     }, [authorSetup]);
 
-    const EditButton = (): JSX.Element => {
-        return <Pressable style={styles.editbutton}>
+    const EditButton = ({ onPress }: { onPress: () => void }): JSX.Element => {
+        return <Pressable onPress={onPress} style={styles.editbutton}>
             <SvgXml xml={settingsSvg.edit.replace("black", Colors.text)} />
             <Text style={{ color: Colors.text }}>Edit</Text>
         </Pressable>
@@ -62,7 +67,38 @@ function Publish() {
     }
 
     const Author = (): JSX.Element => {
-        return <View style={styles.author}>
+        const [imageLoading, setImageLoading] = useState(false);
+
+        return authorSetup && userDetails?.author !== null ? <View style={styles.author}>
+            <Text style={styles.heading}>About</Text>
+            <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={styles.card}>
+                    <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
+                        {imageLoading && (
+                            <View style={{ position: 'absolute', width: 80, height: 80, borderRadius: 15, backgroundColor: Colors.bottomBarButtonBg1, justifyContent: 'center', alignItems: 'center' }}>
+                                <ActivityIndicator color={Colors.askLogo} />
+                            </View>
+                        )}
+                        <Image
+                            source={{ uri: userDetails?.author?.avatar || '' }}
+                            height={100}
+                            width={100}
+                            style={{ width: 80, height: 80, borderRadius: 15 }}
+                            resizeMode="contain"
+                            onLoadStart={() => setImageLoading(true)}
+                            onLoadEnd={() => setImageLoading(false)}
+                        />
+                    </View>
+                    <View style={{ flex: 4, justifyContent: 'center', gap: 2, paddingRight: 15 }}>
+                        <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={styles.authorname}>{userDetails?.author?.name}</Text>
+                            <EditButton onPress={() => router.push('/settings/publish/bio')} />
+                        </View>
+                        <Text numberOfLines={3} ellipsizeMode="tail" style={styles.authorbio}>{userDetails?.author?.about}</Text>
+                    </View>
+                </View>
+            </View>
+        </View> : <View style={styles.author}>
             <PromptCard
                 index={1}
                 title={'Set up your profile'}
@@ -72,59 +108,26 @@ function Publish() {
         </View>
     }
 
-    // const Author = (): JSX.Element => {
-    //     return <View style={styles.author}>
-    //         <Text style={styles.heading}>About</Text>
-    //         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-    //             <View style={styles.card}>
-    //                 <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-    //                     <Image
-    //                         source={require('../../../assets/images/pastnotes3-dark.png')}
-    //                         style={{ width: 100, height: 100 }}
-    //                         resizeMode="contain"
-    //                     />
-    //                 </View>
-    //                 <View style={{ flex: 4, justifyContent: 'center', gap: 2, paddingRight: 15 }}>
-    //                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-    //                         <Text style={styles.authorname}>Leonardio di Caprio</Text>
-    //                         <EditButton />
-    //                     </View>
-    //                     <Text numberOfLines={3} ellipsizeMode="tail" style={styles.authorbio}>Artist. Inventor. Visionary.Leonardo da Vinci’s VoiceNotes echo with timeless curiosity — from natu...</Text>
-    //                 </View>
-    //             </View>
-    //         </View>
-    //     </View>
-    // }
-
-    // const Publications = () => {
-    //     return <View style={styles.publications}>
-    //         <PromptCard
-    //             index={2}
-    //             disabled
-    //             title={'Start your publication'}
-    //             body="A place to share your best voice notes -- from lessons and ideas to stories and reflections"
-    //         />
-    //     </View>
-    // }
-
     const Publications = (): JSX.Element => {
 
-        const Publication = ({ title, url, onEdit }: { title: string, url: string, onEdit: () => void }): JSX.Element => {
+        const openPublication = (slug: string) => Wb.openBrowserAsync(`https://${slug}.voicenotes.com`, { toolbarColor: isLightMode ? '#fff' : '#000' })
+
+        const Publication = ({ title, slug, onEdit }: { title: string, slug: string, onEdit: () => void }): JSX.Element => {
             return <View style={styles.card}>
                 <View style={{ flex: 4, paddingHorizontal: 20, paddingVertical: 10, gap: 5 }}>
                     <Text numberOfLines={1} ellipsizeMode="tail" style={styles.publication}>{title}</Text>
-                    <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.url}>{url}</Text>
+                    <Pressable onPress={() => openPublication(slug)} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.url}>{slug}.voicenotes.com</Text>
                         <SvgXml xml={settingsSvg.url} />
                     </Pressable>
                 </View>
                 <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-                    <EditButton />
+                    <EditButton onPress={onEdit} />
                 </View>
             </View>
         }
 
-        return <View style={styles.publications}>
+        return authorSetup && userDetails?.publications.length > 0 ? <View style={styles.publications}>
             <Text style={styles.heading}>Publications</Text>
             <View style={styles.publicationsContainer}>
                 <ScrollView 
@@ -132,9 +135,9 @@ function Publish() {
                     contentContainerStyle={styles.scrollViewContent}
                     showsVerticalScrollIndicator={false}
                 >
-                    <Publication title="Design & Beyond" url="amal.voicenotes.com" onEdit={() => {}} />
-                    <Publication title="BoxClub" url="box.voicenotes.com" onEdit={() => {}} />
-                    {/* Add more publications here */}
+                    {userDetails?.publications.map((item: any, index: number) => {
+                        return <Publication key={index} title={item?.title} slug={item?.slug} onEdit={() => router.push({pathname: '/settings/publish/publication', params: { id: item?.id }})} />
+                    })}
                 </ScrollView>
                 
                 <View style={styles.footerContainer}>
@@ -150,6 +153,14 @@ function Publish() {
                     </View>
                 </View>
             </View>
+        </View> : <View style={styles.publications}>
+            <PromptCard
+                index={2}
+                disabled={userDetails?.author === null}
+                onPress={() => router.push('/settings/publish/publication')}
+                title={'Start your publication'}
+                body="A place to share your best voice notes -- from lessons and ideas to stories and reflections"
+            />
         </View>
     }
 

@@ -1,10 +1,12 @@
 import Header from "components/settings/header"
 import { Pressable, ScrollView, StyleSheet, View, Text, TextInput, Keyboard, KeyboardEvent } from "react-native"
 import { useTheme } from "context/theme-context"
-import { useRouter } from "expo-router"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ImagePicker from "components/settings/ImagePicker"
 import { isIOS } from "utils/common"
+import { useSelector } from "react-redux"
+import { RootState } from "redux/store/store"
 
 function PublicationEditor() {
     const router = useRouter()
@@ -12,10 +14,18 @@ function PublicationEditor() {
     const { Colors } = useTheme()
     const scrollViewRef = useRef<ScrollView>(null)
     const [keyboardSpace, setKeyboardSpace] = useState(0)
+    const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
+
+    const { id } = useLocalSearchParams()
+    const publication = userDetails?.publications.find((p: any) => p.id === Number(id))
 
     // input fields
     const urlRef = useRef<TextInput>(null)
     const aboutRef = useRef<TextInput>(null)
+
+    const [name, setName] = useState<string>(publication?.title || '')
+    const [url, setUrl] = useState<string>(publication?.slug || '')
+    const [about, setAbout] = useState<string>(publication?.description || '')
 
     useEffect(() => {
         const keyboardWillShow = Keyboard.addListener(
@@ -56,18 +66,18 @@ function PublicationEditor() {
             <ImagePicker caption="Photo or artwork" />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
+                <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Publication URL</Text>
                 <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]} >
-                    <TextInput ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary' }} />
+                    <TextInput value={url} onChangeText={text => setUrl(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary' }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
                 </View>
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
+                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>
