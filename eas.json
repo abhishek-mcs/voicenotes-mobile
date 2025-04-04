@@ -45,7 +45,8 @@
       "autoIncrement": true,
       "channel": "vishal",
       "android": {
-        "resourceClass": "large"
+        "resourceClass": "large",
+        "buildType": "apk"
       }
     },
     "ijas": {
