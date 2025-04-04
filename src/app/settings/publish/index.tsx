@@ -7,7 +7,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView, ActivityIndicator } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserDetail } from "redux/reducers/userDetails"
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import MoreOptions from "components/common/more-options";
@@ -19,6 +20,7 @@ function Publish() {
     const router = useRouter();
     const styles = useStyles();
     const { Colors, isLightMode } = useTheme()
+    const dispatch = useDispatch()
 
     const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
 
@@ -128,6 +130,17 @@ function Publish() {
                 try {
                     await togglePage(slug, !enabled)
                     setEnabled(prev => !prev)
+                    
+                    const updatedPublications = userDetails?.publications.map((pub: any) => 
+                        pub.slug === slug 
+                            ? { ...pub, is_public: !enabled }
+                            : pub
+                    );
+
+                    dispatch(setUserDetail({
+                        ...userDetails,
+                        publications: updatedPublications
+                    }));
                 } catch(error) {
                     console.error(error)
                 }
