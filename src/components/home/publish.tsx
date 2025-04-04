@@ -203,11 +203,11 @@ function Publish(): JSX.Element {
                 </Pressable>}
             </View>
         </View>
-        <View style={styles.publications}>
+        {note?.recording_type !== 3 && <View style={styles.publications}>
             {userDetails?.publications.map((item: any, index: number) => {
                 return <Publication key={index} title={item?.title} image={item?.avatar} listens={item?.meta?.listener_count} disabled={!item?.is_public} slug={item?.slug} id={item?.id} />
             })}
-        </View>
+        </View>}
     </View>
 }
 
