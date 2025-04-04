@@ -23,9 +23,13 @@ function Publish() {
     const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
 
     const [authorSetup, setAuthorSetup] = useState<boolean>(userDetails?.author !== null)
-
+    
     const screenSlide = new Animated.Value(0);
 
+    useEffect(() => {
+        setAuthorSetup(userDetails?.author === null && userDetails?.publications.length > 0);
+    }, [userDetails?.author]);
+    
     // Screen transition animation
     useEffect(() => {
         Animated.timing(screenSlide, {
