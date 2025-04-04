@@ -83,7 +83,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Publish your voice notes
+                Start a Voicenotes page
             </Animated.Text>
             
             <Animated.Text 
