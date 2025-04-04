@@ -110,6 +110,7 @@ function PublicationEditor() {
                 'The description field should not be greater than 255 characters.',
                 [{ text: 'OK' }]
             )
+            setWorking(false)
             return;
         }
 
