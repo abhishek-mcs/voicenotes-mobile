@@ -129,7 +129,7 @@ function PublicationEditor() {
     )
 
     const checkSlugAvailability = async (text: string) => {
-        setUrl(text)
+        setUrl(text.toLowerCase().trim().replace(/\s+/g, ''))
         debouncedCheckSlug(text)
     }
     
