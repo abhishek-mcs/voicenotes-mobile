@@ -162,7 +162,7 @@ function PublicationEditor() {
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={onSubmit} />
+                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>
