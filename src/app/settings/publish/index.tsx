@@ -141,14 +141,10 @@ function Publish() {
                 </ScrollView>
                 
                 <View style={styles.footerContainer}>
-                    {/* {userDetails?.publications.length < 3 && <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
+                    {userDetails?.publications.length < 3 && <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
                         <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
                         <Text style={styles.createlabel}>Create</Text>
-                    </Pressable>} */}
-                    <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
-                        <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
-                        <Text style={styles.createlabel}>Create</Text>
-                    </Pressable>
+                    </Pressable>}
                     <View style={styles.captionContainer}>
                         <SvgXml xml={settingsSvg.send.replace("black", Colors.blackWithOpacity(0.5))} />
                         <Text style={styles.caption}>
