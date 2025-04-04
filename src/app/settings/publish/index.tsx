@@ -127,7 +127,7 @@ function Publish() {
             </View>
         }
 
-        return authorSetup && userDetails?.publications.length > 0 ? <View style={styles.publications}>
+        return userDetails?.publications.length > 0 ? <View style={styles.publications}>
             <Text style={styles.heading}>Publications</Text>
             <View style={styles.publicationsContainer}>
                 <ScrollView 
@@ -170,7 +170,7 @@ function Publish() {
         cancelLabel="Back"
         working={false}
     >
-        {!authorSetup ? 
+        {!authorSetup && userDetails?.publications.length === 0 ? 
             <GetStarted
                 onGetStarted={() => setAuthorSetup(true)}
                 screenSlide={screenSlide}
