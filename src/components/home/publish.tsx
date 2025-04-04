@@ -150,7 +150,7 @@ function Publish(): JSX.Element {
             </View> :
             <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
                 <Pressable onPress={ working? null : onChangePublish} style={styles.action}>
-                    {working ? <ActivityIndicator /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
+                    {working ? <ActivityIndicator color={!isIOS ? Colors.text : undefined} /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
                 </Pressable>
             </View>}
         </View>
@@ -201,7 +201,7 @@ function Publish(): JSX.Element {
                 <Text style={styles.webCaption}>Anyone with the link will have access to this voice note</Text>
             </View>
             <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, flexDirection: 'row', gap: 10 }} >
-                {buffering ? <ActivityIndicator /> : isPublic ? <>
+                {buffering ? <ActivityIndicator color={!isIOS ? Colors.text : undefined} /> : isPublic ? <>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                         <SvgXml xml={commonSvg.greenTick} />
                         <Text style={styles.webPublished}>Published</Text>
