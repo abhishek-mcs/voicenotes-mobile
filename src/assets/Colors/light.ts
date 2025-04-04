@@ -131,5 +131,6 @@ export default {
   loader:(o:number)=>`rgba(130, 130, 130,${o})`,
   snack:'#0d0d0d',
   selection: 'rgba(0,0,0,0.05)',
-  textinput: 'rgba(13, 13, 13, 0.1)'
+  textinput: 'rgba(13, 13, 13, 0.1)',
+  placeholderText: 'rgba(0, 0, 0, 0.4)',
 };

@@ -128,7 +128,7 @@ function Publish() {
         }
 
         return userDetails?.publications.length > 0 ? <View style={styles.publications}>
-            <Text style={styles.heading}>Publications</Text>
+            <Text style={styles.heading}>Pages</Text>
             <View style={styles.publicationsContainer}>
                 <ScrollView 
                     style={styles.scrollView}

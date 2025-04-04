@@ -56,8 +56,8 @@ function BioEditor() {
         Keyboard.dismiss();
         if(!avatar) {
             Alert.alert(
-                'No photo!',
-                'Please choose an image to continue...',
+                '',
+                'Please upload an image.',
                 [{ text: 'OK' }]
             )
             setWorking(false)
@@ -137,15 +137,15 @@ function BioEditor() {
             <ImagePicker caption="Profile photo" initialURL={userDetails?.author?.avatar} isAuthor onChange={url => setAvatar(url)} />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
+                <TextInput value={name} placeholder="Give your name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
+                <TextInput value={about} placeholder="Describe yourself for your audience?" placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Website</Text>
-                <TextInput value={website} autoCapitalize="none" autoCorrect={false} onChangeText={text => setWebsite(text)} style={styles.input} keyboardType={'url'} />
+                <TextInput value={website} placeholder="Link your website (optional)" placeholderTextColor={Colors.placeholderText} autoCapitalize="none" autoCorrect={false} onChangeText={text => setWebsite(text)} style={styles.input} keyboardType={'url'} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>

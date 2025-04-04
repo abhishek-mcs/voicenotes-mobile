@@ -159,12 +159,12 @@ function PublicationEditor() {
             <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
+                <TextInput value={name} placeholder="Give your page a name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Publication URL</Text>
                 <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
-                    <TextInput value={url} keyboardType="url" autoCapitalize="none" autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
+                    <TextInput value={url} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
                     {checkingSlug && <ActivityIndicator />}
                 </View>
@@ -172,7 +172,7 @@ function PublicationEditor() {
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
+                <TextInput value={about} placeholder="Describe yourself for your audience?" placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>
