@@ -70,6 +70,7 @@ function PublicationEditor() {
                 'Please choose an image to continue...',
                 [{ text: 'OK' }]
             )
+            setWorking(false)
             return;
         }
 
@@ -79,6 +80,7 @@ function PublicationEditor() {
                 'Please enter a title for your publication.',
                 [{ text: 'OK' }]
             )
+            setWorking(false)
             return;
         }
 
@@ -88,6 +90,7 @@ function PublicationEditor() {
                 'Please choose a public URL for your publication.',
                 [{ text: 'OK' }]
             )
+            setWorking(false)
             return;
         }
 

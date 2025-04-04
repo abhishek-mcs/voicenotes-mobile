@@ -112,3 +112,13 @@ export interface Publication {
   created_at: string,
   updated_at?: string
 }
+
+export interface Author {
+  id: number,
+  name: string,
+  avatar: string,
+  about: string | null,
+  website: string | null,
+  created_at: string,
+  updates_at: string
+}

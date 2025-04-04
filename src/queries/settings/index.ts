@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import * as Device from 'expo-device';
 import axiosApi from "services/api/axios-api";
-import { Publication, SettingsPayload } from "types";
+import { Author, Publication, SettingsPayload } from "types";
 import { currentVersion } from "services/api/api-constants";
 import axios from "axios";
 import { Alert } from "react-native";
@@ -128,7 +128,7 @@ export async function editPublication(
   } catch (error) {
     Alert.alert(
       'Error',
-      'Failed to update this publication. Please try again.',
+      'Failed to update this publication. Please try again later.',
       [{ text: 'OK' }]
     );
     return;
@@ -156,7 +156,7 @@ export async function createPublication(
     console.warn(error)
     Alert.alert(
       'Error',
-      'Failed to create your publication. Please try again.',
+      'Failed to create your publication. Please try again later.',
       [{ text: 'OK' }]
     );
     return;
@@ -176,9 +176,35 @@ export async function checkSlug(
     console.warn(error)
     Alert.alert(
       'Error',
-      'Failed to check username availability. Please try again.',
+      'Failed to check username availability. Please try again later.',
       [{ text: 'OK' }]
     );
     return;
   }
+}
+
+export async function updateAuthor(
+  name: string,
+  about: string,
+  website: string | null,
+  avatar?: string
+) : Promise<Author> {
+  const response = await axiosApi.patch('/publications/author', {
+    name, about, website, avatar
+  })
+
+  return response.data.data;
+}
+
+export async function createAuthor(
+  name: string,
+  about: string,
+  avatar: string,
+  website: string | null
+) : Promise<Author> {
+  const response = await axiosApi.post('/publications/author', {
+    name, about, website, avatar
+  })
+
+  return response.data.data;
 }
