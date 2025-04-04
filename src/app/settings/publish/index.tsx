@@ -27,7 +27,7 @@ function Publish() {
     const screenSlide = new Animated.Value(0);
 
     useEffect(() => {
-        setAuthorSetup(userDetails?.author === null && userDetails?.publications.length > 0);
+        if(userDetails?.author === null && userDetails?.publications.length > 0) setAuthorSetup(true);
     }, [userDetails?.author]);
     
     // Screen transition animation
