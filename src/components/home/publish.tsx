@@ -16,6 +16,7 @@ import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import { setStringAsync } from "expo-clipboard";
 import { MAIN_URL } from 'services/api/api-constants';
+import formatBigNumber from 'utils/formatBigNumber';
 
 function Publish(): JSX.Element {
     const styles = useStyles()
@@ -130,7 +131,7 @@ function Publish(): JSX.Element {
             </View>
             <View style={{ flex: 4, justifyContent: 'center' }}>
                 <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>{title}</Text>
-                <Text style={styles.listens}>17.8k listens</Text>
+                <Text style={styles.listens}>{formatBigNumber(listens)} listens</Text>
             </View>
             {disabled ? <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
                 <View style={[styles.action, { backgroundColor: 'transparent' }]}>
@@ -204,7 +205,7 @@ function Publish(): JSX.Element {
         </View>
         <View style={styles.publications}>
             {userDetails?.publications.map((item: any, index: number) => {
-                return <Publication key={index} title={item?.title} image={item?.avatar} listens={item?.listener_count} disabled={!item?.is_public} slug={item?.slug} id={item?.id} />
+                return <Publication key={index} title={item?.title} image={item?.avatar} listens={item?.meta?.listener_count} disabled={!item?.is_public} slug={item?.slug} id={item?.id} />
             })}
         </View>
     </View>
