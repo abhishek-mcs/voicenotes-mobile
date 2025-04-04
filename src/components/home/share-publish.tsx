@@ -20,6 +20,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store/store';
 import CircularLoader from 'components/common/loaders/circular-loader';
 import ThreeDotLoader from 'components/common/loaders/three-dot-loader';
+import { validateEmail } from 'utils/api-queries/auth/signin-mutations';
+import { useKeyboardController } from 'react-native-keyboard-controller'
 
 const SharePublish = () => {
   const styles = useStyles()
@@ -39,11 +41,15 @@ const SharePublish = () => {
   const [revokeLoading, setRevokeLoading] = useState(-1)
   const [shareLoading, setShareLoading] = useState(-1)
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState('');
   const [sharedUsers, setSharedUsers] = useState(shareList?.users ? shareList.users : []);
+  const sharedUserEmails = sharedUsers.map((user: any) => user.email);
   const [recent, setRecent] = useState(shareList.recent ? shareList.recent : []);
   const { userDetails }: any = useSelector((state: RootState) => state.userDetails);
   const currentChannels = userDetails?.team?.channels || [];
   const [channels, setChannels] = useState(shareList.channels ? shareList.channels : []);
+  const [copy, setCopy] = useState(false)
+  const { keyboardHeight }:any = useKeyboardController()
 
   const showMenu = (index: number) => menuRefs.current[index]?.show();
   const hideMenu = (index: number) => menuRefs.current[index]?.hide();
@@ -54,16 +60,29 @@ const SharePublish = () => {
   const onClose = () => { router.back() }
 
   const onCopy = async () => {
+    setCopy(true)
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
     );
     await setStringAsync(MAIN_URL + "/s/" + noteId);
+    setTimeout(() => {
+      setCopy(false)
+    }
+    , 1000)
   };
 
   const onShareNewEmail = (emailId: string) => {
-    setLoading(true)
-    onShareRecording(emailId, -1)
-    setEmail('')
+    if (!validateEmail(emailId) || emailId === "") {
+      setEmailError('Please enter a valid email address.')
+    } else if (sharedUserEmails.includes(emailId)) {
+      setEmailError('User already invited. Try a different email.')
+    } else if (emailId === userDetails?.email) {
+      setEmailError('You cannot share a recording with yourself.')
+    } else {
+      setLoading(true)
+      onShareRecording(emailId, -1)
+      setEmail('')
+    }
   }
 
   const onRevoke = async (emailId: string, index: any) => {
@@ -191,14 +210,18 @@ const SharePublish = () => {
           </Touchable>
         </View>
       </View>
-      {isSelected == 'share' ? <View style={styles.contentContainer}>
+      {isSelected == 'share' ? 
+      <View style={styles.contentContainer}>
         <View style={styles.inputContainer}>
             <TextField
               style={{ flex: 1 }}
               inputStyle={{ height: 36, color:Colors.text, borderRadius: 10, borderWidth: 1.5, backgroundColor:Colors.inputBg3 }}
               value={email}
               labelStyle={{color:Colors.text5,fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
-              onChangeText={(t:string)=>setEmail(t)}
+              onChangeText={(t:string)=>{
+                setEmailError('')
+                setEmail(t)
+              }}
               placeholder="Enter email"
               placeholderTextColor={Colors.grey}
               autoCapitalize="none"
@@ -207,14 +230,20 @@ const SharePublish = () => {
             {loading ? <CircularLoader color={Colors.whiteWithOpacity(1)} /> : <Text style={styles.shareButtonText}>Share</Text>}
           </TouchableOpacity>
         </View>
+        {emailError.length>0 ? 
+            <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginBottom:18}}>{emailError}</Text> : <View style={{marginBottom:8}}></View>
+        }
 
         <KeyboardAwareScrollView 
           showsVerticalScrollIndicator={false}
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContent}
+          contentContainerStyle={[
+            styles.scrollViewContent,
+            { paddingBottom: 60 + (keyboardHeight||0) } // 60 = height of sticky footer
+          ]}
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets={true}
-          bottomOffset={20}
+          bottomOffset={0}
         >
           {/* Channels */}
           {currentChannels.length > 0 && <Text style={styles.invitedTitle}>Channels</Text>}
@@ -230,16 +259,35 @@ const SharePublish = () => {
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.members.length} members</Text>
               </View>
               <TouchableOpacity onPress={() => onShareChannel(user.ulid, index)}>
-              {channelLoading == index ? <CircularLoader color={Colors.blue} /> 
+              {channelLoading == index ? <CircularLoader color={Colors.text12} /> 
                 : <View>
                     {channels.includes(user.ulid) ? 
                     <Menu
                       ref={(ref) => (channelMenuRefs.current[index] = ref)}
-                      anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showChannelMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                      anchor={
+                        <TouchableOpacity
+                          hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }}
+                          onPress={() => showChannelMenu(index)}
+                        >
+                          <SvgXml xml={home.moreNew?.replace("#0D0D0D", Colors.more)} />
+                        </TouchableOpacity>
+                      }
                       onRequestClose={() => hideChannelMenu(index)}
+                      style={{ borderRadius: 14, borderWidth: 0 }}
                     >
-                      <MenuItem style={{height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevokeChannel(user.ulid, index)}>
-                        <Text style={{ color: 'red' }}>Revoke</Text>
+                      <MenuItem
+                        style={{
+                          height: 40,
+                          minWidth: 100,
+                          borderRadius: 14,
+                          borderWidth: 2,
+                          borderColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
+                          backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
+                        }}
+                        onPress={() => onRevokeChannel(user.ulid, index)}
+                        pressColor="transparent" // Prevents background color change
+                      >
+                        <Text style={{ color: "red" }}>Revoke</Text>
                       </MenuItem>
                     </Menu>
                     : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
@@ -272,15 +320,64 @@ const SharePublish = () => {
                         {keypath:'Right',color:Colors.text}
                       ]}/>
                 </View>
-              : <Menu
+              : 
+                <Menu
                   ref={(ref) => (menuRefs.current[index] = ref)}
-                  anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                  anchor={
+                    <TouchableOpacity
+                      hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }}
+                      onPress={() => showMenu(index)}
+                    >
+                      <SvgXml xml={home.moreNew?.replace("#0D0D0D", Colors.more)} />
+                    </TouchableOpacity>
+                  }
                   onRequestClose={() => hideMenu(index)}
+                  style={{ borderRadius: 14, borderWidth: 0 }}
                 >
-                  <MenuItem style={{height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevoke(user.email, index)}>
-                    <Text style={{ color: 'red' }}>Revoke</Text>
+                  <MenuItem
+                    style={{
+                      height: 40,
+                      minWidth: 100,
+                      borderRadius: 14,
+                      borderWidth: 2,
+                      borderColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
+                      backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
+                    }}
+                    onPress={() => onRevoke(user.email, index)}
+                    pressColor="transparent" // Prevents background color change
+                  >
+                    <Text style={{ color: "red" }}>Revoke</Text>
                   </MenuItem>
                 </Menu>
+                // <MoreOptions 
+                //   style={{
+                //     backgroundColor: Colors.bgColor8,
+                //     position: 'relative',
+                //     alignItems: 'center',
+                //     justifyContent: 'center'
+                //   }}
+                //   options={[
+                //     {
+                //       title: "Revoke",
+                //       onPress: () => onRevoke(user.email, index),
+                //       destructive: true,
+                //     }
+                //   ]} 
+                // >
+                //   <TouchableOpacity 
+                //     activeOpacity={0.6}
+                //     style={{
+                //       backgroundColor: Colors.bgColor8, 
+                //       padding: 5,
+                //       alignItems: 'center',
+                //       justifyContent: 'center'
+                //     }}
+                //   >
+                //     <SvgXml 
+                //       xml={home.moreNew?.replace('#0D0D0D', Colors.more)} 
+                //     />
+                //   </TouchableOpacity>
+                // </MoreOptions>
               }
             </View>
           ))}
@@ -299,16 +396,21 @@ const SharePublish = () => {
                 <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
               </View>
               <TouchableOpacity onPress={() => onShareRecording(user.email, index)}>
-                {shareLoading == index ? <CircularLoader color={Colors.blue} /> : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
+                {shareLoading == index ? <CircularLoader color={Colors.text12} /> : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
               </TouchableOpacity>
             </View>
           ))}
         </KeyboardAwareScrollView>
         {/* Copy Link Button */}
-        <View style={styles.footerContainer}>
-          <TouchableOpacity onPress={onCopy} style={styles.copyLinkButton}>
-            {/* <Ionicons name="link" size={20} color="black" /> */}
-            <Text style={styles.copyLinkText}>Copy link</Text>
+        <View style={[
+          styles.footerContainer,
+          { bottom: keyboardHeight > 0 ? keyboardHeight : 50 }
+        ]}>
+          <TouchableOpacity onPress={onCopy} style={styles.footerContainer} activeOpacity={0.6}>
+            <View style={styles.copyLinkButton}>
+              <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
+              <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy link'}</Text>
+            </View>
           </TouchableOpacity>
           </View>
       </View> : 
@@ -373,7 +475,7 @@ const useStyles = () => {
   inputContainer: {
     flexDirection: "row", 
     alignItems: "center", 
-    marginBottom: 20,
+    marginBottom: 12,
     gap: 14
   },
   inputField: {
@@ -390,7 +492,9 @@ const useStyles = () => {
     paddingHorizontal: 19,
     borderRadius: 10,
     height: 36,
+    minWidth: 80,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8 
   },
   shareButtonText: {
@@ -407,26 +511,31 @@ const useStyles = () => {
   },
   scrollView: {
     // flex: 1,
-    width: '100%'
+    width: '100%',
+    
   },
   scrollViewContent: {
-      flexGrow: 1,
-      paddingBottom: 180 
+      // flex: 1,
+      // paddingBottom: 100 
   },
   footerContainer: {
+    height:10,
     position: 'absolute',
-    bottom: 100,
-    height: 100,
     left: 0,
     right: 0,
     backgroundColor: Colors.bgColor8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   copyLinkButton: {
-    backgroundColor: Colors.blackWithOpacity(0.05),
+    height: 40,
+    marginTop:16,
+    // marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: Colors.bottomBarButtonBg1,
     alignItems: "center",
-    borderRadius: 10
+    borderRadius: 10,
+    gap:8
   },
   copyLinkText: {
     fontSize: 14,

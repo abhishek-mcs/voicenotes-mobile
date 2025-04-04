@@ -315,6 +315,31 @@ export function usePinTagDelete(id:any){
     })
 }
 
+export function useShareInvites(token:any){
+    return useQuery('shared-invites',(p?:any) => {
+        if(!!token) {
+            return axiosApi.get(`/invite/pending`)
+        }
+        
+    },
+    {
+        onError:(error:any)=>{
+            console.log('Get invites ',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useInviteAction(){
+    return useMutation('invite-action',(p?:any)=> {
+        return axiosApi.patch(`/invite/${p.id}`,{status: p.status})
+    },
+    {
+        onError:(error:any)=>{
+            console.log('Invite action status ',error?.response?.data?.message);
+        }
+    })
+}
+
 export function useGetUserData(token:any){
     return useQuery('user-data',(p?:any)=> {
     if(!!token)

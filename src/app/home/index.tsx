@@ -25,7 +25,7 @@ import {
   onRecord,
   stopRecording,
 } from "func/home/record";
-import { useGetTags, useRecordings, useStreak } from "queries/home";
+import { useGetTags, useRecordings, useShareInvites, useStreak } from "queries/home";
 import { useQueryClient } from "react-query";
 import { Dimensions } from "react-native";
 import { isIOS, screenHeight } from "utils/common";
@@ -78,6 +78,7 @@ import ExpandableCalendar from "components/home/Calendar";
 import { BlurView } from "expo-blur";
 import RecButton from "components/common/recording/rec-button";
 import { useAllRecordings } from "queries/common";
+import SharedInvites from "components/home/share-invites";
 
 const { height } = Dimensions.get("screen");
 
@@ -125,6 +126,8 @@ const Home = () => {
   const getTags=useGetTags({
     enabled: !!token
   })
+  const getSharedInvites = useShareInvites(token);
+  const sharedInvitesList = getSharedInvites.data?.data?.invites || [];
   const { action }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
@@ -173,11 +176,6 @@ const Home = () => {
   }
 
   useEffect(() => {
-    console.log('Believer', isBeliever, 'Temp', isTempIAPPurchased);
-    
-  },[])
-
-  useEffect(() => {
     if (recordings && recordings.length > 0) {
       const serverRecords: VoiceNote[] = recordings;
       setAllRecordings(serverRecords);
@@ -197,10 +195,6 @@ const Home = () => {
   useEffect(()=>{
     StatusBar.setBarStyle(isLightMode?'dark-content':'light-content')
   },[isLightMode])
-
-  useEffect(() => {
-    console.log('New user', userDetails, isTempIAPPurchased);
-  },[userDetails])
 
   useEffect(() => {
     if(emailVerified && userDetails.is_email_verified) {
@@ -784,6 +778,11 @@ const Home = () => {
     setSearchFocus(isFocus)
   }
 
+  useEffect(() => {
+    console.log('hash filter', hashFilter);
+    
+  },[hashFilter])
+
   // if (!token) return <Redirect href="/auth/landingPage/" />;
   if (!token) return <Redirect href="/onboarding/" />;
   return (
@@ -865,7 +864,10 @@ const Home = () => {
             <Animated.FlatList
                 ref={noteListScrollRef}
                 ListHeaderComponent={
-                  <TagButtons isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
+                  <>
+                    <TagButtons pendingInvites={!!(sharedInvitesList.length)} isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
+                    {hashFilter == 'shared' && sharedInvitesList.length > 0 && <SharedInvites list={sharedInvitesList} />}
+                  </>
                 }
                 // bounces={false}
                 data={isRecordListLoading?[]:filteredRecordingList??[]}
