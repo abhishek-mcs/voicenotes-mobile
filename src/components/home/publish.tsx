@@ -150,7 +150,7 @@ function Publish(): JSX.Element {
             </View> :
             <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
                 <Pressable onPress={ working? null : onChangePublish} style={styles.action}>
-                    {working ? <ActivityIndicator color={!isIOS ? Colors.blackWithOpacity(1) : undefined} /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
+                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
                 </Pressable>
             </View>}
         </View>
