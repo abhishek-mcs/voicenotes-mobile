@@ -412,7 +412,7 @@ const SharePublish = () => {
               <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy link'}</Text>
             </View>
           </TouchableOpacity>
-          </View>
+        </View>
       </View> : 
       <Publish id={note_id} />
       }

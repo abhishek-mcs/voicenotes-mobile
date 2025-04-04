@@ -5,7 +5,7 @@ import { settingsSvg } from "assets/svg/settingsSvg";
 import { useTheme } from "context/theme-context";
 import { useLocalSearchParams } from "expo-router";
 import { publishNotetoPage, publishPublicly, unPublishNoteFromPage } from "queries/share";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Pressable, Image, ActivityIndicator } from "react-native"
 import { SvgXml } from "react-native-svg";
 import MoreOptions from 'components/common/more-options';
@@ -13,10 +13,17 @@ import { MenuOptionsType } from "components/common/more-options/menu-props";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRecordingDetails } from "redux/reducers/recordingStates";
 import { RootState } from "redux/store/store";
-import { isIOS } from "utils/common";
 import { setStringAsync } from "expo-clipboard";
 import { MAIN_URL } from 'services/api/api-constants';
 import formatBigNumber from 'utils/formatBigNumber';
+import { formattedDurations } from 'utils/format-date';
+import {
+    formatTranscript,
+    formatTranscript2,
+    formatTranscript5,
+    isIOS,
+  } from "utils/common";
+import { TextComponent } from 'components/common/chat-buble/text-component';
 
 function Publish(): JSX.Element {
     const styles = useStyles()
@@ -33,10 +40,13 @@ function Publish(): JSX.Element {
 
     const moreOptionsRef = useRef<{ show: () => void; hide: () => void } | null>(null);
 
-    const formatDuration = (ms: number): string => {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const formatDuration = (ms: number) => {
+        if(ms) { 
+            const duration = formattedDurations(ms)
+            console.log(duration);
+            return duration
+        }
+        return '00:00'
     };
 
     const togglePublic = async () => {
@@ -160,14 +170,25 @@ function Publish(): JSX.Element {
             <View style={styles.voiceNoteContent}>
                 <Text numberOfLines={1} ellipsizeMode="tail" style={styles.voiceTitle}>{note?.title}</Text>
                 
-                <View style={styles.audioPlayer}>
+                {note.duration > 0 && <View style={styles.audioPlayer}>
                     <TouchableOpacity>
                         <Text style={styles.playIcon}>▶</Text>
                     </TouchableOpacity>
                     <Text style={styles.timer}>{formatDuration(note?.duration)}</Text>
-                </View>
-
-                <Text numberOfLines={4} ellipsizeMode="tail" style={styles.voiceText}>{note?.transcript}</Text>
+                </View>}
+                {note.transcript && <TextComponent 
+                    text={
+                        note?.recording_type==2?
+                        note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
+                        :note?.recording_type==3?
+                        formatTranscript2(note?.transcript)
+                        : note?.recording_type==5 ?
+                          formatTranscript5(note?.transcript)
+                        : formatTranscript(note?.transcript)
+                      }
+                    numberOfLines={4}
+                    style={styles.voiceText}
+                />}
             </View>
         </View>
 
@@ -223,8 +244,8 @@ const useStyles = () => {
     previewBox: {
         width: '100%',
         backgroundColor: Colors.whiteWithOpacity(1),
-        borderColor: Colors.darkWithOpacity(0.1),
-        borderWidth: 1,
+        borderColor: Colors.greyWithOpacity(0.5),
+        borderWidth: 0.5,
         borderRadius: 12,
         overflow: 'hidden',
     },
@@ -267,13 +288,13 @@ const useStyles = () => {
     },
     audioPlayer: {
         flexDirection: 'row',
+        alignSelf: 'flex-start',
         alignItems: 'center',
         backgroundColor: isLightMode ? Colors.darkWithOpacity(0.05) : Colors.darkWithOpacity(0.7),
         paddingVertical: 6,
         borderRadius: 22,
         paddingHorizontal: 12,
         marginBottom: 10,
-        width: 88
     },
     playIcon: {
         color: Colors.black2,
