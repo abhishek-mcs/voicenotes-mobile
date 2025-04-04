@@ -229,7 +229,6 @@ const useStyles = () => {
             width: '90%',
             backgroundColor: Colors.askLogo,
             height: 50,
-            marginTop: 30,
             borderRadius: 25,
             alignItems: 'center',
             justifyContent: 'center',

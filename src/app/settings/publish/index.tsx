@@ -141,10 +141,14 @@ function Publish() {
                 </ScrollView>
                 
                 <View style={styles.footerContainer}>
-                    {userDetails?.publications.length < 3 && <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
+                    {/* {userDetails?.publications.length < 3 && <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
                         <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
                         <Text style={styles.createlabel}>Create</Text>
-                    </Pressable>}
+                    </Pressable>} */}
+                    <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
+                        <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
+                        <Text style={styles.createlabel}>Create</Text>
+                    </Pressable>
                     <View style={styles.captionContainer}>
                         <SvgXml xml={settingsSvg.send.replace("black", Colors.blackWithOpacity(0.5))} />
                         <Text style={styles.caption}>
@@ -271,7 +275,7 @@ const useStyles = () => {
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 20,
-            marginBottom: 15,
+            marginBottom: 10,
             gap: 10,
             width: '95%',
         },
@@ -354,7 +358,7 @@ const useStyles = () => {
             width: '100%',
             backgroundColor: Colors.askLogo,
             height: 50,
-            marginTop: 30,
+            marginBottom: 10,
             borderRadius: 25,
             flexDirection: 'row',
             alignItems: 'center',
