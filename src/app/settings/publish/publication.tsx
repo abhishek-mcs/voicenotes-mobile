@@ -63,7 +63,7 @@ function PublicationEditor() {
             style={{ height: '100%', width: '100%' }}
             contentContainerStyle={styles.root}
         >
-            <ImagePicker caption="Photo or artwork" />
+            <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => console.log(`image url changed to ${url}`)} isAuthor={false} />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
                 <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />

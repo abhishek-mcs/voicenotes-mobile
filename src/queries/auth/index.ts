@@ -193,3 +193,53 @@ export async function changePassword(newPasswd: string, confirmPasswd: string, f
         throw error;
     }
 }
+
+export async function uploadAvatar(
+    file: string, 
+    is_author: boolean, 
+    isLightMode = true,
+    showDialog: (title: string, message: string, actions: never[], options: { userInterfaceStyle: string }) => void
+): Promise<{ url: string, path: string } | undefined> {
+    try {
+        const filename = file.split('/').pop();
+
+        if (!filename) {
+            showDialog(
+                'Unknown file', 
+                "VoiceNotes couldn't infer the filename of this photo. Please select another one.",
+                [],
+                { userInterfaceStyle: isLightMode ? "light" : "dark" }
+            );
+            return;
+        }
+
+        // First get the signed URL
+        const signedUrlResponse = await axiosApi.post(
+            `/publications/avatar/signed-url?is_author=${is_author ? 1 : 0}`,
+            { filename: filename }
+        );
+
+        const { url, path } = signedUrlResponse.data;
+
+        // Read the file as blob
+        const response = await fetch(file);
+        const blob = await response.blob();
+
+        // Upload directly to S3 with correct content type
+        await fetch(url, {
+            method: 'PUT',
+            body: blob,
+            headers: {
+                'Content-Type': blob.type,
+                'Accept': 'application/json',
+            }
+        });
+
+        return { url: file, path };
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || 'Failed to upload avatar');
+        }
+        throw error;
+    }
+}

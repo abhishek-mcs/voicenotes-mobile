@@ -58,7 +58,7 @@ function BioEditor() {
             style={{ height: '100%', width: '100%' }}
             contentContainerStyle={styles.root}
         >
-            <ImagePicker caption="Profile photo" />
+            <ImagePicker caption="Profile photo" initialURL={userDetails?.author?.avatar} isAuthor onChange={url => console.log(`Image URL changed to ${url}`)} />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
                 <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
