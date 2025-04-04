@@ -74,6 +74,7 @@ function BioEditor() {
             return;
         }
 
+        let websiteToSubmit = website;
         if(website) {
             const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
             if (!urlRegex.test(website)) {
@@ -85,11 +86,26 @@ function BioEditor() {
                 setWorking(false)
                 return;
             }
+            websiteToSubmit = website.startsWith('http') ? website : `https://${website}`;
+            setWebsite(websiteToSubmit);
         }
 
+
         try {
-            const response = userDetails?.author ? await updateAuthor(name, about, website || null, avatar !== userDetails?.author?.avatar ? avatar : undefined) : await createAuthor(name, about, avatar, website)
-    
+            const response = userDetails?.author ? 
+            await updateAuthor(
+                name, 
+                about, 
+                websiteToSubmit || null, 
+                avatar !== userDetails?.author?.avatar ? avatar : undefined
+            ) : 
+            await createAuthor(
+                name, 
+                about, 
+                avatar, 
+                websiteToSubmit
+            );
+            
             dispatch(setUserDetail({
                 ...userDetails,
                 author: response
@@ -165,6 +181,7 @@ const useStyles = () => {
             marginTop: 5,
             marginBottom: 15,
             backgroundColor: Colors.textinput,
+            color: Colors.text,
             borderRadius: 10,
             paddingHorizontal: 10,
             fontFamily: 'Primary'
