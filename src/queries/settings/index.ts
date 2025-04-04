@@ -208,3 +208,8 @@ export async function createAuthor(
 
   return response.data.data;
 }
+
+export async function togglePage(slug: string, is_public: boolean) {
+  const response = await axiosApi.patch(`/publications/${slug}/status`, { is_public })
+  return response.data.data
+}

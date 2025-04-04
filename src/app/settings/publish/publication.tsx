@@ -190,7 +190,7 @@ function PublicationEditor() {
         </ScrollView>
         <View style={styles.footer}>
             <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                {working ? <ActivityIndicator /> : <Text style={styles.buttonlabel}>Done</Text>}
+                {working ? <ActivityIndicator /> : <Text style={styles.buttonlabel}>{publication ? 'Update' : 'Done'}</Text>}
             </Pressable>
         </View>
         </>
@@ -229,7 +229,6 @@ const useStyles = () => {
             width: '90%',
             backgroundColor: Colors.askLogo,
             height: 50,
-            marginTop: 30,
             borderRadius: 25,
             alignItems: 'center',
             justifyContent: 'center',

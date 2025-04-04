@@ -4,12 +4,16 @@ import Header from "components/settings/header";
 import * as Wb from 'expo-web-browser';
 import { useTheme } from "context/theme-context";
 import { useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView, ActivityIndicator } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
+import MoreOptions from "components/common/more-options";
+import { home } from "assets/svg/home";
+import { MenuOptionsType } from "components/common/more-options/menu-props";
+import { togglePage } from "queries/settings";
 
 function Publish() {
     const router = useRouter();
@@ -109,10 +113,36 @@ function Publish() {
     }
 
     const Publications = (): JSX.Element => {
-
+        
         const openPublication = (slug: string) => Wb.openBrowserAsync(`https://${slug}.voicenotes.com`, { toolbarColor: isLightMode ? '#fff' : '#000' })
 
-        const Publication = ({ title, slug, onEdit }: { title: string, slug: string, onEdit: () => void }): JSX.Element => {
+        const Publication = ({ title, slug, onEdit, is_public }: { title: string, slug: string, onEdit: () => void, is_public: boolean }): JSX.Element => {
+            
+            const [enabled, setEnabled] = useState<boolean>(is_public)
+
+            const togglePublicity = async() => {
+                try {
+                    await togglePage(slug, !enabled)
+                    setEnabled(prev => !prev)
+                } catch(error) {
+                    console.error(error)
+                }
+            }
+
+            const moreOptionsRef = useRef<{ show: () => void; hide: () => void } | null>(null);
+            const menuOptions: MenuOptionsType[] = [
+                {
+                    title: "Edit",
+                    onPress: onEdit,
+                    androidIcon: "content-edit"
+                },
+                {
+                    title: enabled ? "Disable" : "Enable",
+                    onPress: togglePublicity,
+                    androidIcon: "close-circle-outline"
+                }
+            ];
+
             return <View style={styles.card}>
                 <View style={{ flex: 4, paddingHorizontal: 20, paddingVertical: 10, gap: 5 }}>
                     <Text numberOfLines={1} ellipsizeMode="tail" style={styles.publication}>{title}</Text>
@@ -121,8 +151,19 @@ function Publish() {
                         <SvgXml xml={settingsSvg.url} />
                     </Pressable>
                 </View>
-                <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-                    <EditButton onPress={onEdit} />
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <MoreOptions
+                        ref={moreOptionsRef}
+                        options={menuOptions}
+                        isNative={isIOS}
+                    >
+                        <Pressable 
+                            style={styles.more}
+                            onPress={() => moreOptionsRef.current?.show()}
+                        >
+                            <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+                        </Pressable>
+                    </MoreOptions>
                 </View>
             </View>
         }
@@ -136,7 +177,7 @@ function Publish() {
                     showsVerticalScrollIndicator={false}
                 >
                     {userDetails?.publications.map((item: any, index: number) => {
-                        return <Publication key={index} title={item?.title} slug={item?.slug} onEdit={() => router.push({pathname: '/settings/publish/publication', params: { id: item?.id }})} />
+                        return <Publication key={index} title={item?.title} slug={item?.slug} is_public={item?.is_public} onEdit={() => router.push({pathname: '/settings/publish/publication', params: { id: item?.id }})} />
                     })}
                 </ScrollView>
                 
@@ -166,7 +207,7 @@ function Publish() {
 
     return <Header
         onCancel={() => router.back()}
-        label={authorSetup?"Publish":""}
+        label=""
         cancelLabel="Back"
         working={false}
     >
@@ -212,7 +253,7 @@ const useStyles = () => {
             fontFamily: 'Primary-Medium',
         },
         editbutton: {
-            backgroundColor: Colors.bottomBarButtonBg1,
+            backgroundColor: Colors.greyWithOpacity(0.2),
             padding: 5,
             paddingHorizontal: 10,
             borderRadius: 50,
@@ -225,7 +266,7 @@ const useStyles = () => {
             marginTop: 20,
             paddingVertical: 10,
             borderRadius: 15,
-            backgroundColor: Colors.whiteWithOpacity(1),
+            backgroundColor: Colors.card,
             flexDirection: 'row',
             ...(isIOS ? {
                 shadowColor: '#000000',
@@ -271,9 +312,9 @@ const useStyles = () => {
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 20,
-            marginTop: 20,
+            marginBottom: 10,
             gap: 10,
-            width: '95%'
+            width: '95%',
         },
         publication: {
             fontFamily: 'Primary-Medium',
@@ -354,7 +395,7 @@ const useStyles = () => {
             width: '100%',
             backgroundColor: Colors.askLogo,
             height: 50,
-            marginTop: 30,
+            marginBottom: 10,
             borderRadius: 25,
             flexDirection: 'row',
             alignItems: 'center',
@@ -370,7 +411,15 @@ const useStyles = () => {
             color: Colors.blackWithOpacity(0.5),
             fontFamily: 'Primary',
             fontSize: 13
-        }
+        },
+        more: {
+            width: 25,
+            height: 25,
+            borderRadius: 100,
+            justifyContent:'center',
+            alignItems: 'center',
+            backgroundColor: Colors.greyWithOpacity(0.2)
+        },
     }), [Colors])
 }
 
