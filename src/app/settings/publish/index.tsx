@@ -160,7 +160,7 @@ function Publish() {
                 }
             ];
 
-            return <View style={styles.card}>
+            return <View style={[styles.card, { marginTop: 5, marginBottom: 15 }]}>
                 <View style={{ flex: 4, paddingHorizontal: 20, paddingVertical: 10, gap: 5 }}>
                     <Text numberOfLines={1} ellipsizeMode="tail" style={styles.publication}>{title}</Text>
                     <Pressable onPress={() => openPublication(slug)} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
@@ -312,7 +312,6 @@ const useStyles = () => {
         },
         publicationsContainer: {
             flex: 1,
-            marginTop: 10,
         },
         scrollView: {
             flex: 1,
