@@ -84,6 +84,16 @@ function PublicationEditor() {
             return;
         }
 
+        if(!about) {
+            Alert.alert(
+                '',
+                'Please describe your publication.',
+                [{ text: 'OK' }]
+            )
+            setWorking(false)
+            return;
+        }
+
         if(!url || url.length < 3) {
             Alert.alert(
                 '',
