@@ -1,12 +1,15 @@
 import Header from "components/settings/header"
-import { Pressable, ScrollView, StyleSheet, View, Text, TextInput, Keyboard, KeyboardEvent } from "react-native"
+import { Pressable, ScrollView, StyleSheet, View, Text, TextInput, Keyboard, KeyboardEvent, ActivityIndicator, Alert } from "react-native"
 import { useTheme } from "context/theme-context"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ImagePicker from "components/settings/ImagePicker"
 import { isIOS } from "utils/common"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
+import { checkSlug, createPublication, editPublication } from "queries/settings"
+import { debounce } from "lodash"
+import { setUserDetail } from "redux/reducers/userDetails"
 
 function PublicationEditor() {
     const router = useRouter()
@@ -15,6 +18,7 @@ function PublicationEditor() {
     const scrollViewRef = useRef<ScrollView>(null)
     const [keyboardSpace, setKeyboardSpace] = useState(0)
     const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
+    const dispatch = useDispatch()
 
     const { id } = useLocalSearchParams()
     const publication = userDetails?.publications.find((p: any) => p.id === Number(id))
@@ -26,6 +30,12 @@ function PublicationEditor() {
     const [name, setName] = useState<string>(publication?.title || '')
     const [url, setUrl] = useState<string>(publication?.slug || '')
     const [about, setAbout] = useState<string>(publication?.description || '')
+    const [avatar, setAvatar] = useState<string | undefined>(publication?.avatar)
+
+    const [checkingSlug, setCheckingSlug] = useState<boolean>(false)
+    const [suggestions, setSuggestions] = useState<string[]>([])
+    const [working, setWorking] = useState<boolean>(false)
+    const slugApproved = useRef<boolean>(true)
 
     useEffect(() => {
         const keyboardWillShow = Keyboard.addListener(
@@ -50,6 +60,75 @@ function PublicationEditor() {
             keyboardWillHide.remove()
         }
     }, [])
+
+    const onSubmit = async () => {
+        setWorking(true)
+        Keyboard.dismiss();
+        if(!avatar) {
+            Alert.alert(
+                'No photo!',
+                'Please choose an image to continue...',
+                [{ text: 'OK' }]
+            )
+            return;
+        }
+
+        if(!name) {
+            Alert.alert(
+                '',
+                'Please enter a title for your publication.',
+                [{ text: 'OK' }]
+            )
+            return;
+        }
+
+        if(!url) {
+            Alert.alert(
+                '',
+                'Please choose a public URL for your publication.',
+                [{ text: 'OK' }]
+            )
+            return;
+        }
+
+        try {
+            const response = publication ? await editPublication(about, true, url, name, avatar !== publication?.avatar ? avatar : undefined) : await createPublication(avatar, about, true, url, name)
+    
+            let publications = userDetails?.publications.length > 0 ? userDetails?.publications.map((item: any) => item?.id === publication?.id ? response : item) : [response];
+            dispatch(setUserDetail({
+                ...userDetails,
+                publications
+            }))
+    
+            router.back();
+        } catch(error) {
+            console.warn(error)
+            Alert.alert(
+                'Oops!',
+                `Failed to ${publication ? 'update' : 'create'} your publication. Please try again later.`,
+                [{ text: 'OK' }]
+            )
+        } finally { setWorking(false) }
+    }
+
+    const debouncedCheckSlug = useMemo(
+        () => debounce(async (text: string) => {
+            setSuggestions([])
+            setCheckingSlug(true)
+            const slugCheck = await checkSlug(text)
+            if (slugCheck && !slugCheck.available) {
+                setSuggestions(slugCheck.suggestions || [])
+                slugApproved.current = slugCheck.available;
+            }
+            setCheckingSlug(false)
+        }, 500),
+        []
+    )
+
+    const checkSlugAvailability = async (text: string) => {
+        setUrl(text)
+        debouncedCheckSlug(text)
+    }
     
     return <Header
         cancelLabel="Back"
@@ -63,27 +142,29 @@ function PublicationEditor() {
             style={{ height: '100%', width: '100%' }}
             contentContainerStyle={styles.root}
         >
-            <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => console.log(`image url changed to ${url}`)} isAuthor={false} />
+            <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
                 <TextInput value={name} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Publication URL</Text>
-                <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]} >
-                    <TextInput value={url} onChangeText={text => setUrl(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary' }} />
+                <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
+                    <TextInput value={url} keyboardType="url" autoCapitalize="none" autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary' }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
+                    {checkingSlug && <ActivityIndicator />}
                 </View>
+                {suggestions.length > 0 && <Text style={styles.error}>Sorry that's taken. Please try {suggestions.join(', ')}</Text>}
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
+                <TextInput value={about} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={onSubmit} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>
         <View style={styles.footer}>
-            <Pressable style={styles.button}>
-                <Text style={styles.buttonlabel}>Done</Text>
+            <Pressable onPress={working ? null : onSubmit} style={styles.button}>
+                {working ? <ActivityIndicator /> : <Text style={styles.buttonlabel}>Done</Text>}
             </Pressable>
         </View>
         </>
@@ -132,6 +213,11 @@ const useStyles = () => {
             fontFamily: 'Primary-Bold',
             fontSize: 14
         },
+        error: {
+            marginBottom: 10,
+            fontFamily: 'Primary',
+            color: Colors.redWithOpacity(0.8)
+        }
     }), [Colors])
 }
 

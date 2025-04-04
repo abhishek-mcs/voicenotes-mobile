@@ -98,3 +98,17 @@ export interface SettingsPayload {
   language: Language;
   about: string;
 }
+
+export interface Publication {
+  id: number,
+  title: string,
+  slug: string,
+  avatar?: string,
+  description?: string,
+  website: null | string,
+  is_public?: boolean,
+  audience_id: string,
+  meta: any,
+  created_at: string,
+  updated_at?: string
+}

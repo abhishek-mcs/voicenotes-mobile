@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, Pressable, Image, ActivityIndicator } from "rea
 import { SvgXml } from "react-native-svg"
 import * as ExpoImagePicker from 'expo-image-picker'
 import { useDialog } from "context/DialogContext"
-import { uploadAvatar } from "queries/auth"
+import { uploadAvatar } from "queries/settings"
 
 interface ImagePickerProps {
     caption: string;
@@ -22,6 +22,7 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
     const [working, setWorking] = useState(false)
     const [imageLoading, setImageLoading] = useState(false)
     const [showOverlay, setShowOverlay] = useState(false)
+    const [status, setStatus] = useState<string>(caption)
 
     const pickImage = async () => {
         setShowOverlay(true)
@@ -45,17 +46,15 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
 
         if(!result.canceled) {
             setWorking(true)
-            // Set the local image immediately for display
+            setStatus('Uploading...');
             setImage(result.assets[0].uri);
             
             try {
                 let response = await uploadAvatar(result.assets[0].uri, isAuthor, isLightMode, showDialog);
                 if (response) {
-                    // We keep the local URI for display but pass the server path to parent
                     onChange(response.path);
                 }
             } catch (error) {
-                // If upload fails, reset the image
                 setImage(initialURL);
                 showDialog(
                     'Upload Failed', 
@@ -63,7 +62,9 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
                     [],
                     {userInterfaceStyle:isLightMode?"light":"dark"}
                 );
-            }
+                setStatus('Upload failed!')
+                setTimeout(() => setStatus(caption), 3000);
+            } finally { setStatus(caption) }
             setWorking(false)
         }
         setShowOverlay(false)
@@ -107,7 +108,7 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
     return (
         <Pressable style={styles.root} onPress={pickImage} disabled={working || showOverlay}>
             {renderContent()}
-            <Text style={styles.status}>{caption}</Text>
+            <Text style={styles.status}>{status}</Text>
         </Pressable>
     )
 }
