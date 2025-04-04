@@ -1,0 +1,446 @@
+import { commonSvg } from 'assets/svg/commonSvg'
+import { home } from 'assets/svg/home'
+import { setStringAsync } from "expo-clipboard";
+import { TextField } from 'components/common/text-field'
+import Touchable from 'components/common/Touchable'
+import { useTheme } from 'context'
+import { router, useLocalSearchParams } from 'expo-router'
+import * as Haptics from "expo-haptics";
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native'
+import { SvgXml } from 'react-native-svg'
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { isIOS } from 'utils/common'
+import Publish from './publish'
+import { Menu, MenuItem } from 'react-native-material-menu';
+import { useGetSharedList, useRevokeShare, useShareRecording } from 'queries/home/share'
+import { useQueryClient } from 'react-query'
+import { MAIN_URL } from 'services/api/api-constants';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store/store';
+import CircularLoader from 'components/common/loaders/circular-loader';
+import ThreeDotLoader from 'components/common/loaders/three-dot-loader';
+
+const SharePublish = () => {
+  const styles = useStyles()
+  const menuRefs = useRef<any[]>([]);
+  const channelMenuRefs = useRef<any[]>([]);
+  const queryClient = useQueryClient();
+  const { Colors, isLightMode } = useTheme()
+  const [isSelected, setSelected] = useState('share');
+  const {noteId} = useSelector((state:RootState)=>state.editStates)
+  const {is_published, note_id, note_title, note_content, note_duration} = useLocalSearchParams()
+  const getShareList = useGetSharedList(noteId)
+  const shareList = getShareList.data?.data
+  const shareRecording = useShareRecording();
+  const revokeShared = useRevokeShare();
+  const [loading, setLoading] = useState(false)
+  const [channelLoading, setChannelLoading] = useState(-1)
+  const [revokeLoading, setRevokeLoading] = useState(-1)
+  const [shareLoading, setShareLoading] = useState(-1)
+  const [email, setEmail] = useState("");
+  const [sharedUsers, setSharedUsers] = useState(shareList?.users ? shareList.users : []);
+  const [recent, setRecent] = useState(shareList.recent ? shareList.recent : []);
+  const { userDetails }: any = useSelector((state: RootState) => state.userDetails);
+  const currentChannels = userDetails?.team?.channels || [];
+  const [channels, setChannels] = useState(shareList.channels ? shareList.channels : []);
+
+  const showMenu = (index: number) => menuRefs.current[index]?.show();
+  const hideMenu = (index: number) => menuRefs.current[index]?.hide();
+
+  const showChannelMenu = (index: number) => channelMenuRefs.current[index]?.show();
+  const hideChannelMenu = (index: number) => channelMenuRefs.current[index]?.hide();
+
+  const onClose = () => { router.back() }
+
+  const onCopy = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => {}
+    );
+    await setStringAsync(MAIN_URL + "/s/" + noteId);
+  };
+
+  const onShareNewEmail = (emailId: string) => {
+    setLoading(true)
+    onShareRecording(emailId, -1)
+    setEmail('')
+  }
+
+  const onRevoke = async (emailId: string, index: any) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    setRevokeLoading(index)
+    revokeShared.mutate(
+      { id: noteId, email: emailId, isChannel: false },
+      {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setRevokeLoading(-1)
+          }
+        }
+      }
+    )
+    hideMenu(index)
+  }
+
+  useEffect(() => {
+    if (shareList) {
+      setSharedUsers(shareList?.users ? shareList.users : []);
+      setRecent(shareList.recent ? shareList.recent : []);
+      setChannels(shareList.channels ? shareList.channels : []);
+    }
+  },[shareList])
+
+  const onShareRecording = async( emailId: string, index: number ) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    setShareLoading(index)
+    shareRecording.mutate(
+      { id: noteId, emails: emailId, channel: false },
+      {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setLoading(false)
+            setShareLoading(-1)
+          }
+        }
+      }
+    )
+  }
+
+  const onShareChannel = async( channelId: string, index: number ) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    setChannelLoading(index)
+    shareRecording.mutate(
+      { id: note_id, channel: true, channels: [channelId] },
+      {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setChannelLoading(-1)
+          }
+        }
+      }
+    )
+  }
+
+  const onRevokeChannel = async(channelId: string, index: any) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
+    setChannelLoading(index)
+    revokeShared.mutate(
+      { id: note_id, isChannel: true, channel: channelId },
+      {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries("share-list");
+          } catch (e) {
+            console.log("error in share recording", e);
+          } finally {
+            setChannelLoading(-1)
+          }
+        }
+      }
+    )
+    hideMenu(index)
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View
+        style={styles.headerContainer}
+      >
+        <View style={styles.tabContainer}>
+          <Touchable
+            onPress={() => setSelected('share')}
+            style={[{ paddingVertical: 12, alignSelf: "flex-end" }, isSelected =='share' && styles.activeTab]}
+            activeOpacity={0.6}
+          >
+            <Text
+              style={isSelected=='share'?styles.activeTitle:styles.inactiveTitle}
+            >
+              Share
+            </Text>
+          </Touchable>
+          <Touchable
+            onPress={() => setSelected('publish')}
+            style={[{ paddingVertical: 12, alignSelf: "flex-end" }, isSelected =='publish' && styles.activeTab]}
+            activeOpacity={0.6}
+          >
+            <Text
+              style={[isSelected=='publish'?styles.activeTitle:styles.inactiveTitle]}
+            >
+              Publish
+            </Text>
+          </Touchable>
+        </View>
+        <View>
+          <Touchable onPress={onClose} style={styles.closeContainer}>
+            {isLightMode ? 
+            <SvgXml xml={commonSvg.close?.replace("#717171",Colors.askClose)} /> :
+            <SvgXml xml={commonSvg.close?.replace("#717171",'#fff')} />
+            }
+          </Touchable>
+        </View>
+      </View>
+      {isSelected == 'share' ? <View style={styles.contentContainer}>
+        <View style={styles.inputContainer}>
+            <TextField
+              style={{ flex: 1 }}
+              inputStyle={{ height: 36, color:Colors.text, borderRadius: 10, borderWidth: 1.5, backgroundColor:Colors.inputBg3 }}
+              value={email}
+              labelStyle={{color:Colors.text5,fontFamily:'Primary-Semibold',fontSize:16,marginBottom:13}}
+              onChangeText={(t:string)=>setEmail(t)}
+              placeholder="Enter email"
+              placeholderTextColor={Colors.grey}
+              autoCapitalize="none"
+            />
+          <TouchableOpacity onPress={() => onShareNewEmail(email)} style={styles.shareButton}>
+            {loading ? <CircularLoader color={Colors.whiteWithOpacity(1)} /> : <Text style={styles.shareButtonText}>Share</Text>}
+          </TouchableOpacity>
+        </View>
+
+        <KeyboardAwareScrollView 
+          showsVerticalScrollIndicator={false}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
+          bottomOffset={20}
+        >
+          {/* Channels */}
+          {currentChannels.length > 0 && <Text style={styles.invitedTitle}>Channels</Text>}
+          {currentChannels.length > 0 && currentChannels.map((user: any, index: number) => (
+            <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
+              {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 10, marginRight: 10 }} /> :
+                <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1) , borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <Text style={{ fontSize: 16, color: Colors.black2 }} >{user.name.charAt(0)}</Text>
+                </View> 
+              }
+              <View style={{ flex: 1 }}>
+                {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
+                <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.members.length} members</Text>
+              </View>
+              <TouchableOpacity onPress={() => onShareChannel(user.ulid, index)}>
+              {channelLoading == index ? <CircularLoader color={Colors.blue} /> 
+                : <View>
+                    {channels.includes(user.ulid) ? 
+                    <Menu
+                      ref={(ref) => (channelMenuRefs.current[index] = ref)}
+                      anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showChannelMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                      onRequestClose={() => hideChannelMenu(index)}
+                    >
+                      <MenuItem style={{height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevokeChannel(user.ulid, index)}>
+                        <Text style={{ color: 'red' }}>Revoke</Text>
+                      </MenuItem>
+                    </Menu>
+                    : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
+                  </View>
+              }
+              </TouchableOpacity>
+            </View>
+          ))}
+
+          {/* Shared Users */}
+          {sharedUsers.length > 0 && <Text style={styles.invitedTitle}>Shared</Text>}
+          {sharedUsers.length > 0 && sharedUsers.map((user: any, index: number) => (
+            <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
+              {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
+                <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(0.8) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <SvgXml xml={commonSvg.unknown?.replace("white",Colors.lightGrey)} />
+                </View> 
+              }
+              <View style={{ flex: 1 }}>
+                {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
+                <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
+              </View>
+              {revokeLoading == index ?  
+                <View style={{ marginRight: -10 }}>
+                  <ThreeDotLoader
+                    size={20}
+                      colorFilters={[
+                        {keypath:'Left',color:Colors.text},
+                        {keypath:'Mid',color:Colors.text},
+                        {keypath:'Right',color:Colors.text}
+                      ]}/>
+                </View>
+              : <Menu
+                  ref={(ref) => (menuRefs.current[index] = ref)}
+                  anchor={<TouchableOpacity hitSlop={{ right: 10, left: 10, top: 10, bottom: 10 }} onPress={() => showMenu(index)}><SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/></TouchableOpacity>}
+                  onRequestClose={() => hideMenu(index)}
+                >
+                  <MenuItem style={{height: 40, minWidth: 80, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1)}} onPress={() => onRevoke(user.email, index)}>
+                    <Text style={{ color: 'red' }}>Revoke</Text>
+                  </MenuItem>
+                </Menu>
+              }
+            </View>
+          ))}
+
+          {/* Recently shared Users */}
+          {recent.length > 0 && <Text style={styles.invitedTitle}>Recent</Text>}
+          {recent.length > 0 && recent.map((user: any, index: number) => (
+            <View key={index} style={{ flexDirection: "row", alignItems: "center", marginBottom: 14 }}>
+              {user.photo_url ? <Image source={{ uri: user.photo_url }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} /> :
+                <View style={{ width: 32, height: 32, backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(0.8) , borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <SvgXml xml={commonSvg.unknown?.replace("white",Colors.lightGrey)} />
+                </View> 
+              }
+              <View style={{ flex: 1 }}>
+                {user.name && <Text style={{ fontSize: 13, fontFamily: 'Primary-Semibold', color: Colors.black2, lineHeight: 15, marginBottom: 2 }}>{user.name}</Text>}
+                <Text style={{ fontSize: 12, fontFamily: 'Primary', color: Colors.grey3, lineHeight: 15  }}>{user.email}</Text>
+              </View>
+              <TouchableOpacity onPress={() => onShareRecording(user.email, index)}>
+                {shareLoading == index ? <CircularLoader color={Colors.blue} /> : <Text style={{ color: Colors.blue, fontSize: 14, fontFamily: 'Primary-Medium' }}>Share</Text>}
+              </TouchableOpacity>
+            </View>
+          ))}
+        </KeyboardAwareScrollView>
+        {/* Copy Link Button */}
+        <View style={styles.footerContainer}>
+          <TouchableOpacity onPress={onCopy} style={styles.copyLinkButton}>
+            {/* <Ionicons name="link" size={20} color="black" /> */}
+            <Text style={styles.copyLinkText}>Copy link</Text>
+          </TouchableOpacity>
+          </View>
+      </View> : 
+      <Publish 
+        slug={noteId} 
+        isPublished={is_published == 'true' ? true : false}  
+        title={note_title}
+        content={note_content}
+        duration={note_duration}
+      />
+      }
+    </SafeAreaView>
+  )
+}
+
+const useStyles = () => {
+  const { Colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
+  container: {
+    // maxHeight: screenHeight * 0.8,
+    flex: 1,
+    backgroundColor: Colors.bgColor8,
+    paddingTop: isIOS ? 0 : 40
+  },
+  headerContainer: {
+    flexDirection: "row",
+    gap: 20,
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingTop: isIOS ? 0 : 16,
+    borderBottomColor: Colors.border,
+    borderBottomWidth: 1,
+    height: isIOS? 50 : 60,
+  },
+  tabContainer: {
+    flex: 1, 
+    flexDirection: "row", 
+    gap: 16, 
+    justifyContent: "flex-start" 
+  },
+  title: {
+    fontSize:14,
+    fontFamily:"Primary-Semibold",
+    color: Colors.black2,
+  },
+  activeTab: { 
+    borderBottomColor: Colors.black2, 
+    borderBottomWidth: 1,
+  },
+  activeTitle: { 
+    fontSize: 16,
+    color: Colors.black2,
+    fontFamily: "Primary-Semibold",
+  },
+  inactiveTitle: { 
+    fontSize: 16,
+    color:Colors.grey3,
+    fontFamily: "Primary-Semibold", 
+  },
+  closeContainer: {
+    paddingVertical: 19, 
+    paddingRight: 12, 
+    alignSelf: 'flex-end' 
+  },
+  contentContainer: {
+    padding: 18,
+  },
+  inputContainer: {
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginBottom: 20,
+    gap: 14
+  },
+  inputField: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+  },
+  shareButton: {
+    flexDirection: 'row',
+    backgroundColor: Colors.blackWithOpacity(1), 
+    paddingHorizontal: 19,
+    borderRadius: 10,
+    height: 36,
+    alignItems: 'center',
+    marginTop: 8 
+  },
+  shareButtonText: {
+    fontSize: 14, 
+    color: Colors.whiteWithOpacity(1), 
+    fontFamily: "Primary-Semibold", 
+  },
+  invitedTitle: {
+    color: Colors.grey3,
+    fontSize: 14, 
+    lineHeight: 18,
+    fontFamily: "Primary", 
+    marginBottom: 10
+  },
+  scrollView: {
+    // flex: 1,
+    width: '100%'
+  },
+  scrollViewContent: {
+      flexGrow: 1,
+      paddingBottom: 180 
+  },
+  footerContainer: {
+    position: 'absolute',
+    bottom: 100,
+    height: 100,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.bgColor8,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  copyLinkButton: {
+    backgroundColor: Colors.blackWithOpacity(0.05),
+    alignItems: "center",
+    borderRadius: 10
+  },
+  copyLinkText: {
+    fontSize: 14,
+    fontFamily: 'Primary-Semibold',
+    paddingVertical: 12,
+    color: Colors.askLogo
+  }
+}), [Colors]); 
+}
+
+export default SharePublish

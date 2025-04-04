@@ -21,8 +21,53 @@ export function useGetPublishedRecording(){
         return axiosApi.get(`/recordings/public?page=1`)
     },
     {
+        onSuccess:async(data:any)=>{
+            console.log('',data);
+            
+        },
         onError:(error:any)=>{
             console.log('published-recordings',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useGetSharedList(id: string){
+    return useQuery('share-list',() => {
+        return axiosApi.get(`/shared-users/${id}`)
+    },
+    {
+        onError:(error:any)=>{
+            console.log('shared-list',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useShareRecording(){
+    const queryClient = useQueryClient();
+    return useMutation('share-note',(p?:any) => {
+        return axiosApi.post(`/recording/${p.id}/share`, p.channel? { channels: p.channels } : { id: p.id, emails: [p.emails]})
+    },
+    {
+        onSuccess:async(data:any)=>{
+            await queryClient.invalidateQueries('shared-list')
+        },
+        onError:(error:any)=>{
+            console.log('share-recording ',error?.response?.data?.message);
+        }
+    })
+}
+
+export function useRevokeShare(){
+    const queryClient = useQueryClient();
+    return useMutation('revoke-share',(p?:any) => {
+        return axiosApi.post(`/recording/${p.id}/revoke`, p.isChannel ? {channel: p.channel} : { email: p.email})
+    },
+    {
+        onSuccess:async(data:any)=>{
+            await queryClient.invalidateQueries('shared-list')
+        },
+        onError:(error:any)=>{
+            console.log('revoke-share ',error?.response?.data?.message);
         }
     })
 }

@@ -3,10 +3,12 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 export interface HashState {
   editNoteRedux: any,
+  noteId: string,
 }
 
 const initialState: HashState = {
-  editNoteRedux:{}
+  editNoteRedux:{},
+  noteId: ''
 }
 
 export const editStates = createSlice({
@@ -16,10 +18,13 @@ export const editStates = createSlice({
     setEditNote: (state, action: PayloadAction<any>) => {
       state.editNoteRedux = action.payload
     },
+    setNoteId: (state, action: PayloadAction<string>) => {
+      state.noteId = action.payload
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setEditNote } = editStates.actions
+export const { setEditNote, setNoteId } = editStates.actions
 
 export default editStates.reducer

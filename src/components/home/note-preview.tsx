@@ -10,6 +10,7 @@ import {
   Text,
   View,
   DeviceEventEmitter,
+  TouchableOpacity,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { formatDateAndTimeNew, formatDateTime, formattedDurations } from "utils/format-date";
@@ -37,7 +38,7 @@ import {
   sleep,
 } from "utils/common";
 import {  router, useRouter } from "expo-router";
-import { useUnpublishRecording } from "queries/home/share";
+import { useGetSharedList, useUnpublishRecording } from "queries/home/share";
 import PublishedModal from "./published-modal";
 import {
   deleteRecording,
@@ -63,7 +64,7 @@ import axiosApi from "services/api/axios-api";
 import StatusIndicator from "./NotePreview/StatusIndicator";
 import TagsList from "./NotePreview/TagsList";
 import { generateVoiceNoteFilename } from "utils/audioUtils";
-import { setEditNote } from "redux/reducers/editStates";
+import { setEditNote, setNoteId } from "redux/reducers/editStates";
 import { setRelatedNoteId, setRelatedNoteTitleLoad, setRelatedNoteTranscriptLoad } from "redux/reducers/relatedNoteStates";
 import MoreOptions from "components/common/more-options";
 import { NoteContext, useTheme } from "context";
@@ -110,6 +111,7 @@ const NotePreview = forwardRef(
     const [isPublished, setIsPublished] = useState(note?.is_published ?? false);
     const [publishLoading, setPublishLoading] = useState(false);
     const [isNoteJustMadePrivate, setIsNoteJustMadePrivate] = useState(false);
+    const getShareList = useGetSharedList(note?.id || '')
     const [creationLoader, setCreationLoader] = useState(false);
     const [createType, setCreateType] = useState("summary");
     const [showAddMenu, setShowAddMenu] = useState(false);
@@ -251,6 +253,7 @@ const NotePreview = forwardRef(
     };
 
     const togglePublish = () => {
+      console.log('called', note?.public_slug);
       const wasPublic = !!note?.public_slug;
 
       try {
@@ -284,12 +287,22 @@ const NotePreview = forwardRef(
       }
     };
 
-    const onShareNote = async() => {
+    const onShareNote = async(id: any, published: number, title: string, duration:any, audioDuration:any, content: any) => {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
-      hideMoreOption();
+      // hideMoreOption();
+      dispatch(setNoteId(id ? id : ''))
       setTimeout(() => {
-        setShareVisible(true);
-      }, 500);
+        router.navigate({
+          pathname: "/share",
+          params: {
+            is_published: published == 1 ? true : false,
+            note_id: id,
+            note_title: title,
+            note_content: content,
+            note_duration: duration||audioDuration
+          }
+        });
+      }, 50);
     };
 
     const onCopy = async (content = "") => {
@@ -733,12 +746,12 @@ const NotePreview = forwardRef(
         androidIcon: "pound",
         onPress: onGotoAddTag,
         },
-      ...(userDetails?.id==note?.user_id?[{
-        title:"Share",
-        systemIcon:'square.and.arrow.up',
-        androidIcon:'share-outline',
-        onPress:onShareNote
-      }]:[]),
+      // ...(userDetails?.id==note?.user_id?[{
+      //   title:"Share",
+      //   systemIcon:'square.and.arrow.up',
+      //   androidIcon:'share-outline',
+      //   onPress: () => onShareNote(note?.id)
+      // }]:[]),
       // {
       //   title:"Create",
       //   systemIcon:'pencil.and.outline',
@@ -1110,12 +1123,29 @@ const NotePreview = forwardRef(
                       <SvgXml xml={home.create1?.replace('#0D0D0D',Colors.more)}/>
                     </View>
                   </MoreOptions>}
-                  {/* <MoreOptions options={shareOptions} style={{height:30,width:30,position:'relative'}}> */}
-                    {/* {userDetails?.id==note?.user_id&&
-                    <Pressable onPress={onShareNote} style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
-                      <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
-                    </Pressable>} */}
-                  {/* </MoreOptions> */}
+                  
+                    {userDetails?.id==note?.user_id&&
+                    <View style={{height:30,width:30,position:'relative'}}> 
+                      <Pressable 
+                        onPress={() => onShareNote(
+                          note.id, 
+                          note.is_published, 
+                          note.title,
+                          note?.duration,
+                          note?.audio?.data?.duration,
+                          note?.recording_type==2?
+                            note?.creations?.filter((t:any)=>t?.type=="team-summary")[0]?.content?.data?.replace(/- /g, '• ')?.replace(/\* /g,'• ')?.trimStart()??''
+                            :note?.recording_type==3?
+                            formatTranscript2(note?.transcript)
+                            : note?.recording_type==5 ?
+                              formatTranscript5(note?.transcript)
+                            : formatTranscript(note?.transcript)
+                        )} 
+                        style={({pressed}) => [{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor: pressed ? Colors.bgColor1 : Colors.inputBg2,justifyContent:"center",alignItems:'center'}]}>
+                        <SvgXml xml={home.share2?.replace('#0D0D0D',Colors.more)}/>
+                      </Pressable>
+                    </View>}
+                  
                   <MoreOptions options={moreOptions} style={{height:30,width:30,position:'relative'}}>
                     <View style={{height:30,width:30,zIndex:1000,borderRadius:100,backgroundColor:Colors.inputBg2,justifyContent:"center",alignItems:'center'}}>
                       <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
@@ -1172,7 +1202,7 @@ const NotePreview = forwardRef(
           )}
         </Touchable>
 
-        <PublishedModal
+        {/* <PublishedModal
           slug={note?.public_slug || ""}
           visible={shareVisible}
           isPublished={isPublished}
@@ -1182,7 +1212,7 @@ const NotePreview = forwardRef(
           isNoteJustMadePrivate={isNoteJustMadePrivate}
           setIsNoteJustMadePrivte={setIsNoteJustMadePrivate}
           hideModal={() => {setShareVisible(false);setIsNoteJustMadePrivate(false)}}
-        />
+        /> */}
 
         {!!note?.subnotes&&note?.subnotes?.length > 0 && isNoteExpanded&& (
           <Subnote
