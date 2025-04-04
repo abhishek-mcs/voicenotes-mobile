@@ -324,7 +324,7 @@ const Settings = () => {
             items={[
               { title: 'Email', onPress: () => showScreen('email'), value: userDetails?.email || '', rightIcon: settingsSvg.arrow },
               { title: 'Change password', onPress: () => showScreen('password'), value: '', rightIcon: settingsSvg.arrow },
-              ...(isTempIAPPurchased || userDetails.subscription_plan ? [{ title: 'Publish', onPress: () => router.push('/settings/publish'), value: '', rightIcon: settingsSvg.arrow }] : []),
+              ...(isTempIAPPurchased || userDetails.subscription_plan ? [{ title: 'Pages', onPress: () => router.push('/settings/publish'), value: '', rightIcon: settingsSvg.arrow }] : []),
               ...(!isTempIAPPurchased ? [{ title: 'Your plan', onPress: () => router.push('/plan/'), value: userDetails.subscription_plan ?? 'Free', rightIcon: settingsSvg.arrow }] : []),
             ]}
           />
