@@ -150,13 +150,11 @@ function Publish() {
             const menuOptions: MenuOptionsType[] = [
                 {
                     title: "Edit",
-                    onPress: onEdit,
-                    androidIcon: "content-edit"
+                    onPress: onEdit
                 },
                 {
                     title: enabled ? "Disable" : "Enable",
-                    onPress: togglePublicity,
-                    androidIcon: "close-circle-outline"
+                    onPress: togglePublicity
                 }
             ];
 
