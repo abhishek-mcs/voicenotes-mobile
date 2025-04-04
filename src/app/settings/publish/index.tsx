@@ -166,7 +166,7 @@ function Publish() {
 
     return <Header
         onCancel={() => router.back()}
-        label={authorSetup?"Publish":""}
+        label=""
         cancelLabel="Back"
         working={false}
     >
@@ -271,9 +271,9 @@ const useStyles = () => {
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 20,
-            marginTop: 20,
+            marginBottom: 15,
             gap: 10,
-            width: '95%'
+            width: '95%',
         },
         publication: {
             fontFamily: 'Primary-Medium',
