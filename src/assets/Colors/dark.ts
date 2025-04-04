@@ -136,4 +136,5 @@ export default {
   selection: 'rgba(255, 255, 255, 0.15)',
   textinput: tertiary,
   placeholderText: 'rgba(255, 255, 255, 0.5)',
+  card: tertiary
 };

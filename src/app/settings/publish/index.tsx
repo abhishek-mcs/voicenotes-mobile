@@ -212,7 +212,7 @@ const useStyles = () => {
             fontFamily: 'Primary-Medium',
         },
         editbutton: {
-            backgroundColor: Colors.bottomBarButtonBg1,
+            backgroundColor: Colors.greyWithOpacity(0.2),
             padding: 5,
             paddingHorizontal: 10,
             borderRadius: 50,
@@ -225,7 +225,7 @@ const useStyles = () => {
             marginTop: 20,
             paddingVertical: 10,
             borderRadius: 15,
-            backgroundColor: Colors.whiteWithOpacity(1),
+            backgroundColor: Colors.card,
             flexDirection: 'row',
             ...(isIOS ? {
                 shadowColor: '#000000',
