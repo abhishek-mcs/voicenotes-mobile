@@ -359,7 +359,6 @@ const useStyles = () => {
         },
         promptindex: {
             flex: 1,
-            justifyContent: 'center',
             alignItems: 'center'
         },
         promptindexno: {
