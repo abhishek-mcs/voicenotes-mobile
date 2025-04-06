@@ -75,7 +75,12 @@ function Publish(): JSX.Element {
     const menuOptions: MenuOptionsType[] = [
         {
             title: "Copy link",
-            onPress: onCopy,
+            onPress: async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                  () => {}
+                );
+                await setStringAsync(MAIN_URL + "/s/" + note?.id);
+            },
             androidIcon: "content-copy"
         },
         {
@@ -122,6 +127,26 @@ function Publish(): JSX.Element {
             } finally { setWorking(false) }
         }
 
+        const moreOptions: MenuOptionsType[] = [
+            {
+                title: "Copy link",
+                onPress: async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                      () => {}
+                    );
+                    await setStringAsync(`https://${slug}.voicenotes.com`);
+                },
+                androidIcon: "content-copy"
+            },
+            {
+                title: "Unpublish",
+                onPress: () => {
+                    if (!working) onChangePublish()
+                },
+                androidIcon: "close-circle-outline"
+            }
+        ];
+
         return <View style={[styles.publication, { opacity: disabled ? 0.5 : 1 }]}>
             <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
                 {imageLoading && (
@@ -148,11 +173,28 @@ function Publish(): JSX.Element {
                     <Text style={[styles.actionlabel, { color: Colors.text }]}>Disabled</Text>
                 </View>
             </View> :
-            <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
-                <Pressable onPress={ working? null : onChangePublish} style={styles.action}>
+            <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+                {!published ? <Pressable onPress={working ? null : onChangePublish} style={styles.action}>
                     {working && <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} />}
-                    <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>
-                </Pressable>
+                    <Text style={styles.actionlabel}>Publish</Text>
+                </Pressable> : working ? <ActivityIndicator color={!isIOS ? Colors.blackWithOpacity(1) : undefined} /> : <>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                        <SvgXml xml={commonSvg.greenTick} />
+                        <Text style={styles.webPublished}>Published</Text>
+                    </View>
+                    <MoreOptions
+                        ref={moreOptionsRef}
+                        options={moreOptions}
+                        isNative={isIOS}
+                    >
+                        <Pressable 
+                            style={styles.more}
+                            onPress={() => moreOptionsRef.current?.show()}
+                        >
+                            <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
+                        </Pressable>
+                    </MoreOptions>
+                </> }
             </View>}
         </View>
     }
@@ -202,7 +244,10 @@ function Publish(): JSX.Element {
                 <Text style={styles.webCaption}>Anyone with the link will have access to this voice note</Text>
             </View>
             <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, flexDirection: 'row', gap: 10 }} >
-                {buffering ? <ActivityIndicator color={!isIOS ? Colors.blackWithOpacity(1) : undefined} /> : isPublic ? <>
+                {!isPublic ? <Pressable onPress={buffering ? null : togglePublic} style={styles.action}>
+                    {buffering && <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} />}
+                    <Text style={styles.actionlabel}>Publish</Text>
+                </Pressable> : buffering ? <ActivityIndicator color={!isIOS ? Colors.blackWithOpacity(1) : undefined} /> : <>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                         <SvgXml xml={commonSvg.greenTick} />
                         <Text style={styles.webPublished}>Published</Text>
@@ -219,10 +264,7 @@ function Publish(): JSX.Element {
                             <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
                         </Pressable>
                     </MoreOptions>
-                </> :
-                <Pressable onPress={buffering ? null : togglePublic} style={styles.action}>
-                    <Text style={styles.actionlabel}>Publish</Text>
-                </Pressable>}
+                </> }
             </View>
         </View>
         {note?.recording_type !== 3 && <View style={styles.publications}>
@@ -366,7 +408,7 @@ const useStyles = () => {
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 2
+        gap: 5
     },
     actionlabel: {
         fontFamily: 'Primary-Bold',
