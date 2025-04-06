@@ -150,7 +150,8 @@ function Publish(): JSX.Element {
             </View> :
             <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
                 <Pressable onPress={ working? null : onChangePublish} style={styles.action}>
-                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>}
+                    {working && <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} />}
+                    <Text style={styles.actionlabel}>{published ? 'Unpublish' : 'Publish'}</Text>
                 </Pressable>
             </View>}
         </View>
@@ -363,7 +364,9 @@ const useStyles = () => {
         borderRadius: 25,
         paddingHorizontal: 15,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 2
     },
     actionlabel: {
         fontFamily: 'Primary-Bold',
