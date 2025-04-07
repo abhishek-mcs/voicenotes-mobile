@@ -137,21 +137,21 @@ function BioEditor() {
             <ImagePicker caption="Profile photo" initialURL={userDetails?.author?.avatar} isAuthor onChange={url => setAvatar(url)} />
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput value={name} placeholder="Give your name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
+                <TextInput value={name} placeholder="This is what your audience will call you." placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="Next" onSubmitEditing={() => aboutRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput value={about} placeholder="Describe yourself for your audience?" placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
+                <TextInput value={about} placeholder="Tell your audience who you are. Share a little or a lot—it's up to you." placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} ref={aboutRef} multiline style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} />
             </View>
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Website</Text>
-                <TextInput value={website} placeholder="Link your website (optional)" placeholderTextColor={Colors.placeholderText} autoCapitalize="none" autoCorrect={false} onChangeText={text => setWebsite(text)} style={styles.input} keyboardType={'url'} />
+                <TextInput value={website} placeholder="Got a website? Link it here (optional)." placeholderTextColor={Colors.placeholderText} autoCapitalize="none" autoCorrect={false} onChangeText={text => setWebsite(text)} style={styles.input} keyboardType={'url'} />
             </View>
             {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
         </ScrollView>
         <View style={styles.footer}>
             <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                {working ? <ActivityIndicator color={!isIOS ? "#FFFFFF" : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
+                {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
             </Pressable>
         </View>
         </>
