@@ -173,11 +173,9 @@ const SharePublish = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={isIOS ? 'padding' : undefined}
-      style={{ flex: 1 }}
-    >
     <SafeAreaView style={styles.container}>
+    
+    
       <View
         style={styles.headerContainer}
       >
@@ -215,6 +213,7 @@ const SharePublish = () => {
         </View>
       </View>
       {isSelected == 'share' ? 
+      
       <View style={styles.contentContainer}>
         <View style={styles.inputContainer}>
             <TextField
@@ -237,11 +236,15 @@ const SharePublish = () => {
         {emailError.length>0 ? 
             <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginBottom:18}}>{emailError}</Text> : <View style={{marginBottom:8}}></View>
         }
-
+        <KeyboardAvoidingView
+          behavior={isIOS ? 'padding' : undefined}
+          keyboardVerticalOffset={80}
+          style={{ flex: 1 }}
+        >
           <ScrollView
             showsVerticalScrollIndicator={false}
             style={styles.scrollView}
-            contentContainerStyle={{ paddingBottom: 120 }}
+            contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
           >
           {/* Channels */}
@@ -352,7 +355,6 @@ const SharePublish = () => {
                       borderRadius: 14,
                       borderWidth: 0,
                       // borderColor: isLightMode ? Colors.grey3 : Colors.darkWithOpacity(1),
-                      elevation: 4,
                       backgroundColor: isLightMode ? Colors.white1 : Colors.darkWithOpacity(1),
                     }}
                     onPress={() => onRevoke(user.email, index)}
@@ -361,35 +363,6 @@ const SharePublish = () => {
                     <Text style={{ color: "red" }}>Revoke</Text>
                   </MenuItem>
                 </Menu>
-                // <MoreOptions 
-                //   style={{
-                //     backgroundColor: Colors.bgColor8,
-                //     position: 'relative',
-                //     alignItems: 'center',
-                //     justifyContent: 'center'
-                //   }}
-                //   options={[
-                //     {
-                //       title: "Revoke",
-                //       onPress: () => onRevoke(user.email, index),
-                //       destructive: true,
-                //     }
-                //   ]} 
-                // >
-                //   <TouchableOpacity 
-                //     activeOpacity={0.6}
-                //     style={{
-                //       backgroundColor: Colors.bgColor8, 
-                //       padding: 5,
-                //       alignItems: 'center',
-                //       justifyContent: 'center'
-                //     }}
-                //   >
-                //     <SvgXml 
-                //       xml={home.moreNew?.replace('#0D0D0D', Colors.more)} 
-                //     />
-                //   </TouchableOpacity>
-                // </MoreOptions>
               }
             </View>
           ))}
@@ -413,9 +386,10 @@ const SharePublish = () => {
             </View>
           ))}
         </ScrollView>
+        </KeyboardAvoidingView>
         {/* Copy Link Button */}
         <View style={styles.footerContainer}>
-          <View style={{ height: 60 }}>
+          <View style={{ height: 80 }}>
             <TouchableOpacity onPress={onCopy} activeOpacity={0.6}>
               <View style={styles.copyLinkButton}>
                 <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
@@ -427,8 +401,9 @@ const SharePublish = () => {
       </View> : 
       <Publish id={note_id} />
       }
+      
     </SafeAreaView>
-    </KeyboardAvoidingView>
+    
   )
 }
 
@@ -482,6 +457,7 @@ const useStyles = () => {
     alignSelf: 'flex-end' 
   },
   contentContainer: {
+    flex:1,
     padding: 18,
   },
   inputContainer: {
@@ -522,7 +498,7 @@ const useStyles = () => {
     marginBottom: 10
   },
   scrollView: {
-    // flex: 1,
+    // flexGrow: 1,
     width: '100%',
     
   },
@@ -533,7 +509,7 @@ const useStyles = () => {
   footerContainer: {
     // height:10,
     position: 'absolute',
-    bottom: isIOS?60:90,
+    bottom: isIOS?0:10,
     left: 0,
     right: 0,
     backgroundColor: Colors.bgColor8,

@@ -2,7 +2,7 @@ import { home } from "assets/svg/home";
 import MoreOptions from "components/common/more-options";
 import Touchable from "components/common/Touchable";
 import { usePinTag, usePinTagDelete } from "queries/home";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useEffect } from "react";
 import { Alert, ScrollView, StyleSheet } from "react-native";
 import { Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -30,6 +30,10 @@ export const TagButton = ({
   const setTag = (tag: string) => {
     dispatch(setTagsFilter(tag));
   };
+
+  useEffect(() => {
+    console.log('activeInvites in TagButton',activeInvites);
+  },[activeInvites])
 
   const onClickTag = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
@@ -105,6 +109,10 @@ export default function TagButtons({
   const count =
   (isDefaultHash ? pinnedTagsData : tagsData)?.find((v: any) => v?.name === hashFilter)?.recordings_count || null;
 
+  useEffect(() => {
+    console.log('Share indicator in tag button', pendingInvites);
+  },[pendingInvites])
+
   const options = [
     {
       title: !isDefaultHash?"Pin":"Unpin",
@@ -167,13 +175,14 @@ export default function TagButtons({
       <View style={{paddingHorizontal:17,marginTop:8}}>
         <TagButton
           title={hashFilter}
+          activeInvites={hashFilter == 'shared'?pendingInvites:false}
           onPress={() => dispatch(setTagsFilter(""))}
           icon={home.smallClose}
           from="single"
         />
       </View>
     );
-  },[isDefaultHash,isPinned,pinnedTags]);
+  },[isDefaultHash,isPinned,pinnedTags,pendingInvites]);
     return (
       <View>
         <RenderButton/>
