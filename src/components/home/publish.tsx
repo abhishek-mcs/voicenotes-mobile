@@ -390,7 +390,7 @@ const useStyles = () => {
     },
     webPublished: {
         fontFamily: 'Primary-Medium',
-        color: Colors.green2
+        color: "#58A942"
     },
     more: {
         width: 25,
