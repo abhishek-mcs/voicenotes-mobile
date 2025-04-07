@@ -4,7 +4,14 @@
     "appVersionSource": "local"
   },
   "build": {
+    "base":{
+      "ios": {
+        "image": "latest",
+        "scheme": "Voicenotes"
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
@@ -17,10 +24,12 @@
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "channel": "preview"
     },
     "production": {
+      "extends": "base",
       "autoIncrement": true,
       "channel": "production",
       "android": {
@@ -28,6 +37,7 @@
       }
     },
     "staging": {
+      "extends": "base",
       "autoIncrement": true,
       "channel": "staging",
       "android": {
@@ -35,13 +45,16 @@
       }
     },
     "athul": {
+      "extends": "base",
       "autoIncrement": true,
       "channel": "athul",
       "android": {
-        "resourceClass": "large"
+        "resourceClass": "large",
+        "buildType": "apk"
       }
     },
     "vishal": {
+      "extends": "base",
       "autoIncrement": true,
       "channel": "vishal",
       "android": {
@@ -49,14 +62,8 @@
         "buildType": "apk"
       }
     },
-    "ijas": {
-      "autoIncrement": true,
-      "channel": "ijas",
-      "android": {
-        "resourceClass": "large"
-      }
-    },
     "merina": {
+      "extends": "base",
       "autoIncrement": true,
       "channel": "merina",
       "android": {
@@ -88,13 +95,6 @@
       }
     },
     "vishal": {
-      "android": {
-        "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
-        "track": "internal",
-        "changesNotSentForReview": false
-      }
-    },
-    "ijas": {
       "android": {
         "serviceAccountKeyPath": "./voicenotes-play-417609-192e3b0af574.json",
         "track": "internal",

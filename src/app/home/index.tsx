@@ -79,6 +79,7 @@ import { BlurView } from "expo-blur";
 import RecButton from "components/common/recording/rec-button";
 import { useAllRecordings } from "queries/common";
 import SharedInvites from "components/home/share-invites";
+import { set } from "lodash";
 
 const { height } = Dimensions.get("screen");
 
@@ -88,7 +89,7 @@ const Home = () => {
   const { ActionModule } = NativeModules;
   const actionEmitter = new NativeEventEmitter(ActionModule);
   const notePreviewRef = useRef<any>();
-  const {hashFilter,pinnedTags,pinnedTagsData,hashTagsData} = useSelector((state: RootState) => state.hash);
+  const {hashFilter,pinnedTags,pinnedTagsData,hashTagsData,invitePending} = useSelector((state: RootState) => state.hash);
   const {token,userDetails}:any = useSelector((state: RootState) => state.userDetails);
   const {isTempIAPPurchased} = useSelector((state: RootState) => state.IAPStates);
   const {canRecord} = useSelector((state: RootState) => state.userDetails);
@@ -779,16 +780,18 @@ const Home = () => {
   }
 
   useEffect(() => {
-    if(sharedInvitesList.length > 0) {
+    if(!!userDetails.settings.share_indicator) {
+      console.log('Share indicator true');
       dispatch(setInvitePending(true));
-    }
-  },[sharedInvitesList])
-
-  useEffect(() => {
-    if(hashFilter == 'shared') {
+    } else {
+      console.log('Share indicator false');
       dispatch(setInvitePending(false));
     }
-  },[hashFilter])
+  },[userDetails.settings])
+
+  useEffect(() => {
+    console.log('Invite pending', invitePending);
+  },[invitePending])
 
   // if (!token) return <Redirect href="/auth/landingPage/" />;
   if (!token) return <Redirect href="/onboarding/" />;
@@ -872,7 +875,7 @@ const Home = () => {
                 ref={noteListScrollRef}
                 ListHeaderComponent={
                   <>
-                    <TagButtons pendingInvites={!!(sharedInvitesList.length)} isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
+                    <TagButtons pendingInvites={invitePending} isDefaultHash={isDefaultHash} hashFilter={hashFilter} pinnedTags={pinnedTags} pinnedTagsData={pinnedTagsData} tagsData={hashTagsData}/>
                     {hashFilter == 'shared' && sharedInvitesList.length > 0 && <SharedInvites list={sharedInvitesList} />}
                   </>
                 }
