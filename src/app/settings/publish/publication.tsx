@@ -191,7 +191,7 @@ function PublicationEditor() {
         </ScrollView>
         <View style={styles.footer}>
             <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                {working ? <ActivityIndicator color={!isIOS ? "#FFFFFF" : undefined} /> : <Text style={styles.buttonlabel}>{publication ? 'Update' : 'Done'}</Text>}
+                {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>{publication ? 'Update' : 'Done'}</Text>}
             </Pressable>
         </View>
         </>
