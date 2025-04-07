@@ -57,7 +57,7 @@ import { setRelatedNoteId } from "redux/reducers/relatedNoteStates";
 import CircularLoader from "components/common/loaders/circular-loader";
 import usePremiumPrompt from "hooks/iap/usePremiumPrompt"
 import TagButtons from "components/home/tag-buttons";
-import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData } from "redux/reducers/hashSlice";
+import { setHashTags, setHashTagsData, setPinnedTags, setPinnedTagsData, setInvitePending } from "redux/reducers/hashSlice";
 import Streaks from "components/streaks";
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
@@ -779,8 +779,15 @@ const Home = () => {
   }
 
   useEffect(() => {
-    console.log('hash filter', hashFilter);
-    
+    if(sharedInvitesList.length > 0) {
+      dispatch(setInvitePending(true));
+    }
+  },[sharedInvitesList])
+
+  useEffect(() => {
+    if(hashFilter == 'shared') {
+      dispatch(setInvitePending(false));
+    }
   },[hashFilter])
 
   // if (!token) return <Redirect href="/auth/landingPage/" />;

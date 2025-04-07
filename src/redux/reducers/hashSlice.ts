@@ -7,6 +7,7 @@ export interface HashState {
   hashFilter: string,
   pinnedTags: string[],
   pinnedTagsData: any[],
+  invitePending: boolean,
 }
 
 const initialState: HashState = {
@@ -15,6 +16,7 @@ const initialState: HashState = {
   hashTagsData: [],
   pinnedTags: [],
   pinnedTagsData: [],
+  invitePending: false,
 }
 
 export const hashSlice = createSlice({
@@ -36,10 +38,13 @@ export const hashSlice = createSlice({
     setPinnedTagsData: (state, action: PayloadAction<string[]>) => {
       state.pinnedTagsData = action.payload
     },
+    setInvitePending: (state, action: PayloadAction<boolean>) => {
+      state.invitePending = action.payload
+    }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setTagsFilter, setHashTags, setPinnedTags, setPinnedTagsData, setHashTagsData } = hashSlice.actions
+export const { setTagsFilter, setHashTags, setPinnedTags, setPinnedTagsData, setHashTagsData, setInvitePending } = hashSlice.actions
 
 export default hashSlice.reducer
