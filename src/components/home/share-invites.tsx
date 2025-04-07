@@ -26,13 +26,13 @@ const notes = [
 const SharedInvites = ({list}: any) => {
     const styles = useStyles()
     const { Colors } = useTheme()
-    const [declineLoading, setDeclineLoading] = useState(false)
-    const [acceptLoading, setAcceptLoading] = useState(false)
+    const [declineLoading, setDeclineLoading] = useState(-1)
+    const [acceptLoading, setAcceptLoading] = useState(-1)
     const inviteAction = useInviteAction()
     const queryClient = useQueryClient();
 
-    const onAccept = async(id: string) => {
-        setAcceptLoading(true)
+    const onAccept = async(id: string,index:any) => {
+        setAcceptLoading(index)
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
         inviteAction.mutate(
             { id: id, status: "accept" },
@@ -40,19 +40,19 @@ const SharedInvites = ({list}: any) => {
               onSuccess: async (data: any) => {
                 try {
                   await queryClient.invalidateQueries("shared-invites");
-                  setAcceptLoading(false)
+                  setAcceptLoading(-1)
                 } catch (e) {
                   console.log("error in accept invite", e);
                 } finally {
-                  setAcceptLoading(false)
+                  setAcceptLoading(-1)
                 }
               }
             }
         )
     }
 
-    const onDecline = async(id: string) => {
-        setDeclineLoading(true)
+    const onDecline = async(id: string,index:any) => {
+        setDeclineLoading(index)
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})
         inviteAction.mutate(
             { id: id, status: "decline" },
@@ -60,35 +60,35 @@ const SharedInvites = ({list}: any) => {
               onSuccess: async (data: any) => {
                 try {
                   await queryClient.invalidateQueries("shared-invites");
-                  setDeclineLoading(false)
+                  setDeclineLoading(-1)
                 } catch (e) {
                   console.log("error in decline invite", e);
                 } finally {
-                  setDeclineLoading(false)
+                  setDeclineLoading(-1)
                 }
               }
             }
         )
     }
 
-    const NoteRequestCard = ({ item }: any) => (
-        <View style={styles.bottomLine}>
+    const NoteRequestCard = ({ item, index, lastItem }: any) => (
+        <View style={index == lastItem && styles.bottomLine}>
             <View style={styles.card}>
                 <View style={styles.iconContainer}>
                     <SvgXml xml={home.mail.replace('black', Colors.black2)} />
                 </View>
-                <View>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.email}>({item.email}) has shared <Text style={styles.message}>{item.recording.title||''}</Text> with you</Text>
+                <View style={styles.contentContainer}>
+                  <View><Text style={styles.name}>{item.name}</Text></View>
+                  <View><Text style={styles.email}>({item.email}) has shared <Text style={styles.message}>{item.recording && item.recording.title || 'a voicenote'}</Text> with you</Text></View>
                 </View>
             </View>
           
             <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={() => onDecline(item.id)} style={styles.declineButton}>
-                    {declineLoading ? <CircularLoader color={Colors.black2} /> : <Text style={styles.declineButtonText}>Decline</Text>}
+                <TouchableOpacity onPress={() => onDecline(item.id,index)} style={styles.declineButton}>
+                    {declineLoading == index ? <CircularLoader color={Colors.black2} /> : <Text style={styles.declineButtonText}>Decline</Text>}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => onAccept(item.id)} style={styles.acceptButton}>
-                    {acceptLoading ? <CircularLoader color={Colors.whiteWithOpacity(1)} /> : <Text style={styles.acceptButtonText}>Accept</Text>}
+                <TouchableOpacity onPress={() => onAccept(item.id,index)} style={styles.acceptButton}>
+                    {acceptLoading == index ? <CircularLoader color={Colors.whiteWithOpacity(1)} /> : <Text style={styles.acceptButtonText}>Accept</Text>}
                 </TouchableOpacity>
             </View>
         </View>
@@ -104,7 +104,7 @@ const SharedInvites = ({list}: any) => {
       <FlatList
         data={list||[]}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <NoteRequestCard item={item} />}
+        renderItem={({ item, index }) => <NoteRequestCard item={item} index={index} lastItem={list.length - 1} />}
       />
     </View>
   );
@@ -144,8 +144,10 @@ const useStyles = () => {
     borderBottomColor: Colors.grey2WithOpacity(0.1),
   },
   card: {
+    flex: 1,
     paddingTop: 18,
     marginHorizontal: 16,
+    justifyContent: "space-between",
     flexDirection: "row",
     gap: 12
   },
@@ -153,11 +155,17 @@ const useStyles = () => {
     width: 32,
     height: 32,
     borderRadius: 17,
-    padding: 8,
+    margin: 8,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: Colors.grey2WithOpacity(0.1),
+  },
+  contentContainer: {
+    flex: 1,
+    flexShrink: 1,
+    flexGrow: 1,
+    justifyContent: "center",
   },
   name: {
     fontSize: 16,
@@ -166,13 +174,13 @@ const useStyles = () => {
     lineHeight: 24,
   },
   email: {
-    width: "41%",
+    // width: "41%",
     fontSize: 14,
     fontFamily: "Primary",
     color: Colors.blackWithOpacity(1),
     lineHeight: 20,
-    flexWrap: "wrap",
-    overflow: "hidden",
+    // flexWrap: "wrap",
+    // overflow: "hidden",
   },
   message: {
     fontSize: 14,

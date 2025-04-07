@@ -9,11 +9,17 @@ export default function Layout() {
             />
             <Stack.Screen
                 name="bio"
-                options={{ headerShown: false }}
+                options={{
+                    animation: "slide_from_right",
+                    headerShown: false
+                }}
             />
             <Stack.Screen
                 name="publication"
-                options={{ headerShown: false }}
+                options={{
+                    animation: "slide_from_right",
+                    headerShown: false
+                }}
             />
         </Stack>
     )

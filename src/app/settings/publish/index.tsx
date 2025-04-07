@@ -111,8 +111,8 @@ function Publish() {
         </View> : <View style={styles.author}>
             <PromptCard
                 index={1}
-                title={'Set up your profile'}
-                body="Let listeners know who's behind the mic -- add a name, photo and short bio"
+                title={'Set up your Author Page'}
+                body="Let your audience know who’s behind the mic—add your name, photo, a short bio, or a link to your website."
                 onPress={() => router.push('/settings/publish/bio')}
             />
         </View>
@@ -203,9 +203,7 @@ function Publish() {
                     </Pressable>}
                     <View style={styles.captionContainer}>
                         <SvgXml xml={settingsSvg.send.replace("black", Colors.blackWithOpacity(0.5))} />
-                        <Text style={styles.caption}>
-                            You're live! Record a voice note, tap Share, choose a publication and hit Publish!
-                        </Text>
+                        <Text style={styles.caption}>Your Page is now live. Record a voice note, tap Share, choose the Page, and hit Publish!</Text>
                     </View>
                 </View>
             </View>
@@ -214,8 +212,8 @@ function Publish() {
                 index={2}
                 disabled={userDetails?.author === null}
                 onPress={() => router.push('/settings/publish/publication')}
-                title={'Start your publication'}
-                body="A place to share your best voice notes -- from lessons and ideas to stories and reflections"
+                title={'Set up your Page(s)'}
+                body="A place to share your best notes—lessons, ideas, stories, reflections, and everything in between."
             />
         </View>
     }
@@ -359,7 +357,6 @@ const useStyles = () => {
         },
         promptindex: {
             flex: 1,
-            justifyContent: 'center',
             alignItems: 'center'
         },
         promptindexno: {
