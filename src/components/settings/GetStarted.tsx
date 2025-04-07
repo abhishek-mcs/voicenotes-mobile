@@ -1,7 +1,7 @@
 import { settingsSvg } from "assets/svg/settingsSvg";
 import { useTheme } from "context/theme-context";
 import { useEffect, useMemo } from "react";
-import { Animated, Pressable, Text, StyleSheet } from "react-native";
+import { Animated, Pressable, Text, StyleSheet, Dimensions } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 interface GetStartedProps {
@@ -71,7 +71,11 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
             ]}
         >
             <Animated.View style={{ transform: [{ scale: svgScale }] }}>
-                <SvgXml xml={settingsSvg.publish} />
+                <SvgXml
+                    xml={settingsSvg.publish}
+                    width={Dimensions.get('window').width * 1}
+                    height={Dimensions.get('window').height * 0.5}
+                />
             </Animated.View>
             
             <Animated.Text 
@@ -83,7 +87,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Publish your voice notes
+                Start a Voicenotes page
             </Animated.Text>
             
             <Animated.Text 
@@ -122,40 +126,49 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
 
 const useStyles = () => {
     const { Colors } = useTheme()
-    
+    const screenWidth = Dimensions.get('window').width;
+
     return useMemo(() => StyleSheet.create({
         getstarted: {
             flex: 1,
-            width: '80%',
+            width: '90%', // Increased from 80% for better small screen support
             alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: screenWidth * 0.05,
+        },
+        imageContainer: {
+            marginBottom: screenWidth * 0.05,
         },
         gsheader: {
             color: Colors.text,
-            fontSize: 20,
-            fontFamily: 'Primary-Medium'
+            fontSize: screenWidth * 0.05, // About 20px on a 400px wide screen
+            fontFamily: 'Primary-Medium',
+            textAlign: 'center',
+            marginTop: screenWidth * 0.03,
         },
         gscaption: {
             color: Colors.text10,
-            fontSize: 17,
+            fontSize: screenWidth * 0.042, // About 17px on a 400px wide screen
             fontFamily: 'Primary',
-            marginTop: 15,
-            textAlign: 'center'
+            marginTop: screenWidth * 0.037,
+            textAlign: 'center',
+            paddingHorizontal: screenWidth * 0.02,
         },
         gsbutton: {
-            width: '90%',
+            width: '100%', // Changed from 90% to fill container
             backgroundColor: Colors.askLogo,
-            height: 50,
-            marginTop: 30,
-            borderRadius: 25,
+            height: screenWidth * 0.12, // About 50px on a 400px wide screen
+            marginTop: screenWidth * 0.075,
+            borderRadius: screenWidth * 0.06,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 10
+            gap: screenWidth * 0.025,
         },
         gsactionlabel: {
             color: Colors.whiteWithOpacity(1),
             fontFamily: 'Primary-Bold',
-            fontSize: 14
+            fontSize: screenWidth * 0.035, // About 14px on a 400px wide screen
         }
     }), [Colors])
 }

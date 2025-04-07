@@ -7,7 +7,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView, ActivityIndicator } from "react-native";
 import { SvgXml } from "react-native-svg";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserDetail } from "redux/reducers/userDetails"
 import { RootState } from "redux/store/store";
 import { isIOS } from "utils/common";
 import MoreOptions from "components/common/more-options";
@@ -19,13 +20,18 @@ function Publish() {
     const router = useRouter();
     const styles = useStyles();
     const { Colors, isLightMode } = useTheme()
+    const dispatch = useDispatch()
 
     const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
 
     const [authorSetup, setAuthorSetup] = useState<boolean>(userDetails?.author !== null)
-
+    
     const screenSlide = new Animated.Value(0);
 
+    useEffect(() => {
+        if(userDetails?.author === null && userDetails?.publications.length > 0) setAuthorSetup(true);
+    }, [userDetails?.author]);
+    
     // Screen transition animation
     useEffect(() => {
         Animated.timing(screenSlide, {
@@ -124,6 +130,17 @@ function Publish() {
                 try {
                     await togglePage(slug, !enabled)
                     setEnabled(prev => !prev)
+                    
+                    const updatedPublications = userDetails?.publications.map((pub: any) => 
+                        pub.slug === slug 
+                            ? { ...pub, is_public: !enabled }
+                            : pub
+                    );
+
+                    dispatch(setUserDetail({
+                        ...userDetails,
+                        publications: updatedPublications
+                    }));
                 } catch(error) {
                     console.error(error)
                 }
@@ -133,17 +150,15 @@ function Publish() {
             const menuOptions: MenuOptionsType[] = [
                 {
                     title: "Edit",
-                    onPress: onEdit,
-                    androidIcon: "content-edit"
+                    onPress: onEdit
                 },
                 {
                     title: enabled ? "Disable" : "Enable",
-                    onPress: togglePublicity,
-                    androidIcon: "close-circle-outline"
+                    onPress: togglePublicity
                 }
             ];
 
-            return <View style={styles.card}>
+            return <View style={[styles.card, { marginTop: 5, marginBottom: 15 }]}>
                 <View style={{ flex: 4, paddingHorizontal: 20, paddingVertical: 10, gap: 5 }}>
                     <Text numberOfLines={1} ellipsizeMode="tail" style={styles.publication}>{title}</Text>
                     <Pressable onPress={() => openPublication(slug)} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
@@ -295,7 +310,6 @@ const useStyles = () => {
         },
         publicationsContainer: {
             flex: 1,
-            marginTop: 10,
         },
         scrollView: {
             flex: 1,
@@ -345,7 +359,6 @@ const useStyles = () => {
         },
         promptindex: {
             flex: 1,
-            justifyContent: 'center',
             alignItems: 'center'
         },
         promptindexno: {

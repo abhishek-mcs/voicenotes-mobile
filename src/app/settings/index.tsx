@@ -316,7 +316,19 @@ const Settings = () => {
               { title: 'Theme', data: [['auto', 'Auto', isIOS ? 'circle.lefthalf.fill' : 'circle-half-full'], ['light', 'Day', isIOS ? 'sun.max' : 'white-balance-sunny'], ['dark', 'Night', isIOS ? 'moon.zzz' : 'weather-night']], value: selectedTheme[theme], onPressMenu: onSelectTheme, isMenu: true },
               { title: 'Language', isMenu: true, data: Object.entries(languages), value: lang, onPressMenu: onSelectLang },
               { title: 'Names to remember', value: '', onPress: () => showScreen('names'), rightIcon: settingsSvg.arrow },
-              { title: 'Pages', onPress: () => router.push(isTempIAPPurchased || userDetails.subscription_plan ? '/settings/publish' : '/premium/'), value: '', rightIcon: settingsSvg.arrow },
+              { 
+                title: (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={{ fontFamily: 'Primary-Medium', fontSize: 14, color: Colors.blackWithOpacity(1) }}>Pages</Text>
+                    <View style={styles.newChip}>
+                      <Text style={styles.newChipText}>NEW</Text>
+                    </View>
+                  </View>
+                ),
+                onPress: () => router.push(isTempIAPPurchased || userDetails.subscription_plan ? '/settings/publish' : '/premium/'),
+                value: '',
+                rightIcon: settingsSvg.arrow 
+              },
             ]}
           />
           <Grouped
@@ -412,6 +424,18 @@ const useStyles = () => {
       fontSize: 14,
       color: Colors.grey,
       textAlign: 'right'
+    },
+    newChip: {
+      backgroundColor: Colors.askLogo,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+      marginLeft: 6
+    },
+    newChipText: {
+      color: Colors.whiteWithOpacity(1),
+      fontSize: 10,
+      fontFamily: 'Primary-Medium'
     }
   }), [Colors]); // Recreate styles when Colors change
 };

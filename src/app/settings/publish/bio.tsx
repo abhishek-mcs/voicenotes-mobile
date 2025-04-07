@@ -151,7 +151,7 @@ function BioEditor() {
         </ScrollView>
         <View style={styles.footer}>
             <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                {working ? <ActivityIndicator /> : <Text style={styles.buttonlabel}>Done</Text>}
+                {working ? <ActivityIndicator color={!isIOS ? "#FFFFFF" : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
             </Pressable>
         </View>
         </>
