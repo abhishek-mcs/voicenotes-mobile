@@ -7,9 +7,8 @@ import { useTheme } from 'context'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView } from 'react-native'
 import { SvgXml } from 'react-native-svg'
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isIOS } from 'utils/common'
 import Publish from './publish'
 import { Menu, MenuItem } from 'react-native-material-menu';
@@ -22,6 +21,7 @@ import CircularLoader from 'components/common/loaders/circular-loader';
 import ThreeDotLoader from 'components/common/loaders/three-dot-loader';
 import { validateEmail } from 'utils/api-queries/auth/signin-mutations';
 import { useKeyboardController } from 'react-native-keyboard-controller'
+import { ScrollView } from 'react-native';
 
 const SharePublish = () => {
   const styles = useStyles()
@@ -173,6 +173,10 @@ const SharePublish = () => {
   }
 
   return (
+    <KeyboardAvoidingView
+      behavior={isIOS ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
     <SafeAreaView style={styles.container}>
       <View
         style={styles.headerContainer}
@@ -234,17 +238,12 @@ const SharePublish = () => {
             <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginBottom:18}}>{emailError}</Text> : <View style={{marginBottom:8}}></View>
         }
 
-        <KeyboardAwareScrollView 
-          showsVerticalScrollIndicator={false}
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollViewContent,
-            { paddingBottom: 60 + (keyboardHeight||0) } // 60 = height of sticky footer
-          ]}
-          keyboardShouldPersistTaps="handled"
-          automaticallyAdjustKeyboardInsets={true}
-          bottomOffset={0}
-        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.scrollView}
+            contentContainerStyle={{ paddingBottom: 120 }}
+            keyboardShouldPersistTaps="handled"
+          >
           {/* Channels */}
           {currentChannels.length > 0 && <Text style={styles.invitedTitle}>Channels</Text>}
           {currentChannels.length > 0 && currentChannels.map((user: any, index: number) => (
@@ -273,16 +272,22 @@ const SharePublish = () => {
                         </TouchableOpacity>
                       }
                       onRequestClose={() => hideChannelMenu(index)}
-                      style={{ borderRadius: 14, borderWidth: 0 }}
+                      style={{ 
+                        borderRadius: 14, 
+                        borderWidth: 0,
+                        elevation: 0,
+                        backgroundColor: isLightMode ? Colors.white1 : Colors.darkWithOpacity(1), 
+                        shadowColor: 'transparent',
+                      }}
                     >
                       <MenuItem
                         style={{
                           height: 40,
                           minWidth: 100,
                           borderRadius: 14,
-                          borderWidth: 2,
-                          borderColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
-                          backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
+                          borderWidth: 0,
+                          // borderColor: isLightMode ? Colors.grey3 : Colors.darkWithOpacity(1),
+                          backgroundColor: isLightMode ? Colors.white1 : Colors.darkWithOpacity(1),
                         }}
                         onPress={() => onRevokeChannel(user.ulid, index)}
                         pressColor="transparent" // Prevents background color change
@@ -332,16 +337,23 @@ const SharePublish = () => {
                     </TouchableOpacity>
                   }
                   onRequestClose={() => hideMenu(index)}
-                  style={{ borderRadius: 14, borderWidth: 0 }}
+                  style={{ 
+                    borderRadius: 14, 
+                    borderWidth: 0,
+                    elevation: 0,
+                    backgroundColor: isLightMode ? Colors.white1 : Colors.darkWithOpacity(1), 
+                    shadowColor: 'transparent',
+                  }}
                 >
                   <MenuItem
                     style={{
                       height: 40,
                       minWidth: 100,
                       borderRadius: 14,
-                      borderWidth: 2,
-                      borderColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
-                      backgroundColor: isLightMode ? Colors.darkWithOpacity(0.1) : Colors.darkWithOpacity(1),
+                      borderWidth: 0,
+                      // borderColor: isLightMode ? Colors.grey3 : Colors.darkWithOpacity(1),
+                      elevation: 4,
+                      backgroundColor: isLightMode ? Colors.white1 : Colors.darkWithOpacity(1),
                     }}
                     onPress={() => onRevoke(user.email, index)}
                     pressColor="transparent" // Prevents background color change
@@ -400,23 +412,23 @@ const SharePublish = () => {
               </TouchableOpacity>
             </View>
           ))}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         {/* Copy Link Button */}
-        <View style={[
-          styles.footerContainer,
-          { bottom: keyboardHeight > 0 ? keyboardHeight : 50 }
-        ]}>
-          <TouchableOpacity onPress={onCopy} style={styles.footerContainer} activeOpacity={0.6}>
-            <View style={styles.copyLinkButton}>
-              <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
-              <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy link'}</Text>
-            </View>
-          </TouchableOpacity>
+        <View style={styles.footerContainer}>
+          <View style={{ height: 60 }}>
+            <TouchableOpacity onPress={onCopy} activeOpacity={0.6}>
+              <View style={styles.copyLinkButton}>
+                <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
+                <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy link'}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View> : 
       <Publish id={note_id} />
       }
     </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -516,18 +528,19 @@ const useStyles = () => {
   },
   scrollViewContent: {
       // flex: 1,
-      // paddingBottom: 100 
+      flexGrow: 1,
   },
   footerContainer: {
-    height:10,
+    // height:10,
     position: 'absolute',
+    bottom: isIOS?60:90,
     left: 0,
     right: 0,
     backgroundColor: Colors.bgColor8,
     paddingHorizontal: 16,
   },
   copyLinkButton: {
-    height: 40,
+    height: 45,
     marginTop:16,
     // marginBottom: 16,
     flexDirection: 'row',
