@@ -5,7 +5,8 @@ import * as Wb from 'expo-web-browser';
 import { useTheme } from "context/theme-context";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Animated, Image, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Pressable, Animated, ScrollView, ActivityIndicator } from "react-native";
+import { Image } from 'expo-image'
 import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetail } from "redux/reducers/userDetails"
@@ -91,12 +92,11 @@ function Publish() {
                         )}
                         <Image
                             source={{ uri: userDetails?.author?.avatar || '' }}
-                            height={100}
-                            width={100}
                             style={{ width: 80, height: 80, borderRadius: 15 }}
-                            resizeMode="contain"
+                            contentFit="contain"
                             onLoadStart={() => setImageLoading(true)}
                             onLoadEnd={() => setImageLoading(false)}
+                            priority={'high'}
                         />
                     </View>
                     <View style={{ flex: 4, justifyContent: 'center', gap: 2, paddingRight: 15 }}>

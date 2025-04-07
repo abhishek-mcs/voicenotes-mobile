@@ -1,7 +1,8 @@
 import { settingsSvg } from "assets/svg/settingsSvg"
 import { useTheme } from "context/theme-context"
 import { useMemo, useState } from "react"
-import { View, Text, StyleSheet, Pressable, Image, ActivityIndicator } from "react-native"
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native"
+import { Image } from 'expo-image'
 import { SvgXml } from "react-native-svg"
 import * as ExpoImagePicker from 'expo-image-picker'
 import { useDialog } from "context/DialogContext"
@@ -92,6 +93,7 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
                         style={styles.image}
                         onLoadStart={() => setImageLoading(true)}
                         onLoadEnd={() => setImageLoading(false)}
+                        priority={'high'}
                     />
                 </View>
             )
