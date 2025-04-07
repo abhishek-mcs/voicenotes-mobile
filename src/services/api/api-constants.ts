@@ -62,7 +62,7 @@ const ENVURLSet: ENVURLs = {
 //     : Environment.production
 
 const currentENV = Environment.production;
-const ota=".41"
+const ota=".42"
 const currentVersion = Application.nativeApplicationVersion+ota
 
 
