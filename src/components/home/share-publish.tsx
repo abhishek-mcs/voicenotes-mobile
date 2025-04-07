@@ -81,7 +81,6 @@ const SharePublish = () => {
     } else {
       setLoading(true)
       onShareRecording(emailId, -1)
-      setEmail('')
     }
   }
 
@@ -125,6 +124,7 @@ const SharePublish = () => {
           } catch (e) {
             console.log("error in share recording", e);
           } finally {
+            setEmail('')
             setLoading(false)
             setShareLoading(-1)
           }
