@@ -9,12 +9,13 @@
     "scheme": "voicenotes",
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": [
-      "**/*"
+      "**/*",
+      "!**/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Solid.ttf"
     ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "274",
+      "buildNumber": "276",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
