@@ -99,7 +99,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Turn your voicenotes into a mini-podcast and publish them effortlessly
+                Turn your voice notes into mini-podcasts—record on the fly and hit publish.
             </Animated.Text>
             
             <Animated.View 
