@@ -232,7 +232,8 @@ const useStyles = () => {
         footer: {
             width: '100%',
             alignItems: 'center',
-            paddingVertical: 15
+            paddingVertical: 15,
+            marginBottom: 15
         },
         input: {
             width: '100%',

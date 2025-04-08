@@ -109,10 +109,12 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
     }
 
     return (
-        <Pressable style={styles.root} onPress={pickImage} disabled={working || showOverlay}>
-            {renderContent()}
-            <Text style={styles.status}>{status}</Text>
-        </Pressable>
+        <View style={styles.root}>
+            <Pressable style={styles.container} onPress={pickImage} disabled={working || showOverlay}>
+                {renderContent()}
+                <Text style={styles.status}>{status}</Text>
+            </Pressable>
+        </View>
     )
 }
 
@@ -123,6 +125,11 @@ const useStyles = () => {
         root: {
             height: 250,
             width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+        container: {
+            width: '50%',
             justifyContent: 'center',
             alignItems: 'center'
         },
