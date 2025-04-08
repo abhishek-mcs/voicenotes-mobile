@@ -371,7 +371,8 @@ const useStyles = () => {
         prompttext: {
             flex: 5,
             justifyContent: 'center',
-            gap: 5
+            gap: 5,
+            paddingRight: 10
         },
         promptheader: {
             fontFamily: 'Primary-Medium',
