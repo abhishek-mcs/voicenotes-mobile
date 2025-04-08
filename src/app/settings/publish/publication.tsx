@@ -1,5 +1,5 @@
 import Header from "components/settings/header"
-import { Pressable, ScrollView, StyleSheet, View, Text, TextInput, Keyboard, KeyboardEvent, ActivityIndicator, Alert } from "react-native"
+import { Pressable, ScrollView, StyleSheet, View, Text, TextInput, Keyboard, KeyboardEvent, ActivityIndicator, Alert, KeyboardAvoidingView, Dimensions } from "react-native"
 import { useTheme } from "context/theme-context"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -16,7 +16,6 @@ function PublicationEditor() {
     const styles = useStyles()
     const { Colors } = useTheme()
     const scrollViewRef = useRef<ScrollView>(null)
-    const [keyboardSpace, setKeyboardSpace] = useState(0)
     const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
     const dispatch = useDispatch()
 
@@ -25,6 +24,7 @@ function PublicationEditor() {
     let initialSlug = publication?.slug;
 
     // input fields
+    const nameRef = useRef<TextInput>(null)
     const urlRef = useRef<TextInput>(null)
     const aboutRef = useRef<TextInput>(null)
 
@@ -36,31 +36,45 @@ function PublicationEditor() {
     const [checkingSlug, setCheckingSlug] = useState<boolean>(false)
     const [suggestions, setSuggestions] = useState<string[]>([])
     const [working, setWorking] = useState<boolean>(false)
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false)
     const slugApproved = useRef<boolean>(true)
 
     useEffect(() => {
-        const keyboardWillShow = Keyboard.addListener(
-            isIOS ? 'keyboardWillShow' : 'keyboardDidShow',
-            (event: KeyboardEvent) => {
-                setKeyboardSpace(event.endCoordinates.height-90)
-                setTimeout(() => {
-                    scrollViewRef.current?.scrollToEnd({ animated: true })
-                }, 100)
-            }
-        )
-
-        const keyboardWillHide = Keyboard.addListener(
-            isIOS ? 'keyboardWillHide' : 'keyboardDidHide',
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
             () => {
-                setKeyboardSpace(0)
+                setIsKeyboardVisible(true);
             }
-        )
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardVisible(false);
+            }
+        );
 
+        // Clean up listeners when component unmounts
         return () => {
-            keyboardWillShow.remove()
-            keyboardWillHide.remove()
-        }
-    }, [])
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    const scrollToInput = (ref: any) => {
+        setIsKeyboardVisible(true)
+        if (!ref || !ref.current) return;
+        
+        setTimeout(() => {
+            ref.current.measureInWindow((x: number, y: number, width: number, height: number) => {
+                // const screenHeight = Dimensions.get('window').height;
+                // const keyboardHeight = Keyboard.metrics()?.height || 0;
+                // const inputBottomPosition = y + height;
+                // const keyboardPosition = screenHeight - keyboardHeight;
+                
+                scrollViewRef?.current?.scrollToEnd()
+            });
+        }, 300);
+    };
 
     const onSubmit = async () => {
         setWorking(true)
@@ -165,38 +179,44 @@ function PublicationEditor() {
         working={false}
         onCancel={() => router.back()}
     >
-        <>
-        <ScrollView
-            ref={scrollViewRef}
-            style={{ height: '100%', width: '100%' }}
-            contentContainerStyle={styles.root}
+        <KeyboardAvoidingView
+            behavior={"padding"}
+            style={{ flex: 1, width: '100%' }}
+            keyboardVerticalOffset={isIOS ? 100 : 20}
         >
-            <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
-            <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Name</Text>
-                <TextInput value={name} placeholder="Give your page a name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
-            </View>
-            <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Publication URL</Text>
-                <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
-                    <TextInput value={url} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
-                    <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
-                    {checkingSlug && <ActivityIndicator />}
+            <ScrollView
+                ref={scrollViewRef}
+                style={{ height: '100%', width: '100%', marginBottom: isKeyboardVisible ? 100 : 0 }}
+                contentContainerStyle={styles.root}
+                keyboardShouldPersistTaps="handled"
+            >
+                <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
+                <View style={styles.info}>
+                    <Text style={{ color: Colors.text }}>Name</Text>
+                    <TextInput ref={nameRef} onFocus={() => scrollToInput(nameRef)} value={name} placeholder="Give your page a name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
                 </View>
-                {suggestions.length > 0 && <Text style={styles.error}>Sorry that's taken. Please try {suggestions.join(', ')}</Text>}
-            </View>
-            <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>About</Text>
-                <TextInput value={about} placeholder="Describe your page. Let your audience know what to expect." placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} ref={aboutRef} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
-            </View>
-            {keyboardSpace > 0 && <View style={{ height: keyboardSpace }} />}
-        </ScrollView>
-        <View style={styles.footer}>
-            <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>{publication ? 'Update' : 'Done'}</Text>}
-            </Pressable>
-        </View>
-        </>
+                <View style={styles.info}>
+                    <Text style={{ color: Colors.text }}>Publication URL</Text>
+                    <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
+                        <TextInput onFocus={() => scrollToInput(urlRef)} value={url} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
+                        <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
+                        {checkingSlug && <ActivityIndicator />}
+                    </View>
+                    {suggestions.length > 0 && <Text style={styles.error}>Sorry that's taken. Please try {suggestions.join(', ')}</Text>}
+                </View>
+                <View style={styles.info}>
+                    <Text style={{ color: Colors.text }}>About</Text>
+                    <TextInput ref={aboutRef} onFocus={() => scrollToInput(aboutRef)} value={about} placeholder="Describe your page. Let your audience know what to expect." placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
+                </View>
+            </ScrollView>
+            {!isKeyboardVisible && (
+                <View style={styles.footer}>
+                    <Pressable onPress={working ? null : onSubmit} style={styles.button}>
+                        {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
+                    </Pressable>
+                </View>
+            )}
+        </KeyboardAvoidingView>
     </Header>
 }
 
