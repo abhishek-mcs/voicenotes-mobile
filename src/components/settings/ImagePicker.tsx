@@ -43,6 +43,7 @@ const ImagePicker = ({ caption, initialURL, onChange, isAuthor }: ImagePickerPro
             mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
+            aspect: [1, 1]
         });
 
         if(!result.canceled) {
