@@ -43,7 +43,6 @@ const SharedInvites = ({list}: any) => {
                   await queryClient.invalidateQueries("shared-invites");
                   await queryClient.invalidateQueries("published-recordings");
                   await queryClient.refetchQueries(['all-recording', 'shared']);
-                  setAcceptLoading(-1)
                 } catch (e) {
                   console.log("error in accept invite", e);
                 } finally {
