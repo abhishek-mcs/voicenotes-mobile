@@ -1,35 +1,36 @@
 import { home } from "assets/svg/home";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { useTheme } from "context";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Haptics from "expo-haptics";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useInviteAction } from "queries/home";
 import { useQueryClient } from "react-query";
-
-const notes = [
-  {
-    id: "1",
-    name: "Kausalin95",
-    email: "kausalin+95@buymeacoffee.com",
-    message: "Social and Work Energy Dynamics",
-  },
-  {
-    id: "2",
-    name: "Kausalin T P",
-    email: "kausalin@voicenotes.com",
-    message: "Navigating money dynamics in relationships",
-  },
-];
+import { useDispatch } from "react-redux";
+import { setInvitePending } from "redux/reducers/hashSlice";
 
 const SharedInvites = ({list}: any) => {
     const styles = useStyles()
     const { Colors } = useTheme()
+    const dispatch = useDispatch()
     const [declineLoading, setDeclineLoading] = useState(-1)
     const [acceptLoading, setAcceptLoading] = useState(-1)
     const inviteAction = useInviteAction()
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+      const refetchUserDetails = async () => {
+        try {
+          await queryClient.invalidateQueries("user-data");
+        } catch (e) {
+          console.log("error in refetching shared invites", e);
+        }
+      };
+      console.log('Shared Invite useEffect called');
+      refetchUserDetails();
+      dispatch(setInvitePending(false))
+    },[])
 
     const onAccept = async(id: string,index:any) => {
         setAcceptLoading(index)
@@ -40,6 +41,8 @@ const SharedInvites = ({list}: any) => {
               onSuccess: async (data: any) => {
                 try {
                   await queryClient.invalidateQueries("shared-invites");
+                  await queryClient.invalidateQueries("published-recordings");
+                  await queryClient.refetchQueries(['all-recording', 'shared']);
                   setAcceptLoading(-1)
                 } catch (e) {
                   console.log("error in accept invite", e);
@@ -60,6 +63,7 @@ const SharedInvites = ({list}: any) => {
               onSuccess: async (data: any) => {
                 try {
                   await queryClient.invalidateQueries("shared-invites");
+                  await queryClient.invalidateQueries("published-recordings");
                   setDeclineLoading(-1)
                 } catch (e) {
                   console.log("error in decline invite", e);
@@ -72,7 +76,7 @@ const SharedInvites = ({list}: any) => {
     }
 
     const NoteRequestCard = ({ item, index, lastItem }: any) => (
-        <View style={index == lastItem && styles.bottomLine}>
+        <View style={index !== lastItem && styles.bottomLine}>
             <View style={styles.card}>
                 <View style={styles.iconContainer}>
                     <SvgXml xml={home.mail.replace('black', Colors.black2)} />
