@@ -7,11 +7,14 @@ import { SvgXml } from "react-native-svg";
 interface GetStartedProps {
     onGetStarted: () => void;
     screenSlide: Animated.Value;
+    fromShare?: boolean
 }
 
-const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element => {
+const GetStarted = ({ onGetStarted, screenSlide, fromShare }: GetStartedProps): JSX.Element => {
     const { Colors } = useTheme();
     const styles = useStyles();
+
+    const width = Dimensions.get('window').width;
 
     const svgScale = new Animated.Value(0);
     const textSlide = new Animated.Value(-20); // Changed from 30 to -20
@@ -66,7 +69,8 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                             inputRange: [0, 1],
                             outputRange: [0, -400]
                         })
-                    }]
+                    }],
+                    paddingHorizontal: fromShare ? 0 : width * 0.05
                 }
             ]}
         >
@@ -87,7 +91,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Start a Voicenotes page
+                {fromShare ? 'Voicenotes pages' : 'Start a Voicenotes page'}
             </Animated.Text>
             
             <Animated.Text 
@@ -99,7 +103,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Turn your voice notes into mini-podcasts—record on the fly and hit publish.
+                {fromShare ? 'Create a public voicenotes page to share your thoughts and ideas. Just press record and tap publish.' : 'Turn your voice notes into mini-podcasts—record on the fly and hit publish.'}
             </Animated.Text>
             
             <Animated.View 
@@ -112,12 +116,12 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                <Pressable onPress={onGetStarted} style={styles.gsbutton}>
-                    <Text style={styles.gsactionlabel}>Get started</Text>
-                    <SvgXml 
+                <Pressable onPress={onGetStarted} style={[styles.gsbutton, { width: fromShare ? 'auto' : '90%', paddingHorizontal: fromShare ? 15 : 0 }]}>
+                    <Text style={styles.gsactionlabel}>{fromShare ? 'Create Voicenotes page' : 'Get started'}</Text>
+                    {!fromShare && <SvgXml 
                         xml={settingsSvg.rightArrow.replace("white", Colors.whiteWithOpacity(1))} 
                         width={15}
-                    />
+                    />}
                 </Pressable>
             </Animated.View>
         </Animated.View>
@@ -131,33 +135,32 @@ const useStyles = () => {
     return useMemo(() => StyleSheet.create({
         getstarted: {
             flex: 1,
-            width: '90%', // Increased from 80% for better small screen support
+            width: '90%',
             alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: screenWidth * 0.05,
+            justifyContent: 'center'
         },
         imageContainer: {
             marginBottom: screenWidth * 0.05,
         },
         gsheader: {
             color: Colors.text,
-            fontSize: screenWidth * 0.05, // About 20px on a 400px wide screen
+            fontSize: screenWidth * 0.05,
             fontFamily: 'Primary-Medium',
             textAlign: 'center',
             marginTop: screenWidth * 0.03,
         },
         gscaption: {
             color: Colors.text10,
-            fontSize: screenWidth * 0.042, // About 17px on a 400px wide screen
+            fontSize: screenWidth * 0.042,
             fontFamily: 'Primary',
             marginTop: screenWidth * 0.037,
             textAlign: 'center',
             paddingHorizontal: screenWidth * 0.02,
         },
         gsbutton: {
-            width: '100%', // Changed from 90% to fill container
+            width: '100%',
             backgroundColor: Colors.askLogo,
-            height: screenWidth * 0.12, // About 50px on a 400px wide screen
+            height: screenWidth * 0.12,
             marginTop: screenWidth * 0.075,
             borderRadius: screenWidth * 0.06,
             flexDirection: 'row',
@@ -168,7 +171,7 @@ const useStyles = () => {
         gsactionlabel: {
             color: Colors.whiteWithOpacity(1),
             fontFamily: 'Primary-Bold',
-            fontSize: screenWidth * 0.035, // About 14px on a 400px wide screen
+            fontSize: screenWidth * 0.035,
         }
     }), [Colors])
 }
