@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "redux/store/store"
 import { createAuthor, updateAuthor } from "queries/settings"
 import { setUserDetail } from "redux/reducers/userDetails"
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 
 function BioEditor() {
     const router = useRouter()
@@ -26,31 +27,8 @@ function BioEditor() {
     const aboutRef = useRef<TextInput>(null)
     const websiteRef = useRef<TextInput>(null)
     const [working, setWorking] = useState<boolean>(false)
-    const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false)
-
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            () => {
-                setIsKeyboardVisible(true);
-            }
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
-                setIsKeyboardVisible(false);
-            }
-        );
-
-        // Clean up listeners when component unmounts
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        };
-    }, []);
 
     const scrollToInput = (ref: any) => {
-        setIsKeyboardVisible(true)
         if (!ref || !ref.current) return;
         
         setTimeout(() => {
@@ -146,74 +124,65 @@ function BioEditor() {
         working={false}
         onCancel={() => router.back()}
     >
-        <KeyboardAvoidingView
-            behavior={"padding"}
-            style={{ flex: 1, width: '100%' }}
-            keyboardVerticalOffset={isIOS ? 100 : 20}
+        <KeyboardAwareScrollView
+            contentContainerStyle={styles.root}
+            style={{ width: '100%', height: '100%' }}
+            keyboardShouldPersistTaps="handled"
         >
-            <ScrollView
-                ref={scrollViewRef}
-                style={{ height: '100%', width: '100%', marginBottom: isKeyboardVisible ? 100: 0 }}
-                contentContainerStyle={styles.root}
-                keyboardShouldPersistTaps="handled"
-            >
-                <ImagePicker caption="Profile photo" initialURL={userDetails?.author?.avatar} isAuthor onChange={url => setAvatar(url)} />
-                <View style={styles.info}>
-                    <Text style={{ color: Colors.text }}>Name</Text>
-                    <TextInput 
-                        value={name}
-                        onFocus={() => scrollToInput(null)} 
-                        placeholder="This is what your audience will call you." 
-                        placeholderTextColor={Colors.placeholderText} 
-                        onChangeText={text => setName(text)} 
-                        style={styles.input} 
-                        returnKeyLabel="Next" 
-                        returnKeyType="next" 
-                        onSubmitEditing={() => aboutRef?.current?.focus()} 
-                    />
-                </View>
-                <View style={styles.info}>
-                    <Text style={{ color: Colors.text }}>About</Text>
-                    <TextInput 
-                        value={about}
-                        onFocus={() => scrollToInput(aboutRef)} 
-                        placeholder="Tell your audience who you are. Share a little or a lot—it's up to you." 
-                        placeholderTextColor={Colors.placeholderText} 
-                        onChangeText={text => setAbout(text)} 
-                        ref={aboutRef} 
-                        returnKeyLabel="Next" 
-                        returnKeyType="next" 
-                        multiline 
-                        onSubmitEditing={() => websiteRef?.current?.focus()} 
-                        style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} 
-                    />
-                </View>
-                <View style={styles.info}>
-                    <Text style={{ color: Colors.text }}>Website</Text>
-                    <TextInput 
-                        ref={websiteRef} 
-                        value={website}
-                        onFocus={() => scrollToInput(websiteRef)} 
-                        placeholder="Got a website? Link it here (optional)." 
-                        placeholderTextColor={Colors.placeholderText} 
-                        autoCapitalize="none" 
-                        autoCorrect={false} 
-                        returnKeyLabel="Go" 
-                        returnKeyType="go" 
-                        onChangeText={text => setWebsite(text)} 
-                        style={styles.input} 
-                        keyboardType={'url'} 
-                    />
-                </View>
-            </ScrollView>
-            {!isKeyboardVisible && (
-                <View style={styles.footer}>
-                    <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                        {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
-                    </Pressable>
-                </View>
-            )}
-        </KeyboardAvoidingView>
+            <ImagePicker caption="Profile photo" initialURL={userDetails?.author?.avatar} isAuthor onChange={url => setAvatar(url)} />
+            <View style={styles.info}>
+                <Text style={{ color: Colors.text }}>Name</Text>
+                <TextInput 
+                    value={name}
+                    onFocus={() => scrollToInput(null)} 
+                    placeholder="This is what your audience will call you." 
+                    placeholderTextColor={Colors.placeholderText} 
+                    onChangeText={text => setName(text)} 
+                    style={styles.input} 
+                    returnKeyLabel="Next" 
+                    returnKeyType="next" 
+                    onSubmitEditing={() => aboutRef?.current?.focus()} 
+                />
+            </View>
+            <View style={styles.info}>
+                <Text style={{ color: Colors.text }}>About</Text>
+                <TextInput 
+                    value={about}
+                    onFocus={() => scrollToInput(aboutRef)} 
+                    placeholder="Tell your audience who you are. Share a little or a lot—it's up to you." 
+                    placeholderTextColor={Colors.placeholderText} 
+                    onChangeText={text => setAbout(text)} 
+                    ref={aboutRef} 
+                    returnKeyLabel="Next" 
+                    returnKeyType="next" 
+                    multiline 
+                    onSubmitEditing={() => websiteRef?.current?.focus()} 
+                    style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} 
+                />
+            </View>
+            <View style={styles.info}>
+                <Text style={{ color: Colors.text }}>Website</Text>
+                <TextInput 
+                    ref={websiteRef} 
+                    value={website}
+                    onFocus={() => scrollToInput(websiteRef)} 
+                    placeholder="Got a website? Link it here (optional)." 
+                    placeholderTextColor={Colors.placeholderText} 
+                    autoCapitalize="none" 
+                    autoCorrect={false} 
+                    returnKeyLabel="Go" 
+                    returnKeyType="go" 
+                    onChangeText={text => setWebsite(text)} 
+                    style={styles.input} 
+                    keyboardType={'url'} 
+                />
+            </View>
+            <View style={styles.footer}>
+                <Pressable onPress={working ? null : onSubmit} style={styles.button}>
+                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
+                </Pressable>
+            </View>
+        </KeyboardAwareScrollView>
     </Header>
 }
 
@@ -233,7 +202,7 @@ const useStyles = () => {
             width: '100%',
             alignItems: 'center',
             paddingVertical: 15,
-            marginBottom: 15
+            marginTop: Dimensions.get('window').height / 100
         },
         input: {
             width: '100%',
