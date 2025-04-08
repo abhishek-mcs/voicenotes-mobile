@@ -109,6 +109,7 @@ export async function uploadAvatar(
 }
 
 export async function editPublication(
+  intial_slug: string,
   description: string,
   is_public: boolean,
   slug: string,
@@ -116,7 +117,7 @@ export async function editPublication(
   avatar?: string
 ): Promise<Publication | undefined> {
   try {
-    const response = await axiosApi.patch(`/publications/${slug}`, {
+    const response = await axiosApi.patch(`/publications/${intial_slug}`, {
       description,
       is_public: is_public ? 1 : 0,
       slug,

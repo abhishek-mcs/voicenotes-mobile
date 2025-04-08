@@ -22,6 +22,7 @@ function PublicationEditor() {
 
     const { id } = useLocalSearchParams()
     const publication = userDetails?.publications.find((p: any) => p.id === Number(id))
+    let initialSlug = publication?.slug;
 
     // input fields
     const urlRef = useRef<TextInput>(null)
@@ -115,7 +116,8 @@ function PublicationEditor() {
         }
 
         try {
-            const response = publication ? await editPublication(about, true, url, name, avatar !== publication?.avatar ? avatar : undefined) : await createPublication(avatar, about, true, url, name)
+            const response = publication ? await editPublication(initialSlug, about, true, url, name, avatar !== publication?.avatar ? avatar : undefined) : await createPublication(avatar, about, true, url, name)
+            initialSlug = response?.slug;
     
             let publications = publication
             ? userDetails?.publications.map((item: any) => item?.id === publication?.id ? response : item)
