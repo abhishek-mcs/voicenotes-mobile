@@ -18,6 +18,7 @@ const plist = require('@expo/plist');
 const SHARE_EXTENSION_TARGET_NAME = 'VoicenotesShareExtension'; // Choose a name for your extension target
 const SHARE_EXTENSION_FOLDER_NAME = 'VoicenotesShareExtension'; // Folder name in ios/ for extension files
 const MAIN_APP_URL_SCHEME = 'voicenotes'; // Your main app's URL scheme
+const APP_GROUP_ID = 'group.app.voicenotes';
 
 
 // ----------------------------
@@ -28,20 +29,24 @@ function copyIosSourceFiles(projectRoot, projectName, pluginSourceDir) {
     const iosSourceDir = path.join(pluginSourceDir, 'ios');
     const iosProjectDir = path.join(projectRoot, 'ios');
 
-    const mainAppTargetDir = path.join(iosProjectDir, projectName); // e.g., ios/MyApp
-    const extensionTargetDir = path.join(iosProjectDir, SHARE_EXTENSION_FOLDER_NAME); // e.g., ios/ShareExtension
+    const mainAppTargetDir = path.join(iosProjectDir, projectName); // e.g., ios/YourAppName
+    const extensionTargetDir = path.join(iosProjectDir, SHARE_EXTENSION_FOLDER_NAME); // e.g., ios/VoicenotesShareExtension
 
-    // Ensure target directories exist (third-party plugin should create extensionTargetDir)
-    fs.mkdirSync(mainAppTargetDir, { recursive: true });
-    if (!fs.existsSync(extensionTargetDir)) {
-        // If the third-party plugin didn't create it, create it now.
-        fs.mkdirSync(extensionTargetDir, { recursive: true });
-        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Created missing directory "${extensionTargetDir}". Ensure the third-party plugin ran first.`);
+    // Ensure target directories exist
+    // Main app dir should exist from prebuild
+    if (!fs.existsSync(mainAppTargetDir)) {
+        WarningAggregator.addWarningIOS('with-custom-share-receiver', `iOS main app source directory "${mainAppTargetDir}" not found. Cannot copy main app native files.`);
+    } else {
+        copyFiles(iosSourceDir, mainAppTargetDir, ['ShareReceiverModule.swift', 'ShareReceiverBridge.m', 'ShareReceiverApp-Bridging-Header.h']);
     }
 
-    // Copy files (overwriting templates placed by the other plugin)
-    copyFiles(iosSourceDir, mainAppTargetDir, ['ShareReceiverModule.swift', 'ShareReceiverBridge.m', 'ShareReceiverApp-Bridging-Header.h']);
-    copyFiles(iosSourceDir, extensionTargetDir, ['ShareExtensionViewController.swift']);
+    // Extension dir should exist from manual setup
+    if (!fs.existsSync(extensionTargetDir)) {
+        // If it doesn't exist, the manual step was missed or folder name constant is wrong.
+        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Directory "${extensionTargetDir}" not found. Cannot copy extension files. Ensure manual Xcode setup was done and SHARE_EXTENSION_FOLDER_NAME constant is correct.`);
+    } else {
+        copyFiles(iosSourceDir, extensionTargetDir, ['ShareViewController.swift']);
+    }
 }
 
 /**
@@ -49,59 +54,47 @@ function copyIosSourceFiles(projectRoot, projectName, pluginSourceDir) {
  * Runs within withDangerousMod *after* files are potentially created/copied.
  * VERSION 2: Only adds LSApplicationQueriesSchemes and removes Apple Sign In entitlement.
  * @param {string} platformProjectRoot - Path to the ios/ directory.
- */
-function modifyExtensionFiles(platformProjectRoot) {
+ */function modifyExtensionFiles(platformProjectRoot) {
+    // Construct paths using constants defined elsewhere in your plugin
     const extensionTargetDir = path.join(platformProjectRoot, SHARE_EXTENSION_FOLDER_NAME);
     const plistFilePath = path.join(extensionTargetDir, 'Info.plist');
-    const entitlementsFilePath = path.join(extensionTargetDir, `${SHARE_EXTENSION_TARGET_NAME}.entitlements`);
-
-    // --- Configure Extension Entitlements File ---
-    try {
-        if (fs.existsSync(entitlementsFilePath)) {
-            let extensionEntitlements = plist.parse(fs.readFileSync(entitlementsFilePath, 'utf8'));
-            const appleSignInKey = 'com.apple.developer.applesignin'; // Key to remove
-
-            // Remove the Apple Sign In key if it exists
-            if (extensionEntitlements.hasOwnProperty(appleSignInKey)) {
-                delete extensionEntitlements[appleSignInKey];
-                console.log(`[with-custom-share-receiver] Removed "${appleSignInKey}" key from extension entitlements file.`);
-                // Write the modified file back
-                fs.writeFileSync(entitlementsFilePath, plist.build(extensionEntitlements));
-                console.log(`[with-custom-share-receiver] Wrote updated entitlements file: ${entitlementsFilePath}`);
-            } else {
-                console.log(`[with-custom-share-receiver] "${appleSignInKey}" key not found in extension entitlements file.`);
-            }
-        } else {
-            // If the file doesn't exist, we can't remove the key. Log a warning.
-            WarningAggregator.addWarningIOS('with-custom-share-receiver', `Extension entitlements file not found at "${entitlementsFilePath}". Cannot remove Apple Sign In key.`);
-        }
-    } catch (e) {
-        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Error modifying extension entitlements file at "${entitlementsFilePath}": ${e.message}`);
-    }
+    const pluginName = 'with-custom-share-receiver'; // Or your plugin name constant
 
     // --- Configure Extension Info.plist File ---
     try {
+        // Check if file exists before trying to read/modify
         if (fs.existsSync(plistFilePath)) {
             let extensionPlist = plist.parse(fs.readFileSync(plistFilePath, 'utf8'));
+            let plistChanged = false;
 
-            // Add LSApplicationQueriesSchemes
+            // --- Add LSApplicationQueriesSchemes ---
             const queriesKey = 'LSApplicationQueriesSchemes';
-            extensionPlist[queriesKey] = extensionPlist[queriesKey] || []; // Ensure array exists
+            // Ensure the key exists as an array, create if not
+            if (!Array.isArray(extensionPlist[queriesKey])) {
+                extensionPlist[queriesKey] = [];
+            }
+
+            // Add the main app's URL scheme if it's not already present
             if (!extensionPlist[queriesKey].includes(MAIN_APP_URL_SCHEME)) {
                 extensionPlist[queriesKey].push(MAIN_APP_URL_SCHEME);
-                console.log(`[with-custom-share-receiver] Added LSApplicationQueriesSchemes "${MAIN_APP_URL_SCHEME}" to extension Info.plist.`);
-                // Write the modified file back ONLY if changed
-                fs.writeFileSync(plistFilePath, plist.build(extensionPlist));
-                console.log(`[with-custom-share-receiver] Wrote updated Info.plist file: ${plistFilePath}`);
+                console.log(`[${pluginName}] Added LSApplicationQueriesSchemes "${MAIN_APP_URL_SCHEME}" to extension Info.plist.`);
+                plistChanged = true; // Mark that a change was made
             } else {
-                console.log(`[with-custom-share-receiver] LSApplicationQueriesSchemes "${MAIN_APP_URL_SCHEME}" already in extension Info.plist.`);
+                console.log(`[${pluginName}] LSApplicationQueriesSchemes "${MAIN_APP_URL_SCHEME}" already in extension Info.plist.`);
+            }
+
+            // Write file back ONLY if changes were actually made
+            if(plistChanged) {
+                fs.writeFileSync(plistFilePath, plist.build(extensionPlist));
+                console.log(`[${pluginName}] Wrote updated Info.plist file: ${plistFilePath}`);
             }
         } else {
-            // If the file doesn't exist, we cannot add the scheme. Log a warning.
-            WarningAggregator.addWarningIOS('with-custom-share-receiver', `Extension Info.plist not found at "${plistFilePath}". Cannot add LSApplicationQueriesSchemes.`);
+            // Log warning if file doesn't exist - essential for this approach
+            WarningAggregator.addWarningIOS(pluginName, `Extension Info.plist not found at "${plistFilePath}". Cannot add LSApplicationQueriesSchemes. Ensure manual Xcode setup created this file and constants (SHARE_EXTENSION_FOLDER_NAME) are correct.`);
         }
     } catch (e) {
-        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Error modifying extension Info.plist file at "${plistFilePath}": ${e.message}`);
+        // Log errors during file processing
+        WarningAggregator.addWarningIOS(pluginName, `Error modifying extension Info.plist file at "${plistFilePath}": ${e.message}`);
     }
 }
 

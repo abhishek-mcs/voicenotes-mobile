@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -94,6 +94,7 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		CBF786B8AE3BA3E121D8102A /* Pods_Voicenotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9A38E3068AE511A1FFD9235 /* Pods_Voicenotes.framework */; };
 		E2842E235E804D9D9C0C9E3B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8A18B34578644E9C923142A9 /* GoogleService-Info.plist */; };
+		E933B3EC2DA71ED400197590 /* VoicenotesShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E933B3E22DA71ED400197590 /* VoicenotesShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,13 @@
 			remoteGlobalIDString = 84B6538B2C907F2F00E1BADE;
 			remoteInfo = iOSWidgetExtension;
 		};
+		E933B3EA2DA71ED400197590 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E933B3E12DA71ED400197590;
+			remoteInfo = VoicenotesShareExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -128,6 +136,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				84B6539F2C907F3000E1BADE /* iOSWidgetExtension.appex in Embed Foundation Extensions */,
+				E933B3EC2DA71ED400197590 /* VoicenotesShareExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -231,10 +240,25 @@
 		C61BC6D02C2EA10D00D2F468 /* loadAnimationGray.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = loadAnimationGray.json; sourceTree = "<group>"; };
 		C61BC6E92C2EA10D00D2F468 /* loadAnimation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = loadAnimation.json; sourceTree = "<group>"; };
 		D9A38E3068AE511A1FFD9235 /* Pods_Voicenotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Voicenotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E933B3E22DA71ED400197590 /* VoicenotesShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VoicenotesShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECD77ABA4F01916E254C30BC /* Pods-Voicenotes.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Voicenotes.release.xcconfig"; path = "Target Support Files/Pods-Voicenotes/Pods-Voicenotes.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Voicenotes/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E933B3EF2DA71ED400197590 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E933B3E12DA71ED400197590 /* VoicenotesShareExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E933B3E32DA71ED400197590 /* VoicenotesShareExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E933B3EF2DA71ED400197590 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VoicenotesShareExtension; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
@@ -261,6 +285,13 @@
 			files = (
 				84B653902C907F2F00E1BADE /* SwiftUI.framework in Frameworks */,
 				84B6538E2C907F2F00E1BADE /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E933B3DF2DA71ED400197590 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,6 +343,7 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				844941192C9471320040B22F /* Voicenotes Watch App */,
 				84B653912C907F2F00E1BADE /* iOSWidget */,
+				E933B3E32DA71ED400197590 /* VoicenotesShareExtension */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
@@ -328,6 +360,7 @@
 				13B07F961A680F5B00A75B9A /* Voicenotes.app */,
 				84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */,
 				844941182C9471320040B22F /* Voicenotes Watch App.app */,
+				E933B3E22DA71ED400197590 /* VoicenotesShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -639,6 +672,7 @@
 				841F720B2CA5895600A5908F /* PBXTargetDependency */,
 				84B6539E2C907F3000E1BADE /* PBXTargetDependency */,
 				841F720E2CA5896200A5908F /* PBXTargetDependency */,
+				E933B3EB2DA71ED400197590 /* PBXTargetDependency */,
 			);
 			name = Voicenotes;
 			productName = Voicenotes;
@@ -684,13 +718,35 @@
 			productReference = 84B6538C2C907F2F00E1BADE /* iOSWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		E933B3E12DA71ED400197590 /* VoicenotesShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E933B3F02DA71ED400197590 /* Build configuration list for PBXNativeTarget "VoicenotesShareExtension" */;
+			buildPhases = (
+				E933B3DE2DA71ED400197590 /* Sources */,
+				E933B3DF2DA71ED400197590 /* Frameworks */,
+				E933B3E02DA71ED400197590 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E933B3E32DA71ED400197590 /* VoicenotesShareExtension */,
+			);
+			name = VoicenotesShareExtension;
+			packageProductDependencies = (
+			);
+			productName = VoicenotesShareExtension;
+			productReference = E933B3E22DA71ED400197590 /* VoicenotesShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
@@ -701,6 +757,9 @@
 					};
 					84B6538B2C907F2F00E1BADE = {
 						CreatedOnToolsVersion = 15.3;
+					};
+					E933B3E12DA71ED400197590 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -725,6 +784,7 @@
 				13B07F861A680F5B00A75B9A /* Voicenotes */,
 				844941172C9471320040B22F /* Voicenotes Watch App */,
 				84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */,
+				E933B3E12DA71ED400197590 /* VoicenotesShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -769,6 +829,13 @@
 				84B6539B2C907F3000E1BADE /* Assets.xcassets in Resources */,
 				844941B02C947A380040B22F /* SF-Pro-Rounded-Medium.ttf in Resources */,
 				844941B52C947A460040B22F /* SF-Pro-Rounded-Bold.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E933B3E02DA71ED400197590 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1028,6 +1095,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E933B3DE2DA71ED400197590 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1045,6 +1119,11 @@
 			isa = PBXTargetDependency;
 			target = 84B6538B2C907F2F00E1BADE /* iOSWidgetExtension */;
 			targetProxy = 84B6539D2C907F3000E1BADE /* PBXContainerItemProxy */;
+		};
+		E933B3EB2DA71ED400197590 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E933B3E12DA71ED400197590 /* VoicenotesShareExtension */;
+			targetProxy = E933B3EA2DA71ED400197590 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1196,10 +1275,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1267,10 +1343,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1470,6 +1543,91 @@
 			};
 			name = Release;
 		};
+		E933B3ED2DA71ED400197590 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = VoicenotesShareExtension/VoicenotesShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = H675MS8CG7;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoicenotesShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VoicenotesShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.voicenotes.VoicenotesShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E933B3EE2DA71ED400197590 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = VoicenotesShareExtension/VoicenotesShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = H675MS8CG7;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoicenotesShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VoicenotesShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.voicenotes.VoicenotesShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1505,6 +1663,15 @@
 			buildConfigurations = (
 				84B653A12C907F3000E1BADE /* Debug */,
 				84B653A22C907F3000E1BADE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E933B3F02DA71ED400197590 /* Build configuration list for PBXNativeTarget "VoicenotesShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E933B3ED2DA71ED400197590 /* Debug */,
+				E933B3EE2DA71ED400197590 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
