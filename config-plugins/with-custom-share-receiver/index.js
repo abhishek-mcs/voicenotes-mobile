@@ -10,13 +10,100 @@ const {
 // For file system operations (copying files)
 const fs = require('fs');
 const path = require('path');
+const plist = require('@expo/plist');
 
-// --- Plugin Configuration ---
-// const SHARE_EXTENSION_TARGET_NAME = 'ShareExtension'; // Must match target name if created manually/previously
-// const APP_GROUP_ID = 'group.app.voicenotes';
-// const URL_SCHEME = 'voicenotes';
-// const HOST_APP_BUNDLE_ID_KEY = 'NSExtensionHostAppBundleIdentifier'; // Key for Extension's Info.plist
 
+// --- Plugin Configuration Constants ---
+// !! IMPORTANT: Update these values !!
+const SHARE_EXTENSION_TARGET_NAME = 'VoicenotesShareExtension'; // Choose a name for your extension target
+const SHARE_EXTENSION_FOLDER_NAME = 'VoicenotesShareExtension'; // Folder name in ios/ for extension files
+const MAIN_APP_URL_SCHEME = 'voicenotes'; // Your main app's URL scheme
+
+
+// ----------------------------
+// ------ iOS Functions -------
+// ----------------------------
+// Copies files using withDangerousMod context
+function copyIosSourceFiles(projectRoot, projectName, pluginSourceDir) {
+    const iosSourceDir = path.join(pluginSourceDir, 'ios');
+    const iosProjectDir = path.join(projectRoot, 'ios');
+
+    const mainAppTargetDir = path.join(iosProjectDir, projectName); // e.g., ios/MyApp
+    const extensionTargetDir = path.join(iosProjectDir, SHARE_EXTENSION_FOLDER_NAME); // e.g., ios/ShareExtension
+
+    // Ensure target directories exist (third-party plugin should create extensionTargetDir)
+    fs.mkdirSync(mainAppTargetDir, { recursive: true });
+    if (!fs.existsSync(extensionTargetDir)) {
+        // If the third-party plugin didn't create it, create it now.
+        fs.mkdirSync(extensionTargetDir, { recursive: true });
+        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Created missing directory "${extensionTargetDir}". Ensure the third-party plugin ran first.`);
+    }
+
+    // Copy files (overwriting templates placed by the other plugin)
+    copyFiles(iosSourceDir, mainAppTargetDir, ['ShareReceiverModule.swift', 'ShareReceiverBridge.m', 'ShareReceiverApp-Bridging-Header.h']);
+    copyFiles(iosSourceDir, extensionTargetDir, ['ShareExtensionViewController.swift']);
+}
+
+/**
+ * Modifies the Extension's Info.plist and Entitlements files on disk.
+ * Runs within withDangerousMod *after* files are potentially created/copied.
+ * VERSION 2: Only adds LSApplicationQueriesSchemes and removes Apple Sign In entitlement.
+ * @param {string} platformProjectRoot - Path to the ios/ directory.
+ */
+function modifyExtensionFiles(platformProjectRoot) {
+    const extensionTargetDir = path.join(platformProjectRoot, SHARE_EXTENSION_FOLDER_NAME);
+    const plistFilePath = path.join(extensionTargetDir, 'Info.plist');
+    const entitlementsFilePath = path.join(extensionTargetDir, `${SHARE_EXTENSION_TARGET_NAME}.entitlements`);
+
+    // --- Configure Extension Entitlements File ---
+    try {
+        if (fs.existsSync(entitlementsFilePath)) {
+            let extensionEntitlements = plist.parse(fs.readFileSync(entitlementsFilePath, 'utf8'));
+            const appleSignInKey = 'com.apple.developer.applesignin'; // Key to remove
+
+            // Remove the Apple Sign In key if it exists
+            if (extensionEntitlements.hasOwnProperty(appleSignInKey)) {
+                delete extensionEntitlements[appleSignInKey];
+                console.log(`[with-custom-share-receiver] Removed "${appleSignInKey}" key from extension entitlements file.`);
+                // Write the modified file back
+                fs.writeFileSync(entitlementsFilePath, plist.build(extensionEntitlements));
+                console.log(`[with-custom-share-receiver] Wrote updated entitlements file: ${entitlementsFilePath}`);
+            } else {
+                console.log(`[with-custom-share-receiver] "${appleSignInKey}" key not found in extension entitlements file.`);
+            }
+        } else {
+            // If the file doesn't exist, we can't remove the key. Log a warning.
+            WarningAggregator.addWarningIOS('with-custom-share-receiver', `Extension entitlements file not found at "${entitlementsFilePath}". Cannot remove Apple Sign In key.`);
+        }
+    } catch (e) {
+        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Error modifying extension entitlements file at "${entitlementsFilePath}": ${e.message}`);
+    }
+
+    // --- Configure Extension Info.plist File ---
+    try {
+        if (fs.existsSync(plistFilePath)) {
+            let extensionPlist = plist.parse(fs.readFileSync(plistFilePath, 'utf8'));
+
+            // Add LSApplicationQueriesSchemes
+            const queriesKey = 'LSApplicationQueriesSchemes';
+            extensionPlist[queriesKey] = extensionPlist[queriesKey] || []; // Ensure array exists
+            if (!extensionPlist[queriesKey].includes(MAIN_APP_URL_SCHEME)) {
+                extensionPlist[queriesKey].push(MAIN_APP_URL_SCHEME);
+                console.log(`[with-custom-share-receiver] Added LSApplicationQueriesSchemes "${MAIN_APP_URL_SCHEME}" to extension Info.plist.`);
+                // Write the modified file back ONLY if changed
+                fs.writeFileSync(plistFilePath, plist.build(extensionPlist));
+                console.log(`[with-custom-share-receiver] Wrote updated Info.plist file: ${plistFilePath}`);
+            } else {
+                console.log(`[with-custom-share-receiver] LSApplicationQueriesSchemes "${MAIN_APP_URL_SCHEME}" already in extension Info.plist.`);
+            }
+        } else {
+            // If the file doesn't exist, we cannot add the scheme. Log a warning.
+            WarningAggregator.addWarningIOS('with-custom-share-receiver', `Extension Info.plist not found at "${plistFilePath}". Cannot add LSApplicationQueriesSchemes.`);
+        }
+    } catch (e) {
+        WarningAggregator.addWarningIOS('with-custom-share-receiver', `Error modifying extension Info.plist file at "${plistFilePath}": ${e.message}`);
+    }
+}
 
 // ----------------------------
 // ------ Android Functions ---
@@ -122,19 +209,19 @@ const withReceiverMainApplication = (config, options = {}) => {
             if (lastImportMatch) {
                 const lastImportLine = lastImportMatch[lastImportMatch.length - 1];
                 mainApplication = mainApplication.replace(lastImportLine, `${lastImportLine}\n${importLine}`);
-                console.log(`[${pluginName}] Added ShareReceiverPackage import to MainApplication`);
+                console.log(`[with-custom-share-receiver] Added ShareReceiverPackage import to MainApplication`);
             } else {
                 const packageAnchor = /^package .*/m;
                 if (packageAnchor.test(mainApplication)) {
                     mainApplication = mainApplication.replace(packageAnchor, `$&\n\n${importLine}`);
-                    console.log(`[${pluginName}] Added ShareReceiverPackage import (after package) to MainApplication`);
+                    console.log(`[with-custom-share-receiver] Added ShareReceiverPackage import (after package) to MainApplication`);
                 } else {
                     mainApplication = `${importLine}\n\n${mainApplication}`;
-                    console.log(`[${pluginName}] Added ShareReceiverPackage import (at beginning) to MainApplication`);
+                    console.log(`[with-custom-share-receiver] Added ShareReceiverPackage import (at beginning) to MainApplication`);
                 }
             }
         } else {
-            console.log(`[${pluginName}] ShareReceiverPackage import seems to exist in MainApplication, skipping addition.`);
+            console.log(`[with-custom-share-receiver] ShareReceiverPackage import seems to exist in MainApplication, skipping addition.`);
         }
 
         // --- 2. Add Package Instantiation ---
@@ -148,13 +235,13 @@ const withReceiverMainApplication = (config, options = {}) => {
                     returnPackagesAnchor,
                     `\n${packageInstantiation}\n$1` // Add line before the matched group
                 );
-                console.log(`[${pluginName}] Added ShareReceiverPackage instantiation to MainApplication (before return).`);
+                console.log(`[with-custom-share-receiver] Added ShareReceiverPackage instantiation to MainApplication (before return).`);
             } else {
                 // Fallback warning if the new anchor isn't found either
                 WarningAggregator.addWarningAndroid(pluginName, 'Could not find "return packages" anchor in MainApplication.kt to add package instantiation.');
             }
         } else {
-            console.log(`[${pluginName}] ShareReceiverPackage instantiation seems to exist in MainApplication, skipping addition.`);
+            console.log(`[with-custom-share-receiver] ShareReceiverPackage instantiation seems to exist in MainApplication, skipping addition.`);
         }
 
         // Update contents
@@ -434,14 +521,14 @@ const withReceiverMainActivity = (config) => {
             const importAnchor = /^(package .*|import .*)/m; // Find package or first import
             if (importAnchor.test(mainActivity)) {
                 mainActivity = mainActivity.replace(importAnchor, `$1\n${snippets.imports}`);
-                console.log(`[${pluginName}] Added required imports to MainActivity.kt`);
+                console.log(`[with-custom-share-receiver] Added required imports to MainActivity.kt`);
             } else {
                 // Fallback: Add at the very beginning
                 mainActivity = snippets.imports + "\n" + mainActivity;
-                console.log(`[${pluginName}] Added required imports to beginning of MainActivity.kt`);
+                console.log(`[with-custom-share-receiver] Added required imports to beginning of MainActivity.kt`);
             }
         } else {
-            console.log(`[${pluginName}] Imports seem to exist in MainActivity.kt, skipping addition.`);
+            console.log(`[with-custom-share-receiver] Imports seem to exist in MainActivity.kt, skipping addition.`);
         }
 
         // --- 2. Add Class Members ---
@@ -450,12 +537,12 @@ const withReceiverMainActivity = (config) => {
             const classBodyAnchor = /class MainActivity\s*:\s*ReactActivity\(\)\s*\{/;
             if (classBodyAnchor.test(mainActivity)) {
                 mainActivity = mainActivity.replace(classBodyAnchor, `$&\n${snippets.classMembers}`);
-                console.log(`[${pluginName}] Added class members to MainActivity.kt`);
+                console.log(`[with-custom-share-receiver] Added class members to MainActivity.kt`);
             } else {
                 WarningAggregator.addWarningAndroid(pluginName, 'Could not find class definition anchor in MainActivity.kt to add members.');
             }
         } else {
-            console.log(`[${pluginName}] Class members seem to exist in MainActivity.kt, skipping addition.`);
+            console.log(`[with-custom-share-receiver] Class members seem to exist in MainActivity.kt, skipping addition.`);
         }
 
         // --- 3. Modify onCreate ---
@@ -464,12 +551,12 @@ const withReceiverMainActivity = (config) => {
             const onCreateAnchor = /super\.onCreate\(.*\)/; // Find super.onCreate call
             if (onCreateAnchor.test(mainActivity)) {
                 mainActivity = mainActivity.replace(onCreateAnchor, `$&\n${snippets.onCreateContent}`);
-                console.log(`[${pluginName}] Added intent handling logic to onCreate in MainActivity.kt`);
+                console.log(`[with-custom-share-receiver] Added intent handling logic to onCreate in MainActivity.kt`);
             } else {
                 WarningAggregator.addWarningAndroid(pluginName, 'Could not find super.onCreate() anchor in MainActivity.kt to modify.');
             }
         } else {
-            console.log(`[${pluginName}] onCreate modification seems to exist in MainActivity.kt, skipping addition.`);
+            console.log(`[with-custom-share-receiver] onCreate modification seems to exist in MainActivity.kt, skipping addition.`);
         }
 
         // --- 4. Add onNewIntent (if not present) ---
@@ -478,12 +565,12 @@ const withReceiverMainActivity = (config) => {
             const lastBraceAnchor = /}\s*$/; // Anchor for the class's closing brace
             if (lastBraceAnchor.test(mainActivity)) {
                 mainActivity = mainActivity.replace(lastBraceAnchor, `\n${snippets.onNewIntentMethod}\n}\n`);
-                console.log(`[${pluginName}] Added onNewIntent method to MainActivity.kt`);
+                console.log(`[with-custom-share-receiver] Added onNewIntent method to MainActivity.kt`);
             } else {
                 WarningAggregator.addWarningAndroid(pluginName, 'Could not find closing brace in MainActivity.kt to add onNewIntent.');
             }
         } else {
-            console.log(`[${pluginName}] onNewIntent method seems to exist in MainActivity.kt, skipping addition.`);
+            console.log(`[with-custom-share-receiver] onNewIntent method seems to exist in MainActivity.kt, skipping addition.`);
         }
 
         // --- 5. Add Helper Methods (if not present) ---
@@ -500,12 +587,12 @@ const withReceiverMainActivity = (config) => {
 
             if (lastBraceAnchor.test(mainActivity)) {
                 mainActivity = mainActivity.replace(lastBraceAnchor, `\n${methodsToAdd}\n}\n`);
-                console.log(`[${pluginName}] Added helper methods (handleIntent, createItemMap, etc.) to MainActivity.kt`);
+                console.log(`[with-custom-share-receiver] Added helper methods (handleIntent, createItemMap, etc.) to MainActivity.kt`);
             } else {
                 WarningAggregator.addWarningAndroid(pluginName, 'Could not find closing brace in MainActivity.kt to add helper methods.');
             }
         } else {
-            console.log(`[${pluginName}] Helper methods seem to exist in MainActivity.kt, skipping addition.`);
+            console.log(`[with-custom-share-receiver] Helper methods seem to exist in MainActivity.kt, skipping addition.`);
         }
 
         // Update the file contents
@@ -514,47 +601,13 @@ const withReceiverMainActivity = (config) => {
     });
 };
 
-
-// ----------------------------
-// ------- Common Functions ---
-// ----------------------------
-
 /**
- * Copies source files from the plugin's directories to the native project directories.
+ * Copies source files from the plugin's directories to the android project directories.
  * @param {string} projectRoot The root directory of the Expo project.
  * @param {object} options Plugin options (e.g., iosSourceDir, androidSourceDir).
  */
-function copySourceFiles(projectRoot, options = {}) {
-    // const iosSourceDir = options.iosSourceDir || path.join(__dirname, 'ios');
+function copyAndroidSourceFiles(projectRoot, options = {}) {
     const androidSourceDir = options.androidSourceDir || path.join(__dirname, 'android');
-
-    // --- iOS File Copying ---
-    // const iosProjectDir = path.join(projectRoot, 'ios');
-    // const iosTargetDir = path.join(iosProjectDir, options.appName || getProjectName(projectRoot)); // Adjust if project name differs from app name
-    // const iosExtensionSourceDir = path.join(iosProjectDir, SHARE_EXTENSION_TARGET_NAME); // Assumes extension folder exists at root of ios dir
-    //
-    // if (fs.existsSync(iosTargetDir)) {
-    //     // Copy main module files
-    //     copyFiles(iosSourceDir, iosTargetDir, ['ShareReceiverModule.swift', 'ShareReceiverBridge.m', 'ShareReceiverApp-Bridging-Header.h']);
-    //
-    //     // Copy Share Extension files (IMPORTANT: Assumes target & folder structure exists)
-    //     if (fs.existsSync(iosExtensionSourceDir)) {
-    //         copyFiles(iosSourceDir, iosExtensionSourceDir, ['ShareViewController.swift']);
-    //     } else {
-    //         WarningAggregator.addWarningIOS(
-    //             'with-custom-share-receiver',
-    //             `Share Extension source directory "${SHARE_EXTENSION_TARGET_NAME}" not found in "${iosProjectDir}". Cannot copy ShareViewController.swift. Manual setup might be required.`
-    //         );
-    //     }
-    //
-    // } else {
-    //     WarningAggregator.addWarningIOS(
-    //         'with-custom-share-receiver',
-    //         `iOS target directory "${iosTargetDir}" not found. Skipping iOS file copy.`
-    //     );
-    // }
-
-    // --- Android File Copying ---
     const androidProjectDir = path.join(projectRoot, 'android');
     const packagePath = options.package?.replace(/\./g, '/') || `com/${options.appName?.toLowerCase()}`; // Determine package path
     const javaPath = path.join(androidProjectDir, `app/src/main/java/${packagePath}`);
@@ -568,6 +621,10 @@ function copySourceFiles(projectRoot, options = {}) {
         );
     }
 }
+
+// ----------------------------
+// ------- Common Functions ---
+// ----------------------------
 
 // Helper function to copy specific files
 function copyFiles(sourceDir, targetDir, files) {
@@ -627,15 +684,6 @@ const withCustomShareReceiver = (config, props = {}) => {
     config = withReceiverMainApplication(config, options);
     config = withReceiverMainActivity(config);
 
-    // --- Apply iOS Mods ---
-    // config = withMainInfoPlist(config); // Add URL Scheme to main app
-    // config = withAppEntitlements(config); // Add App Group to main app
-
-    // --- iOS Extension Mods (Marked as potentially needing manual steps) ---
-    // config = withExtensionInfoPlist(config);
-    // config = withExtensionEntitlements(config);
-
-
     // --- File Copying (Run last or within a mod that ensures native project exists) ---
     // Using withPlugins ensures this runs after base project generation.
     // Wrap file copying in a simple mod function.
@@ -645,7 +693,25 @@ const withCustomShareReceiver = (config, props = {}) => {
             const projectRoot = config.modRequest.projectRoot;
             console.log(`[withDangerousMod][android] Running file copy for project root: ${projectRoot}`);
             // Pass necessary options derived from config
-            copySourceFiles(projectRoot, { ...options, appName: getProjectName(projectRoot) }); // Ensure latest appName
+            copyAndroidSourceFiles(projectRoot, { ...options, appName: getProjectName(projectRoot) }); // Ensure latest appName
+            return config;
+        },
+    ]);
+
+    config = withDangerousMod(config, [
+        'ios',
+        async (config) => {
+            const projectRoot = config.modRequest.projectRoot;
+            const platformProjectRoot = config.modRequest.platformProjectRoot; // Path to ios/ dir
+
+            console.log(`[withDangerousMod][ios] Running file copy and plist/entitlements modification...`);
+
+            // Copy your custom source files (overwriting templates)
+            copyIosSourceFiles(projectRoot, getProjectName(projectRoot), __dirname);
+
+            // Modify the extension's Info.plist and .entitlements files on disk
+            modifyExtensionFiles(platformProjectRoot);
+
             return config;
         },
     ]);
