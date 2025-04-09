@@ -5,7 +5,7 @@ import { useTheme } from "context/theme-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { publishNotetoPage, unPublishNoteFromPage } from "queries/share";
 import { useMemo, useRef, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Pressable, Image, ActivityIndicator, Animated } from "react-native"
+import { View, StyleSheet, Text, Dimensions, Pressable, Image, ActivityIndicator, Animated } from "react-native"
 import { SvgXml } from "react-native-svg";
 import MoreOptions from 'components/common/more-options';
 import { MenuOptionsType } from "components/common/more-options/menu-props";
@@ -15,13 +15,7 @@ import { RootState } from "redux/store/store";
 import { setStringAsync } from "expo-clipboard";
 import formatBigNumber from 'utils/formatBigNumber';
 import { formattedDurations } from 'utils/format-date';
-import {
-    formatTranscript,
-    formatTranscript2,
-    formatTranscript5,
-    isIOS,
-  } from "utils/common";
-import { TextComponent } from 'components/common/chat-buble/text-component';
+import { isIOS } from "utils/common";
 import GetStarted from 'components/settings/GetStarted';
 
 function Publish(): JSX.Element {
@@ -29,6 +23,8 @@ function Publish(): JSX.Element {
     const { Colors } = useTheme()
     const { recordingList } = useSelector((state: RootState) => state.recordingStates);
     const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
+    const { isTempIAPPurchased } = useSelector((state: RootState) => state.IAPStates);
+
     const { note_id } = useLocalSearchParams()
     const dispatch = useDispatch()
 
@@ -188,7 +184,10 @@ function Publish(): JSX.Element {
             </View>
         </View> : <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />} */}
 
-        {userDetails?.publications?.length <= 0 && <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />}
+        {userDetails?.publications?.length <= 0 && <GetStarted onGetStarted={() => {
+            if(isTempIAPPurchased || userDetails.subscription_plan) router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})
+            else router.push('/premium/')
+        }} screenSlide={screenSlide} />}
 
         {note?.recording_type !== 3 && userDetails?.publications.length > 0 && <View style={styles.publications}>
             {userDetails?.publications.map((item: any, index: number) => {
