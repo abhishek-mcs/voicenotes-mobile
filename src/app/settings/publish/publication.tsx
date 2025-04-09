@@ -10,6 +10,7 @@ import { RootState } from "redux/store/store"
 import { checkSlug, createPublication, editPublication } from "queries/settings"
 import { debounce } from "lodash"
 import { setUserDetail } from "redux/reducers/userDetails"
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 
 function PublicationEditor() {
     const router = useRouter()
@@ -36,45 +37,7 @@ function PublicationEditor() {
     const [checkingSlug, setCheckingSlug] = useState<boolean>(false)
     const [suggestions, setSuggestions] = useState<string[]>([])
     const [working, setWorking] = useState<boolean>(false)
-    const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false)
     const slugApproved = useRef<boolean>(true)
-
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            () => {
-                setIsKeyboardVisible(true);
-            }
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
-                setIsKeyboardVisible(false);
-            }
-        );
-
-        // Clean up listeners when component unmounts
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        };
-    }, []);
-
-    const scrollToInput = (ref: any) => {
-        setIsKeyboardVisible(true)
-        if (!ref || !ref.current) return;
-        
-        setTimeout(() => {
-            ref.current.measureInWindow((x: number, y: number, width: number, height: number) => {
-                // const screenHeight = Dimensions.get('window').height;
-                // const keyboardHeight = Keyboard.metrics()?.height || 0;
-                // const inputBottomPosition = y + height;
-                // const keyboardPosition = screenHeight - keyboardHeight;
-                
-                scrollViewRef?.current?.scrollToEnd()
-            });
-        }, 300);
-    };
 
     const onSubmit = async () => {
         setWorking(true)
@@ -155,6 +118,7 @@ function PublicationEditor() {
 
     const debouncedCheckSlug = useMemo(
         () => debounce(async (text: string) => {
+            console.log(text.length)
             setSuggestions([])
             setCheckingSlug(true)
             const slugCheck = await checkSlug(text)
@@ -175,48 +139,41 @@ function PublicationEditor() {
     
     return <Header
         cancelLabel="Back"
-        label="Your Info"
+        label="Setup your page"
         working={false}
         onCancel={() => router.back()}
+        style={{ backgroundColor: Colors.bgColor8 }}
     >
-        <KeyboardAvoidingView
-            behavior={"padding"}
-            style={{ flex: 1, width: '100%' }}
-            keyboardVerticalOffset={isIOS ? 100 : 20}
+        <KeyboardAwareScrollView
+            ref={scrollViewRef}
+            style={{ height: '100%', width: '100%' }}
+            contentContainerStyle={styles.root}
+            keyboardShouldPersistTaps="handled"
         >
-            <ScrollView
-                ref={scrollViewRef}
-                style={{ height: '100%', width: '100%', marginBottom: isKeyboardVisible ? 100 : 0 }}
-                contentContainerStyle={styles.root}
-                keyboardShouldPersistTaps="handled"
-            >
-                <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
-                <View style={styles.info}>
-                    <Text style={{ color: Colors.text }}>Name</Text>
-                    <TextInput ref={nameRef} onFocus={() => scrollToInput(nameRef)} value={name} placeholder="Give your page a name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
+            <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
+            <View style={styles.info}>
+                <Text style={{ color: Colors.text }}>Page name</Text>
+                <TextInput ref={nameRef} value={name} placeholder="Give your page a name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
+            </View>
+            <View style={styles.info}>
+                <Text style={{ color: Colors.text }}>Page URL</Text>
+                <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
+                    <TextInput value={url} maxLength={25} placeholder={userDetails?.author?.name.toLowerCase()} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
+                    <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
+                    {checkingSlug && <ActivityIndicator />}
                 </View>
-                <View style={styles.info}>
-                    <Text style={{ color: Colors.text }}>Publication URL</Text>
-                    <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
-                        <TextInput onFocus={() => scrollToInput(urlRef)} value={url} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
-                        <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
-                        {checkingSlug && <ActivityIndicator />}
-                    </View>
-                    {suggestions.length > 0 && <Text style={styles.error}>Sorry that's taken. Please try {suggestions.join(', ')}</Text>}
-                </View>
-                <View style={styles.info}>
-                    <Text style={{ color: Colors.text }}>About</Text>
-                    <TextInput ref={aboutRef} onFocus={() => scrollToInput(aboutRef)} value={about} placeholder="Describe your page. Let your audience know what to expect." placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
-                </View>
-            </ScrollView>
-            {!isKeyboardVisible && (
-                <View style={styles.footer}>
-                    <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                        {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
-                    </Pressable>
-                </View>
-            )}
-        </KeyboardAvoidingView>
+                {suggestions.length > 0 && <Text style={styles.error}>Sorry that's taken. Please try {suggestions.join(', ')}</Text>}
+            </View>
+            <View style={styles.info}>
+                <Text style={{ color: Colors.text }}>About</Text>
+                <TextInput ref={aboutRef} value={about} placeholder="Describe your page. Let your audience know what to expect." placeholderTextColor={Colors.placeholderText} onChangeText={text => setAbout(text)} multiline returnKeyLabel="done" style={[styles.input, { height: 80, paddingTop: 12, paddingBottom: 12, textAlignVertical: 'top' }]} onSubmitEditing={() => Keyboard.dismiss()} />
+            </View>
+            <View style={styles.footer}>
+                <Pressable onPress={working ? null : onSubmit} style={styles.button}>
+                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>{publication ? 'Update' : 'Create'}</Text>}
+                </Pressable>
+            </View>
+        </KeyboardAwareScrollView>
     </Header>
 }
 
@@ -226,7 +183,7 @@ const useStyles = () => {
     return useMemo(() => StyleSheet.create({
         root: {
             width: '100%',
-            paddingHorizontal: 10,
+            paddingHorizontal: 10
         },
         info: {
             paddingHorizontal: 20,
@@ -235,7 +192,8 @@ const useStyles = () => {
         footer: {
             height: '15%',
             width: '100%',
-            alignItems: 'center'
+            alignItems: 'center',
+            marginTop: Dimensions.get('window').height / 100
         },
         input: {
             width: '100%',

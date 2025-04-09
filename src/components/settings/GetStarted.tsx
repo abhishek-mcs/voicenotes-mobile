@@ -99,7 +99,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Turn your voice notes into mini-podcasts—record on the fly and hit publish.
+                Turn your voice notes into mini-podcasts — record on the fly and hit publish.
             </Animated.Text>
             
             <Animated.View 
@@ -131,33 +131,32 @@ const useStyles = () => {
     return useMemo(() => StyleSheet.create({
         getstarted: {
             flex: 1,
-            width: '90%', // Increased from 80% for better small screen support
+            width: '90%',
             alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: screenWidth * 0.05,
+            paddingHorizontal: screenWidth * 0.02
         },
         imageContainer: {
             marginBottom: screenWidth * 0.05,
         },
         gsheader: {
             color: Colors.text,
-            fontSize: screenWidth * 0.05, // About 20px on a 400px wide screen
+            fontSize: screenWidth * 0.05,
             fontFamily: 'Primary-Medium',
             textAlign: 'center',
             marginTop: screenWidth * 0.03,
         },
         gscaption: {
             color: Colors.text10,
-            fontSize: screenWidth * 0.042, // About 17px on a 400px wide screen
+            fontSize: screenWidth * 0.042,
             fontFamily: 'Primary',
             marginTop: screenWidth * 0.037,
             textAlign: 'center',
             paddingHorizontal: screenWidth * 0.02,
         },
         gsbutton: {
-            width: '100%', // Changed from 90% to fill container
+            width: '90%',
             backgroundColor: Colors.askLogo,
-            height: screenWidth * 0.12, // About 50px on a 400px wide screen
+            height: screenWidth * 0.12,
             marginTop: screenWidth * 0.075,
             borderRadius: screenWidth * 0.06,
             flexDirection: 'row',
@@ -168,7 +167,7 @@ const useStyles = () => {
         gsactionlabel: {
             color: Colors.whiteWithOpacity(1),
             fontFamily: 'Primary-Bold',
-            fontSize: screenWidth * 0.035, // About 14px on a 400px wide screen
+            fontSize: screenWidth * 0.035,
         }
     }), [Colors])
 }

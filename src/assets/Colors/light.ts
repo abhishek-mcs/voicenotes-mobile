@@ -133,5 +133,6 @@ export default {
   selection: 'rgba(0,0,0,0.05)',
   textinput: 'rgba(13, 13, 13, 0.1)',
   placeholderText: 'rgba(0, 0, 0, 0.4)',
-  card: "#ffffff"
+  card: "#ffffff",
+  newChip: '#0E3934'
 };

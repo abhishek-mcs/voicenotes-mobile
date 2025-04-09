@@ -7,7 +7,7 @@ import { useTheme } from 'context'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView, Pressable, ActivityIndicator, Dimensions, LayoutChangeEvent } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { isIOS } from 'utils/common'
 import Publish from './publish'
@@ -15,13 +15,16 @@ import { Menu, MenuItem } from 'react-native-material-menu';
 import { useGetSharedList, useRevokeShare, useShareRecording } from 'queries/home/share'
 import { useQueryClient } from 'react-query'
 import { MAIN_URL } from 'services/api/api-constants';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'redux/store/store';
 import CircularLoader from 'components/common/loaders/circular-loader';
 import ThreeDotLoader from 'components/common/loaders/three-dot-loader';
 import { validateEmail } from 'utils/api-queries/auth/signin-mutations';
 import { useKeyboardController } from 'react-native-keyboard-controller'
 import { ScrollView } from 'react-native';
+import { shareSvg } from 'assets/svg/shareSvg';
+import { publishPublicly } from 'queries/share';
+import { updateRecordingDetails } from 'redux/reducers/recordingStates';
 
 const SharePublish = () => {
   const styles = useStyles()
@@ -31,6 +34,7 @@ const SharePublish = () => {
   const { Colors, isLightMode } = useTheme()
   const [isSelected, setSelected] = useState('share');
   const {noteId} = useSelector((state:RootState)=>state.editStates)
+  const { recordingList } = useSelector((state: RootState) => state.recordingStates);
   const { note_id } = useLocalSearchParams()
   const getShareList = useGetSharedList(noteId)
   const shareList = getShareList.data?.data
@@ -50,6 +54,15 @@ const SharePublish = () => {
   const [channels, setChannels] = useState(shareList.channels ? shareList.channels : []);
   const [copy, setCopy] = useState(false)
   const { keyboardHeight }:any = useKeyboardController()
+  const dispatch = useDispatch()
+
+  const width = Dimensions.get('window').width;
+
+  // these are data & hooks for the public sharing feature
+  const note = recordingList.find(item => item.id === note_id)
+  const [isPublic, setPublic] = useState<boolean>(note?.is_published)
+  const [publicing, setPublicing] = useState<boolean>(false)
+  const [copyStatus, setCopyStatus] = useState<string>("Copy shareable link")
 
   const showMenu = (index: number) => menuRefs.current[index]?.show();
   const hideMenu = (index: number) => menuRefs.current[index]?.hide();
@@ -57,7 +70,52 @@ const SharePublish = () => {
   const showChannelMenu = (index: number) => channelMenuRefs.current[index]?.show();
   const hideChannelMenu = (index: number) => channelMenuRefs.current[index]?.hide();
 
+  const [shouldStackButtons, setShouldStackButtons] = useState(false);
+  // Ref to track container width
+  const containerWidthRef = useRef(0);
+  
+  // Measure the container width when it renders
+  const onContainerLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    containerWidthRef.current = width - 20; // Account for padding
+  };
+  
+  // Function to measure if text would wrap
+  const measureButtonTexts = () => {
+    // Check if both buttons would fit side by side
+    // Consider button padding, gap between buttons, and estimated text width
+    const copyLinkTextWidth = "Copy shareable link".length * 8; // Approximate character width
+    const turnOffTextWidth = "Turn off link sharing".length * 8;
+    
+    // Each button needs padding (30px), plus the gap between buttons (5px)
+    const totalRequiredWidth = copyLinkTextWidth + turnOffTextWidth + 50;
+    
+    // If the available width is less than required, stack buttons
+    setShouldStackButtons(containerWidthRef.current < totalRequiredWidth);
+  };
+  
+  // Call measurement whenever relevant values change
+  useEffect(() => {
+    measureButtonTexts();
+  }, [copyStatus, containerWidthRef.current]);
+
   const onClose = () => { router.back() }
+
+  const togglePublic = async () => {
+      setPublicing(true)
+      try {
+          await publishPublicly(note?.id);
+          dispatch(updateRecordingDetails({
+              recordingId: note?.id,
+              data: {
+                  is_published: !isPublic
+              }
+          }))
+          setPublic(prev => !prev)
+      } catch(error) {
+          console.error(error)
+      } finally { setPublicing(false) }
+  }
 
   const onCopy = async () => {
     setCopy(true)
@@ -173,7 +231,7 @@ const SharePublish = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isSelected === 'share' ? Colors.bgColor8 : Colors.bgColor1 }]}>
     
     
       <View
@@ -182,7 +240,7 @@ const SharePublish = () => {
         <View style={styles.tabContainer}>
           <Touchable
             onPress={() => setSelected('share')}
-            style={[{ paddingVertical: 12, alignSelf: "flex-end" }, isSelected =='share' && styles.activeTab]}
+            style={[{ paddingVertical: 10, alignSelf: "flex-end" }, isSelected =='share' && styles.activeTab]}
             activeOpacity={0.6}
           >
             <Text
@@ -191,17 +249,34 @@ const SharePublish = () => {
               Share
             </Text>
           </Touchable>
-          <Touchable
+          {note?.recording_type !== 3 && <Touchable
             onPress={() => setSelected('publish')}
-            style={[{ paddingVertical: 12, alignSelf: "flex-end" }, isSelected =='publish' && styles.activeTab]}
+            style={[{ paddingVertical: 10, gap: 5, alignItems: 'center', flexDirection: 'row', alignSelf: "flex-end" }, isSelected =='publish' && styles.activeTab]}
             activeOpacity={0.6}
           >
             <Text
               style={[isSelected=='publish'?styles.activeTitle:styles.inactiveTitle]}
             >
-              Publish
+              Publish to pages
             </Text>
-          </Touchable>
+            <View 
+              style={{ 
+                borderRadius: 20,
+                ...(isIOS ? {
+                  shadowColor: '#000000',
+                  shadowOffset: { width: 0, height: 0 }, // Center the shadow (0,0) to spread it evenly
+                  shadowOpacity: 0.20, // Increase opacity for better visibility
+                  shadowRadius: 5, // Slightly reduced but still substantial
+                  marginHorizontal: 5, // Add a small margin to ensure shadow is visible on all sides
+                } : {
+                  // Android shadow - increase elevation for better visibility
+                  elevation: 8,
+                }),
+              }}
+            >
+              <SvgXml xml={shareSvg.new.replace("#1E5A34", Colors.newChip)} />
+            </View>
+          </Touchable>}
         </View>
         <View>
           <Touchable onPress={onClose} style={styles.closeContainer}>
@@ -236,6 +311,33 @@ const SharePublish = () => {
         {emailError.length>0 ? 
             <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginBottom:18}}>{emailError}</Text> : <View style={{marginBottom:8}}></View>
         }
+        <View style={styles.publicContainer} onLayout={onContainerLayout}>
+          {isPublic ? <View style={{ width: '100%', flexDirection: shouldStackButtons ? 'column' : 'row', gap: shouldStackButtons ? 15 : 10, alignItems: 'center', paddingHorizontal: 10, marginBottom: 10 }}>
+            <Pressable
+              style={[styles.publicButton, { backgroundColor: Colors.bottomBarButtonBg1, width: shouldStackButtons ? '98%' : '48%' }]}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+                  () => {}
+                );
+                await setStringAsync(MAIN_URL + "/s/" + note?.id);
+                setCopyStatus("Copied!")
+                setTimeout(() => setCopyStatus("Copy shareable link"), 1000)
+              }}
+            >
+              <Text style={{ color: Colors.askLogo, fontFamily: 'Primary-Medium' }}>{copyStatus}</Text>
+            </Pressable>
+            <Pressable onPress={publicing ? null : togglePublic} style={[styles.publicButton, { backgroundColor: "rgba(255, 69, 56, 0.05)", width: shouldStackButtons ? '98%' : '48%' }]}>
+              {publicing ? <ActivityIndicator color={"rgba(255, 69, 56, 1)"} /> : <Text style={{ fontFamily: 'Primary-Medium', color: "rgba(255, 69, 56, 1)" }}>Turn off link sharing</Text>}
+            </Pressable>
+          </View> :
+          <Pressable onPress={publicing ? null : togglePublic} style={{ width: '98%', backgroundColor: Colors.askLogo, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', marginBottom: 10 }} >
+            {publicing ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={{ fontFamily: 'Primary-Bold', color: Colors.whiteWithOpacity(1), fontSize: 14 }}>Get shareable link</Text>}
+          </Pressable>}
+          <View style={{ width: '100%', flexDirection: 'row', gap: 5, alignItems: 'center', paddingHorizontal: 10 }}>
+            <SvgXml xml={shareSvg.info} />
+            <Text style={{ fontFamily: 'Primary', color: Colors.greyWithOpacity(1), fontSize: 11 }}>Anyone with the link will have access to this voice note.</Text>
+          </View>
+        </View>
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : undefined}
           keyboardVerticalOffset={80}
@@ -393,13 +495,13 @@ const SharePublish = () => {
             <TouchableOpacity onPress={onCopy} activeOpacity={0.6}>
               <View style={styles.copyLinkButton}>
                 <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
-                <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy link'}</Text>
+                <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy private link'}</Text>
               </View>
             </TouchableOpacity>
           </View>
         </View>
       </View> : 
-      <Publish id={note_id} />
+      <Publish />
       }
       
     </SafeAreaView>
@@ -409,6 +511,7 @@ const SharePublish = () => {
 
 const useStyles = () => {
   const { Colors } = useTheme();
+  const width = Dimensions.get('window').width;
   return useMemo(() => StyleSheet.create({
   container: {
     // maxHeight: screenHeight * 0.8,
@@ -476,9 +579,9 @@ const useStyles = () => {
   },
   shareButton: {
     flexDirection: 'row',
-    backgroundColor: Colors.blackWithOpacity(1), 
+    backgroundColor: Colors.askLogo, 
     paddingHorizontal: 19,
-    borderRadius: 10,
+    borderRadius: 20,
     height: 36,
     minWidth: 80,
     alignItems: 'center',
@@ -531,6 +634,17 @@ const useStyles = () => {
     fontFamily: 'Primary-Semibold',
     paddingVertical: 12,
     color: Colors.askLogo
+  },
+  publicContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  publicButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 50,
   }
 }), [Colors]); 
 }

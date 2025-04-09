@@ -1,12 +1,11 @@
 import * as Haptics from 'expo-haptics'
 import { commonSvg } from "assets/svg/commonSvg";
 import { home } from "assets/svg/home";
-import { settingsSvg } from "assets/svg/settingsSvg";
 import { useTheme } from "context/theme-context";
-import { useLocalSearchParams } from "expo-router";
-import { publishNotetoPage, publishPublicly, unPublishNoteFromPage } from "queries/share";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Pressable, Image, ActivityIndicator } from "react-native"
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { publishNotetoPage, unPublishNoteFromPage } from "queries/share";
+import { useMemo, useRef, useState } from "react";
+import { View, StyleSheet, Text, Dimensions, Pressable, Image, ActivityIndicator, Animated } from "react-native"
 import { SvgXml } from "react-native-svg";
 import MoreOptions from 'components/common/more-options';
 import { MenuOptionsType } from "components/common/more-options/menu-props";
@@ -14,30 +13,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateRecordingDetails } from "redux/reducers/recordingStates";
 import { RootState } from "redux/store/store";
 import { setStringAsync } from "expo-clipboard";
-import { MAIN_URL } from 'services/api/api-constants';
 import formatBigNumber from 'utils/formatBigNumber';
 import { formattedDurations } from 'utils/format-date';
-import {
-    formatTranscript,
-    formatTranscript2,
-    formatTranscript5,
-    isIOS,
-  } from "utils/common";
-import { TextComponent } from 'components/common/chat-buble/text-component';
+import { isIOS } from "utils/common";
+import GetStarted from 'components/settings/GetStarted';
 
 function Publish(): JSX.Element {
     const styles = useStyles()
     const { Colors } = useTheme()
     const { recordingList } = useSelector((state: RootState) => state.recordingStates);
     const { userDetails }:any = useSelector((state: RootState) => state.userDetails);
+    const { isTempIAPPurchased } = useSelector((state: RootState) => state.IAPStates);
+
     const { note_id } = useLocalSearchParams()
     const dispatch = useDispatch()
 
     const note = recordingList.find(item => item.id === note_id)
 
-    const [isPublic, setPublic] = useState<boolean>(note?.is_published);
-    const [buffering, setBuffering] = useState<boolean>(false)
-
+    const router = useRouter()
+    const screenSlide = new Animated.Value(0); // just a dummy value to fulfill prop
     const moreOptionsRef = useRef<{ show: () => void; hide: () => void } | null>(null);
 
     const formatDuration = (ms: number) => {
@@ -48,51 +42,6 @@ function Publish(): JSX.Element {
         }
         return '00:00'
     };
-
-    const togglePublic = async () => {
-        setBuffering(true)
-        try {
-            await publishPublicly(note?.id);
-            dispatch(updateRecordingDetails({
-                recordingId: note?.id,
-                data: {
-                    is_published: !isPublic
-                }
-            }))
-            setPublic(prev => !prev)
-        } catch(error) {
-            console.error(error)
-        } finally { setBuffering(false) }
-    }
-
-    const onCopy = async () => {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-          () => {}
-        );
-        await setStringAsync(MAIN_URL + "/s/" + note?.id);
-    };
-
-    const menuOptions: MenuOptionsType[] = [
-        {
-            title: "Copy link",
-            onPress: async () => {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
-                  () => {}
-                );
-                await setStringAsync(MAIN_URL + "/s/" + note?.id);
-            },
-            androidIcon: "content-copy"
-        },
-        {
-            title: "Unpublish",
-            onPress: () => {
-                if (!buffering) {
-                    togglePublic();
-                }
-            },
-            androidIcon: "close-circle-outline"
-        }
-    ];
 
     const Publication = ({ title, image, listens, disabled, slug, id }: { title: string, image: string, listens: number, disabled: boolean, slug: string, id: number }): JSX.Element => {
 
@@ -173,14 +122,14 @@ function Publish(): JSX.Element {
                     <Text style={[styles.actionlabel, { color: Colors.text }]}>Disabled</Text>
                 </View>
             </View> :
-            <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+            <View style={{ flex: 4, justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row', paddingRight: 10, gap: 10 }}>
                 {!published ? <Pressable onPress={working ? null : onChangePublish} style={styles.action}>
                     {working && <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} />}
                     <Text style={styles.actionlabel}>Publish</Text>
                 </Pressable> : working ? <ActivityIndicator color={!isIOS ? Colors.blackWithOpacity(1) : undefined} /> : <>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                         <SvgXml xml={commonSvg.greenTick} />
-                        <Text style={styles.webPublished}>Published</Text>
+                        <Text style={styles.published}>Published</Text>
                     </View>
                     <MoreOptions
                         ref={moreOptionsRef}
@@ -199,8 +148,8 @@ function Publish(): JSX.Element {
         </View>
     }
     
-    return <View style={styles.container}>
-        <View style={styles.previewBox}>
+    return <View style={[styles.container, { justifyContent: userDetails?.publications.length > 0 ? 'flex-start' : 'center' }]}>
+        {/* {userDetails?.publications.length > 0 ? <View style={styles.previewBox}>
             <View style={styles.browserHeader}>
                 <View style={styles.circleGroup}>
                     <View style={[styles.circle, { backgroundColor: '#FF5F57' }]} />
@@ -233,41 +182,14 @@ function Publish(): JSX.Element {
                     style={styles.voiceText}
                 />}
             </View>
-        </View>
+        </View> : <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />} */}
 
-        <View style={styles.web}>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <SvgXml xml={commonSvg.globe.replace("black", Colors.text)} width={25} height={25} />
-            </View>
-            <View style={{ flex: 3, justifyContent: 'center' }}>
-                <Text style={styles.webHeader}>Publish to web</Text>
-                <Text style={styles.webCaption}>Anyone with the link will have access to this voice note</Text>
-            </View>
-            <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, flexDirection: 'row', gap: 10 }} >
-                {!isPublic ? <Pressable onPress={buffering ? null : togglePublic} style={styles.action}>
-                    {buffering && <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} />}
-                    <Text style={styles.actionlabel}>Publish</Text>
-                </Pressable> : buffering ? <ActivityIndicator color={!isIOS ? Colors.blackWithOpacity(1) : undefined} /> : <>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                        <SvgXml xml={commonSvg.greenTick} />
-                        <Text style={styles.webPublished}>Published</Text>
-                    </View>
-                    <MoreOptions
-                        ref={moreOptionsRef}
-                        options={menuOptions}
-                        isNative={isIOS}
-                    >
-                        <Pressable 
-                            style={styles.more}
-                            onPress={() => moreOptionsRef.current?.show()}
-                        >
-                            <SvgXml xml={home.moreNew?.replace('#0D0D0D',Colors.more)}/>
-                        </Pressable>
-                    </MoreOptions>
-                </> }
-            </View>
-        </View>
-        {note?.recording_type !== 3 && <View style={styles.publications}>
+        {userDetails?.publications?.length <= 0 && <GetStarted onGetStarted={() => {
+            if(isTempIAPPurchased || userDetails.subscription_plan) router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})
+            else router.push('/premium/')
+        }} screenSlide={screenSlide} />}
+
+        {note?.recording_type !== 3 && userDetails?.publications.length > 0 && <View style={styles.publications}>
             {userDetails?.publications.map((item: any, index: number) => {
                 return <Publication key={index} title={item?.title} image={item?.avatar} listens={item?.meta?.listener_count} disabled={!item?.is_public} slug={item?.slug} id={item?.id} />
             })}
@@ -281,8 +203,10 @@ const useStyles = () => {
   return useMemo(() => StyleSheet.create({
     container: {
         flex: 1,
-        paddingVertical: 20,
-        paddingHorizontal: 20
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+        backgroundColor: Colors.bgColor1
     },
     previewBox: {
         width: '100%',
@@ -291,6 +215,7 @@ const useStyles = () => {
         borderWidth: 0.5,
         borderRadius: 12,
         overflow: 'hidden',
+        marginBottom: 10
     },
     browserHeader: {
         width: '100%',
@@ -356,39 +281,7 @@ const useStyles = () => {
         lineHeight: 18,
         color: isLightMode ? Colors.grey3 : Colors.black2,
     },
-    web: {
-        marginTop: 20,
-        width: '100%',
-        borderWidth: 0.5,
-        borderRadius: 10,
-        paddingRight: 10,
-        borderColor: Colors.greyWithOpacity(0.5),
-        height: 100,
-        flexDirection: 'row',
-        backgroundColor: Colors.whiteWithOpacity(1),
-        ...(isIOS ? {
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.20,
-            shadowRadius: 3.0,
-        } : {
-            elevation: 4,
-        }),
-    },
-    webHeader: {
-        fontFamily: 'Primary-Bold',
-        color: Colors.text,
-        fontSize: 15
-    },
-    webCaption: {
-        fontFamily: 'Primary',
-        fontSize: 13,
-        color: Colors.text10
-    },
-    webPublished: {
+    published: {
         fontFamily: 'Primary-Medium',
         color: "#58A942"
     },
@@ -419,24 +312,14 @@ const useStyles = () => {
     },
     publication: {
         width: '100%',
-        height: 90,
+        height: 75,
         borderWidth: 0.5,
         borderColor: Colors.greyWithOpacity(0.5),
         marginTop: 15,
         borderRadius: 10,
         flexDirection: 'row',
         backgroundColor: Colors.whiteWithOpacity(1),
-        ...(isIOS ? {
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.20,
-            shadowRadius: 3.0,
-        } : {
-            elevation: 4,
-        }),
+        
     },
     title: {
         fontFamily: 'Primary-Bold',
