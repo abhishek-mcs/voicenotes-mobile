@@ -1449,10 +1449,6 @@ PODS:
     - Sentry/HybridSDK (= 8.43.0)
   - RNSVG (14.1.0):
     - React-Core
-  - RNVectorIcons (10.2.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
   - RNWatch (1.1.0):
     - React
   - SDWebImage (5.17.0):
@@ -1586,7 +1582,6 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1850,8 +1845,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
   Yoga:
@@ -1997,7 +1990,6 @@ SPEC CHECKSUMS:
   RNScreens: a4d9ce8f68f833f4e42410140eafd88e38bba163
   RNSentry: 2472cf03e47fbbd88b9b7216cc16255df4505626
   RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
-  RNVectorIcons: e547446004607b9037ae4bea770d0fd2ba15c4a7
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SDWebImage: 750adf017a315a280c60fde706ab1e552a3ae4e9
   SDWebImageAVIFCoder: 8348fef6d0ec69e129c66c9fe4d74fbfbf366112

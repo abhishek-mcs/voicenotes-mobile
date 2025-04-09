@@ -6,7 +6,6 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { isIOS, screenWidth } from "utils/common";
 import * as Sentry from '@sentry/react-native';
 import useFBEventTracking from "hooks/fbsdk/useFBEventTracking";
@@ -43,7 +42,6 @@ function Layout() {
     "Primary-Italic": require('../assets/fonts/Inter-Italic.ttf'),
     "Secondary": require('../assets/fonts/InstrumentSerif-Regular.ttf'),
     "Secondary-Italic": require('../assets/fonts/InstrumentSerif-Italic.ttf'),
-    ...FontAwesome.font,
   });
 
   useFBEventTracking()

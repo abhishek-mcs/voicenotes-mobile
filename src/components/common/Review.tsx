@@ -54,7 +54,7 @@ const Review: React.FC<Props> = ({ onClose, visible }: Props) => {
                 <View style={styles.logo}>
                     <View style={styles.imageContainer}>
                         <Image
-                            source={require('../../assets/images/icon.jpg')}
+                            source={require('../../assets/images/icon.png')}
                             resizeMode="cover"
                             style={styles.image}
                         />

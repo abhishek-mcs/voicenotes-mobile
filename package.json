@@ -21,7 +21,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@expo/vector-icons": "^14.0.0",
+    "@expo/vector-icons": "^14.0.4",
     "@gorhom/bottom-sheet": "^4.6.3",
     "@gorhom/portal": "^1.0.14",
     "@notifee/react-native": "^9.1.8",
@@ -112,7 +112,6 @@
     "react-native-toast-message": "^2.2.0",
     "react-native-type-animation": "^0.4.0",
     "react-native-uuid": "^2.0.2",
-    "react-native-vector-icons": "^10.2.0",
     "react-native-wagmi-charts": "^2.4.1",
     "react-native-watch-connectivity": "^1.1.0",
     "react-native-web": "~0.19.6",

@@ -5,17 +5,16 @@
     "version": "1.6.57",
     "runtimeVersion": "1.6.57",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.jpg",
+    "icon": "./src/assets/images/icon.png",
     "scheme": "voicenotes",
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": [
-      "**/*",
-      "!**/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Solid.ttf"
+      "**/*"
     ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.voicenotes",
-      "buildNumber": "286",
+      "buildNumber": "290",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false

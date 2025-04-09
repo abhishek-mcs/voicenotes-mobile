@@ -64,23 +64,24 @@ export const onRecord = async (
         });
 
         const { recording: recordingObject, status } = await Audio.Recording.createAsync({
-          ...Audio.RecordingOptionsPresets.LOW_QUALITY,
+          ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
           isMeteringEnabled: true,
           keepAudioActiveHint: true,
-          android:{
+          android: {
             extension: '.m4a',
             outputFormat: Audio.AndroidOutputFormat.MPEG_4,
             audioEncoder: Audio.AndroidAudioEncoder.AAC,
-            sampleRate: 16000, // Lower sample rate for low quality
-            numberOfChannels: 1, // Mono
-            bitRate: 64000, // Lower bit rate
+            sampleRate: 44100,
+            numberOfChannels: 2,
+            bitRate: 128000,
           },
           ios: {
             extension: '.m4a',
-            audioQuality: Audio.IOSAudioQuality.LOW,
-            sampleRate: 16000, // Lower sample rate
-            numberOfChannels: 1, // Mono
-            bitRate: 64000, // Lower bit rate
+            outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+            audioQuality: Audio.IOSAudioQuality.MAX,
+            sampleRate: 48000,
+            numberOfChannels: 2,
+            bitRate: 128000,
             linearPCMBitDepth: 16,
             linearPCMIsBigEndian: false,
             linearPCMIsFloat: false,
@@ -112,7 +113,26 @@ export const onRecord = async (
               const { recording: recordingObject, status }:any = await Audio.Recording.createAsync({
                 ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
                 isMeteringEnabled: true,
-                keepAudioActiveHint: true
+                keepAudioActiveHint: true,
+                android: {
+                  extension: '.m4a',
+                  outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+                  audioEncoder: Audio.AndroidAudioEncoder.AAC,
+                  sampleRate: 44100,
+                  numberOfChannels: 2,
+                  bitRate: 128000,
+                },
+                ios: {
+                  extension: '.m4a',
+                  outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+                  audioQuality: Audio.IOSAudioQuality.MAX,
+                  sampleRate: 48000,
+                  numberOfChannels: 2,
+                  bitRate: 128000,
+                  linearPCMBitDepth: 16,
+                  linearPCMIsBigEndian: false,
+                  linearPCMIsFloat: false,
+                },
               },()=>{},10);
               setRec(recordingObject);
               setRecEnabled(true);
