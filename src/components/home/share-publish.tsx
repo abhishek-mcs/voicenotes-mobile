@@ -495,7 +495,7 @@ const SharePublish = () => {
             <TouchableOpacity onPress={onCopy} activeOpacity={0.6}>
               <View style={styles.copyLinkButton}>
                 <SvgXml xml={commonSvg.link?.replace("black", Colors.askLogo)} />
-                <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy link'}</Text>
+                <Text style={styles.copyLinkText}>{copy ? 'Copied' : 'Copy private link'}</Text>
               </View>
             </TouchableOpacity>
           </View>

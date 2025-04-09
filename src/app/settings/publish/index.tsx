@@ -351,7 +351,7 @@ const useStyles = () => {
             width: '95%',
             paddingVertical: 15,
             borderRadius: 20,
-            backgroundColor: Colors.whiteWithOpacity(1),
+            backgroundColor: Colors.card,
             alignSelf: 'center',
             flexDirection: 'row',
             ...(isIOS ? {
@@ -381,7 +381,7 @@ const useStyles = () => {
             flex: 5,
             justifyContent: 'center',
             gap: 5,
-            paddingRight: 10
+            paddingRight: 15
         },
         promptheader: {
             fontFamily: 'Primary-Medium',
