@@ -7,7 +7,7 @@ import { useTheme } from 'context'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView, Pressable, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView, Pressable, ActivityIndicator, Dimensions } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { isIOS } from 'utils/common'
 import Publish from './publish'
@@ -55,6 +55,8 @@ const SharePublish = () => {
   const [copy, setCopy] = useState(false)
   const { keyboardHeight }:any = useKeyboardController()
   const dispatch = useDispatch()
+
+  const width = Dimensions.get('window').width;
 
   // these are data & hooks for the public sharing feature
   const note = recordingList.find(item => item.id === note_id)
@@ -209,7 +211,7 @@ const SharePublish = () => {
         <View style={styles.tabContainer}>
           <Touchable
             onPress={() => setSelected('share')}
-            style={[{ paddingVertical: 12, alignSelf: "flex-end" }, isSelected =='share' && styles.activeTab]}
+            style={[{ paddingVertical: 10, alignSelf: "flex-end" }, isSelected =='share' && styles.activeTab]}
             activeOpacity={0.6}
           >
             <Text
@@ -220,7 +222,7 @@ const SharePublish = () => {
           </Touchable>
           {note?.recording_type !== 3 && <Touchable
             onPress={() => setSelected('publish')}
-            style={[{ paddingVertical: 12, gap: 5, alignItems: 'center', flexDirection: 'row', alignSelf: "flex-end" }, isSelected =='publish' && styles.activeTab]}
+            style={[{ paddingVertical: 10, gap: 5, alignItems: 'center', flexDirection: 'row', alignSelf: "flex-end" }, isSelected =='publish' && styles.activeTab]}
             activeOpacity={0.6}
           >
             <Text
@@ -281,7 +283,7 @@ const SharePublish = () => {
             <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginBottom:18}}>{emailError}</Text> : <View style={{marginBottom:8}}></View>
         }
         <View style={styles.publicContainer}>
-          {isPublic ? <View style={{ width: '100%', flexDirection: 'row', gap: 5, alignItems: 'center', paddingHorizontal: 10, marginBottom: 10 }}>
+          {isPublic ? <View style={{ width: '100%', flexDirection: width > 375 ? 'row' : 'column', gap: width > 375 ? 5 : 10, alignItems: 'center', paddingHorizontal: 10, marginBottom: 10 }}>
             <Pressable
               style={[styles.publicButton, { backgroundColor: Colors.bottomBarButtonBg1}]}
               onPress={async () => {
@@ -480,6 +482,7 @@ const SharePublish = () => {
 
 const useStyles = () => {
   const { Colors } = useTheme();
+  const width = Dimensions.get('window').width;
   return useMemo(() => StyleSheet.create({
   container: {
     // maxHeight: screenHeight * 0.8,
@@ -609,7 +612,7 @@ const useStyles = () => {
     marginBottom: 15
   },
   publicButton: {
-    width: '50%',
+    width: width > 375 ? '50%' : '100%',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
