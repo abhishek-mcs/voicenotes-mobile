@@ -186,7 +186,7 @@ function Publish(): JSX.Element {
                     style={styles.voiceText}
                 />}
             </View>
-        </View> : <GetStarted onGetStarted={() => router.push('/settings/publish/')} screenSlide={screenSlide} fromShare />}
+        </View> : <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />}
 
         {note?.recording_type !== 3 && userDetails?.publications.length > 0 && <View style={styles.publications}>
             {userDetails?.publications.map((item: any, index: number) => {

@@ -7,14 +7,11 @@ import { SvgXml } from "react-native-svg";
 interface GetStartedProps {
     onGetStarted: () => void;
     screenSlide: Animated.Value;
-    fromShare?: boolean
 }
 
-const GetStarted = ({ onGetStarted, screenSlide, fromShare }: GetStartedProps): JSX.Element => {
+const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element => {
     const { Colors } = useTheme();
     const styles = useStyles();
-
-    const width = Dimensions.get('window').width;
 
     const svgScale = new Animated.Value(0);
     const textSlide = new Animated.Value(-20); // Changed from 30 to -20
@@ -69,8 +66,7 @@ const GetStarted = ({ onGetStarted, screenSlide, fromShare }: GetStartedProps): 
                             inputRange: [0, 1],
                             outputRange: [0, -400]
                         })
-                    }],
-                    paddingHorizontal: fromShare ? 0 : width * 0.05
+                    }]
                 }
             ]}
         >
@@ -91,7 +87,7 @@ const GetStarted = ({ onGetStarted, screenSlide, fromShare }: GetStartedProps): 
                     }
                 ]}
             >
-                {fromShare ? 'Voicenotes pages' : 'Start a Voicenotes page'}
+                Start a Voicenotes page
             </Animated.Text>
             
             <Animated.Text 
@@ -103,7 +99,7 @@ const GetStarted = ({ onGetStarted, screenSlide, fromShare }: GetStartedProps): 
                     }
                 ]}
             >
-                {fromShare ? 'Create a public voicenotes page to share your thoughts and ideas. Just press record and tap publish.' : 'Turn your voice notes into mini-podcasts—record on the fly and hit publish.'}
+                Turn your voice notes into mini-podcasts—record on the fly and hit publish.
             </Animated.Text>
             
             <Animated.View 
@@ -116,12 +112,12 @@ const GetStarted = ({ onGetStarted, screenSlide, fromShare }: GetStartedProps): 
                     }
                 ]}
             >
-                <Pressable onPress={onGetStarted} style={[styles.gsbutton, { width: fromShare ? 'auto' : '90%', paddingHorizontal: fromShare ? 15 : 0 }]}>
-                    <Text style={styles.gsactionlabel}>{fromShare ? 'Create Voicenotes page' : 'Get started'}</Text>
-                    {!fromShare && <SvgXml 
+                <Pressable onPress={onGetStarted} style={styles.gsbutton}>
+                    <Text style={styles.gsactionlabel}>Get started</Text>
+                    <SvgXml 
                         xml={settingsSvg.rightArrow.replace("white", Colors.whiteWithOpacity(1))} 
                         width={15}
-                    />}
+                    />
                 </Pressable>
             </Animated.View>
         </Animated.View>
@@ -137,7 +133,8 @@ const useStyles = () => {
             flex: 1,
             width: '90%',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            paddingHorizontal: screenWidth * 0.05
         },
         imageContainer: {
             marginBottom: screenWidth * 0.05,

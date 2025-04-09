@@ -3,7 +3,7 @@ import GetStarted from "components/settings/GetStarted";
 import Header from "components/settings/header";
 import * as Wb from 'expo-web-browser';
 import { useTheme } from "context/theme-context";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, ScrollView, ActivityIndicator } from "react-native";
 import { Image } from 'expo-image'
@@ -24,8 +24,8 @@ function Publish() {
     const dispatch = useDispatch()
 
     const {userDetails}:any = useSelector((state: RootState) => state.userDetails);
-
-    const [authorSetup, setAuthorSetup] = useState<boolean>(userDetails?.author !== null)
+    const { hideGS } = useLocalSearchParams()
+    const [authorSetup, setAuthorSetup] = useState<boolean>(userDetails?.author !== null || (hideGS === 'true'))
     
     const screenSlide = new Animated.Value(0);
 
