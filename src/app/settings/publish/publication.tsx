@@ -118,6 +118,7 @@ function PublicationEditor() {
 
     const debouncedCheckSlug = useMemo(
         () => debounce(async (text: string) => {
+            console.log(text.length)
             setSuggestions([])
             setCheckingSlug(true)
             const slugCheck = await checkSlug(text)
@@ -157,7 +158,7 @@ function PublicationEditor() {
             <View style={styles.info}>
                 <Text style={{ color: Colors.text }}>Page URL</Text>
                 <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
-                    <TextInput value={url} placeholder={userDetails?.author?.name.toLowerCase()} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
+                    <TextInput value={url} maxLength={25} placeholder={userDetails?.author?.name.toLowerCase()} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
                     {checkingSlug && <ActivityIndicator />}
                 </View>
