@@ -7,7 +7,7 @@ import { useTheme } from 'context'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView, Pressable, ActivityIndicator, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, KeyboardAvoidingView, Pressable, ActivityIndicator, Dimensions, LayoutChangeEvent } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { isIOS } from 'utils/common'
 import Publish from './publish'
@@ -69,6 +69,35 @@ const SharePublish = () => {
 
   const showChannelMenu = (index: number) => channelMenuRefs.current[index]?.show();
   const hideChannelMenu = (index: number) => channelMenuRefs.current[index]?.hide();
+
+  const [shouldStackButtons, setShouldStackButtons] = useState(false);
+  // Ref to track container width
+  const containerWidthRef = useRef(0);
+  
+  // Measure the container width when it renders
+  const onContainerLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    containerWidthRef.current = width - 20; // Account for padding
+  };
+  
+  // Function to measure if text would wrap
+  const measureButtonTexts = () => {
+    // Check if both buttons would fit side by side
+    // Consider button padding, gap between buttons, and estimated text width
+    const copyLinkTextWidth = "Copy shareable link".length * 8; // Approximate character width
+    const turnOffTextWidth = "Turn off link sharing".length * 8;
+    
+    // Each button needs padding (30px), plus the gap between buttons (5px)
+    const totalRequiredWidth = copyLinkTextWidth + turnOffTextWidth + 50;
+    
+    // If the available width is less than required, stack buttons
+    setShouldStackButtons(containerWidthRef.current < totalRequiredWidth);
+  };
+  
+  // Call measurement whenever relevant values change
+  useEffect(() => {
+    measureButtonTexts();
+  }, [copyStatus, containerWidthRef.current]);
 
   const onClose = () => { router.back() }
 
@@ -282,10 +311,10 @@ const SharePublish = () => {
         {emailError.length>0 ? 
             <Text style={{color:Colors.redWithOpacity(1),fontFamily:'Primary',fontSize:14,marginBottom:18}}>{emailError}</Text> : <View style={{marginBottom:8}}></View>
         }
-        <View style={styles.publicContainer}>
-          {isPublic ? <View style={{ width: '100%', flexDirection: width > 375 ? 'row' : 'column', gap: width > 375 ? 5 : 10, alignItems: 'center', paddingHorizontal: 10, marginBottom: 10 }}>
+        <View style={styles.publicContainer} onLayout={onContainerLayout}>
+          {isPublic ? <View style={{ width: '100%', flexDirection: shouldStackButtons ? 'column' : 'row', gap: shouldStackButtons ? 15 : 10, alignItems: 'center', paddingHorizontal: 10, marginBottom: 10 }}>
             <Pressable
-              style={[styles.publicButton, { backgroundColor: Colors.bottomBarButtonBg1}]}
+              style={[styles.publicButton, { backgroundColor: Colors.bottomBarButtonBg1, width: shouldStackButtons ? '98%' : '48%' }]}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
                   () => {}
@@ -297,7 +326,7 @@ const SharePublish = () => {
             >
               <Text style={{ color: Colors.askLogo, fontFamily: 'Primary-Medium' }}>{copyStatus}</Text>
             </Pressable>
-            <Pressable onPress={publicing ? null : togglePublic} style={[styles.publicButton, { backgroundColor: "rgba(255, 69, 56, 0.05)" }]}>
+            <Pressable onPress={publicing ? null : togglePublic} style={[styles.publicButton, { backgroundColor: "rgba(255, 69, 56, 0.05)", width: shouldStackButtons ? '98%' : '48%' }]}>
               {publicing ? <ActivityIndicator color={"rgba(255, 69, 56, 1)"} /> : <Text style={{ fontFamily: 'Primary-Medium', color: "rgba(255, 69, 56, 1)" }}>Turn off link sharing</Text>}
             </Pressable>
           </View> :
@@ -609,10 +638,9 @@ const useStyles = () => {
   publicContainer: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 15
+    marginBottom: 15,
   },
   publicButton: {
-    width: width > 375 ? '50%' : '100%',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
