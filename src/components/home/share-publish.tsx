@@ -202,7 +202,7 @@ const SharePublish = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isSelected === 'share' ? Colors.bgColor8 : Colors.bgColor1 }]}>
     
     
       <View
