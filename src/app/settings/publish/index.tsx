@@ -113,7 +113,7 @@ function Publish() {
                 index={1}
                 title={'Set up your author page'}
                 body="Let your audience know who's behind the mic—add your name, photo, a short bio, or a link to your website."
-                label="Set up profile"
+                label="Setup profile"
                 onPress={() => router.push('/settings/publish/bio')}
             />
         </View>
