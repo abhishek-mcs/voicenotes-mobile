@@ -141,6 +141,7 @@ function PublicationEditor() {
         label="Setup your page"
         working={false}
         onCancel={() => router.back()}
+        style={{ backgroundColor: Colors.bgColor8 }}
     >
         <KeyboardAwareScrollView
             ref={scrollViewRef}
@@ -181,7 +182,7 @@ const useStyles = () => {
     return useMemo(() => StyleSheet.create({
         root: {
             width: '100%',
-            paddingHorizontal: 10,
+            paddingHorizontal: 10
         },
         info: {
             paddingHorizontal: 20,

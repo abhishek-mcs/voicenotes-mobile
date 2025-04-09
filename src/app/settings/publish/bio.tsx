@@ -123,6 +123,7 @@ function BioEditor() {
         label="Your profile"
         working={false}
         onCancel={() => router.back()}
+        style={{ backgroundColor: Colors.bgColor8 }}
     >
         <KeyboardAwareScrollView
             contentContainerStyle={styles.root}

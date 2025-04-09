@@ -1,4 +1,4 @@
-import { Platform, StatusBar, StyleSheet, View, Text } from "react-native";
+import { Platform, StatusBar, StyleSheet, View, Text, ViewStyle } from "react-native";
 import RecButton from "components/common/recording/rec-button";
 import CircularLoader from "components/common/loaders/circular-loader";
 import { useTheme } from "context";
@@ -12,7 +12,8 @@ type Props = {
     submitLabel?: string,
     label?: string,
     children?: React.ReactElement,
-    working?: boolean
+    working?: boolean,
+    style?: ViewStyle
 }
 
 const Header = React.memo<Props>((props) => {
@@ -21,7 +22,7 @@ const Header = React.memo<Props>((props) => {
     const styles = useStyles()
 
     return (
-        <View style={[styles.root, { paddingTop: statusBarHeight }]}>
+        <View style={[styles.root, { paddingTop: statusBarHeight }, props.style]}>
             <View style={styles.header}>
                 <View style={styles.action} >
                     <ActionButton
@@ -50,7 +51,7 @@ const Header = React.memo<Props>((props) => {
 const ActionButton = React.memo<{
   title: string,
   onPress: () => void,
-  style?: any,
+  style?: ViewStyle,
   working?: boolean
 }>(({ title, onPress, style, working }) => {
   const { Colors } = useTheme();
