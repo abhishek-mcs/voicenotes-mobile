@@ -126,7 +126,7 @@ function Publish(): JSX.Element {
                     <Text style={[styles.actionlabel, { color: Colors.text }]}>Disabled</Text>
                 </View>
             </View> :
-            <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+            <View style={{ flex: 4, justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row', paddingRight: 10, gap: 10 }}>
                 {!published ? <Pressable onPress={working ? null : onChangePublish} style={styles.action}>
                     {working && <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} />}
                     <Text style={styles.actionlabel}>Publish</Text>
@@ -153,7 +153,7 @@ function Publish(): JSX.Element {
     }
     
     return <View style={[styles.container, { justifyContent: userDetails?.publications.length > 0 ? 'flex-start' : 'center' }]}>
-        {userDetails?.publications.length > 0 ? <View style={styles.previewBox}>
+        {/* {userDetails?.publications.length > 0 ? <View style={styles.previewBox}>
             <View style={styles.browserHeader}>
                 <View style={styles.circleGroup}>
                     <View style={[styles.circle, { backgroundColor: '#FF5F57' }]} />
@@ -186,7 +186,9 @@ function Publish(): JSX.Element {
                     style={styles.voiceText}
                 />}
             </View>
-        </View> : <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />}
+        </View> : <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />} */}
+
+        {userDetails?.publications?.length <= 0 && <GetStarted onGetStarted={() => router.push({pathname: '/settings/publish/', params: { hideGS: 'true' }})} screenSlide={screenSlide} />}
 
         {note?.recording_type !== 3 && userDetails?.publications.length > 0 && <View style={styles.publications}>
             {userDetails?.publications.map((item: any, index: number) => {
@@ -202,9 +204,10 @@ const useStyles = () => {
   return useMemo(() => StyleSheet.create({
     container: {
         flex: 1,
-        paddingVertical: 20,
+        paddingVertical: 12,
         paddingHorizontal: 20,
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: Colors.bgColor1
     },
     previewBox: {
         width: '100%',
@@ -310,24 +313,14 @@ const useStyles = () => {
     },
     publication: {
         width: '100%',
-        height: 90,
+        height: 75,
         borderWidth: 0.5,
         borderColor: Colors.greyWithOpacity(0.5),
         marginTop: 15,
         borderRadius: 10,
         flexDirection: 'row',
         backgroundColor: Colors.whiteWithOpacity(1),
-        ...(isIOS ? {
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.20,
-            shadowRadius: 3.0,
-        } : {
-            elevation: 4,
-        }),
+        
     },
     title: {
         fontFamily: 'Primary-Bold',

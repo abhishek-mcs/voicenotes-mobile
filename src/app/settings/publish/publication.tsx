@@ -138,7 +138,7 @@ function PublicationEditor() {
     
     return <Header
         cancelLabel="Back"
-        label="Your Info"
+        label="Setup your page"
         working={false}
         onCancel={() => router.back()}
     >
@@ -150,13 +150,13 @@ function PublicationEditor() {
         >
             <ImagePicker caption="Photo or artwork" initialURL={publication?.avatar} onChange={url => setAvatar(url)} isAuthor={false} />
             <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Name</Text>
+                <Text style={{ color: Colors.text }}>Page name</Text>
                 <TextInput ref={nameRef} value={name} placeholder="Give your page a name" placeholderTextColor={Colors.placeholderText} onChangeText={text => setName(text)} style={styles.input} returnKeyLabel="next" onSubmitEditing={() => urlRef?.current?.focus()} />
             </View>
             <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Publication URL</Text>
+                <Text style={{ color: Colors.text }}>Page URL</Text>
                 <View style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length > 0 ? 2 : 15 }]} >
-                    <TextInput value={url} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
+                    <TextInput value={url} placeholder={userDetails?.author?.name.toLowerCase()} keyboardType="url" autoCapitalize="none" placeholderTextColor={Colors.placeholderText} autoCorrect={false} onChangeText={text => checkSlugAvailability(text)} ref={urlRef} returnKeyLabel="next" onSubmitEditing={() => aboutRef?.current?.focus()} style={{ width: '50%', fontFamily: 'Primary', color: Colors.text }} />
                     <Text style={{ fontFamily: 'Primary', color: Colors.text}}>.voicenotes.com</Text>
                     {checkingSlug && <ActivityIndicator />}
                 </View>
@@ -168,7 +168,7 @@ function PublicationEditor() {
             </View>
             <View style={styles.footer}>
                 <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
+                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>{publication ? 'Update' : 'Create'}</Text>}
                 </Pressable>
             </View>
         </KeyboardAwareScrollView>

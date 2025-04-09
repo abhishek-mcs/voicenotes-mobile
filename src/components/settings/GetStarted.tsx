@@ -99,7 +99,7 @@ const GetStarted = ({ onGetStarted, screenSlide }: GetStartedProps): JSX.Element
                     }
                 ]}
             >
-                Turn your voice notes into mini-podcasts—record on the fly and hit publish.
+                Turn your voice notes into mini-podcasts — record on the fly and hit publish.
             </Animated.Text>
             
             <Animated.View 
@@ -133,8 +133,7 @@ const useStyles = () => {
             flex: 1,
             width: '90%',
             alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: screenWidth * 0.05
+            paddingHorizontal: screenWidth * 0.02
         },
         imageContainer: {
             marginBottom: screenWidth * 0.05,
@@ -155,7 +154,7 @@ const useStyles = () => {
             paddingHorizontal: screenWidth * 0.02,
         },
         gsbutton: {
-            width: '100%',
+            width: '90%',
             backgroundColor: Colors.askLogo,
             height: screenWidth * 0.12,
             marginTop: screenWidth * 0.075,

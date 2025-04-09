@@ -31,7 +31,7 @@ const Header = React.memo<Props>((props) => {
                         working={props.working}
                     />
                 </View>
-                {props.label && <View style={{flex:1,alignItems:'center', justifyContent:'center'}}>
+                {props.label && <View style={{flex:2,alignItems:'center', justifyContent:'center'}}>
                     <Text style={styles.label}>{props.label}</Text>
                     </View>}
                 <View style={[styles.action, { alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: props.working ? 20 : 10 }]} >

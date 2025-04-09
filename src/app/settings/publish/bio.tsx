@@ -120,7 +120,7 @@ function BioEditor() {
     
     return <Header
         cancelLabel="Back"
-        label="Your Info"
+        label="Your profile"
         working={false}
         onCancel={() => router.back()}
     >
@@ -131,11 +131,11 @@ function BioEditor() {
         >
             <ImagePicker caption="Profile photo" initialURL={userDetails?.author?.avatar} isAuthor onChange={url => setAvatar(url)} />
             <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Name</Text>
+                <Text style={{ color: Colors.text }}>Author name</Text>
                 <TextInput 
                     value={name}
                     onFocus={() => scrollToInput(null)} 
-                    placeholder="This is what your audience will call you." 
+                    placeholder="Your name" 
                     placeholderTextColor={Colors.placeholderText} 
                     onChangeText={text => setName(text)} 
                     style={styles.input} 
@@ -149,7 +149,7 @@ function BioEditor() {
                 <TextInput 
                     value={about}
                     onFocus={() => scrollToInput(aboutRef)} 
-                    placeholder="Tell your audience who you are. Share a little or a lot—it's up to you." 
+                    placeholder="Tell your audience who you are. Share a little or a lot — it's up to you." 
                     placeholderTextColor={Colors.placeholderText} 
                     onChangeText={text => setAbout(text)} 
                     ref={aboutRef} 
@@ -161,12 +161,12 @@ function BioEditor() {
                 />
             </View>
             <View style={styles.info}>
-                <Text style={{ color: Colors.text }}>Website</Text>
+                <Text style={{ color: Colors.text }}>Website (optional)</Text>
                 <TextInput 
                     ref={websiteRef} 
                     value={website}
                     onFocus={() => scrollToInput(websiteRef)} 
-                    placeholder="Got a website? Link it here (optional)." 
+                    placeholder="http://" 
                     placeholderTextColor={Colors.placeholderText} 
                     autoCapitalize="none" 
                     autoCorrect={false} 
@@ -179,7 +179,7 @@ function BioEditor() {
             </View>
             <View style={styles.footer}>
                 <Pressable onPress={working ? null : onSubmit} style={styles.button}>
-                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>Done</Text>}
+                    {working ? <ActivityIndicator color={!isIOS ? Colors.whiteWithOpacity(1) : undefined} /> : <Text style={styles.buttonlabel}>{userDetails?.author ? 'Update' : 'Done'}</Text>}
                 </Pressable>
             </View>
         </KeyboardAwareScrollView>

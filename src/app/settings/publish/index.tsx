@@ -49,7 +49,7 @@ function Publish() {
         </Pressable>
     }
 
-    const PromptCard = ({ index, title, body, onPress, disabled } : { index: number, title: string, body: string, onPress: () => void, disabled?: boolean }): JSX.Element => {
+    const PromptCard = ({ index, title, body, onPress, disabled, label } : { index: number, title: string, body: string, onPress: () => void, label: string, disabled?: boolean }): JSX.Element => {
         return <View style={[styles.prompt, { opacity: disabled ? 0.5 : 1 }]}>
             <View style={styles.promptindex}>
                 <View style={styles.promptindexno}>
@@ -71,7 +71,7 @@ function Publish() {
                 <Text numberOfLines={1} ellipsizeMode="tail" style={styles.promptheader}>{title}</Text>
                 <Text style={styles.promptbody}>{body}</Text>
                 <Pressable onPress={disabled ? null : onPress} style={styles.addinfobutton}>
-                    <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Medium' }}>Add Your Info</Text>
+                    <Text style={{ color: Colors.whiteWithOpacity(1), fontFamily: 'Primary-Medium' }}>{label}</Text>
                 </Pressable>
             </View>
         </View>
@@ -84,7 +84,7 @@ function Publish() {
             <Text style={styles.heading}>About</Text>
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 <View style={styles.card}>
-                    <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ flex: 1.6, justifyContent: 'center', paddingLeft: 10 }}>
                         {imageLoading && (
                             <View style={{ position: 'absolute', width: 80, height: 80, borderRadius: 15, backgroundColor: Colors.bottomBarButtonBg1, justifyContent: 'center', alignItems: 'center' }}>
                                 <ActivityIndicator color={Colors.askLogo} />
@@ -99,7 +99,7 @@ function Publish() {
                             priority={'high'}
                         />
                     </View>
-                    <View style={{ flex: 4, justifyContent: 'center', gap: 2, paddingRight: 15 }}>
+                    <View style={{ flex: 4, gap: 2, paddingRight: 10 }}>
                         <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={styles.authorname}>{userDetails?.author?.name}</Text>
                             <EditButton onPress={() => router.push('/settings/publish/bio')} />
@@ -111,8 +111,9 @@ function Publish() {
         </View> : <View style={styles.author}>
             <PromptCard
                 index={1}
-                title={'Set up your Author Page'}
-                body="Let your audience know who’s behind the mic—add your name, photo, a short bio, or a link to your website."
+                title={'Set up your author page'}
+                body="Let your audience know who's behind the mic—add your name, photo, a short bio, or a link to your website."
+                label="Set up profile"
                 onPress={() => router.push('/settings/publish/bio')}
             />
         </View>
@@ -194,15 +195,15 @@ function Publish() {
                     {userDetails?.publications.map((item: any, index: number) => {
                         return <Publication key={index} title={item?.title} slug={item?.slug} is_public={item?.is_public} onEdit={() => router.push({pathname: '/settings/publish/publication', params: { id: item?.id }})} />
                     })}
-                </ScrollView>
-                
-                <View style={styles.footerContainer}>
                     {userDetails?.publications.length < 3 && <Pressable onPress={() => router.push('/settings/publish/publication')} style={styles.createbutton}>
                         <SvgXml xml={settingsSvg.add.replace("black", Colors.whiteWithOpacity(1))} />
                         <Text style={styles.createlabel}>Create</Text>
                     </Pressable>}
+                </ScrollView>
+                
+                <View style={styles.footerContainer}>
                     <View style={styles.captionContainer}>
-                        <SvgXml xml={settingsSvg.send.replace("black", Colors.blackWithOpacity(0.5))} />
+                        <SvgXml xml={settingsSvg.send.replace("black", Colors.blackWithOpacity(1))} />
                         <Text style={styles.caption}>Your Page is now live. Record a voice note, tap Share, choose the Page, and hit Publish!</Text>
                     </View>
                 </View>
@@ -213,6 +214,7 @@ function Publish() {
                 disabled={userDetails?.author === null}
                 onPress={() => router.push('/settings/publish/publication')}
                 title={'Set up your Page(s)'}
+                label="Create page"
                 body="A place to share your best notes—lessons, ideas, stories, reflections, and everything in between."
             />
         </View>
@@ -315,18 +317,25 @@ const useStyles = () => {
         scrollViewContent: {
             paddingTop: 10,
             paddingBottom: 20,
+            alignItems: 'center'
         },
         footerContainer: {
             width: '100%',
-            paddingBottom: 20
+            paddingBottom: 40,
+            justifyContent: 'center',
+            alignItems: 'center'
         },
         captionContainer: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 20,
+            justifyContent: 'center',
+            paddingHorizontal: 30,
+            paddingVertical: 16,
+            borderRadius: 10,
             marginBottom: 10,
             gap: 10,
             width: '95%',
+            backgroundColor: Colors.bgColor
         },
         publication: {
             fontFamily: 'Primary-Medium',
@@ -404,7 +413,7 @@ const useStyles = () => {
             backgroundColor: Colors.blackWithOpacity(0.25),
         },
         createbutton: {
-            width: '100%',
+            width: '35%',
             backgroundColor: Colors.askLogo,
             height: 50,
             marginBottom: 10,
@@ -420,9 +429,10 @@ const useStyles = () => {
             fontSize: 14
         },
         caption: {
-            color: Colors.blackWithOpacity(0.5),
+            color: Colors.blackWithOpacity(1),
             fontFamily: 'Primary',
-            fontSize: 13
+            fontSize: 13,
+            lineHeight: 18
         },
         more: {
             width: 25,
