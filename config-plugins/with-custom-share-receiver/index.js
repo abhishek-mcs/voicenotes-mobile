@@ -1,19 +1,18 @@
 const {
-    withPlugins,
     withAndroidManifest,
     withMainApplication,
+    withMainActivity,
+    withDangerousMod,
     WarningAggregator, // For logging warnings
     createRunOncePlugin, // Ensures plugin logic runs once
-    AndroidConfig
 } = require('@expo/config-plugins');
-const {withMainActivity} = AndroidConfig.MainActivity;
 
 // For file system operations (copying files)
 const fs = require('fs');
 const path = require('path');
 
 // --- Plugin Configuration ---
-const SHARE_EXTENSION_TARGET_NAME = 'ShareExtension'; // Must match target name if created manually/previously
+// const SHARE_EXTENSION_TARGET_NAME = 'ShareExtension'; // Must match target name if created manually/previously
 // const APP_GROUP_ID = 'group.app.voicenotes';
 // const URL_SCHEME = 'voicenotes';
 // const HOST_APP_BUNDLE_ID_KEY = 'NSExtensionHostAppBundleIdentifier'; // Key for Extension's Info.plist
@@ -93,58 +92,86 @@ const withReceiverAndroidManifest = (config) => {
  * @param {object} config Expo config object.
  * @returns {object} Modified Expo config object.
  */
-const withReceiverMainApplication = (config) => {
+const withReceiverMainApplication = (config, options = {}) => {
+    const packageName = options.package; // Get package name from options passed down
+    const pluginName = 'with-custom-share-receiver'; // For warnings
+
+    if (!packageName) {
+        WarningAggregator.addWarningAndroid(
+            pluginName,
+            'Cannot modify MainApplication - Android package name was not passed in options.'
+        );
+        return config; // Return unmodified config if package name is missing
+    }
+
     return withMainApplication(config, async (modConfig) => {
-        const packageName = config.android?.package;
-        if (!packageName) {
-            WarningAggregator.addWarningAndroid(
-                'with-custom-share-receiver',
-                'Cannot modify MainApplication - Android package name is not defined in app config.'
-            );
-            return modConfig;
-        }
+        let mainApplication = modConfig.modResults.contents;
 
+        // Define the lines to add
         const importLine = `import ${packageName}.ShareReceiverPackage`;
-        const packageInstantiation = `packages.add(ShareReceiverPackage())`;
+        // Make the instantiation check slightly more robust against whitespace variations
+        const packageInstantiationCheck = /packages\.add\(\s*ShareReceiverPackage\(\s*\)\s*\)/;
+        // Ensure consistent indentation (assuming 2 spaces common in Expo templates)
+        const packageInstantiation = `      packages.add(ShareReceiverPackage())`; // Added indentation
 
-        // Add import if not present
-        if (!modConfig.modResults.contents.includes(importLine)) {
-            // Add import after the last import statement
-            modConfig.modResults.contents = modConfig.modResults.contents.replace(
-                /(import .*;)/, // Match last import line
-                `$1\n${importLine}`
-            );
-            console.log('Added ShareReceiverPackage import to MainApplication');
+        // --- 1. Add Import ---
+        if (!mainApplication.includes(importLine)) {
+            // (Keep the existing import logic - it worked)
+            const importAnchor = /^(import .*;)/m;
+            const lastImportMatch = mainApplication.match(new RegExp(`^${importAnchor.source}`, 'gm'));
+            if (lastImportMatch) {
+                const lastImportLine = lastImportMatch[lastImportMatch.length - 1];
+                mainApplication = mainApplication.replace(lastImportLine, `${lastImportLine}\n${importLine}`);
+                console.log(`[${pluginName}] Added ShareReceiverPackage import to MainApplication`);
+            } else {
+                const packageAnchor = /^package .*/m;
+                if (packageAnchor.test(mainApplication)) {
+                    mainApplication = mainApplication.replace(packageAnchor, `$&\n\n${importLine}`);
+                    console.log(`[${pluginName}] Added ShareReceiverPackage import (after package) to MainApplication`);
+                } else {
+                    mainApplication = `${importLine}\n\n${mainApplication}`;
+                    console.log(`[${pluginName}] Added ShareReceiverPackage import (at beginning) to MainApplication`);
+                }
+            }
+        } else {
+            console.log(`[${pluginName}] ShareReceiverPackage import seems to exist in MainApplication, skipping addition.`);
         }
 
-        // Add package instantiation if not present
-        if (!modConfig.modResults.contents.includes(packageInstantiation.replace(/\(/g, '\\(').replace(/\)/g, '\\)'))) { // Escape parens for regex
-            // Add package inside the getPackages() method's apply block
-            modConfig.modResults.contents = modConfig.modResults.contents.replace(
-                /(packages\.apply\s*\{)/, // Match start of apply block
-                `$1\n      ${packageInstantiation}` // Add the line
-            );
-            console.log('Added ShareReceiverPackage instantiation to MainApplication');
+        // --- 2. Add Package Instantiation ---
+        if (!packageInstantiationCheck.test(mainApplication)) {
+            // *** UPDATED ANCHOR: Look for 'return packages' line ***
+            const returnPackagesAnchor = /(\s*return packages\s*)/m; // Match 'return packages' line
+
+            if (returnPackagesAnchor.test(mainApplication)) {
+                // Insert the new package line *before* the 'return packages' line
+                mainApplication = mainApplication.replace(
+                    returnPackagesAnchor,
+                    `\n${packageInstantiation}\n$1` // Add line before the matched group
+                );
+                console.log(`[${pluginName}] Added ShareReceiverPackage instantiation to MainApplication (before return).`);
+            } else {
+                // Fallback warning if the new anchor isn't found either
+                WarningAggregator.addWarningAndroid(pluginName, 'Could not find "return packages" anchor in MainApplication.kt to add package instantiation.');
+            }
+        } else {
+            console.log(`[${pluginName}] ShareReceiverPackage instantiation seems to exist in MainApplication, skipping addition.`);
         }
 
+        // Update contents
+        modConfig.modResults.contents = mainApplication;
         return modConfig;
     });
 };
 
 
 // Function to generate the Kotlin code strings needed for injection
-function getKotlinSnippets(packageName) {
-    // Ensure packageName is valid, provide a fallback if necessary
-    const safePackageName = packageName || 'com.example.app'; // Use a fallback or throw error
-
+function getKotlinSnippets() {
     return {
         imports: `
 // --- Share Receiver Imports Start ---
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.provider.OpenableColumns
-import android.util.Log
 import android.util.Patterns
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
@@ -159,7 +186,7 @@ import java.util.UUID
 `,
         classMembers: `
     // --- Share Receiver Members Start ---
-    private val logTag = MainActivity::class.java.simpleName // Use class name for log tag
+    private val logTag = "MainActivityShare"
     private var initialIntentHandled = false
     // --- Share Receiver Members End ---
 `,
@@ -168,7 +195,7 @@ import java.util.UUID
         // Check if launched via an intent ONLY if not already handled and not restoring state
         if (!initialIntentHandled && savedInstanceState == null) {
             intent?.let {
-                Log.d(logTag, "onCreate: Checking initial intent: ${it.action}")
+                Log.d(logTag, "onCreate: Checking initial intent: \${it.action}")
                 // Process intent and mark handled only if it was a share action
                 if (handleIntent(it)) { // handleIntent returns true if processed
                     initialIntentHandled = true
@@ -182,7 +209,7 @@ import java.util.UUID
     // Handle intents received while the activity is already running
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Log.d(logTag, "onNewIntent: Received intent: ${intent?.action}")
+        Log.d(logTag, "onNewIntent: Received intent: \${intent?.action}")
         intent?.let {
             handleIntent(it) // Process the new intent
         }
@@ -190,11 +217,7 @@ import java.util.UUID
     // --- Share Receiver onNewIntent End ---
 `,
         handleIntentMethod: `
-    // --- Share Receiver handleIntent Start ---
-    /**
-     * Processes the incoming intent to extract shared data.
-     * Returns true if a share intent was processed, false otherwise.
-     */
+            // --- Share Receiver handleIntent Start ---
     private fun handleIntent(intent: Intent): Boolean {
         val action = intent.action
         val type = intent.type // The general MIME type
@@ -223,7 +246,7 @@ import java.util.UUID
                          if (fileInfo != null) {
                              itemsArray.pushMap(fileInfo)
                              processed = true
-                         }
+                         } else {}
                     } else {
                          Log.d(logTag, "SEND: Ignoring stream URI as text content was already processed.")
                     }
@@ -234,7 +257,7 @@ import java.util.UUID
             }
             Intent.ACTION_SEND_MULTIPLE -> {
                 intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris ->
-                    Log.d(logTag, "SEND_MULTIPLE: Found ${uris.size} URIs.")
+                    Log.d(logTag, "SEND_MULTIPLE: Found \${uris.size} URIs.")
                     var successCount = 0
                     uris.forEach { uri ->
                         val fileInfo = copyUriToAppCache(uri)
@@ -254,7 +277,7 @@ import java.util.UUID
         }
 
         if (processed && !itemsArray.toArrayList().isEmpty()) {
-            Log.d(logTag, "Processed ${itemsArray.size()} items from intent. Emitting event 'onShareReceived'.")
+            Log.d(logTag, "Processed \${itemsArray.size()} items from intent. Emitting event 'onShareReceived'.")
             val eventPayload = Arguments.createMap().apply { putArray("items", itemsArray) }
             sendEvent("onShareReceived", eventPayload)
         } else if (processed) {
@@ -305,8 +328,8 @@ import java.util.UUID
          val uniqueFileNamePart = UUID.randomUUID().toString().substring(0, 8)
          // Ensure filename has a reasonable length and valid characters
          val safeBaseName = fileName ?: "shared_file"
-         val sanitizedBaseName = safeBaseName.replace("[^a-zA-Z0-9.\\-_]".toRegex(), "_").take(100)
-         val finalFileName = "${uniqueFileNamePart}_${sanitizedBaseName}"
+         val sanitizedBaseName = safeBaseName.replace("[^a-zA-Z0-9.-_]".toRegex(), "_").take(100)
+         val finalFileName = "\${uniqueFileNamePart}_\${sanitizedBaseName}"
         val cacheFile = File(cacheDir, finalFileName)
 
         try {
@@ -314,7 +337,7 @@ import java.util.UUID
             fileOutputStream = FileOutputStream(cacheFile)
             inputStream.copyTo(fileOutputStream)
             fileOutputStream.flush()
-            Log.d(logTag, "Copied URI $uri to cache: ${cacheFile.absolutePath}")
+            Log.d(logTag, "Copied URI $uri to cache: \${cacheFile.absolutePath}")
             return createItemMap("file", mimeType, filePath = cacheFile.absolutePath, fileName = fileName ?: finalFileName)
         } catch (e: Exception) {
             Log.e(logTag, "Failed to copy file from URI: $uri", e)
@@ -402,7 +425,7 @@ const withReceiverMainActivity = (config) => {
         }
 
         let mainActivity = modConfig.modResults.contents;
-        const snippets = getKotlinSnippets(packageName);
+        const snippets = getKotlinSnippets();
         const pluginName = 'with-custom-share-receiver'; // For warnings
 
         // --- 1. Add Imports ---
@@ -601,7 +624,7 @@ const withCustomShareReceiver = (config, props = {}) => {
 
     // --- Apply Android Mods ---
     config = withReceiverAndroidManifest(config);
-    config = withReceiverMainApplication(config);
+    config = withReceiverMainApplication(config, options);
     config = withReceiverMainActivity(config);
 
     // --- Apply iOS Mods ---
@@ -616,14 +639,15 @@ const withCustomShareReceiver = (config, props = {}) => {
     // --- File Copying (Run last or within a mod that ensures native project exists) ---
     // Using withPlugins ensures this runs after base project generation.
     // Wrap file copying in a simple mod function.
-    config = withPlugins(config, [
-        (config) => {
-            // Ensure project name is determined correctly
-            options.appName = getProjectName(config.modRequest.projectRoot);
-            // Trigger file copying
-            copySourceFiles(config.modRequest.projectRoot, options);
+    config = withDangerousMod(config, [
+        'android', // Platform to run on
+        async (config) => {
+            const projectRoot = config.modRequest.projectRoot;
+            console.log(`[withDangerousMod][android] Running file copy for project root: ${projectRoot}`);
+            // Pass necessary options derived from config
+            copySourceFiles(projectRoot, { ...options, appName: getProjectName(projectRoot) }); // Ensure latest appName
             return config;
-        }
+        },
     ]);
 
     return config;
