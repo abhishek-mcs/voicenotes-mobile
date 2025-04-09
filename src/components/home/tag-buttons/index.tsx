@@ -31,10 +31,6 @@ export const TagButton = ({
     dispatch(setTagsFilter(tag));
   };
 
-  useEffect(() => {
-    console.log('activeInvites in TagButton',activeInvites);
-  },[activeInvites])
-
   const onClickTag = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
       () => {}
@@ -108,10 +104,6 @@ export default function TagButtons({
   const {showDialog} = useDialog()
   const count =
   (isDefaultHash ? pinnedTagsData : tagsData)?.find((v: any) => v?.name === hashFilter)?.recordings_count || null;
-
-  useEffect(() => {
-    console.log('Share indicator in tag button', pendingInvites);
-  },[pendingInvites])
 
   const options = [
     {

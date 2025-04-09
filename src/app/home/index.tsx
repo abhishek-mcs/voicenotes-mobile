@@ -781,17 +781,17 @@ const Home = () => {
 
   useEffect(() => {
     if(!!userDetails.settings.share_indicator) {
-      console.log('Share indicator true');
       dispatch(setInvitePending(true));
     } else {
-      console.log('Share indicator false');
       dispatch(setInvitePending(false));
     }
   },[userDetails.settings])
 
   useEffect(() => {
-    console.log('Invite pending', invitePending);
-  },[invitePending])
+    if(hashFilter=='shared'){
+      dispatch(setInvitePending(false))
+    }
+  },[hashFilter])
 
   // if (!token) return <Redirect href="/auth/landingPage/" />;
   if (!token) return <Redirect href="/onboarding/" />;
