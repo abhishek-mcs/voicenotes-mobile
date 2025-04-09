@@ -6,6 +6,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "redux/store/store";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import database from '@react-native-firebase/database';
+import {SharedFilesProvider} from "../../context/SharedFilesContext";
 
 database().setPersistenceEnabled(true);
 
@@ -16,18 +17,20 @@ interface AppProviderProps {
   children: ReactNode; // Define the children prop
 }
 
-const AppProvider: React.FC<AppProviderProps> = ({ children }) => (
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-      <KeyboardProvider statusBarTranslucent={true}>
-        <ContextProvider>
-          <QueryClientProvider client={queryClient} contextSharing={true}>
-            {children}
-          </QueryClientProvider>
-        </ContextProvider>
-      </KeyboardProvider>
-    </PersistGate>
-  </Provider>
+const AppProvider: React.FC<AppProviderProps> = ({children}) => (
+    <Provider store={store}>
+        <SharedFilesProvider>
+            <PersistGate loading={null} persistor={persistor}>
+                <KeyboardProvider statusBarTranslucent={true}>
+                    <ContextProvider>
+                        <QueryClientProvider client={queryClient} contextSharing={true}>
+                            {children}
+                        </QueryClientProvider>
+                    </ContextProvider>
+                </KeyboardProvider>
+            </PersistGate>
+        </SharedFilesProvider>
+    </Provider>
 );
 
 export default AppProvider;

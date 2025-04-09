@@ -4,6 +4,7 @@ import {
   Easing,
   KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   RefreshControl,
   SafeAreaView,
@@ -80,6 +81,7 @@ import RecButton from "components/common/recording/rec-button";
 import { useAllRecordings } from "queries/common";
 import SharedInvites from "components/home/share-invites";
 import { set } from "lodash";
+import {useSharedItems} from "../../context/SharedFilesContext";
 
 const { height } = Dimensions.get("screen");
 
@@ -144,6 +146,26 @@ const Home = () => {
   const [settingsPos, setSettingsPos] = useState({x: 0, y: 0});
 
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
+
+  // Consume the context
+  const {
+    sharedItems,
+    error,
+    isLoading,
+    clearDisplayedItems,
+    clearNativeCache,
+    checkIosItems,
+  } = useSharedItems();
+
+  const handleManualIosCheck = async () => {
+    if (Platform.OS === 'ios') {
+      await checkIosItems(); // isLoading state is handled within the context now
+    }
+  };
+
+  console.log('==============================');
+  console.log('sharedItems: ',sharedItems);
+  console.log('==============================');
 
   useWatchNetInfo()
   

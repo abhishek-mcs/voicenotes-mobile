@@ -13,4 +13,5 @@
   <string name="record">Record</string>
   <string name="ask">Ask</string>
   <string name="search_notes">Search notes</string>
+  <string name="share_intent_label">Share to Voicenotes</string>
 </resources>

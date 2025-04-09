@@ -16,6 +16,8 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.flipper.ReactNativeFlipper
 import com.facebook.soloader.SoLoader
 import com.app.voicenotes.TokenBridgePackage
+import com.app.voicenotes.ShareReceiverPackage
+
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
@@ -31,6 +33,7 @@ class MainApplication : Application(), ReactApplication {
               val packages = PackageList(this).packages
               packages.add(TokenBridgePackage())
               packages.add(RecordBridgePackage())
+              packages.add(ShareReceiverPackage())
             return packages
           }
 
