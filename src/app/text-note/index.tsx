@@ -40,14 +40,20 @@ import { useDialog } from "context/DialogContext";
 
 const TextNote = () => {
   const router = useRouter();
-  const {content}:any = useLocalSearchParams();
+  const {content, imagePath}:any = useLocalSearchParams();
   const { Colors, isLightMode } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [limitAlert, setLimitAlert] = useState(false);
   const [textnote, setTextnote] = useState(content??"");
   const inputRef: any = useRef<TextInput>();
   const [showImagePicker, setShowImagePicker] = useState(false);
-  const [attachments, setAttachments] = useState([]);
+  const [attachments, setAttachments] = useState<{
+    description: string;
+    id: number;
+    type: number;
+    url: any;
+    is_uploading: boolean;
+  }[]>([]);
   const styles = useStyles()
   const dispatch = useDispatch()
   const { recordingList } = useSelector((state:RootState)=>state.recordingStates)
@@ -68,6 +74,27 @@ const TextNote = () => {
       inputRef.current?.focus();
     });
   }, []);
+
+  // Handle shared image if imagePath is provided
+  useEffect(() => {
+    if (imagePath) {
+      // Add the shared image to attachments
+      const temporaryImageId = Math.random();
+      setAttachments((prevAttachments) => [
+        ...prevAttachments,
+        {
+          description: "",
+          id: temporaryImageId,
+          type: 2, // ATTACHMENT_TYPE.IMAGE
+          url: imagePath,
+          is_uploading: false,
+        },
+      ]);
+
+      // Scroll to show the image after a delay
+      refreshNotesAfterAttachmentChange();
+    }
+  }, [imagePath]);
 
   const onCancel = () => router?.back();
 

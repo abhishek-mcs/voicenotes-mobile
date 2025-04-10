@@ -167,6 +167,16 @@ const Home = () => {
     });
   };
 
+  const createImageNote = (filePath: string): void => {
+    router.push({
+      pathname: "/text-note/",
+      params: {
+        content: "",
+        imagePath: filePath ?? ''
+      }
+    });
+  };
+
   const uploadSharedAudio = async (fileUrl = '') => {
     console.warn("file URL:", fileUrl)
     if (fileUrl !== "") {
@@ -231,14 +241,15 @@ const Home = () => {
     if (processedItem.mimeType.includes('text/') && processedItem.content) {
       createTextNote(processedItem.content);
       clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
-    } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('audio/')) {
-      // Handle audio file (e.g., navigate to player, process path)
+    } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('audio/') && processedItem.path) {
+      // Handle audio file
       uploadSharedAudio(processedItem.path)
           // .then(() => clearNativeCache().catch(e => console.error("Error clearing native cache:", e)))
           .catch(e => console.error("Error uploading shared audio:", e));
-    } else if (processedItem.type === 'file') {
-      // Handle other file types
-      clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
+    } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('image/') && processedItem.path) {
+      // Handle image file - navigate to text-note with image attachment
+      createImageNote(processedItem.path);
+      // clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
     } else {
       console.log("Received unknown item type:", processedItem.type);
       clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
