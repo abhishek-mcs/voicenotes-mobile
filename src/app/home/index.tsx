@@ -234,7 +234,7 @@ const Home = () => {
     } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('audio/')) {
       // Handle audio file (e.g., navigate to player, process path)
       uploadSharedAudio(processedItem.path)
-          .then(() => clearNativeCache().catch(e => console.error("Error clearing native cache:", e)))
+          // .then(() => clearNativeCache().catch(e => console.error("Error clearing native cache:", e)))
           .catch(e => console.error("Error uploading shared audio:", e));
     } else if (processedItem.type === 'file') {
       // Handle other file types
@@ -790,7 +790,7 @@ const Home = () => {
 
     showCalendar(true);
   }
-  
+
   const renderItem = useCallback(
     ({ item, index }: any) => (
       <NotePreview
@@ -989,8 +989,8 @@ const Home = () => {
                   { useNativeDriver: false }
                 )}
                 refreshControl={
-                <RefreshControl 
-                  onRefresh={onRefresh} 
+                <RefreshControl
+                  onRefresh={onRefresh}
                   refreshing={isRefreshing}
                   tintColor={Colors.refresh}
                   colors={[isIOS?Colors.refresh:Colors.refresh1]}
@@ -1136,9 +1136,9 @@ const Home = () => {
       >
         <BlurView style={{ flex: 1 }} tint={isLightMode ? "light" : "dark"} intensity={isIOS ? 50 : 100}>
           <Pressable onPress={() => showCalendar(false)} style={styles.calendarHeader}>
-            {calendarPos.y !== 0 && 
+            {calendarPos.y !== 0 &&
               <Pressable
-                onPress={() => showCalendar(false)} 
+                onPress={() => showCalendar(false)}
                 style={[
                   styles.button,
                   {left: calendarPos.x, top: isIOS ? calendarPos.y - 30: calendarPos.y, backgroundColor: Colors.selection}
