@@ -7,10 +7,7 @@
     "base":{
       "ios": {
         "image": "latest",
-        "scheme": "Voicenotes",
-        "appExtensions": [
-          { "targetName": "VoicenotesShareExtension" }
-        ]
+        "scheme": "Voicenotes"
       }
     },
     "development": {
@@ -23,10 +20,7 @@
         "resourceClass": "large"
       },
       "ios": {
-        "simulator": true,
-        "appExtensions": [
-          { "targetName": "VoicenotesShareExtension" }
-        ]
+        "simulator": true
       }
     },
     "preview": {
@@ -40,11 +34,6 @@
       "channel": "production",
       "android": {
         "resourceClass": "large"
-      },
-      "ios": {
-        "appExtensions": [
-          { "targetName": "VoicenotesShareExtension" }
-        ]
       }
     },
     "staging": {
@@ -53,11 +42,6 @@
       "channel": "staging",
       "android": {
         "resourceClass": "large"
-      },
-      "ios": {
-        "appExtensions": [
-          { "targetName": "VoicenotesShareExtension" }
-        ]
       }
     },
     "athul": {

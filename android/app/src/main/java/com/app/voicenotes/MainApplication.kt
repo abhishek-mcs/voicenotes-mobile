@@ -1,5 +1,7 @@
 package com.app.voicenotes
 
+import com.app.voicenotes.ShareReceiverPackage
+
 import android.app.Application
 import android.content.res.Configuration
 import androidx.annotation.NonNull
@@ -31,6 +33,8 @@ class MainApplication : Application(), ReactApplication {
               val packages = PackageList(this).packages
               packages.add(TokenBridgePackage())
               packages.add(RecordBridgePackage())
+      packages.add(ShareReceiverPackage())
+
             return packages
           }
 
