@@ -3,6 +3,7 @@ const {
     withMainApplication,
     withMainActivity,
     withDangerousMod,
+    withEntitlementsPlist,
     WarningAggregator, // For logging warnings
     createRunOncePlugin, // Ensures plugin logic runs once
 } = require('@expo/config-plugins');
@@ -15,7 +16,6 @@ const plist = require('@expo/plist');
 
 // --- Plugin Configuration Constants ---
 // !! IMPORTANT: Update these values !!
-const SHARE_EXTENSION_TARGET_NAME = 'VoicenotesShareExtension'; // Choose a name for your extension target
 const SHARE_EXTENSION_FOLDER_NAME = 'VoicenotesShareExtension'; // Folder name in ios/ for extension files
 const MAIN_APP_URL_SCHEME = 'voicenotes'; // Your main app's URL scheme
 const APP_GROUP_ID = 'group.app.voicenotes';
@@ -49,12 +49,26 @@ function copyIosSourceFiles(projectRoot, projectName, pluginSourceDir) {
     }
 }
 
+// Adds App Group Entitlements for the main app
+const withAppEntitlements = (config) => {
+    return withEntitlementsPlist(config, (modConfig) => {
+        const key = 'com.apple.security.application-groups';
+        if (!Array.isArray(modConfig.modResults[key])) modConfig.modResults[key] = [];
+        if (!modConfig.modResults[key].includes(APP_GROUP_ID)) {
+            modConfig.modResults[key].push(APP_GROUP_ID);
+            console.log(`[with-custom-share-receiver] Added App Group "${APP_GROUP_ID}" to main app entitlements.`);
+        }
+        return modConfig;
+    });
+};
+
 /**
  * Modifies the Extension's Info.plist and Entitlements files on disk.
  * Runs within withDangerousMod *after* files are potentially created/copied.
  * VERSION 2: Only adds LSApplicationQueriesSchemes and removes Apple Sign In entitlement.
  * @param {string} platformProjectRoot - Path to the ios/ directory.
- */function modifyExtensionFiles(platformProjectRoot) {
+ */
+function modifyExtensionFiles(platformProjectRoot) {
     // Construct paths using constants defined elsewhere in your plugin
     const extensionTargetDir = path.join(platformProjectRoot, SHARE_EXTENSION_FOLDER_NAME);
     const plistFilePath = path.join(extensionTargetDir, 'Info.plist');
@@ -170,6 +184,7 @@ const withReceiverAndroidManifest = (config) => {
 /**
  * Modifies MainApplication.kt/java to register the custom package.
  * @param {object} config Expo config object.
+ * @param {object} options Expo config object.
  * @returns {object} Modified Expo config object.
  */
 const withReceiverMainApplication = (config, options = {}) => {
@@ -671,6 +686,9 @@ const withCustomShareReceiver = (config, props = {}) => {
         iosSourceDir: props.iosSourceDir, // Allow overriding source paths
         androidSourceDir: props.androidSourceDir,
     };
+
+    // --- Apply iOS Mods ---
+    config = withAppEntitlements(config);
 
     // --- Apply Android Mods ---
     config = withReceiverAndroidManifest(config);
