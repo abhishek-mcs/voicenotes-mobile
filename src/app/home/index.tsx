@@ -81,6 +81,8 @@ import { useAllRecordings } from "queries/common";
 import SharedInvites from "components/home/share-invites";
 import { set } from "lodash";
 import {useSharedItems} from "../../context/SharedFilesContext";
+import {createTempRecDetails} from "../../utils/createTempRecDetails";
+import * as FileSystem from 'expo-file-system';
 
 const { height } = Dimensions.get("screen");
 
@@ -146,6 +148,7 @@ const Home = () => {
 
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
+  // ============== Share Receiver Handles ==================
   // Consume the context
   const {
     sharedItems,
@@ -153,18 +156,97 @@ const Home = () => {
     isLoading,
     clearDisplayedItems,
     clearNativeCache,
-    checkIosItems,
+    processSharedItem,
   } = useSharedItems();
 
-  const handleManualIosCheck = async () => {
-    if (Platform.OS === 'ios') {
-      await checkIosItems(); // isLoading state is handled within the context now
-    }
+
+  const createTextNote = (content: string): void => {
+    router.push({
+      pathname: "/text-note/",
+      params: {content: content}, // Pass the content as a parameter
+    });
   };
 
-  console.log('==============================');
-  console.log('sharedItems: ',sharedItems);
-  console.log('==============================');
+  const uploadSharedAudio = async (fileUrl = '') => {
+    console.warn("file URL:", fileUrl)
+    if (fileUrl !== "") {
+      console.warn("condition verified", fileUrl);
+      // Handle file processing (e.g., upload or play audio)
+      const MAX_SIZE_MB = 35 * 1024 * 1024;
+      const fileInfo: any = await FileSystem.getInfoAsync(fileUrl);
+      if (fileInfo?.size > MAX_SIZE_MB) {
+        console.warn(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
+        token && showDialog('', 'Your file is too large (over 35 MB). Please choose a smaller file to continue.')
+        return;
+      }
+      console.warn('file size:', fileInfo?.size);
+      let d: number = 0;
+      //  try{
+      const {sound} = await Audio?.Sound?.createAsync({uri: fileInfo.uri});
+      const status = await sound?.getStatusAsync();
+      if (status?.isLoaded && status?.durationMillis) {
+        console.log("Audio duration (ms):", status.durationMillis);
+        d = status?.durationMillis || 0;
+      }
+      await sound.unloadAsync();
+      console.warn("Audio duration (s):", d);
+      if (!!fileUrl && isBeliever) {
+        console.log("File URL ready to upload:", fileUrl);
+        const tempRecordingDetails = createTempRecDetails({uri: fileUrl, duration: d})
+        dispatch(setTempRecordingData(tempRecordingDetails))
+        dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
+        uploadVoiceNote(tempRecordingDetails)
+        router.replace('/home')
+      } else {
+        setTimeout(() => {
+          checkAndShowPremium()
+        }, 800);
+      }
+    } else {
+      console.warn("❌ No file URL provided.", fileUrl);
+    }
+  }
+
+  useEffect(() => {
+    if (!sharedItems || sharedItems.length === 0) {
+      console.log("[Effect] Exiting: No shared items.");
+      return;
+    }
+
+    // Only proceed if there are items and the list isn't empty
+    const latestItem = sharedItems[0]; // Get the most recent item
+
+    // Use the context's processSharedItem function to handle "process once" logic
+    const processedItem = processSharedItem(latestItem);
+
+    // If the item has already been processed, exit early
+    if (!processedItem) {
+      return;
+    }
+
+    // Clear the displayed items to prevent duplicate processing
+    clearDisplayedItems();
+
+    // --- Handle the item based on type ---
+    if (processedItem.mimeType.includes('text/') && processedItem.content) {
+      createTextNote(processedItem.content);
+      clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
+    } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('audio/')) {
+      // Handle audio file (e.g., navigate to player, process path)
+      uploadSharedAudio(processedItem.path)
+          .then(() => clearNativeCache().catch(e => console.error("Error clearing native cache:", e)))
+          .catch(e => console.error("Error uploading shared audio:", e));
+    } else if (processedItem.type === 'file') {
+      // Handle other file types
+      clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
+    } else {
+      console.log("Received unknown item type:", processedItem.type);
+      clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
+    }
+
+  }, [sharedItems, processSharedItem, clearDisplayedItems, clearNativeCache]);
+
+  // ============== Share Receiver Handles ends ==================
 
   useWatchNetInfo()
   

@@ -252,7 +252,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E933B3EF2DA71ED400197590 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		E933B3EF2DA71ED400197590 /* Exceptions for "VoicenotesShareExtension" folder in "VoicenotesShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -265,7 +265,7 @@
 		E933B3E32DA71ED400197590 /* VoicenotesShareExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E933B3EF2DA71ED400197590 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				E933B3EF2DA71ED400197590 /* Exceptions for "VoicenotesShareExtension" folder in "VoicenotesShareExtension" target */,
 			);
 			explicitFileTypes = {
 			};
@@ -1294,7 +1294,10 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1362,7 +1365,10 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

@@ -97,10 +97,7 @@ class ShareViewController: UIViewController {
               if provider.hasItemConformingToTypeIdentifier(UTType.audio.identifier) ||
                  provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) ||
                  provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) ||
-                 provider.hasItemConformingToTypeIdentifier(UTType.pdf.identifier) ||
-                 // Add other specific file UTIs if needed (e.g., UTType.zip)
-                 provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) || // Generic file URL
-                 provider.hasItemConformingToTypeIdentifier(UTType.data.identifier)       // Generic file data
+                 provider.hasItemConformingToTypeIdentifier(UTType.pdf.identifier)
               {
                   NSLog("Attachment conforms to a FILE type. Calling saveAttachmentAsFile.") // Use logger
                   saveAttachmentAsFile(provider: provider, sharedFolderUrl: sharedFolderUrl) { itemInfo in
@@ -124,7 +121,17 @@ class ShareViewController: UIViewController {
                       dispatchGroup.leave()
                   }
               }
-              // 4. Handle unsupported types
+             // 4. Check for generic File URL or Data (as fallback for other files)
+             else if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) ||
+                       provider.hasItemConformingToTypeIdentifier(UTType.data.identifier)
+             {
+               NSLog("Attachment conforms to generic FILE/DATA type. Calling saveAttachmentAsFile.")
+                 saveAttachmentAsFile(provider: provider, sharedFolderUrl: sharedFolderUrl) { itemInfo in
+                     if let info = itemInfo { processedItems.append(info) }
+                     dispatchGroup.leave()
+                 }
+             }
+              // 5. Handle unsupported types
               else {
                 NSLog("Attachment has unsupported item types: \(provider.registeredTypeIdentifiers)") // Use logger
                   dispatchGroup.leave() // Leave group if unsupported

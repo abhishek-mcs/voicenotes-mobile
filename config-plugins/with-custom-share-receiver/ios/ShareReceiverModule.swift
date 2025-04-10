@@ -37,64 +37,56 @@ class ShareReceiver: NSObject, RCTBridgeModule {
   // Method exposed to React Native to check for and retrieve shared items
   @objc(checkForSharedItems:rejecter:)
   func checkForSharedItems(
-    _ resolve: @escaping RCTPromiseResolveBlock, // Promise fulfillment
-    rejecter reject: @escaping RCTPromiseRejectBlock // Promise rejection
+    _ resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
   ) -> Void {
-    // Access UserDefaults specific to the App Group
+    NSLog("[ShareReceiverModule] checkForSharedItems method ENTERED.")
+
     guard let sharedDefaults = UserDefaults(suiteName: AppGroupId) else {
-        NSLog("[ShareReceiverModule] Error: Could not access shared UserDefaults for group \(AppGroupId).")
+        NSLog("[ShareReceiverModule] ERROR: Could not access shared UserDefaults for group.")
         reject("E_NO_USER_DEFAULTS", "Could not access shared UserDefaults.", nil)
         return
     }
 
-    // Attempt to retrieve data stored by the Share Extension
+    // --- ** ATOMIC READ AND REMOVE LOGIC ** ---
+    // 1. Attempt to read the data
     guard let data = sharedDefaults.data(forKey: SharedItemsUserDefaultsKey) else {
-        // No data found for the key - this is normal if nothing has been shared yet.
-        // Resolve with an empty array.
+        // No data found, resolve empty immediately
+        NSLog("[ShareReceiverModule] No data found in UserDefaults for key. Resolving empty.")
         resolve([])
         return
     }
 
-    do {
-        // Decode the data from UserDefaults back into our Swift struct array
-        let decoder = JSONDecoder()
-        let items = try decoder.decode([SharedItemInfo].self, from: data)
+    // 2. Data WAS found. Immediately remove it from UserDefaults.
+    NSLog("[ShareReceiverModule] Found data (\(data.count) bytes) for key. REMOVING KEY NOW...")
+    sharedDefaults.removeObject(forKey: SharedItemsUserDefaultsKey)
+    // Optional: Verify removal if needed sharedDefaults.synchronize() though often not necessary
 
-        // Convert the Swift struct array into an array of dictionaries suitable for React Native
-        let result = items.map { item -> [String: Any?] in // Use Any? for flexibility
-             var dict: [String: Any?] = [
-                 "id": item.id, // Pass the unique ID
-                 "type": item.type,
-                 "mimeType": item.mimeType // Include mimeType for all types
-             ]
-             // Add type-specific fields
+    // 3. Now, process the 'data' variable we read *before* removing the key.
+    NSLog("[ShareReceiverModule] Key removed. Attempting to decode the retrieved data...")
+    do {
+        let decoder = JSONDecoder()
+        let items = try decoder.decode([SharedItemInfo].self, from: data) // Decode the data read earlier
+        NSLog("[ShareReceiverModule] Successfully decoded \(items.count) items.")
+
+        // Convert to an array of dictionaries for React Native
+        let result = items.map { item -> [String: Any?] in
+             var dict: [String: Any?] = [ "id": item.id, "type": item.type, "mimeType": item.mimeType ]
              if item.type == "file" {
                  dict["fileName"] = item.fileName
-                 // Prepend file:// scheme for React Native <Image>, <Video>, Linking, etc.
                  dict["path"] = (item.path != nil) ? "file://" + item.path! : nil
-             } else { // "text" or "url"
-                 dict["content"] = item.content
-             }
+             } else { dict["content"] = item.content }
              return dict
         }
 
-        // IMPORTANT: Remove the data from UserDefaults AFTER successfully decoding and preparing the result.
-        // This prevents processing the same shared items again on the next check.
-        sharedDefaults.removeObject(forKey: SharedItemsUserDefaultsKey)
-        NSLog("[ShareReceiverModule] Processed and cleared \(result.count) shared items from UserDefaults. Key: \(SharedItemsUserDefaultsKey)")
-
-        // Resolve the promise with the array of item dictionaries
-        resolve(result)
+      NSLog("[ShareReceiverModule] Resolving promise with \(result.count) items.")
+        resolve(result) // Resolve with the processed data
 
     } catch {
-        // An error occurred during decoding (e.g., data format mismatch)
-        NSLog("[ShareReceiverModule] Error decoding shared items: \(error)")
-        // Optionally remove potentially corrupted data from UserDefaults
-         sharedDefaults.removeObject(forKey: SharedItemsUserDefaultsKey)
-         NSLog("[ShareReceiverModule] Removed potentially corrupted data from UserDefaults key: \(SharedItemsUserDefaultsKey)")
-        // Reject the promise with an error message
+      NSLog("[ShareReceiverModule] ERROR decoding shared items (after removing key)")
         reject("E_SHARE_DECODE_ERROR", "Error decoding shared item data: \(error.localizedDescription)", error)
     }
+     // --- ** END OF ATOMIC READ AND REMOVE LOGIC ** ---
   }
 
   // Method exposed to React Native to clear the *files* stored in the App Group container
