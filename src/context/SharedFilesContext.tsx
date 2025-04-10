@@ -170,7 +170,7 @@ export const SharedFilesProvider = ({children}: SharedFilesProviderProps) => {
             }
             setTimeout(() => setIsLoading(false), 0);
         }
-    }, [isLoading, handleReceivedItem]); // Add handleReceivedItem
+    }, [handleReceivedItem]); // Add handleReceivedItem
 
     // --- Android: Check for pending items function ---
     // Uses Native Queuing (Module code from share_receiver_module_kt_pending)
