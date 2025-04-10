@@ -80,7 +80,6 @@ import RecButton from "components/common/recording/rec-button";
 import { useAllRecordings } from "queries/common";
 import SharedInvites from "components/home/share-invites";
 import { set } from "lodash";
-import {useSharedItems} from "../../context/SharedFilesContext";
 import {createTempRecDetails} from "../../utils/createTempRecDetails";
 import * as FileSystem from 'expo-file-system';
 
@@ -132,7 +131,7 @@ const Home = () => {
   })
   const getSharedInvites = useShareInvites(token);
   const sharedInvitesList = getSharedInvites.data?.data?.invites || [];
-  const { action }:any = useLocalSearchParams();
+  const { action, filePath }:any = useLocalSearchParams();
   // const action = useMemo(() => params?.action, [params?.action]);
   const {setTriggerTypingTitle,setTriggerTypingTranscript,expandNote,setExpandNote,noteListScrollRef} = useNoteContext()
   const { Colors,isLightMode } = useTheme()
@@ -149,34 +148,6 @@ const Home = () => {
   const { listenToFirebaseStatus } = useFirebaseRecordingListener()
 
   // ============== Share Receiver Handles ==================
-  // Consume the context
-  const {
-    sharedItems,
-    error,
-    isLoading,
-    clearDisplayedItems,
-    clearNativeCache,
-    processSharedItem,
-  } = useSharedItems();
-
-
-  const createTextNote = (content: string): void => {
-    router.push({
-      pathname: "/text-note/",
-      params: {content: content}, // Pass the content as a parameter
-    });
-  };
-
-  const createImageNote = (filePath: string): void => {
-    router.push({
-      pathname: "/text-note/",
-      params: {
-        content: "",
-        imagePath: filePath ?? ''
-      }
-    });
-  };
-
   const uploadSharedAudio = async (fileUrl = '') => {
     console.warn("file URL:", fileUrl)
     if (fileUrl !== "") {
@@ -216,47 +187,6 @@ const Home = () => {
       console.warn("❌ No file URL provided.", fileUrl);
     }
   }
-
-  useEffect(() => {
-    if (!sharedItems || sharedItems.length === 0) {
-      console.log("[Effect] Exiting: No shared items.");
-      return;
-    }
-
-    // Only proceed if there are items and the list isn't empty
-    const latestItem = sharedItems[0]; // Get the most recent item
-
-    // Use the context's processSharedItem function to handle "process once" logic
-    const processedItem = processSharedItem(latestItem);
-
-    // If the item has already been processed, exit early
-    if (!processedItem) {
-      return;
-    }
-
-    // Clear the displayed items to prevent duplicate processing
-    clearDisplayedItems();
-
-    // --- Handle the item based on type ---
-    if (processedItem.mimeType.includes('text/') && processedItem.content) {
-      createTextNote(processedItem.content);
-      clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
-    } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('audio/') && processedItem.path) {
-      // Handle audio file
-      uploadSharedAudio(processedItem.path)
-          // .then(() => clearNativeCache().catch(e => console.error("Error clearing native cache:", e)))
-          .catch(e => console.error("Error uploading shared audio:", e));
-    } else if (processedItem.type === 'file' && processedItem.mimeType?.includes('image/') && processedItem.path) {
-      // Handle image file - navigate to text-note with image attachment
-      createImageNote(processedItem.path);
-      // clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
-    } else {
-      console.log("Received unknown item type:", processedItem.type);
-      clearNativeCache().catch(e => console.error("Error clearing native cache:", e));
-    }
-
-  }, [sharedItems, processSharedItem, clearDisplayedItems, clearNativeCache]);
-
   // ============== Share Receiver Handles ends ==================
 
   useWatchNetInfo()
@@ -468,6 +398,9 @@ const Home = () => {
           setTimeout(() => {
             onStartRecord({repeat: false, parent_id: recordingParentId});
           }, 500)
+          break;
+        case 'uploadSharedAudio':
+          uploadSharedAudio(filePath)
           break;
         case 'searchDeeplink':
           if (recEnabled) break; 

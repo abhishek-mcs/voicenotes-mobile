@@ -36,6 +36,13 @@ class MainActivity : ReactActivity() {
     private var initialIntentHandled = false
     // --- Share Receiver Members End ---
 
+    // --- Companion Object for Static Pending Data ---
+    companion object {
+        // Static variable to hold event data if JS isn't ready
+        var pendingShareEventData: WritableMap? = null
+    }
+    // ---------------------------------------------
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set the theme to AppTheme BEFORE onCreate to support
         // coloring the background, status bar, and navigation bar.
@@ -284,23 +291,46 @@ class MainActivity : ReactActivity() {
 
     // --- Share Receiver sendEvent Start ---
     private fun sendEvent(eventName: String, params: WritableMap?) {
-         val instanceManager = reactNativeHost?.reactInstanceManager ?: return Unit.also {
-             Log.e(logTag, "Cannot send event '$eventName', ReactNativeHost is null.")
+         val instanceManager = reactNativeHost?.reactInstanceManager
+         // Check instanceManager first
+         if (instanceManager == null) {
+             Log.e(logTag, "sendEvent: Cannot send event '$eventName', ReactInstanceManager is null. Queuing event.")
+             pendingShareEventData = params // Queue if instance manager isn't even there
+             return
          }
-         val reactContext = instanceManager.currentReactContext
 
-        if (reactContext != null && reactContext.hasActiveReactInstance()) {
-             Log.d(logTag, "Sending event '$eventName' to JS.")
+         val reactContext = instanceManager.currentReactContext
+         var contextIsReady = false // Flag to check readiness
+
+         if (reactContext != null) {
+             // Check both context existence AND if it has an active JS instance
+             contextIsReady = reactContext.hasActiveReactInstance()
+             Log.d(logTag, "sendEvent: Attempting to send '$eventName'. ReactContext found. Has active instance: $contextIsReady")
+         } else {
+             Log.w(logTag, "sendEvent: Attempting to send '$eventName'. ReactContext is NULL.")
+         }
+
+        if (contextIsReady) {
+             // Context seems ready, attempt direct emit
+             Log.i(logTag, "sendEvent: ReactContext READY. Emitting '$eventName' directly.")
              try {
-                  reactContext
+                  reactContext!! // Safe to use non-null assertion because contextIsReady is true
                       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                       .emit(eventName, params)
+                  // Clear any potentially stale pending data only after successful emit
+                  if (pendingShareEventData != null) {
+                     Log.d(logTag, "sendEvent: Clearing potentially stale pending data after direct emit.")
+                     pendingShareEventData = null
+                  }
              } catch (e: Exception) {
-                  Log.e(logTag, "Error emitting event $eventName", e)
+                  Log.e(logTag, "sendEvent: Error emitting event $eventName directly. Queuing as fallback.", e)
+                  // Fallback: Queue if emit fails unexpectedly
+                  pendingShareEventData = params
              }
         } else {
-            Log.w(logTag, "Cannot send event '$eventName', ReactContext not available or instance not active.")
-            // TODO: Consider queuing events if context is not ready during startup.
+            // Context not ready, queue the event data
+            Log.w(logTag, "sendEvent: ReactContext NOT READY. Queuing event '$eventName'. Storing data.")
+            pendingShareEventData = params // Store the data statically
         }
     }
     // --- Share Receiver sendEvent End ---

@@ -19,8 +19,8 @@ interface AppProviderProps {
 
 const AppProvider: React.FC<AppProviderProps> = ({ children }) => (
     <Provider store={store}>
-        <SharedFilesProvider>
-            <PersistGate loading={null} persistor={persistor}>
+        <PersistGate loading={null} persistor={persistor}>
+            <SharedFilesProvider>
                 <KeyboardProvider statusBarTranslucent={true}>
                     <ContextProvider>
                         <QueryClientProvider client={queryClient} contextSharing={true}>
@@ -28,8 +28,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => (
                         </QueryClientProvider>
                     </ContextProvider>
                 </KeyboardProvider>
-            </PersistGate>
-        </SharedFilesProvider>
+            </SharedFilesProvider>
+        </PersistGate>
     </Provider>
 );
 
