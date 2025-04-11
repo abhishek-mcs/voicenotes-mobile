@@ -176,7 +176,7 @@ const Home = () => {
         const tempRecordingDetails = createTempRecDetails({uri: fileUrl, duration: d})
         dispatch(setTempRecordingData(tempRecordingDetails))
         dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
-        // uploadVoiceNote(tempRecordingDetails)
+        uploadVoiceNote(tempRecordingDetails)
         // router.replace('/home')
       } else {
         setTimeout(() => {
