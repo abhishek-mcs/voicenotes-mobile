@@ -287,7 +287,7 @@ import java.util.UUID
     
     // --- Companion Object for Static Pending Data ---
     companion object {
-        // Static variable to hold event data if JS isn't ready
+        @Volatile // Static variable to hold event data if JS isn't ready
         var pendingShareEventData: WritableMap? = null
     }
     // ---------------------------------------------
@@ -381,9 +381,13 @@ import java.util.UUID
         if (processed && !itemsArray.toArrayList().isEmpty()) {
             Log.d(logTag, "Processed \${itemsArray.size()} items from intent. Emitting event 'onShareReceived'.")
             val eventPayload = Arguments.createMap().apply { putArray("items", itemsArray) }
+            // *** Store directly in static variable ***
+            pendingShareEventData = eventPayload
             sendEvent("onShareReceived", eventPayload)
         } else if (processed) {
              Log.d(logTag, "Intent processed but resulted in zero items.")
+             // Clear any old pending data if current share is empty
+             pendingShareEventData = null
         } else {
              Log.d(logTag, "Intent not processed as a relevant share action.")
         }

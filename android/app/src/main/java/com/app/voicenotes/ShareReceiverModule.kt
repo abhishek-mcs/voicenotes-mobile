@@ -51,6 +51,26 @@ class ShareReceiverModule(reactContext: ReactApplicationContext) : ReactContextB
         }
     }
 
+        // --- ADD method for JS to pull data ---
+        @ReactMethod
+        fun getPendingSharedData(promise: Promise) {
+            Log.i(logTag, "getPendingSharedData called by JS.")
+            val pendingData = MainActivity.pendingShareEventData // Access static variable
+
+            if (pendingData != null) {
+                Log.w(logTag, "getPendingSharedData: Pending data FOUND. Returning and clearing.")
+                // Clear the static variable *immediately* after reading it into local var
+                MainActivity.pendingShareEventData = null
+                // Resolve the promise with the data we just read
+                promise.resolve(pendingData)
+            } else {
+                Log.d(logTag, "getPendingSharedData: No pending data found.")
+                // Resolve with null or an empty map to indicate no data
+                promise.resolve(null) // JS needs to handle null response
+            }
+        }
+        // ------------------------------------
+
     // Method exposed to React Native to clear files stored in the app's cache directory
     @ReactMethod
     fun clearSharedFilesCache(promise: Promise) {

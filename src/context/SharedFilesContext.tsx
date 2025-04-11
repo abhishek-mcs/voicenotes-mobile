@@ -188,6 +188,74 @@ export const SharedFilesProvider = ({children}: SharedFilesProviderProps) => {
         }
     }, []); // No dependencies needed here
 
+    // --- Unified Function to fetch and process pending data ---
+    const fetchAndProcessPendingData = useCallback(async (triggerSource: string) => {
+        console.log(`[Context] fetchAndProcessPendingData triggered by: ${triggerSource}. Current isLoading: ${isLoading}`);
+        if (isLoading) {
+            return;
+        } // Prevent concurrent runs
+
+        let getPromise: Promise<any | null | SharedItem[]>; // Type depends on platform
+
+        if (Platform.OS === 'ios') {
+            if (!ShareReceiver?.checkForSharedItems) return;
+            console.log(`[Context] Calling iOS checkForSharedItems...`);
+            getPromise = ShareReceiver.checkForSharedItems(); // Returns array
+        } else if (Platform.OS === 'android') {
+            if (!ShareReceiver?.getPendingSharedData) return;
+            console.log(`[Context] Calling Android getPendingSharedData...`);
+            getPromise = ShareReceiver.getPendingSharedData(); // Returns map or null
+        } else {
+            return; // Unsupported platform
+        }
+
+        setIsLoading(true);
+        setError(null);
+        try {
+            const result = await getPromise;
+            console.log(`[Context] Native fetch returned (${Platform.OS}):`, JSON.stringify(result));
+
+            let itemsToProcess: SharedItem[] = [];
+            if (Platform.OS === 'ios' && result && Array.isArray(result)) {
+                itemsToProcess = result;
+            } else if (Platform.OS === 'android' && result?.items && Array.isArray(result.items)) {
+                // Android native method returns a map { items: [...] }
+                itemsToProcess = result.items;
+            } else if (Platform.OS === 'android' && result === null) {
+                console.log("[Context] Android returned null (no pending data).");
+                itemsToProcess = [];
+            } else if (result) {
+                console.warn("[Context] Received unexpected data format from native:", result);
+            }
+
+            if (itemsToProcess.length > 0) {
+                const latestItem = itemsToProcess[0]; // Process only the first item if multiple returned
+                if (latestItem?.id && latestItem.id !== processedItemIdRef.current) {
+                    console.log(`[Context] Found NEW shared item ID: ${latestItem.id}. Processing...`);
+                    processedItemIdRef.current = latestItem.id;
+                    handleReceivedItem(latestItem); // Process the item
+                } else if (latestItem?.id) {
+                    console.log(`[Context] Fetched item ID ${latestItem.id}, but it was already processed.`);
+                } else {
+                    console.warn(`[Context] Fetched item without valid ID.`);
+                }
+            } else {
+                console.log(`[Context] No new items fetched.`);
+            }
+
+            // Clear the JS state regardless, as native source should be cleared now
+            console.log("[Context] Clearing JS sharedItems state after fetch attempt.");
+            setSharedItems([]);
+
+        } catch (e: any) {
+            console.error(`[Context] Error during fetchAndProcessPendingData (${Platform.OS}):`, e);
+            setError(`Check Error (${Platform.OS}): ${e.message || 'Unknown error'}`);
+        } finally {
+            console.log(`[Context] fetchAndProcessPendingData (${triggerSource}) finished.`);
+            setTimeout(() => setIsLoading(false), 0);
+        }
+    }, [handleReceivedItem]); // No dependencies needed here
+
     // --- iOS: AppState listener ---
     useEffect(() => {
         if (Platform.OS !== 'ios') return;
@@ -238,7 +306,7 @@ export const SharedFilesProvider = ({children}: SharedFilesProviderProps) => {
                     }
                 }
             );
-        }, 300); // 300ms delay as requested
+        }, 0); // delay as requested
 
         // Check for pending events *once* after listener is added
         checkForAndroidPendingItems('Initial mount');
@@ -262,6 +330,7 @@ export const SharedFilesProvider = ({children}: SharedFilesProviderProps) => {
                 } else if (Platform.OS === 'android') {
                     // Trigger the check for pending Android events
                     checkForAndroidPendingItems('Authenticated Effect');
+                    fetchAndProcessPendingData('Authenticated Effect');
                 }
             }, 150); // Small delay (adjust if needed)
 
