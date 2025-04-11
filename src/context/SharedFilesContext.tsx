@@ -306,7 +306,7 @@ export const SharedFilesProvider = ({children}: SharedFilesProviderProps) => {
                     }
                 }
             );
-        }, 0); // delay as requested
+        }, 300); // delay as requested
 
         // Check for pending events *once* after listener is added
         checkForAndroidPendingItems('Initial mount');

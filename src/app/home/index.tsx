@@ -149,18 +149,18 @@ const Home = () => {
 
   // ============== Share Receiver Handles ==================
   const uploadSharedAudio = async (fileUrl = '') => {
-    console.warn("file URL:", fileUrl)
+    console.log("file URL:", fileUrl)
     if (fileUrl !== "") {
-      console.warn("condition verified", fileUrl);
+      console.log("condition verified", fileUrl);
       // Handle file processing (e.g., upload or play audio)
       const MAX_SIZE_MB = 35 * 1024 * 1024;
       const fileInfo: any = await FileSystem.getInfoAsync(fileUrl);
       if (fileInfo?.size > MAX_SIZE_MB) {
-        console.warn(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
+        console.log(`❌ File is too large! Maximum allowed size is ${MAX_SIZE_MB}MB.`);
         token && showDialog('', 'Your file is too large (over 35 MB). Please choose a smaller file to continue.')
         return;
       }
-      console.warn('file size:', fileInfo?.size);
+      console.log('file size:', fileInfo?.size);
       let d: number = 0;
       //  try{
       const {sound} = await Audio?.Sound?.createAsync({uri: fileInfo.uri});
@@ -170,21 +170,21 @@ const Home = () => {
         d = status?.durationMillis || 0;
       }
       await sound.unloadAsync();
-      console.warn("Audio duration (s):", d);
+      console.log("Audio duration (s):", d);
       if (!!fileUrl && isBeliever) {
         console.log("File URL ready to upload:", fileUrl);
         const tempRecordingDetails = createTempRecDetails({uri: fileUrl, duration: d})
         dispatch(setTempRecordingData(tempRecordingDetails))
         dispatch(setRecordingList([tempRecordingDetails, ...recordingList]));
-        uploadVoiceNote(tempRecordingDetails)
-        router.replace('/home')
+        // uploadVoiceNote(tempRecordingDetails)
+        // router.replace('/home')
       } else {
         setTimeout(() => {
           checkAndShowPremium()
         }, 800);
       }
     } else {
-      console.warn("❌ No file URL provided.", fileUrl);
+      console.log("❌ No file URL provided.", fileUrl);
     }
   }
   // ============== Share Receiver Handles ends ==================

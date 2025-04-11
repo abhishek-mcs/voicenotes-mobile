@@ -19,11 +19,8 @@ export const createImageNote = (filePath: string): void => {
 };
 
 export const createAudioNote = (fileUrl = '') => {
-    router.push({
-        pathname: "/home/",
-        params: {
+    router.setParams({
             action: `uploadSharedAudio-${Date.now()}`,
             filePath: fileUrl ?? ''
-        }
     });
 }
